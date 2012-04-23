@@ -1,0 +1,25 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Server url:</b>
+  <%= @dataset.server_url %>
+</p>
+
+<p>
+  <b>Identifier:</b>
+  <%= @dataset.identifier %>
+</p>
+
+<p>
+  <b>City:</b>
+  <%= @dataset.city_id %>
+</p>
+
+<p>
+  <b>Finalized:</b>
+  <%= @dataset.finalized %>
+</p>
+
+
+<%= link_to 'Edit', edit_dataset_path(@dataset) %> |
+<%= link_to 'Back', datasets_path %>

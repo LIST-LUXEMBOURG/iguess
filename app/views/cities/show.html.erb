@@ -1,0 +1,45 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Name:</b>
+  <%= @city.name %>
+</p>
+
+<p>
+  <b>Url:</b>
+  <%= @city.url %>
+</p>
+
+<p>
+  <b>Zoom:</b>
+  <%= @city.zoom %>
+</p>
+
+<p>
+  <b>Srs:</b>
+  <%= @city.srs %>
+</p>
+
+<p>
+  <b>Minx:</b>
+  <%= @city.minx %>
+</p>
+
+<p>
+  <b>Miny:</b>
+  <%= @city.miny %>
+</p>
+
+<p>
+  <b>Maxx:</b>
+  <%= @city.maxx %>
+</p>
+
+<p>
+  <b>Maxy:</b>
+  <%= @city.maxy %>
+</p>
+
+
+<%= link_to 'Edit', edit_city_path(@city) %> |
+<%= link_to 'Back', cities_path %>

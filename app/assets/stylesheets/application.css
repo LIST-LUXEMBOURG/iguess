@@ -1,0 +1,226 @@
+/*
+ * This is a manifest file that'll automatically include all the stylesheets available in this directory
+ * and any sub-directories. You're free to add application-wide styles to this file and they'll appear at
+ * the top of the compiled file, but it's generally better to create a new file per style scope.
+ *= require_self
+ *= require vendor
+ *= require_tree .
+*/
+
+
+body {
+  font: 62.5% "Trebuchet MS", sans-serif;  
+  margin: 0px;
+}
+
+/* Body in "normal" mode */
+body.basic {
+
+  min-width: 900px;
+  width: 100%; 
+  
+  background-image: url(images/buildings.png); 
+  background-repeat:repeat-x; 
+  background-position:bottom;
+}
+
+/* Body when displayed in a popup */
+body.popup {
+  width: 100%;
+}
+
+/* get rid of those system borders being generated for A tags */
+a:active {
+  outline:none;
+}
+
+:focus {
+  -moz-outline-style:none;
+}
+
+
+.main_body {
+  margin: 1em;
+}
+
+
+/* H1 text at top of each page */
+.page_header {
+  margin-bottom: 0px;
+}
+
+/* Explanatory text just below each header */
+.page_subheader {
+  margin-bottom: 1em;
+}
+    
+    
+.hint {
+  font-size: .85em;
+}
+   
+
+.dataset_body, .front_page_col_body {
+  padding: 8px;
+  margin-bottom: 10px;
+  
+}
+
+/* Differentiate mod and dataset pages by making the bodies a slightly different color */
+.dataset_body { 
+  background-color: #F7EDF7;
+  padding-left: .5em;
+}
+
+.datset_name {
+  font-weight: bold;
+  padding-left: 1em;
+}
+
+.dataset_descr {
+  padding-top: .25em;
+  padding-bottom: .5em;
+  padding-left: .5em;
+}
+
+.big_button {
+  font-size: 30px; 
+  color: red; 
+  margin-bottom: 20px;
+  margin-left: 0px;
+  margin-right: 25px;
+  padding: 12px;
+  display: inline;
+}
+
+.button_to {
+  display: inline;
+}
+
+.button_to div {
+  display: inline;
+}
+
+.front_page_col_header {
+/*  background-color: #BBF;*/
+  font-size: 200%;
+  text-align: center;
+  padding-bottom: .25em;
+  padding-top: .5em;
+/*    color: white;*/
+/*    font-weight: bold;*/
+/*    text-shadow: 1px 1px 2px #555;*/
+}
+
+.front_page_col_body {
+/*  background-color: #EFF;*/
+/*border-bottom: 1px gray solid;*/
+}
+
+
+/* Banner across top of every page, holds site title, logos, city picklist, navbar, etc. */
+#top_banner {
+ text-align: center;
+ color: white;
+ vertical-align: middle;
+ background-color: #393; 
+ padding-top: .5em;
+}
+
+
+.form_error_message {
+  color: red;
+}
+
+
+.loading_indicator {
+  padding: 8px 8px;
+  background-image: url(images/loading_spinner.gif);
+  background-repeat: no-repeat;
+  background-position:center center;
+}
+
+
+.explanation {
+  display: block;
+  padding: 12px 1em 18px 50px;
+  margin: 0.25em 0 1.5em 0;
+  background: #D5E9F6 url(images/info_icon.svg) no-repeat left center;
+  background-size: 32px 32px;
+  background-position: 10px 40%;    /* Distance from the left */
+}
+
+.explanation ul {
+  list-style: square/* url("images/grey_bullet.gif")*/;
+}
+
+.explanation li {
+  margin-left: 20px;
+}
+
+
+.center {
+  text-align: center;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.top {
+  vertical-align:text-top;
+}
+
+.two_col_table_left {
+  padding: 15px; 
+  background: #9c9;
+}
+
+.two_col_table_right {
+  background: #c9c; 
+  padding:15px; 
+}
+
+.dataset_type_def dt {
+  font-weight: bold;
+  width: 173px;
+  text-align: right;
+  white-space: nowrap;
+  color: green;
+}
+
+.dataset_type_def dd {
+  margin: -18px 0 2px 0;
+  padding-left: 180px;
+  min-height: 25px;
+}
+
+
+.dataset_type_def .title dt {
+  font-weight: bold;
+  width: 173px;
+  text-align: right;
+  white-space: nowrap;
+  color: green;
+  font-size: 25px;
+  background-color: #cccccc;
+}
+
+.dataset_type_def .title dd {
+  margin: -42px 0 2px 0;
+  padding-left: 180px;
+  min-height: 25px;
+  font-size: 30px;
+  background-color: #cccccc;
+}
+
+
+.click_to_edit {
+  padding-left: 10px;
+  color: #999; 
+}
+
+.hidden {
+  visibility: hidden;
+}
+

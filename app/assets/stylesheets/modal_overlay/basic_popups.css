@@ -1,0 +1,47 @@
+/*
+ * Styles for define new param modal popup
+ * Based on SimpleModal Basic Modal Dialog
+ */
+
+.hidden-modal-content {
+  display:none;
+}
+
+/* Overlay */
+#simplemodal-overlay {
+  background-color:#000; 
+  cursor:wait;
+}
+
+/* Container */
+#simplemodal-container {
+  height:400px; 
+  width:600px; 
+  background-color:#333;  /* Color of inner border */     
+  border:4px solid #444;  /* Color and thickness of outer border */
+  padding:20px;           /* Thickness of inner border */
+/*  z-index:3199;*/  /* ==> set in code; see jquery-simplemodal.js */
+}
+
+.simplemodal-iframe { 
+  border: 1px solid #111;
+}
+
+/* Close button */
+#simplemodal-container a.modalCloseImg {
+  background:url(images/x.png) no-repeat; 
+  width:25px; 
+  height:29px; 
+  display:inline; 
+  z-index:3200; 
+  position:absolute; 
+  top:-15px; 
+  right:-16px; 
+  cursor:pointer;
+}
+
+/* Not sure these are used: */
+#simplemodal-container a {
+  color:#ddd;
+}
+  

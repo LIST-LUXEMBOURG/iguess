@@ -1,0 +1,12 @@
+/* tooltip styling. by default the element to be styled is .tooltip  */
+.tooltip {
+  display: none;
+  background: transparent url(images/tooltips/black.png);
+  position: bottom center;
+  font-size: 12px;
+  height: 60px;
+  width: 160px;
+  padding: 25px;
+  color: #fff; 
+  z-index: 99999;   /* Or so... */
+}

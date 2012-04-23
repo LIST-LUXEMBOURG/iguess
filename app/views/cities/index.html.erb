@@ -1,0 +1,37 @@
+<h1>Listing cities</h1>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Url</th>
+    <th>Zoom</th>
+    <th>Srs</th>
+    <th>Minx</th>
+    <th>Miny</th>
+    <th>Maxx</th>
+    <th>Maxy</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @cities.each do |city| %>
+  <tr>
+    <td><%= city.name %></td>
+    <td><%= city.url %></td>
+    <td><%= city.zoom %></td>
+    <td><%= city.srs %></td>
+    <td><%= city.minx %></td>
+    <td><%= city.miny %></td>
+    <td><%= city.maxx %></td>
+    <td><%= city.maxy %></td>
+    <td><%= link_to 'Show', city %></td>
+    <td><%= link_to 'Edit', edit_city_path(city) %></td>
+    <td><%= link_to 'Destroy', city, confirm: 'Are you sure?', method: :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New City', new_city_path %>

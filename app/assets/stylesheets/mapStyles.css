@@ -1,0 +1,80 @@
+/***********************************************************************
+ * Author: Luís de Sousa
+ * Date: 06-01-2011
+ * 
+ * Contains the style sheets of the map and its controls.
+ */ 	
+
+/* ----------- Toolbar ----------- */
+
+.x-panel-tbar {
+	height:30px !important;
+}
+        	
+/* ----------- Buttons ----------- */
+
+.maxExtent {
+    background-image:url(images/mapStyles/icon_zoomfull.png) !important;
+    height:20px !important;
+    width:20px !important;
+}
+.zoomin {
+    background-image:url(images/mapStyles/icon_zoomin.png) !important;
+    height:20px !important;
+    width:20px !important;
+}
+.zoomout {
+    background-image:url(images/mapStyles/icon_zoomout.png) !important;
+    height:20px !important;
+    width:20px !important;
+}
+.pan {
+    background-image:url(images/mapStyles/icon_pan.png) !important;
+    height:20px !important;
+    width:20px !important;
+}
+.identify {
+    background-image:url(images/mapStyles/icon_info.png) !important;
+    height:20px !important;
+    width:20px !important;
+}
+.back {
+    background-image:url(images/mapStyles/resultset_previous.png) !important;
+    height:20px !important;
+    width:20px !important;
+}
+.next {
+    background-image:url(images/mapStyles/resultset_next.png) !important;
+    height:20px !important;
+    width:20px !important;
+}
+.print {
+    background-image:url(images/mapStyles/printer_color.png) !important;
+    height:20px !important;
+    width:20px !important;
+}
+
+/* ----------- Legend ----------- */
+
+.legend {
+    padding-left: 18px;
+}
+.x-tree-node-el {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 3px;
+}
+.x-tree-ec-icon {
+    width: 3px;
+}
+.gx-tree-layer-icon {
+    display: none;
+}
+
+/* ----------- Mouse Position ----------- */
+
+div.olControlMousePosition {
+  background-color: #ffffff;
+  font-size: smaller;
+  font-weight: bold;
+  opacity:0.7;
+}

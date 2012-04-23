@@ -1,0 +1,25 @@
+<%= form_for(@wps_server) do |f| %>
+  <% if @wps_server.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@wps_server.errors.count, "error") %> prohibited this wps_server from being saved:</h2>
+
+      <ul>
+      <% @wps_server.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :url %><br />
+    <%= f.text_field :url %>
+  </div>
+  <div class="field">
+    <%= f.label :descr %><br />
+    <%= f.text_area :descr %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

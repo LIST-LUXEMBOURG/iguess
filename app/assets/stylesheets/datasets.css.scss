@@ -1,0 +1,48 @@
+// Place all the styles related to the Datasets controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+
+.registered_dataset {
+  background: #CFC;
+  float:left;
+  width: 250px;
+  height: 170px;
+  padding: 15px;
+}
+
+.unregistered_dataset {
+  background: #FCC;
+  float:left;
+  width: 250px;
+  height: 170px;
+  padding: 15px;
+}
+
+.dataset_title {
+  font-weight: bold; 
+}
+
+.dataset_abstract {
+  
+}
+
+.dataset_services_available {
+  
+}
+
+.dataset_srs {
+  
+}
+
+.sample-map {
+  width: 300px;
+  height: 200px;
+  border: solid black 1px;
+  float:right;
+}
+
+.wms-item {
+  float: left;
+  margin: 10px;
+}

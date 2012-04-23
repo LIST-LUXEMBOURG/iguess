@@ -1,0 +1,25 @@
+<h1>Listing wps_servers</h1>
+
+<table>
+  <tr>
+    <th>Url</th>
+    <th>Descr</th>
+    <th></th>
+    <th></th>
+    <th></th>
+  </tr>
+
+<% @wps_servers.each do |wps_server| %>
+  <tr>
+    <td><%= wps_server.url %></td>
+    <td><%= wps_server.descr %></td>
+    <td><%= link_to 'Show', wps_server %></td>
+    <td><%= link_to 'Edit', edit_wps_server_path(wps_server) %></td>
+    <td><%= link_to 'Destroy', wps_server, confirm: 'Are you sure?', method: :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New Wps server', new_wps_server_path %>

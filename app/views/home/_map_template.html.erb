@@ -1,0 +1,25 @@
+<%= javascript_include_tag '000_includesWebMapping' %>
+<%= javascript_include_tag '001_decimalToDegrees' %>
+<%= javascript_include_tag 'homeMap' %>
+
+<div id="data">
+<table id="dataSetsTable" class="zebra sortable" width="180px"> 
+    <thead>
+      <tr><th>Dataset name</th></tr>
+    </thead>
+    <tbody>
+      <% @datasets.each do |d| %>
+        <tr>
+          <td><a href=# onclick="addNewLayer('<%= d.name%>','<%= d.url%>','<%= d.layer_name%>')"><%= d.name%></a> </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  A new layer can be added to the map by clicking on the dataset name.
+</div>
+
+<!-- A precise height in pixels must be provided for this div, otherwise 
+   the browser won't be able to calculate it and the map doesn't get rendered.     -->
+<div style="float: left; width:<%= width %>; height:<%= height %>; margin:6px;" id="MiniMap">
+	<div id="mapPanel" class="olControlPanel"></div>
+</div>

@@ -1,0 +1,22 @@
+#Tue Apr 17 13:51:44 CEST 2012
+additionIndicationColor=37,59,34
+htmlTagPairOccurrenceIndicationHighlighting=false
+changeIndicationColor=37,59,34
+xmlTagPairOccurrenceIndicationColor=94,94,94
+rubyBlockPairOccurrenceIndication=true
+eclipse.preferences.version=1
+pydevOccurrenceIndication=true
+pydevOccurrenceIndicationTextStyle=BOX
+rubyBlockPairOccurrenceIndicationColor=94,94,94
+htmlTagPairOccurrenceIndication=true
+htmlTagPairOccurrenceIndicationTextStyle=BOX
+rubyBlockPairOccurrenceIndicationHighlighting=false
+xmlTagPairOccurrenceIndicationTextStyle=BOX
+xmlTagPairOccurrenceIndicationHighlighting=false
+deletionIndicationColor=66,14,9
+searchResultIndicationColor=94,101,105
+pydevOccurrenceHighlighting=false
+rubyBlockPairOccurrenceIndicationTextStyle=BOX
+xmlTagPairOccurrenceIndication=true
+pydevOccurrenceIndicationColor=94,94,94
+htmlTagPairOccurrenceIndicationColor=94,94,94

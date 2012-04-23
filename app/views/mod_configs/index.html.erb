@@ -1,0 +1,154 @@
+<h1 class="page_header">Modules</h1>
+<div class="page_subheader"></div>
+
+
+<div class="explanation">
+  <ul style="list-style-type: square;">
+  <li>Users can create Modules from a Module Template by specifying all inputs and outputs that template requires.</li> 
+  <li>A list of Module Templates can be found in the Module Catalog.</li>
+  </ul>
+</div>
+
+
+<ul class="tabs">
+  <li><a class="l" id="t1" href="#configured_modules_tab">Configured Modules</a></li>
+  <li><a class="l" id="t2" href="#module_catalog_tab">Module Catalog</a></li>
+</ul>
+
+
+<script type="text/javascript">
+  var urls = [<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>];
+  var responses = 0;
+
+  // For each url in our database, start probing the server
+  for(var i = 0; i < urls.length; i++) {  WPS.probeWPS(urls[i], onDescribedProcess);  }
+
+  // This function is called when the describeProcesses response arrives
+  // It will be called repeatedly as responses arrive
+  function onDescribedProcess(process) 
+  {
+    responses++;
+    
+    if(responses == WPS.getResponsesExpected()) {
+      $('#wps-probing-indicator').hide();
+    }
+    
+    var description = "<hr><h3>" + process.title + "</h3>";
+    description += process.abstract;
+    
+    
+    description += '<table border=0 cellpadding=5>';
+    
+    if(process.inputs.length == 0) {
+      description += '<tr><th colspan=2 class="center">No Inputs</th></tr>';
+    } else {
+      description += '<tr><th colspan=2 class="center">Inputs</th></tr>';
+      description += '<tr style="border: 0"><th>Name</th><th>Description</th></tr>';
+
+      for(var i = 0; i < process.inputs.length; i++) {
+        description += getDescrRow(process.inputs[i]);
+      }
+    }
+    
+    if(process.outputs.length == 0) {
+      description += '<tr><th colspan=2 class="center">No Outputs</th></tr>';
+    } else {
+      description += '<tr><th colspan=2 class="center">Outputs</th></tr>';
+      description += '<tr style="border: 0"><th>Name</th><th>Description</th></tr>';
+
+      for(var i = 0; i < process.outputs.length; i++) {
+        description += getDescrRow(process.outputs[i]);
+      }
+    }
+    
+    description += '</table>';
+    
+    description += '<a href="#">Create new configuration for this service</a>';
+    
+    document.getElementById("wps-result").innerHTML += description;
+  };
+  
+  
+  // Formatting helper
+  function getDescrRow(record) 
+  {
+      var title = record.title ? record.title + ' [' + record.identifier + ']' : record.identifier;
+      var abstract = record.abstract ? record.abstract : "-";
+      
+      return '<tr><td style="border: 1px solid black">' + title + '</td>' + 
+                 '<td style="border: 1px solid black">' + abstract + '</td></tr>';
+  }
+
+</script>
+
+
+
+<div id="tab-panes" class="tab-pane-container">
+  <div id="configured_modules_tab">
+    <% if @mod_configs.empty? %>
+      No modules have been configured yet for Aberdeen.  <%= link_to 'Click here to create one.', new_mod_config_path %> 
+    <% else %>
+    
+    <div class="page_subheader">Modules that have been configured for Aberdeen</div>
+    
+      <%= render :partial => '/datasets/sortable_table_code.html.erb', 
+                 :locals => { :initialSortlist => "[[0,0]], headers: { 3: {sorter: false}}" } %> 
+    
+      <table id="sortable_table" class="zebra sortable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Based on</th>
+            <th>Status</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+      
+        <tbody>
+          <% @mod_configs.each do |mod_config| %>
+            <tr>
+              <td style="white-space: nowrap;"><%= link_to mod_config.name, mod_config %></td>
+              <td style="white-space: nowrap;"><%= link_to mod_config.mod.name, mod_config.mod %></td>
+              <td style="white-space: nowrap;"><%= mod_config.get_status_name() %></td>
+              <td><%= mod_config.notes %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    
+      <br />
+      
+      <%= link_to 'New Module Configuration', new_module_configuration_path %>
+    <% end %>
+  </div>
+  
+  <div id="module_catalog_tab">
+    <div>
+      Catalog of modules found on the following servers:
+      <ul>
+        <% @wps_servers.each do |s| %>
+          <li><%= s.url %></li>
+        <% end %>
+      </ul>
+      <br>
+      <a href="#">Add new server</a>
+    </div>
+
+    <div id="wps-probing-indicator">Probing servers... <img src="assets/loading_spinner.gif"></div>
+    <div id="wps-result"></div>
+
+    <%#= render :partial => '/mods/mods_catalog', :locals => { :all_mods => @mods } %>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,15 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <b>Url:</b>
+  <%= @wps_server.url %>
+</p>
+
+<p>
+  <b>Descr:</b>
+  <%= @wps_server.descr %>
+</p>
+
+
+<%= link_to 'Edit', edit_wps_server_path(@wps_server) %> |
+<%= link_to 'Back', wps_servers_path %>
