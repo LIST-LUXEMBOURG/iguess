@@ -50,16 +50,20 @@
       row.append(cell);
       
       cell = $(document.createElement('td'));
-      console.log(items[i]);
       
-      var control = findAllDatasets(items[i].identifier);
       
-      if(control.children().length == 0) {
-        cell.text('No registered datasets of this type');
-      } 
-      else {
-        cell.html(control);
-      }
+      <% if mode == :input %>
+        var control = findAllDatasets(items[i].identifier);
+        
+        if(control.children().length == 0) {
+          cell.text('No registered datasets of this type');
+        } 
+        else {
+          cell.html(control);
+        }
+      <% else %>
+        cell.html('<input type="text">');      
+      <% end %>
       
       
       row.append(cell);

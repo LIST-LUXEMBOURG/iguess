@@ -73,8 +73,8 @@
       layerStores['<%= url %>']  = [ ];
       serverStatus['<%= url %>'] = [ ];
       
-      WMS.updateLayerList('<%= url %>', success_<%= index %>, failure_<%= index %>); 
-      WFS.updateLayerList('<%= url %>', success_<%= index %>, failure_<%= index %>);
+      WMS.updateLayerList('<%= url.gsub(/\\/, '\\\\\\') %>', success_<%= index %>, failure_<%= index %>); 
+      WFS.updateLayerList('<%= url.gsub(/\\/, '\\\\\\') %>', success_<%= index %>, failure_<%= index %>);
       
       <%# Find every dataset that uses this url; this method might be inefficient with many records, but is ok for our use %>
       layerDatasets['<%= url %>'] = [<%= @datasets.reject {|d| d.server_url != url}
@@ -102,17 +102,17 @@
     
     function setLayerStatus(id, serverUrl) 
     {
+
       // Wait until we've heard back from all servers
       if(serverStatus[serverUrl].length < 2) {
         return;
       }
-      
+    
       serverUrlId = serverUrlIdLookup[serverUrl];
       $('.data_status_probing_' + serverUrlId).hide();    // No longer probing this server!
       
       
-      if(!serverStatus[serverUrl][0] || !serverStatus[serverUrl][1]) {    // Server failed, all datasets kaput
-        // alert(serverUrl + ' failed');
+      if(!(serverStatus[serverUrl][0] || serverStatus[serverUrl][1])) {    // Server failed, all datasets kaput
         $('.data_status_not_responding_' + serverUrlId).show();
         $('.dataset-name-' + serverUrlId).text("Unknown");
         return;
@@ -136,7 +136,7 @@
             
             var identifier = record.get("name");
             
-            alert(datasets[i] + '==='+ identifier);
+            //alert(serverUrl + ' PPP ' + datasets[i] + '==='+ identifier);
             if(datasets[i] == identifier) {
               var railsId = railsIdLookup[makeKey(serverUrl, identifier)];
               
@@ -183,7 +183,7 @@
             <% if d.status != 'OK' %>
               <%= d.status %>
             <% else %>
-              <div class="data_status_probing_<%= serverUrlIdLookup[d.server_url] %>"        id="data_status_probing_<%= d.id %>"       >Probing server...  <img src="assets/loading_spinner.gif"></div>
+              <div class="data_status_probing_<%= serverUrlIdLookup[d.server_url] %>">Probing server...  <img src="assets/loading_spinner.gif"></div>
               <div class="data_status_not_responding_<%= serverUrlIdLookup[d.server_url] %>" id="data_status_not_responding_<%= d.id %>"><img src="/assets/server_responding_no.png" alt="WMS server not responding"></div>
               <div class="data_layer_available_yes_<%= serverUrlIdLookup[d.server_url] %>"   id="data_layer_available_yes_<%= d.id %>"  ><img src="/assets/layer_available_yes.png" alt="Layer avaialble"></div>
               <div class="data_layer_available_no_<%= serverUrlIdLookup[d.server_url] %>"    id="data_layer_available_no_<%= d.id %>"   ><img src="/assets/layer_available_no.png" alt="Layer not available"></div>
