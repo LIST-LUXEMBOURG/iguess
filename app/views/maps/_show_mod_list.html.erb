@@ -1,0 +1,10 @@
+<% if not dataset.module_configurations.empty? %>
+
+  <%= render :partial => "/mods/show_mod_list", 
+             :locals  => { :modlist => dataset.module_configurations } %> 
+             
+<% else %>
+    No modules use this dataset
+<% end %>
+
+

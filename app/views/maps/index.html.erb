@@ -1,0 +1,34 @@
+
+<div>
+
+  <div class="page_subheader"></div>
+</div>
+
+  <%= render :partial => '/home/map_template.html.erb', :locals  => { :width => "100%", :height => "700px" } %>
+  
+
+  <!-- Don't know why we have to include this here, as it's already auto-included in the header, but if
+        we omit this line, it just doesn't work... odd -->
+  
+  <script type="text/javascript">  
+    $(function() { 
+      var theTable = $('#sortable_table')
+    
+      theTable.find("tbody > tr").find("td:eq(1)").mousedown(function(){
+        $(this).prev().find(":checkbox").click()
+      });
+    
+      $("#filter").keyup(function() {
+        $.uiTableFilter( theTable, this.value );
+      })
+    
+      $('#filter-form').submit(function(){
+        theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
+        return false;
+      }).focus(); //Give focus to input field
+    });  
+  </script>
+  
+  
+  
+  

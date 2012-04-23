@@ -1,0 +1,8 @@
+<% if not dataset.parameter_type.mods.empty? %>
+    <% dataset.parameter_type.mods.each do |mod| %>
+        <%= link_to mod.name, mod %>
+        <%= '|' unless mod == dataset.parameter_type.mods.last %>
+    <% end %>
+<% else %>
+    There are no templates that use this parameter type
+<% end %>

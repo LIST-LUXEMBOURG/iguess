@@ -9,8 +9,8 @@
     </thead>
     <tbody>
       <% @datasets.each do |d| %>
-        <tr>
-          <td><a href=# onclick="addNewLayer('<%= d.name%>','<%= d.url%>','<%= d.layer_name%>')"><%= d.name%></a> </td>
+        <tr>  <!--- First and last below should be layer name -->
+          <td><a href=# onclick="addNewLayer('<%= d.identifier%>','<%= d.server_url%>','<%= d.identifier%>')"><%= d.identifier%></a> </td>
         </tr>
       <% end %> 
     </tbody>

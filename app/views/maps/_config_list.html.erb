@@ -1,0 +1,13 @@
+<!--  Show me all the configurations associated with specified dataset -->
+<!-- To use, specify module and list of potential configs in @config -->
+
+<% if not configs.empty? %>
+    <% configs.each do |config| %>
+      <% if(!config.datasets.find_index(dataset).nil?) %>
+         <%= '|' unless config == configs.first %> <%= link_to config.name, config %>
+      <% end %>
+        
+    <% end %>
+<% else %>
+    No configurations use this dataset
+<% end %>

@@ -1,0 +1,6 @@
+<h1>Editing Dataset: <%= @dataset.name %></h1>
+
+<%= render 'form', :locals => { :isNew => false } %>
+
+<%= link_to 'Show', @dataset %> |
+<%= link_to 'Data Inventory', datasets_path %>

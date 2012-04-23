@@ -17,14 +17,15 @@ document.write('<scr'+'ipt type="text/javascript" src="http://iguess.tudor.lu/sp
 //OpenLayers CSS
 document.write('<li'+'nk rel="stylesheet" type="text/css" href="http://iguess.tudor.lu/spatiallib/OpenLayers-2.11/theme/default/style.css" />');
 
+// These are needed to make the maps work:
 //GeoExt
-// document.write('<scr'+'ipt type="text/javascript" src="http://iguess.tudor.lu/spatiallib/GeoExt-1.0/lib/GeoExt.js" ></scr'+'ipt>');
+document.write('<scr'+'ipt type="text/javascript" src="http://iguess.tudor.lu/spatiallib/GeoExt-1.0/lib/GeoExt.js" ></scr'+'ipt>');
 
 //GeoExt CSS
 //document.write('<scr'+'ipt type="text/javascript" src="http://iguess.tudor.lu/spatiallib/GeoExt-1.0/resources/css/gxtheme-gray.css" ></scr'+'ipt>');
 
 //OpenStreetMap
-//document.write('<scr'+'ipt type="text/javascript" src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script></scr'+'ipt>');
+document.write('<scr'+'ipt type="text/javascript" src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script></scr'+'ipt>');
 
 //Google Maps
 document.write('<scr'+'ipt type="text/javascript" src="http://maps.google.com/maps/api/js?v=3.5&amp;sensor=false"></scr'+'ipt>');
