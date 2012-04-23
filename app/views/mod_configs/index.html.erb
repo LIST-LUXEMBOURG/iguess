@@ -15,8 +15,22 @@
   <li><a class="l" id="t2" href="#module_catalog_tab">Module Catalog</a></li>
 </ul>
 
-
 <script type="text/javascript">
+
+  <%
+    processIdLookup = Hash.new 
+    ctr = 0
+    
+    @mod_configs.map{ |c| processIdLookup[c.wps_server.url + (c.identifier.blank? ? "" : c.identifier)] = 'x' + ctr.to_s; ctr+=1; }
+  %>
+
+  processIdLookup = { };       
+  <% lines = "" %>         
+  <% processIdLookup.each{ |u, i| lines += "processIdLookup['" + u + "'] = '" + i + "'; " } %>        
+  <%= raw lines %>
+
+
+
   var urls = [<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>];
   var responses = 0;
 
@@ -32,10 +46,15 @@
     if(responses == WPS.getResponsesExpected()) {
       $('#wps-probing-indicator').hide();
     }
+
+    var server = WPS.unwrapProcServer(process.wps.getCapabilitiesUrlGet, process.identifier);
+    var processId = processIdLookup[server + process.identifier]; 
+    
+    $("." + processId).html(process.title || process.identifier);
     
     var description = "<hr><h3>" + process.title + "</h3>";
     description += process.abstract;
-    
+ 
     description += '<table border=0 cellpadding=5>';
     
     if(process.inputs.length == 0) {
@@ -88,7 +107,7 @@
       No modules have been configured yet.  <%= link_to 'Click here to create one.', new_mod_config_path %> 
     <% else %>
     
-    <div class="page_subheader">Modules that have been configured for Aberdeen</div>
+    <div class="page_subheader">Modules that have been configured</div>
     
       <%= render :partial => '/shared/sortable_table_code.html.erb', 
                  :locals => { :initialSortlist => "[[0,0]], headers: { 3: {sorter: false}}" } %> 
@@ -107,7 +126,8 @@
           <% @mod_configs.each do |mod_config| %>
             <tr>
               <td style="white-space: nowrap;"><%= link_to mod_config.name, mod_config %></td>
-              <td id='' style="white-space: nowrap;">Probing server... <img src="assets/loading_spinner.gif"></td>
+              <td class='<%= processIdLookup[mod_config.wps_server.url + (mod_config.identifier.blank? ? "" : mod_config.identifier)] =%>' 
+                  style="white-space: nowrap;">Probing server... <img src="assets/loading_spinner.gif"></td>
               <td style="white-space: nowrap;">STATUS (Ready/running/etc.)</td>
               <td><%= mod_config.descr %></td>
             </tr>

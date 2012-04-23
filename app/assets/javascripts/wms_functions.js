@@ -174,12 +174,27 @@ WPS.stripGetCapReq = function(serverUrl) {
   return serverUrl.replace(WPS.getCapStr, '').slice(0, -1);  // slice strips last char
 }
 
+
+WPS.getDescrProcString = function (layerIdentifier) {
+  return 'SERVICE=WPS&VERSION=1.0.0&REQUEST=DescribeProcess&IDENTIFIER=' + layerIdentifier;
+}
  
 WPS.descProc = function(serverUrl, layerIdentifier) { 
 	var joinchar = getJoinChar(serverUrl);
-  return wrapGeoProxy(serverUrl + joinchar + 'SERVICE=WPS&VERSION=1.0.0&REQUEST=DescribeProcess&IDENTIFIER=' + layerIdentifier); 
+  return wrapGeoProxy(serverUrl + joinchar + WPS.getDescrProcString(layerIdentifier)); 
 }
 
+WPS.stripDescProc = function(serverUrl, layerIdentifier) {
+  return serverUrl.replace(WPS.getDescrProcString(layerIdentifier), '').slice(0, -1);  // slice strips last char
+}
+
+WPS.unwrapServer = function(url) {
+  return WPS.stripGetCapReq(decodeURIComponent(unwrapGeoProxy(url)));
+}
+
+WPS.unwrapProcServer = function(url, layerIdentifier) {
+  return WPS.stripDescProc(decodeURIComponent(unwrapGeoProxy(url)), layerIdentifier);
+}
 
 WFS.unwrapServer = function(url) {
   return WFS.stripGetCapReq(decodeURIComponent(unwrapGeoProxy(url)));
