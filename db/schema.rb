@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120417125413) do
+ActiveRecord::Schema.define(:version => 20120424093542) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -24,6 +24,11 @@ ActiveRecord::Schema.define(:version => 20120417125413) do
     t.float    "maxy"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+  end
+
+  create_table "config_datasets", :force => true do |t|
+    t.integer "dataset_id",    :null => false
+    t.integer "mod_config_id", :null => false
   end
 
   create_table "datasets", :force => true do |t|
