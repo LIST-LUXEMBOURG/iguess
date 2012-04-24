@@ -3,7 +3,7 @@ Iguess::Application.routes.draw do
 
   resources :cities
 
-  resources :proc_servers
+  resources :wps_servers
 
   resources :datasets
   
