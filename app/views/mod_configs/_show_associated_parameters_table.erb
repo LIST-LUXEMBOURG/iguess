@@ -30,7 +30,7 @@
     $('#<%= mode %>-table').empty();
     
     var header = '<tr><th>Parameter Name</th><th>Description</th>' + 
-                 '<% if mode == :input %><th>Selected Dataset</th><% else %><th>Output Dataset Name</th><% end %></tr>';
+                 '<% if mode == :input %><th>Selected Dataset</th><% else %><th>Output Dataset Identifier</th><% end %></tr>';
     
     $('#<%= mode %>-table').append(header);
     
