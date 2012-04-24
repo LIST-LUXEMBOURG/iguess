@@ -69,8 +69,13 @@
         })
       })
     }
-
     
+    var onDescribed = function(process) {
+      $("#based-on").html(process.title || process.name);
+    }
+    
+    WPS.describeProcess("<%= @mod_config.wps_server.url %>", "<%= @mod_config.identifier %>", onDescribed);
+        
 </script>
   
 <div class="page_subheader"></div>
@@ -92,8 +97,9 @@
 
 <div class="simple_form">
   <label>Based on</label>
-  NAME FROM WPS template
+  <span id="based-on">Retrieving name...</span> template
 </div>
+
 
 <div class="simple_form">
   <label>Note</label>
@@ -118,7 +124,7 @@
 
   <label></label>
   <%# method => get causes button to act like a normal link, rather than a form post %>
-  <%= button_to 'View Module List', mod_config_path, :class => 'big_button', :method => 'get' %>
+  <%= button_to 'View Module List', "/mod_configs", :class => 'big_button', :method => 'get' %>
   
   <span id="run_module_button_container">
     <%= button_to 'Run Module >>>', 

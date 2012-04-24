@@ -44,7 +44,11 @@ class ModConfigsController < ApplicationController
   # POST /mod_configs.json
   def create
     @mod_config = ModConfig.new(params[:mod_config])
-
+    
+    server = WpsServer.find_by_url(params[:wps_server_url])
+    @mod_config.wps_server = server
+    @mod_config.identifier = params[:identifier]
+    
     respond_to do |format|
       if @mod_config.save
         format.html { redirect_to @mod_config, notice: 'Mod config was successfully created.' }

@@ -5,6 +5,7 @@ WPS.responsesReceived = 0;
 
 WPS.getResponsesExpected = function() { return WPS.responsesExpected; }
 
+////////////////////////////////////////
 // Send an initial request to a WPS server to see what services it offers
 WPS.probeWPS = function(serverUrl, onDescribedProcessFunction) 
 {
@@ -34,11 +35,8 @@ WPS.onGetCapabilities = function()
 {
   // Further probe the server, process-by-process
   for(var i = 0; i < this.processes.length; i++) {
-    var process = this.processes[i]; 
-    var url = WPS.descProc(this.describeProcessUrlPost, process.identifier);
     
-    var wps = new OpenLayers.WPS(url, {onDescribedProcess: WPS.onDescribedProcessFunction});
-    wps.describeProcess("Process " + i);    // This string appears to do nothing at all!
+    WPS.describeProcess(this.describeProcessUrlPost, this.processes[i].identifier, WPS.onDescribedProcessFunction);
     
     WPS.responsesExpected++;
   }
@@ -50,8 +48,19 @@ WPS.onGetCapabilities = function()
 WPS.probeWPS_getDataTypes = function(url)
 {
   WPS.probeWPS(url, onDescribedProcess_getDataTypesProbe); 
-}
+};
 
+////////////////////////////////////////
+// Describe a process called identifier on server at specified url.  Will call function passed on onDescribedCallback(process) 
+// when answer arrives. 
+WPS.describeProcess = function(url, identifier, onDescribedCallback) 
+{
+  var fullUrl = WPS.getDescProcUrl(url, identifier);
+  
+  var wps = new OpenLayers.WPS(fullUrl, {onDescribedProcess: onDescribedCallback});
+  wps.describeProcess(url + ' - ' + identifier);    // This string appears to do nothing at all!
+}
+    
 
 WPS.onDescribedProcess_getDataTypesProbe_dataTypes = [];
  
@@ -161,7 +170,7 @@ WFS.stripGetCapReq = function(serverUrl) {
 }
 
 
-// WPS functions
+// Helper functions for creating and deconstructing urls
 WPS.getCapStr = 'VERSION=1.0.0&REQUEST=GetCapabilities&SERVICE=WPS';
 
 WPS.getCapReq = function(serverUrl) { 
@@ -179,17 +188,17 @@ WPS.getDescrProcString = function (layerIdentifier) {
   return 'SERVICE=WPS&VERSION=1.0.0&REQUEST=DescribeProcess&IDENTIFIER=' + layerIdentifier;
 }
  
-WPS.descProc = function(serverUrl, layerIdentifier) { 
+WPS.getDescProcUrl = function(serverUrl, layerIdentifier) { 
 	var joinchar = getJoinChar(serverUrl);
   return wrapGeoProxy(serverUrl + joinchar + WPS.getDescrProcString(layerIdentifier)); 
 }
 
-WPS.stripDescProc = function(serverUrl, layerIdentifier) {
-  return serverUrl.replace(WPS.getDescrProcString(layerIdentifier), '').slice(0, -1);  // slice strips last char
-}
-
 WPS.unwrapServer = function(url) {
   return WPS.stripGetCapReq(decodeURIComponent(unwrapGeoProxy(url)));
+}
+
+WPS.stripDescProc = function(serverUrl, layerIdentifier) {
+  return serverUrl.replace(WPS.getDescrProcString(layerIdentifier), '').slice(0, -1);  // slice strips last char
 }
 
 WPS.unwrapProcServer = function(url, layerIdentifier) {

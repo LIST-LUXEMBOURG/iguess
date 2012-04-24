@@ -83,7 +83,6 @@
   function findAllDatasets(identifier)
   {
     var ctrl = $(document.createElement('select'));
-    
     for(var layerKey in registeredDataLayers) {
       if(registeredDataLayers[layerKey] == identifier) {
         ctrl.append('<option value="' + layerKey + '">' + discoveredLayers[layerKey].title + '</option>');

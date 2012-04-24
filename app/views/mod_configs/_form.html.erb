@@ -22,11 +22,14 @@
 
   var onDescribedProcessx = function(process) 
   {
-    var key = makeKey(process.wps.executeUrlGet, process.identifier);   // This will uniquely describe this service\\
+    var serverUrl = process.wps.executeUrlGet;
+    var key = makeKey(serverUrl, process.identifier);   // This will uniquely describe this service\\
     
     procs[key] = new Object;
+    procs[key].identifier = process.identifier;
     procs[key].title = process.title || process.identifier;
     procs[key].descr = process.abstract;
+    procs[key].serverUrl = serverUrl;
     procs[key].inputs = [ ];
     procs[key].outputs = [ ];
 
@@ -75,17 +78,24 @@
     for(var key in procs) {
       processControl.append('<option value="' + key + '">' + procs[key].title + '</option>');
     }
-    
     $('#procControlContainer').html(processControl);
     onProcessChanged();
   }
   
   
   // User has selected a different process from the drop down box... need to rebuild inputs/outputs sections
-  onProcessChanged = function() {
+  function onProcessChanged() {
     // These functions are defined in _show_assocated_parameters_table.erb
     populateInputTable (procs[$('#processControl').val()].inputs);
     populateOutputTable(procs[$('#processControl').val()].outputs);
+   
+    
+    var identifier = procs[$('#processControl').val()].identifier;
+    var url = procs[$('#processControl').val()].serverUrl;
+    var url2 = WPS.unwrapProcServer(url, identifier);
+    
+    $("#wps_server_url").val(url2);
+    $("#identifier").val(identifier);
   }
   
   
@@ -101,6 +111,7 @@
   var serverCount = registeredProcDataServers.length;
   
   for(var i = 0; i < serverCount; i++) {
+    WMS.updateLayerList(registeredProcDataServers[i], onWmsGetCapabilitiesSucceeded, onWmsGetCapabilitiesFailed); // Need to call this for now to avoid crashes
     WFS.updateLayerList(registeredProcDataServers[i], onWfsGetCapabilitiesSucceeded, onWfsGetCapabilitiesFailed);
   }
 
@@ -179,7 +190,10 @@
     <%= link_to 'Cancel', mod_configs_path %>
   <% end %>
   
+  <input type="hidden" name="wps_server_url" id="wps_server_url">
+  <input type="hidden" name="identifier"     id="identifier">
+  
 
-  <%= f.submit creating ? 'Create New Module' : 'Save Changes' %>
+  <%= f.submit creating ? 'Create New Configuration' : 'Save Changes' %>
   
 <% end %>
