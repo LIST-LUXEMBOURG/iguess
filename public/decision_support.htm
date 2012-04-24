@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>iGUESS</title>
+  <link href="/assets/application.css?body=1" media="screen" rel="stylesheet" type="text/css" />
+<link href="/assets/buttons.css?body=1" media="screen" rel="stylesheet" type="text/css" />
+<link href="/assets/cities.css?body=1" media="screen" rel="stylesheet" type="text/css" />
+<link href="/assets/datasets.css?body=1" media="screen" rel="stylesheet" type="text/css" />
+<link href="/assets/home.css?body=1" media="screen" rel="stylesheet" type="text/css" />
+<link href="/assets/jquery-ui-1.8.16.custom.css?body=1" media="screen" rel="stylesheet" type="text/css" />
+<link href="/assets/mod.css?body=1" media="screen" rel="stylesheet" type="text/css" />
+<link href="/assets/module_configurations.css?body=1" media="screen" rel="stylesheet" type="text/css" />
+<link href="/assets/module_requirements.css?body=1" media="screen" rel="stylesheet" type="text/css" />
+<link href="/assets/nav-bar.css?body=1" media="screen" rel="stylesheet" type="text/css" />
+<link href="/assets/scaffolds.css?body=1" media="screen" rel="stylesheet" type="text/css" />
+<link href="/assets/text.css?body=1" media="screen" rel="stylesheet" type="text/css" />
+<link href="/assets/tooltips.css?body=1" media="screen" rel="stylesheet" type="text/css" />
+  <script src="/assets/jquery.js?body=1" type="text/javascript"></script>
+<script src="/assets/jquery_ujs.js?body=1" type="text/javascript"></script>
+<script src="/assets/cities.js?body=1" type="text/javascript"></script>
+<script src="/assets/datasets.js?body=1" type="text/javascript"></script>
+<script src="/assets/home.js?body=1" type="text/javascript"></script>
+<script src="/assets/jquery-ui-1.8.16.custom.min.js?body=1" type="text/javascript"></script>
+<script src="/assets/mods.js?body=1" type="text/javascript"></script>
+<script src="/assets/module_configurations.js?body=1" type="text/javascript"></script>
+<script src="/assets/module_requirements.js?body=1" type="text/javascript"></script>
+<script src="/assets/application.js?body=1" type="text/javascript"></script>
+  <meta content="authenticity_token" name="csrf-param" />
+<meta content="yblXtqCrPmYg16+6DvLBquWBrenldVeWpGQi8ozD2II=" name="csrf-token" />
+
+<script type="text/javascript">
+  /* Script to enable JQuery UI / Themeroller buttons */
+  /* http://www.filamentgroup.com/lab/styling_buttons_and_toolbars_with_the_jquery_ui_css_framework/ */
+              $(document).ready(function(){
+                  //hover states on the static widgets
+                  $(".button_to").hover(
+                      function() { $(this).addClass('ui-state-hover'); },
+                      function() { $(this).removeClass('ui-state-hover'); }
+                  );
+
+              });
+</script>
+
+
+<!-- See http://flowplayer.org/tools/release-notes/index.html -->
+<script src="http://cdn.jquerytools.org/1.2.6/jquery.tools.min.js"></script>    <!-- For tooltips et. al.-->
+
+
+</head>
+<body>
+
+
+<div id="top_banner">
+  <div style="float:left; margin-top:1.3em; margin-left: .7em;">
+    <a href="http://www.tudor.lu/"><img alt="Henri Tudor Institute" border="0" height="35" src="/assets/tudor_logo.png" width="99" /></a>
+  </div>   
+        
+  <div style="float:right; margin-top:.6em; margin-right: .7em;">
+    <a href="http://themusicproject.eu"><img alt="MUSIC Project" border="1" src="/assets/music_logo.png" /></a>&nbsp;
+    <a href="http://www.nweurope.eu/"><img alt="INTERREG IVB" border="0" src="/assets/interreg_logo.png" /></a>
+  </div>  
+  
+  <div style="text-align:center;">                                 
+    <div style="font-size: 300%; margin-bottom:-.35em">iGUESS</div>
+    <div style="padding-bottom: .5em">integrated Geospatial Urban Energy information and Support System</div>
+  </div> 
+  
+  <div id="navbar">
+    <ul id="nav">
+      <li id="nav-1" title="<u><b>Return to starting screen</b></u>">
+          <a href="/">Home</a></li>
+      <li id="nav-1" title="<u><b>Manage data</b></u><br>Upload new data, and view existing datasets">
+          <a href="/datasets">Data Manager</a></li>   
+      <li id="nav-2" title="<u><b>Configure and run modules</b></u><br>Modules create new datasets by running calculations">
+          <a href="/module_configurations">Modules</a></li>
+      <li id="nav-3" title="<u><b>Define and run scenarios</b></u><br>Scnarios are complex models of potential future situations">
+          <a href="scenarios.htm">Scenarios</a></li>
+      <li id="nav-4" title="<u><b>Decision support tools</b></u><br>Compare scenario results, and access related tools">
+          <a href="decision_support.htm">Decision Support</a></li>
+      <li id="nav-5" title="<u><b>View maps</b></u><br>Visualize data and model results">
+          <a href="/maps">Maps</a></li> 
+    
+      <div id="xx">
+      <select name="cities" id="city_dropdown" onchange="frames['map'].location.href = this.value">
+          <option value="http://www.openstreetmap.org/?lat=57.1437&amp;lon=-2.0982&amp;zoom=12&amp;layers=M">Aberdeen</option>
+          <option value="http://www.openstreetmap.org/?lat=51.0499&amp;lon=3.7166&amp;zoom=12&amp;layers=M">Ghent</option>
+          <option value="http://www.openstreetmap.org/?lat=48.8867&amp;lon=9.1955&amp;zoom=12&amp;layers=M">Ludwigsburg</option>
+          <option value="http://www.openstreetmap.org/?lat=48.8642&amp;lon=2.4432&amp;zoom=12&amp;layers=M">Montreuil</option>
+          <option value="http://www.openstreetmap.org/?lat=51.9225&amp;lon=4.4792&amp;zoom=12&amp;layers=M">Rotterdam</option>
+      </select>
+      
+      <div id="login"><a href="#" onclick="alert('Logins not implemented yet!!')">[Login]</a></div>
+      </div>
+    </ul>
+          
+
+  </div>
+</div>
+
+<br>
+
+<div class="main_body">
+  
+<div>
+  <h1 class="page_header">Decision Support</h1>
+  <div class="page_subheader">
+    This is the future home of the iGUESS decision support tools.  Some things you might find here:
+    
+    <ul>
+      <li>CO<subscript>2</subscript> scenarios
+      <li>Sustainability indices / indicators
+      <li>Impact assessment tools
+    </ul>
+    
+    But they're not here now!
+  </div>
+</div>
+
+<script>
+  $("#navbar li[title]").tooltip({ position: 'bottom center', offset: [0,55] });   // Activate our tooltips   
+</script>
+
+</body>
+</html>
+  
+  
