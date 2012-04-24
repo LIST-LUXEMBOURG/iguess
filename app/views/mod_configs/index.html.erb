@@ -51,6 +51,7 @@
     var processId = processIdLookup[server + process.identifier]; 
     
     $("." + processId).html(process.title || process.identifier);
+    $(".status-" + processId).html("Server available");
     
     var description = "<hr><h3>" + process.title + "</h3>";
     description += process.abstract;
@@ -128,7 +129,8 @@
               <td style="white-space: nowrap;"><%= link_to mod_config.name, mod_config %></td>
               <td class='<%= processIdLookup[mod_config.wps_server.url + (mod_config.identifier.blank? ? "" : mod_config.identifier)] =%>' 
                   style="white-space: nowrap;">Probing server... <img src="assets/loading_spinner.gif"></td>
-              <td style="white-space: nowrap;">STATUS (Ready/running/etc.)</td>
+              <td class='status-<%= processIdLookup[mod_config.wps_server.url + (mod_config.identifier.blank? ? "" : mod_config.identifier)] =%>'
+                  style="white-space: nowrap;">Probing server... <img src="assets/loading_spinner.gif"></td>
               <td><%= mod_config.descr %></td>
             </tr>
           <% end %>
