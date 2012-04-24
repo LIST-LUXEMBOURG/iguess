@@ -7,6 +7,8 @@ Iguess::Application.routes.draw do
 
   resources :datasets
   
+  resources :config_datasets
+  
   resources :maps
   
   get "home/index"
