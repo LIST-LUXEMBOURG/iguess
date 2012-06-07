@@ -1,4 +1,7 @@
 var WPS = WPS || {};    // Create namespace object for our functions
+var WMS = WMS || {};    // Create namespace object for our functions
+var WFS = WFS || {};    // Create namespace object for our functions
+
 
 WPS.responsesExpected = 0;
 WPS.responsesReceived = 0;
@@ -21,12 +24,15 @@ WPS.probeWPS = function(serverUrl, onDescribedProcessFunction)
 
 showErrorMessage = function (process, code, text) {
 	newWin = window.open('', 'Service Error Message', 'height=400, width=600, toolbar=no, menubar=no');
+	newWin.document.write("ShowErrorMessage");
 	newWin.document.write(process.responseText);
 };
 
 
 showPreErrorMessage = function (process, code, text) {
   newWin = window.open('', 'Service Error Message', 'height=400, width=600, toolbar=no, menubar=no');
+  newWin.document.write("ShowPreErrorMessage");
+
   newWin.document.write("<pre>" + process.responseText + "</pre>");
 };
   
@@ -49,6 +55,7 @@ WPS.probeWPS_getDataTypes = function(url)
 {
   WPS.probeWPS(url, onDescribedProcess_getDataTypesProbe); 
 };
+
 
 ////////////////////////////////////////
 // Describe a process called identifier on server at specified url.  Will call function passed on onDescribedCallback(process) 
@@ -78,8 +85,6 @@ function onDescribedProcess_getDataTypesProbe(process)
   
   WPS.responsesReceived++;
   
-  console.log("responses: " + WPS.responsesReceived + " of " + WPS.responsesExpected);
-  
   // Call callbacks, if they are defined
   if(typeof onDataTypesDiscovered != 'undefined') {
     onDataTypesDiscovered(WPS.onDescribedProcess_getDataTypesProbe_dataTypes);
@@ -92,9 +97,6 @@ function onDescribedProcess_getDataTypesProbe(process)
   }
 }
 
-
-var WMS = WMS || {};    // Create namespace object for our functions
-var WFS = WFS || {};    // Create namespace object for our functions
 
 // Probe a WMS and detect which layers are available 
 WMS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
@@ -158,10 +160,11 @@ WMS.stripGetCapReq = function(serverUrl) {
 }
 
 
-WFS.getCapStr = 'SERVICE=WFS&VERSION=1.3.0&REQUEST=GetCapabilities';
+WFS.getCapStr = 'SERVICE=WFS&VERSION=1.0.0&REQUEST=GetCapabilities';
 
 WFS.getCapReq = function(serverUrl) {
   var joinchar = getJoinChar(serverUrl);
+  // alert(wrapGeoProxy(serverUrl + joinchar + WFS.getCapStr));
   return wrapGeoProxy(serverUrl + joinchar + WFS.getCapStr);
 }
 

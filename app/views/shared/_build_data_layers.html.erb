@@ -93,13 +93,16 @@
   }       
   
   
-  var onWfsGetCapabilitiesFailed = function(e,f,g,h,i,j) {   // <-- Probably not right...
+  var onWfsGetCapabilitiesFailed = function(e,f,g,h,i,j,k) {   // <-- Probably not right...
+    debugger;
     console.log(e);
     console.log(f);
     console.log(g);
     console.log(h);
     console.log(i);
+    console.log(j);
     showPreErrorMessage(i);
+    
     
     doneProcessing('???', 'WFS', 'ERROR');
   }

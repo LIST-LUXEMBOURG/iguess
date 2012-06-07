@@ -1,11 +1,1 @@
-<% require 'open-uri' %>
-<% require 'cgi' %>
-<% rawurl = CGI::unescape(params[:url]) %>
-<% fixedurl = rawurl.gsub('\\', '%5C') %>   <%# Fix Rotterdam's URL via hacky hack %>
-<% open(fixedurl) do |u| %>
-  <%= raw u.readlines().join("") %>
-<% end %>
-
-
-
-
+<% require 'open-uri' %><% require 'cgi' %><% rawurl = CGI::unescape(params[:url]) %><% fixedurl = rawurl.gsub('\\', '%5C') %><% open(fixedurl) do |u| %><%= raw u.readlines().join("") %><% end %>
