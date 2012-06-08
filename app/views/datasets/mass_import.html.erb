@@ -40,7 +40,7 @@
 <%= render :partial => '/shared/build_data_layers.html.erb' %>
 
 <script type="text/javascript">
-  
+
   // User changes the value of one of the dataType dropdowns
   function onDataTypeChanged(id)
   {
@@ -92,7 +92,8 @@
       wmsProcessingComplete = true;
     }
     
-    if(!(wfsProcessingComplete && wmsProcessingComplete)) { return; }   // Still waiting for another service to return
+    if(!(wfsProcessingComplete || !showWfs() && 
+         wmsProcessingComplete || !showWms())    ) { return; }   // Still waiting for another service to return
     
     displayLayers();
   }
@@ -105,19 +106,29 @@
     var first = true;
     
     var layerCount = Object.keys(discoveredLayers).length;
+    var visibleLayers = 0;
     
-    // Render found datasets in two passes -- first for registered items, second for unregistered ones
+    // Render found datasets in two passes -- first for registered items, second for unregistered ones. 
+    // This puts registered items at the top of the screen.
     for(var pass = 0; pass < 2; pass++)
     {
       for(var layerKey in discoveredLayers)
       {
+        
         var layer = discoveredLayers[layerKey];
+        
+        // Skip layers that the user has filterd out with the service radio buttons
+        if(!showWfs() && !layer.type.hasObject('WMS')) { continue; }
+        if(!showWms() && !layer.type.hasObject('WFS')) { continue; }
+        
+        visibleLayers += 1;
+     
         var registered = layerKey in registeredDataLayers;
         
         if((pass == 0 && !registered) || (pass == 1 && registered)) { continue; }
           
         if(first) {
-          $('#layer_display').html('<div>Found ' + layerCount + ' layers.  ' + 
+          $('#layer_display').html('<div>Showing <span id="layer_display_count">' + layerCount + '</span> layers.  ' + 
                                    'Using local SRS "' + LOCAL_SRS + '".</div><div id="layerTable"></div>');
           first = false;
         }
@@ -135,7 +146,7 @@
         }
         
         var dataTypeControl = "Couldn't load data types!";
-        
+
         if(dataDiscoveryComplete) {   // Will typically be the case, though we need to handle the case where this is false
           
           dataTypeControl = $(document.createElement('select'));
@@ -146,9 +157,11 @@
             onDataTypeChanged(this.id);
           });
           
-          dataTypeControl.append('<option>Mapping Only</option>');
+          if(showWms() && layer.type.hasObject('WMS')) {
+            dataTypeControl.append('<option>Mapping Only</option>');
+          }
           
-          if(layer.type.hasObject('WFS')) {
+          if(showWfs() && layer.type.hasObject('WFS')) {
             for(var j=0, jlen=dataTypeList.length; j < jlen; j++) {
               dataTypeControl.append('<option>' + dataTypeList[j] + '</option>');
             }
@@ -156,7 +169,7 @@
           
           dataTypeControl.val(registeredDataLayers[layerKey]);
         }
-        
+
         var registerControl = $(document.createElement('input'));
         
         registerControl.attr({ type:'checkbox', name:'registered_' + layer.identifier, class:'switchbox', 
@@ -221,8 +234,6 @@
 
         $('#layerTable').append(tr_element);
         
-        
-        
         if(layer.bbox !== null && layer.bbox.length > 0)
         {
           var activeSRS = layer.bbox[0].srs;
@@ -253,6 +264,8 @@
       }  // end for loop
     }  // for pass = 0 to 2
     
+    
+    $('#layer_display_count').text(visibleLayers);    // Update layer display
     
     $('body').attr("class","js");
     // Add toggle switch after each checkbox.  If checked, then toggle the switch.
@@ -328,8 +341,8 @@
   
   var update = function() 
   { 
-    $('#probing-wms').show();
-    $('#probing-wfs').show();
+    showProbingIndicators();
+    
     $('#layer_display').html('');
     discoveredLayers = { };
     wfsProcessingComplete = false;
@@ -338,23 +351,39 @@
     WFS.updateLayerList($('#dataset_url').val(), onWfsGetCapabilitiesSucceeded, onWfsGetCapabilitiesFailed);
     WMS.updateLayerList($('#dataset_url').val(), onWmsGetCapabilitiesSucceeded, onWmsGetCapabilitiesFailed); 
   };
+  
+  
+  function showWfs() {
+    return $('#radio-show-wfs').prop('checked') || $('#radio-show-both').prop('checked');
+  }
+  
+  function showWms() {
+    return $('#radio-show-wms').prop('checked') || $('#radio-show-both').prop('checked');
+  }
+
+  function showProbingIndicators() {
+    if(showWfs()) { $('#probing-wfs').show(); }
+    if(showWms()) { $('#probing-wms').show(); }
+  }
+  
+  function hideProbingIndicators() {
+    $('#probing-wms').hide();
+    $('#probing-wfs').hide();    
+  }
 
 
   $(document).ready(function () 
   {
     $('#dataset_url').change(update);
     $('#refresh_layers_button').click(update);
-    $('#probing-wms').hide();
-    $('#probing-wfs').hide();
+    hideProbingIndicators();
   });   
-  
   
   
   // The city dropdown on the UR of the screen has changed
   function gotoLocation(cityName) {
     LOCAL_SRS = { <% @cities.each do |city| %>'<%= city.name %>':'<%= city.srs %>',<% end %>}[cityName];
   }
-  
 </script>
 
 
@@ -407,10 +436,43 @@
   <input id="dataset_url" type="text" value="http://ows.gis.rotterdam.nl/cgi-bin/mapserv.exe?map=d:\gwr\webdata\mapserver\map\gwr_basis_pub.map" size="90"/>
   <button type="button" id="refresh_layers_button">Refresh</button>
 </div>
-<span id="probing-wms">Probing WMS server... <img src="/assets/loading_spinner.gif"></span>&nbsp;&nbsp;
-<span id="probing-wfs">Probing WFS server... <img src="/assets/loading_spinner.gif"></span>
-  
 </form>
+
+<div style="height:100%; background-color:#eeeeee;">
+
+  <label class="label_radio" for="radio-show-wfs">
+    <input name="rx" id="radio-show-wfs" value="1" type="radio" />
+    WFS -- Only show datasets suitable for using as module inputs
+  </label>
+  <br>
+  
+  <label class="label_radio" for="radio-show-wms">
+    <input name="rx" id="radio-show-wms" value="2" type="radio" />
+    WMS -- Only show datasets suitable for mapping
+  </label>
+  <br>
+  <label class="label_radio" for="radio-show-both">
+    <input name="rx" id="radio-show-both" value="3" type="radio" checked/>
+    Both -- Show all datasets on server
+  </label>
+</div>
+
+<script>
+  $("#radio-show-wfs").click(function() {
+    displayLayers();
+  });
+  $("#radio-show-wms").click(function() {
+    displayLayers();
+  });
+  $("#radio-show-both").click(function() {
+    displayLayers();
+  });
+</script>
+
+<span style="padding-left: 5px;" id="probing-wms">Probing WMS server... <img src="/assets/loading_spinner.gif"></span>
+<span style="padding-left: 5px;" id="probing-wfs">Probing WFS server... <img src="/assets/loading_spinner.gif"></span>
+  
+
 
 <div id="layer_display"></div>
 
