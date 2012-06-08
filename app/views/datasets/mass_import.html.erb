@@ -117,7 +117,7 @@
         
         var layer = discoveredLayers[layerKey];
         
-        // Skip layers that the user has filterd out with the service radio buttons
+        // Skip layers that the user has filtered out with the service radio buttons
         if(!showWfs() && !layer.type.hasObject('WMS')) { continue; }
         if(!showWms() && !layer.type.hasObject('WFS')) { continue; }
         
