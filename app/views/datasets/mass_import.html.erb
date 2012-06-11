@@ -268,7 +268,8 @@
     
     $('#layer_display_count').text(visibleLayers);    // Update layer display
     
-    $('body').attr("class","js");
+    $('body').attr("class",$('body').attr("class") + " js");
+    
     // Add toggle switch after each checkbox.  If checked, then toggle the switch.
     $('.switchbox').after(function() {
        if($(this).is(":checked")) {
