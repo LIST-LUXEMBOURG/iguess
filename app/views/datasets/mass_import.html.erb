@@ -108,13 +108,14 @@
     var layerCount = Object.keys(discoveredLayers).length;
     var visibleLayers = 0;
     
+    $('#layerTable').html('');
+    
     // Render found datasets in two passes -- first for registered items, second for unregistered ones. 
     // This puts registered items at the top of the screen.
     for(var pass = 0; pass < 2; pass++)
     {
       for(var layerKey in discoveredLayers)
       {
-        
         var layer = discoveredLayers[layerKey];
         
         // Skip layers that the user has filtered out with the service radio buttons
@@ -128,7 +129,7 @@
         if((pass == 0 && !registered) || (pass == 1 && registered)) { continue; }
           
         if(first) {
-          $('#layer_display').html('<div>Showing <span id="layer_display_count">' + layerCount + '</span> layers.  ' + 
+          $('#layer_display').html('<div>Showing <span id="layer_display_count"></span> layers.  ' + 
                                    'Using local SRS "' + LOCAL_SRS + '".</div><div id="layerTable"></div>');
           first = false;
         }
