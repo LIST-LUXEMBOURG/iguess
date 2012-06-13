@@ -3,36 +3,45 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 
+#layer-table {      // ul
+  margin: 0px;
+  padding: 0px;
+  list-style-type: none;
+}
+
+
+.map-data-item {    // li
+  display: inline-block;
+  margin: 6px;
+  padding: 2px;
+  outline: 1px solid rgba(0,0,0,0.2);       // Outer line
+  height: 100%;
+}
+
+// Combines with the below, describes container just inside outer border
+.dataset {
+  height: 100%;
+  padding: 15px;
+  border: 1px solid rgba(0,0,0,0.2);
+  min-height: 200px;
+}
+
+// Green tile
 .registered_dataset {
   background: #CFC;
-  float:left;
-  width: 250px;
-  height: 170px;
-  padding: 15px;
 }
 
+// Red tile
 .unregistered_dataset {
   background: #FCC;
-  float:left;
+}
+
+
+// Container to the left of the map-data-item, holding sample-map and map-data-item below
+.data-info {
   width: 250px;
-  height: 170px;
-  padding: 15px;
-}
-
-.dataset_title {
-  font-weight: bold; 
-}
-
-.dataset_abstract {
-  
-}
-
-.dataset_services_available {
-  
-}
-
-.dataset_srs {
-  
+  height: 100%;
+  float: left;
 }
 
 // Sample map embedded in a map-data-item
@@ -43,16 +52,22 @@
   float: right;
 }
 
-// "Tile" showing WFS/WMS value on data import page
-.map-data-item {
-  float: left;
-  margin: 10px;
-  padding: 5px;
-  top:1 px;
-  left: 1px;
-  bottom: 1px;
-  right: 1px;
-  border: 1px solid rgba(255,255,255,0.5);
-  outline: 1px solid rgba(0,0,0,0.2);
-  content: " ";
+
+// Title at top of tile
+.dataset_title {
+  font-weight: bold; 
+}
+
+.dataset_abstract {
+  
+}
+
+// "Services: WFS, WMS" text
+.dataset_services_available {
+  
+}
+
+// Container for "available in..." graphics
+.dataset_srs {
+  
 }

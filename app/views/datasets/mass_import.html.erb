@@ -111,7 +111,7 @@
     var layerCount = Object.keys(discoveredLayers).length;
     var visibleLayers = 0;
     
-    $('#layerTable').html('');
+    $('#layer-table').html('');   // Clear the decks
     
     // Render found datasets in two passes -- first for registered items, second for unregistered ones. 
     // This puts registered items at the top of the screen.
@@ -132,8 +132,8 @@
         if((pass == 0 && !registered) || (pass == 1 && registered)) { continue; }
           
         if(first) {
-          $('#layer_display').html('<div>Showing <span id="layer_display_count"></span> layers.  ' + 
-                                   'Using local SRS "' + LOCAL_SRS + '".</div><div id="layerTable"></div>');
+          $('#layer-display').html('<div>Showing <span id="layer-display-count"></span> layers.  ' + 
+                                   'Using local SRS "' + LOCAL_SRS + '".</div><ul id="layer-table"></ul>');
           first = false;
         }
         
@@ -217,26 +217,36 @@
                .append('<br>')
                .append(locl);
         
-        var td_descr_element = $(document.createElement('div'));
-        td_descr_element.attr({class:registered ? 'registered_dataset' : 'unregistered_dataset', id:'td_' + layer.identifier});
-        td_descr_element.append(titleNode)
-                        .append(abstractNode)
-                        .append(srsNode)
-                        .append(registerControl)
-                        .append(servicesAvailNode)
-                        .append('<br>')
-                        .append(dataTypeControl);
-                        
         
-        var td_map_element = $(document.createElement('div'));
-        td_map_element.attr({id: mapDivId, class:'sample-map'});
+        var data_info = $(document.createElement('div'));
+        data_info.attr({ class:'data-info' });
+        
+        data_info.append(titleNode)
+                 .append(abstractNode)
+                 .append(srsNode)
+                 .append(registerControl)
+                 .append(servicesAvailNode)
+                 .append('<br>')
+                 .append(dataTypeControl);
+                        
+        var sample_map = $(document.createElement('div'));
+        sample_map.attr({ id: mapDivId, class:'sample-map' });
+        
+        var container = $(document.createElement('div'));
+        container.attr({ class:'dataset ' + (registered ? 'registered_dataset' : 'unregistered_dataset'), id:'td_' + layer.identifier });
+        container.append(data_info)
+                 .append(sample_map);
+  
+        // tr_element (map-data-item)
+        //    container (registered_dataset or unregistered_dataset)
+        //       data_info
+        //       sample_map
 
-        var tr_element = $(document.createElement('div'));
-        tr_element.attr({class:'map-data-item'})
-        tr_element.append(td_descr_element)
-                  .append(td_map_element);
+        var tr_element = $(document.createElement('li'));
+        tr_element.attr({ class:'map-data-item' });
+        tr_element.append(container);
 
-        $('#layerTable').append(tr_element);
+        $('#layer-table').append(tr_element);
         
         if(layer.bbox !== null && layer.bbox.length > 0)
         {
@@ -269,7 +279,7 @@
     }  // for pass = 0 to 2
     
     
-    $('#layer_display_count').text(visibleLayers);    // Update layer display
+    $('#layer-display-count').text(visibleLayers);    // Update layer display
     
     
     // Add toggle switch after each checkbox.  If checked, then toggle the switch.
@@ -333,8 +343,8 @@
       }
   
       $(this).toggleClass("checked");
-      $(this).parent().toggleClass("registered_dataset");
-      $(this).parent().toggleClass("unregistered_dataset");
+      $(this).parent().parent().toggleClass("registered_dataset");
+      $(this).parent().parent().toggleClass("unregistered_dataset");
       
       e.preventDefault();
 
@@ -347,7 +357,7 @@
   { 
     showProbingIndicators();
     
-    $('#layer_display').html('');
+    $('#layer-display').html('');
     discoveredLayers = { };
     wfsProcessingComplete = false;
     wmsProcessingComplete = false;
@@ -478,5 +488,5 @@
 <span style="padding-left: 5px;" id="probing-wfs">Probing WFS server... <img src="/assets/loading_spinner.gif"></span>
   
 
-<div id="layer_display"></div>
+<div id="layer-display"></div>
 
