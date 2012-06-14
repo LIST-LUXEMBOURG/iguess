@@ -70,7 +70,7 @@
     
     <% @server_urls.each do |url| %>    <%# These could be wms, wfs, or wcs addresses%>
       layerRecords['<%= url %>'] = [ ];
-      layerStores['<%= url %>']  = [ ];
+      layerStores ['<%= url %>'] = [ ];
       serverStatus['<%= url %>'] = [ ];
       
       WMS.updateLayerList('<%= url.gsub(/\\/, '\\\\\\') %>', success_<%= index %>, failure_<%= index %>); 
