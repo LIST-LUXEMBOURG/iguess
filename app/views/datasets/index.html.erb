@@ -104,9 +104,7 @@
     {
 
       // Wait until we've heard back from all servers
-      if(serverStatus[serverUrl].length < 2) {
-        return;
-      }
+      if(serverStatus[serverUrl].length < 2) { return; }
     
       serverUrlId = serverUrlIdLookup[serverUrl];
       $('.data_status_probing_' + serverUrlId).hide();    // No longer probing this server!
