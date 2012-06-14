@@ -60,6 +60,59 @@
     });  
   </script>
   
+<!--   <script type="text/javascript">
+    // Animates the dimensional changes resulting from altering element contents
+    // Usage examples: 
+    //    $("#myElement").showHtml("new HTML contents");
+    //    $("div").showHtml("new HTML contents", 400);
+    //    $(".className").showHtml("new HTML contents", 400, 
+    //                    function() {/* on completion */});
+    (function($)
+    {
+       $.fn.showHtml = function(html, speed, callback)
+       {
+          return this.each(function()
+          {
+             // The element to be modified
+             var el = $(this);
+             
+             // Preserve the original values of width and height - they'll need 
+             // to be modified during the animation, but can be restored once
+             // the animation has completed.
+             var finish = {width: this.style.width, height: this.style.height};
+    
+             // The original width and height represented as pixel values.
+             // These will only be the same as `finish` if this element had its
+             // dimensions specified explicitly and in pixels. Of course, if that 
+             // was done then this entire routine is pointless, as the dimensions 
+             // won't change when the content is changed.
+             var cur = {width: el.width()+'px', height: el.height()+'px'};
+    
+             var curWidth = el.width();
+             var curHtml = el.html();
+              
+             // Modify the element's contents. Element will resize.
+             el.html(html);
+             var newWidth = el.width();
+             
+             var speed = 0;//(newWidth - curWidth) / .5;   // speed: .5 px/ms
+             
+             // Capture the final dimensions of the element 
+             // (with initial style settings still in effect)
+             var next = {width: el.width()+'px', height: el.height()+'px'};
+             
+             el.html(curHtml);
+    
+             el .css(cur);  // restore initial dimensions
+             el.animate(next, speed, function() { // animate to final dimensions
+                   el.html(html);
+                   el.css(finish); // restore initial style settings
+                   if ( $.isFunction(callback) ) callback();
+              });
+          });
+       };
+    })(jQuery);
+  </script> -->
   
   <script type="text/javascript">
     <% index = 0 %>
@@ -99,7 +152,6 @@
 
     <% end %>
     
-    
     function setLayerStatus(id, serverUrl) 
     {
 
@@ -134,12 +186,17 @@
             
             var identifier = record.get("name");
             
-            //alert(serverUrl + ' PPP ' + datasets[i] + '==='+ identifier);
             if(datasets[i] == identifier) {
               var railsId = railsIdLookup[makeKey(serverUrl, identifier)];
               
               var title = record.get("title") || record.get("name");
-              $('#dataset-name-' + railsId).text(title);
+              title = title.replace(/ /g,'&nbsp;');
+              
+              // See http://stackoverflow.com/questions/244758/jquery-animation-smooth-size-transition
+              var selector = '#dataset-name-' + railsId;
+              // $(selector).showHtml(title);           // Triggers animated transition with specified duration
+              $(selector).html(title);   
+              
               $('#data_layer_available_yes_' + railsId).show();
               found = true; 
               break;
@@ -163,28 +220,31 @@
     
   </script>
   
+  
+  
   <form id="filter-form">Filter: <input name="filter" id="filter" value="" maxlength="30" size="30" type="text"></form>
   
   <div class="hint">Hint: Filter table by typing in the box above; sort by clicking on column headers; use Ctrl to sort by multiple columns</div>
 
   <table id="sortable_table" class="zebra sortable">
     <thead>
-      <tr><th>Name</th><th>Type</th><th>Status</th><th>ModConfigured Modules Using Dataset</th><th>Server Info</th></tr>
+      <tr><th>Name</th><th>Type</th><th>Status</th><th>Configured Modules Using Dataset</th></tr>
     </thead>
     
     <tbody>
       <% @datasets.each do |d| %>
-        <tr>
-          <td class="dataset-name-<%= serverUrlIdLookup[d.server_url] %>" id="dataset-name-<%= d.id %>">Retrieving...</td>
-          <td><%= d.dataset_type.blank? ? "Unknown" : d.dataset_type %></td>
-          <td>            
+        <tr valign=middle>
+          <td class="dataset-name-<%= serverUrlIdLookup[d.server_url] %>" id="dataset-name-<%= d.id %>" title="Server URL: <%= d.server_url %>">Retrieving...</td>
+          <td nowrap><%= d.dataset_type.blank? ? "Unknown" : d.dataset_type %></td>
+          <td width = 145>            
             <% if d.status != 'OK' %>
               <%= d.status %>
             <% else %>
+              <%# Use class instead of id because identifier will not be unique %>
               <div class="data_status_probing_<%= serverUrlIdLookup[d.server_url] %>">Probing server...  <img src="assets/loading_spinner.gif"></div>
-              <div class="data_status_not_responding_<%= serverUrlIdLookup[d.server_url] %>" id="data_status_not_responding_<%= d.id %>"><img src="/assets/server_responding_no.png" alt="WMS server not responding"></div>
-              <div class="data_layer_available_yes_<%= serverUrlIdLookup[d.server_url] %>"   id="data_layer_available_yes_<%= d.id %>"  ><img src="/assets/layer_available_yes.png" alt="Layer avaialble"></div>
-              <div class="data_layer_available_no_<%= serverUrlIdLookup[d.server_url] %>"    id="data_layer_available_no_<%= d.id %>"   ><img src="/assets/layer_available_no.png" alt="Layer not available"></div>
+              <div class="loading-status-icon data_status_not_responding_<%= serverUrlIdLookup[d.server_url] %>" id="data_status_not_responding_<%= d.id %>"><img src="/assets/server_responding_no.png" alt="WMS server not responding"></div>
+              <div class="loading-status-icon data_layer_available_yes_<%= serverUrlIdLookup[d.server_url] %>"   id="data_layer_available_yes_<%= d.id %>"  ><img src="/assets/layer_available_yes.png" alt="Layer avaialble"></div>
+              <div class="loading-status-icon data_layer_available_no_<%= serverUrlIdLookup[d.server_url] %>"    id="data_layer_available_no_<%= d.id %>"   ><img src="/assets/layer_available_no.png" alt="Layer not available"></div>
 
               <script type="text/javascript">
                 $("#data_status_not_responding_<%= d.id %>").hide();
@@ -197,14 +257,12 @@
           	SHOW MODULE LIST HERE??
             <%#= render :partial => 'show_mod_list', :locals => { :dataset => d, :popup => false } %>
           </td>
-          <td>
-          	<%= d.server_url %> ++ <%= d.identifier %>
-          </td>
         </tr>
       <% end %>
     </tbody>
   </table>
- 
+  
+
 
   <%= button_to "Register Datasets", :controller => 'datasets', :action => 'mass_import', :id => 1 %>
   
