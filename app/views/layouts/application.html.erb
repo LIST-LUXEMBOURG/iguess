@@ -7,39 +7,40 @@
   <%= csrf_meta_tags %>
   
 
-<% if params[:popup].nil? %>  
-  <script type="text/javascript">
-  
-  function gotoLocation(cityName) {
-    <% for city in City.all %>
-        if(cityName == "<%=city.name%>")
-        {
-          var proj = new OpenLayers.Projection("<%=city.srs%>");
-   	      var point = new OpenLayers.LonLat(
-   	      	(<%=city.minx%> + <%=city.maxx%>) / 2, 
-   	      	(<%=city.miny%> + <%=city.maxy%>) / 2);
-   	      point.transform(proj, map.getProjectionObject());
-        	
-          map.setCenter(point, <%=city.zoom%>);
-          return;
-        }
-    <% end %>
-  }
-  </script>
-<% end %>
 
 
 <script type="text/javascript">
   /* Script to enable JQuery UI / Themeroller buttons */
   /* http://www.filamentgroup.com/lab/styling_buttons_and_toolbars_with_the_jquery_ui_css_framework/ */
-              $(document).ready(function(){
-                  //hover states on the static widgets
-                  $(".button_to").hover(
-                      function() { $(this).addClass('ui-state-hover'); },
-                      function() { $(this).removeClass('ui-state-hover'); }
-                  );
+  $(document).ready(function(){
+      //hover states on the static widgets
+      $(".button_to").hover(
+          function() { $(this).addClass('ui-state-hover'); },
+          function() { $(this).removeClass('ui-state-hover'); }
+      );
 
-              });
+  });
+  
+  
+  var gotoLocation = function(cityName) {
+    // Set cookie to help us remember the location
+    $.cookie('city', cityName, { expires: 9999, path: '/' });
+    
+    <% for city in City.all %>
+        if(cityName == "<%= city.name %>")
+        {
+          var proj = new OpenLayers.Projection("<%= city.srs %>");
+          var point = new OpenLayers.LonLat(
+            (<%= city.minx %> + <%= city.maxx %>) / 2, 
+            (<%= city.miny %> + <%= city.maxy %>) / 2);
+          point.transform(proj, map.getProjectionObject());
+          
+          map.setCenter(point, <%= city.zoom %>);
+          return;
+        }
+    <% end %>
+  }
+  
 </script> 
 
 
@@ -90,9 +91,9 @@
       
       
         <div>
-          <select name="cities" id="city_dropdown" onchange="gotoLocation(this.value);">
+          <select name="cities" id="city-dropdown" onchange="gotoLocation(this.value);">
             <% for city in City.all %>
-              <option value="<%= city.name %>"><%= city.name %></option>
+              <option value="<%= city.name %>" <% if city.name == cookies[:city] %>selected<% end %>><%= city.name %></option>
             <% end %>
           </select>
           
@@ -111,8 +112,9 @@
   <%= yield %>
 </div>
 
+<script src="https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"></script>
 <script>
-  $("#navbar li[title]").tooltip({ position: 'bottom center', offset: [0,55] });   // Activate our tooltips   
+  $('#navbar li[title]').tooltip({ position: 'bottom center', offset: [0,55] });   // Activate our tooltips   
 </script>
 
 <% if params[:popup].nil? %>  

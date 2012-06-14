@@ -95,7 +95,7 @@ function initMapGoogle(){
 
 function zoomToCity(){
 	
-	gotoLocation(document.getElementById("city_dropdown").value);	
+	gotoLocation(document.getElementById("city-dropdown").value);	
 }
 
 //////////////////////////////////////////////////////////////////
