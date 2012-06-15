@@ -28,15 +28,20 @@ WPS.onGetCapabilities = function()
 {
   // Trigger callback with name and abstract of server
   WPS.onReceivedServerInfoFunction(this.getCapabilitiesUrlPost, this.title, this.abstract);
-  
+  WPS.title = this.title;
+
   // Further probe the server, process-by-process
   for(var i = 0; i < this.processes.length; i++) {
-    
-    WPS.describeProcess(this.describeProcessUrlPost, this.processes[i].identifier, WPS.onDescribedProcessFunction);
-    
+    WPS.describeProcess(this.describeProcessUrlPost, this.processes[i].identifier, WPS.onDescribedProcessFunction_passthrough);
     WPS.responsesExpected++;
   }
 };
+
+// Take returned process object and add the server title
+WPS.onDescribedProcessFunction_passthrough = function(process)
+{
+  WPS.onDescribedProcessFunction(WPS.title, process);
+}
 
 showErrorMessage = function (process, code, text) {
 	newWin = window.open('', 'Service Error Message', 'height=400, width=600, toolbar=no, menubar=no');

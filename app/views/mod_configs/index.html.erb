@@ -45,7 +45,7 @@
 
   // This function is called when the describeProcesses response arrives
   // It will be called repeatedly as responses arrive
-  function onDescribedProcess(process) 
+  function onDescribedProcess(serverName, process) 
   {
     responses++;
     
@@ -59,10 +59,11 @@
     $("." + processId).html(process.title || process.identifier);
     $(".status-" + processId).html("Server available");
     
-    var description = "<hr><h3>" + process.title + "</h3>";
-    description += process.abstract;
+    var description = '<hr><h3>' + process.title + '</h3>' + 
+        '<div>' + process.abstract + '</div>' +
+        '<div>' + serverName + '</div>' + 
  
-    description += '<table border=0 cellpadding=5>';
+        '<table border=0 cellpadding=5>';
     
     if(process.inputs.length == 0) {
       description += '<tr><th colspan=2 class="center">No Inputs</th></tr>';
