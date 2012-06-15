@@ -39,7 +39,7 @@
 
   function onReceivedServerInfo(url, title, abstract)
   {
-    $('#' + makeKey(url, 'title')).text(title);
+    $('.' + makeKey(url, 'title')).text(title);
     $('#' + makeKey(url, 'abstract')).text(abstract);
   }
 
@@ -166,23 +166,23 @@
 
 <%# Dynamically generate placeholders for the list of servers; these will be populated after we hear from our servers %>
 <script type="text/javascript">
-  var li, titSpan, absSpan;
+  var li, titDiv, absDiv;
   
   <% @wps_servers.each do |s| %>
     li = $(document.createElement('li'));
     
-    titSpan = $(document.createElement('div'));
-    absSpan = $(document.createElement('div'));
+    titDiv = $(document.createElement('div'));
+    absDiv = $(document.createElement('div'));
 
     $('#server-list').append(li);
-    li.append(titSpan);
-    li.append(absSpan);
+    li.append(titDiv);
+    li.append(absDiv);
 
-    titSpan.attr('class', 'wps-title');
-    titSpan.attr('id', makeKey('<%= s.url %>', 'title'));
+    titDiv.attr('class', 'wps-title');
+    titDiv.attr('class', makeKey('<%= s.url %>', 'title'));
     
-    absSpan.attr('class', 'wps-descr');
-    absSpan.attr('id', makeKey('<%= s.url %>', 'abstract'));
+    absDiv.attr('class', 'wps-descr');
+    absDiv.attr('id', makeKey('<%= s.url %>', 'abstract'));
   <% end %>
 </script>
 
