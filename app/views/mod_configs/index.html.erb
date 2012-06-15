@@ -35,7 +35,12 @@
   var responses = 0;
 
   // For each url in our database, start probing the server
-  for(var i = 0; i < urls.length; i++) {  WPS.probeWPS(urls[i], onDescribedProcess);  }
+  for(var i = 0; i < urls.length; i++) {  WPS.probeWPS(urls[i], onDescribedProcess, onReceivedServerInfo);  }
+
+  function onReceivedServerInfo(title, abstract)
+  {
+        
+  }
 
   // This function is called when the describeProcesses response arrives
   // It will be called repeatedly as responses arrive
@@ -46,6 +51,7 @@
     if(responses == WPS.getResponsesExpected()) {
       $('#wps-probing-indicator').hide();
     }
+    
 
     var server = WPS.unwrapProcServer(process.wps.getCapabilitiesUrlGet, process.identifier);
     var processId = processIdLookup[server + process.identifier]; 
@@ -146,7 +152,7 @@
   <div id="module_catalog_tab">
     <div>
       Catalog of modules found on the following servers:
-      <ul>
+      <ul id="server-list">
         <% @wps_servers.each do |s| %>
           <li><%= s.url %></li>
         <% end %>

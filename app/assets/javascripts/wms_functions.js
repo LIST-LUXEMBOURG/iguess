@@ -10,17 +10,33 @@ WPS.getResponsesExpected = function() { return WPS.responsesExpected; }
 
 ////////////////////////////////////////
 // Send an initial request to a WPS server to see what services it offers
-WPS.probeWPS = function(serverUrl, onDescribedProcessFunction) 
+WPS.probeWPS = function(serverUrl, onDescribedProcessFunction, onReceivedServerInfoFunction) 
 {
-  WPS.onDescribedProcessFunction = onDescribedProcessFunction;
+  WPS.onDescribedProcessFunction   = onDescribedProcessFunction;
+  WPS.onReceivedServerInfoFunction = onReceivedServerInfoFunction;
+  
   var url = WPS.getCapReq(serverUrl);
-   
+  
   // Init the client and run get capabilities
-  var wps = new OpenLayers.WPS(url, {onGotCapabilities: WPS.onGetCapabilities,
-                                     onException:       showErrorMessage});
+  var wps = new OpenLayers.WPS(url, { onGotCapabilities: WPS.onGetCapabilities,
+                                      onException:       showErrorMessage       });
   wps.getCapabilities(url);
 };
 
+// This function is called when the getCapabilities response arrives
+WPS.onGetCapabilities = function() 
+{
+  // Trigger callback with name and abstract of server
+  WPS.onReceivedServerInfoFunction(this.title, this.abstract);
+  
+  // Further probe the server, process-by-process
+  for(var i = 0; i < this.processes.length; i++) {
+    
+    WPS.describeProcess(this.describeProcessUrlPost, this.processes[i].identifier, WPS.onDescribedProcessFunction);
+    
+    WPS.responsesExpected++;
+  }
+};
 
 showErrorMessage = function (process, code, text) {
 	newWin = window.open('', 'Service Error Message', 'height=400, width=600, toolbar=no, menubar=no');
@@ -36,17 +52,13 @@ showPreErrorMessage = function (process, code, text) {
   newWin.document.write("<pre>" + process.responseText + "</pre>");
 };
   
-  // This function is called when the getCapabilities response arrives
-WPS.onGetCapabilities = function() 
+
+
+WPS.onGetServerInfo = function(xxx)
 {
-  // Further probe the server, process-by-process
-  for(var i = 0; i < this.processes.length; i++) {
-    
-    WPS.describeProcess(this.describeProcessUrlPost, this.processes[i].identifier, WPS.onDescribedProcessFunction);
-    
-    WPS.responsesExpected++;
-  }
-};
+  console.log(xxx);
+  
+}
 
 
 // Support code for collecting all the dataTypes available on the specified servers
