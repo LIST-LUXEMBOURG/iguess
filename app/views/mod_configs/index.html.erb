@@ -154,7 +154,6 @@
     <div>
       Catalog of modules found on the following servers:
       <ul id="server-list"></ul>
-      <br>
       <a href="#">Add new server</a>
     </div>
 
@@ -165,20 +164,25 @@
   </div>
 </div>
 
+<%# Dynamically generate placeholders for the list of servers; these will be populated after we hear from our servers %>
 <script type="text/javascript">
   var li, titSpan, absSpan;
   
   <% @wps_servers.each do |s| %>
     li = $(document.createElement('li'));
-    span1 = $(document.createElement('span'));
-    span2 = $(document.createElement('span'));
+    
+    titSpan = $(document.createElement('div'));
+    absSpan = $(document.createElement('div'));
 
     $('#server-list').append(li);
-    li.append(span1);
-    li.append(span2);
+    li.append(titSpan);
+    li.append(absSpan);
 
-    span1.attr('id', makeKey('<%= s.url %>', 'title'));
-    span2.attr('id', makeKey('<%= s.url %>', 'abstract'));
+    titSpan.attr('class', 'wps-title');
+    titSpan.attr('id', makeKey('<%= s.url %>', 'title'));
+    
+    absSpan.attr('class', 'wps-descr');
+    absSpan.attr('id', makeKey('<%= s.url %>', 'abstract'));
   <% end %>
 </script>
 

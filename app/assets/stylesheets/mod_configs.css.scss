@@ -9,10 +9,22 @@
 
 
 #server-list {
+  padding-left: 0px;
   color: black;
   font-size: 120%;
+  list-style-type: none;
 }
 
 #server-list li {
     
+}
+
+// Title of server in the server list
+.wps-title {
+  text-decoration: underline;
+}
+
+// Description of server in the server list
+.wps-descr {
+  margin-left: 20px;
 }
