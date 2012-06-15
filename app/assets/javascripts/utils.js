@@ -30,12 +30,12 @@ populateSelectBox = function(control, options) {
 }
 
 
-// Combine server and layer name to create a unique key 
-makeKey = function(server, name) 
+// Combine server and other identifier to create a unique key 
+makeKey = function(server, identifier) 
 {
   try{
-  // Strip out any backslashes because these screw things up!
-  return server.replace(/\\/g, '') + '+*+' + name.replace(/\\/g, '');
+  // Strip out any special chars because these confuse things parsing the DOM!
+  return (server.replace(/[\\\/:\.]/g, '_') + '---' + identifier.replace(/\\/g, ''));
   } catch(e) { debugger; }
 }
 

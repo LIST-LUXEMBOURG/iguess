@@ -37,9 +37,10 @@
   // For each url in our database, start probing the server
   for(var i = 0; i < urls.length; i++) {  WPS.probeWPS(urls[i], onDescribedProcess, onReceivedServerInfo);  }
 
-  function onReceivedServerInfo(title, abstract)
+  function onReceivedServerInfo(url, title, abstract)
   {
-        
+    $('#' + makeKey(url, 'title')).text(title);
+    $('#' + makeKey(url, 'abstract')).text(abstract);
   }
 
   // This function is called when the describeProcesses response arrives
@@ -152,11 +153,7 @@
   <div id="module_catalog_tab">
     <div>
       Catalog of modules found on the following servers:
-      <ul id="server-list">
-        <% @wps_servers.each do |s| %>
-          <li><%= s.url %></li>
-        <% end %>
-      </ul>
+      <ul id="server-list"></ul>
       <br>
       <a href="#">Add new server</a>
     </div>
@@ -168,7 +165,22 @@
   </div>
 </div>
 
+<script type="text/javascript">
+  var li, titSpan, absSpan;
+  
+  <% @wps_servers.each do |s| %>
+    li = $(document.createElement('li'));
+    span1 = $(document.createElement('span'));
+    span2 = $(document.createElement('span'));
 
+    $('#server-list').append(li);
+    li.append(span1);
+    li.append(span2);
+
+    span1.attr('id', makeKey('<%= s.url %>', 'title'));
+    span2.attr('id', makeKey('<%= s.url %>', 'abstract'));
+  <% end %>
+</script>
 
 
 

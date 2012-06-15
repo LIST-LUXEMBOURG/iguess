@@ -27,7 +27,7 @@ WPS.probeWPS = function(serverUrl, onDescribedProcessFunction, onReceivedServerI
 WPS.onGetCapabilities = function() 
 {
   // Trigger callback with name and abstract of server
-  WPS.onReceivedServerInfoFunction(this.title, this.abstract);
+  WPS.onReceivedServerInfoFunction(this.getCapabilitiesUrlPost, this.title, this.abstract);
   
   // Further probe the server, process-by-process
   for(var i = 0; i < this.processes.length; i++) {
