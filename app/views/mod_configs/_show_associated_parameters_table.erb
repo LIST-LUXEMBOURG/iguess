@@ -41,15 +41,16 @@
       
       row  = $(document.createElement('tr'));
       
-      cell = $(document.createElement('td'));
+      cell = $(document.createElement('td'));   // Param name
       cell.text(items[i].title);
       row.append(cell);
       
-      cell = $(document.createElement('td'));
+      cell = $(document.createElement('td'));   // Descr
       cell.text(items[i].descr);
       row.append(cell);
       
-      cell = $(document.createElement('td'));
+      cell = $(document.createElement('td'));   // Dataset
+      cell.attr("nowrap", true);
       
       
       <% if mode == :input %>
