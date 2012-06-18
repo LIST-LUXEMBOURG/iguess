@@ -66,9 +66,9 @@
         '<table border=0 cellpadding=5>';
     
     if(process.inputs.length == 0) {
-      description += '<tr><th colspan=2 class="center">No Inputs</th></tr>';
+      description += '<tr><th colspan=2 class="model-inputs-outputs">No Inputs</th></tr>';
     } else {
-      description += '<tr><th colspan=2 class="center">Inputs</th></tr>';
+      description += '<tr><th colspan=2 class="model-inputs-outputs">Model Inputs</th></tr>';
       description += '<tr style="border: 0"><th>Name</th><th>Description</th></tr>';
 
       for(var i = 0; i < process.inputs.length; i++) {
@@ -77,9 +77,9 @@
     }
     
     if(process.outputs.length == 0) {
-      description += '<tr><th colspan=2 class="center">No Outputs</th></tr>';
+      description += '<tr><th colspan=2 class="model-inputs-outputs">No Outputs</th></tr>';
     } else {
-      description += '<tr><th colspan=2 class="center">Outputs</th></tr>';
+      description += '<tr><th colspan=2 class="model-inputs-outputs">Model Outputs</th></tr>';
       description += '<tr style="border: 0"><th>Name</th><th>Description</th></tr>';
 
       for(var i = 0; i < process.outputs.length; i++) {
