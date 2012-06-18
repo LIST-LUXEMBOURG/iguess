@@ -59,9 +59,9 @@
     $("." + processId).html(process.title || process.identifier);
     $(".status-" + processId).html("Server available");
     
-    var description = '<hr><h3>' + process.title + '</h3>' + 
-        '<div>' + process.abstract + '</div>' +
-        '<div>' + serverName + '</div>' + 
+    var description = '<hr><h3 class="process-title">' + process.title + '</h3>' + 
+        '<div class="process-descr">' + process.abstract + '</div>' +
+        '<div class="process-server-name"><span class="hosted-by">Hosted by:</span> <span class="server-name">' + serverName + '</span></div>' + 
  
         '<table border=0 cellpadding=5>';
     
