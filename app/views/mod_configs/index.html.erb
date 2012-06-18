@@ -99,10 +99,10 @@
   function getDescrRow(record) 
   {
       var title = record.title ? record.title + ' [' + record.identifier + ']' : record.identifier;
-      var abstract = record.abstract ? record.abstract : "-";
+      var abstract = record.abstract ? record.abstract : "<div class='center'>-</div>";
       
-      return '<tr><td style="border: 1px solid black">' + title + '</td>' + 
-                 '<td style="border: 1px solid black">' + abstract + '</td></tr>';
+      return '<tr><td class="param-name">' + title + '</td>' + 
+                 '<td class="param-descr">' + abstract + '</td></tr>';
   }
 
 </script>
