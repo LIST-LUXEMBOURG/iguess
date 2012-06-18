@@ -87,9 +87,8 @@
         description += getDescrRow(process.outputs[i]);
       }
     }
-    description += '</tbody></table>';
-    
-    description += '<a href="#">Create new configuration for this service</a>';
+    description += '</tbody></table>' +
+                   '<a href="#">Create new configuration for this service</a>';
     
     document.getElementById("wps-result").innerHTML += description;
   };
