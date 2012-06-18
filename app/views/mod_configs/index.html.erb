@@ -30,6 +30,7 @@
   <%= raw lines %>
 
 
+
   var urls = [<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>];
   var responses = 0;
 
@@ -86,7 +87,7 @@
         description += getDescrRow(process.outputs[i]);
       }
     }
-    description += '</tbody></table><%= link_to "Create new configuration for this service", new_mod_config_path %>';
+    description += '</tbody></table>' + '<%= link_to "Create new configuration for this service", new_mod_config_path %>';
     
     document.getElementById("wps-result").innerHTML += description;
   };

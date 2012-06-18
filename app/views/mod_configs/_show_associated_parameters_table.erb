@@ -52,7 +52,6 @@
       cell = $(document.createElement('td'));   // Dataset
       cell.attr("nowrap", true);
       
-      
       <% if mode == :input %>
         var control = findAllDatasets(items[i].identifier);
         
@@ -86,9 +85,14 @@
     var ctrl = $(document.createElement('select'));
     for(var layerKey in registeredDataLayers) {
       if(registeredDataLayers[layerKey] == identifier) {
-        ctrl.append('<option value="' + layerKey + '">' + discoveredLayers[layerKey].title + '</option>');
+        var title = "Unknown Title";
+        if(discoveredLayers[layerKey] != undefined) {
+          title = discoveredLayers[layerKey].title;
+        }
+        ctrl.append('<option value="' + layerKey + '">' + title + '</option>'); 
       }
     }
+    
     
     return ctrl;
   }
