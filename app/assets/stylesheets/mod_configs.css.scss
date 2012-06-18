@@ -19,18 +19,59 @@
     
 }
 
-.model-descr-table th {
-  text-align: left;
-  color: green;
+.model-descr-table {
+  //font-family:"Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+  //font-size:12px;
+  //width:80%;
+  
+  text-align:left;
+  border-collapse:collapse;
+  margin:40px;
+  margin-top: 0px;
+ 
 }
 
-// Text 
-.model-inputs-outputs {
-  color: red;  
+.model-descr-table th {
+  font-weight: bold;
+  background: #b9c9fe;
+  border-top: 4px solid #aabcfe;
+  border-bottom: 1px solid #fff;
+  padding: 8px;
+}
+
+// Hanging outdent of Inputs and Outputs headers
+.outdent {
+  margin-left: -30px;
+}
+
+// Model Inputs/Model Outputs header
+.model-descr-table .group-header {
+  background: none;
   font-size: 130%;
   text-align: left;
-  padding-top: 30px;
+  border-top: none;
+  padding-top: 40px;
+  font-weight: normal;
 }
+
+
+.model-descr-table td {
+  background:#e8edff;
+  border-bottom:1px solid #fff;
+  //color:#669;
+  border-top:1px solid transparent;
+  padding:8px;
+  
+  // Keep tables from growing too wide!
+  max-width:600px;
+  word-wrap: break-word;
+}
+
+.model-descr-table tr:hover td {
+  background:#d0dafd;
+  color:#339;
+}
+
 
 // Title of server in the server list
 .wps-title {
@@ -65,13 +106,16 @@
   
 }
 
+
 // Left column of inputs/outputs table
 .param-name {
-  color: red;
+  
 }
 
 // Right column of inputs/outputs table
 .param-descr {
-  color: blue;
+  
 }
+
+
 

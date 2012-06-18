@@ -63,29 +63,31 @@
         '<div class="process-descr">' + process.abstract + '</div>' +
         '<div class="process-server-name"><span class="hosted-by">Hosted by:</span> <span class="server-name">' + serverName + '</span></div>' + 
  
-        '<table border=0 cellpadding=5 class="model-descr-table">';
-    
+        '<table class="model-descr-table">' +
+        '<tbody class="inputs">';
     if(process.inputs.length == 0) {
-      description += '<tr><td colspan=2 class="model-inputs-outputs">No Inputs</th></tr>';
+      description += '<tr><th colspan=3 class="group-header "><div class="outdent">No Inputs</div></th></tr>';
     } else {
-      description += '<tr><td colspan=2 class="model-inputs-outputs">Model Inputs</th></tr>';
-      description += '<tr style="border: 0"><th>Name</th><th>Description</th></tr>';
+      description += '<tr><th colspan=3 class="group-header" scope=rowgroup><div class="outdent">Model Inputs</div></th></tr>' + 
+                     '<tr><th>Parameter Name</th><th>Description</th></tr>';
 
       for(var i = 0; i < process.inputs.length; i++) {
         description += getDescrRow(process.inputs[i]);
       }
     }
     
+    description += '</tbody><tbody class="outputs">';
     if(process.outputs.length == 0) {
-      description += '<tr><td colspan=2 class="model-inputs-outputs">No Outputs</th></tr>';
+      description += '<tr><th colspan=3 class="group-header"><div class="outdent">No Outputs</div></th></tr>';
     } else {
-      description += '<tr><td colspan=2 class="model-inputs-outputs">Model Outputs</th></tr>';
-      description += '<tr style="border: 0"><th>Name</th><th>Description</th></tr>';
+      description += '<tr><th colspan=3 class="group-header" scope=rowgroup><div class="outdent">Model Outputs</div></th></tr>' +
+                     '<tr><th>Name</th><th>Description</th></tr>';
 
       for(var i = 0; i < process.outputs.length; i++) {
         description += getDescrRow(process.outputs[i]);
       }
     }
+    description += '</tbody>';
     
     description += '</table>';
     
@@ -98,10 +100,10 @@
   // Formatting helper
   function getDescrRow(record) 
   {
-      var title = record.title ? record.title + ' [' + record.identifier + ']' : record.identifier;
+      var title    = record.title    ? record.title + ' [' + record.identifier + ']' : record.identifier;
       var abstract = record.abstract ? record.abstract : "<div class='center'>-</div>";
       
-      return '<tr><td class="param-name">' + title + '</td>' + 
+      return '<tr><td class="param-name">'  + title    + '</td>' + 
                  '<td class="param-descr">' + abstract + '</td></tr>';
   }
 
