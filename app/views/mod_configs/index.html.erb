@@ -168,23 +168,15 @@
 
 <%# Dynamically generate placeholders for the list of servers; these will be populated after we hear from our servers %>
 <script type="text/javascript">
-  var li, titDiv, absDiv;
-  
-  <% @wps_servers.each do |s| %>
-    li = $(document.createElement('li'));
+    <% @wps_servers.each do |s| %>
+    var li = $(document.createElement('li'));
     
-    titDiv = $(document.createElement('div'));
-    absDiv = $(document.createElement('div'));
+    var liHtml = '<div class="wps-title '       + makeKey('<%= s.url %>', 'title')    + '"></div>' + 
+                 '<div class="wps-descr" id ="' + makeKey('<%= s.url %>', 'abstract') + '"></div>';
+                 
+    li.html(liHtml);             
 
     $('#server-list').append(li);
-    li.append(titDiv);
-    li.append(absDiv);
-
-    titDiv.attr('class', 'wps-title');
-    titDiv.attr('class', makeKey('<%= s.url %>', 'title'));
-    
-    absDiv.attr('class', 'wps-descr');
-    absDiv.attr('id', makeKey('<%= s.url %>', 'abstract'));
   <% end %>
 </script>
 
