@@ -61,7 +61,8 @@
   }
   
   
-  var buildModuleList = function() {
+  var buildModuleList = function() 
+  {
     // Make sure we have all the info we need to proceed..
     if(!processProcessingComplete || !serverProcessingComplete) {
       return;
@@ -84,7 +85,8 @@
   
   
   // User has selected a different process from the drop down box... need to rebuild inputs/outputs sections
-  function onProcessChanged() {
+  function onProcessChanged() 
+  {
     // These functions are defined in _show_assocated_parameters_table.erb
     populateInputTable (procs[$('#processControl').val()].inputs);
     populateOutputTable(procs[$('#processControl').val()].outputs);
