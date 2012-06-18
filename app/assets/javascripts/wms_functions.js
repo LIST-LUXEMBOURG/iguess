@@ -6,6 +6,7 @@ var WFS = WFS || {};    // Create namespace object for our functions
 WPS.responsesExpected = 0;
 WPS.responsesReceived = 0;
 
+
 WPS.getResponsesExpected = function() { return WPS.responsesExpected; }
 
 ////////////////////////////////////////
@@ -27,7 +28,9 @@ WPS.probeWPS = function(serverUrl, onDescribedProcessFunction, onReceivedServerI
 WPS.onGetCapabilities = function() 
 {
   // Trigger callback with name and abstract of server
-  WPS.onReceivedServerInfoFunction(this.getCapabilitiesUrlPost, this.title, this.abstract);
+  if(WPS.onReceivedServerInfoFunction != null && WPS.onReceivedServerInfoFunction != undefined) {
+    WPS.onReceivedServerInfoFunction(this.getCapabilitiesUrlPost, this.title, this.abstract);
+  }
   WPS.title = this.title;
 
   // Further probe the server, process-by-process
@@ -40,7 +43,7 @@ WPS.onGetCapabilities = function()
 // Take returned process object and add the server title
 WPS.onDescribedProcessFunction_passthrough = function(process)
 {
-  WPS.onDescribedProcessFunction(WPS.title, process);
+  WPS.onDescribedProcessFunction(process, WPS.title);
 }
 
 showErrorMessage = function (process, code, text) {
