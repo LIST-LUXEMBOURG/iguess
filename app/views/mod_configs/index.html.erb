@@ -87,8 +87,7 @@
         description += getDescrRow(process.outputs[i]);
       }
     }
-    description += '</tbody></table>' +
-                   '<a href="#">Create new configuration for this service</a>';
+    description += '</tbody></table><%= link_to "Create new configuration for this service", new_mod_config_path %>';
     
     document.getElementById("wps-result").innerHTML += description;
   };
