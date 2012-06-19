@@ -129,7 +129,7 @@ WMS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
   var store = new GeoExt.data.WMSCapabilitiesStore({ url: fullUrl });
       
   // Add some callbacks to handle various situations  
-  store.on('load', successFunction);
+  store.on('load',      successFunction);
   store.on('exception', failureFunction);
 
   store.load(); 
