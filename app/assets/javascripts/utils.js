@@ -35,7 +35,8 @@ makeKey = function(server, identifier)
 {
   try{
   // Strip out any special chars because these confuse things parsing the DOM!
-  return (server.replace(/[\\\/:\.]/g, '_') + '---' + identifier.replace(/\\/g, ''));
+  // Replace with nothing because sometimes things get here with the backslashes already munged out
+  return (server.replace(/[\\\/:\.]/g, '') + '---' + identifier.replace(/[\\\/:\.]/g, ''));
   } catch(e) { debugger; }
 }
 
