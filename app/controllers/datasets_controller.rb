@@ -5,9 +5,8 @@ class DatasetsController < ApplicationController
     @datasets = Dataset.all
     @wps_servers = WpsServer.all
     
-    # Find all unique server urls in @datasets, ignoring any blanks
+    # Find all unique server urls in @datasets, ignoring any blank entries
     @server_urls = @datasets.reject{|d| d.status != 'OK' || d.server_url.blank?}.map{|d| d.server_url}.uniq
-
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @datasets }
