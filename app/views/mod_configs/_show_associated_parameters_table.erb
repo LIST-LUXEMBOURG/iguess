@@ -29,7 +29,7 @@
   {
     $('#<%= mode %>-table').empty();
     
-    var header = '<tr><th>Parameter Name</th><th>Description</th>' + 
+    var header = '<tr><th>Parameter Name</th>' + 
                  '<% if mode == :input %><th>Selected Dataset</th><% else %><th>Output Dataset Identifier</th><% end %></tr>';
     
     $('#<%= mode %>-table').append(header);
@@ -37,17 +37,24 @@
     var itemCount = items.length;
     for(var i = 0; i < itemCount; i++)
     {
-      var row, col;
+      var row, col, img;
       
       row  = $(document.createElement('tr'));
       
       cell = $(document.createElement('td'));   // Param name
-      cell.text(items[i].title);
+      
+      var html = items[i].title;
+      if(items[i].descr != null) {
+        html += '<img src="/assets/small_question_mark.gif" style="padding-left: 8px; padding-top: 3px" ' +
+                'alt="More info" title="' + items[i].descr + '">'
+      }
+      
+      cell.html(html);
       row.append(cell);
       
-      cell = $(document.createElement('td'));   // Descr
-      cell.text(items[i].descr);
-      row.append(cell);
+      // cell = $(document.createElement('td'));   // Descr
+      // cell.text(items[i].descr);
+      // row.append(cell);
       
       cell = $(document.createElement('td'));   // Dataset
       cell.attr("nowrap", true);
