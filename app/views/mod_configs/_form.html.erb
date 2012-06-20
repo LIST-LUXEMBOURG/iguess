@@ -77,7 +77,9 @@
     });
     
     for(var key in procs) {
-      processControl.append('<option value="' + key + '">' + procs[key].title + '</option>');
+      var hash = (procs[key].title + 'Q' + procs[key].serverUrl).makeHash();
+      var selstr = (hash == <%= params['sel'] %>) ? " selected" : "";
+      processControl.append('<option value="' + key + '"' + selstr + '>' + procs[key].title + '</option>');
     }
     $('#proc-ctrl-container').html(processControl);
     onProcessChanged();

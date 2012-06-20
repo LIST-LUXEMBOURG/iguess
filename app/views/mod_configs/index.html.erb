@@ -53,7 +53,8 @@
       $('#wps-probing-indicator').hide();
     }
     
-    var server = WPS.unwrapProcServer(process.wps.getCapabilitiesUrlGet, process.identifier);
+    var wrappedServer = process.wps.getCapabilitiesUrlGet;
+    var server = WPS.unwrapProcServer(wrappedServer, process.identifier);
     var processId = processIdLookup[server + process.identifier]; 
     
     $("." + processId).html(process.title || process.identifier);
@@ -87,7 +88,8 @@
         description += getDescrRow(process.outputs[i]);
       }
     }
-    description += '</tbody></table>' + '<%= link_to "Create new configuration for this service", new_mod_config_path %>';
+
+    description += '</tbody></table><a href="/mod_configs/new?sel=' + (process.title + 'Q' + wrappedServer).makeHash() + '">Create new configuration for this service</a>';
     
     document.getElementById("wps-result").innerHTML += description;
   };

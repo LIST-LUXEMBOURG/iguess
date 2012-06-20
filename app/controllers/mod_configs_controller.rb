@@ -28,7 +28,7 @@ class ModConfigsController < ApplicationController
     @mod_config = ModConfig.new
     @wps_servers = WpsServer.all
     @datasets = Dataset.all
-
+    
     respond_to do |format|
       format.html # new.html.erb
       format.json { render json: @mod_config }
