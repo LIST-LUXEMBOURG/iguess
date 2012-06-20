@@ -37,11 +37,8 @@
     var itemCount = items.length;
     for(var i = 0; i < itemCount; i++)
     {
-      var row, col, img;
-      
-      row  = $(document.createElement('tr'));
-      
-      cell = $(document.createElement('td'));   // Param name
+      var row  = $(document.createElement('tr'));
+      var cell = $(document.createElement('td'));   // Param name
       
       var html = items[i].title;
       if(items[i].descr != null) {
