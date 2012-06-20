@@ -5,13 +5,8 @@
                 map{ |d| "registeredDataLayers[makeKey('" + d.server_url + "','" + d.identifier + "')] = '" + d.dataset_type + "';" }.
                 join(' ') %>
                 
-  registeredProcDataServers = [<%= @datasets.uniq{|d| d.server_url}
-                                        .reject{|d| d.dataset_type == "Mapping Only"}
-                                        .map{|d| "'" + d.server_url + "'"}
+  registeredDataServers = [<%= @datasets.reject{|d| d.dataset_type == "Mapping Only"}
+                                        .uniq  {|d| d.server_url}
+                                        .map   {|d| "'" + d.server_url.gsub('\\') { '\\\\' } + "'"}
                                         .join(',') %>];        
-<!--                                         
-  registeredMapDataServers = [<%= @datasets.uniq{|d| d.server_url}
-                                           .map{|d| "'" + d.server_url + "'"}
-                                           .join(',') %>];               
-                                                -->
 </script>

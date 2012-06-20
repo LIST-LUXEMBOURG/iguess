@@ -109,11 +109,11 @@
   
   // We only care about WFS here, as these are all that can be used with process configurations
   // Uses functions in build_data_layers partial
-  var serverCount = registeredProcDataServers.length;
+  var serverCount = registeredDataServers.length;
   
   for(var i = 0; i < serverCount; i++) {
-    WMS.updateLayerList(registeredProcDataServers[i], onWmsGetCapabilitiesSucceeded, onWmsGetCapabilitiesFailed); // Need to call this for now to avoid crashes
-    WFS.updateLayerList(registeredProcDataServers[i], onWfsGetCapabilitiesSucceeded, onWfsGetCapabilitiesFailed);
+    WMS.updateLayerList(registeredDataServers[i], onWmsGetCapabilitiesSucceeded, onWmsGetCapabilitiesFailed); // Need to call this for now to avoid crashes
+    WFS.updateLayerList(registeredDataServers[i], onWfsGetCapabilitiesSucceeded, onWfsGetCapabilitiesFailed);
   }
 
   // Called when we've gotten whatever response we're going to get from a wfs server -- here type will always be 'WFS'
@@ -127,7 +127,7 @@
     
     // TODO: Actually track which servers come back so we can properly display error messages
     
-    if(registeredProcDataServers.length == serversReturned.length) {
+    if(registeredDataServers.length == serversReturned.length) {
       serverProcessingComplete = true;
       buildModuleList(); 
     }
