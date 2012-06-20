@@ -46,7 +46,7 @@
     
     return coordinatedegrees + "&#176; " +
            coordinateminutes + "' " + 
-           (coordinateseconds).toFixed(parseFloat(2)) + "\" " +
+           (parseFloat(coordinateseconds).toFixed(parseFloat(2))) + "\" " +
            this.getHemi(coordinate, type);
   }
 
