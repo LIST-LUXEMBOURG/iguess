@@ -79,7 +79,7 @@
     for(var key in procs) {
       processControl.append('<option value="' + key + '">' + procs[key].title + '</option>');
     }
-    $('#procControlContainer').html(processControl);
+    $('#proc-ctrl-container').html(processControl);
     onProcessChanged();
   }
   
@@ -92,11 +92,13 @@
     populateOutputTable(procs[$('#processControl').val()].outputs);
    
     var identifier = procs[$('#processControl').val()].identifier;
-    var url = procs[$('#processControl').val()].serverUrl;
+    var url  = procs[$('#processControl').val()].serverUrl;
     var url2 = WPS.unwrapProcServer(url, identifier);
+    var descr = 
     
-    $("#wps_server_url").val(url2);
-    $("#identifier").val(identifier);
+    $("#wps_server_url").text(url2);
+    $("#identifier").text(identifier);
+    $("#proc-descr").text(procs[$('#processControl').val()].descr);
   }
   
   
@@ -166,8 +168,9 @@
   
   <div class="input text">
     <label class="simple_form label">Module Type</label>
-    <span id="procControlContainer">Probing servers... <img src="/assets/loading_spinner.gif"></span>
+    <span id="proc-ctrl-container">Probing servers... <img src="/assets/loading_spinner.gif"></span>
   </div>
+  <div class="input text"><label class="simple_form label"></label><span id="proc-descr"></span></div>
   
   
   <%= f.input :descr, :as => :text, :label => 'Description', :input_html => { :rows => 6, :cols => 80, :maxlength => 5000 }, 
