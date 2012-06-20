@@ -102,7 +102,7 @@
   
   var urls = [<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>];
   
-   // For each url in our database, start probing the server
+  // For each url in our database, start probing the server
   for(var i = 0; i < urls.length; i++) {  WPS.probeWPS(urls[i], onDescribedProcess);  }
   
   
