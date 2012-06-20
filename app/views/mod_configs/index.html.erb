@@ -89,7 +89,7 @@
       }
     }
 
-    description += '</tbody></table><a href="/mod_configs/new?sel=' + (process.title + 'Q' + wrappedServer).makeHash() + '">Create new configuration for this service</a>';
+    description += '</tbody></table><a href="/mod_configs/new?template=' + (process.title + 'Q' + wrappedServer).makeHash() + '">Create new configuration for this service</a>';
     
     document.getElementById("wps-result").innerHTML += description;
   };
