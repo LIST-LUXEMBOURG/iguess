@@ -1,12 +1,14 @@
+<%# This function builds a list of data layers that are registered, and are thus stored in the database.  %>
+
 <script type="text/javascript">
   registeredDataLayers = { };
-    
+
   <%= @datasets.reject{ |d| d.finalized == false }.
                 map{ |d| "registeredDataLayers[makeKey('" + d.server_url + "','" + d.identifier + "')] = '" + d.dataset_type + "';" }.
                 join(' ') %>
-                
+
   registeredDataServers = [<%= @datasets.reject{|d| d.dataset_type == "Mapping Only"}
                                         .uniq  {|d| d.server_url}
                                         .map   {|d| "'" + d.server_url.gsub('\\') { '\\\\' } + "'"}
-                                        .join(',') %>];        
+                                        .join(',') %>];
 </script>

@@ -15,6 +15,7 @@ class ModConfigsController < ApplicationController
   # GET /mod_configs/1.json
   def show
     @mod_config = ModConfig.find(params[:id])
+    @datasets = Dataset.all
 
     respond_to do |format|
       format.html # show.html.erb
@@ -28,7 +29,7 @@ class ModConfigsController < ApplicationController
     @mod_config = ModConfig.new
     @wps_servers = WpsServer.all
     @datasets = Dataset.all
-    
+
     respond_to do |format|
       format.html # new.html.erb
       format.json { render json: @mod_config }
@@ -44,11 +45,11 @@ class ModConfigsController < ApplicationController
   # POST /mod_configs.json
   def create
     @mod_config = ModConfig.new(params[:mod_config])
-    
+
     server = WpsServer.find_by_url(params[:wps_server_url])
     @mod_config.wps_server = server
     @mod_config.identifier = params[:identifier]
-    
+
     respond_to do |format|
       if @mod_config.save
         format.html { redirect_to @mod_config, notice: 'Mod config was successfully created.' }

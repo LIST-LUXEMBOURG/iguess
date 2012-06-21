@@ -4,60 +4,64 @@
   Module Configuration
 </h1>
 
+
+<%= render :partial => '/shared/build_registered_layers.html.erb' %>  <%# Builds registeredDataLayers structure %>
+<%= render :partial => '/shared/build_data_layers.html.erb' %>        <%# Builds something else %>
+
 <script type="text/javascript">
-    
+
     function hideButtons() {
       $('#run_module_button_container').hide();
       $('#stop_module_button_container').hide();
     }
-    
+
     function enableEditing() {
       $('.disablable').prop('disabled',false);
       $('.hideable').show();
     }
-    
+
     function disableEditing() {
       $('.disablable').prop('disabled',true);
       $('.hideable').hide();
     }
-    
+
     function showButton(statusCode) {
       hideButtons();
-      
-      if(statusCode == 1) {           // Module just created, needs data 
+
+      if(statusCode == 1) {           // Module just created, needs data
         $('#status_display').html("<%#= @mod_config.get_status_name(1) %>");
-        $('#explanation').html("Before you can run this module, you need to supply data or values for each of the inputs. " +  
+        $('#explanation').html("Before you can run this module, you need to supply data or values for each of the inputs. " +
                                "You can do this by selecting a dataset from the list provided for each parameter, or by creating new datasets.");
         enableEditing();
-        
+
       } else if(statusCode == 2) {    // Module ready to go
         $('#run_module_button_container').show();
         $('#status_display').html("<%#= @mod_config.get_status_name(2) %>");
         $('#explanation').html("This module has all its data and is ready to run.  Click the Run button to start the process.");
         enableEditing();
-        
+
       } else if(statusCode == 3) {    // Module is running
         $('#stop_module_button_container').show();
         $('#status_display').html("<%#= @mod_config.get_status_name(3) %>");
         $('#explanation').html("This module is currently running.  You can refresh this page, " +
-                               "or check back later to monitor the module's progress, " + 
+                               "or check back later to monitor the module's progress, " +
                                "but you cannot change dataset information while the module is running.");
         disableEditing();
         startPolling();
-        
+
       } else if(statusCode == 4) {    // Module run compete
         $('#status_display').html("<%#= @mod_config.get_status_name(4) %>");
         $('#explanation').html("This module has been successfully run.  You can now view the outputs in the Data Manager.");
         disableEditing();
       }
     }
-    
+
     // Get things setup when we first load the page -- enables/disables controls, sets messages, etc.
     $(document).ready(function () {
       showButton(<%= @module_status %>);
     });
-    
-    
+
+
     // See https://github.com/jeremyw/jquery-smart-poll
     function startPolling() {
       $.poll(function(retry) {
@@ -69,15 +73,45 @@
         })
       })
     }
-    
-    var onDescribed = function(process) {
-      $("#based-on").html(process.title || process.name);
+
+    var onDescribedProcess = function(process) {
+      $('#based-on').html(process.title || process.name);
+      $('#mod-descr').html(process.abstract);
+
+      var serverUrl = process.wps.executeUrlGet;
+      var inputs  = [ ];
+      var outputs = [ ];
+
+      var o, i;
+
+      var inputCount = process.inputs.length;
+      for(i = 0; i < inputCount; i++) {
+        o = new Object;
+        o.identifier = process.inputs[i].identifier;
+        o.title = process.inputs[i].title || process.inputs[i].identifier;
+        o.descr = process.inputs[i].abstract;
+
+        inputs.push(o);
+      }
+
+      var outputCount = process.inputs.length;
+      for(i = 0; i < outputCount; i++) {
+        o = new Object;
+        o.identifier = process.inputs[i].identifier;
+        o.title = process.inputs[i].title || process.inputs[i].identifier;
+        o.descr = process.inputs[i].abstract;
+
+        outputs.push(o);
+      }
+
+      populateInputTable(inputs);
+      populateOutputTable(outputs);
     }
-    
-    WPS.describeProcess("<%= @mod_config.wps_server.url %>", "<%= @mod_config.identifier %>", onDescribed);
-        
+
+    WPS.describeProcess("<%= @mod_config.wps_server.url %>", "<%= @mod_config.identifier %>", onDescribedProcess);
+
 </script>
-  
+
 <div class="page_subheader"></div>
 
 <div class="explanation" id="explanation">
@@ -90,7 +124,7 @@
 
 <div class="simple_form">
   <label>Name</label>
-  <%= best_in_place @mod_config, :name, :type => :input, :activator => "#click_to_edit_name" %> 
+  <%= best_in_place @mod_config, :name, :type => :input, :activator => "#click_to_edit_name" %>
   <span class="click_to_edit" id="click_to_edit_name">[Click to edit]</span>
 </div>
 
@@ -100,21 +134,25 @@
   <span id="based-on">Retrieving name...</span> template
 </div>
 
+<div class="simple_form">
+  <label>Details</label>
+  <span id="mod-descr">Retrieving description...</span>
+</div>
+
 
 <div class="simple_form">
   <label>Note</label>
-  <%= best_in_place @mod_config, :descr, :type => :textarea, :activator => "#click_to_edit_notes" %> 
+  <%= best_in_place @mod_config, :descr, :type => :textarea, :activator => "#click_to_edit_notes" %>
   <span class="click_to_edit" id="click_to_edit_notes">[Click to edit]</span>
 </div>
 
 
-
 <div class="simple_form">
-  <%= render :partial => "show_associated_parameters_table", 
-             :locals  => { :mode => :input, :config => @mod_config, :editable => :true } %> 
-  
-  <%= render :partial => "show_associated_parameters_table", 
-             :locals  => { :mode => :output, :config => @mod_config, :editable => :true } %> 
+  <%= render :partial => "show_associated_parameters_table",
+             :locals  => { :mode => :input, :config => @mod_config, :editable => :true } %>
+
+  <%= render :partial => "show_associated_parameters_table",
+             :locals  => { :mode => :output, :config => @mod_config, :editable => :true } %>
 </div>
 
 <br><br>
@@ -125,25 +163,26 @@
   <label></label>
   <%# method => get causes button to act like a normal link, rather than a form post %>
   <%= button_to 'View Module List', "/mod_configs", :class => 'big_button', :method => 'get' %>
-  
+
   <span id="run_module_button_container">
-    <%= button_to 'Run Module >>>', 
+    <%= button_to 'Run Module >>>',
           { :action => "run_module", :id => @mod_config.id }, :remote => true, :class => 'big_button' %>
   </span>
   <span id="stop_module_button_container">
-    <%= button_to 'Stop Running >>>', 
+    <%= button_to 'Stop Running >>>',
           { :action => "stop_running", :id => @mod_config.id }, :remote => true, :class => 'big_button' %>
   </span>
-</div>  
+</div>
 
-  
+
   <%# if @module_status != 3 %>
     <div id="status" style="float: right; margin-top: -30px;">
-      <%= link_to 'Delete This Module', @mod_config, 
+      <%= link_to 'Delete This Module', @mod_config,
          confirm: "Deleting this module is a permanent action.\n\nClick OK if you are sure you want to delete this module.", method: :delete %>
          |
       <%= link_to(t(:reset), :action => 'reset', :method => :reset, :id => @mod_config.id ) %>
- 
+
     </div>
-  <%# end %> 
+  <%# end %>
 </div>
+

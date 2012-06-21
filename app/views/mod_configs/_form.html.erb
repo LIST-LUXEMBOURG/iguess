@@ -2,8 +2,8 @@
 
 <div class="explanation">
   <% if creating %>
-    You are configuring a new module.  Provide a unique name, a description, and specify any datasets you can.  
-    You will have a chance to provide data for this module in subsequent steps. 
+    You are configuring a new module.  Provide a unique name, a description, and specify any datasets you can.
+    You will have a chance to provide data for this module in subsequent steps.
   <% else %>
     You cannot change the Base Template once a module has been created.
   <% end %>
@@ -11,20 +11,21 @@
 
 
 <%= render :partial => '/shared/build_registered_layers.html.erb' %>  <%# Builds registeredDataLayers structure %>
-<%= render :partial => '/shared/build_data_layers.html.erb' %>  <%# Builds registeredDataLayers structure %>
+<%= render :partial => '/shared/build_data_layers.html.erb' %>        <%# Builds something else %>
+
 
 <script type="text/javascript">
 
   var serverProcessingComplete = false;   // True when we have all the dataset info we expect
   var processProcessingComplete = false;  // True when we have all the process info we expect
-  
+
   var procs = { };
 
-  var onDescribedProcess = function(process) 
+  var onDescribedProcess = function(process)
   {
     var serverUrl = process.wps.executeUrlGet;
     var key = makeKey(serverUrl, process.identifier);   // This will uniquely describe this service\\
-    
+
     procs[key] = new Object;
     procs[key].identifier = process.identifier;
     procs[key].title = process.title || process.identifier;
@@ -39,86 +40,86 @@
       o.identifier = process.inputs[i].identifier;
       o.title = process.inputs[i].title || process.inputs[i].identifier;
       o.descr = process.inputs[i].abstract;
-      
+
       procs[key].inputs.push(o);
     }
-    
+
     var outputCount = process.outputs.length;
     for(var i = 0; i < outputCount; i++) {
       var o = new Object;
       o.title = process.outputs[i].title || process.outputs[i].identifier;
       o.descr = process.outputs[i].abstract;
-      
+
       procs[key].outputs.push(o);
     }
-    
+
     WPS.responsesReceived++;
-    
-    if(WPS.responsesReceived == WPS.responsesExpected) { 
+
+    if(WPS.responsesReceived == WPS.responsesExpected) {
       processProcessingComplete = true;
       buildModuleList();
     }
   }
-  
-  
-  var buildModuleList = function() 
+
+
+  var buildModuleList = function()
   {
     // Make sure we have all the info we need to proceed..
     if(!processProcessingComplete || !serverProcessingComplete) {
       return;
     }
-    
-    var processControl = $(document.createElement('select'));
+    var processControl;
+
+    processControl = $(document.createElement('select'));
     processControl.attr({ class:'process-dropdown-control', id:'processControl' });
-    
+
     // What to do when the user changes dataType for a layer
     processControl.change(function() {
       onProcessChanged();
     });
-    
+
     for(var key in procs) {
       <% if params['template'].blank? %>
         var selstr = '';
       <% else %>
         var hash = (procs[key].title + 'Q' + procs[key].serverUrl).makeHash();
         var selstr = (hash == <%= params['template'] %>) ? " selected" : "";
-      <% end %>  
+      <% end %>
       processControl.append('<option value="' + key + '"' + selstr + '>' + procs[key].title + '</option>');
     }
     $('#proc-ctrl-container').html(processControl);
     onProcessChanged();
   }
-  
-  
+
   // User has selected a different process from the drop down box... need to rebuild inputs/outputs sections
-  function onProcessChanged() 
+  function onProcessChanged()
   {
     // These functions are defined in _show_assocated_parameters_table.erb
     populateInputTable (procs[$('#processControl').val()].inputs);
     populateOutputTable(procs[$('#processControl').val()].outputs);
-   
+
     var identifier = procs[$('#processControl').val()].identifier;
     var url  = procs[$('#processControl').val()].serverUrl;
     var url2 = WPS.unwrapProcServer(url, identifier);
-    var descr = 
-    
+    var descr =
+
     $("#wps_server_url").text(url2);
     $("#identifier").text(identifier);
     $("#proc-descr").text(procs[$('#processControl').val()].descr);
   }
-  
-  
+
+
   var urls = [<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>];
-  
+
   // For each url in our database, start probing the server
   for(var i = 0; i < urls.length; i++) {  WPS.probeWPS(urls[i], onDescribedProcess);  }
-  
-  
-  
+
+
+
   // We only care about WFS here, as these are all that can be used with process configurations
   // Uses functions in build_data_layers partial
   var serverCount = registeredDataServers.length;
-  
+
   for(var i = 0; i < serverCount; i++) {
     WMS.updateLayerList(registeredDataServers[i], onWmsGetCapabilitiesSucceeded, onWmsGetCapabilitiesFailed); // Need to call this for now to avoid crashes
     WFS.updateLayerList(registeredDataServers[i], onWfsGetCapabilitiesSucceeded, onWfsGetCapabilitiesFailed);
@@ -126,21 +127,21 @@
 
   // Called when we've gotten whatever response we're going to get from a wfs server -- here type will always be 'WFS'
   // This will be called once for every server we probe
-  
+
   var serversReturned = [ ];
-  
-  function doneProcessing(url, type, status)  // status will be OK or ERROR  
+
+  function doneProcessing(url, type, status)  // status will be OK or ERROR
   {
     serversReturned.push(url);
-    
+
     // TODO: Actually track which servers come back so we can properly display error messages
-    
+
     if(registeredDataServers.length == serversReturned.length) {
       serverProcessingComplete = true;
-      buildModuleList(); 
+      buildModuleList();
     }
   }
-  
+
 
 </script>
 
@@ -153,57 +154,57 @@
   <% if !creating %>
     <script>
       $(document).ready(function () {
-        
-        // Set the template dropdown to the requested template, if we have one... 
+
+        // Set the template dropdown to the requested template, if we have one...
         <% if not params[:base_template].nil? %>
           $('#module_configuration_mod_id').val(<%= params[:base_template] %>);
         <% end %>
-        
+
         // Load our parameter tables
         getParamTables($('#module_configuration_mod_id').val());
-        
+
         $('#module_configuration_mod_id').change(function () {
           getParamTables($('#module_configuration_mod_id').val())
         });
       });
     </script>
-    
+
   <% end %>
-  
+
   <%= f.input :name, :as => :string, :placeholder => 'Configuration name' %>
-  
+
   <div class="input text">
     <label class="simple_form label">Module Type</label>
     <span id="proc-ctrl-container">Probing servers... <img src="/assets/loading_spinner.gif"></span>
   </div>
   <div class="input text"><label class="simple_form label"></label><span id="proc-descr"></span></div>
-  
-  
-  <%= f.input :descr, :as => :text, :label => 'Description', :input_html => { :rows => 6, :cols => 80, :maxlength => 5000 }, 
+
+
+  <%= f.input :descr, :as => :text, :label => 'Description', :input_html => { :rows => 6, :cols => 80, :maxlength => 5000 },
               :placeholder => 'Description of configuration' %>
 
   <div id="inputsAndOutputs">   <%# NOTE -- We don't have a configuration here when we are creating a new module! %>
-    <%= render :partial => "show_associated_parameters_table", 
-               :locals  => { :mode => :input,  :config => @mod_config, :editable => :true, :form => f } %> 
-               
-    <%= render :partial => "show_associated_parameters_table", 
-               :locals  => { :mode => :output, :config => @mod_config, :editable => :true, :form => f } %> 
+    <%= render :partial => "show_associated_parameters_table",
+               :locals  => { :mode => :input,  :config => @mod_config, :editable => :true, :form => f } %>
+
+    <%= render :partial => "show_associated_parameters_table",
+               :locals  => { :mode => :output, :config => @mod_config, :editable => :true, :form => f } %>
   </div>
 
   <label class="simple_form label"> </label>
   <%# Add a cancel link that gets back to the different places we could have come from %>
   <% came_from = params[:came_from] || "" %>
-  
-  <% if came_from == 'catalog' %>  
+
+  <% if came_from == 'catalog' %>
     <%= link_to 'Cancel', mod_configs_path(:anchor => :module_catalog_tab) %>
   <% else %>
     <%= link_to 'Cancel', mod_configs_path %>
   <% end %>
-  
+
   <input type="hidden" name="wps_server_url" id="wps_server_url">
   <input type="hidden" name="identifier"     id="identifier">
-  
+
 
   <%= f.submit creating ? 'Create New Configuration' : 'Save Changes' %>
-  
+
 <% end %>

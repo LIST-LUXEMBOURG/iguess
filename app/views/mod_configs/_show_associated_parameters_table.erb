@@ -3,7 +3,6 @@
 <% editable = editable || false %>
 
 <label class="simple_form label"><%= mode.slice(0,1).capitalize + mode.slice(1..-1) %>s</label>
-
 <table class="zebra" id="<%= mode %>-table">
 
 </table>
@@ -12,9 +11,9 @@
 <% if editable and not defined?(form) %>
   <script type="text/javascript">
     $('.best_in_place').best_in_place().bind('ajax:success', function(e) {
-      $.get('get_config_status/<%= config.id %>', 
-        function(response, status) { 
-          showButton(response); 
+      $.get('get_config_status/<%= config.id %>',
+        function(response, status) {
+          showButton(response);
           $("body").css("cursor", "auto");          // Restore cursor to normal
         });
     });
@@ -28,58 +27,59 @@
   function populate<%= mode.slice(0,1).capitalize + mode.slice(1..-1) %>Table(items)
   {
     $('#<%= mode %>-table').empty();
-    
-    var header = '<tr><th>Parameter Name</th>' + 
+
+    var header = '<tr><th>Parameter Name</th>' +
                  '<% if mode == :input %><th>Selected Dataset</th><% else %><th>Output Dataset Identifier</th><% end %></tr>';
-    
+
     $('#<%= mode %>-table').append(header);
-    
+
     var itemCount = items.length;
     for(var i = 0; i < itemCount; i++)
     {
       var row  = $(document.createElement('tr'));
       var cell = $(document.createElement('td'));   // Param name
-      
+
       var html = items[i].title;
+
       if(items[i].descr != null) {
         html += '<img src="/assets/small_question_mark.gif" style="padding-left: 8px; padding-top: 3px" ' +
                 'alt="More info" title="' + items[i].descr + '">'
       }
-      
+
       cell.html(html);
       row.append(cell);
-      
+
       cell = $(document.createElement('td'));   // Dataset
       cell.attr("nowrap", true);
-      
-      <% if mode == :input %>
-        var control = findAllDatasets(items[i].identifier);
-        
-        if(control.children().length == 0) {
+
+
+    <% if mode == :input %>
+      var control = findAllDatasets(items[i].identifier);
+
+      if(control.children().length == 0) {
           cell.text('No registered datasets of this type');
-        } 
+        }
         else {
           cell.html(control);
         }
       <% else %>
-        cell.html('<input type="text">');      
+        cell.html('<input type="text">');
       <% end %>
-      
-      
+
       row.append(cell);
-      
+
       $('#<%= mode %>-table').append(row);
     }
   }
-  
-    
+
+
     // processControl.attr({ class:'process-dropdown-control', id:'processControl' });
-    
+
     // What to do when the user changes dataType for a layer
     // processControl.change(function() {
       // onProcessChanged();
     // });
-    
+
   function findAllDatasets(identifier)
   {
     var ctrl = $(document.createElement('select'));
@@ -90,12 +90,12 @@
           title = discoveredLayers[layerKey].title;
         }
         //else { alert("***");console.log(layerKey); console.log(discoveredLayers);}
-        ctrl.append('<option value="' + layerKey + '">' + title + '</option>'); 
+        ctrl.append('<option value="' + layerKey + '">' + title + '</option>');
       }
     }
-    
-    
+
+
     return ctrl;
   }
-  
+
  </script>
