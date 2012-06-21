@@ -82,27 +82,22 @@
       var inputs  = [ ];
       var outputs = [ ];
 
-      var o, i;
+      var fillContainer = function(items, container)
+      {
+        var i, o;
+        var inputCount = items.length;
+        for(i = 0; i < inputCount; i++) {
+          o = new Object;
+          o.identifier = items[i].identifier;
+          o.title      = items[i].title || process.inputs[i].identifier;
+          o.descr      = items[i].abstract;
 
-      var inputCount = process.inputs.length;
-      for(i = 0; i < inputCount; i++) {
-        o = new Object;
-        o.identifier = process.inputs[i].identifier;
-        o.title = process.inputs[i].title || process.inputs[i].identifier;
-        o.descr = process.inputs[i].abstract;
-
-        inputs.push(o);
+          container.push(o);
+        }
       }
 
-      var outputCount = process.inputs.length;
-      for(i = 0; i < outputCount; i++) {
-        o = new Object;
-        o.identifier = process.inputs[i].identifier;
-        o.title = process.inputs[i].title || process.inputs[i].identifier;
-        o.descr = process.inputs[i].abstract;
-
-        outputs.push(o);
-      }
+      fillContainer(process.inputs, inputs);
+      fillContainer(process.outputs, outputs);
 
       populateInputTable(inputs);
       populateOutputTable(outputs);

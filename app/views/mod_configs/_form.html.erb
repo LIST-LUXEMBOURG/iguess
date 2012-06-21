@@ -34,24 +34,24 @@
     procs[key].inputs = [ ];
     procs[key].outputs = [ ];
 
-    var inputCount = process.inputs.length;
-    for(var i = 0; i < inputCount; i++) {
-      var o = new Object;
-      o.identifier = process.inputs[i].identifier;
-      o.title = process.inputs[i].title || process.inputs[i].identifier;
-      o.descr = process.inputs[i].abstract;
 
-      procs[key].inputs.push(o);
+    var fillContainer = function(items, container)
+    {
+      var i, o;
+      var inputCount = items.length;
+      for(i = 0; i < inputCount; i++) {
+        o = new Object;
+        o.identifier = items[i].identifier;
+        o.title      = items[i].title || process.inputs[i].identifier;
+        o.descr      = items[i].abstract;
+
+        container.push(o);
+      }
     }
 
-    var outputCount = process.outputs.length;
-    for(var i = 0; i < outputCount; i++) {
-      var o = new Object;
-      o.title = process.outputs[i].title || process.outputs[i].identifier;
-      o.descr = process.outputs[i].abstract;
+    fillContainer(process.inputs, procs[key].inputs);
+    fillContainer(process.outputs, procs[key].outputs);
 
-      procs[key].outputs.push(o);
-    }
 
     WPS.responsesReceived++;
 
