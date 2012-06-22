@@ -99,13 +99,12 @@
     populateOutputTable(procs[$('#processControl').val()].outputs);
 
     var identifier = procs[$('#processControl').val()].identifier;
-    var url  = procs[$('#processControl').val()].serverUrl;
-    var url2 = WPS.unwrapProcServer(url, identifier);
-    var descr =
+    var wrappedUrl  = procs[$('#processControl').val()].serverUrl;
+    var unwrappedUrl = WPS.unwrapProcServer(wrappedUrl, identifier);
 
-    $("#wps_server_url").text(url2);
-    $("#identifier").text(identifier);
-    $("#proc-descr").text(procs[$('#processControl').val()].descr);
+    $("#wps_server_url").val(unwrappedUrl);
+    $("#identifier").val(identifier);
+    $("#proc-descr").val(procs[$('#processControl').val()].descr);
   }
 
 
