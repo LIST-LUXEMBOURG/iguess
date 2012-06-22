@@ -54,7 +54,7 @@
 
 
     <% if mode == :input %>
-      var control = findAllDatasets(items[i].identifier);
+      var control = createDatasetSelectionControl(items[i].identifier);
 
       if(control.children().length == 0) {
           cell.text('No registered datasets of this type');
@@ -80,7 +80,7 @@
       // onProcessChanged();
     // });
 
-  function findAllDatasets(identifier)
+  function createDatasetSelectionControl(identifier)
   {
     var ctrl = $(document.createElement('select'));
 
