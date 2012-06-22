@@ -10,100 +10,104 @@
 
 <script type="text/javascript">
 
-    function hideButtons() {
-      $('#run_module_button_container').hide();
-      $('#stop_module_button_container').hide();
+  // We only care about WFS here, as these are all that can be used with process configurations
+  // Uses functions in build_data_layers partial
+  getWmsLayers(registeredDataServers);
+
+  function hideButtons() {
+    $('#run_module_button_container').hide();
+    $('#stop_module_button_container').hide();
+  }
+
+  function enableEditing() {
+    $('.disablable').prop('disabled',false);
+    $('.hideable').show();
+  }
+
+  function disableEditing() {
+    $('.disablable').prop('disabled',true);
+    $('.hideable').hide();
+  }
+
+  function showButton(statusCode) {
+    hideButtons();
+
+    if(statusCode == 1) {           // Module just created, needs data
+      $('#status_display').html("<%#= @mod_config.get_status_name(1) %>");
+      $('#explanation').html("Before you can run this module, you need to supply data or values for each of the inputs. " +
+                             "You can do this by selecting a dataset from the list provided for each parameter, or by creating new datasets.");
+      enableEditing();
+
+    } else if(statusCode == 2) {    // Module ready to go
+      $('#run_module_button_container').show();
+      $('#status_display').html("<%#= @mod_config.get_status_name(2) %>");
+      $('#explanation').html("This module has all its data and is ready to run.  Click the Run button to start the process.");
+      enableEditing();
+
+    } else if(statusCode == 3) {    // Module is running
+      $('#stop_module_button_container').show();
+      $('#status_display').html("<%#= @mod_config.get_status_name(3) %>");
+      $('#explanation').html("This module is currently running.  You can refresh this page, " +
+                             "or check back later to monitor the module's progress, " +
+                             "but you cannot change dataset information while the module is running.");
+      disableEditing();
+      startPolling();
+
+    } else if(statusCode == 4) {    // Module run compete
+      $('#status_display').html("<%#= @mod_config.get_status_name(4) %>");
+      $('#explanation').html("This module has been successfully run.  You can now view the outputs in the Data Manager.");
+      disableEditing();
     }
+  }
 
-    function enableEditing() {
-      $('.disablable').prop('disabled',false);
-      $('.hideable').show();
-    }
-
-    function disableEditing() {
-      $('.disablable').prop('disabled',true);
-      $('.hideable').hide();
-    }
-
-    function showButton(statusCode) {
-      hideButtons();
-
-      if(statusCode == 1) {           // Module just created, needs data
-        $('#status_display').html("<%#= @mod_config.get_status_name(1) %>");
-        $('#explanation').html("Before you can run this module, you need to supply data or values for each of the inputs. " +
-                               "You can do this by selecting a dataset from the list provided for each parameter, or by creating new datasets.");
-        enableEditing();
-
-      } else if(statusCode == 2) {    // Module ready to go
-        $('#run_module_button_container').show();
-        $('#status_display').html("<%#= @mod_config.get_status_name(2) %>");
-        $('#explanation').html("This module has all its data and is ready to run.  Click the Run button to start the process.");
-        enableEditing();
-
-      } else if(statusCode == 3) {    // Module is running
-        $('#stop_module_button_container').show();
-        $('#status_display').html("<%#= @mod_config.get_status_name(3) %>");
-        $('#explanation').html("This module is currently running.  You can refresh this page, " +
-                               "or check back later to monitor the module's progress, " +
-                               "but you cannot change dataset information while the module is running.");
-        disableEditing();
-        startPolling();
-
-      } else if(statusCode == 4) {    // Module run compete
-        $('#status_display').html("<%#= @mod_config.get_status_name(4) %>");
-        $('#explanation').html("This module has been successfully run.  You can now view the outputs in the Data Manager.");
-        disableEditing();
-      }
-    }
-
-    // Get things setup when we first load the page -- enables/disables controls, sets messages, etc.
-    $(document).ready(function () {
-      showButton(<%= @module_status %>);
-    });
+  // Get things setup when we first load the page -- enables/disables controls, sets messages, etc.
+  $(document).ready(function () {
+    showButton(<%= @module_status %>);
+  });
 
 
-    // See https://github.com/jeremyw/jquery-smart-poll
-    function startPolling() {
-      $.poll(function(retry) {
-        $.get('get_config_status/<%= @mod_config.id %>', function(response, status) {
-          if(response != 3)
-            showButton(response);
-          else
-            retry();
-        })
+  // See https://github.com/jeremyw/jquery-smart-poll
+  function startPolling() {
+    $.poll(function(retry) {
+      $.get('get_config_status/<%= @mod_config.id %>', function(response, status) {
+        if(response != 3)
+          showButton(response);
+        else
+          retry();
       })
-    }
+    })
+  }
 
-    var onDescribedProcess = function(process) {
-      $('#based-on').html(process.title || process.name);
-      $('#mod-descr').html(process.abstract);
+  var onDescribedProcess = function(process) {
+    $('#based-on').html(process.title || process.name);
+    $('#mod-descr').html(process.abstract);
 
-      var serverUrl = process.wps.executeUrlGet;
-      var inputs  = [ ];
-      var outputs = [ ];
+    var serverUrl = process.wps.executeUrlGet;
+    var inputs  = [ ];
+    var outputs = [ ];
 
-      var fillContainer = function(items, container)
-      {
-        var i, o;
-        var inputCount = items.length;
-        for(i = 0; i < inputCount; i++) {
-          o = new Object;
-          o.identifier = items[i].identifier;
-          o.title      = items[i].title || process.inputs[i].identifier;
-          o.descr      = items[i].abstract;
+    var fillContainer = function(items, container)
+    {
+      var i, o;
+      var inputCount = items.length;
+      for(i = 0; i < inputCount; i++) {
+        o = new Object;
+        o.identifier = items[i].identifier;
+        o.title      = items[i].title || process.inputs[i].identifier;
+        o.descr      = items[i].abstract;
 
-          container.push(o);
-        }
+        container.push(o);
       }
-
-      fillContainer(process.inputs, inputs);
-      fillContainer(process.outputs, outputs);
-
-      populateInputTable(inputs);
-      populateOutputTable(outputs);
     }
 
-    WPS.describeProcess("<%= @mod_config.wps_server.url %>", "<%= @mod_config.identifier %>", onDescribedProcess);
+    fillContainer(process.inputs, inputs);
+    fillContainer(process.outputs, outputs);
+
+    populateInputTable(inputs);
+    populateOutputTable(outputs);
+  }
+
+  WPS.describeProcess("<%= @mod_config.wps_server.url %>", "<%= @mod_config.identifier %>", onDescribedProcess);
 
 </script>
 

@@ -114,16 +114,8 @@
   // For each url in our database, start probing the server
   for(var i = 0; i < urls.length; i++) {  WPS.probeWPS(urls[i], onDescribedProcess);  }
 
-
-
-  // We only care about WFS here, as these are all that can be used with process configurations
-  // Uses functions in build_data_layers partial
-  var serverCount = registeredDataServers.length;
-
-  for(var i = 0; i < serverCount; i++) {
-    WMS.updateLayerList(registeredDataServers[i], onWmsGetCapabilitiesSucceeded, onWmsGetCapabilitiesFailed); // Need to call this for now to avoid crashes
-    WFS.updateLayerList(registeredDataServers[i], onWfsGetCapabilitiesSucceeded, onWfsGetCapabilitiesFailed);
-  }
+  getWmsLayers(registeredDataServers);
+  getWfsLayers(registeredDataServers);
 
   // Called when we've gotten whatever response we're going to get from a wfs server -- here type will always be 'WFS'
   // This will be called once for every server we probe

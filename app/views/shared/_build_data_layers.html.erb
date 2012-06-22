@@ -2,61 +2,79 @@
 
   discoveredLayers = { };
 
+  var getWfsLayers = function(registeredDataServers)
+  {
+    var serverCount = registeredDataServers.length;
+
+    for(var i = 0; i < serverCount; i++) {
+      WFS.updateLayerList(registeredDataServers[i], onWfsGetCapabilitiesSucceeded, onWfsGetCapabilitiesFailed);
+    }
+  }
+
+  var getWmsLayers = function(registeredDataServers)
+  {
+    var serverCount = registeredDataServers.length;
+
+    for(var i = 0; i < serverCount; i++) {
+      WFS.updateLayerList(registeredDataServers[i], onWfsGetCapabilitiesSucceeded, onWfsGetCapabilitiesFailed);
+    }
+  }
+
   // Callback for WMS get capabilities success
-  var onWmsGetCapabilitiesSucceeded = function(store, records) 
+  var onWmsGetCapabilitiesSucceeded = function(store, records)
   {
     processIncomingLayers(store, records.length, 'WMS');
-  }  
-  
-  
+  }
+
+
   // Callback for WFS get capabilities success
-  var onWfsGetCapabilitiesSucceeded = function(store, records) 
-  { 
+  var onWfsGetCapabilitiesSucceeded = function(store, records)
+  {
     processIncomingLayers(store, records.length, 'WFS');
   }
-  
-  
+
+
   function processIncomingLayers(store, count, type)
   {
     var server;
     if     (type == 'WFS') { server = WFS.unwrapServer(store.url); }
     else if(type == 'WMS') { server = WMS.unwrapServer(store.url); }
     else { alert('Unexpected type ' + type); }
-    
+
     for(var i = 0; i < count; i++) {
-      
+
       var record = store.getAt(i);
-      
+
       var name       = record.get("name");
       var title      = record.get("title") || record.get("name");
       var abstract   = record.get("abstract");
       var srs = null;
       var bbox = null;
-      
+
       if(type == 'WMS') {
         srs  = record.data.srs;
-        bbox = record.data.bbox; 
+        bbox = record.data.bbox;
       }
-      
+
       foundDataset(server, name, title, abstract, srs, bbox, type);
     }
-      
+
     doneProcessing(server, type, 'OK');
   }
-  
-  
+
+
   function foundDataset(server, name, title, abstract, srs, bbox, service)
   {
     var layerKey = makeKey(server, name);
     var registered = layerKey in registeredDataLayers;
-    
+
     if(layerKey in discoveredLayers) {   // Already found this layer, add service to it
-      
+
       if(discoveredLayers[layerKey].type.hasObject(service)) {    // Will happen if duplicate names are used on the server
         return;
       }
       discoveredLayers[layerKey].type.push(service);
-      
+
       if(srs !== null) {
         discoveredLayers[layerKey].srs = srs;
       }
@@ -68,31 +86,31 @@
       discoveredLayers[layerKey] = { identifier:name, title:title, abstract:abstract, srs:srs, bbox:bbox, type:[service] };
     }
   }
-  
-  
+
+
   var onWmsGetCapabilitiesFailed = function(e,f,g,h,i,j) {   // <-- Probably not right...
-    
+
     console.log(e);
     console.log(f);
     console.log(g);
     console.log(h);
     console.log(i);
-    
+
     $('#layer-display').html('<div class="form_error_message">Error: Either this is an invalid address, or the WMS server is not responding.</div>');
-    
+
     $('#layer_name_error_message').text("Error: Layer could not be retrieved from the server");
-    $('#dataset_layer_name').html('<option>No layer names available</option>'); 
-    
+    $('#dataset_layer_name').html('<option>No layer names available</option>');
+
     $('#submit_error_message').text("Cannot submit form until all errors are corrected");
     $('#dataset_layer_name').prop('disabled', true);
     $('#submit_form_button').prop('disabled', true);
-   
+
     $('#layers_loading_indicator').hide();
     // $('#refresh_layers_button').attr('disabled', false);
     doneProcessing('???', 'WMS', 'ERROR');
-  }       
-  
-  
+  }
+
+
   var onWfsGetCapabilitiesFailed = function(e,f,g,h,i,j,k) {   // <-- Probably not right...
     debugger;
     console.log(e);
@@ -102,11 +120,11 @@
     console.log(i);
     console.log(j);
     showPreErrorMessage(i);
-    
-    
+
+
     doneProcessing('???', 'WFS', 'ERROR');
   }
-  
-  
-  
+
+
+
 </script>
