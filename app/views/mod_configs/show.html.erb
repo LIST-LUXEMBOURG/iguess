@@ -109,6 +109,12 @@
 
   WPS.describeProcess("<%= @mod_config.wps_server.url %>", "<%= @mod_config.identifier %>", onDescribedProcess);
 
+
+  function doneProcessing(url, type, status)  // status will be OK or ERROR
+  {
+    // Need to do anything here?  Turn off any indicators or whatnot?
+  }
+
 </script>
 
 <div class="page_subheader"></div>
