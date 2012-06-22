@@ -83,6 +83,7 @@
   function findAllDatasets(identifier)
   {
     var ctrl = $(document.createElement('select'));
+
     for(var layerKey in registeredDataLayers) {
       if(registeredDataLayers[layerKey] == identifier) {
         var title = "Unknown Title";
