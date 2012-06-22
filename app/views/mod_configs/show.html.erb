@@ -148,10 +148,10 @@
 
 <div class="simple_form">
   <%= render :partial => "show_associated_parameters_table",
-             :locals  => { :mode => :input, :config => @mod_config, :editable => :true } %>
+             :locals  => { :mode => :input, :config => @mod_config, :newConfig => false  } %>
 
   <%= render :partial => "show_associated_parameters_table",
-             :locals  => { :mode => :output, :config => @mod_config, :editable => :true } %>
+             :locals  => { :mode => :output, :config => @mod_config, :newConfig => false  } %>
 </div>
 
 <br><br>

@@ -177,10 +177,10 @@
 
   <div id="inputsAndOutputs">   <%# NOTE -- We don't have a configuration here when we are creating a new module! %>
     <%= render :partial => "show_associated_parameters_table",
-               :locals  => { :mode => :input,  :config => @mod_config, :editable => :true, :form => f } %>
+               :locals  => { :mode => :input,  :config => @mod_config, :newConfig => true, :form => f } %>
 
     <%= render :partial => "show_associated_parameters_table",
-               :locals  => { :mode => :output, :config => @mod_config, :editable => :true, :form => f } %>
+               :locals  => { :mode => :output, :config => @mod_config, :newConfig => true, :form => f } %>
   </div>
 
   <label class="simple_form label"> </label>

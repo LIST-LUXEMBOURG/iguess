@@ -1,6 +1,6 @@
 <!-- Print a table of parameters for the module specified in mod -->
 
-<% editable = editable || false %>
+<% newConfig = newConfig || false %>
 
 <label class="simple_form label"><%= mode.slice(0,1).capitalize + mode.slice(1..-1) %>s</label>
 <table class="zebra" id="<%= mode %>-table">
@@ -8,7 +8,7 @@
 </table>
 
 <%# Provide code for revalidating form after any best_in_place fields have been altered %>
-<% if editable and not defined?(form) %>
+<% if not defined?(form) %>
   <script type="text/javascript">
     $('.best_in_place').best_in_place().bind('ajax:success', function(e) {
       $.get('get_config_status/<%= config.id %>',
@@ -61,8 +61,14 @@
         }
         else {
           cell.html(control);
-        }
-      <% else %>
+
+        <% if not newConfig %>
+          control.change(function() {
+            onSelectedDatasetChanged(control);
+          });
+        <% end %>
+      }
+    <% else %>
         cell.html('<input type="text">');
       <% end %>
 
@@ -70,6 +76,13 @@
 
       $('#<%= mode %>-table').append(row);
     }
+  }
+
+  // Gets triggered when a selected dataset changes, but is only used when editing an existing config
+  var onSelectedDatasetChanged = function(control)
+  {
+    alert(control.html());
+
   }
 
 
