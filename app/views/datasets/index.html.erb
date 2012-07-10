@@ -2,33 +2,34 @@
 <script type="text/javascript">
 
   var urls = [<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>];
-  
+
    // For each url in our database, start probing the server
   for(var i = 0; i < urls.length; i++) {  WPS.probeWPS_getDataTypes(urls[i]);  }
-  
-  
+
+
   // Called incrementally
   var onDataTypesDiscovered = function(dataTypes)
   {
     //document.getElementById("data-keys").innerHTML = "Discovered data types: " + dataTypes.join(", ");
   }
+
   railsIdLookup = { };
-  
+
   <%= @datasets.reject{ |d| d.finalized == false }
                .map{ |d| "railsIdLookup[makeKey('" + d.server_url + "','" + d.identifier + "')] = '" + d.id.to_s + "';" }
                .join(' ') %>
-         
-     
-  // The following creates a mapping of server urls to short unique tokens, in both ruby and javascript.     
+
+
+  // The following creates a mapping of server urls to short unique tokens, in both ruby and javascript.
   <% serverUrlIdLookup = { } %>
   <% @datasets.reject{ |d| d.finalized == false }
-              .map{ |d| serverUrlIdLookup[d.server_url] = d.id.to_s } %>  
-         
-  serverUrlIdLookup = { };       
-  <% lines = "" %>         
-  <% serverUrlIdLookup.each{ |u, i| lines += "serverUrlIdLookup['" + u + "'] = '" + i + "'; " } %>        
+              .map{ |d| serverUrlIdLookup[d.server_url] = d.id.to_s } %>
+
+  serverUrlIdLookup = { };
+  <% lines = "" %>
+  <% serverUrlIdLookup.each{ |u, i| lines += "serverUrlIdLookup['" + u + "'] = '" + i + "'; " } %>
   <%= raw lines %>
-              
+
 </script>
 
 
@@ -36,28 +37,28 @@
 
   <h1 class="page_header">Registered Datasets</h1>
   <div class="page_subheader"></div>
-  
-  
-  <%= render :partial => '/shared/sortable_table_code.html.erb', :locals => { :initialSortlist => "[[1,0], [0,0]]" } %> 
-  
-  
-  <script type="text/javascript">  
-    $(function() { 
+
+
+  <%= render :partial => '/shared/sortable_table_code.html.erb', :locals => { :initialSortlist => "[[1,0], [0,0]]" } %>
+
+
+  <script type="text/javascript">
+    $(function() {
       var theTable = $('#sortable_table')
-    
+
       theTable.find("tbody > tr").find("td:eq(1)").mousedown(function(){
         $(this).prev().find(":checkbox").click()
       });
-    
+
       $("#filter").keyup(function() {
         $.uiTableFilter( theTable, this.value );
       })
-    
+
       $('#filter-form').submit(function(){
         theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
         return false;
       }).focus(); //Give focus to input field
-    });  
+    });
   </script>
 
 
@@ -67,15 +68,15 @@
     var layerStores = { };
     var layerDatasets = { };
     var serverStatus = { };
-    
+
     <% @server_urls.each do |url| %>    <%# These could be wms, wfs, or wcs addresses%>
       layerRecords['<%= url %>'] = [ ];
       layerStores ['<%= url %>'] = [ ];
       serverStatus['<%= url %>'] = [ ];
-      
-      WMS.updateLayerList('<%= url.gsub(/\\/, '\\\\\\') %>', success_<%= index %>, failure_<%= index %>); 
+
+      WMS.updateLayerList('<%= url.gsub(/\\/, '\\\\\\') %>', success_<%= index %>, failure_<%= index %>);
       WFS.updateLayerList('<%= url.gsub(/\\/, '\\\\\\') %>', success_<%= index %>, failure_<%= index %>);
-      
+
       <%# Find every dataset that uses this url; this method might be inefficient with many records, but is ok for our use %>
       layerDatasets['<%= url %>'] = [<%= @datasets.reject {|d| d.server_url != url}
                                                   .map{|d| "'" + d.identifier + "'"}
@@ -87,76 +88,76 @@
         layerRecords['<%= url %>'].push(records.length);
         layerStores['<%= url %>'].push(store);
         setLayerStatus(<%= index %>, '<%= url %>');
-      }      
-      
+      }
+
       function failure_<%= index %>(e,f,g,h,i,j)    // All items for this server failed
       {
         serverStatus['<%= url %>'].push(false);
         setLayerStatus(<%= index %>, '<%= url %>');
       }
-      
-      <% index += 1 %>   
+
+      <% index += 1 %>
 
     <% end %>
-    
-    function setLayerStatus(id, serverUrl) 
+
+    function setLayerStatus(id, serverUrl)
     {
 
       // Wait until we've heard back from all servers
       if(serverStatus[serverUrl].length < 2) { return; }
-    
+
       serverUrlId = serverUrlIdLookup[serverUrl];
       $('.data_status_probing_' + serverUrlId).hide();    // No longer probing this server!
-      
-      
+
+
       if(!(serverStatus[serverUrl][0] || serverStatus[serverUrl][1])) {    // Server failed, all datasets kaput
         $('.data_status_not_responding_' + serverUrlId).show();
         $('.dataset-name-' + serverUrlId).text("Unknown");
         return;
       }
-      
+
       // At least one server succeeded, vist each one-by-one
-      
+
       var datasets = layerDatasets[serverUrl];
       datasetCount = datasets.length;
-        
+
       for(var i = 0; i < datasetCount; i++) {
         var found = false;
         var layerRecordsCount = layerRecords[serverUrl].length;
-        
+
         for(var j = 0; j < layerRecordsCount && !found; j++) {
           var store    = layerStores[serverUrl][j];
           var records  = layerRecords[serverUrl][j];
-          
+
           for(var k = 0; k < records; k++) {
             var record = store.getAt(k);
-            
+
             var identifier = record.get("name");
-            
+
             if(datasets[i] == identifier) {
               var railsId = railsIdLookup[makeKey(serverUrl, identifier)];
-              
+
               var title = record.get("title") || record.get("name");
               title = title.replace(/ /g,'&nbsp;');
-              
+
               // See http://stackoverflow.com/questions/244758/jquery-animation-smooth-size-transition
               var selector = '#dataset-name-' + railsId;
               // $(selector).showHtml(title);           // Triggers animated transition with specified duration
-              $(selector).html(title);   
-              
+              $(selector).html(title);
+
               $('#data_layer_available_yes_' + railsId).show();
-              found = true; 
+              found = true;
               break;
             }
           }
         }
-        
+
         if(!found) {
           var railsId = railsIdLookup[makeKey(serverUrl, datasets[i])];
           $('#data_status_not_responding_' + railsId).show();
         }
       }
-      
+
       if(found) {    // At least one server reports finding this layer
         $('#data_layer_available_yes_' + railsId).show();
       }
@@ -164,26 +165,26 @@
         $('#data_status_not_responding_' + railsId).show();
       }
     }
-    
+
   </script>
-  
-  
-  
+
+
+
   <form id="filter-form">Filter: <input name="filter" id="filter" value="" maxlength="30" size="30" type="text"></form>
-  
+
   <div class="hint">Hint: Filter table by typing in the box above; sort by clicking on column headers; use Ctrl to sort by multiple columns</div>
 
   <table id="sortable_table" class="zebra sortable">
     <thead>
       <tr><th>Name</th><th>Type</th><th>Status</th><th>Configured Modules Using Dataset</th></tr>
     </thead>
-    
+
     <tbody>
       <% @datasets.each do |d| %>
         <tr valign=middle>
           <td class="dataset-name-<%= serverUrlIdLookup[d.server_url] %>" id="dataset-name-<%= d.id %>" title="Server URL: <%= d.server_url %>">Retrieving...</td>
           <td nowrap><%= d.dataset_type.blank? ? "Unknown" : d.dataset_type %></td>
-          <td width = 145>            
+          <td width = 145>
             <% if d.status != 'OK' %>
               <%= d.status %>
             <% else %>
@@ -208,11 +209,11 @@
       <% end %>
     </tbody>
   </table>
-  
+
 
 
   <%= button_to "Register Datasets", :controller => 'datasets', :action => 'mass_import', :id => 1 %>
-  
+
   <br />
 </div>
 

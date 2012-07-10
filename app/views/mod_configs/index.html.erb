@@ -4,7 +4,7 @@
 
 <div class="explanation">
   <ul style="list-style-type: square;">
-  <li>Users can create Modules from a Module Template by specifying all inputs and outputs that template requires.</li> 
+  <li>Users can create Modules from a Module Template by specifying all inputs and outputs that template requires.</li>
   <li>A list of Module Templates can be found in the Module Catalog.</li>
   </ul>
 </div>
@@ -18,15 +18,15 @@
 <script type="text/javascript">
 
   <%
-    processIdLookup = Hash.new 
+    processIdLookup = Hash.new
     ctr = 0
-    
+
     @mod_configs.map{ |c| processIdLookup[c.wps_server.url + (c.identifier.blank? ? "" : c.identifier)] = 'x' + ctr.to_s; ctr+=1; }
   %>
 
-  processIdLookup = { };       
-  <% lines = "" %>         
-  <% processIdLookup.each{ |u, i| lines += "processIdLookup['" + u + "'] = '" + i + "'; " } %>        
+  processIdLookup = { };
+  <% lines = "" %>
+  <% processIdLookup.each{ |u, i| lines += "processIdLookup['" + u + "'] = '" + i + "'; " } %>
   <%= raw lines %>
 
 
@@ -45,38 +45,38 @@
 
   // This function is called when the describeProcesses response arrives
   // It will be called repeatedly as responses arrive
-  function onDescribedProcess(process, serverName) 
+  function onDescribedProcess(process, serverName)
   {
     responses++;
-    
+
     if(responses == WPS.getResponsesExpected()) {
       $('#wps-probing-indicator').hide();
     }
-    
+
     var wrappedServer = process.wps.getCapabilitiesUrlGet;
     var server = WPS.unwrapProcServer(wrappedServer, process.identifier);
-    var processId = processIdLookup[server + process.identifier]; 
-    
+    var processId = processIdLookup[server + process.identifier];
+
     $("." + processId).html(process.title || process.identifier);
     $(".status-" + processId).html("Server available");
-    
-    var description = '<hr><h3 class="process-title">' + process.title + '</h3>' + 
+
+    var description = '<hr><h3 class="process-title">' + process.title + '</h3>' +
         '<div class="process-descr">' + process.abstract + '</div>' +
-        '<div class="process-server-name"><span class="hosted-by">Hosted by:</span> <span class="server-name">' + serverName + '</span></div>' + 
- 
+        '<div class="process-server-name"><span class="hosted-by">Hosted by:</span> <span class="server-name">' + serverName + '</span></div>' +
+
         '<table class="model-descr-table">' +
         '<tbody class="inputs">';
     if(process.inputs.length == 0) {
       description += '<tr><th colspan=3 class="group-header "><div class="outdent">No Inputs</div></th></tr>';
     } else {
-      description += '<tr><th colspan=3 class="group-header" scope=rowgroup><div class="outdent">Model Inputs</div></th></tr>' + 
+      description += '<tr><th colspan=3 class="group-header" scope=rowgroup><div class="outdent">Model Inputs</div></th></tr>' +
                      '<tr><th>Parameter Name</th><th>Description</th></tr>';
 
       for(var i = 0; i < process.inputs.length; i++) {
         description += getDescrRow(process.inputs[i]);
       }
     }
-    
+
     description += '</tbody><tbody class="outputs">';
     if(process.outputs.length == 0) {
       description += '<tr><th colspan=3 class="group-header"><div class="outdent">No Outputs</div></th></tr>';
@@ -90,19 +90,19 @@
     }
 
     description += '</tbody></table><a href="/mod_configs/new?template=' + (process.title + 'Q' + wrappedServer).makeHash() + '">Create new configuration for this service</a>';
-    
+
     document.getElementById("wps-result").innerHTML += description;
   };
-  
-  
+
+
   // Formatting helper
-  function getDescrRow(record) 
+  function getDescrRow(record)
   {
-      var title    = record.title    ? record.title + ' [' + record.identifier + ']' : record.identifier;
-      var abstract = record.abstract ? record.abstract : "<div class='center'>-</div>";
-      
-      return '<tr><td class="param-name">'  + title    + '</td>' + 
-                 '<td class="param-descr">' + abstract + '</td></tr>';
+    var title    = record.title    ? record.title + ' [' + record.identifier + ']' : record.identifier;
+    var abstract = record.abstract ? record.abstract : "<div class='center'>-</div>";
+
+    return '<tr><td class="param-name">'  + title    + '</td>' +
+               '<td class="param-descr">' + abstract + '</td></tr>';
   }
 
 </script>
@@ -112,14 +112,14 @@
 <div id="tab-panes" class="tab-pane-container">
   <div id="configured_modules_tab">
     <% if @mod_configs.empty? %>
-      No modules have been configured yet.  <%= link_to 'Click here to create one.', new_mod_config_path %> 
+      No modules have been configured yet.  <%= link_to 'Click here to create one.', new_mod_config_path %>
     <% else %>
-    
+
     <div class="page_subheader">Modules that have been configured</div>
-    
-      <%= render :partial => '/shared/sortable_table_code.html.erb', 
-                 :locals => { :initialSortlist => "[[0,0]], headers: { 3: {sorter: false}}" } %> 
-    
+
+      <%= render :partial => '/shared/sortable_table_code.html.erb',
+                 :locals => { :initialSortlist => "[[0,0]], headers: { 3: {sorter: false}}" } %>
+
       <table id="sortable_table" class="zebra sortable">
         <thead>
           <tr>
@@ -129,12 +129,12 @@
             <th>Notes</th>
           </tr>
         </thead>
-      
+
         <tbody>
           <% @mod_configs.each do |mod_config| %>
             <tr>
               <td style="white-space: nowrap;"><%= link_to mod_config.name, mod_config %></td>
-              <td class='<%= processIdLookup[mod_config.wps_server.url + (mod_config.identifier.blank? ? "" : mod_config.identifier)] =%>' 
+              <td class='<%= processIdLookup[mod_config.wps_server.url + (mod_config.identifier.blank? ? "" : mod_config.identifier)] =%>'
                   style="white-space: nowrap;">Probing server... <img src="assets/loading_spinner.gif"></td>
               <td class='status-<%= processIdLookup[mod_config.wps_server.url + (mod_config.identifier.blank? ? "" : mod_config.identifier)] =%>'
                   style="white-space: nowrap;">Probing server... <img src="assets/loading_spinner.gif"></td>
@@ -143,13 +143,13 @@
           <% end %>
         </tbody>
       </table>
-    
+
       <br />
-      
+
       <%= link_to 'New Module Configuration', new_mod_config_path %>
     <% end %>
   </div>
-  
+
   <div id="module_catalog_tab">
     <div>
       Catalog of modules found on the following servers:
@@ -168,11 +168,11 @@
 <script type="text/javascript">
     <% @wps_servers.each do |s| %>
     var li = $(document.createElement('li'));
-    
-    var liHtml = '<div class="wps-title '       + makeKey('<%= s.url %>', 'title')    + '"></div>' + 
+
+    var liHtml = '<div class="wps-title '       + makeKey('<%= s.url %>', 'title')    + '"></div>' +
                  '<div class="wps-descr" id ="' + makeKey('<%= s.url %>', 'abstract') + '"></div>';
-                 
-    li.html(liHtml);             
+
+    li.html(liHtml);
 
     $('#server-list').append(li);
   <% end %>

@@ -55,7 +55,7 @@
 
     <% if mode == :input %>
       var control = createDatasetSelectionControl(items[i].identifier);
-
+//      control.attr("id") = "select-" + i;
       if(control.children().length == 0) {
           cell.text('No registered datasets of this type');
         }
@@ -63,9 +63,9 @@
           cell.html(control);
 
         <% if not newConfig %>
-          control.change(function() {
-            onSelectedDatasetChanged(control);
-          });
+//          control.change(function() {
+//            onSelectedDatasetChanged();
+//          });
         <% end %>
       }
     <% else %>
@@ -78,12 +78,20 @@
     }
   }
 
-  // Gets triggered when a selected dataset changes, but is only used when editing an existing config
-  var onSelectedDatasetChanged = function(control)
-  {
-    alert(control.html());
-
-  }
+  <%# Gets triggered when a selected dataset changes, but is only used when editing an existing config %>
+//  $("#select-0").change(function () {
+//    alert($(this).text());
+    <%#  Tell the server we've changed the selected dataset %>
+//    $.ajax({
+//      type: 'PUT',      // PUT combined with url below triggers "update" action on controller
+//      url: '<%= url_for(:controller => 'mod_configs', :action => 'update_dataset') %>',
+//      data: 'dataset[identifier]=' + layerName +
+//            '&dataset[server_url]=' + server +
+//            '&dataset[dataset_type]=' + dataTypeControl.value,
+//      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
+//      success: function(data) { alert("ok!"); }
+//    });
+//  }
 
 
     // processControl.attr({ class:'process-dropdown-control', id:'processControl' });

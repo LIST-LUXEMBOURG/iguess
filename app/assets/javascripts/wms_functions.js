@@ -11,13 +11,13 @@ WPS.getResponsesExpected = function() { return WPS.responsesExpected; }
 
 ////////////////////////////////////////
 // Send an initial request to a WPS server to see what services it offers
-WPS.probeWPS = function(serverUrl, onDescribedProcessFunction, onReceivedServerInfoFunction) 
+WPS.probeWPS = function(serverUrl, onDescribedProcessFunction, onReceivedServerInfoFunction)
 {
   WPS.onDescribedProcessFunction   = onDescribedProcessFunction;
   WPS.onReceivedServerInfoFunction = onReceivedServerInfoFunction;
-  
+
   var url = WPS.getCapReq(serverUrl);
-  
+
   // Init the client and run get capabilities
   var wps = new OpenLayers.WPS(url, { onGotCapabilities: WPS.onGetCapabilities,
                                       onException:       showErrorMessage       });
@@ -25,7 +25,7 @@ WPS.probeWPS = function(serverUrl, onDescribedProcessFunction, onReceivedServerI
 };
 
 // This function is called when the getCapabilities response arrives
-WPS.onGetCapabilities = function() 
+WPS.onGetCapabilities = function()
 {
   // Trigger callback with name and abstract of server
   if(WPS.onReceivedServerInfoFunction != null && WPS.onReceivedServerInfoFunction != undefined) {
@@ -59,13 +59,13 @@ showPreErrorMessage = function (process, code, text) {
 
   newWin.document.write("<pre>" + process.responseText + "</pre>");
 };
-  
+
 
 
 WPS.onGetServerInfo = function(xxx)
 {
   console.log(xxx);
-  
+
 }
 
 
@@ -73,88 +73,92 @@ WPS.onGetServerInfo = function(xxx)
 // Will call onDataTypesDiscovered(dataTypesFound) as data comes in, and onDataTypeDiscoveryCompleted(dataTypesFound)
 WPS.probeWPS_getDataTypes = function(url)
 {
-  WPS.probeWPS(url, onDescribedProcess_getDataTypesProbe); 
+  WPS.probeWPS(url, onDescribedProcess_getDataTypesProbe);
 };
 
 
 ////////////////////////////////////////
-// Describe a process called identifier on server at specified url.  Will call function passed on onDescribedCallback(process) 
-// when answer arrives. 
-WPS.describeProcess = function(url, identifier, onDescribedCallback) 
+// Describe a process called identifier on server at specified url.  Will call function passed on onDescribedCallback(process)
+// when answer arrives.
+WPS.describeProcess = function(url, identifier, onDescribedCallback)
 {
   var fullUrl = WPS.getDescProcUrl(url, identifier);
-  
+
   var wps = new OpenLayers.WPS(fullUrl, {onDescribedProcess: onDescribedCallback});
   wps.describeProcess(url + ' - ' + identifier);    // This string appears to do nothing at all!
 }
-    
 
-WPS.onDescribedProcess_getDataTypesProbe_dataTypes = [];
- 
+
+WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes = [];
+
 // This function is called when the describeProcesses response arrives
 // It will be called repeatedly as responses arrive
-function onDescribedProcess_getDataTypesProbe(process) 
+function onDescribedProcess_getDataTypesProbe(process)
 {
   for(var i = 0; i < process.inputs.length; i++) {
-    var id = process.inputs[i].identifier;
-   
-    if(!WPS.onDescribedProcess_getDataTypesProbe_dataTypes.hasObject(id)) {
-      WPS.onDescribedProcess_getDataTypesProbe_dataTypes.push(id);
-    } 
+    var id   = process.inputs[i].identifier;
+    var type = process.inputs[i].type;
+
+    // For the moment, skip all "simple" datatypes.  This may need to be changed in the future.
+    if(type != undefined) { continue; }
+
+    if(!WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes.hasObject(id)) {
+      WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes.push(id);
+    }
   }
-  
+
   WPS.responsesReceived++;
-  
+
   // Call callbacks, if they are defined
   if(typeof onDataTypesDiscovered != 'undefined') {
-    onDataTypesDiscovered(WPS.onDescribedProcess_getDataTypesProbe_dataTypes);
+    onDataTypesDiscovered(WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes);
   }
-  
-  if(WPS.responsesReceived == WPS.responsesExpected) { 
+
+  if(WPS.responsesReceived == WPS.responsesExpected) {
     if(typeof onDataTypeDiscoveryCompleted != 'undefined') {
-      onDataTypeDiscoveryCompleted(WPS.onDescribedProcess_getDataTypesProbe_dataTypes);
-    } 
+      onDataTypeDiscoveryCompleted(WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes);
+    }
   }
 }
 
 
-// Probe a WMS and detect which layers are available 
+// Probe a WMS and detect which layers are available
 WMS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
   jQuery('.form_error_message').text("");    // Clear all error messages
   // $('#refresh_layers_button').attr('disabled', true);
   jQuery('#layers_loading_indicator').show();
 
   var fullUrl = WMS.getCapReq(serverUrl);
-  
+
   var store = new GeoExt.data.WMSCapabilitiesStore({ url: fullUrl });
-      
-  // Add some callbacks to handle various situations  
+
+  // Add some callbacks to handle various situations
   store.on('load',      successFunction);
   store.on('exception', failureFunction);
 
-  store.load(); 
+  store.load();
 };
 
 
-// Probe a WFS and detect which layers are available 
+// Probe a WFS and detect which layers are available
 WFS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
   var fullUrl = WFS.getCapReq(serverUrl);
-  
+
   var store = new GeoExt.data.WFSCapabilitiesStore({ url: fullUrl });
-  
-  // Add some callbacks to handle various situations  
+
+  // Add some callbacks to handle various situations
   store.on('load', successFunction);
   store.on('exception', failureFunction);
 
   store.load();
 };
 
- 
+
 var geoProxyPrefix = '/home/geoproxy?url=';
 
-var wrapGeoProxy = function(url) { 
+var wrapGeoProxy = function(url) {
 	// alert('http://localhost:3000/home/geoproxy?url=' + encodeURIComponent(url));
-  return geoProxyPrefix + encodeURIComponent(url); 
+  return geoProxyPrefix + encodeURIComponent(url);
 }
 
 var unwrapGeoProxy = function(url) {
@@ -169,10 +173,10 @@ var getJoinChar = function(url) {
 
 WMS.getCapStr = 'VERSION=1.3.0&REQUEST=GetCapabilities&SERVICE=WMS';
 
-WMS.getCapReq = function(serverUrl) { 
+WMS.getCapReq = function(serverUrl) {
 	//alert('WMS -- http://localhost:3000' + wrapGeoProxy(serverUrl + '?VERSION=1.1.1&REQUEST=GetCapabilities&SERVICE=WMS'));
 	var joinchar = getJoinChar(serverUrl);
-  return wrapGeoProxy(serverUrl + joinchar + WMS.getCapStr); 
+  return wrapGeoProxy(serverUrl + joinchar + WMS.getCapStr);
 }
 
 WMS.stripGetCapReq = function(serverUrl) {
@@ -196,10 +200,10 @@ WFS.stripGetCapReq = function(serverUrl) {
 // Helper functions for creating and deconstructing urls
 WPS.getCapStr = 'VERSION=1.0.0&REQUEST=GetCapabilities&SERVICE=WPS';
 
-WPS.getCapReq = function(serverUrl) { 
+WPS.getCapReq = function(serverUrl) {
 	// alert('WPS -- http://localhost:3000' + wrapGeoProxy(serverUrl + '?VERSION=1.0.0&REQUEST=GetCapabilities&SERVICE=WPS'));
 	var joinchar = getJoinChar(serverUrl);
-  return wrapGeoProxy(serverUrl + joinchar + WPS.getCapStr); 
+  return wrapGeoProxy(serverUrl + joinchar + WPS.getCapStr);
 }
 
 WPS.stripGetCapReq = function(serverUrl) {
@@ -210,10 +214,10 @@ WPS.stripGetCapReq = function(serverUrl) {
 WPS.getDescrProcString = function (layerIdentifier) {
   return 'SERVICE=WPS&VERSION=1.0.0&REQUEST=DescribeProcess&IDENTIFIER=' + layerIdentifier;
 }
- 
-WPS.getDescProcUrl = function(serverUrl, layerIdentifier) { 
+
+WPS.getDescProcUrl = function(serverUrl, layerIdentifier) {
 	var joinchar = getJoinChar(serverUrl);
-  return wrapGeoProxy(serverUrl + joinchar + WPS.getDescrProcString(layerIdentifier)); 
+  return wrapGeoProxy(serverUrl + joinchar + WPS.getDescrProcString(layerIdentifier));
 }
 
 WPS.unwrapServer = function(url) {
