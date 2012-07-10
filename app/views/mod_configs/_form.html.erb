@@ -39,11 +39,13 @@
     {
       var i, o;
       var inputCount = items.length;
+
       for(i = 0; i < inputCount; i++) {
         o = new Object;
         o.identifier = items[i].identifier;
         o.title      = items[i].title || process.inputs[i].identifier;
         o.descr      = items[i].abstract;
+        o.type       = items[i].type == undefined ? "complex" : items[i].type;
 
         container.push(o);
       }
