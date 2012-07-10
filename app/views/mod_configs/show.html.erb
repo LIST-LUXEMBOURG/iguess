@@ -95,6 +95,7 @@
         o.identifier = items[i].identifier;
         o.title      = items[i].title || process.inputs[i].identifier;
         o.descr      = items[i].abstract;
+        o.type       = items[i].type == undefined ? "complex" : items[i].type;
 
         container.push(o);
       }
