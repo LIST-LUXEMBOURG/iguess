@@ -72,8 +72,8 @@
           <% end %>
         }
       }
-      else {    // Data is a simple type like integer or string
-        cell.html('<input type="text">');
+      else {    // Data is a simple type like integer or string -- use a textfield
+        cell.html('<input type="text" style="width:100%">');
       }
 
     <% else %>                      <%# Outputs table %>
