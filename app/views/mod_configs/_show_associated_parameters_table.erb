@@ -26,12 +26,13 @@
   <%# Creates fn called populateInputTable or populateOutputTable %>
   function populate<%= mode.slice(0,1).capitalize + mode.slice(1..-1) %>Table(items)
   {
-    $('#<%= mode %>-table').empty();
+    var table = $('#<%= mode %>-table');
+    table.empty();
 
     var header = '<tr><th>Parameter Name</th>' +
                  '<% if mode == :input %><th>Selected Dataset</th><% else %><th>Output Dataset Identifier</th><% end %></tr>';
 
-    $('#<%= mode %>-table').append(header);
+    table.append(header);
 
     var itemCount = items.length;
     for(var i = 0; i < itemCount; i++)
@@ -74,7 +75,7 @@
 
       row.append(cell);
 
-      $('#<%= mode %>-table').append(row);
+      table.append(row);
     }
   }
 
