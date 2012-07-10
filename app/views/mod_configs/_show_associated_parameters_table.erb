@@ -29,10 +29,10 @@
     var table = $('#<%= mode %>-table');
     table.empty();
 
-    var header = '<tr><th>Parameter Name</th>' +
-                 '<% if mode == :input %><th>Selected Dataset or Value</th><% else %><th>Output Dataset Identifier</th><% end %></tr>';
+    var headerRow = '<tr><th>Parameter Name</th>' +
+                    '<% if mode == :input %><th>Selected Dataset or Value</th><% else %><th>Output Dataset Identifier</th><% end %></tr>';
 
-    table.append(header);
+    table.append(headerRow);
 
     var itemCount = items.length;
     for(var i = 0; i < itemCount; i++)
