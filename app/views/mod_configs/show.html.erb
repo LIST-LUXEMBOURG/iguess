@@ -4,9 +4,9 @@
   Module Configuration
 </h1>
 
+<%# Include some code we share with the other input page in mod_configs %>
+<%= render :partial => 'shared_code.html.erb' %>
 
-<%= render :partial => '/shared/build_registered_layers.html.erb' %>  <%# Builds registeredDataLayers structure %>
-<%= render :partial => '/shared/build_data_layers.html.erb' %>        <%# Builds something else %>
 
 <script type="text/javascript">
 
@@ -86,20 +86,6 @@
     var inputs  = [ ];
     var outputs = [ ];
 
-    var fillContainer = function(items, container)
-    {
-      var i, o;
-      var inputCount = items.length;
-      for(i = 0; i < inputCount; i++) {
-        o = new Object;
-        o.identifier = items[i].identifier;
-        o.title      = items[i].title || process.inputs[i].identifier;
-        o.descr      = items[i].abstract;
-        o.type       = items[i].type == undefined ? "complex" : items[i].type;
-
-        container.push(o);
-      }
-    }
 
     fillContainer(process.inputs, inputs);
     fillContainer(process.outputs, outputs);
