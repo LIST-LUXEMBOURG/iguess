@@ -54,23 +54,29 @@
       cell.attr("nowrap", true);
 
 
-    <% if mode == :input %>
+    <% if mode == :input %>     <%# Inputs table %>
 
-      var control = createDatasetSelectionControl(items[i].identifier);
-//      control.attr("id") = "select-" + i;
-      if(control.children().length == 0) {
-          cell.text('No registered datasets of this type');
+      if(items[i].type == "complex") {
+        var control = createDatasetSelectionControl(items[i].identifier);
+  //      control.attr("id") = "select-" + i;
+        if(control.children().length == 0) {
+            cell.text('No registered datasets of this type');
         }
         else {
           cell.html(control);
 
-        <% if not newConfig %>
-//          control.change(function() {
-//            onSelectedDatasetChanged();
-//          });
-        <% end %>
+          <% if not newConfig %>
+  //          control.change(function() {
+  //            onSelectedDatasetChanged();
+  //          });
+          <% end %>
+        }
       }
-    <% else %>
+      else {    // Data is a simple type like integer or string
+        cell.html('<input type="text">');
+      }
+
+    <% else %>                      <%# Outputs table %>
         cell.html('<input type="text">');
       <% end %>
 
