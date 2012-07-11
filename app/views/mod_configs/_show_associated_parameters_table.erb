@@ -1,6 +1,6 @@
 <!-- Print a table of parameters for the module specified in mod -->
 
-<% newConfig = newConfig || false %>
+<% newConfig = newConfig || false %>  <%# True if we're creating a new configuration, false if editing an existing one %>
 
 <label class="simple_form label"><%= mode.slice(0,1).capitalize + mode.slice(1..-1) %>s</label>
 <table class="zebra" id="<%= mode %>-table">
