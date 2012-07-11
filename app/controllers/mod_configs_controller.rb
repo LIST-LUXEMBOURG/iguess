@@ -47,6 +47,10 @@ class ModConfigsController < ApplicationController
     #binding.pry
     @mod_config = ModConfig.new(params[:mod_config])
 
+    if(@mod_config.name == "") then
+      @mod_config.name = "Unnamed Configuration"
+    end
+
     server = WpsServer.find_by_url(params[:wps_server_url])
     @mod_config.wps_server = server
     @mod_config.identifier = params[:identifier]
