@@ -47,7 +47,9 @@ class ModConfigsController < ApplicationController
     #binding.pry
     @mod_config = ModConfig.new(params[:mod_config])
 
-    if(@mod_config.name == "") then
+    @mod_config.name = @mod_config.name.strip
+
+    if(@mod_config.name.empty?) then
       @mod_config.name = "Unnamed Configuration"
     end
 
