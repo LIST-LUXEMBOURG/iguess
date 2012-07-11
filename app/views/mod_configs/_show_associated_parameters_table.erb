@@ -57,8 +57,7 @@
 
     <% if mode == :input %>     <%# Inputs table %>
 
-      if(items[i].type == "complex") {
-        console.log(items[i]);
+      if(items[i].type == "complex") {    // Require data is a dataset that is already registered with the site
         var control = createDatasetSelectionControl(items[i].identifier);
 
         if(control.children().length == 0) {
@@ -75,7 +74,7 @@
         }
       }
       else {    // Data is a simple type like integer or string -- use a textfield
-        cell.html('<input type="text" style="width:100%">');
+        cell.html('<input type="text" style="width:95%" name="text[' + items[i].identifier + ']">');
       }
 
     <% else %>                      <%# Outputs table %>

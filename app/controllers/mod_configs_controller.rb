@@ -44,6 +44,7 @@ class ModConfigsController < ApplicationController
   # POST /mod_configs
   # POST /mod_configs.json
   def create
+    #binding.pry
     @mod_config = ModConfig.new(params[:mod_config])
 
     server = WpsServer.find_by_url(params[:wps_server_url])
@@ -54,11 +55,28 @@ class ModConfigsController < ApplicationController
     # Move on to save all the selected datasets
     if(success) then
       params[:datasets].each_key do |key|
-        confds = ConfigDataset.new()
-        dataset = Dataset.find(params[:datasets][key])
-        confds.mod_config = @mod_config
-        confds.dataset    = dataset
-        success &= confds.save()
+        if(success) then
+          confds = ConfigDataset.new()
+          dataset = Dataset.find(params[:datasets][key])
+          confds.mod_config = @mod_config
+          confds.dataset    = dataset
+
+          success &= confds.save()
+        end
+      end
+    end
+
+    # Save any text inputs the user provided
+    if(success) then
+      params[:text].each_key do |key|
+        if(success) then
+          textval = ConfigTextInput.new()
+          textval.mod_config = @mod_config
+          textval.column_name = key
+          textval.value = params[:text][key]
+
+          success &= textval.save()
+        end
       end
     end
 
