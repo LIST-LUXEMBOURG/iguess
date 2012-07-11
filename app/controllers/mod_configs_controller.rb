@@ -49,9 +49,21 @@ class ModConfigsController < ApplicationController
     server = WpsServer.find_by_url(params[:wps_server_url])
     @mod_config.wps_server = server
     @mod_config.identifier = params[:identifier]
+    success = @mod_config.save
+
+    # Move on to save all the selected datasets
+    if(success) then
+      params[:datasets].each_key do |key|
+        confds = ConfigDataset.new()
+        dataset = Dataset.find(params[:datasets][key])
+        confds.mod_config = @mod_config
+        confds.dataset    = dataset
+        success &= confds.save()
+      end
+    end
 
     respond_to do |format|
-      if @mod_config.save
+      if success
         format.html { redirect_to @mod_config, notice: 'Mod config was successfully created.' }
         format.json { render json: @mod_config, status: :created, location: @mod_config }
       else

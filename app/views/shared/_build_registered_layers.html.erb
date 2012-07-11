@@ -1,10 +1,15 @@
-<%# This function builds a list of data layers that are registered, and are thus stored in the database.  %>
+<%# This function builds a list of data layers that are registered, and are thus stored in the database.
+    Layers are actually objects with a type and rubyId field.  Display name should come from the data server itself, and will
+      be retrieved separately %>
 
 <script type="text/javascript">
   registeredDataLayers = { };
 
   <%= @datasets.reject{ |d| d.finalized == false }.
-                map{ |d| "registeredDataLayers[makeKey('" + d.server_url + "','" + d.identifier + "')] = '" + d.dataset_type + "';" }.
+                map{ |d| "var o = new Object;" +
+                          "o.identifier = '" + d.dataset_type + "';" +
+                          "o.rubyId = " + d.id.to_s() + ";" +
+                          "registeredDataLayers[makeKey('" + d.server_url + "','" + d.identifier + "')] = o;\n" }.
                 join(' ') %>
 
   registeredDataServers = [<%= @datasets.reject{|d| d.dataset_type == "Mapping Only"}

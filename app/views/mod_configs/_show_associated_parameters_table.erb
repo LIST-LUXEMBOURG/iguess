@@ -58,8 +58,9 @@
     <% if mode == :input %>     <%# Inputs table %>
 
       if(items[i].type == "complex") {
+        console.log(items[i]);
         var control = createDatasetSelectionControl(items[i].identifier);
-  //      control.attr("id") = "select-" + i;
+
         if(control.children().length == 0) {
             cell.text('No registered datasets of this type');
         }
@@ -114,14 +115,18 @@
   function createDatasetSelectionControl(identifier)
   {
     var ctrl = $(document.createElement('select'));
+    ctrl.attr('name', 'datasets[' + identifier + ']');
 
     for(var layerKey in registeredDataLayers) {
-      if(registeredDataLayers[layerKey] == identifier) {
+      if(registeredDataLayers[layerKey].identifier == identifier) {
         var title = "Unknown Title";
         if(discoveredLayers[layerKey] != undefined) {
           title = discoveredLayers[layerKey].title;
         }
-        ctrl.append('<option value="' + layerKey + '">' + title + '</option>');
+
+        // Here we create our dropdown of possible datasets.  All datasets presented have already been registered with the server.
+        // Note that the value here will be the id of this layer as stored in the database on the server.
+        ctrl.append('<option value="' + registeredDataLayers[layerKey].rubyId + '">' + title + '</option>');
       }
     }
 
