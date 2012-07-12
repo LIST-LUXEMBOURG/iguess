@@ -87,7 +87,7 @@ WPS.describeProcess = function(url, identifier, onDescribedCallback)
 {
   var fullUrl = WPS.getDescProcUrl(url, identifier);
 
-  var wps = new OpenLayers.WPS(fullUrl, {onDescribedProcess: onDescribedCallback});
+  var wps = new OpenLayers.WPS(fullUrl, { onDescribedProcess: onDescribedCallback });
   wps.describeProcess(url + ' - ' + identifier);    // This string appears to do nothing at all!
 }
 
