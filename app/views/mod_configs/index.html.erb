@@ -21,7 +21,7 @@
     processIdLookup = Hash.new
     ctr = 0
 
-    @mod_configs.map{ |c| processIdLookup[c.wps_server.url + (c.identifier.blank? ? "" : c.identifier)] = 'x' + ctr.to_s; ctr+=1; }
+    @mod_configs.map{ |c| processIdLookup[c.wps_server.url + (c.identifier.blank? ? "" : c.identifier)] = 'x' + ctr.to_s; ctr += 1; }
   %>
 
   processIdLookup = { };
@@ -42,8 +42,25 @@
   // This will be called when the GetCapabilities call to the WPS returns.  Should happen once per WPS server.
   function onReceivedServerInfo(url, title, abstract, processes)
   {
-    $('.' + makeKey(url, 'title')).text(title);
-    $('#' + makeKey(url, 'abstract')).text(abstract);
+    var titleKey = makeKey(url, 'title');
+    var abstractKey = makeKey(url, 'abstract');
+
+    $('.' + titleKey).text(title);          // This is the title of the server at the top of the Module Catalog
+    $('#' + abstractKey).text(abstract);
+
+    // Now see if there are any servers we were expecting, but are no longer listed on the server
+    var len = processes.length;
+
+
+    // Populate the "Based on" and status columns of the Configured Modules tab
+    for(var i = 0; i < len; i++) {
+      var wrappedServer = processes[i].wps.getCapabilitiesUrlGet;
+      var server = WPS.unwrapProcServer(wrappedServer, processes[i].identifier);
+      var processId = processIdLookup[server + processes[i].identifier];
+
+      $("." + processId).html(processes[i].title || processes[i].identifier);
+      $(".status-" + processId).html("Server available");
+    }
   }
 
   // This function is called when the describeProcesses response arrives
@@ -52,16 +69,11 @@
   {
     responses++;
 
+    // We know how many WPS describeProcess calls we made, so whenever one returns we should know if we are still
+    // waiting for any others
     if(responses == WPS.getResponsesExpected()) {
-      $('#wps-probing-indicator').hide();
+      $('#wps-probing-indicator').hide();           // On the Module Catalog tab
     }
-
-    var wrappedServer = process.wps.getCapabilitiesUrlGet;
-    var server = WPS.unwrapProcServer(wrappedServer, process.identifier);
-    var processId = processIdLookup[server + process.identifier];
-
-    $("." + processId).html(process.title || process.identifier);
-    $(".status-" + processId).html("Server available");
 
     var description = '<hr><h3 class="process-title">' + process.title + '</h3>' +
         '<div class="process-descr">' + process.abstract + '</div>' +
@@ -92,7 +104,7 @@
       }
     }
 
-    description += '</tbody></table><a href="/mod_configs/new?template=' + (process.title + 'Q' + wrappedServer).makeHash() + '">Create new configuration for this service</a>';
+    description += '</tbody></table><a href="/mod_configs/new?template=' + (process.title + 'Q' + process.wps.getCapabilitiesUrlGet).makeHash() + '">Create new configuration for this service</a>';
 
     document.getElementById("wps-result").innerHTML += description;
   };
