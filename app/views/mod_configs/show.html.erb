@@ -80,7 +80,7 @@
 
   var onDescribedProcess = function(process) {
 
-    $('#based-on').html(process.title || process.name);
+    $('#based-on').html((process.title || process.name) + " template");
     $('#mod-descr').html(process.abstract);
 
     var serverUrl = process.wps.executeUrlGet;
@@ -124,7 +124,7 @@
 
 <div class="simple_form">
   <label>Based on</label>
-  <span id="based-on">Retrieving name...</span> template
+  <span id="based-on">Retrieving name...</span>
 </div>
 
 <div class="simple_form">
