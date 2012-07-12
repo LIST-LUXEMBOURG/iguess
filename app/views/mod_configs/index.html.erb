@@ -121,14 +121,7 @@
                  :locals => { :initialSortlist => "[[0,0]], headers: { 3: {sorter: false}}" } %>
 
       <table id="sortable_table" class="zebra sortable">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Based on</th>
-            <th>Status</th>
-            <th>Notes</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Name</th><th>Based on</th><th>Status</th><th>Notes</th></tr></thead>
 
         <tbody>
           <% @mod_configs.each do |mod_config| %>
