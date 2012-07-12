@@ -34,7 +34,7 @@
   var urls = [<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>];
   var responses = 0;
 
-  // For each url in our database, start probing the server
+  // For each WPS url in our database, start probing the server
   for(var i = 0; i < urls.length; i++) {  WPS.probeWPS(urls[i], onDescribedProcess, onReceivedServerInfo);  }
 
   function onReceivedServerInfo(url, title, abstract)
