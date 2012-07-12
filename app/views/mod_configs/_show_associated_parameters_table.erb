@@ -74,11 +74,11 @@
         }
       }
       else {    // Data is a simple type like integer or string -- use a textfield
-        cell.html('<input type="text" style="width:95%" name="text[' + items[i].identifier + ']">');
+        cell.html('<input type="text" style="width:95%" name="inputtext[' + items[i].identifier + ']">');
       }
 
     <% else %>                      <%# Outputs table %>
-        cell.html('<input type="text">');
+        cell.html('<input type="text" name="outputs[' + items[i].identifier + ']">');
       <% end %>
 
       row.append(cell);
