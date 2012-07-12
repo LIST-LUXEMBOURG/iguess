@@ -35,7 +35,8 @@ WPS.onGetCapabilities = function()
 
   // Further probe the server, process-by-process, but only if we have a onDescribedProcessFunction defined
   if(WPS.onDescribedProcessFunction != null && WPS.onDescribedProcessFunction != undefined) {
-    for(var i = 0; i < this.processes.length; i++) {
+    var len = this.processes.length;
+    for(var i = 0; i < len; i++) {
       WPS.describeProcess(this.describeProcessUrlPost, this.processes[i].identifier, WPS.onDescribedProcessFunction_passthrough);
       WPS.responsesExpected++;
     }
