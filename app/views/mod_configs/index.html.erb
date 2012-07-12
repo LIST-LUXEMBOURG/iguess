@@ -35,8 +35,9 @@
   var responses = 0;
 
   // For each WPS url in our database, start probing the server
-  for(var i = 0; i < urls.length; i++) {  WPS.probeWPS(urls[i], onDescribedProcess, onReceivedServerInfo);  }
+  for(var i = 0; i < urls.length; i++) { WPS.probeWPS(urls[i], onDescribedProcess, onReceivedServerInfo);  }
 
+  // This will be called when the GetCapabilities call to the WPS returns.  Should happen once per WPS server.
   function onReceivedServerInfo(url, title, abstract)
   {
     $('.' + makeKey(url, 'title')).text(title);
