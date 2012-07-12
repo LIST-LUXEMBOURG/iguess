@@ -96,8 +96,9 @@
 
   var urls = [<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>];
 
-  // For each url in our database, start probing the server
-  for(var i = 0; i < urls.length; i++) {  WPS.probeWPS(urls[i], onDescribedProcess);  }
+  // For each url in our database, start probing the server.  We don't want a notice when the initial communication
+  // with the WPS server is complete, only when the individual processes are probed.
+  for(var i = 0; i < urls.length; i++) {  WPS.probeWPS(urls[i], null, onDescribedProcess);  }
 
   getWmsLayers(registeredDataServers);
   getWfsLayers(registeredDataServers);

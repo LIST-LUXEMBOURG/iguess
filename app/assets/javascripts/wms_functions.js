@@ -11,10 +11,10 @@ WPS.getResponsesExpected = function() { return WPS.responsesExpected; }
 
 ////////////////////////////////////////
 // Send an initial request to a WPS server to see what services it offers
-WPS.probeWPS = function(serverUrl, onDescribedProcessFunction, onReceivedServerInfoFunction)
+WPS.probeWPS = function(serverUrl, onReceivedServerInfoFunction, onDescribedProcessFunction, xxx)
 {
-  WPS.onDescribedProcessFunction   = onDescribedProcessFunction;
   WPS.onReceivedServerInfoFunction = onReceivedServerInfoFunction;
+  WPS.onDescribedProcessFunction   = onDescribedProcessFunction;
 
   var url = WPS.getCapReq(serverUrl);
 
@@ -29,14 +29,16 @@ WPS.onGetCapabilities = function()
 {
   // Trigger callback with name and abstract of server
   if(WPS.onReceivedServerInfoFunction != null && WPS.onReceivedServerInfoFunction != undefined) {
-    WPS.onReceivedServerInfoFunction(this.getCapabilitiesUrlPost, this.title, this.abstract);
+    WPS.onReceivedServerInfoFunction(this.getCapabilitiesUrlPost, this.title, this.abstract, this.processes);
   }
   WPS.title = this.title;
 
-  // Further probe the server, process-by-process
-  for(var i = 0; i < this.processes.length; i++) {
-    WPS.describeProcess(this.describeProcessUrlPost, this.processes[i].identifier, WPS.onDescribedProcessFunction_passthrough);
-    WPS.responsesExpected++;
+  // Further probe the server, process-by-process, but only if we have a onDescribedProcessFunction defined
+  if(WPS.onDescribedProcessFunction != null && WPS.onDescribedProcessFunction != undefined) {
+    for(var i = 0; i < this.processes.length; i++) {
+      WPS.describeProcess(this.describeProcessUrlPost, this.processes[i].identifier, WPS.onDescribedProcessFunction_passthrough);
+      WPS.responsesExpected++;
+    }
   }
 };
 

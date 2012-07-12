@@ -35,10 +35,12 @@
   var responses = 0;
 
   // For each WPS url in our database, start probing the server
-  for(var i = 0; i < urls.length; i++) { WPS.probeWPS(urls[i], onDescribedProcess, onReceivedServerInfo);  }
+  // We need the results of onReceivedServerInfo to complete the Configured Modules tab
+  // We need the results of onDescribedProcess to complete the Module Catalog tab
+  for(var i = 0; i < urls.length; i++) { WPS.probeWPS(urls[i], onReceivedServerInfo, onDescribedProcess);  }
 
   // This will be called when the GetCapabilities call to the WPS returns.  Should happen once per WPS server.
-  function onReceivedServerInfo(url, title, abstract)
+  function onReceivedServerInfo(url, title, abstract, processes)
   {
     $('.' + makeKey(url, 'title')).text(title);
     $('#' + makeKey(url, 'abstract')).text(abstract);
