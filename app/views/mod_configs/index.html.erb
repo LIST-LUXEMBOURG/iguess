@@ -16,19 +16,32 @@
 </ul>
 
 <script type="text/javascript">
-
+  processIdLookup = { };
+  var o;
   <%
-    processIdLookup = Hash.new
-    ctr = 0
+    ctr = 0;
+    lines = "";                   # These will be a JS representation of thing
+    processIdLookup = Hash.new    # A Ruby representation of the same
 
-    @mod_configs.map{ |c| processIdLookup[c.wps_server.url + (c.identifier.blank? ? "" : c.identifier)] = 'x' + ctr.to_s; ctr += 1; }
+    @mod_configs.map { |c|
+      id = c.identifier.blank? ? "" : c.identifier;
+
+      # The following produces a line that looks like this:
+      # o = new Object;o.classId = 'x1';o.serverUrl = 'http://iguess.tudor.lu/cgi-bin/pywps.cgi';   \
+      # o.identifier = 'solar_potential';processIdLookup['solar_potential'] = o;
+      lines += "o = new Object;" +
+               "o.classId = 'x" + ctr.to_s + "';" +
+               "o.serverUrl = '" + c.wps_server.url + "';" +
+               "o.identifier = '"  + id + "';" +
+               "o.found = false; " +
+               "processIdLookup['" + c.wps_server.url + id + "'] = o;\n";
+
+      processIdLookup[c.wps_server.url + id] = 'x' + ctr.to_s;
+      ctr += 1;
+    }
   %>
 
-  processIdLookup = { };
-  <% lines = "" %>
-  <% processIdLookup.each{ |u, i| lines += "processIdLookup['" + u + "'] = '" + i + "'; " } %>
   <%= raw lines %>
-
 
 
   var urls = [<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>];
@@ -51,15 +64,28 @@
     // Now see if there are any servers we were expecting, but are no longer listed on the server
     var len = processes.length;
 
-
     // Populate the "Based on" and status columns of the Configured Modules tab
     for(var i = 0; i < len; i++) {
       var wrappedServer = processes[i].wps.getCapabilitiesUrlGet;
       var server = WPS.unwrapProcServer(wrappedServer, processes[i].identifier);
-      var processId = processIdLookup[server + processes[i].identifier];
+      var obj = processIdLookup[server + processes[i].identifier];
 
-      $("." + processId).html(processes[i].title || processes[i].identifier);
-      $(".status-" + processId).html("Server available");
+      if(obj != undefined) {
+        $("." + obj.classId).html(processes[i].title || processes[i].identifier);
+        $(".status-" + obj.classId).html("Server available");
+        obj.found = true;
+      }
+    }
+
+    // Now check if we have any configurations based on modules that are not on the WPS server that we expect
+    for(var key in processIdLookup) {
+      if(processIdLookup[key].serverUrl == server) {
+        if(!processIdLookup[key].found) {
+          var classId = processIdLookup[key].classId;
+          $("." + classId).html("Process not found on server -- was it deleted?");
+          $(".status-" + classId).html("Server available");
+        }
+      }
     }
   }
 
@@ -141,10 +167,12 @@
         <tbody>
           <% @mod_configs.each do |mod_config| %>
             <tr>
+              <% pid = processIdLookup[mod_config.wps_server.url + (mod_config.identifier.blank? ? "" : mod_config.identifier)] %>
+
               <td style="white-space: nowrap;"><%= link_to mod_config.name, mod_config %></td>
-              <td class='<%= processIdLookup[mod_config.wps_server.url + (mod_config.identifier.blank? ? "" : mod_config.identifier)] =%>'
+              <td class='<%= pid =%>'
                   style="white-space: nowrap;">Probing server... <img src="assets/loading_spinner.gif"></td>
-              <td class='status-<%= processIdLookup[mod_config.wps_server.url + (mod_config.identifier.blank? ? "" : mod_config.identifier)] =%>'
+              <td class='status-<%= pid =%>'
                   style="white-space: nowrap;">Probing server... <img src="assets/loading_spinner.gif"></td>
               <td><%= mod_config.descr %></td>
             </tr>
