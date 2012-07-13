@@ -88,7 +88,7 @@
         if(!processIdLookup[key].found) {
           var classId = processIdLookup[key].classId;
           $('.' + classId).html('Process not found on server -- It is either temporarily offline or has been deleted ' + processIdLookup[key].deleteUrl);
-
+          $('.name-' + classId).children().removeAttr("href");   // Disable the title URL -- we don't want it usable
           $('.status-' + classId).html('Server available');
         }
       }
