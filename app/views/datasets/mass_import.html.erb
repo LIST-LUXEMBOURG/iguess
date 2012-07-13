@@ -174,7 +174,9 @@
             }
           }
 
-          dataTypeControl.val(registeredDataLayers[layerKey]);    // Make selected item selected
+          if(registeredDataLayers[layerKey] != undefined) {
+            dataTypeControl.val(registeredDataLayers[layerKey].identifier);    // Make selected item selected
+          }
         }
 
         var registerControl = $(document.createElement('input'));
