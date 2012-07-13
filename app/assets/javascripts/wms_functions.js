@@ -11,7 +11,7 @@ WPS.getResponsesExpected = function() { return WPS.responsesExpected; }
 
 ////////////////////////////////////////
 // Send an initial request to a WPS server to see what services it offers
-WPS.probeWPS = function(serverUrl, onReceivedServerInfoFunction, onDescribedProcessFunction, xxx)
+WPS.probeWPS = function(serverUrl, onReceivedServerInfoFunction, onDescribedProcessFunction)
 {
   WPS.onReceivedServerInfoFunction = onReceivedServerInfoFunction;
   WPS.onDescribedProcessFunction   = onDescribedProcessFunction;
@@ -76,7 +76,7 @@ WPS.onGetServerInfo = function(xxx)
 // Will call onDataTypesDiscovered(dataTypesFound) as data comes in, and onDataTypeDiscoveryCompleted(dataTypesFound)
 WPS.probeWPS_getDataTypes = function(url)
 {
-  WPS.probeWPS(url, onDescribedProcess_getDataTypesProbe);
+  WPS.probeWPS(url, null, onDescribedProcess_getDataTypesProbe);
 };
 
 
