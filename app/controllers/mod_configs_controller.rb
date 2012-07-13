@@ -65,7 +65,7 @@ class ModConfigsController < ApplicationController
     if(success) then
       if(params[:datasets]) then        # Not every module has input datasets
         params[:datasets].each_key do |key|
-          if(success) then
+          if(not params[:datasets][key].empty? and success) then
             confds = ConfigDataset.new()
             dataset = Dataset.find(params[:datasets][key])
             confds.mod_config = @mod_config

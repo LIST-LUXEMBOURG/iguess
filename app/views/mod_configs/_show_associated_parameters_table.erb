@@ -66,6 +66,8 @@
             cell.text('No registered datasets of this type');
         }
         else {
+          control.prepend("<option value=''>No dataset selected</option>");
+
           cell.html(control);
 
           if(datasetValues != undefined)  {
