@@ -34,6 +34,10 @@
                "o.serverUrl = '" + c.wps_server.url + "';" +
                "o.identifier = '"  + id + "';" +
                "o.found = false; " +
+
+               "o.deleteUrl = '" + link_to('Delete This Module', c, confirm: "Deleting this module is a permanent action.\\n\\n" +
+                                                                             "Click OK if you are sure you want to delete this module.",
+                                                                    method: :delete) + "';" +
                "processIdLookup['" + c.wps_server.url + id + "'] = o;\n";
 
       processIdLookup[c.wps_server.url + id] = 'x' + ctr.to_s;
@@ -82,8 +86,9 @@
       if(processIdLookup[key].serverUrl == server) {
         if(!processIdLookup[key].found) {
           var classId = processIdLookup[key].classId;
-          $("." + classId).html("Process not found on server -- was it deleted?");
-          $(".status-" + classId).html("Server available");
+          $('.' + classId).html('Process not found on server -- It is either temporarily offline or it has been deleted ' + processIdLookup[key].deleteUrl);
+
+          $('.status-' + classId).html('Server available');
         }
       }
     }

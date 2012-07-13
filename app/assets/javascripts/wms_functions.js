@@ -83,14 +83,25 @@ WPS.probeWPS_getDataTypes = function(url)
 ////////////////////////////////////////
 // Describe a process called identifier on server at specified url.  Will call function passed on onDescribedCallback(process)
 // when answer arrives.
+
+var got = function() { alert(3); }
+
+
 WPS.describeProcess = function(url, identifier, onDescribedCallback)
 {
   var fullUrl = WPS.getDescProcUrl(url, identifier);
 
-  var wps = new OpenLayers.WPS(fullUrl, { onDescribedProcess: onDescribedCallback });
+  var wps = new OpenLayers.WPS(fullUrl, { onDescribedProcess: onDescribedCallback,
+                                          onGotCapabilities:  got,
+                                          onException:        showErrorMessage });
   wps.describeProcess(url + ' - ' + identifier);    // This string appears to do nothing at all!
 }
 
+
+
+// sample wps error handling function
+//function onError(process){
+// textData="Error Code:"+process.exception.code+"<br />"+"Text:"+process.exception.text;
 
 WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes = [];
 

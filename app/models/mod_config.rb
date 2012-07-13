@@ -3,4 +3,4 @@ class ModConfig < ActiveRecord::Base
   has_many :datasets, :through => :config_datasets
   has_many :config_text_inputs
 end
-Data
+
