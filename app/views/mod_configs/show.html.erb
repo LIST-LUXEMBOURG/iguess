@@ -91,8 +91,13 @@
     fillContainer(process.inputs, inputs);
     fillContainer(process.outputs, outputs);
 
-    populateInputTable(inputs);
-    populateOutputTable(outputs);
+    <%# Dictionary of values for each input on this form %>
+    <% formValues = @textinputs.map{|text| text.column_name + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"' }.join(',') %>
+
+    var formValues = { <%= raw formValues %> };
+
+    populateInputTable(inputs, formValues);
+    populateOutputTable(outputs, formValues);
   }
 
   WPS.describeProcess("<%= @mod_config.wps_server.url %>", "<%= @mod_config.identifier %>", onDescribedProcess);

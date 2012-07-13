@@ -23,8 +23,23 @@
 
 <script type="text/javascript">
 
+  <%# Only include this function once %>
+  <% if mode == :input %>
+    function getCleanValue(formValues, identifier, mode)
+    {
+      var value = formValues[identifier + mode];
+
+      if(value == undefined) {
+        return "";
+      }
+
+      return value;
+    }
+  <% end %>
+
   <%# Creates fn called populateInputTable or populateOutputTable %>
-  function populate<%= mode.slice(0,1).capitalize + mode.slice(1..-1) %>Table(items)
+  // formValues will only be defined when calling from the main Module Configuration page
+  function populate<%= mode.slice(0,1).capitalize + mode.slice(1..-1) %>Table(items, formValues)
   {
     var table = $('#<%= mode %>-table');
     table.empty();
@@ -41,11 +56,13 @@
       var row  = $(document.createElement('tr'));
       var cell = $(document.createElement('td'));   // Param name
 
-      var html = items[i].title;
+      item = items[i];
 
-      if(items[i].descr != null) {
+      var html = item.title;
+
+      if(item.descr != null) {
         html += '<img src="/assets/small_question_mark.gif" style="padding-left: 8px; padding-top: 3px" ' +
-                'alt="More info" title="' + items[i].descr + '">'
+                'alt="More info" title="' + item.descr + '">'
       }
 
       cell.html(html);
@@ -58,7 +75,7 @@
     <% if mode == :input %>     <%# Inputs table %>
 
       if(items[i].type == "complex") {    // Require data is a dataset that is already registered with the site
-        var control = createDatasetSelectionControl(items[i].identifier);
+        var control = createDatasetSelectionControl(item.identifier);
 
         if(control.children().length == 0) {
             cell.text('No registered datasets of this type');
@@ -74,11 +91,19 @@
         }
       }
       else {    // Data is a simple type like integer or string -- use a textfield
-        cell.html('<input type="text" style="width:95%" name="inputtext[' + items[i].identifier + ']">');
+        <% if not newConfig %>
+          var value = getCleanValue(formValues, item.identifier, '<%= mode %>');
+
+        <% else %>
+          var value = "";
+        <% end %>
+
+        cell.html('<input type="text" style="width:95%" name="inputtext[' + item.identifier + ']" value="' + value + '">');
       }
 
     <% else %>                      <%# Outputs table %>
-        cell.html('<input type="text" name="outputs[' + items[i].identifier + ']">');
+        var value = getCleanValue(formValues, items[i].identifier, '<%= mode %>');
+        cell.html('<input type="text" style="width:95%" name="outputs[' + item.identifier + ']" value="' + value + '">');
       <% end %>
 
       row.append(cell);
