@@ -72,9 +72,7 @@
       cell.attr("nowrap", true);
 
 
-    <% if mode == :input %>     <%# Inputs table %>
-
-      if(items[i].type == "complex") {    // Require data is a dataset that is already registered with the site
+      if('<%= mode %>' == 'input' && items[i].type == "complex") {    // Require data is a dataset that is already registered with the site
         var control = createDatasetSelectionControl(item.identifier);
 
         if(control.children().length == 0) {
@@ -100,11 +98,6 @@
 
         cell.html('<input type="text" style="width:95%" name="inputtext[' + item.identifier + ']" value="' + value + '">');
       }
-
-    <% else %>                      <%# Outputs table %>
-        var value = getCleanValue(formValues, items[i].identifier, '<%= mode %>');
-        cell.html('<input type="text" style="width:95%" name="outputs[' + item.identifier + ']" value="' + value + '">');
-      <% end %>
 
       row.append(cell);
 
