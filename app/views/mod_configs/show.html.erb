@@ -95,6 +95,7 @@
     <% formValues = @text_inputs.map{|text| text.column_name + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"'}.join(',') %>
     var formValues    = { <%= raw formValues    %> };
 
+    <%# Dictionary of selected datasets used for selecting items in selected dataset dropdowns %>
     <% datasetValues = @dataset_inputs.map{|d| d.dataset.dataset_type + ': "' + d.dataset.identifier + '"'}.join(',') %>
     var datasetValues = { <%= raw datasetValues %> };
 
