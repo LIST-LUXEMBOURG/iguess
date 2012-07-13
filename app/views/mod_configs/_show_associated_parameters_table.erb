@@ -78,6 +78,14 @@
       }
       else {    // Data is a simple type like integer or string -- use a textfield
         var value = "";
+        var placeholder;
+
+        if('<%= mode %>' == 'output') {
+          placeholder = "Output dataset name";
+        }
+        else {
+          placeholder = items[i].type.capitalize() + " value";
+        }
 
         if(formValues != undefined) {
           var value = formValues[item.identifier + '<%= mode %>'];
@@ -85,7 +93,8 @@
           if(value == undefined) {  value = "";  }
         }
 
-        cell.html('<input type="text" style="width:95%" name="<%= mode %>[' + item.identifier + ']" value="' + value + '">');
+        cell.html('<input type="text" style="width:95%" name="<%= mode %>[' + item.identifier + ']" ' +
+                  'placeholder="' + placeholder + '" value="' + value + '">');
       }
 
       row.append(cell);
