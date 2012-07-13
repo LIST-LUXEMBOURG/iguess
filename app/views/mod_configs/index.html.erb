@@ -174,7 +174,7 @@
             <tr>
               <% pid = processIdLookup[mod_config.wps_server.url + (mod_config.identifier.blank? ? "" : mod_config.identifier)] %>
 
-              <td style="white-space: nowrap;"><%= link_to mod_config.name, mod_config %></td>
+              <td class='name-<%= pid =%>' style="white-space: nowrap;"><%= link_to mod_config.name, mod_config %></td>
               <td class='<%= pid =%>'
                   style="white-space: nowrap;">Probing server... <img src="assets/loading_spinner.gif"></td>
               <td class='status-<%= pid =%>'
