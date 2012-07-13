@@ -99,7 +99,7 @@
     <% datasetValues = @dataset_inputs.map{|d| d.dataset.dataset_type + ': "' + d.dataset.identifier + '"'}.join(',') %>
     var datasetValues = { <%= raw datasetValues %> };
 
-    populateInputTable(inputs, formValues);
+    populateInputTable(inputs, formValues, datasetValues);
     populateOutputTable(outputs, formValues);
   }
 

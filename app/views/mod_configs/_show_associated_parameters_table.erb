@@ -24,8 +24,9 @@
 <script type="text/javascript">
 
   <%# Creates fn called populateInputTable or populateOutputTable %>
-  // formValues will only be defined when calling from the main Module Configuration page
-  function populate<%= mode.slice(0,1).capitalize + mode.slice(1..-1) %>Table(items, formValues)
+  // formValues & datasetValues will only be defined when calling from the main Module Configuration page
+  // When mode is output, datasetValues will be undefined
+  function populate<%= mode.slice(0,1).capitalize + mode.slice(1..-1) %>Table(items, formValues, datasetValues)
   {
     var table = $('#<%= mode %>-table');
     table.empty();
