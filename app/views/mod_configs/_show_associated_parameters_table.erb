@@ -23,20 +23,6 @@
 
 <script type="text/javascript">
 
-  <%# Only include this function once %>
-  <% if mode == :input %>
-    function getCleanValue(formValues, identifier, mode)
-    {
-      var value = formValues[identifier + mode];
-
-      if(value == undefined) {
-        return "";
-      }
-
-      return value;
-    }
-  <% end %>
-
   <%# Creates fn called populateInputTable or populateOutputTable %>
   // formValues will only be defined when calling from the main Module Configuration page
   function populate<%= mode.slice(0,1).capitalize + mode.slice(1..-1) %>Table(items, formValues)
@@ -90,7 +76,9 @@
       }
       else {    // Data is a simple type like integer or string -- use a textfield
         <% if not newConfig %>
-          var value = getCleanValue(formValues, item.identifier, '<%= mode %>');
+          var value = formValues[item.identifier + '<%= mode %>'];
+
+          if(value == undefined) {  value = "";  }
 
         <% else %>
           var value = "";
