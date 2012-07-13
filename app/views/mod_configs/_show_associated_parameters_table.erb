@@ -59,7 +59,7 @@
       cell.attr("nowrap", true);
 
 
-      if('<%= mode %>' == 'input' && items[i].type == "complex") {    // Require data is a dataset that is already registered with the site
+      if('<%= mode %>' == 'input' && items[i].type == "complex") {
         var control = createDatasetSelectionControl(item.identifier);
 
         if(control.children().length == 0) {
