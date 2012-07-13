@@ -1,5 +1,5 @@
 // Check if an object already exists in an array
-// Usage: 
+// Usage:
 //    dataTypes.hasObject(id) returns true if id is already in the dataTypes array
 //
 Array.prototype.hasObject = (
@@ -19,19 +19,19 @@ Array.prototype.hasObject = (
 // Options should be an array of items
 populateSelectBox = function(control, options) {
   var n = options.length;
-  
+
   for (var i = 0; i < n; i++) {
     var optn = document.createElement("OPTION");
     optn.text = options[i];
     optn.value = options[i];
-    
+
     control.options.add(optn);
   }
 }
 
 
-// Combine server and other identifier to create a unique key 
-makeKey = function(server, identifier) 
+// Combine server and other identifier to create a unique key
+makeKey = function(server, identifier)
 {
   try{
     // Strip out any special chars because these confuse things parsing the DOM!
@@ -51,4 +51,10 @@ String.prototype.makeHash = function(){
         hash = hash & hash; // Convert to 32bit integer
     }
     return hash;
+}
+
+
+// From http://stackoverflow.com/questions/1026069/capitalize-the-first-letter-of-string-in-javascript
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
 }
