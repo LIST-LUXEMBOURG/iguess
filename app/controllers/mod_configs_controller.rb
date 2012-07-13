@@ -79,7 +79,7 @@ class ModConfigsController < ApplicationController
 
     # Save any text inputs and outputs the user provided
     if(success) then
-      paramkeys = [:inputtext, :outputs]
+      paramkeys = ['input', 'output']
       paramkeys.each { |paramkey|
         if(params[paramkey]) then
           params[paramkey].each_key do |key|
@@ -88,7 +88,8 @@ class ModConfigsController < ApplicationController
               textval.mod_config = @mod_config
               textval.column_name = key
               textval.value = params[paramkey][key]
-              textval.is_input = (paramkey == :inputtext)
+              textval.is_input = (paramkey == 'input')
+
               success &= textval.save()
             end
           end

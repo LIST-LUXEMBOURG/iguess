@@ -85,7 +85,7 @@
           if(value == undefined) {  value = "";  }
         }
 
-        cell.html('<input type="text" style="width:95%" name="inputtext[' + item.identifier + ']" value="' + value + '">');
+        cell.html('<input type="text" style="width:95%" name="<%= mode %>[' + item.identifier + ']" value="' + value + '">');
       }
 
       row.append(cell);
