@@ -68,22 +68,22 @@
         else {
           cell.html(control);
 
-          <% if not newConfig %>
-  //          control.change(function() {
-  //            onSelectedDatasetChanged();
-  //          });
-          <% end %>
+          if(datasetValues != undefined)  {
+            var selectedVal = datasetValues[item.identifier];
+            if(selectedVal != undefined)  {
+              control.val(selectedVal);
+            }
+          }
         }
       }
       else {    // Data is a simple type like integer or string -- use a textfield
-        <% if not newConfig %>
+        var value = "";
+
+        if(formValues != undefined) {
           var value = formValues[item.identifier + '<%= mode %>'];
 
           if(value == undefined) {  value = "";  }
-
-        <% else %>
-          var value = "";
-        <% end %>
+        }
 
         cell.html('<input type="text" style="width:95%" name="inputtext[' + item.identifier + ']" value="' + value + '">');
       }

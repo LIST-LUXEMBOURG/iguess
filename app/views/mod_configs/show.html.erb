@@ -96,7 +96,7 @@
     var formValues    = { <%= raw formValues    %> };
 
     <%# Dictionary of selected datasets used for selecting items in selected dataset dropdowns %>
-    <% datasetValues = @dataset_inputs.map{|d| d.dataset.dataset_type + ': "' + d.dataset.identifier + '"'}.join(',') %>
+    <% datasetValues = @dataset_inputs.map{|d| d.dataset.dataset_type + ': "' + d.dataset.id.to_s + '"'}.join(',') %>
     var datasetValues = { <%= raw datasetValues %> };
 
     populateInputTable(inputs, formValues, datasetValues);
