@@ -16,7 +16,8 @@ class ModConfigsController < ApplicationController
   def show
     @mod_config = ModConfig.find(params[:id])
     @datasets = Dataset.all
-    @textinputs = ConfigTextInput.find_all_by_mod_config_id(@mod_config)
+    @dataset_inputs = ConfigDataset.find_all_by_mod_config_id(params[:id])
+    @text_inputs = ConfigTextInput.find_all_by_mod_config_id(@mod_config)
 
     respond_to do |format|
       format.html # show.html.erb

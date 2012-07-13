@@ -92,9 +92,11 @@
     fillContainer(process.outputs, outputs);
 
     <%# Dictionary of values for each input on this form %>
-    <% formValues = @textinputs.map{|text| text.column_name + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"' }.join(',') %>
+    <% formValues = @text_inputs.map{|text| text.column_name + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"'}.join(',') %>
+    var formValues    = { <%= raw formValues    %> };
 
-    var formValues = { <%= raw formValues %> };
+    <% datasetValues = @dataset_inputs.map{|d| d.dataset.dataset_type + ': "' + d.dataset.identifier + '"'}.join(',') %>
+    var datasetValues = { <%= raw datasetValues %> };
 
     populateInputTable(inputs, formValues);
     populateOutputTable(outputs, formValues);
