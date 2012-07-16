@@ -124,8 +124,7 @@
 
 </script>
 
-
-<%= simple_form_for @mod_config, :validate => true  do |f| %>
+<%= simple_remote_for @mod_config, :validate => true  do |f| %>
   <%= f.error_notification %>
 
   <%#= f.association :mod, :include_blank => false, :label_method => :name, :label => "Base Template", :disabled => !creating %>

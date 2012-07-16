@@ -22,6 +22,22 @@
 
 
 <script type="text/javascript">
+  <%# Gets triggered when a selected dataset changes, but is only used when editing an existing config %>
+  function onSelectedDatasetChanged() {
+
+    var identifier = this.name.replace('datasets[', '').slice(0, -1);   // slice strips last char;
+    var datasetId  = this.options[this.selectedIndex].value;
+
+
+    <%#  Tell the server we've changed the selected dataset %>
+    $.ajax({
+      type: 'PUT',      // PUT combined with url below triggers "update" action on controller
+      url:  '<%= url_for(:controller => 'config_datasets', :action => 'update') %>',
+      data: 'dataset=' + datasetId + '&identifier=' + identifier,
+      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
+      success: function(data) { alert("ok!"); }
+    });
+  }
 
   <%# Creates fn called populateInputTable or populateOutputTable %>
   // formValues & datasetValues will only be defined when calling from the main Module Configuration page
@@ -66,7 +82,8 @@
             cell.text('No registered datasets of this type');
         }
         else {
-          control.prepend("<option value=''>No dataset selected</option>");
+          control.prepend("<option value=-1>No dataset selected</option>");
+          control.change(onSelectedDatasetChanged);
 
           cell.html(control);
 
@@ -104,21 +121,6 @@
       table.append(row);
     }
   }
-
-  <%# Gets triggered when a selected dataset changes, but is only used when editing an existing config %>
-//  $("#select-0").change(function () {
-//    alert($(this).text());
-    <%#  Tell the server we've changed the selected dataset %>
-//    $.ajax({
-//      type: 'PUT',      // PUT combined with url below triggers "update" action on controller
-//      url: '<%= url_for(:controller => 'mod_configs', :action => 'update_dataset') %>',
-//      data: 'dataset[identifier]=' + layerName +
-//            '&dataset[server_url]=' + server +
-//            '&dataset[dataset_type]=' + dataTypeControl.value,
-//      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
-//      success: function(data) { alert("ok!"); }
-//    });
-//  }
 
 
     // processControl.attr({ class:'process-dropdown-control', id:'processControl' });
