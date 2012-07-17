@@ -56,7 +56,7 @@
         url:  '<%= url_for(:controller => 'config_text_inputs', :action => 'update') %>',
         data: 'inputval=' + inputVal + '&identifier=' + identifier + '&mode=' + mode + '&id=' + <%= params[:id] %>, <%# <== why do we need to add id manually? %>
         headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
-        success: function(data) { alert("ok!"); }
+        success: function(data) { /* alert("ok!"); */ }
       });
     }
   <% end %>
