@@ -25,7 +25,6 @@
   <% if mode == :input %>  <%# Only include this once %>
     <%# Gets triggered when a selected dataset changes, but is only used when editing an existing config %>
     function onSelectedDatasetChanged() {
-
       var identifier = this.name.replace('datasets[', '').slice(0, -1);   // slice strips last char;
       var datasetId  = this.options[this.selectedIndex].value;
 
