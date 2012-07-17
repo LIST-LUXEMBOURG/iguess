@@ -30,6 +30,8 @@ class ConfigDatasetsController < ApplicationController
       @dataset = Dataset.find(params[:dataset])   # This is the dataset the user selected
 
       @config_dataset.dataset = @dataset
+
+
       @config_dataset.mod_config = @mod_config
 
       ok = @config_dataset.save

@@ -28,7 +28,6 @@
       var identifier = this.name.replace('datasets[', '').slice(0, -1);   // slice strips last char;
       var datasetId  = this.options[this.selectedIndex].value;
 
-
       <%#  Tell the server we've changed the selected dataset %>
       $.ajax({
         type: 'PUT',      // PUT combined with url below triggers "update" action on controller
@@ -40,8 +39,25 @@
     }
 
     function onTextEntryChanged() {
+      var identifier, mode;
 
-      alert(89);
+      if(this.name.substr(0,5) == 'input') {
+        identifier = this.name.replace('input[', '').slice(0, -1);   // slice strips last char;
+        mode = 'input';
+      } else {
+        identifier = this.name.replace('output[', '').slice(0, -1);
+        mode = 'output';
+      }
+
+      var inputVal  = this.value;
+
+      $.ajax({
+        type: 'PUT',      // PUT combined with url below triggers "update" action on controller
+        url:  '<%= url_for(:controller => 'config_text_inputs', :action => 'update') %>',
+        data: 'inputval=' + inputVal + '&identifier=' + identifier + '&mode=' + mode + '&id=' + <%= params[:id] %>, <%# <== why do we need to add id manually? %>
+        headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
+        success: function(data) { alert("ok!"); }
+      });
     }
   <% end %>
 
@@ -118,8 +134,16 @@
           if(value == undefined) {  value = "";  }
         }
 
-        cell.html('<input type="text" style="width:95%" name="<%= mode %>[' + item.identifier + ']" ' +
-                  'placeholder="' + placeholder + '" value="' + value + '" onchange="onTextEntryChanged()">');
+        var ctrl = $(document.createElement('input'));
+        ctrl.attr('name', '<%= mode %>[' + item.identifier + ']');
+        ctrl.attr('placeholder', placeholder);
+        ctrl.attr('value', value);
+        ctrl.change(onTextEntryChanged);
+
+        cell.html(ctrl);
+
+//        cell.html('<input type="text" name="<%= mode %>[' + item.identifier + ']" ' +
+//                  'placeholder="' + placeholder + '" value="' + value + '" onchange="onTextEntryChanged()">');
       }
 
       row.append(cell);
