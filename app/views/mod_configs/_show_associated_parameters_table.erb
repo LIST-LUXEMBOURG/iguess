@@ -36,6 +36,8 @@
         headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
         success: function(data) { /*alert("ok!");*/ }
       });
+
+      checkIfFormComplete();
     }
 
     function onTextEntryChanged() {
@@ -64,6 +66,18 @@
         headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
         success: function(data) { /* alert("ok!"); */ }
       });
+
+      checkIfFormComplete();
+    }
+
+    function checkIfFormComplete()
+    {
+      // Check if all inputs have valid values
+      var count;
+      count = inputs.length;
+      for(var i = 0; i < count; i++) {
+        alert(inputs[i].type);
+      }
     }
   <% end %>
 
@@ -147,9 +161,6 @@
         ctrl.change(onTextEntryChanged);
 
         cell.html(ctrl);
-
-//        cell.html('<input type="text" name="<%= mode %>[' + item.identifier + ']" ' +
-//                  'placeholder="' + placeholder + '" value="' + value + '" onchange="onTextEntryChanged()">');
       }
 
       row.append(cell);

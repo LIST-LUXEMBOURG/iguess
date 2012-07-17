@@ -78,14 +78,19 @@
     })
   }
 
+
+  var inputs  = [ ];
+  var outputs = [ ];
+
+
   var onDescribedProcess = function(process) {
 
     $('#based-on').html((process.title || process.name) + " template");
     $('#mod-descr').html(process.abstract);
 
     var serverUrl = process.wps.executeUrlGet;
-    var inputs  = [ ];
-    var outputs = [ ];
+    inputs  = [ ];
+    outputs = [ ];
 
 
     fillContainer(process.inputs, inputs);
@@ -99,7 +104,7 @@
     <% datasetValues = @dataset_inputs.map{|d| d.dataset.dataset_type + ': "' + d.dataset.id.to_s + '"'}.join(',') %>
     var datasetValues = { <%= raw datasetValues %> };
 
-    populateInputTable(inputs, formValues, datasetValues);
+    populateInputTable (inputs, formValues, datasetValues);
     populateOutputTable(outputs, formValues);
   }
 
