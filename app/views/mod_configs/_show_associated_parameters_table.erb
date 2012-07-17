@@ -51,10 +51,16 @@
 
       var inputVal  = this.value;
 
+      <% if params[:id].blank? %>
+        var idToken = '';
+      <% else %>
+        idToken = '&id=' + <%= params[:id] %>;
+      <% end %>
+
       $.ajax({
         type: 'PUT',      // PUT combined with url below triggers "update" action on controller
         url:  '<%= url_for(:controller => 'config_text_inputs', :action => 'update') %>',
-        data: 'inputval=' + inputVal + '&identifier=' + identifier + '&mode=' + mode + '&id=' + <%= params[:id] %>, <%# <== why do we need to add id manually? %>
+        data: 'inputval=' + inputVal + '&identifier=' + identifier + '&mode=' + mode + idToken, <%# <== why do we need to add id manually? %>
         headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
         success: function(data) { /* alert("ok!"); */ }
       });
