@@ -40,7 +40,7 @@
         success: function(data) { /*alert("ok!");*/ }
       });
 
-      checkIfFormComplete();
+      readyToRunModule();
     }
 
     function onTextEntryChanged() {
@@ -70,12 +70,12 @@
         success: function(data) { /* alert("ok!"); */ }
       });
 
-      checkIfFormComplete();
+      readyToRunModule();
     }
 
-    function checkIfFormComplete()
+    // Check to see if we have everything we need to run the module
+    function readyToRunModule()
     {
-      // Check if all inputs have valid values
       var ok = !anyDatasetsMissing;
 
       if(ok) { $('.req-select').each(function(e)    { ok &= ($(this).val() != -1);         }); }
