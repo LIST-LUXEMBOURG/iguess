@@ -90,7 +90,7 @@ a:active {
   margin-left: 0px;
   margin-right: 25px;
   padding: 12px;
-  display: hidden;
+  display: inline;
 }
 
 .button_to {
