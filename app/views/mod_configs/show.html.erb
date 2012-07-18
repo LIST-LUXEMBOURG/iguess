@@ -112,6 +112,17 @@
     // Need to do anything here?  Turn off any indicators or whatnot?
   }
 
+  // Check to see if we have everything we need to run the module
+  function readyToRunModule()
+  {
+    var ok = !anyDatasetsMissing;
+
+    if(ok) { $('.req-select').each(function(e)    { ok &= ($(this).val() != -1);         }); }
+    if(ok) { $('.req-textentry').each(function(e) { ok &= ($.trim($(this).val()) != ''); }); }
+
+    alert(ok);
+  }
+
 </script>
 
 <div class="page_subheader"></div>
