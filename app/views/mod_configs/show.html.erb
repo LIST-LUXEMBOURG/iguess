@@ -29,7 +29,7 @@
     $('.hideable').hide();
   }
 
-  function showButton(statusCode) {
+  function showButtons(statusCode) {
     hideButtons();
 
     if(statusCode == 1) {           // Module just created, needs data
@@ -62,7 +62,7 @@
 
   // Get things setup when we first load the page -- enables/disables controls, sets messages, etc.
   $(document).ready(function () {
-    showButton(<%= @module_status %>);
+    showButtons(<%= @module_status %>);
   });
 
 
@@ -71,7 +71,7 @@
     $.poll(function(retry) {
       $.get('get_config_status/<%= @mod_config.id %>', function(response, status) {
         if(response != 3)
-          showButton(response);
+          showButtons(response);
         else
           retry();
       })
@@ -120,7 +120,7 @@
     if(ok) { $('.req-select').each(function(e)    { ok &= ($(this).val() != -1);         }); }
     if(ok) { $('.req-textentry').each(function(e) { ok &= ($.trim($(this).val()) != ''); }); }
 
-    alert(ok);
+    showButtons(ok ? 2 : 1);
   }
 
 </script>

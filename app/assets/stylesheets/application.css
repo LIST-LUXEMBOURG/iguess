@@ -9,7 +9,7 @@
 
 
 body {
-  font: 62.5% "Trebuchet MS", sans-serif;  
+  font: 62.5% "Trebuchet MS", sans-serif;
   margin: 0px;
 }
 
@@ -17,10 +17,10 @@ body {
 body.basic {
 
   min-width: 900px;
-  width: 100%; 
-  
-  background-image: url(images/buildings.png); 
-  background-repeat:repeat-x; 
+  width: 100%;
+
+  background-image: url(images/buildings.png);
+  background-repeat:repeat-x;
   background-position:bottom;
 }
 
@@ -53,21 +53,21 @@ a:active {
 .page_subheader {
   margin-bottom: 1em;
 }
-    
-    
+
+
 .hint {
   font-size: .85em;
 }
-   
+
 
 .dataset_body, .front_page_col_body {
   padding: 8px;
   margin-bottom: 10px;
-  
+
 }
 
 /* Differentiate mod and dataset pages by making the bodies a slightly different color */
-.dataset_body { 
+.dataset_body {
   background-color: #F7EDF7;
   padding-left: .5em;
 }
@@ -84,13 +84,13 @@ a:active {
 }
 
 .big_button {
-  font-size: 30px; 
-  color: red; 
+  font-size: 30px;
+  color: red;
   margin-bottom: 20px;
   margin-left: 0px;
   margin-right: 25px;
   padding: 12px;
-  display: inline;
+  display: hidden;
 }
 
 .button_to {
@@ -123,7 +123,7 @@ a:active {
  text-align: center;
  color: white;
  vertical-align: middle;
- background-color: #393; 
+ background-color: #393;
  padding-top: .5em;
 }
 
@@ -172,13 +172,13 @@ a:active {
 }
 
 .two_col_table_left {
-  padding: 15px; 
+  padding: 15px;
   background: #9c9;
 }
 
 .two_col_table_right {
-  background: #c9c; 
-  padding:15px; 
+  background: #c9c;
+  padding:15px;
 }
 
 .dataset_type_def dt {
@@ -217,7 +217,7 @@ a:active {
 
 .click_to_edit {
   padding-left: 10px;
-  color: #999; 
+  color: #999;
 }
 
 .hidden {
