@@ -120,10 +120,13 @@
     showButtons(ok ? 2 : 1);
   }
 
-//  // Clear all buttons except View Module List
-//  $(document).ready(function () {
-////    showButtons(1);
-//  });
+
+  // User has clicked Run Module button...
+  $(document).ready(function(){
+    $('#run-module').click(function () {
+
+    });
+  })
 
 </script>
 
@@ -180,8 +183,7 @@
   <%= button_to 'View Module List', "/mod_configs", :class => 'big_button', :method => 'get' %>
 
   <span id="run_module_button_container" style="display:none">
-    <%= button_to 'Run Module >>>',
-          { :action => "run_module", :id => @mod_config.id }, :remote => true, :class => 'big_button' %>
+    <%= button_tag 'Run Module >>>', :id => 'run-module', :class => 'big_button' %>
   </span>
 
   <span id="stop_module_button_container" style="display:none">
