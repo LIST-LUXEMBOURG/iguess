@@ -22,6 +22,9 @@
 
 
 <script type="text/javascript">
+
+  var anyDatasetsMissing = false;
+
   <% if mode == :input %>  <%# Only include this once %>
     <%# Gets triggered when a selected dataset changes, but is only used when editing an existing config %>
     function onSelectedDatasetChanged() {
@@ -73,11 +76,10 @@
     function checkIfFormComplete()
     {
       // Check if all inputs have valid values
-      var count;
-      count = inputs.length;
-      for(var i = 0; i < count; i++) {
-        alert(inputs[i].type);
-      }
+      var ok = !anyDatasetsMissing;
+
+      if(ok) { $('.req-select').each(function(e)    { ok &= ($(this).val() != -1);         }); }
+      if(ok) { $('.req-textentry').each(function(e) { ok &= ($.trim($(this).val()) != ''); }); }
     }
   <% end %>
 
@@ -118,14 +120,16 @@
 
 
       if('<%= mode %>' == 'input' && items[i].type == "complex") {
-        var control = createDatasetSelectionControl(item.identifier);
+        var control = createDatasetSelectionControl(item.identifier, '<%= mode %>');
 
         if(control.children().length == 0) {
             cell.text('No registered datasets of this type');
+            anyDatasetsMissing = true;
         }
         else {
           control.prepend("<option value=-1>No dataset selected</option>");
           control.change(onSelectedDatasetChanged);
+          control.attr('class', 'req-select');
 
           cell.html(control);
 
@@ -158,6 +162,7 @@
         ctrl.attr('name', '<%= mode %>[' + item.identifier + ']');
         ctrl.attr('placeholder', placeholder);
         ctrl.attr('value', value);
+        ctrl.attr('class', 'req-textentry');
         ctrl.change(onTextEntryChanged);
 
         cell.html(ctrl);
@@ -178,10 +183,11 @@
     // });
 
   // discoveredLayers comes from the /shared/_build_data_layers partial
-  function createDatasetSelectionControl(identifier)
+  function createDatasetSelectionControl(identifier, mode)
   {
     var ctrl = $(document.createElement('select'));
     ctrl.attr('name', 'datasets[' + identifier + ']');
+    ctrl.attr('id', identifier + mode);
 
     for(var layerKey in registeredDataLayers) {
       if(registeredDataLayers[layerKey].identifier == identifier) {

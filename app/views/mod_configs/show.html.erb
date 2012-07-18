@@ -79,18 +79,14 @@
   }
 
 
-  var inputs  = [ ];
-  var outputs = [ ];
-
-
   var onDescribedProcess = function(process) {
 
     $('#based-on').html((process.title || process.name) + " template");
     $('#mod-descr').html(process.abstract);
 
     var serverUrl = process.wps.executeUrlGet;
-    inputs  = [ ];
-    outputs = [ ];
+    var inputs  = [ ];
+    var outputs = [ ];
 
 
     fillContainer(process.inputs, inputs);
