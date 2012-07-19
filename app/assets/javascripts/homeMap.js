@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////
 // Author: Luís de Sousa
 // Date: 29-11-2011
-// The code that initializes and provides interaction for the map 
+// The code that initializes and provides interaction for the map
 // in the home page.
 
 var map;
@@ -12,33 +12,33 @@ var displayProjection = "EPSG:4326";
  * In the future the proj4 string will have to be stored in the database.
  * For now only the Ludwigsburg projection is known so it is left harcoded here.
  */
- 
+
 Proj4js.defs["EPSG:31467"] = "+proj=tmerc +lat_0=0 +lon_0=9 +k=1 +x_0=3500000 +y_0=0 +ellps=bessel +datum=potsdam +units=m +no_defs";
 //Proj4js.defs["EPSG:3857"] = "+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs ";
 
 function initMapOSM() {
-	
-	map = new OpenLayers.Map(/*"MiniMap",*/ { controls: [] }); 
-	
+
+	map = new OpenLayers.Map(/*"MiniMap",*/ { controls: [] });
+
     map.addLayer(new OpenLayers.Layer.OSM());
     map.addLayer(new OpenLayers.Layer.OSM.Mapnik("Mapnik"));
     map.addLayer(new OpenLayers.Layer.OSM.Osmarender("Tiles@Home"));
     map.addLayer(new OpenLayers.Layer.OSM.CycleMap("Cyclemap"));
-    
+
     map.addControl(new OpenLayers.Control.MousePosition());
     //map.addControl(new OpenLayers.Control.LayerSwitcher());
     //map.addControl(new OpenLayers.Control.OverviewMap());
     map.addControl(new OpenLayers.Control.ScaleLine());
-    
+
     //addMapControls();
 
     zoomToCity();
 }
 
 function initMapGoogle(){
-	
+
 	var bounds = new OpenLayers.Bounds(995196.25, 6240993.46, 1057535.16, 6274861.39);
-	
+
 	map = new OpenLayers.Map("MiniMap",{
 		projection: new OpenLayers.Projection(requestProjection),
 		displayProjection: new OpenLayers.Projection(displayProjection),
@@ -46,18 +46,18 @@ function initMapGoogle(){
 		maxExtent: bounds,
 		controls: []
 	});
-	
+
 	var mp = new OpenLayers.Control.MousePosition({
 	    formatOutput: function(lonLat) {
 	        var markup = convertDMS(lonLat.lon, "LON") + "  ";
 	        markup += convertDMS(lonLat.lat, "LAT");
 	        return markup;
 	    }
-	}); 
+	});
 
 	map.addControl(mp);
 	//map.addControl(new OpenLayers.Control.LayerSwitcher());
-	
+
 	var gphy = new OpenLayers.Layer.Google(
         "Google Physical",
         {type: google.maps.MapTypeId.TERRAIN, numZoomLevels: 20}
@@ -74,65 +74,70 @@ function initMapGoogle(){
         "Google Satellite",
         {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22}
     );
-    
+
     /* This is layer is just for testing */
     var iBusLines = new OpenLayers.Layer.WMS(
             "iBus lines",
-            "http://iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/Ludwigsburg02.map", 
+            "http://iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/Ludwigsburg02.map",
             {layers: "BusLines",
              format: "image/gif",
              srsName: requestProjection,
              srs: requestProjection,
     	 	 transparent: "true"},
-            {isBaseLayer: false,  
+            {isBaseLayer: false,
          	 visibility: false}
         );
 
     map.addLayers([ghyb, gphy, gmap, gsat/*, iBusLines*/]);
-                   
+
     map.setCenter(bounds.getCenterLonLat(), 13);
 }
 
 function zoomToCity(){
-	
-	gotoLocation(document.getElementById("city-dropdown").value);	
+
+	gotoLocation(document.getElementById("city-dropdown").value);
 }
 
 //////////////////////////////////////////////////////////////////
 // Author: Luís de Sousa
 // Date: 07-03-2012
-// Adds a new layer to the map "on the fly" 
+// Adds a new layer to the map "on the fly"
 
 function addNewLayer(title, serviceURL, layerName)
 {
 	var layer =  new OpenLayers.Layer.WMS(
         title,
         serviceURL,
-        {layers: layerName, 
+        {layers: layerName,
          format: "image/png",
          srsName: requestProjection,
          srs: requestProjection,
 	 	 transparent: "true"},
-        {isBaseLayer: false,  
+        {isBaseLayer: false,
      	 visibility: true}
     );
-	
+
 	map.addLayer(layer);
 }
 
 //////////////////////////////////////////////////////////////////
 // Author: Luís de Sousa
 // Date: 06-01-2012
-// Adds GeoExt controls and panels to map. Initialization 
+// Adds GeoExt controls and panels to map. Initialization
 // 30-03-2012: Added Base layer and Overlay nodes to the tree
 
+var first = true;
+
 Ext.onReady(function() {
-	
+   // This gets called twice for some reason.  This is a VERY hacky prevention.  TODO: FIX THIS!!!
+   if(first) { first = false; return; }
+
+
    Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
-   
+
    //initMapOSM();
    initMapGoogle();
-   
+
    var dataPanel = new Ext.Panel({
 		title: 'Datasets',
 		region:'west',
@@ -140,7 +145,7 @@ Ext.onReady(function() {
 		width: 182,
 		contentEl: 'data'
 	})
-   
+
    var mapPanel = new GeoExt.MapPanel({
         region: "center",
         collapsible: false,
@@ -149,12 +154,12 @@ Ext.onReady(function() {
         map: map,
         tbar: createTbarItems(map)
     });
-	
+
 	var LayerNodeUI = Ext.extend(
 		    GeoExt.tree.LayerNodeUI,
 		    new GeoExt.tree.TreeNodeUIEventMixin()
 		);
-	
+
     var treeConfig = [{
         nodeType: "gx_baselayercontainer",
         expanded: true
@@ -162,7 +167,7 @@ Ext.onReady(function() {
         nodeType: "gx_overlaylayercontainer",
         expanded: true
     }];
-	
+
 	var layerTree = new Ext.tree.TreePanel({
 	    region: "east",
 	    title: 'Map Layers',
@@ -180,12 +185,12 @@ Ext.onReady(function() {
             }
         },
 	    root: {
-           
+
             children: treeConfig
 	    },
-        rootVisible: false      
+        rootVisible: false
 	});
-    
+
     var mainPanel = new Ext.Panel({
 	    layout:'border',
 	    bodyBorder: false,
@@ -198,9 +203,9 @@ Ext.onReady(function() {
             autoHide: false,
             useSplitTips: true,
 		},
-		items: [mapPanel, layerTree, dataPanel]	
+		items: [mapPanel, layerTree, dataPanel]
     });
-    
+
     zoomToCity();
 });
 
