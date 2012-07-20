@@ -206,7 +206,11 @@
 
         var servicesAvailNode = $(document.createElement('div'));
         servicesAvailNode.attr({ class:'dataset_services_available' });
-        servicesAvailNode.text("Services: " + layer.type.join(', '));
+        servicesAvailNode.text("Services: " + layer.type.join(', ') );
+
+        if(registeredDataLayers[layerKey] != undefined) {
+          servicesAvailNode.append('<br>Used in ' + registeredDataLayers[layerKey].configCount + ' configurations');
+        }
 
         var abstractNode = "";
 
