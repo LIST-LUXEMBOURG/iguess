@@ -141,6 +141,8 @@
 
 
       function onDescribeProcessxxx(process) {
+        process.inputs[0].setValue(1);
+        process.inputs[1].setValue(2012);
         process.outputs[0].setValue('GGG');
 
         wpsx.executeUrlGet  = wrapGeoProxy('<%= @mod_config.wps_server.url %>');

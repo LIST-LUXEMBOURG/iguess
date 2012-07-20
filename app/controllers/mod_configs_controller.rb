@@ -124,13 +124,10 @@ class ModConfigsController < ApplicationController
       end
     end
   end
-
-  def update_dataset
-    @mod_config = ModConfig.find(params[:id])
-
-    binding.pry
-
-  end
+  #
+  #def update_dataset
+  #  @mod_config = ModConfig.find(params[:id])
+  #end
 
   # DELETE /mod_configs/1
   # DELETE /mod_configs/1.json
