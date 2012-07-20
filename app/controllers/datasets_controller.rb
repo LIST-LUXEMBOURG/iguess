@@ -98,9 +98,11 @@ class DatasetsController < ApplicationController
   def mass_import
     @datasets = Dataset.all
     @current_city = City.find_by_name(cookies[:city])
-    if @current_city.nil?
+
+    if @current_city.nil?     # Should never happen, but just in case...
       @current_city = City.first
     end
+
     @wps_servers = WpsServer.all
     @cities = City.all
   end

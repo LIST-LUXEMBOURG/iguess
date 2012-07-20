@@ -47,7 +47,6 @@ class ModConfigsController < ApplicationController
   # POST /mod_configs
   # POST /mod_configs.json
   def create
-    #binding.pry
     @mod_config = ModConfig.new(params[:mod_config])
 
     @mod_config.name = @mod_config.name.strip
