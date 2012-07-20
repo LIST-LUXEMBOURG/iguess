@@ -184,6 +184,7 @@
         registerControl.attr({ type:'checkbox', name:'registered_' + layer.identifier, class:'switchbox',
                                id:'registered_' + layer.identifier, value:"registered", checked:registered });
 
+
         var goog = $(document.createElement('img'));
 
         if(availableInGoogleProjection) {
@@ -303,13 +304,30 @@
 
     //  When the toggle switch is clicked, check off / de-select the associated checkbox
     $('.toggle').click(function(e) {
-       var checkboxID = $(this).attr("ref");
+      var checkboxID = $(this).attr("ref");
 
-       var checkbox = document.getElementById(checkboxID);
-       var layerName = getLayerNameFromCheckboxId(checkboxID);
+      var checkbox = document.getElementById(checkboxID);
+      var layerName = getLayerNameFromCheckboxId(checkboxID);
 
-       var dataTypeControl = document.getElementById(getDataTypeControlId(layerName));
-       var server = $('#dataset_url').val();
+      var dataTypeControl = document.getElementById(getDataTypeControlId(layerName));
+      var server = $('#dataset_url').val();
+
+      var layerKey = makeKey(server, layerName);
+
+
+      if(registeredDataLayers[layerKey] != undefined && registeredDataLayers[layerKey].configCount > 0) {
+        var ct = registeredDataLayers[layerKey].configCount;
+        var c = (ct == 1) ? "configuration" : "configurations";
+        var t = (ct == 1) ? "this" : "these";
+        var th = (ct == 1) ? "it" : "them";
+
+        if(!confirm("This dataset is in use by " + ct + " " + c + ". " +
+                    "Unregistering it will cause it to be removed from " + t + " " + c + ".\n\n" +
+                    "Click OK if you are sure you want to unregister this dataset.")) {
+          e.preventDefault();
+          return;
+        }
+      }
 
       if(checkbox.checked) {
          // ===== Unregistering dataset =====
@@ -328,7 +346,7 @@
           });
 
         // Remove layer from the list of registered layers
-        delete registeredDataLayers[makeKey(server, layerName)];
+        delete registeredDataLayers[layerKey];
 
       } else {
          // ===== Registering dataset =====
@@ -348,7 +366,7 @@
         });
 
         // Add layer to the list of registered layers
-        registeredDataLayers[makeKey(server, layerName)] = dataTypeControl.value;
+        registeredDataLayers[layerKey] = dataTypeControl.value;
       }
 
       $(this).toggleClass("checked");
