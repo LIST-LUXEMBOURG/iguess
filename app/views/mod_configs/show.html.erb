@@ -125,6 +125,64 @@
   $(document).ready(function(){
     $('#run-module').click(function () {
 
+  /////////////////////////////////////////////////////////
+
+
+
+      var proxiedUrl = wrapGeoProxy('<%= @mod_config.wps_server.url %>');
+      var fullUrl = WPS.getDescProcUrl('<%= @mod_config.wps_server.url %>', '<%= @mod_config.identifier %>');
+
+
+    // WPS object
+    var wpsx = new OpenLayers.WPS(fullUrl, { onDescribedProcess: onDescribeProcessxxx,
+                                                                        onSucceeded: onExecuted });
+
+      wpsx.describeProcess('<%= @mod_config.identifier %>');
+
+
+      function onDescribeProcessxxx(process) {
+        process.outputs[0].setValue('GGG');
+
+        wpsx.executeUrlGet  = wrapGeoProxy('<%= @mod_config.wps_server.url %>');
+        wpsx.executeUrlPost = wrapGeoProxy('<%= @mod_config.wps_server.url %>');
+
+        wpsx.execute('<%= @mod_config.identifier %>');
+
+      };
+
+
+
+
+
+      /**
+       * This function is called, when Execute response
+       * arrived and it was parsed
+       **/
+      function onExecuted(process) {
+        alert(1);
+        alert(process.title);
+//        var executed = "<h3>"+process.title+"</h3>";
+//        executed += "<h3>Abstract</h3>"+process.abstract;
+//
+//        executed += "<h3>Outputs</h3><dl>";
+//
+//        // for each output
+//        for (var i = 0; i < process.outputs.length; i++) {
+//          var output = process.outputs[i];
+//          executed += "<dt>"+output.identifier+"</dt>";
+//          executed += "<dd>Title: <strong>"+output.title+"</strong><br />"+
+//                  "Abstract: "+output.abstract+"</dd>";
+//          executed += "<dd>"+"<strong>Value:</strong> "+
+//                  output.getValue()+"</dd>";
+//        }
+//        executed += "</dl>";
+//        document.getElementById("wps-result").innerHTML = executed;
+
+      };
+
+  /////////////////////////////////////////////////////////
+
+
     });
   })
 
