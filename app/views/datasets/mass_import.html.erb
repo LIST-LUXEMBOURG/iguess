@@ -47,10 +47,7 @@
   // User changes the value of one of the dataType dropdowns
   function onDataTypeChanged(id)
   {
-  	var layerName = getLayerNameFromDataTypeId(id);
-  	var server = $('#dataset_url').val();
-
-		// Let the server know the dataType has changed
+    // Let the server know the dataType has changed
 		var dataTypeControl = document.getElementById(id);
 
 		$.ajax({
@@ -63,7 +60,25 @@
 			success: function(data) {  }
 	  });
 
-	  registeredDataLayers[makeKey(server, layerName)] = dataTypeControl.value;
+	  registeredDataLayers[layerKey] = dataTypeControl.value;
+  }
+
+
+  function confirmChange(id) {
+    var layerName = getLayerNameFromDataTypeId(id);
+    var server = $('#dataset_url').val();
+    var layerKey = makeKey(server, layerName);
+
+    if(registeredDataLayers[layerKey] == undefined || registeredDataLayers[layerKey].configCount == 0) { return true; }
+
+    var ct = registeredDataLayers[layerKey].configCount;
+    var c = (ct == 1) ? "configuration" : "configurations";
+    var t = (ct == 1) ? "this" : "these";
+    var th = (ct == 1) ? "it" : "them";
+
+    return confirm("This dataset is in use by " + ct + " " + c + ". " +
+            "Changing its type will cause it to be removed from " + t + " " + c + ".\n\n" +
+            "Click OK if you are sure you want to change the type of this dataset.");
   }
 
 
@@ -160,9 +175,20 @@
           dataTypeControl.attr({ class:'data-type-dropdown-control', id:getDataTypeControlId(layer.identifier), disabled:!registered });
 
           // What to do when the user changes dataType for a layer
-          dataTypeControl.change(function(){
-            onDataTypeChanged(this.id);
-          });
+
+
+          dataTypeControl.focus(function() {
+            prev_val = $(this).val();     // Store original value
+          }).change(function() {
+                    $(this).blur(); // Firefox fix
+                    var reallyChange = confirmChange(this.id);
+                    if(reallyChange) { onDataTypeChanged(this.id); }   // Procede with change handler
+                    else             { $(this).val(prev_val); }        // Restore value
+                  });
+
+
+
+          dataTypeControl.change(function() { onDataTypeChanged(this.id); });
 
           if(layer.type.hasObject('WMS')) {
             dataTypeControl.append('<option>Mapping Only</option>');
