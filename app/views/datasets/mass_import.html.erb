@@ -77,8 +77,8 @@
     var th = (ct == 1) ? "it" : "them";
 
     return confirm("This dataset is in use by " + ct + " " + c + ". " +
-            "Changing its type will cause it to be removed from " + t + " " + c + ".\n\n" +
-            "Click OK if you are sure you want to change the type of this dataset.");
+                   "Changing its type will cause it to be removed from " + t + " " + c + ".\n\n" +
+                   "Click OK if you are sure you want to change the type of this dataset.");
   }
 
 
@@ -182,13 +182,9 @@
           }).change(function() {
                     $(this).blur(); // Firefox fix
                     var reallyChange = confirmChange(this.id);
-                    if(reallyChange) { onDataTypeChanged(this.id); }   // Procede with change handler
-                    else             { $(this).val(prev_val); }        // Restore value
+                    if(reallyChange) { onDataTypeChanged(this.id); }    // Procede with change handler
+                    else             { $(this).val(prev_val); }         // Restore value
                   });
-
-
-
-          dataTypeControl.change(function() { onDataTypeChanged(this.id); });
 
           if(layer.type.hasObject('WMS')) {
             dataTypeControl.append('<option>Mapping Only</option>');
