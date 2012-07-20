@@ -59,12 +59,18 @@ class DatasetsController < ApplicationController
   # PUT /datasets/1
   # PUT /datasets/1.json
   def update
+    # If we are changing the dataset type, we need to unlink it from any configurations it is part of
+
+
     if params[:id] == 'update_data_type' then
       @dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
     else
       @dataset = Dataset.find(params[:id])
     end
 
+    if params[:dataset] && @dataset.dataset_type != params[:dataset][:dataset_type]
+      @dataset.config_datasets.each { |cd| cd.delete }
+    end
 
     respond_to do |format|
       if @dataset.update_attributes(params[:dataset])

@@ -47,6 +47,10 @@
   // User changes the value of one of the dataType dropdowns
   function onDataTypeChanged(id)
   {
+    var layerName = getLayerNameFromDataTypeId(id);
+    var server = $('#dataset_url').val();
+    var layerKey = makeKey(server, layerName);
+
     // Let the server know the dataType has changed
 		var dataTypeControl = document.getElementById(id);
 
@@ -117,7 +121,7 @@
   }
 
 
-  function displayLayers()
+  var displayLayers = function()
   {
     var server = $('#dataset_url').val();
     var mapId = 0;
