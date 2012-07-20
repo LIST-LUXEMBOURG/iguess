@@ -4,7 +4,7 @@ class DatasetsController < ApplicationController
   def index
     @datasets = Dataset.all
     @wps_servers = WpsServer.all
-    
+
     # Find all unique server urls in @datasets, ignoring any blank entries
     @server_urls = @datasets.reject{|d| d.status != 'OK' || d.server_url.blank?}.map{|d| d.server_url}.uniq
     respond_to do |format|
@@ -44,7 +44,7 @@ class DatasetsController < ApplicationController
   # POST /datasets.json
   def create
     @dataset = Dataset.new(params[:dataset])
-    
+
     respond_to do |format|
       if @dataset.save
         format.html { redirect_to @dataset, notice: 'Dataset was successfully created.' }
@@ -64,7 +64,7 @@ class DatasetsController < ApplicationController
     else
       @dataset = Dataset.find(params[:id])
     end
-    
+
 
     respond_to do |format|
       if @dataset.update_attributes(params[:dataset])
@@ -85,7 +85,7 @@ class DatasetsController < ApplicationController
     else
       @dataset = Dataset.find(params[:id])
     end
-    
+
     @dataset.destroy
 
     respond_to do |format|
@@ -93,11 +93,14 @@ class DatasetsController < ApplicationController
       format.json { head :no_content }
     end
   end
-  
-  
+
+
   def mass_import
     @datasets = Dataset.all
-    @current_city = City.find_by_name("Rotterdam")
+    @current_city = City.find_by_name(cookies[:city])
+    if @current_city.nil?
+      @current_city = City.first
+    end
     @wps_servers = WpsServer.all
     @cities = City.all
   end
