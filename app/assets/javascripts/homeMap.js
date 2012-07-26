@@ -22,18 +22,16 @@ function initMapOSM() {
 	map = new OpenLayers.Map(/*"MiniMap",*/ { controls: [] }); 
 	
     map.addLayer(new OpenLayers.Layer.OSM());
-    map.addLayer(new OpenLayers.Layer.OSM.Mapnik("Mapnik"));
-    map.addLayer(new OpenLayers.Layer.OSM.Osmarender("Tiles@Home"));
-    map.addLayer(new OpenLayers.Layer.OSM.CycleMap("Cyclemap"));
+
     
-    map.addControl(new OpenLayers.Control.MousePosition());
+    //map.addControl(new OpenLayers.Control.MousePosition());
     //map.addControl(new OpenLayers.Control.LayerSwitcher());
     //map.addControl(new OpenLayers.Control.OverviewMap());
     map.addControl(new OpenLayers.Control.ScaleLine());
     
     //addMapControls();
 
-    zoomToCity();
+    //zoomToCity();
 }
 
 function initMapGoogle(){
@@ -59,6 +57,13 @@ function initMapGoogle(){
 	map.addControl(mp);
 	//map.addControl(new OpenLayers.Control.LayerSwitcher());
 	
+	
+	// Add OpenStreetMap layers
+	map.addLayer(new OpenLayers.Layer.OSM());
+    //map.addLayer(new OpenLayers.Layer.OSM.Mapnik("Mapnik"));
+    //map.addLayer(new OpenLayers.Layer.OSM.Osmarender("Tiles@Home"));
+    //map.addLayer(new OpenLayers.Layer.OSM.CycleMap("Cyclemap"));
+	
 	var gphy = new OpenLayers.Layer.Google(
         "Google Physical",
         {type: google.maps.MapTypeId.TERRAIN, numZoomLevels: 20}
@@ -76,6 +81,8 @@ function initMapGoogle(){
         {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22}
     );
     
+    map.addLayers([ghyb, gphy, gmap, gsat]);
+    
     /* This is layer is just for testing */
     var iBusLines = new OpenLayers.Layer.WMS(
             "iBus lines",
@@ -89,7 +96,7 @@ function initMapGoogle(){
          	 visibility: false}
         );
 
-    map.addLayers([ghyb, gphy, gmap, gsat/*, iBusLines*/]);
+    //map.addLayers([iBusLines]);
                    
     map.setCenter(bounds.getCenterLonLat(), 13);
 }
