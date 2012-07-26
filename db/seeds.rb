@@ -6,7 +6,7 @@
  ['Gent',        '', 12, 'EPSG:900913',  407000,  423200, 6622900, 6644600],
  ['Ludwigsburg', 'http://logis.ludwigsburg.de/mapguide2011/mapagent/mapagent.fcgi', 13, 'EPSG:31467', 3495664, 3536658, 5406951, 5429311],
  ['Montreuil',   '', 13, 'EPSG:900913',  268000,  276000, 6249000, 6254000],
- ['Rotterdam',   '', 12, 'EPSG:28992',  481800,  515600, 6775000, 6795200]
+ ['Rotterdam',   '', 12, 'EPSG:28992',  91983.63, 92756.79, 437119.25, 437826.60]
 ].each do |v|
   c = City.find_or_create_by_name v[0]
   c.url = v[1]

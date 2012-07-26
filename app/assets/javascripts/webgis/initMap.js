@@ -11,30 +11,14 @@ var displayProjection = "EPSG:4326";
 
 /* ****************************************************************************
  * In the future the proj4 string will have to be stored in the database.
- * For now only the Ludwigsburg projection is known so it is left harcoded here.
+ * For now only the Ludwigsburg projection is known so it is left hard coded here.
  */
  
 Proj4js.defs["EPSG:31467"] = "+proj=tmerc +lat_0=0 +lon_0=9 +k=1 +x_0=3500000 +y_0=0 +ellps=bessel +datum=potsdam +units=m +no_defs";
+Proj4js.defs["EPSG:28992"] = "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +units=m +no_defs";
 Proj4js.defs["EPSG:3857"] = "+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs ";
 
-function initMapOSM() {
-	
-	map = new OpenLayers.Map(/*"MiniMap",*/ { controls: [] }); 
-	
-    map.addLayer(new OpenLayers.Layer.OSM());
-
-    
-    //map.addControl(new OpenLayers.Control.MousePosition());
-    //map.addControl(new OpenLayers.Control.LayerSwitcher());
-    //map.addControl(new OpenLayers.Control.OverviewMap());
-    map.addControl(new OpenLayers.Control.ScaleLine());
-    
-    //addMapControls();
-
-    //zoomToCity();
-}
-
-function initMapGoogle(){
+function initMap(){
 	
 	var bounds = new OpenLayers.Bounds(995196.25, 6240993.46, 1057535.16, 6274861.39);
 	
@@ -138,8 +122,7 @@ Ext.onReady(function() {
 	
    Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
    
-   //initMapOSM();
-   initMapGoogle();
+   initMap();
    
    var dataPanel = new Ext.Panel({
 		title: 'Datasets',
