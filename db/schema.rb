@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120712101741) do
+ActiveRecord::Schema.define(:version => 20120424093542) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -31,13 +31,6 @@ ActiveRecord::Schema.define(:version => 20120712101741) do
     t.integer "mod_config_id", :null => false
   end
 
-  create_table "config_text_inputs", :force => true do |t|
-    t.integer "mod_config_id", :null => false
-    t.text    "column_name",   :null => false
-    t.text    "value"
-    t.boolean "is_input"
-  end
-
   create_table "datasets", :force => true do |t|
     t.string   "server_url",                     :null => false
     t.string   "identifier",                     :null => false
@@ -48,6 +41,16 @@ ActiveRecord::Schema.define(:version => 20120712101741) do
     t.datetime "updated_at",                     :null => false
   end
 
+  create_table "geometry_columns", :id => false, :force => true do |t|
+    t.string  "f_table_catalog",   :limit => 256, :null => false
+    t.string  "f_table_schema",    :limit => 256, :null => false
+    t.string  "f_table_name",      :limit => 256, :null => false
+    t.string  "f_geometry_column", :limit => 256, :null => false
+    t.integer "coord_dimension",                  :null => false
+    t.integer "srid",                             :null => false
+    t.string  "type",              :limit => 30,  :null => false
+  end
+
   create_table "mod_configs", :force => true do |t|
     t.integer  "wps_server_id"
     t.text     "identifier"
@@ -55,6 +58,14 @@ ActiveRecord::Schema.define(:version => 20120712101741) do
     t.text     "descr"
     t.datetime "created_at",    :null => false
     t.datetime "updated_at",    :null => false
+  end
+
+  create_table "spatial_ref_sys", :id => false, :force => true do |t|
+    t.integer "srid",                      :null => false
+    t.string  "auth_name", :limit => 256
+    t.integer "auth_srid"
+    t.string  "srtext",    :limit => 2048
+    t.string  "proj4text", :limit => 2048
   end
 
   create_table "wps_servers", :force => true do |t|
