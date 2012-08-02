@@ -22,7 +22,7 @@ function initMap(){
 	
 	var bounds = new OpenLayers.Bounds(995196.25, 6240993.46, 1057535.16, 6274861.39);
 	
-	map = new OpenLayers.Map("MiniMap",{
+	map = new OpenLayers.Map("BroadMap",{
 		projection: new OpenLayers.Projection(mapProjection),
 		displayProjection: new OpenLayers.Projection(displayProjection),
 		units: "m",
@@ -193,8 +193,8 @@ Ext.onReady(function() {
     var mainPanel = new Ext.Panel({
 	    layout:'border',
 	    bodyBorder: false,
-	    renderTo: "MiniMap",
-        stateId: "MiniMap",
+	    renderTo: "BroadMap",
+        stateId: "BroadMap",
         height: 690,
         width: '100%',
 		defaults: {

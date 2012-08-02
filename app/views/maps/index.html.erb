@@ -4,7 +4,28 @@
   <div class="page_subheader"></div>
 </div>
 
-  <%= render :partial => '/home/map_template.html.erb', :locals  => { :width => "100%", :height => "700px" } %>
+<div id="data">
+<table id="dataSetsTable" class="zebra sortable" width="180px"> 
+    <thead>
+      <tr><th>Dataset name</th></tr>
+    </thead>
+    <tbody>
+      <% @datasets.each do |d| %>
+        <tr>  <!--- First and last below should be layer name -->
+          <!-- <td><a href=# onclick="addNewLayer('<%= d.name%>','<%= d.url%>','<%= d.layer_name%>')"><%= d.name%></a> </td> -->
+          <td><a href=# onclick="addNewLayer('<%= d.identifier%>','<%= d.server_url%>','<%= d.identifier%>')"><%= d.identifier%></a> </td>
+        </tr>
+      <% end %> 
+    </tbody>
+  </table>
+  A new layer can be added to the map by clicking on the dataset name.
+</div>
+
+<div style="float: left; width:100%; height:700px; margin:6px;" id="BroadMap"></div>
+
+  <!-- <%= render :partial => '/home/map_template.html.erb', :locals  => { :width => "100%", :height => "700px" } %> -->
+  
+  
   
 
   <!-- Don't know why we have to include this here, as it's already auto-included in the header, but if
