@@ -16,7 +16,7 @@ var displayProjection = "EPSG:4326";
  
 Proj4js.defs["EPSG:31467"] = "+proj=tmerc +lat_0=0 +lon_0=9 +k=1 +x_0=3500000 +y_0=0 +ellps=bessel +datum=potsdam +units=m +no_defs";
 Proj4js.defs["EPSG:28992"] = "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +units=m +no_defs";
-Proj4js.defs["EPSG:3857"] = "+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs ";
+Proj4js.defs["EPSG:3857"]  = "+proj=merc +lon_0=0 +k=1 +x_0=0 +y_0=0 +a=6378137 +b=6378137 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs ";
 
 function initMap(){
 	
@@ -124,13 +124,25 @@ Ext.onReady(function() {
    
    initMap();
    
+   var zoomSlider = new GeoExt.ZoomSlider({
+       xtype: "gx_zoomslider",
+       aggressive: true,
+       vertical: true,
+       height: 100,
+       x: 10,
+       y: 20,
+       plugins: new GeoExt.ZoomSliderTip({
+           template: "Scale: 1 : {scale}<br>Resolution: {resolution}"
+       })
+   });
+   
    var dataPanel = new Ext.Panel({
 		title: 'Datasets',
 		region:'west',
 		collapsible: true,
 		width: 182,
 		contentEl: 'data'
-	})
+	});
    
    var mapPanel = new GeoExt.MapPanel({
         region: "center",
@@ -138,7 +150,8 @@ Ext.onReady(function() {
         floatable: false,
         xtype: "gx_mappanel",
         map: map,
-        tbar: createTbarItems(map)
+        tbar: createTbarItems(map),
+        items: [zoomSlider]
     });
 	
 	var LayerNodeUI = Ext.extend(
