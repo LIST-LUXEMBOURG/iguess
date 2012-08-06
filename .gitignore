@@ -47,3 +47,6 @@ RCS
 RCSLOG
 SCCS
 _$*
+config/database.yml
+config/database.yml.old
+config/database.yml
