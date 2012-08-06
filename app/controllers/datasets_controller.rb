@@ -61,7 +61,6 @@ class DatasetsController < ApplicationController
   def update
     # If we are changing the dataset type, we need to unlink it from any configurations it is part of
 
-
     if params[:id] == 'update_data_type' then
       @dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
     else
