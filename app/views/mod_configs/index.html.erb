@@ -157,37 +157,43 @@
 
 <div id="tab-panes" class="tab-pane-container">
   <div id="configured_modules_tab">
-    <% if @mod_configs.empty? %>
-      No modules have been configured yet.  <%= link_to 'Click here to create one.', new_mod_config_path %>
+    <% if @wps_servers.length == 0 %>
+      No module servers have been configured.  You can add one by clicking on the link below.<br>
+      <a href="#">Add new server</a>
     <% else %>
 
-    <div class="page_subheader">Modules that have been configured</div>
+      <% if @mod_configs.empty? %>
+        No modules have been configured yet.  <%= link_to 'Click here to create one.', new_mod_config_path %>
+      <% else %>
 
-      <%= render :partial => '/shared/sortable_table_code.html.erb',
-                 :locals => { :initialSortlist => "[[0,0]], headers: { 3: {sorter: false}}" } %>
+        <div class="page_subheader">Modules that have been configured</div>
 
-      <table id="sortable_table" class="zebra sortable">
-        <thead><tr><th>Name</th><th>Based on</th><th>Status</th><th>Notes</th></tr></thead>
+        <%= render :partial => '/shared/sortable_table_code.html.erb',
+                   :locals => { :initialSortlist => "[[0,0]], headers: { 3: {sorter: false}}" } %>
 
-        <tbody>
-          <% @mod_configs.each do |mod_config| %>
-            <tr>
-              <% pid = processIdLookup[mod_config.wps_server.url + (mod_config.identifier.blank? ? "" : mod_config.identifier)] %>
+        <table id="sortable_table" class="zebra sortable">
+          <thead><tr><th>Name</th><th>Based on</th><th>Status</th><th>Notes</th></tr></thead>
 
-              <td class='name-<%= pid =%>' style="white-space: nowrap;"><%= link_to mod_config.name, mod_config %></td>
-              <td class='<%= pid =%>'
-                  style="white-space: nowrap;">Probing server... <img src="assets/loading_spinner.gif"></td>
-              <td class='status-<%= pid =%>'
-                  style="white-space: nowrap;">Probing server... <img src="assets/loading_spinner.gif"></td>
-              <td><%= mod_config.descr %></td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
+          <tbody>
+            <% @mod_configs.each do |mod_config| %>
+              <tr>
+                <% pid = processIdLookup[mod_config.wps_server.url + (mod_config.identifier.blank? ? "" : mod_config.identifier)] %>
 
-      <br />
+                <td class='name-<%= pid =%>' style="white-space: nowrap;"><%= link_to mod_config.name, mod_config %></td>
+                <td class='<%= pid =%>'
+                    style="white-space: nowrap;">Probing server... <img src="assets/loading_spinner.gif"></td>
+                <td class='status-<%= pid =%>'
+                    style="white-space: nowrap;">Probing server... <img src="assets/loading_spinner.gif"></td>
+                <td><%= mod_config.descr %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
 
-      <%= link_to 'New Module Configuration', new_mod_config_path %>
+        <br />
+
+        <%= link_to 'New Module Configuration', new_mod_config_path %>
+      <% end %>
     <% end %>
   </div>
 
