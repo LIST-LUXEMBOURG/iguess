@@ -164,7 +164,7 @@
 
 <div id="tab-panes" class="tab-pane-container">
   <div id="configured_modules_tab">
-    <% if @wps_servers.length == 0 %>
+    <% if @wps_servers.empty? %>
       No module servers have been configured.  You can add one by clicking on the link below.<br>
       <a href="#">Add new server</a>
     <% else %>
@@ -211,6 +211,7 @@
       <% else %>
         No module servers have been configured.  You can add one by clicking on the link below.
       <% end %>
+
       <ul id="server-list"></ul>
       <a href="#">Add new server</a>
     </div>
