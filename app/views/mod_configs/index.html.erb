@@ -193,13 +193,19 @@
 
   <div id="module_catalog_tab">
     <div>
-      Catalog of modules found on the following servers:
+      <% if @wps_servers.length > 0 %>
+        Catalog of modules found on the following servers:
+      <% else %>
+        No module servers have been configured.  You can add one by clicking on the link below.
+      <% end %>
       <ul id="server-list"></ul>
       <a href="#">Add new server</a>
     </div>
 
-    <div id="wps-probing-indicator">Probing servers... <img src="assets/loading_spinner.gif"></div>
-    <div id="wps-result"></div>
+    <% if @wps_servers.length > 0 %>
+      <div id="wps-probing-indicator">Probing servers... <img src="assets/loading_spinner.gif"></div>
+      <div id="wps-result"></div>
+    <% end %>
 
     <%#= render :partial => '/mods/mods_catalog', :locals => { :all_mods => @mods } %>
   </div>
@@ -207,7 +213,7 @@
 
 <%# Dynamically generate placeholders for the list of servers; these will be populated after we hear from our servers %>
 <script type="text/javascript">
-    <% @wps_servers.each do |s| %>
+  <% @wps_servers.each do |s| %>
     var li = $(document.createElement('li'));
 
     var liHtml = '<div class="wps-title '       + makeKey('<%= s.url %>', 'title')    + '"></div>' +
