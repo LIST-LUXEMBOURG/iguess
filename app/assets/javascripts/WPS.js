@@ -409,9 +409,9 @@ OpenLayers.WPS = OpenLayers.Class({
                 this.addProcess(process);
             }
 
-            process.title = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(processes[i],this.owsNS,  "Title")[0].firstChild.nodeValue;
-            process.abstract = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(processes[i],this.owsNS,  "Abstract")[0].firstChild.nodeValue;
-            process.version = OpenLayers.Format.XML.prototype.getAttributeNS(processes[i],this.wpsNS, "processVersion");
+            process.title =    OpenLayers.Format.XML.prototype.getElementsByTagNameNS(processes[i],this.owsNS, "Title")[0].firstChild.nodeValue;
+            process.abstract = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(processes[i],this.owsNS, "Abstract")[0].firstChild.nodeValue;
+            process.version =  OpenLayers.Format.XML.prototype.getAttributeNS(processes[i],this.wpsNS, "processVersion");
 
             /* parseInputs */
             process.inputs = process.inputs.concat(process.inputs,
