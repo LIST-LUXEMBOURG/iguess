@@ -301,6 +301,34 @@ OpenLayers.WPS = OpenLayers.Class({
         var request = OpenLayers.Request.GET({url:uri,params:{},success:this.parseDescribeProcess,failure:this.onException,scope:this});
     },
 
+
+    /**
+     * Method: getIdentifierTitleExtract
+     * Extract identifier, title, and abstract
+     *
+     * Parameters:
+     * dom - {DOM}  input
+     */
+    getIdentifierTitleExtract: function(dom) {
+        var identifier = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom, this.owsNS,  "Identifier")[0].firstChild.nodeValue;
+
+        var title = identifier;
+        try {
+            title = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom, this.owsNS,  "Title")[0].firstChild.nodeValue;
+        } catch(e) {}
+
+        var abstract = null;
+        try {
+            abstract = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom, this.owsNS,  "Abstract")[0].firstChild.nodeValue;
+        } catch(e) {}
+
+        return {
+            'identifier': identifier,
+            'title':      title,
+            'abstract':   abstract
+        };
+    },
+
     /**
      * Method: parseGetCapabilities
      * Parse input response document and call onGotCapabilities at the end
@@ -312,7 +340,12 @@ OpenLayers.WPS = OpenLayers.Class({
         this.responseText = resp.responseText;
         var dom = resp.responseXML ? resp.responseXML : OpenLayers.parseXMLString(resp.responseText);
         this.responseDOM = dom;
-        this.title = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom,this.owsNS, "Title")[0].firstChild.nodeValue;
+
+        this.title = null;
+        try {
+            this.title = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom,this.owsNS, "Title")[0].firstChild.nodeValue;
+        } catch(e) {}
+
         this.abstract = null;
         try {
             this.abstract = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom,this.owsNS, "Abstract")[0].firstChild.nodeValue;
@@ -337,7 +370,7 @@ OpenLayers.WPS = OpenLayers.Class({
                 case "describeprocess": this.describeProcessUrlGet = get;
                                         this.describeProcessUrlPost = post;
                                         break;
-                case "execute": this.executeUrlGet = get;
+                case "execute":         this.executeUrlGet = get;
                                         this.executeUrlPost = post;
                                         break;
             }
@@ -347,12 +380,14 @@ OpenLayers.WPS = OpenLayers.Class({
         var processesNode = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom,this.wpsNS, "ProcessOfferings")[0];
         var processes = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(processesNode,this.wpsNS,  "Process");
         for (var i = 0; i < processes.length; i++) {
-            var identifier = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(processes[i],this.owsNS,  "Identifier")[0].firstChild.nodeValue;
-            var title = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(processes[i],this.owsNS,  "Title")[0].firstChild.nodeValue;
-            var abstract = null;
-            try {
-                abstract = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(processes[i],this.owsNS,  "Abstract")[0].firstChild.nodeValue;
-            } catch(e) {}
+
+            var identifierTitleAbstract = this.getIdentifierTitleExtract(processes[i]);
+
+            var identifier = identifierTitleAbstract.identifier;
+            var title = identifierTitleAbstract.title;
+            var abstract = identifierTitleAbstract.abstract;
+
+
             var version = OpenLayers.Format.XML.prototype.getAttributeNS(processes[i],this.wpsNS, "version");
             var process = new OpenLayers.WPS.Process({identifier:identifier,title: title, abstract: abstract, version: version,wps:this});
             this.addProcess(process);
@@ -394,7 +429,7 @@ OpenLayers.WPS = OpenLayers.Class({
      * resp - {HTTPRexuest}
      */
     parseDescribeProcess: function (resp) {
-        try{
+        try {
         this.responseText = resp.responseText;
         var dom = resp.responseXML ? resp.responseXML : OpenLayers.parseXMLString(resp.responseText);
         this.responseDOM = dom;
@@ -423,7 +458,6 @@ OpenLayers.WPS = OpenLayers.Class({
 
             this.onDescribedProcess(process);
         }
-
         }catch(e){console.log(e);};
     },
 
@@ -480,13 +514,13 @@ OpenLayers.WPS = OpenLayers.Class({
      * Parameters:
      * dom - {DOM}  input
      */
-    parseDescribeComplexPuts: function(dom){
-        var identifier = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom,this.owsNS,  "Identifier")[0].firstChild.nodeValue;
-        var title = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom,this.owsNS,  "Title")[0].firstChild.nodeValue;
-        var abstract = null;
-        try {
-            abstract = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom,this.owsNS,  "Abstract")[0].firstChild.nodeValue;
-        } catch(e) {}
+    parseDescribeComplexPuts: function(dom) {
+
+        var identifierTitleAbstract = this.getIdentifierTitleExtract(dom);
+
+        var identifier = identifierTitleAbstract.identifier;
+        var title      = identifierTitleAbstract.title;
+        var abstract   = identifierTitleAbstract.abstract;
 
         var formats = [];
 
@@ -534,12 +568,13 @@ OpenLayers.WPS = OpenLayers.Class({
      * dom - {DOM} input
      */
     parseDescribeBoundingBoxPuts: function(dom){
-        var identifier = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom,this.owsNS,  "Identifier")[0].firstChild.nodeValue;
-        var title = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom,this.owsNS,  "Title")[0].firstChild.nodeValue;
-        var abstract = null;
-        try {
-            abstract = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom,this.owsNS,  "Abstract")[0].firstChild.nodeValue;
-        } catch(e) {}
+
+        var identifierTitleAbstract = this.getIdentifierTitleExtract(dom);
+
+        var identifier = identifierTitleAbstract.identifier;
+        var title      = identifierTitleAbstract.title;
+        var abstract   = identifierTitleAbstract.abstract;
+
         var crss = [];
 
         // inputs
@@ -561,7 +596,6 @@ OpenLayers.WPS = OpenLayers.Class({
             }
         }
 
-
         return new OpenLayers.WPS.BoundingBoxPut({
                     identifier: identifier,
                     title: title,
@@ -579,12 +613,11 @@ OpenLayers.WPS = OpenLayers.Class({
      */
     parseDescribeLiteralPuts: function(dom){
 
-        var identifier = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom,this.owsNS,  "Identifier")[0].firstChild.nodeValue;
-        var title = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom,this.owsNS,  "Title")[0].firstChild.nodeValue;
-        var abstract = null;
-        try {
-            abstract = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom,this.owsNS,  "Abstract")[0].firstChild.nodeValue;
-        } catch(e) {}
+        var identifierTitleAbstract = this.getIdentifierTitleExtract(dom);
+
+        var identifier = identifierTitleAbstract.identifier;
+        var title      = identifierTitleAbstract.title;
+        var abstract   = identifierTitleAbstract.abstract;
 
         var allowedValues = [];
         var type = "string";
@@ -617,7 +650,6 @@ OpenLayers.WPS = OpenLayers.Class({
                     allowedValues.push([min,max]);
                 }
             }
-
         }
 
         return new OpenLayers.WPS.LiteralPut({
@@ -959,7 +991,6 @@ OpenLayers.WPS = OpenLayers.Class({
      * {Process}
      */
     getProcess: function(identifier) {
-
         for (var i = 0; i < this.processes.length; i++) {
             if (this.processes[i].identifier == identifier) {
                 return this.processes[i];
