@@ -105,19 +105,34 @@ WPS.describeProcess = function(url, identifier, onDescribedCallback)
 
 WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes = [];
 
+function findDatasetById(datasets, id)
+{
+    var len = datasets.length;
+    for(var i = 0; i < len; i++) {
+        if(datasets[i].id == id) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 // This function is called when the describeProcesses response arrives
 // It will be called repeatedly as responses arrive
 function onDescribedProcess_getDataTypesProbe(process)
 {
-  for(var i = 0; i < process.inputs.length; i++) {
+  var len = process.inputs.length;
+  for(var i = 0; i < len; i++) {
     var id   = process.inputs[i].identifier;
     var type = process.inputs[i].type;
+    var title = process.inputs[i].title || id;
 
     // For the moment, skip all "simple" datatypes.  This may need to be changed in the future.
     if(type != undefined) { continue; }
 
-    if(!WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes.hasObject(id)) {
-      WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes.push(id);
+    if(!findDatasetById(WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes, id)) {
+      var dataType = { id: id, title: title };
+      WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes.push(dataType);
     }
   }
 
