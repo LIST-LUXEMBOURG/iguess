@@ -1,4 +1,7 @@
 class DatasetsController < ApplicationController
+
+  respond_to :html, :json   # See http://railscasts.com/episodes/224-controllers-in-rails-3, c. min 7:00
+
   # GET /datasets
   # GET /datasets.json
   def index
@@ -45,15 +48,10 @@ class DatasetsController < ApplicationController
   def create
     @dataset = Dataset.new(params[:dataset])
 
-    respond_to do |format|
-      if @dataset.save
-        format.html { redirect_to @dataset, notice: 'Dataset was successfully created.' }
-        format.json { render json: @dataset, status: :created, location: @dataset }
-      else
-        format.html { render action: "new" }
-        format.json { render json: @dataset.errors, status: :unprocessable_entity }
-      end
+    if @dataset.save
+      flash[:notice] = "New dataset created."
     end
+    respond_with(@dataset)
   end
 
   # PUT /datasets/1

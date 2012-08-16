@@ -16,8 +16,6 @@
   // Add "js" style to body -- makes fancy checkboxes work
   $('body').attr("class",$('body').attr("class") + " js");
 
- alert('<%= @current_city.name %>');
-
   LOCAL_SRS  = '<%= @current_city.srs %>';
   GOOGLE_SRS = 'EPSG:3857';
 
@@ -58,15 +56,16 @@
 
 		$.ajax({
 			type: 'PUT',      // PUT combined with url below triggers "update" action on controller
-			url: '<%= url_for(:controller => 'datasets', :action => 'update_data_type') %>',
-			data: 'dataset[identifier]=' + layerName +
-			      '&dataset[server_url]=' + server +
+			url:  '<%= url_for(:controller => 'datasets', :action => 'update_data_type') %>',
+			data: 'dataset[identifier]='    + layerName +
+			      '&dataset[server_url]='   + server    +
 			      '&dataset[dataset_type]=' + dataTypeControl.value,
 			headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
 			success: function(data) {  }
 	  });
 
-	  registeredDataLayers[layerKey] = dataTypeControl.value;
+    var rubyId = registeredDataLayers[layerKey].rubyId;
+	  registeredDataLayers[layerKey] = makeRegisteredLayer(dataTypeControl.value, rubyId, 0);
   }
 
 
@@ -78,9 +77,11 @@
     if(registeredDataLayers[layerKey] == undefined || registeredDataLayers[layerKey].configCount == 0) { return true; }
 
     var ct = registeredDataLayers[layerKey].configCount;
-    var c = (ct == 1) ? "configuration" : "configurations";
-    var t = (ct == 1) ? "this" : "these";
+    var c  = (ct == 1) ? "configuration" : "configurations";
+    var t  = (ct == 1) ? "this" : "these";
     var th = (ct == 1) ? "it" : "them";
+
+    console.log(registeredDataLayers[layerKey]);
 
     return confirm("This dataset is in use by " + ct + " " + c + ". " +
                    "Changing its type will cause it to be removed from " + t + " " + c + ".\n\n" +
@@ -198,7 +199,7 @@
 
           if(layer.type.hasObject('WFS')) {
             for(var j = 0, jlen = dataTypeList.length; j < jlen; j++) {
-              dataTypeControl.append('<option value="dataTypeList[j].id">' + dataTypeList[j].id + '</option>');
+              dataTypeControl.append('<option value="' + dataTypeList[j].id + '">' + dataTypeList[j].id + '</option>');
             }
           }
 
@@ -343,7 +344,7 @@
       var layerKey = makeKey(server, layerName);
 
       if(registeredDataLayers[layerKey] != undefined && registeredDataLayers[layerKey].configCount > 0) {
-        var ct = registeredDataLayers[layerKey].configCount;
+        var ct = registeredDataLayers[layerKey].configCount || 0;
         var c = (ct == 1) ? "configuration" : "configurations";
         var t = (ct == 1) ? "this" : "these";
         var th = (ct == 1) ? "it" : "them";
@@ -384,16 +385,17 @@
         // our datasets table.
         $.ajax({
           type: 'POST',      // POST combined with url below triggers "create" action on controller
-          url: '<%= url_for(:controller => 'datasets', :action => 'create') %>',
+          url: '<%= url_for(:controller => 'datasets', :action => 'create', :format=>:json) %>',
           data: 'dataset[identifier]=' + layerName +
                 '&dataset[server_url]=' + server +
                 '&dataset[dataset_type]=' + dataTypeControl.value,
           headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
-          success: function(data) { }
+          success: function(data) {
+            // Add layer to the list of registered layers
+            registeredDataLayers[layerKey] = makeRegisteredLayer(data.identifier, data.id, 0);
+          }
         });
 
-        // Add layer to the list of registered layers
-        registeredDataLayers[layerKey] = dataTypeControl.value;
       }
 
       $(this).toggleClass("checked");
