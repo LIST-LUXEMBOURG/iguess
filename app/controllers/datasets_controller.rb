@@ -43,10 +43,15 @@ class DatasetsController < ApplicationController
     @dataset = Dataset.find(params[:id])
   end
 
-  # POST /datasets
-  # POST /datasets.json
+  # Called when user registers a dataset by clicking on the "Registerd" button;
+  #    always called via ajax with json response type
   def create
     @dataset = Dataset.new(params[:dataset])
+    @current_city = City.find_by_name(cookies['city'])
+
+    binding.pry
+
+    @dataset.city = @current_city
 
     if @dataset.save
       flash[:notice] = "New dataset created."
