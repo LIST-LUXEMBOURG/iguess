@@ -16,7 +16,6 @@
   // Add "js" style to body -- makes fancy checkboxes work
   $('body').attr("class",$('body').attr("class") + " js");
 
-  LOCAL_SRS  = '<%= @current_city.srs %>';
   GOOGLE_SRS = 'EPSG:3857';
 
   var urls = [<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>];
@@ -81,8 +80,6 @@
     var t  = (ct == 1) ? "this" : "these";
     var th = (ct == 1) ? "it" : "them";
 
-    console.log(registeredDataLayers[layerKey]);
-
     return confirm("This dataset is in use by " + ct + " " + c + ". " +
                    "Changing its type will cause it to be removed from " + t + " " + c + ".\n\n" +
                    "Click OK if you are sure you want to change the type of this dataset.");
@@ -91,7 +88,10 @@
 
   // The city dropdown on the UR of the screen has changed
   var onLocationChanged = function(cityName) {
-    alert("Changed!");
+    // Update to default city URL -- use gsub to fix those @#$%^ backslashes in the URL...
+    $('#dataset_url').val(
+            { <% @cities.each do |city| %>'<%= city.name %>':'<%= city.url.gsub(/\\/, '\\\\\\') %>',<% end %>}[cityName]
+    );
     LOCAL_SRS = { <% @cities.each do |city| %>'<%= city.name %>':'<%= city.srs %>',<% end %>}[cityName];
   }
 
@@ -452,6 +452,7 @@
 
   $(document).ready(function ()
   {
+    onLocationChanged('<%= @current_city.name %>');   // Update SRS and set default URL
     $('#dataset_url').change(update);
     $('#refresh_layers_button').click(update);
     hideProbingIndicators();
@@ -485,21 +486,12 @@
 
 
 <div class="explanation">
-  Sample URLs (this list will be removed in future)
+  Sample URLs for local mirror of Ludwigsburg (this list will be removed in future)
   <ul>
-    <li>Select "Rotterdam" from the drop-down on the UR corner of the screen then use the following URL:<br>
-        http://ows.gis.rotterdam.nl/cgi-bin/mapserv.exe?map=d:\gwr\webdata\mapserver\map\gwr_basis_pub.map</li>
-
-    <li>Select "Ludwigsburg" from the drop-down on the UR corner of the screen then use the following URL:<br>
-        http://logis.ludwigsburg.de/mapguide2011/mapagent/mapagent.fcgi</li>
-
     <li>http://iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/LB_localOWS_test.map</li>
-
     <li>http://iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/Ludwigsburg02.map</li>
-
   </ul>
 </div>
-
 
 
 <form id="url_form">
