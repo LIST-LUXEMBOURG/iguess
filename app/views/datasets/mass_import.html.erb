@@ -283,6 +283,7 @@
         tr_element.append(container);
 
         $('#layer-table').append(tr_element);
+//        console.log(layer.bbox);
 
         if(layer.bbox !== null && layer.bbox.length > 0)
         {
@@ -290,7 +291,6 @@
           var bbox = layer.bbox[activeSRS].bbox;
 
           var bounds = new OpenLayers.Bounds(bbox[0], bbox[1], bbox[2], bbox[3]);  //minx miny maxx maxy
-
 
           var miniMap = new OpenLayers.Map({
                   maxExtent: bounds,
@@ -300,10 +300,10 @@
           var lyr = new OpenLayers.Layer.WMS(
                   layer.title,
                   server,
-                  { layers: layer.identifier,
-                    format: "image/gif",
+                  { layers:  layer.identifier,
+                    format:  "image/gif",
                     srsName: activeSRS,
-                    srs: activeSRS
+                    srs:     activeSRS
                   }
           );
 
