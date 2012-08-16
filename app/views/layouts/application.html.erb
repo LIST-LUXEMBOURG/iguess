@@ -18,14 +18,11 @@
           function() { $(this).addClass('ui-state-hover'); },
           function() { $(this).removeClass('ui-state-hover'); }
       );
-
   });
 
 
   var gotoLocation = function(cityName) {
     // Set cookie to help us remember the location
-    $.cookie('city', cityName, { expires: 9999, path: '/' });
-
     <% for city in City.all %>
         if(cityName == "<%= city.name %>")
         {
