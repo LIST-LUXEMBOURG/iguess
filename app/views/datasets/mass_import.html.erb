@@ -16,6 +16,8 @@
   // Add "js" style to body -- makes fancy checkboxes work
   $('body').attr("class",$('body').attr("class") + " js");
 
+ alert('<%= @current_city.name %>');
+
   LOCAL_SRS  = '<%= @current_city.srs %>';
   GOOGLE_SRS = 'EPSG:3857';
 
