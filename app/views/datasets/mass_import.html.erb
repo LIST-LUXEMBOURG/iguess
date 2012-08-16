@@ -89,8 +89,10 @@
   }
 
 
-  var onLocationChanged = function() {
+  // The city dropdown on the UR of the screen has changed
+  var onLocationChanged = function(cityName) {
     alert("Changed!");
+    LOCAL_SRS = { <% @cities.each do |city| %>'<%= city.name %>':'<%= city.srs %>',<% end %>}[cityName];
   }
 
 
@@ -454,12 +456,6 @@
     $('#refresh_layers_button').click(update);
     hideProbingIndicators();
   });
-
-
-  // The city dropdown on the UR of the screen has changed
-  function gotoLocation(cityName) {
-    LOCAL_SRS = { <% @cities.each do |city| %>'<%= city.name %>':'<%= city.srs %>',<% end %>}[cityName];
-  }
 </script>
 
 

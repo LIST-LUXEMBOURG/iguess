@@ -20,24 +20,6 @@
       );
   });
 
-
-  var gotoLocation = function(cityName) {
-    // Set cookie to help us remember the location
-    <% for city in City.all %>
-        if(cityName == "<%= city.name %>")
-        {
-          var proj = new OpenLayers.Projection("<%= city.srs %>");
-          var point = new OpenLayers.LonLat(
-            (<%= city.minx %> + <%= city.maxx %>) / 2,
-            (<%= city.miny %> + <%= city.maxy %>) / 2);
-          point.transform(proj, map.getProjectionObject());
-
-          map.setCenter(point, <%= city.zoom %>);
-          return;
-        }
-    <% end %>
-  }
-
 </script>
 
 
@@ -97,9 +79,9 @@
           <script type="text/javascript">
             $('#city-dropdown').change(function() {
               $.cookie('city', this.value, { expires: 99999 });  // Save our location in a cookie
-              gotoLocation(this.value);             // Center any maps on this location
-              if(onLocationChanged != undefined) {
-                onLocationChanged();                 // Implement this function on a page if you want to be alerted to a location change
+//              gotoLocation(this.value);             // Center any maps on this location
+              if(typeof onLocationChanged != "undefined") {
+                onLocationChanged(this.value);        // Implement this function on a page if you want to be alerted to a location change
               }
             });
           </script>
