@@ -79,7 +79,6 @@
           <script type="text/javascript">
             $('#city-dropdown').change(function() {
               $.cookie('city', this.value, { expires: 99999 });  // Save our location in a cookie
-//              gotoLocation(this.value);             // Center any maps on this location
               if(typeof onLocationChanged != "undefined") {
                 onLocationChanged(this.value);        // Implement this function on a page if you want to be alerted to a location change
               }
