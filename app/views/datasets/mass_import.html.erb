@@ -388,7 +388,8 @@
           url: '<%= url_for(:controller => 'datasets', :action => 'create', :format=>:json) %>',
           data: 'dataset[identifier]=' + layerName +
                 '&dataset[server_url]=' + server +
-                '&dataset[dataset_type]=' + dataTypeControl.value,
+                '&dataset[dataset_type]=' + dataTypeControl.value +
+                '&cityName=' + $.cookie('city'),
           headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
           success: function(data) {
             // Add layer to the list of registered layers

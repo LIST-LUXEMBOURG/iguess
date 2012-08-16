@@ -47,9 +47,7 @@ class DatasetsController < ApplicationController
   #    always called via ajax with json response type
   def create
     @dataset = Dataset.new(params[:dataset])
-    @current_city = City.find_by_name(cookies['city'])
-
-    binding.pry
+    @current_city = City.find_by_name(params[:cityName])
 
     @dataset.city = @current_city
 
@@ -58,6 +56,7 @@ class DatasetsController < ApplicationController
     end
     respond_with(@dataset)
   end
+
 
   # PUT /datasets/1
   # PUT /datasets/1.json
