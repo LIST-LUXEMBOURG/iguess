@@ -276,7 +276,7 @@
                  .append(dataTypeControl);
 
         var sample_map = $(document.createElement('div'));
-        sample_map.attr({ id: mapDivId, class:'sample-map' });
+        sample_map.attr({ id:mapDivId, class:'sample-map' });   // Map will be rendered based on div's id
 
         var container = $(document.createElement('div'));
         container.attr({ class:'dataset ' + (registered ? 'registered_dataset' : 'unregistered_dataset'), id:'td_' + layer.identifier });
