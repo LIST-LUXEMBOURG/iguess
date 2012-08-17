@@ -1,17 +1,50 @@
+<script src="https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"></script>   <!-- Must get rid of this!!!-->
 
 <script type="text/javascript">
 
-  var urls = [<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>];
+  // Let the server know this layer is now registered -- to do this we must create a new record in
+  // our datasets table.
 
-   // For each url in our database, start probing the server
-  for(var i = 0; i < urls.length; i++) {  WPS.probeWPS_getDataTypes(urls[i]);  }
-
-
-  // Called incrementally
-  var onDataTypesDiscovered = function(dataTypes)
+  var onLocationChanged = function(city)
   {
-    //document.getElementById("data-keys").innerHTML = "Discovered data types: " + dataTypes.join(", ");
+    $.ajax({
+      type: 'POST',
+      url: '<%= url_for(:controller => 'datasets', :action => 'get_for_city', :format => :json) %>',
+      data: 'cityName=' + $.cookie('city'),
+      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
+      success: function(data) {
+        renderTable(data);
+      }
+    });
   }
+
+  $(document).ready(function ()
+  {
+    onLocationChanged('<%= @current_city.name %>');   // Build the initial dataset list
+  });
+
+  // We've got a new batch of datasets to display!
+  // Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
+  renderTable = function(datasets) {
+    $('#dataset-list').empty();    // Clear table
+    for(var i = 0; i < datasets.length; i++) {
+      var d = datasets[i];
+
+      $('#dataset-list').append(
+            '<tr valign=middle>' +
+              '<td class="dataset-name-' + serverUrlIdLookup[d.server_url] + '" ' +
+                    'id="dataset-name-' + d.id + '" title="Server URL: ' + d.server_url + '">Retrieving...' +
+              '</td>' +
+              '<td nowrap>' + (d.dataset_type == "" ? "Unknown" : d.dataset_type) + '</td>' +
+              '<td width = 145><div class="status-' + serverUrlIdLookup[d.server_url] + '" id="status-' + d.id + '">Probing server...  <img src="assets/loading_spinner.gif"></div></td>' +
+              '<td>SHOW MODULE LIST HERE??</td>' +
+            '</tr>'
+        );
+
+      processUrl(d.server_url);
+    }
+  }
+
 
   railsIdLookup = { };
 
@@ -34,10 +67,8 @@
 
 
 <div>
-
   <h1 class="page_header">Registered Datasets</h1>
   <div class="page_subheader"></div>
-
 
   <%= render :partial => '/shared/sortable_table_code.html.erb', :locals => { :initialSortlist => "[[1,0], [0,0]]" } %>
 
@@ -66,62 +97,79 @@
     <% index = 0 %>
     var layerRecords = { };
     var layerStores = { };
-    var layerDatasets = { };
+    var serverDatasets = { };
     var serverStatus = { };
 
-    <% @server_urls.each do |url| %>    <%# These could be wms, wfs, or wcs addresses%>
-      layerRecords['<%= url %>'] = [ ];
-      layerStores ['<%= url %>'] = [ ];
-      serverStatus['<%= url %>'] = [ ];
+    var processedUrls = [];
 
-      WMS.updateLayerList('<%= url.gsub(/\\/, '\\\\\\') %>', success_<%= index %>, failure_<%= index %>);
-      WFS.updateLayerList('<%= url.gsub(/\\/, '\\\\\\') %>', success_<%= index %>, failure_<%= index %>);
 
-      <%# Find every dataset that uses this url; this method might be inefficient with many records, but is ok for our use %>
-      layerDatasets['<%= url %>'] = [<%= @datasets.reject {|d| d.server_url != url}
-                                                  .map{|d| "'" + d.identifier + "'"}
-                                                  .join(' ,') %>];
-
-      function success_<%= index %>(store, records) // Need to validate each item in store
-      {
-        serverStatus['<%= url %>'].push(true);
-        layerRecords['<%= url %>'].push(records.length);
-        layerStores['<%= url %>'].push(store);
-        setLayerStatus(<%= index %>, '<%= url %>');
-      }
-
-      function failure_<%= index %>(e,f,g,h,i,j)    // All items for this server failed
-      {
-        serverStatus['<%= url %>'].push(false);
-        setLayerStatus(<%= index %>, '<%= url %>');
-      }
-
-      <% index += 1 %>
-
-    <% end %>
-
-    function setLayerStatus(id, serverUrl)
+    var processUrl = function(url)
     {
+      // This function will be called for every dataset registered with the current city.  Many will have the same
+      // server.  Avoid processing the same server twice.
+      if(processedUrls.hasObject(url)) {  setLayerStatus(url); return;  }
 
-      // Wait until we've heard back from all servers
+      processedUrls.push(url);
+
+      // Should be an associative array!!!  TODO
+      layerRecords[url] = [ ];
+      layerStores [url] = [ ];
+      serverStatus[url] = [ ];
+
+      // Create an association between a server and all registered datasets it hosts
+      <% @server_urls.each do |url| %>    <%# These could be wms, wfs, or wcs addresses %>
+        serverDatasets['<%= url.gsub(/\\/, '\\\\\\') %>'] = [<%= @datasets.reject {|d| d.server_url != url}
+                                                                        .map{|d| "'" + d.identifier + "'"}
+                                                                        .join(' ,') %>];
+      <% end %>
+
+      WMS.updateLayerList(url, success, failure);
+      WFS.updateLayerList(url, success, failure);
+    }
+
+
+    function success(store, records) // Need to validate each item in store
+    {
+      var url = unwrapServer(store.url, store.format.name);
+
+      serverStatus[url].push(true);
+      layerRecords[url].push(records.length);
+      layerStores[url].push(store);
+
+      setLayerStatus(url);
+    }
+
+    function failure(e,f,g,h,i,j)    // All items for this server failed
+    {
+      console.log(e,f,g,h,i,j);
+      <%#
+      serverStatus['<%= url %x>'].push(false);
+      setLayerStatus(<%= index %x>, '<%= url %x>');
+      %>
+    }
+
+
+    function setLayerStatus(serverUrl)
+    {
+      // Wait until we've heard back from all servers: wfs and wms
       if(serverStatus[serverUrl].length < 2) { return; }
 
       serverUrlId = serverUrlIdLookup[serverUrl];
-      $('.data_status_probing_' + serverUrlId).hide();    // No longer probing this server!
 
-
-      if(!(serverStatus[serverUrl][0] || serverStatus[serverUrl][1])) {    // Server failed, all datasets kaput
-        $('.data_status_not_responding_' + serverUrlId).show();
+      if(!(serverStatus[serverUrl][0] || serverStatus[serverUrl][1])) {    // Server failed, all datasets from this server kaput
+        $('.status-' + serverUrlId).html('<img src="/assets/server_responding_no.png" alt="WMS server not responding">');
         $('.dataset-name-' + serverUrlId).text("Unknown");
         return;
       }
 
       // At least one server succeeded, vist each one-by-one
 
-      var datasets = layerDatasets[serverUrl];
+      var datasets = serverDatasets[serverUrl];   // List of registered datasets available on this server
+      console.log(serverDatasets, serverUrl);console.log(serverUrl);
+
       datasetCount = datasets.length;
 
-      for(var i = 0; i < datasetCount; i++) {
+      for(var i = 0; i < datasetCount; i++) {     // Iterate through datasets from the server one-by-one
         var found = false;
         var layerRecordsCount = layerRecords[serverUrl].length;
 
@@ -142,10 +190,11 @@
 
               // See http://stackoverflow.com/questions/244758/jquery-animation-smooth-size-transition
               var selector = '#dataset-name-' + railsId;
-              // $(selector).showHtml(title);           // Triggers animated transition with specified duration
               $(selector).html(title);
 
-              $('#data_layer_available_yes_' + railsId).show();
+              var railsId = railsIdLookup[makeKey(serverUrl, datasets[i])];
+              $('#status-' + railsId).html('<img src="/assets/layer_available_yes.png" alt="Layer available">');
+
               found = true;
               break;
             }
@@ -154,15 +203,8 @@
 
         if(!found) {
           var railsId = railsIdLookup[makeKey(serverUrl, datasets[i])];
-          $('#data_status_not_responding_' + railsId).show();
+          $('#status-' + railsId).html('<img src="/assets/layer_available_no.png" alt="Layer not available">');
         }
-      }
-
-      if(found) {    // At least one server reports finding this layer
-        $('#data_layer_available_yes_' + railsId).show();
-      }
-      else {                                          // No servers reported finding this layer
-        $('#data_status_not_responding_' + railsId).show();
       }
     }
 
@@ -179,34 +221,8 @@
       <tr><th>Name</th><th>Type</th><th>Status</th><th>Configured Modules Using Dataset</th></tr>
     </thead>
 
-    <tbody>
-      <% @datasets.each do |d| %>
-        <tr valign=middle>
-          <td class="dataset-name-<%= serverUrlIdLookup[d.server_url] %>" id="dataset-name-<%= d.id %>" title="Server URL: <%= d.server_url %>">Retrieving...</td>
-          <td nowrap><%= d.dataset_type.blank? ? "Unknown" : d.dataset_type %></td>
-          <td width = 145>
-            <% if d.status != 'OK' %>
-              <%= d.status %>
-            <% else %>
-              <%# Use class instead of id because identifier will not be unique %>
-              <div class="data_status_probing_<%= serverUrlIdLookup[d.server_url] %>">Probing server...  <img src="assets/loading_spinner.gif"></div>
-              <div class="loading-status-icon data_status_not_responding_<%= serverUrlIdLookup[d.server_url] %>" id="data_status_not_responding_<%= d.id %>"><img src="/assets/server_responding_no.png" alt="WMS server not responding"></div>
-              <div class="loading-status-icon data_layer_available_yes_<%= serverUrlIdLookup[d.server_url] %>"   id="data_layer_available_yes_<%= d.id %>"  ><img src="/assets/layer_available_yes.png" alt="Layer avaialble"></div>
-              <div class="loading-status-icon data_layer_available_no_<%= serverUrlIdLookup[d.server_url] %>"    id="data_layer_available_no_<%= d.id %>"   ><img src="/assets/layer_available_no.png" alt="Layer not available"></div>
+    <tbody id="dataset-list">
 
-              <script type="text/javascript">
-                $("#data_status_not_responding_<%= d.id %>").hide();
-                $("#data_layer_available_yes_<%= d.id %>").hide();
-                $("#data_layer_available_no_<%= d.id %>").hide();
-              </script>
-            <% end %>
-          </td>
-          <td>
-          	SHOW MODULE LIST HERE??
-            <%#= render :partial => 'show_mod_list', :locals => { :dataset => d, :popup => false } %>
-          </td>
-        </tr>
-      <% end %>
     </tbody>
   </table>
 

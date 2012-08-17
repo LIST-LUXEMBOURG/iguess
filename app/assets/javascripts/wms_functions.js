@@ -9,10 +9,17 @@ WPS.responsesReceived = 0;
 
 WPS.getResponsesExpected = function() { return WPS.responsesExpected; }
 
+
+WPS.probing = [];       // List of servers already being probed
+
 ////////////////////////////////////////
 // Send an initial request to a WPS server to see what services it offers
 WPS.probeWPS = function(serverUrl, onReceivedServerInfoFunction, onDescribedProcessFunction)
 {
+  if(WPS.probing.hasObject(serverUrl)) { return; }      // Already probing, nothing to do
+
+  WPS.probing.push(serverUrl);
+
   WPS.onReceivedServerInfoFunction = onReceivedServerInfoFunction;
   WPS.onDescribedProcessFunction   = onDescribedProcessFunction;
 
@@ -269,3 +276,10 @@ WMS.unwrapServer = function(url) {
   return WMS.stripGetCapReq(decodeURIComponent(unwrapGeoProxy(url)));
 }
 
+
+unwrapServer = function(url, format)
+{
+    if(format == 'WFSCapabilities') { return WFS.unwrapServer(url); }
+    if(format == 'WMSCapabilities') { return WMS.unwrapServer(url); }
+    return null;
+}

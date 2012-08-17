@@ -30,6 +30,7 @@
 <script src="http://jquery.malsup.com/block/jquery.blockUI.js?v2.38"></script>
 <script src="https://raw.github.com/jeremyw/jquery-smart-poll/master/lib/jquery.smart-poll.js"></script>
 <script src="https://raw.github.com/bernat/best_in_place/master/lib/assets/javascripts/best_in_place.js"></script>
+<script src="https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"></script>   <!-- Must get rid of this!!! -->
 
 </head>
 
@@ -101,7 +102,6 @@
   <%= yield %>
 </div>
 
-<script src="https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"></script>
 <script>
   $('#navbar li[title]').tooltip({ position: 'bottom center', offset: [0,55] });   // Activate our tooltips
 </script>

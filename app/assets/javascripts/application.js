@@ -12,5 +12,6 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require jquery.cookie
 //= require best_in_place
 //= require_tree .

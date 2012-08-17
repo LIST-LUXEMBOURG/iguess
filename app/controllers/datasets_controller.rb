@@ -6,11 +6,11 @@ class DatasetsController < ApplicationController
   # GET /datasets.json
   def index
     @current_city = City.find_by_name(cookies['city'])
-    @datasets = Dataset.find_all_by_city_id(@current_city.id)
+    @datasets = Dataset.all()
     @wps_servers = WpsServer.all
 
     # Find all unique server urls in @datasets, ignoring any blank entries
-    @server_urls = @datasets.reject{|d| d.status != 'OK' || d.server_url.blank?}.map{|d| d.server_url}.uniq
+    @server_urls = @datasets.map{|d| d.server_url}.uniq
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @datasets }
@@ -27,6 +27,19 @@ class DatasetsController < ApplicationController
       format.json { render json: @dataset }
     end
   end
+
+
+  # Get all datasets for the specified city, only used by ajax queries
+  def get_for_city
+    @current_city = City.find_by_name(params[:cityName])
+    @datasets = Dataset.find_all_by_city_id(@current_city.id)
+
+    # I really want this, but it returns HTML... respond_with(@datasets)
+    respond_to do |format|
+      format.json { render json: @datasets }
+    end
+  end
+
 
   # GET /datasets/new
   # GET /datasets/new.json
@@ -55,6 +68,7 @@ class DatasetsController < ApplicationController
     if @dataset.save
       flash[:notice] = "New dataset created."
     end
+
     respond_with(@dataset)
   end
 
