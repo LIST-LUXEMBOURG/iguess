@@ -352,9 +352,9 @@
 
       if(registeredDataLayers[layerKey] != undefined && registeredDataLayers[layerKey].configCount > 0) {
         var ct = registeredDataLayers[layerKey].configCount || 0;
-        var c = (ct == 1) ? "configuration" : "configurations";
-        var t = (ct == 1) ? "this" : "these";
-        var th = (ct == 1) ? "it" : "them";
+        var c =  (ct == 1) ? "configuration" : "configurations";
+        var t =  (ct == 1) ? "this"          : "these";
+        var th = (ct == 1) ? "it"            : "them";
 
         if(!confirm("This dataset is in use by " + ct + " " + c + ". " +
                     "Unregistering it will cause it to be removed from " + t + " " + c + ".\n\n" +
