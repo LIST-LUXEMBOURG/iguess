@@ -295,9 +295,19 @@
         $('#layer-table').append(tr_element);
 //        console.log(layer.bbox);
 
-        if(layer.bbox !== null && layer.bbox.length > 0)
+        var activeSRS = null;
+        if(layer.bbox !== null) {
+          for (e in layer.bbox) { activeSRS = e; break; }
+        }
+
+        console.log(layer);
+        console.log(layer.bbox);
+        console.log(firstEspg);
+
+        if(activeSRS !== null)
         {
-          var activeSRS = layer.bbox[0].srs;
+          console.log(activeSRS);
+
           var bbox = layer.bbox[activeSRS].bbox;
 
           var bounds = new OpenLayers.Bounds(bbox[0], bbox[1], bbox[2], bbox[3]);  //minx miny maxx maxy
@@ -316,6 +326,10 @@
                     srs:     activeSRS
                   }
           );
+
+//          alert(lyr.bbox);
+//          alert(lyr.bbox.ESPG[0]);
+//          lyr.bbox.ESPG[0].bbox = [92000,437000,92600,436500];
 
           miniMap.addLayer(lyr);
           miniMap.zoomToMaxExtent();
