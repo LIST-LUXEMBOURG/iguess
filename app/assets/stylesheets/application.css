@@ -10,7 +10,7 @@
 
 body {
   font: 62.5% "Trebuchet MS", sans-serif;
-  margin: 0px;
+  margin: 0;
 }
 
 /* Body in "normal" mode */
@@ -46,7 +46,7 @@ a:active {
 
 /* H1 text at top of each page */
 .page_header {
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 
 /* Explanatory text just below each header */
@@ -63,7 +63,6 @@ a:active {
 .dataset_body, .front_page_col_body {
   padding: 8px;
   margin-bottom: 10px;
-
 }
 
 /* Differentiate mod and dataset pages by making the bodies a slightly different color */
@@ -87,7 +86,7 @@ a:active {
   font-size: 30px;
   color: red;
   margin-bottom: 20px;
-  margin-left: 0px;
+  margin-left: 0;
   margin-right: 25px;
   padding: 12px;
   display: inline;
