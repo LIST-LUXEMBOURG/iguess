@@ -77,9 +77,22 @@
             <% end %>
           </select>
 
+
           <script type="text/javascript">
+
+            function setCityCookie(city) {
+              $.cookie('city', city, { expires: 99999 });
+            }
+
+            // If the city cookie doesn't exist when we load this page, create it
+            $(document).ready(function() {
+              if($.cookie('city') == null) {
+                setCityCookie(document.getElementById("city-dropdown").value);
+              }
+            });
+
             $('#city-dropdown').change(function() {
-              $.cookie('city', this.value, { expires: 99999 });  // Save our location in a cookie
+              setCityCookie(this.value);
               if(typeof onLocationChanged != "undefined") {
                 onLocationChanged(this.value);        // Implement this function on a page if you want to be alerted to a location change
               }

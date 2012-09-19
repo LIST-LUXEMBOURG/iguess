@@ -5,7 +5,8 @@ class DatasetsController < ApplicationController
   # GET /datasets
   # GET /datasets.json
   def index
-    @current_city = City.find_by_name(cookies['city'])
+    @current_city = (City.find_by_name(cookies['city']) or City.first)
+
     @datasets = Dataset.all()
     @wps_servers = WpsServer.all
 
@@ -119,7 +120,7 @@ class DatasetsController < ApplicationController
 
   def mass_import
     @datasets = Dataset.all
-    @current_city = City.find_by_name(cookies['city'])
+    @current_city = (City.find_by_name(cookies['city']) or City.first)
 
     if @current_city.nil?     # Should never happen, but just in case...
       @current_city = City.first
