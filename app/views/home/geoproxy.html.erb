@@ -1,1 +1,1 @@
-<% require 'open-uri' %><% require 'cgi' %><% rawurl = CGI::unescape(params[:url]) %><% fixedurl = rawurl.gsub('\\', '%5C') %><% open(fixedurl) do |u| %><%= raw u.readlines().join("") %><% end %>
+<%= raw @page %>

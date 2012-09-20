@@ -270,7 +270,6 @@ OpenLayers.WPS = OpenLayers.Class({
             this.getCapabilitiesUrlGet = url;
         }
         var uri = OpenLayers.WPS.Utils.extendUrl(url,{service: this.service, version: this.version,request: "GetCapabilities"});
-
         var request = OpenLayers.Request.GET({url:uri, params:{},success:this.parseGetCapabilities,failure:this.onException,scope:this});
     },
 
@@ -337,6 +336,7 @@ OpenLayers.WPS = OpenLayers.Class({
      * resp - {XMLHTTP}
      */
     parseGetCapabilities: function (resp) {
+        console.log(resp);
         this.responseText = resp.responseText;
         var dom = resp.responseXML ? resp.responseXML : OpenLayers.parseXMLString(resp.responseText);
         this.responseDOM = dom;
@@ -622,7 +622,6 @@ OpenLayers.WPS = OpenLayers.Class({
         var allowedValues = [];
         var type = "string";
         var defaultValue = null;
-        var inputs = [];
 
         // dataType
         var dataType = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom,this.owsNS,  "DataType")[0];
