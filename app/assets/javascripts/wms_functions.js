@@ -40,7 +40,8 @@ WPS.onGetCapabilities = function()
   }
   WPS.title = this.title;
 
-  // Further probe the server, process-by-process, but only if we have a onDescribedProcessFunction defined
+  // Further probe the server, process-by-process, but only if we have a onDescribedProcessFunction defined.
+  // If we don't, there is no real point to further probing.
   if(WPS.onDescribedProcessFunction != null && WPS.onDescribedProcessFunction != undefined) {
     var len = this.processes.length;
     for(var i = 0; i < len; i++) {
