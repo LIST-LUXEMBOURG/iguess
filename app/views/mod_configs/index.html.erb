@@ -188,9 +188,9 @@
 
                 <td class='name-<%= pid =%>' style="white-space: nowrap;"><%= link_to mod_config.name, mod_config %></td>
                 <td class='<%= pid =%>'
-                    style="white-space: nowrap;">Probing server... <img src="assets/loading_spinner.gif"></td>
+                    style="white-space: nowrap;">Probing server... <img src="/assets/loading_spinner.gif"></td>
                 <td class='status-<%= pid =%>'
-                    style="white-space: nowrap;">Probing server... <img src="assets/loading_spinner.gif"></td>
+                    style="white-space: nowrap;">Probing server... <img src="/assets/loading_spinner.gif"></td>
                 <td><%= mod_config.descr %></td>
               </tr>
             <% end %>
@@ -217,7 +217,7 @@
     </div>
 
     <% if @wps_servers.length > 0 %>
-      <div id="wps-probing-indicator">Probing servers... <img src="assets/loading_spinner.gif"></div>
+      <div id="wps-probing-indicator">Probing servers... <img src="/assets/loading_spinner.gif"></div>
       <div id="wps-result"></div>
     <% end %>
 

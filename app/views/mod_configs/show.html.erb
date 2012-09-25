@@ -33,20 +33,20 @@
     hideButtons();
 
     if(statusCode == 1) {           // Module just created, needs data
-      $('#status_display').html("<%#= @mod_config.get_status_name(1) %>");
+      $('#status_display').text("Needs Data");
       $('#explanation').html("Before you can run this module, you need to supply data or values for each of the inputs. " +
                              "You can do this by selecting a dataset from the list provided for each parameter, or by creating new datasets.");
       enableEditing();
 
     } else if(statusCode == 2) {    // Module ready to go
       $('#run_module_button_container').show();
-      $('#status_display').html("<%#= @mod_config.get_status_name(2) %>");
+      $('#status_display').text("Ready");
       $('#explanation').html("This module has all its data and is ready to run.  Click the Run button to start the process.");
       enableEditing();
 
     } else if(statusCode == 3) {    // Module is running
       $('#stop_module_button_container').show();
-      $('#status_display').html("<%#= @mod_config.get_status_name(3) %>");
+      $('#status_display').text("Running");
       $('#explanation').html("This module is currently running.  You can refresh this page, " +
                              "or check back later to monitor the module's progress, " +
                              "but you cannot change dataset information while the module is running.");
@@ -54,7 +54,7 @@
       startPolling();
 
     } else if(statusCode == 4) {    // Module run compete
-      $('#status_display').html("<%#= @mod_config.get_status_name(4) %>");
+      $('#status_display').text("Run Completed");
       $('#explanation').html("This module has been successfully run.  You can now view the outputs in the Data Manager.");
       disableEditing();
     }
@@ -196,7 +196,7 @@
 </div>
 
 <div style="float: right; border: 1px solid black; padding: 10px;">
-  MODULE STATUS: <span id="status_display">STATUS HERE</span>
+  MODULE STATUS: <span id="status_display"><img src="/assets/loading_spinner.gif">Checking...</span>
 </div>
 
 <div class="simple_form">
