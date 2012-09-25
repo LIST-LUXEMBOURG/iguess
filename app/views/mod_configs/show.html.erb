@@ -196,7 +196,7 @@
 </div>
 
 <div style="float: right; border: 1px solid black; padding: 10px;">
-  MODULE STATUS: <span id="status_display"><img src="/assets/loading_spinner.gif">Checking...</span>
+  MODULE STATUS: <span id="status_display"><img src="/assets/loading_spinner.gif" width=16 height=11> Checking...</span>
 </div>
 
 <div class="simple_form">
@@ -239,15 +239,16 @@
 
   <label></label>
   <%# method => get causes button to act like a normal link, rather than a form post %>
-  <%= link_to 'View Module List', "/mod_configs", :class => 'linkbutton', :method => 'get' %>
+  <%= link_to 'View Module List', mod_configs_path, :class => 'linkbutton' %>
 
   <span id="run_module_button_container" style="display:none">
-    <%= link_to 'Run Module >>>', '/mod_configs', :id => 'run-module', :class => 'linkbutton' %>
+    <%= link_to 'Run Module >>>', { :action => 'run', :controller => 'mod_configs', :id => @mod_config }, 
+                                  :remote => true, :class => 'linkbutton' %>
   </span>
 
   <span id="stop_module_button_container" style="display:none">
-    <%= button_to 'Stop Running >>>',
-          { :action => 'stop_running', :id => @mod_config.id }, :remote => true, :class => 'linkbutton' %>
+    <%= link_to 'Stop Running >>>',
+          { :action => 'stop_running', :id => @mod_config }, :remote => true, :class => 'linkbutton' %>
   </span>
 </div>
 
