@@ -82,15 +82,32 @@ a:active {
   padding-left: .5em;
 }
 
-.big_button {
-  font-size: 30px;
-  color: red;
-  margin-bottom: 20px;
-  margin-left: 0;
-  margin-right: 25px;
-  padding: 12px;
-  display: inline;
+
+/* Make a link look like a button */
+a.linkbutton {
+
+  padding: 8px; 
+  font-size: 20px;
+  color: #333;
+  text-decoration: none;
+  margin-right: 5px;
+  margin-bottom: 15px;
+
+  /* Based on http://www.css3.me/ */
+  background-color: #ffffff;
+  border: 1px solid #999999;
+  border-radius: 3px;
+  /*box-shadow: 0px 0px 1px #000000;*/
+  background-image: -moz-linear-gradient(top, #ffffff, #bbb);
+  background-image: -ms-linear-gradient(top, #ffffff, #bbb);
+  background-image: -o-linear-gradient(top, #ffffff, #bbb);
+  background-image: -webkit-linear-gradient(top, #ffffff, #bbb);
+  background-image: linear-gradient(top, #ffffff, #bbb);
+  background-clip: padding-box;
+  /*Use "background-clip: padding-box" when using rounded corners to avoid the gradient bleeding through the corners*/
+  /*--IE9 DOES NOT SUPPORT CSS3 GRADIENT BACKGROUNDS--*/
 }
+
 
 .button_to {
   display: inline;
@@ -222,4 +239,5 @@ a:active {
 .hidden {
   visibility: hidden;
 }
+
 
