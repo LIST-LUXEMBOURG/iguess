@@ -86,10 +86,10 @@
 
     if(itemCount == 0) {
       if('<%= mode %>' == 'input') {
-        table.html("<i>This module configuration has no inputs.</i>");
+        table.html("<span class='no-inputs-ouputs'>This module configuration requires no inputs.</span>");
       }
       else {
-        table.html("<i>This module configuration produces no outputs.</i>")
+        table.html("<span class='no-inputs-ouputs'>This module configuration produces no outputs.</span>");
       }
     }
     else {

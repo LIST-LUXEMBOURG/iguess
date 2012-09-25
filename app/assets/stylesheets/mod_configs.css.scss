@@ -4,7 +4,7 @@
 
 
 .process-dropdown-control {
-  
+
 }
 
 
@@ -16,19 +16,19 @@
 }
 
 #server-list li {
-    
+
 }
 
 .model-descr-table {
   //font-family:"Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
   //font-size:12px;
   //width:80%;
-  
+
   text-align:left;
   border-collapse:collapse;
   margin:40px;
   margin-top: 0px;
- 
+
 }
 
 .model-descr-table th {
@@ -61,7 +61,7 @@
   //color:#669;
   border-top:1px solid transparent;
   padding:8px;
-  
+
   // Keep tables from growing too wide!
   max-width:600px;
   word-wrap: break-word;
@@ -72,6 +72,10 @@
   color:#339;
 }
 
+// Text displayed when there are no inputs or outputs for a configuration
+.no-inputs-ouputs {
+  font-style: italic;
+}
 
 // Title of server in the server list
 .wps-title {
@@ -85,12 +89,12 @@
 
 // Name of each process in module catalog
 .process-title {
-  
+
 }
 
 // Descy of each process in module catalog
 .process-descr {
-  
+
 }
 
 // Server name for each process in module catalog
@@ -103,18 +107,18 @@
 }
 
 .process-server-name .server-name {
-  
+
 }
 
 
 // Left column of inputs/outputs table
 .param-name {
-  
+
 }
 
 // Right column of inputs/outputs table
 .param-descr {
-  
+
 }
 
 
