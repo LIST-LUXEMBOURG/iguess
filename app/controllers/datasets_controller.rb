@@ -5,6 +5,7 @@ class DatasetsController < ApplicationController
   # GET /datasets
   # GET /datasets.json
   def index
+
     @current_city = (City.find_by_name(cookies['city']) or City.first)
 
     @datasets = Dataset.all()

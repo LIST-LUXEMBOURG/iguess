@@ -80,89 +80,103 @@
   // When mode is output, datasetValues will be undefined
   function populate<%= mode.slice(0,1).capitalize + mode.slice(1..-1) %>Table(items, formValues, datasetValues)
   {
-    var table = $('#<%= mode %>-table');
-    table.empty();
-
-    var headerRow = '<tr><th>Parameter Name</th>' +
-                    '<% if mode == :input %><th>Selected Dataset or Value</th><% else %><th>Output Dataset Identifier</th><% end %></tr>';
-
-    table.append(headerRow);
-
     var itemCount = items.length;
 
-    for(var i = 0; i < itemCount; i++)
-    {
-      var row  = $(document.createElement('tr'));
-      var cell = $(document.createElement('td'));   // Param name
+    var table = $('#<%= mode %>-table');
 
-      item = items[i];
-
-      var html = item.title;
-
-      if(item.descr != null) {
-        html += '<img src="/assets/small_question_mark.gif" style="padding-left: 8px; padding-top: 3px" ' +
-                'alt="More info" title="' + item.descr + '">'
+    if(itemCount == 0) {
+      if('<%= mode %>' == 'input') {
+        table.html("<i>This configuration has no inputs.</i>");
       }
+      else {
+        table.html("<i>This configuration produces no outputs.</i>")
+      }
+    }
+    else {
 
-      cell.html(html);
-      row.append(cell);
+      table.empty();
 
-      cell = $(document.createElement('td'));   // Dataset
-      cell.attr("nowrap", true);
+      var headerRow = '<tr><th>Parameter Name</th>' +
+                      '<% if mode == :input %><th>Selected Dataset or Value</th><% else %><th>Output Dataset Identifier</th><% end %></tr>';
+
+      table.append(headerRow);
 
 
-      if('<%= mode %>' == 'input' && items[i].type == "complex") {
-        var control = createDatasetSelectionControl(item.identifier, '<%= mode %>');
 
-        if(control.children().length == 0) {
-            cell.text('No registered datasets of this type');
-            anyDatasetsMissing = true;
+      for(var i = 0; i < itemCount; i++)
+      {
+        var row  = $(document.createElement('tr'));
+        var cell = $(document.createElement('td'));   // Param name
+
+        item = items[i];
+
+        var html = item.title;
+
+        if(item.descr != null) {
+          html += '<img src="/assets/small_question_mark.gif" style="padding-left: 8px; padding-top: 3px" ' +
+                  'alt="More info" title="' + item.descr + '">'
         }
-        else {
-          control.prepend("<option value=-1>No dataset selected</option>");
-          control.change(onSelectedDatasetChanged);
-          control.attr('class', 'req-select');
 
-          cell.html(control);
+        cell.html(html);
+        row.append(cell);
 
-          if(datasetValues != undefined)  {
-            var selectedVal = datasetValues[item.identifier];
-            if(selectedVal != undefined)  {
-              control.val(selectedVal);
+        cell = $(document.createElement('td'));   // Dataset
+        cell.attr("nowrap", true);
+
+
+        if('<%= mode %>' == 'input' && items[i].type == "complex") {
+          var control = createDatasetSelectionControl(item.identifier, '<%= mode %>');
+
+          if(control.children().length == 0) {
+              cell.text('No registered datasets of this type');
+              anyDatasetsMissing = true;
+          }
+          else {
+            control.prepend("<option value=-1>No dataset selected</option>");
+            control.change(onSelectedDatasetChanged);
+            control.attr('class', 'req-select');
+
+            cell.html(control);
+
+            if(datasetValues != undefined)  {
+              var selectedVal = datasetValues[item.identifier];
+              if(selectedVal != undefined)  {
+                control.val(selectedVal);
+              }
             }
           }
         }
+        else {    // Data is a simple type like integer or string -- use a textfield
+          var value = "";
+          var placeholder;
+
+          if('<%= mode %>' == 'output') {
+            placeholder = "Output dataset name";
+          }
+          else {
+            placeholder = items[i].type.capitalize() + " value";
+          }
+
+          if(formValues != undefined) {
+            var value = formValues[item.identifier + '<%= mode %>'];
+
+            if(value == undefined) {  value = "";  }
+          }
+
+          var ctrl = $(document.createElement('input'));
+          ctrl.attr('name', '<%= mode %>[' + item.identifier + ']');
+          ctrl.attr('placeholder', placeholder);
+          ctrl.attr('value', value);
+          ctrl.attr('class', 'req-textentry');
+          ctrl.change(onTextEntryChanged);
+
+          cell.html(ctrl);
+        }
+
+        row.append(cell);
+
+        table.append(row);
       }
-      else {    // Data is a simple type like integer or string -- use a textfield
-        var value = "";
-        var placeholder;
-
-        if('<%= mode %>' == 'output') {
-          placeholder = "Output dataset name";
-        }
-        else {
-          placeholder = items[i].type.capitalize() + " value";
-        }
-
-        if(formValues != undefined) {
-          var value = formValues[item.identifier + '<%= mode %>'];
-
-          if(value == undefined) {  value = "";  }
-        }
-
-        var ctrl = $(document.createElement('input'));
-        ctrl.attr('name', '<%= mode %>[' + item.identifier + ']');
-        ctrl.attr('placeholder', placeholder);
-        ctrl.attr('value', value);
-        ctrl.attr('class', 'req-textentry');
-        ctrl.change(onTextEntryChanged);
-
-        cell.html(ctrl);
-      }
-
-      row.append(cell);
-
-      table.append(row);
     }
   }
 
