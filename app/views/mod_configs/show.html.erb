@@ -256,20 +256,20 @@
   $("#run-module-form").ajaxStart(function() {
     $('#run-module-button').attr('value', 'Preparing...');
     $('#run-module-button').attr('disabled', 'disabled');
-
   });
 
-  $("#run-module-form").ajaxError(function(e, jqXHR, ajaxSettings, thrownError) {
-      console.log(e);
+  $("#run-module-form").ajaxError(function(evnt, jqXHR, ajaxSettings, thrownError) {
+      console.log(evnt);
       console.log(jqXHR);
       console.log(ajaxSettings);
       console.log(thrownError);
-      alert("err");
+      alert("I'm sorry - there seems to have been an error with your request.  Please refresh the page and try again.");
     });
 
 
   $("#run-module-form").ajaxSuccess(function(evnt, request, options) {
     response = $.parseJSON(request.responseText)
+    updateStatus(response.status);
   });
 
 </script>
