@@ -234,6 +234,8 @@
 
 <br>
 
+
+
 <!-- Show special buttons depending on status  -->
 <div class="simple_form">
 
@@ -242,9 +244,35 @@
   <%= link_to 'View Module List', mod_configs_path, :class => 'linkbutton' %>
 
   <span id="run_module_button_container" style="display:none">
-    <%= link_to 'Run Module >>>', { :action => 'run', :controller => 'mod_configs', :id => @mod_config }, 
-                                  :remote => true, :class => 'linkbutton' %>
+    <%= button_to 'Run Module >>>', { :action => 'run', :controller => 'mod_configs', :id => @mod_config }, 
+                                   :remote => true, :class => 'linkbutton', :id => 'run-module-button', 
+                                   form: { :id => "run-module-form", 'data-type' => 'json' }  %>
   </span>
+
+
+  <script type="text/javascript">
+
+  // Change button label when module is started, and disable
+  $("#run-module-form").ajaxStart(function() {
+    $('#run-module-button').attr('value', 'Preparing...');
+    $('#run-module-button').attr('disabled', 'disabled');
+
+  });
+
+  $("#run-module-form").ajaxError(function(e, jqXHR, ajaxSettings, thrownError) {
+      console.log(e);
+      console.log(jqXHR);
+      console.log(ajaxSettings);
+      console.log(thrownError);
+      alert("err");
+    });
+
+
+  $("#run-module-form").ajaxSuccess(function(evnt, request, options) {
+    response = $.parseJSON(request.responseText)
+  });
+
+</script>
 
   <span id="stop_module_button_container" style="display:none">
     <%= link_to 'Stop Running >>>',
