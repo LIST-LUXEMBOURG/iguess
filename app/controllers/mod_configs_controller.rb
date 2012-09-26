@@ -1,6 +1,10 @@
 class ModConfigsController < ApplicationController
   # GET /mod_configs
   # GET /mod_configs.json
+
+  respond_to :html, :js
+
+
   def index
     @mod_configs = ModConfig.all
     @wps_servers = WpsServer.all
@@ -42,6 +46,15 @@ class ModConfigsController < ApplicationController
   # GET /mod_configs/1/edit
   def edit
     @mod_config = ModConfig.find(params[:id])
+  end
+
+  def run
+     @mod_config = ModConfig.find(params[:id])
+    respond_with do |format|
+      format.js do
+        render :json => @mod_config, :status => :ok
+      end
+    end
   end
 
   # POST /mod_configs
@@ -95,7 +108,6 @@ class ModConfigsController < ApplicationController
         end
       }
     end
-
 
     respond_to do |format|
       if success

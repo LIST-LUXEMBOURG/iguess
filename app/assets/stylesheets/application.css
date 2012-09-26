@@ -83,12 +83,12 @@ a:active {
 }
 
 
-/* Make a link look like a button */
-a.linkbutton {
+/* Make a link look like a button... or, hell, make a button look like a button! */
+.linkbutton {
 
   padding: 8px; 
   font-size: 20px;
-  color: #333;
+  color: #222;
   text-decoration: none;
   margin-right: 5px;
   margin-bottom: 15px;
@@ -107,6 +107,24 @@ a.linkbutton {
   /*Use "background-clip: padding-box" when using rounded corners to avoid the gradient bleeding through the corners*/
   /*--IE9 DOES NOT SUPPORT CSS3 GRADIENT BACKGROUNDS--*/
 }
+
+.linkbutton:not([disabled="disabled"]):hover
+{
+  background-image: -moz-linear-gradient(top, #ddddff, #99b);
+  background-image: -ms-linear-gradient(top, #ddddff, #99b);
+  background-image: -o-linear-gradient(top, #ddddff, #99b);
+  background-image: -webkit-linear-gradient(top, #ddddff, #99b);
+  background-image: linear-gradient(top, #ddddff, #99b);
+  background-clip: padding-box;
+
+}
+
+
+.linkbutton[disabled]
+{ 
+  color: #777;
+}
+
 
 
 .button_to {
