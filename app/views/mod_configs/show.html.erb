@@ -97,8 +97,7 @@
     populateInputTable (inputs, formValues, datasetValues);
     populateOutputTable(outputs, formValues);
 
-    readyToRunModule(); // Show big red buttons as needed
-  }
+    moduleReady(); 
 
   WPS.describeProcess("<%= @mod_config.wps_server.url %>", "<%= @mod_config.identifier %>", onDescribedProcess);
 
@@ -109,7 +108,7 @@
   }
 
   // Check to see if we have everything we need to run the module
-  function readyToRunModule()
+  function moduleReady()
   {
     var ok = !anyDatasetsMissing;
 
@@ -118,6 +117,27 @@
 
     showButtons(ok ? 2 : 1);
   }
+
+
+  function moduleRunning()
+  {
+
+
+  }
+
+
+  function updateStatus(status) {
+    if(status == "RUNNING") {
+
+    } else if(status == "FINISHED") {
+
+    } else if(status == "ERROR") { 
+
+    } else {    // Anything else is just the default
+      moduleReady();
+    }
+  }
+
 
 
   // User has clicked Run Module button...
@@ -150,10 +170,6 @@
         wpsx.execute('<%= @mod_config.identifier %>');
 
       };
-
-
-
-
 
       /**
        * This function is called, when Execute response
