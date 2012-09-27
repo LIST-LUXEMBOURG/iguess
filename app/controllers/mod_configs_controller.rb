@@ -6,6 +6,7 @@ class ModConfigsController < ApplicationController
 
 
   def index
+    @current_city = (City.find_by_name(cookies['city']) or City.first)
     @mod_configs = ModConfig.all
     @wps_servers = WpsServer.all
 
@@ -48,8 +49,39 @@ class ModConfigsController < ApplicationController
     @mod_config = ModConfig.find(params[:id])
   end
 
+  # Run is only called via ajax request... need to fire up WPSClient and tell it to start
+  # running the specified module
   def run
-     @mod_config = ModConfig.find(params[:id])
+
+    @mod_config = ModConfig.find(params[:id])
+    @city = 
+
+    wpsClientPath ='/home/eykamp/iguess/iguess';
+
+    require "rubypython"
+    RubyPython.start
+    sys = RubyPython.import 'sys'
+
+    # Make sure the path of WPSClient is on python's module path, but ensure it's only there once
+    # Since we can't close the RubyPython instance without crashing Ruby, there is a danger we will
+    # add the WPSClient path more than once.
+    if not sys.path.include?(wpsClientPath)
+      sys.path.append(wpsClientPath)
+    end
+
+    wpsClient = RubyPython.import 'WPSClient'
+
+    cli = wpsClient.WPSClient( @mod_config.wps_server.url,
+                               @mod_config.identifier,
+                               RubyPython::Tuple.tuple( @mod_config.config_text_inputs.map {|x| x.column_name } ),
+                               RubyPython::Tuple.tuple( @mod_config.config_text_inputs.map {|x| x.value } ) )
+
+    cli.epsg = @mod_config.city.srs
+
+    binding.pry
+
+
+    @mod_config = ModConfig.find(params[:id])
     respond_with do |format|
       format.js do
         render :json => @mod_config, :status => :ok
@@ -60,6 +92,7 @@ class ModConfigsController < ApplicationController
   # POST /mod_configs
   # POST /mod_configs.json
   def create
+    @current_city = (City.find_by_name(cookies['city']) or City.first)
     @mod_config = ModConfig.new(params[:mod_config])
 
     @mod_config.name = @mod_config.name.strip
@@ -67,6 +100,8 @@ class ModConfigsController < ApplicationController
     if(@mod_config.name.empty?) then
       @mod_config.name = "Unnamed Configuration"
     end
+
+    @mod_config.city = @current_city
 
     server = WpsServer.find_by_url(params[:wps_server_url])
     @mod_config.wps_server = server

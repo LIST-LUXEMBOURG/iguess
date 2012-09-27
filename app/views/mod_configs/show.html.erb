@@ -29,44 +29,13 @@
     $('.hideable').hide();
   }
 
-  function showButtons(statusCode) {
-    hideButtons();
-
-    if(statusCode == 1) {           // Module just created, needs data
-      $('#status_display').text("Needs Data");
-      $('#explanation').html("Before you can run this module, you need to supply data or values for each of the inputs. " +
-                             "You can do this by selecting a dataset from the list provided for each parameter, or by creating new datasets.");
-      enableEditing();
-
-    } else if(statusCode == 2) {    // Module ready to go
-      $('#run_module_button_container').show();
-      $('#status_display').text("Ready");
-      $('#explanation').html("This module has all its data and is ready to run.  Click the Run button to start the process.");
-      enableEditing();
-
-    } else if(statusCode == 3) {    // Module is running
-      $('#stop_module_button_container').show();
-      $('#status_display').text("Running");
-      $('#explanation').html("This module is currently running.  You can refresh this page, " +
-                             "or check back later to monitor the module's progress, " +
-                             "but you cannot change dataset information while the module is running.");
-      disableEditing();
-      startPolling();
-
-    } else if(statusCode == 4) {    // Module run compete
-      $('#status_display').text("Run Completed");
-      $('#explanation').html("This module has been successfully run.  You can now view the outputs in the Data Manager.");
-      disableEditing();
-    }
-  }
-
 
   // See https://github.com/jeremyw/jquery-smart-poll
   function startPolling() {
     $.poll(function(retry) {
       $.get('get_config_status/<%= @mod_config.id %>', function(response, status) {
         if(response != 3)
-          showButtons(response);
+          updateScreen(response);
         else
           retry();
       })
@@ -107,37 +76,57 @@
 
   }
 
-  // Check to see if we have everything we need to run the module
-  function moduleReady()
-  {
-    var ok = !anyDatasetsMissing;
+  // NEEDS_DATA, READY, RUNNING, FINSHED, ERROR
+  function updateScreen(statusCode) {
+      hideButtons();
 
-    if(ok) { $('.req-select').each(function(e)    { ok &= ($(this).val() != -1);         }); }
-    if(ok) { $('.req-textentry').each(function(e) { ok &= ($.trim($(this).val()) != ''); }); }
+      if(statusCode == 'NEEDS_DATA') {    // Module just created, needs data
+        $('#status_display').text("Needs Data");
+        $('#explanation').html("Before you can run this module, you need to supply data or values for each of the inputs. " +
+                               "You can do this by selecting a dataset from the list provided for each parameter, or by creating new datasets.");
+        enableEditing();
 
-    showButtons(ok ? 2 : 1);
-  }
+      } else if(statusCode == 'READY') {    // Module ready to go
+        $('#run_module_button_container').show();
+        $('#status_display').text("Ready");
+        $('#explanation').html("This module has all its data and is ready to run.  Click the Run button to start the process.");
+        enableEditing();
+
+      } else if(statusCode == 'RUNNING') {    // Module is running
+        $('#stop_module_button_container').show();
+        $('#status_display').text("Running");
+        $('#explanation').html("This module is currently running.  You can refresh this page, " +
+                               "or check back later to monitor the module's progress, " +
+                               "but you cannot change dataset information while the module is running.");
+        disableEditing();
+        startPolling();
+
+      } else if(statusCode == 'FINISHED') {   // Module run compete
+        $('#status_display').text("Run Completed");
+        $('#explanation').html("This module has been successfully run.  You can now view the outputs in the Data Manager.");
+        disableEditing();
+
+      } else if(statusCode == 'ERROR') {    // Module run ended in error
+        $('#status_display').text("Error");
+        $('#explanation').html("We experienced an error running this configuration.");
+        enableEditing();
+      }
+    }
 
 
-  function moduleRunning()
-  {
-
-
-  }
-
-
+  // READY, RUNNING, FINSHED, ERROR
   function updateStatus(status) {
-    if(status == "RUNNING") {
+    if(status == 'RUNNING' || status == 'FINISHED' || status == 'ERROR') {
+      updateScreen(status);
+    } else {    // Anything else is either READY or NEEDS_DATA
+      var ready = !anyDatasetsMissing;
 
-    } else if(status == "FINISHED") {
+      if(ready) { $('.req-select').each(function(e)    { ready &= ($(this).val() != -1);         }); }
+      if(ready) { $('.req-textentry').each(function(e) { ready &= ($.trim($(this).val()) != ''); }); }
 
-    } else if(status == "ERROR") { 
-
-    } else {    // Anything else is just the default
-      moduleReady();
+    updateScreen(ready ? 'READY' : 'NEEDS_DATA');
     }
   }
-
 
 
   // User has clicked Run Module button...
@@ -148,8 +137,8 @@
 
 
 
-      var proxiedUrl = wrapGeoProxy('<%= @mod_config.wps_server.url %>');
-      var fullUrl = WPS.getDescProcUrl('<%= @mod_config.wps_server.url %>', '<%= @mod_config.identifier %>');
+    var proxiedUrl = wrapGeoProxy('<%= @mod_config.wps_server.url %>');
+    var fullUrl = WPS.getDescProcUrl('<%= @mod_config.wps_server.url %>', '<%= @mod_config.identifier %>');
 
 
     // WPS object

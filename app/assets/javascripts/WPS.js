@@ -336,7 +336,6 @@ OpenLayers.WPS = OpenLayers.Class({
      * resp - {XMLHTTP}
      */
     parseGetCapabilities: function (resp) {
-        console.log(resp);
         this.responseText = resp.responseText;
         var dom = resp.responseXML ? resp.responseXML : OpenLayers.parseXMLString(resp.responseText);
         this.responseDOM = dom;
@@ -429,7 +428,7 @@ OpenLayers.WPS = OpenLayers.Class({
      * resp - {HTTPRexuest}
      */
     parseDescribeProcess: function (resp) {
-        try {
+        // try {
         this.responseText = resp.responseText;
         var dom = resp.responseXML ? resp.responseXML : OpenLayers.parseXMLString(resp.responseText);
         this.responseDOM = dom;
@@ -458,7 +457,7 @@ OpenLayers.WPS = OpenLayers.Class({
 
             this.onDescribedProcess(process);
         }
-        }catch(e){console.log(e);};
+        // }catch(e){console.log(e);};
     },
 
     /**

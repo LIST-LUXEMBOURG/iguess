@@ -22,6 +22,18 @@
 </ul>
 
 <script type="text/javascript">
+
+  <%# Create a big array of the modules the system knows about %>
+  var modules = [
+    <%= raw @mod_configs.map{ |m| "{ name: '" + link_to(m.name, m) + "', " + 
+                                  "  identifier: '" + m.identifier + "', " +
+                                  "  title: '', " +  
+                                  "  server: '" + m.wps_server.url + "', " +
+                                  "  status: '" + (m.status.blank? ? "Needs Data" : m.status) + "', " +
+                                  "  descr: '" + m.descr + "', " +
+                                  "  city: '" + m.city.name + "' }," }.join(" ") %>
+  ];
+
   processIdLookup = { };
   var o;
   <%
@@ -33,8 +45,8 @@
       id = c.identifier.blank? ? "" : c.identifier;
 
       # The following produces a line that looks like this:
-      # o = new Object;o.classId = 'x1';o.serverUrl = 'http://iguess.tudor.lu/cgi-bin/pywps.cgi';   \
-      # o.identifier = 'solar_potential';processIdLookup['solar_potential'] = o;
+      # o = new Object;o.classId = 'x0';o.serverUrl = 'http://iguess.tudor.lu/cgi-bin/pywps.cgi';   \
+      # o.identifier = 'solar_potential';processIdLookup['http://iguess.tudor.lu/cgi-bin/pywps.cgisolar_potential'] = o;
       lines += "o = new Object;"   +
                "o.classId = 'x"    + ctr.to_s         + "';" +
                "o.serverUrl = '"   + c.wps_server.url + "';" +
@@ -103,7 +115,7 @@
 
   // This function is called when the describeProcesses response arrives
   // It will be called repeatedly as responses arrive
-  function onDescribedProcess(process, serverName)
+  function onDescribedProcess(process, serverName, serverUrl)
   {
     responses++;
 
@@ -132,6 +144,7 @@
     }
 
     description += '</tbody><tbody class="outputs">';
+
     if(process.outputs.length == 0) {
       description += '<tr><th colspan=3 class="group-header"><div class="outdent">No Outputs</div></th></tr>';
     } else {
@@ -146,6 +159,22 @@
     description += '</tbody></table><a href="/mod_configs/new?template=' + (process.title + 'Q' + process.wps.getCapabilitiesUrlGet).makeHash() + '">Create new configuration for this service</a>';
 
     document.getElementById("wps-result").innerHTML += description;
+
+    // Update modules structure with module title, now that one is available 
+    var modcount = modules.length;
+    for(i = 0; i < modcount; i++) {
+      if(modules[i].server == serverUrl && modules[i].identifier == process.identifier) {
+        modules[i].title = process.title;
+      }
+    }
+
+    // Finally, update any modconfigs displayed in the Configured Modules tab 
+
+    var pidLookup = processIdLookup[serverUrl + process.identifier];
+    if(pidLookup != undefined) {
+      // Any elements with this class will be updated with the process title
+      $(".name-" + pidLookup.classId).text(process.title);
+    }
   };
 
 
@@ -159,6 +188,12 @@
                '<td class="param-descr">' + abstract + '</td></tr>';
   }
 
+
+  // Gets fired when city dropdown changes
+  onLocationChanged = function(city) {
+    updateConfigModTables();
+  }
+
 </script>
 
 
@@ -168,39 +203,28 @@
       No module servers have been configured.  You can add one by clicking on the link below.<br>
       <a href="#">Add new server</a>
     <% else %>
-
-      <% if @mod_configs.empty? %>
-        No modules have been configured yet.  <%= link_to 'Click here to create one.', new_mod_config_path %>
-      <% else %>
-
-        <div class="page_subheader">Modules that have been configured</div>
+      <div id='mod-list-none'>  <!-- Div will be shown when there are no configurations -->
+        No modules have been configured yet for <span class='city-name'></span>.  
+        <%= link_to 'Click here to create one.', new_mod_config_path %>
+      </div>   
+      <div id='mod-list'>       <!-- Div will be hidden when there are no configurations for current city -->
+        <div class="page_subheader">Configured Modules</div>
 
         <%= render :partial => '/shared/sortable_table_code.html.erb',
                    :locals => { :initialSortlist => "[[0,0]], headers: { 3: {sorter: false}}" } %>
 
         <table id="sortable_table" class="zebra sortable">
           <thead><tr><th>Name</th><th>Based on</th><th>Status</th><th>Notes</th></tr></thead>
-
-          <tbody>
-            <% @mod_configs.each do |mod_config| %>
-              <tr>
-                <% pid = processIdLookup[mod_config.wps_server.url + (mod_config.identifier.blank? ? "" : mod_config.identifier)] %>
-
-                <td class='name-<%= pid =%>' style="white-space: nowrap;"><%= link_to mod_config.name, mod_config %></td>
-                <td class='<%= pid =%>'
-                    style="white-space: nowrap;">Probing server... <img src="/assets/loading_spinner.gif"></td>
-                <td class='status-<%= pid =%>'
-                    style="white-space: nowrap;">Probing server... <img src="/assets/loading_spinner.gif"></td>
-                <td><%= mod_config.descr %></td>
-              </tr>
-            <% end %>
+          <tbody id="tableContainer">
+             <!-- rows will be generated programatically -->
+             <tr> <td></td> <td></td> <td></td> <td></td> </tr>
           </tbody>
         </table>
+      </div>
 
-        <br />
+      <br />
 
-        <%= link_to 'New Module Configuration', new_mod_config_path %>
-      <% end %>
+      <%= link_to 'New Module Configuration', new_mod_config_path %>
     <% end %>
   </div>
 
@@ -237,5 +261,44 @@
 
     $('#server-list').append(li);
   <% end %>
+
+
+  function updateConfigModTables() {
+    $('#tableContainer').html("");
+
+    var city = document.getElementById("city-dropdown").value;
+    var rowCount = modules.length;
+    var foundAny = false;
+
+    for(i = 0; i < rowCount; i++) {
+      if(modules[i].city != city) { continue; }    // Only show modules for this city
+      foundAny = true;
+
+      var titleCellContent = modules[i].title == "" ? "Probing server... <img src='/assets/loading_spinner.gif'>" : modules[i].title;
+
+      // Create a new table row; note we assign the 2nd item to a class that lets us easily update when we get the proper title.
+      row = "<td>" + modules[i].name   + "</td>" +
+            "<td class='name-" + processIdLookup[modules[i].server + modules[i].identifier].classId + "'>" + titleCellContent+ "</td>" +
+            "<td>" + modules[i].status + "</td>" + 
+            "<td>" + modules[i].descr  + "</td>";
+
+      $('#tableContainer').append("<tr>" + row + "</tr>");
+    }
+
+    
+    if(foundAny) {
+      $('#mod-list').show();
+      $('#mod-list-none').hide();
+    } else {
+      // Provide empty row to prevent sorting from failing
+      $('#tableContainer').append("<tr> <td></td> <td></td> <td></td> <td></td> </tr>");
+      $('#mod-list').hide();
+      $('.city-name').text(city);
+      $('#mod-list-none').show();
+    }
+  }
+
+  updateConfigModTables();
+
 </script>
 

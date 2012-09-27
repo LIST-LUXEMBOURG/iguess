@@ -19,6 +19,7 @@ WPS.probeWPS = function(serverUrl, onReceivedServerInfoFunction, onDescribedProc
   if(WPS.probing.hasObject(serverUrl)) { return; }      // Already probing, nothing to do
 
   WPS.probing.push(serverUrl);
+  WPS.serverUrl = serverUrl;
 
   WPS.onReceivedServerInfoFunction = onReceivedServerInfoFunction;
   WPS.onDescribedProcessFunction   = onDescribedProcessFunction;
@@ -62,7 +63,7 @@ WPS.onGetCapabilities = function()
 // Take returned process object and add the server title
 WPS.onDescribedProcessFunction_passthrough = function(process)
 {
-  WPS.onDescribedProcessFunction(process, WPS.title);
+  WPS.onDescribedProcessFunction(process, WPS.title, WPS.serverUrl);
 };
 
 showErrorMessage = function (process, code, text) {

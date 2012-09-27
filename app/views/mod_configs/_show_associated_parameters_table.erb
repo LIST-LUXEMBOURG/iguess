@@ -13,7 +13,7 @@
     $('.best_in_place').best_in_place().bind('ajax:success', function(e) {
       $.get('get_config_status/<%= config.id %>',
         function(response, status) {
-          showButtons(response);
+          updateScreen(response);
           $("body").css("cursor", "auto");          // Restore cursor to normal
         });
     });
