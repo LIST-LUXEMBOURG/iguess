@@ -1,4 +1,191 @@
 <h1 class="page_header">Configure a Module</h1>
 
-<%= render 'form' %>
+<% creating = @mod_config.id.nil? %>  <%# Should now always be true %>
+<div class="explanation">
+  <% if creating %>
+    You are configuring a new module.  Provide a unique name, a description, and specify any datasets you can.
+    You will have a chance to provide any missing data for this module in subsequent steps.
+  <% else %>
+    You cannot change the Base Template once a module has been created.
+  <% end %>
+</div>
+ 
+<%# Include some code we share with the other input page in mod_configs %>
+<%= render :partial => 'shared_code.html.erb' %>
+
+
+<script type="text/javascript">
+
+  var serverProcessingComplete = false;   // True when we have all the dataset info we expect
+  var processProcessingComplete = false;  // True when we have all the process info we expect
+
+  var procs = { };
+
+  var onDescribedProcess = function(process)
+  {
+    var serverUrl = process.wps.executeUrlGet;
+    var key = makeKey(serverUrl, process.identifier);   // This will uniquely describe this service\\
+
+    procs[key] = new Object;
+    procs[key].identifier = process.identifier;
+    procs[key].title = process.title || process.identifier;
+    procs[key].descr = process.abstract;
+    procs[key].serverUrl = serverUrl;
+
+
+    procs[key].inputs = fillContainer(process.inputs);
+    procs[key].outputs = fillContainer(process.outputs);
+
+
+    WPS.responsesReceived++;
+
+    if(WPS.responsesReceived == WPS.responsesExpected) {
+      processProcessingComplete = true;
+      buildModuleList();
+    }
+  }
+
+
+  var buildModuleList = function()
+  {
+    // Make sure we have all the info we need to proceed..
+    if(!processProcessingComplete || !serverProcessingComplete) {
+      return;
+    }
+
+    var processControl;
+
+    processControl = $(document.createElement('select'));
+    processControl.attr({ class:'process-dropdown-control', id:'processControl' });
+
+    // What to do when the user changes dataType for a layer
+    processControl.change(function() {
+      onProcessChanged();
+    });
+
+    for(var key in procs) {
+      <% if params['template'].blank? %>
+        var selstr = '';
+      <% else %>
+        var hash = (procs[key].title + 'Q' + procs[key].serverUrl).makeHash();
+        var selstr = (hash == <%= params['template'] %>) ? " selected" : "";
+      <% end %>
+      processControl.append('<option value="' + key + '"' + selstr + '>' + procs[key].title + '</option>');
+    }
+    $('#proc-ctrl-container').html(processControl);
+    onProcessChanged();
+  }
+
+  // User has selected a different process from the drop down box... need to rebuild inputs/outputs sections
+  function onProcessChanged()
+  {
+    // These functions are defined in _show_assocated_parameters_table.erb
+
+    populateInputTable (procs[$('#processControl').val()].inputs);
+    populateOutputTable(procs[$('#processControl').val()].outputs);
+
+    var identifier = procs[$('#processControl').val()].identifier;
+    var wrappedUrl  = procs[$('#processControl').val()].serverUrl;
+    var unwrappedUrl = WPS.unwrapProcServer(wrappedUrl, identifier);
+
+    $("#wps_server_url").val(unwrappedUrl);
+    $("#identifier").val(identifier);
+    $("#proc-descr").val(procs[$('#processControl').val()].descr);
+  }
+
+
+  var urls = [<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>];
+
+  // For each url in our database, start probing the server.  We don't want a notice when the initial communication
+  // with the WPS server is complete, only when the individual processes are probed.
+  for(var i = 0; i < urls.length; i++) {  WPS.probeWPS(urls[i], null, onDescribedProcess);  }
+
+  getWmsLayers(registeredDataServers);
+  getWfsLayers(registeredDataServers);
+
+  // Called when we've gotten whatever response we're going to get from a wfs server -- here type will always be 'WFS'
+  // This will be called once for every server we probe
+
+  var serversReturned = [ ];
+
+  function doneProcessing(url, type, status)  // status will be OK or ERROR
+  {
+    serversReturned.push(url);
+
+    // TODO: Actually track which servers come back so we can properly display error messages
+
+    if(registeredDataServers.length == serversReturned.length) {
+      serverProcessingComplete = true;
+      buildModuleList();
+    }
+  }
+
+  // Gets run after a form field gets updated
+  function readyToRunModule() {  }
+</script>
+
+
+<%= simple_form_for @mod_config, :validate => true do |f| %>
+  <%= f.error_notification %>
+
+  <%#= f.association :mod, :include_blank => false, :label_method => :name, :label => "Base Template", :disabled => !creating %>
+
+  <% if !creating %>
+    <script>
+      $(document).ready(function () {
+
+        // Set the template dropdown to the requested template, if we have one...
+        <% if not params[:base_template].nil? %>
+          $('#module_configuration_mod_id').val(<%= params[:base_template] %>);
+        <% end %>
+
+        // Load our parameter tables
+        getParamTables($('#module_configuration_mod_id').val());
+
+        $('#module_configuration_mod_id').change(function () {
+          getParamTables($('#module_configuration_mod_id').val())
+        });
+      });
+    </script>
+
+  <% end %>
+
+  <%= f.input :name, :as => :string, :placeholder => 'Configuration name' %>
+
+  <div class="input text">
+    <label class="simple_form label">Module Type</label>
+    <span id="proc-ctrl-container">Probing servers... <img src="/assets/loading_spinner.gif"></span>
+  </div>
+  <div class="input text"><label class="simple_form label"></label><span id="proc-descr"></span></div>
+
+
+  <%= f.input :descr, :as => :text, :label => 'Description', :input_html => { :rows => 6, :cols => 80, :maxlength => 5000 },
+              :placeholder => 'Description of configuration' %>
+
+  <div id="inputsAndOutputs">   <%# NOTE -- We don't have a configuration here when we are creating a new module! %>
+    <%= render :partial => "show_associated_parameters_table",
+               :locals  => { :mode => :input,  :config => @mod_config, :newConfig => true, :form => f } %>
+
+    <%= render :partial => "show_associated_parameters_table",
+               :locals  => { :mode => :output, :config => @mod_config, :newConfig => true, :form => f } %>
+  </div>
+
+  <label class="simple_form label"> </label>
+  <%# Add a cancel link that gets back to the different places we could have come from %>
+  <% came_from = params[:came_from] || "" %>
+
+  <% if came_from == 'catalog' %>
+    <%= link_to 'Cancel', mod_configs_path(:anchor => :module_catalog_tab) %>
+  <% else %>
+    <%= link_to 'Cancel', mod_configs_path %>
+  <% end %>
+
+  <input type="hidden" name="wps_server_url" id="wps_server_url">
+  <input type="hidden" name="identifier"     id="identifier">
+
+
+  <%= f.submit creating ? 'Create New Configuration' : 'Save Changes' %>
+
+<% end %>
+
 

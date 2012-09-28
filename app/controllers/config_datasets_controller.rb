@@ -21,17 +21,15 @@ class ConfigDatasetsController < ApplicationController
       end
 
     else  # User specified a dataset; either create or update our table
-      if ids.length == 0          # If it has 0, we need to create a new copy
+      if ids.length == 0          # If id is empty, we need to create a new configDataset record
         @config_dataset = ConfigDataset.new()
-      else                        # Otherwise, find our existing copy
+      else                        # Otherwise, use our existing copy
         @config_dataset = ConfigDataset.find(ids[0])
       end
 
       @dataset = Dataset.find(params[:dataset])   # This is the dataset the user selected
 
-      @config_dataset.dataset = @dataset
-
-
+      @config_dataset.dataset    = @dataset
       @config_dataset.mod_config = @mod_config
 
       ok = @config_dataset.save

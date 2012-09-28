@@ -10,9 +10,9 @@
 
 <script type="text/javascript">
 
-  // We only care about WFS here, as these are all that can be used with process configurations
-  // Uses functions in build_data_layers partial
-  getWmsLayers(registeredDataServers);
+  // // We only care about WFS here, as these are all that can be used with process configurations
+  // // Uses functions in build_data_layers partial
+  // getWmsLayers(registeredDataServers);
 
   function hideButtons() {
     $('#run_module_button_container').hide();
@@ -43,17 +43,16 @@
   }
 
 
+  // When we load the page, we need to get a process description from the hosting WPS server.  Here we handle the server's response.
   var onDescribedProcess = function(process) {
 
-    $('#based-on').html((process.title || process.name) + " template");
-    $('#mod-descr').html(process.abstract);
+    $('#based-on').html((process.title || process.name) + ' template');   // "Based on..."
+    $('#mod-descr').html(process.abstract);                               // "Details..."
 
     var serverUrl = process.wps.executeUrlGet;
-    var inputs  = [ ];
-    var outputs = [ ];
 
-    fillContainer(process.inputs, inputs);
-    fillContainer(process.outputs, outputs);
+    var inputs  = fillContainer(process.inputs);
+    var outputs = fillContainer(process.outputs);
 
     <%# Dictionary of values for each input on this form %>
     <% formValues = @text_inputs.map{|text| text.column_name + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"'}.join(',') %>
@@ -66,14 +65,16 @@
     populateInputTable (inputs, formValues, datasetValues);
     populateOutputTable(outputs, formValues);
 
-    moduleReady(); 
+    updateScreen('<%= @mod_config.status %>'); 
+  }
 
+  // Initiate the request to the WPS server for info about the process that this modConfig is based on
   WPS.describeProcess("<%= @mod_config.wps_server.url %>", "<%= @mod_config.identifier %>", onDescribedProcess);
 
 
   function doneProcessing(url, type, status)  // status will be OK or ERROR
   {
-
+    alert("Done processing triggered!");
   }
 
   // NEEDS_DATA, READY, RUNNING, FINSHED, ERROR
@@ -111,30 +112,17 @@
         $('#explanation').html("We experienced an error running this configuration.");
         enableEditing();
       }
+
+      $("body").css("cursor", "auto");
     }
-
-
-  // READY, RUNNING, FINSHED, ERROR
-  function updateStatus(status) {
-    if(status == 'RUNNING' || status == 'FINISHED' || status == 'ERROR') {
-      updateScreen(status);
-    } else {    // Anything else is either READY or NEEDS_DATA
-      var ready = !anyDatasetsMissing;
-
-      if(ready) { $('.req-select').each(function(e)    { ready &= ($(this).val() != -1);         }); }
-      if(ready) { $('.req-textentry').each(function(e) { ready &= ($.trim($(this).val()) != ''); }); }
-
-    updateScreen(ready ? 'READY' : 'NEEDS_DATA');
-    }
-  }
 
 
   // User has clicked Run Module button...
   $(document).ready(function(){
     $('#run-module').click(function () {
 
+      alert("This is running!");    // Not used?
   /////////////////////////////////////////////////////////
-
 
 
     var proxiedUrl = wrapGeoProxy('<%= @mod_config.wps_server.url %>');
@@ -143,7 +131,7 @@
 
     // WPS object
     var wpsx = new OpenLayers.WPS(fullUrl, { onDescribedProcess: onDescribeProcessxxx,
-                                                                        onSucceeded: onExecuted });
+                                             onSucceeded: onExecuted });
 
       wpsx.describeProcess('<%= @mod_config.identifier %>');
 
@@ -190,7 +178,8 @@
 
 
     });
-  })
+  });
+
 
 </script>
 
@@ -230,15 +219,17 @@
 
 
 <div class="simple_form">
-  <%= render :partial => "show_associated_parameters_table",
-             :locals  => { :mode => :input, :config => @mod_config, :newConfig => false  } %>
+  <%= form_for @mod_config, :url => {:action => 'update'}, :html=> {:id=>'input-output-form', 'data-type' => 'json'}, :remote=>true do |f| %>
+    <%= render :partial => "show_associated_parameters_table",
+               :locals  => { :mode => :input, :config => @mod_config, :newConfig => false  } %>
 
-  <%= render :partial => "show_associated_parameters_table",
-             :locals  => { :mode => :output, :config => @mod_config, :newConfig => false  } %>
+    <%= render :partial => "show_associated_parameters_table",
+               :locals  => { :mode => :output, :config => @mod_config, :newConfig => false  } %>
+  <% end %>
+
 </div>
 
 <br>
-
 
 
 <!-- Show special buttons depending on status  -->
@@ -251,33 +242,33 @@
   <span id="run_module_button_container" style="display:none">
     <%= button_to 'Run Module >>>', { :action => 'run', :controller => 'mod_configs', :id => @mod_config }, 
                                    :remote => true, :class => 'linkbutton', :id => 'run-module-button', 
+                                   :confirm =>'Are you sure?',
                                    form: { :id => "run-module-form", 'data-type' => 'json' }  %>
   </span>
 
 
   <script type="text/javascript">
-
-  // Change button label when module is started, and disable
-  $("#run-module-form").ajaxStart(function() {
-    $('#run-module-button').attr('value', 'Preparing...');
-    $('#run-module-button').attr('disabled', 'disabled');
-  });
-
-  $("#run-module-form").ajaxError(function(evnt, jqXHR, ajaxSettings, thrownError) {
-      console.log(evnt);
-      console.log(jqXHR);
-      console.log(ajaxSettings);
-      console.log(thrownError);
-      alert("I'm sorry - there seems to have been an error with your request.  Please refresh the page and try again.");
+    // User clicked the Run button
+    $('#run-module-form').bind('ajax:success', function(xhr, data, status) { 
+      updateScreen(data.status); 
     });
 
+    // An input/output text field has been updated; data contains a ModConfig object
+    $('#input-output-form').bind('ajax:success', function(xhr, data, status) {
+      updateScreen(data.status); 
+      console.log(data);
+    });
 
-  $("#run-module-form").ajaxSuccess(function(evnt, request, options) {
-    response = $.parseJSON(request.responseText)
-    updateStatus(response.status);
-  });
+    $('#input-output-form').bind('ajax:error', function(evnt, jqXHR, ajaxSettings, thrownError) { 
+      alert("There was an error.  Please see the console log for information.");
+      console.log(arguments); 
+   });
 
-</script>
+    // Response handler for best_in_class fields (Name and Note)
+    $('.best_in_place').best_in_place().bind('ajax:success', function(xhr, data, status) { 
+      updateScreen(JSON.parse(data).status); 
+    });
+  </script>
 
   <span id="stop_module_button_container" style="display:none">
     <%= link_to 'Stop Running >>>',
@@ -289,7 +280,8 @@
   <%# if @module_status != 3 %>
     <div id="status" style="float: right; margin-top: -30px;">
       <%= link_to 'Delete This Module', @mod_config,
-         confirm: "Deleting this module is a permanent action.\n\nClick OK if you are sure you want to delete this module.", method: :delete %>
+         confirm: "Deleting this module is a permanent action.\n\n" + 
+                  "Click OK if you are sure you want to delete this module.", method: :delete %>
          |
       <%= link_to(t(:reset), :action => 'reset', :method => :reset, :id => @mod_config.id ) %>
 

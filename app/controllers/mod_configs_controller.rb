@@ -49,6 +49,18 @@ class ModConfigsController < ApplicationController
     @mod_config = ModConfig.find(params[:id])
   end
 
+
+  def getStatus(mod_config)
+    if(mod_config.status == nil || mod_config.status == 'READY' || mod_config.status == 'NEEDS_DATA')
+      # Need to see if all inputs/outputs are present
+      emptyFields = ConfigTextInput.find_by_mod_config_id_and_value(mod_config.id, "")
+      return emptyFields.nil? ? 'READY' : 'NEEDS_DATA'
+    else
+      return mod_config.status
+    end
+  end
+
+
   # Run is only called via ajax request... need to fire up WPSClient and tell it to start
   # running the specified module
   def run
@@ -78,14 +90,12 @@ class ModConfigsController < ApplicationController
 
     cli.epsg = @mod_config.city.srs
 
-    binding.pry
+    # binding.pry
 
 
     @mod_config = ModConfig.find(params[:id])
     respond_with do |format|
-      format.js do
-        render :json => @mod_config, :status => :ok
-      end
+      format.js { render :json => @mod_config, :status => :ok }
     end
   end
 
@@ -107,6 +117,8 @@ class ModConfigsController < ApplicationController
     @mod_config.wps_server = server
     @mod_config.identifier = params[:identifier]
     success = @mod_config.save
+
+    @mod_config.status = getStatus(@mod_config)
 
     # Move on to save all the selected datasets
     if(success) then
@@ -155,25 +167,46 @@ class ModConfigsController < ApplicationController
     end
   end
 
+
   # PUT /mod_configs/1
   # PUT /mod_configs/1.json
+  # We get here when a module name or description is updated, or when one of the inputs or outputs is changed.
+  # Should always be via json, though, not by normal form submit.
   def update
     @mod_config = ModConfig.find(params[:id])
 
+    ok = true
+
+    # Update any outputs.  Since we don't know the ids of the items, we'll need to do a little hunting
+
+    if(not params[:output].nil?)
+      params[:output].each { |p| 
+        name = p[0]
+        val = p[1].strip    # strip off leading and trailing whitespace
+
+        @output = ConfigTextInput.find_by_mod_config_id_and_column_name_and_is_input(@mod_config.id, name, :false)
+        @output.value = val;
+        ok = ok && @output.save
+      }
+    end
+
+    @mod_config.status = getStatus(@mod_config)
+
+    ok == ok && @mod_config.update_attributes(params[:mod_config])
+
+
     respond_to do |format|
-      if @mod_config.update_attributes(params[:mod_config])
-        format.html { redirect_to @mod_config, notice: 'Mod config was successfully updated.' }
-        format.json { head :no_content }
+      if ok
+        format.html { redirect_to @mod_config, notice: 'Mod config was successfully updated.' }  # <== Used at all?
+        # Next line is text not json because for some reason something wasn't working...  this should
+        format.js   { render :json => @mod_config, :status => :ok }   # <== For handling ajax requests for form input changes
+        format.json { render :json => @mod_config, :status => :ok }   # <== For best_in_place
       else
-        format.html { render action: "edit" }
-        format.json { render json: @mod_config.errors, status: :unprocessable_entity }
+        format.html { render action: "edit" }   # Need to handle errors here
+        format.js { render json: @mod_config.errors, status: :unprocessable_entity }
       end
     end
   end
-  #
-  #def update_dataset
-  #  @mod_config = ModConfig.find(params[:id])
-  #end
 
   # DELETE /mod_configs/1
   # DELETE /mod_configs/1.json
