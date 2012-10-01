@@ -77,7 +77,6 @@
     alert("Done processing triggered!");
   }
 
-
   <%= render :partial => '/shared/include_get_pretty_name_function.html.erb' %>
 
   function updateScreen(statusCode) {
@@ -90,7 +89,22 @@
                                "You can do this by selecting a dataset from the list provided for each parameter, or by creating new datasets.");
         enableEditing();
 
-      } else if(statusCode == 'READY') {    // Module ready to go
+      } else if(statusCode == 'READY') {    // Module ready to go... maybe
+        // The thing is, we still don't really know if we're ready, as the server has no knowledge of exactly what params we need.
+        // The server _thinks_ we've got everything, but only we know for sure.  So let's make sure all inputs are in fact specified.
+
+        var ready = true;
+        $('#input-output-form').find(':input').each( function(){
+          if($(this).is('select')) {
+            if($(this).val() == -1) { 
+              updateScreen('NEEDS_DATA');   // Found a missing dataset, so update the status to NEEDS_DATA and quit
+              ready = false;
+            }
+          }
+        });
+
+        if(!ready) { return; }
+
         $('#run_module_button_container').show();
         $('#explanation').html("This module has all its data and is ready to run.  Click the Run button to start the process.");
         enableEditing();
