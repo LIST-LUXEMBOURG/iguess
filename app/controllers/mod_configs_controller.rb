@@ -50,6 +50,8 @@ class ModConfigsController < ApplicationController
   end
 
 
+  # NOTE that this is not a definitve status -- we don't know, for example, which datasets are needed, and whether they
+  # have been provided.  This really just detects that there are blank text items.  This function should probably be removed.
   def getStatus(mod_config)
     if(mod_config.status == nil || mod_config.status == 'READY' || mod_config.status == 'NEEDS_DATA')
       # Need to see if all inputs/outputs are present
