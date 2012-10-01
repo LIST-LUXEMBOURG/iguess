@@ -119,12 +119,14 @@ class ModConfigsController < ApplicationController
 
 
     # Move on to save all the selected datasets
-    if(success) then
-      if(params[:datasets]) then        # Not every module has input datasets
-        params[:datasets].each_key do |key|
-          if(not params[:datasets][key].empty? and success) then
+    if(params[:datasets]) then        # Not every module has input datasets
+      params[:datasets].each do |d|
+        name = d[0]
+        id = d[1]
+        if(not name.empty?) then
+          if(id != "-1") then
             confds = ConfigDataset.new()
-            dataset = Dataset.find(params[:datasets][key])
+            dataset = Dataset.find(id)
             confds.mod_config = @mod_config
             confds.dataset    = dataset
 
@@ -179,9 +181,57 @@ class ModConfigsController < ApplicationController
 
     ok = true
 
-    # Update any outputs.  Since we don't know the ids of the items, we'll need to do a little hunting
 
-    paramkeys = ['input', 'output']
+    if(params[:datasets]) then        # Not every module has input datasets
+
+      @config_datasets = ConfigDataset.find_all_by_mod_config_id(@mod_config.id)
+      @config_datasets.each { |cd| 
+        ok == ok && cd.delete()
+      }
+
+      # Rest of this code is identical to new method
+
+
+
+    #    # Update dropdown fields
+    # if(params.datasets) then
+
+
+
+    #   params[:datasets].each { |d| 
+    #     name = d[0];
+    #     id = d[1];
+    #     if(id != -1) then
+    #       @dataset = Dataset.find_by_id(id)
+
+    #       @config_dataset = new ConfigDataset
+    #       @config_dataset.dataset    = @dataset
+    #       @config_dataset.mod_config = @mod_config
+    #       ok = ok && @config_dataset.save
+    #     end
+    #   }
+    
+
+      params[:datasets].each do |d|
+        name = d[0]
+        id = d[1]
+        if(not name.empty?) then
+          if(id != "-1") then
+            confds = ConfigDataset.new()
+            dataset = Dataset.find(id)
+            confds.mod_config = @mod_config
+            confds.dataset    = dataset
+
+            ok &= confds.save()
+          end
+        end
+      end
+    end
+
+
+    # Update any text inputs/outputs.  Since we don't know the ids of the items, we'll need to do a little hunting
+
+    paramkeys = [:input, :output]
     paramkeys.each do |paramkey|
       if(params[paramkey]) then                 # Iterate over params['input'], params['output']
         params[paramkey].each { |p| 
@@ -189,7 +239,7 @@ class ModConfigsController < ApplicationController
           name = p[0]
           val = p[1].strip    # strip off leading and trailing whitespace
 
-          @output = ConfigTextInput.find_by_mod_config_id_and_column_name_and_is_input(@mod_config.id, name, paramkey == 'input')
+          @output = ConfigTextInput.find_by_mod_config_id_and_column_name_and_is_input(@mod_config.id, name, paramkey == :input)
           @output.value = val;
           ok = ok && @output.save
         }
