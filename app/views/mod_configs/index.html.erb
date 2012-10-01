@@ -23,17 +23,18 @@
 
 <script type="text/javascript">
 
+  <%= render :partial => '/shared/include_get_pretty_name_function.html.erb' %>
+
   <%# Create a big array of the modules the system knows about %>
   var modules = [
     <%= raw @mod_configs.map{ |m| "{ name: '" + link_to(m.name, m) + "', " + 
                                   "  identifier: '" + m.identifier + "', " +
                                   "  title: '', " +  
                                   "  server: '" + m.wps_server.url + "', " +
-                                  "  status: '" + (m.status.blank? ? "Needs Data" : m.status) + "', " +
+                                  "  status: " + (m.status.blank? ? "'Needs Data'" : "getPrettyStatusName('" + m.status + "')") + ", " +
                                   "  descr: '" + m.descr + "', " +
                                   "  city: '" + m.city.name + "' }," }.join(" ") %>
   ];
-
   processIdLookup = { };
   var o;
   <%

@@ -66,7 +66,7 @@ class ModConfigsController < ApplicationController
   def run
 
     @mod_config = ModConfig.find(params[:id])
-    @city = 
+    # @city = 
 
     wpsClientPath ='/home/eykamp/iguess/iguess';
 
@@ -89,8 +89,6 @@ class ModConfigsController < ApplicationController
                                RubyPython::Tuple.tuple( @mod_config.config_text_inputs.map {|x| x.value } ) )
 
     cli.epsg = @mod_config.city.srs
-
-    # binding.pry
 
 
     @mod_config = ModConfig.find(params[:id])
@@ -116,9 +114,9 @@ class ModConfigsController < ApplicationController
     server = WpsServer.find_by_url(params[:wps_server_url])
     @mod_config.wps_server = server
     @mod_config.identifier = params[:identifier]
-    success = @mod_config.save
 
-    @mod_config.status = getStatus(@mod_config)
+    success = true
+
 
     # Move on to save all the selected datasets
     if(success) then
@@ -140,9 +138,9 @@ class ModConfigsController < ApplicationController
     if(success) then
       paramkeys = ['input', 'output']
       paramkeys.each { |paramkey|
-        if(params[paramkey]) then
+        if(params[paramkey]) then                 # Iterate over params['input'], params['output']
           params[paramkey].each_key do |key|
-            if(success) then
+            if(success) then 
               textval = ConfigTextInput.new()
               textval.mod_config = @mod_config
               textval.column_name = key
@@ -155,6 +153,10 @@ class ModConfigsController < ApplicationController
         end
       }
     end
+
+    @mod_config.status = getStatus(@mod_config)
+
+    success &= @mod_config.save
 
     respond_to do |format|
       if success
@@ -179,15 +181,19 @@ class ModConfigsController < ApplicationController
 
     # Update any outputs.  Since we don't know the ids of the items, we'll need to do a little hunting
 
-    if(not params[:output].nil?)
-      params[:output].each { |p| 
-        name = p[0]
-        val = p[1].strip    # strip off leading and trailing whitespace
+    paramkeys = ['input', 'output']
+    paramkeys.each do |paramkey|
+      if(params[paramkey]) then                 # Iterate over params['input'], params['output']
+        params[paramkey].each { |p| 
 
-        @output = ConfigTextInput.find_by_mod_config_id_and_column_name_and_is_input(@mod_config.id, name, :false)
-        @output.value = val;
-        ok = ok && @output.save
-      }
+          name = p[0]
+          val = p[1].strip    # strip off leading and trailing whitespace
+
+          @output = ConfigTextInput.find_by_mod_config_id_and_column_name_and_is_input(@mod_config.id, name, paramkey == 'input')
+          @output.value = val;
+          ok = ok && @output.save
+        }
+      end
     end
 
     @mod_config.status = getStatus(@mod_config)

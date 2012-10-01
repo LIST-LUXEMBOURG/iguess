@@ -21,6 +21,9 @@ gem "best_in_place"
 gem "rubypython"
 
 
+gem 'puma'      # Experimental multithreaded server -- start with rails s Puma
+
+
 # Gems used only for assets and not required
 # in production environments by default.
 group :assets do

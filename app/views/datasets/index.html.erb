@@ -70,7 +70,7 @@
   <h1 class="page_header">Registered Datasets</h1>
   <div class="page_subheader"></div>
 
-  <%= render :partial => '/shared/sortable_table_code.html.erb', :locals => { :initialSortlist => "[[1,0], [0,0]]" } %>
+  <!--- < %= render :partial => '/shared/sortable_table_code.html.erb', :locals => { :initialSortlist => "[[1,0], [0,0]]" } %> -->
 
 
   <script type="text/javascript">
@@ -107,6 +107,7 @@
     {
       // This function will be called for every dataset registered with the current city.  Many will have the same
       // server.  Avoid processing the same server twice.
+      // Called from renderTable(), which is called from onCityChange() event handler
       if(processedUrls.hasObject(url)) {  setLayerStatus(url); return;  }
 
       processedUrls.push(url);
@@ -141,11 +142,8 @@
 
     function failure(e,f,g,h,i,j)    // All items for this server failed
     {
-      console.log(e,f,g,h,i,j);
-      <%#
-      serverStatus['<%= url %x>'].push(false);
-      setLayerStatus(<%= index %x>, '<%= url %x>');
-      %>
+      alert("Error retrieving data -- see console for details!");
+      console.log(arguments);
     }
 
 

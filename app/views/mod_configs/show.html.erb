@@ -77,25 +77,27 @@
     alert("Done processing triggered!");
   }
 
+
+  <%= render :partial => '/shared/include_get_pretty_name_function.html.erb' %>
+
   // NEEDS_DATA, READY, RUNNING, FINSHED, ERROR
   function updateScreen(statusCode) {
       hideButtons();
 
+      $('#status_display').text(getPrettyStatusName(statusCode));
+
       if(statusCode == 'NEEDS_DATA') {    // Module just created, needs data
-        $('#status_display').text("Needs Data");
         $('#explanation').html("Before you can run this module, you need to supply data or values for each of the inputs. " +
                                "You can do this by selecting a dataset from the list provided for each parameter, or by creating new datasets.");
         enableEditing();
 
       } else if(statusCode == 'READY') {    // Module ready to go
         $('#run_module_button_container').show();
-        $('#status_display').text("Ready");
         $('#explanation').html("This module has all its data and is ready to run.  Click the Run button to start the process.");
         enableEditing();
 
       } else if(statusCode == 'RUNNING') {    // Module is running
         $('#stop_module_button_container').show();
-        $('#status_display').text("Running");
         $('#explanation').html("This module is currently running.  You can refresh this page, " +
                                "or check back later to monitor the module's progress, " +
                                "but you cannot change dataset information while the module is running.");
@@ -103,12 +105,10 @@
         startPolling();
 
       } else if(statusCode == 'FINISHED') {   // Module run compete
-        $('#status_display').text("Run Completed");
         $('#explanation').html("This module has been successfully run.  You can now view the outputs in the Data Manager.");
         disableEditing();
 
       } else if(statusCode == 'ERROR') {    // Module run ended in error
-        $('#status_display').text("Error");
         $('#explanation').html("We experienced an error running this configuration.");
         enableEditing();
       }
@@ -256,7 +256,6 @@
     // An input/output text field has been updated; data contains a ModConfig object
     $('#input-output-form').bind('ajax:success', function(xhr, data, status) {
       updateScreen(data.status); 
-      console.log(data);
     });
 
     $('#input-output-form').bind('ajax:error', function(evnt, jqXHR, ajaxSettings, thrownError) { 
