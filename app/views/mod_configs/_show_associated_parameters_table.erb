@@ -12,29 +12,6 @@
 
   var anyDatasetsMissing = false;
 
-  <% if mode == :input %>  <%# Only include this once %>
-    // Gets triggered when a selected dataset changes, but is only used when editing an existing config 
-    function onSelectedDatasetChanged() {
-      var identifier = this.name.replace('datasets[', '').slice(0, -1);   // slice strips last char;
-      var datasetId  = this.options[this.selectedIndex].value;
-
-      // Tell the server we've changed the selected dataset 
-      $.ajax({
-        type: 'PUT',      // PUT combined with url below triggers "update" action on controller
-        url:  '<%= url_for(:controller => 'config_datasets', :action => 'update') %>',
-        data: 'dataset=' + datasetId + '&identifier=' + identifier,
-        headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
-        success: function(xhr, data, status) { updateScreen(JSON.parse(data).status); }
-      });
-    }
-
-    // User has updated an input or output entry slot (called via onChange event)
-    function onTextEntryChanged() {
-      $('#input-output-form').submit();
-    }
-
-  <% end %>
-
   <%# Creates fn called populateInputTable or populateOutputTable %>
   // formValues & datasetValues will only be defined when calling from the main Module Configuration page
   // When mode is output, datasetValues will be undefined
@@ -110,7 +87,7 @@
           var placeholder = ('<%= mode %>' == 'output') ? "Output dataset name" : items[i].type.capitalize() + " value";
 
           cell.html('<input type="text" name="<%= mode %>[' + item.identifier + ']" placeholder="' + placeholder + '" ' +
-                           'value="' + value + '" class="req-textentry" onchange="onTextEntryChanged()">');
+                           'value="' + value + '" class="req-textentry" onchange="onInputOutputTextEntryChanged()">');
         }
 
         row.append(cell);

@@ -120,6 +120,14 @@
     }
   }
 
+  // User has updated an input or output entry slot (called via onChange event)
+  // In this case, we have nothing to do
+  var onInputOutputTextEntryChanged = function() { }
+
+  // Here a dataset dropdown has changed.  Again we have nothing to do.
+  var onSelectedDatasetChanged = function() { }
+
+
   // Gets run after a form field gets updated
   function readyToRunModule() {  }
 </script>
@@ -154,7 +162,7 @@
 
   <div class="input text">
     <label class="simple_form label">Module Type</label>
-    <span id="proc-ctrl-container">Probing servers... <img src="/assets/loading_spinner.gif"></span>
+    <span id="proc-ctrl-container">Searching for module templates... <img src="/assets/loading_spinner.gif"></span>
   </div>
   <div class="input text"><label class="simple_form label"></label><span id="proc-descr"></span></div>
 

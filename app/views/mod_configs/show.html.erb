@@ -80,7 +80,6 @@
 
   <%= render :partial => '/shared/include_get_pretty_name_function.html.erb' %>
 
-  // NEEDS_DATA, READY, RUNNING, FINSHED, ERROR
   function updateScreen(statusCode) {
       hideButtons();
 
@@ -114,6 +113,28 @@
       }
 
       $("body").css("cursor", "auto");
+    }
+
+    // User has updated an input or output entry slot (called via onChange event)
+    var onInputOutputTextEntryChanged = function() {
+      $('#input-output-form').submit();
+    }
+
+
+    // Gets triggered when a selected dataset changes
+    function onSelectedDatasetChanged() {
+      alert("hi");
+      var identifier = this.name.replace('datasets[', '').slice(0, -1);   // slice strips last char;
+      var datasetId  = this.options[this.selectedIndex].value;
+
+      // Tell the server we've changed the selected dataset 
+      $.ajax({
+        type: 'PUT',      // PUT combined with url below triggers "update" action on controller
+        url:  '<%= url_for(:controller => 'config_datasets', :action => 'update') %>',
+        data: 'dataset=' + datasetId + '&identifier=' + identifier,
+        headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
+        success: function(xhr, data, status) { updateScreen(JSON.parse(data).status); }
+      });
     }
 
 
