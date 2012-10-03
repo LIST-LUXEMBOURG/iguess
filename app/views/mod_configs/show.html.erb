@@ -233,9 +233,23 @@
   </span>
 
 
+  <span id="stop_module_button_container" style="display:none">
+    <%= button_to 'Stop Running >>>', { :action => 'stop_running', :controller => 'mod_configs', :id => @mod_config }, 
+                               :remote => true, :class => 'linkbutton', :id => 'stop-module-button', 
+                               :confirm =>'Are you sure you want to stop running the module??',
+                               form: { :id => "stop-module-form", 'data-type' => 'json' }  %>
+  </span>
+
+
+
   <script type="text/javascript">
     // User clicked the Run button
     $('#run-module-form').bind('ajax:success', function(xhr, data, status) { 
+      updateScreen(data.status); 
+    });
+
+
+    $('#stop-module-form').bind('ajax:success', function(xhr, data, status) { 
       updateScreen(data.status); 
     });
 
@@ -255,23 +269,16 @@
     });
   </script>
 
-  <span id="stop_module_button_container" style="display:none">
-    <%= link_to 'Stop Running >>>',
-          { :action => 'stop_running', :id => @mod_config }, :remote => true, :class => 'linkbutton' %>
-  </span>
 </div>
 
 
-  <%# if @module_status != 3 %>
-    <div id="status" style="float: right; margin-top: -30px;">
-      <%= link_to 'Delete This Module', @mod_config,
-         confirm: "Deleting this module is a permanent action.\n\n" + 
-                  "Click OK if you are sure you want to delete this module.", method: :delete %>
-         |
-      <%= link_to(t(:reset), :action => 'reset', :method => :reset, :id => @mod_config.id ) %>
-
-    </div>
-  <%# end %>
+<!-- Special links off ot the lower right -->
+<div id="status" style="float: right; margin-top: -30px;">
+  <%= link_to 'Delete This Module', @mod_config,
+     confirm: "Deleting this module is a permanent action.\n\n" + 
+              "Click OK if you are sure you want to delete this module.", method: :delete %>
+     |
+  <%= link_to(t(:reset), :action => 'reset', :method => :reset, :id => @mod_config.id ) %>
 </div>
 
 <br><br>

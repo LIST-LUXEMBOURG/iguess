@@ -63,7 +63,19 @@ class ModConfigsController < ApplicationController
   end
 
 
-  # Run is only called via ajax request... need to fire up WPSClient and tell it to start
+  # Only called via ajax request... All we need to do is set status in the database to stop
+  def stop_running
+    @mod_config = ModConfig.find(params[:id])
+    @mod_config.status = 'READY'
+    @mod_config.save
+
+    respond_with do |format|
+      format.js { render :json => @mod_config, :status => :ok }
+    end
+  end
+
+
+  # Only called via ajax request... need to fire up WPSClient and tell it to start
   # running the specified module
   def run
 
@@ -237,28 +249,6 @@ class ModConfigsController < ApplicationController
       @config_datasets.each { |cd| 
         ok == ok && cd.delete()
       }
-
-      # Rest of this code is identical to new method
-
-
-
-    #    # Update dropdown fields
-    # if(params.datasets) then
-
-
-
-    #   params[:datasets].each { |d| 
-    #     name = d[0];
-    #     id = d[1];
-    #     if(id != -1) then
-    #       @dataset = Dataset.find_by_id(id)
-
-    #       @config_dataset = new ConfigDataset
-    #       @config_dataset.dataset    = @dataset
-    #       @config_dataset.mod_config = @mod_config
-    #       ok = ok && @config_dataset.save
-    #     end
-    #   }
     
 
       params[:datasets].each do |d|
@@ -296,7 +286,7 @@ class ModConfigsController < ApplicationController
     end
 
     @mod_config.status = nil
-    
+
     @mod_config.status = getStatus(@mod_config)
 
     ok == ok && @mod_config.update_attributes(params[:mod_config])
