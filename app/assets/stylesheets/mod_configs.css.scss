@@ -72,6 +72,20 @@
   color:#339;
 }
 
+// MODULE STATUS message box text (not including "MODULE STATUS")
+#status_display {
+  text-align: right;
+  font-style: italic;
+}
+
+.module-status-box {
+  float: right;
+  border: 1px solid black;
+  padding: 10px;
+  text-align: right;
+}
+
+
 // Text displayed when there are no inputs or outputs for a configuration
 .no-inputs-ouputs {
   font-style: italic;

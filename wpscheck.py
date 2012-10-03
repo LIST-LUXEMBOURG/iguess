@@ -56,13 +56,29 @@ for row in rows:
 
     status = client.checkStatus()
 
-    if client.processError != None:
+    if not status:
+        print "There was an error checking the status of running modules!"
+        sys.exit(2)
+
+    if client.status == client.RUNNING:      
+        queryTemplate = "UPDATE " + schema + ".mod_configs " \
+                        "SET status = 'RUNNING', status_text = %s " \
+                        "WHERE id = %s"
+        cur.execute(queryTemplate, (str(client.percentCompleted) + '% complete', recordId))
+        conn.commit()
+
+
+    elif client.status == client.FINISHED:   
+        pass
+
+    elif client.status == client.ERROR:    
+
         # print client.processErrorCode
         # print client.processErrorText
 
         try:
             queryTemplate = "UPDATE " + schema + ".mod_configs " \
-                            "SET status = 'ERROR', status_text = %s, run_ended = %s" \
+                            "SET status = 'ERROR', status_text = %s, run_ended = %s " \
                             "WHERE id = %s" 
 
             cur.execute(queryTemplate, (client.processErrorText, str(datetime.datetime.now()), recordId))
@@ -72,12 +88,15 @@ for row in rows:
             print "Can't update process status!"
             sys.exit(2)    
 
+    else:
+        print "Unknown status: ", str(client.status)
+        sys.exit(2)
 
-    if status:
-        print "\n\n\n\n\n"
-        print client.xmlResponse
 
-        print "\n\n\n\n\n"
+    print "\n\n\n\n\n"
+    print client.xmlResponse
+
+    print "\n\n\n\n\n"
         # client.epsg = srs   # Need to chunk off prefix?
     
         # client.generateMapFile()

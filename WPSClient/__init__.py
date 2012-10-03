@@ -132,6 +132,10 @@ class WPSClient:
     imagePath    = None
     imageURL     = None
     otherProjs   = None
+
+    RUNNING = 1
+    FINISHED = 2
+    ERROR = 3
     
     def __init__(self):
          
@@ -287,9 +291,10 @@ class WPSClient:
         self.processError = ""
         self.processErrorCode = ""
         self.processErrorText = ""
+        self.status = 0                     # 1 == Running, 2 == Done, 3 == Error
 
         if (self.statusURL == None):
-            print "To soon to ask for status"
+            print "Incomplete request -- missing URL"
             return False
         
         r = urllib2.urlopen(urllib2.Request(self.statusURL))
@@ -298,6 +303,7 @@ class WPSClient:
         
         # Check if the process failed
         if (Tags.preFail in self.xmlResponse):
+            self.status = self.ERROR
             self.processError = self.xmlResponse.split(Tags.preFail)[1].split(Tags.sufFail)[0]
 
             #                                             group1                     group2                          DOTALL makes multiline match easier
@@ -312,16 +318,17 @@ class WPSClient:
             if DEBUG:
                 print "The process failed with the following message:"
                 print self.processErrorText
-                
+
             return True
            
         #Check if the process has finished
         if not (Tags.preSucc in self.xmlResponse):
+            self.status = self.RUNNING
             print "The process hasn't finished yet."
             if ("percentCompleted" in self.xmlResponse):
                 self.percentCompleted = self.xmlResponse.split("percentCompleted=\"")[1].split("\"")[0]
                 print str(self.percentCompleted) + " % of the execution complete."
-            return False
+            return True
         
         if DEBUG:
             print "The process has finished successfully."

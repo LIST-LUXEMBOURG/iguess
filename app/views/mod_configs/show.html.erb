@@ -120,8 +120,14 @@
         $('#explanation').html("This module is currently running.  You can refresh this page, " +
                                "or check back later to monitor the module's progress, " +
                                "but you cannot change dataset information while the module is running.");
-        disableEditing();
-        startPolling();
+
+          var status = '<%= escape_javascript @mod_config.status_text %>';
+          if(status != '') {
+            $('#status_display').append('<br>' + status);
+          }
+        
+          disableEditing();
+          startPolling();
 
       } else if(statusCode == 'FINISHED') {   // Module run compete
         $('#explanation').html("This module has been successfully run.  You can now view the outputs in the Data Manager.");
@@ -169,7 +175,7 @@
   This is the primary module control panel.  You can modify or run the module.
 </div>
 
-<div style="float: right; border: 1px solid black; padding: 10px;">
+<div class="module-status-box">
   MODULE STATUS: <span id="status_display"><img src="/assets/loading_spinner.gif" width=16 height=11> Checking...</span>
 </div>
 
