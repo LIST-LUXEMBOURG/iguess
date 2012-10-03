@@ -72,7 +72,9 @@ class ModConfigsController < ApplicationController
 
     wpsClientPath ='/home/eykamp/iguess/iguess';
 
-    require "rubypython"
+    require 'rubypython'
+    require 'uri'
+
     RubyPython.start
     sys = RubyPython.import 'sys'
 
@@ -85,12 +87,56 @@ class ModConfigsController < ApplicationController
 
     wpsClient = RubyPython.import 'WPSClient'
 
-    cli = wpsClient.WPSClient( @mod_config.wps_server.url,
-                               @mod_config.identifier,
-                               RubyPython::Tuple.tuple( @mod_config.config_text_inputs.map {|x| x.column_name } ),
-                               RubyPython::Tuple.tuple( @mod_config.config_text_inputs.map {|x| x.value } ) )
+    inputFields = []
+    inputValues = []
+    outputFields = []
 
-    cli.epsg = @mod_config.city.srs
+    # Drop downs -- always inputs
+    @mod_config.datasets.map { |x| dataname = x.server_url + (x.server_url.include?("?") == -1 ? "?" : "&") +   
+                                      URI.escape('SERVICE=WFS&VERSION=1.0.0&REQUEST=getFeature&TYPENAME=' + x.identifier)
+                                   inputFields.push(x.dataset_type)
+                                   inputValues.push(dataname) 
+                            }
+
+
+    # Text fields -- both inputs and outputs
+    @mod_config.config_text_inputs.map { |x|  if x.is_input then 
+                                                inputFields.push(x.column_name)
+                                                inputValues.push(x.value)
+                                              else
+                                                outputFields.push(x.column_name)
+                                              end
+                                      }
+
+
+    client = wpsClient.WPSClient()
+
+    inputFieldsStr = inputFields.map   { |i| "'" + i.to_s + "'" }.join(",")
+    inputValuesStr = inputValues.map   { |i| "'" + i.to_s + "'" }.join(",")
+    outputFieldsStr = outputFields.map { |i| "'" + i.to_s + "'" }.join(",")
+
+    argUrl =  '--url=' + @mod_config.wps_server.url 
+    argProc = '--procname=' + @mod_config.identifier        
+    argName = '--names=['  + inputFields.map    { |i| "'" + i.to_s + "'" }.join(",") + ']' 
+    argVals = '--vals=['   + inputValues.map    { |i| "'" + i.to_s + "'" }.join(",") + ']' 
+    argOuts = '--outnames=[' + outputFields.map { |i| "'" + i.to_s + "'" }.join(",") + ']'
+
+    
+    require 'open3'
+    output, stat = Open3.capture2('python', 'wpsstart.py', argUrl, argProc, argName, argVals, argOuts)
+
+    # Currently, WPSClient spews out lots of garbage.  We only want the last line.
+    output =~ /^OK:(.*)$/
+    pid = $1
+
+    print "PID = " ,pid
+
+    # Need some error checking here...
+    @mod_config.status = 'RUNNING'
+    @mod_config.pid = pid
+    @mod_config.run_started = Time.now
+    @mod_config.status_text = ''
+    @mod_config.save
 
 
     @mod_config = ModConfig.find(params[:id])
@@ -157,6 +203,7 @@ class ModConfigsController < ApplicationController
         end
       }
     end
+
 
     @mod_config.status = getStatus(@mod_config)
 
@@ -248,6 +295,8 @@ class ModConfigsController < ApplicationController
       end
     end
 
+    @mod_config.status = nil
+    
     @mod_config.status = getStatus(@mod_config)
 
     ok == ok && @mod_config.update_attributes(params[:mod_config])

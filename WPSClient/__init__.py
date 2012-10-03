@@ -2,161 +2,174 @@
 Created on Aug 28, 2012
 
 @author: Luis de Sousa [luis.desousa@tudor.lu]
+
+This package provides tools to manage requests to a remote process server using
+the Web Processing Service standard [1]. The outputs of these requests are 
+fetched and published to a local map service, assuming they are of a spatial 
+character when complex. The map service used is MapServer [2].
+Parts of this code are inspired on the PyWPS [3] project, whose developers had
+a relevant role in some of the solutions here coded.  
+This package is released under the GPL-3.0 open source license [4].
+
+[1] http://www.opengeospatial.org/standards/wps
+[2] http://www.mapserver.org
+[3] http://wiki.rsg.pml.ac.uk/pywps/Main_Page
+[4] http://opensource.org/licenses/GPL-3.0
 '''
 
-__all__ = ["DataSet","MapServerText"]
+__all__ = ["Tags","Output","DataSet","MapServerText"]
 
-from ConfigParser import SafeConfigParser
-import urllib2
-import uuid
 import os
+import urllib2
+import httplib
+from ConfigParser import SafeConfigParser
+from Tags import Tags
+from Output import ComplexOutput
+from Output import LiteralOutput
+from XMLPost import XMLPost
 import MapServerText as UMN
 import DataSet as GDAL
+import re  # For regular expression matching
 
 DEBUG = True
 
-###########################################################
-
-class Tags:
-    
-    preRef  = "<wps:Reference"
-    preId   = "<ows:Identifier>"
-    sufId   = "</ows:Identifier>"
-    preLit  = "<wps:LiteralData>"
-    sufLit  = "</wps:LiteralData>"
-    preCplx = "<wps:ComplexData"
-    sufCplx = "</wps:ComplexData>"
-    preAck  = "<wps:ProcessAccepted>"
-    preFail = "<wps:ProcessFailed>"
-    sufFail = "</wps:ProcessFailed>"
-    preSucc = "<wps:ProcessSucceeded>"
-    preOut  = "<wps:Output>"
-    
-
-###########################################################
-
-class Output:
-    
-    name = None
-    value = None
-    
-    def __init__(self, rawString):
-        
-        self.name = rawString.split(Tags.preId)[1].split(Tags.sufId)[0]
-        
-    
-    def getReferenceValue(self, rawString):
-        
-        if not (Tags.preRef in rawString):
-            if DEBUG: 
-                print "Error: tried to download a non reference output."
-            return;
-        
-        url = rawString.split("wps:Reference href=\"")[1].split("\"")[0]
-        r = urllib2.urlopen(urllib2.Request(url))
-        self.value = r.read()
-        r.close()
-        
-
-###########################################################
-
-class LiteralOutput(Output):
-
-    def __init__(self, rawString):
-
-        Output.__init__(self, rawString)
-        
-        # If the data is included in the string itself
-        if Tags.preLit in rawString:
-            self.value = rawString.split(Tags.preLit)[1].split(">")[1].split(Tags.sufLit)[0].split("</wps:LiteralData")[0] 
-
-        # Otherwise it is a reference
-        else:
-            self.getReferenceValue(rawString)
-
-###########################################################
-
-class ComplexOutput(Output):
-
-    uniqueID = None
-    path = None
-    extension = "gml"
-
-    def __init__(self, rawString, unique):
-
-        Output.__init__(self, rawString)
-        self.uniqueID = unique
-        
-        # If the data is included in the string itself
-        if Tags.preCplx in rawString:
-            
-            self.value = rawString.split(Tags.preCplx)[1].split(Tags.sufCplx)[0]
-            while self.value[0] <> "<":
-                self.value = self.value[1:len(self.value)]
-        
-        # Otherwise it is a reference
-        else:
-            
-            self.extension = rawString.split("mimeType=\"")[1].split("/")[1].split("\"")[0]
-            self.getReferenceValue(rawString)
-            
-
-    def saveToDisk(self, dest):
-        
-        file = None
-        self.path = os.path.join(dest, self.uniqueID + "_" + self.name + "." + self.extension)
-        
-        try:
-            file = open(self.path, 'w')
-            file.write(self.value)
-            print "Saved output file: %s\n" %self.path
-        except Exception, err:
-            print "Error saving %s:\n%s" %(self.path, err)
-        finally:
-            if file <> None:
-                file.close()
-                
-        
-        
 ##########################################################
 
 class WPSClient:
-    """ """
+    """ 
+    This class manages the WPS request, status checking and results 
+    processing cycle. 
     
-    UUID = None
-    map  = None
-    epsg = None
+    .. attribute:: serverAddress
+        Address of the WPS server where the process to invoke resides
+        
+    .. attribute:: processName
+        Name of the process to invoke
+    
+    .. attribute:: inputNames
+        List with the names of input arguments of the process
+    
+    .. attribute:: inputValues
+        List with the values to pass as arguments to the process
+    
+    .. attribute:: outputNames
+        List with the names of the process outputs. Needed to build the XML
+        request
+    
+    .. attribute:: xmlPost
+        Object of the type XMLPost containing the request coded as XML sent 
+        to the WPS server as an HTTP Post 
+    
+    .. attribute:: statusURL
+        URL of the remote XML file where the process updates its status and 
+        writes its results after completion
+    
+    .. attribute:: processId
+        Identifier of the remote process, part of statusURL used to identify
+        the results stored locally
+    
+    .. attribute:: percentCompleted
+        Percentage of process completion, as reported in the status XML file
+    
+    .. attribute:: resultsComplex
+        Vector of ComplexOutput objects harbouring the complex results produced
+        by the remote process
+    
+    .. attribute:: resultsLiteral
+        Vector of LiteralOutput objects harbouring the complex results produced
+        by the remote process
+    
+    .. attribute:: map
+        Object of type MapFile used to generate the map file publishing complex
+        outputs through MapServer
+    
+    .. attribute:: epsg
+        EPSG code of the primary coordinate system used to publish complex 
+        outputs
+    
+    .. attribute:: pathFilesGML
+        Path where to store the GML files with complex outputs
+    
+    .. attribute:: mapServerURL
+        URL of the MapServer instance to use
+    
+    .. attribute:: mapFilesPath
+        Path where to write the map file (folder used by MapServer)
+    
+    .. attribute:: mapTemplate
+        Path to the MapServer map template folder
+    
+    .. attribute:: imagePath
+        Path to the MapServer image folder
+    
+    .. attribute:: imageURL
+        URL to MapServer images folder
+    
+    .. attribute:: otherProjs
+        String listing EPSG codes of further coordinate systems with which to
+        publish the complex outputs
+    """
+    
     serverAddress = None
-    processId = None
+    processName = None
     inputNames = None
     inputValues = None
-    request = None
+    outputNames = None
+    xmlPost = None
     statusURL = None
+    processId = None
     percentCompleted = 0
     resultsComplex = []
     resultsLiteral = []
+    map  = None
+    epsg = None
     
     #Configs
-    pathFilesGML = ""
-    mapServerURL = ""
-    mapFilesPath = ""
-    mapTemplate  = ""
-    imagePath    = ""
-    imageURL     = ""
-    otherProjs   = ""
+    pathFilesGML = None
+    mapServerURL = None
+    mapFilesPath = None
+    mapTemplate  = None
+    imagePath    = None
+    imageURL     = None
+    otherProjs   = None
     
-    def __init__(self, serverAddress, processId, inputNames, inputValues):
-        
-        self.serverAddress = serverAddress
-        self.processId = processId
-        self.inputNames = inputNames
-        self.inputValues = inputValues
-        self.UUID = uuid.uuid1().__str__()
-        
+    def __init__(self):
+         
         self.loadConfigs()
         
+    def init(self, serverAddress, processName, inputNames, inputValues, outputNames):
+        """
+        Initialises the WPSClient object with the required arguments to create
+        the WPS request.
+        
+        :param serverAddress: string with the address of the remote WPS server
+        :param processName: string with process name
+        :param inputNames: list of strings with input names
+        :param inputValues: list of strings with input values
+        :param outputNames: list of strings with output names       
+        """
+        
+        self.serverAddress = serverAddress
+        self.processName = processName
+        self.inputNames = inputNames
+        self.inputValues = inputValues
+        self.outputNames = outputNames
+        
+    def initFromURL(self, url):
+        """
+        Initialises the WPSClient with the status URL address of a running 
+        remote process. Used when a request has already been sent.
+        
+        :param url: string with the status URL address of a remote process      
+        """
+        
+        self.statusURL = url
+        self.processId = self.decodeId(url)
+        
     def loadConfigs(self):
-        """ Loads default values from the configuration file. """
+        """ 
+        Loads default attribute values from the configuration file. 
+        """
         
         parser = SafeConfigParser()
         parser.read('WPSClient.cfg')
@@ -169,56 +182,112 @@ class WPSClient:
         self.imageURL     = parser.get('MapServer', 'imgeURL')
         self.otherProjs   = parser.get('MapServer', 'otherProjs')
         
+    def decodeId(self, url):
+        """
+        Decodes the remote process identifier from the status URL.
+        
+        :param: string with the status URL address of a remote process
+        :returns: string with the process identifier  
+        """
+        
+        s = url.split("/")
+        return s[len(s) - 1].split(".")[0] 
+        
     def buildRequest(self):
+        """
+        Creates the XMLPost object encoding the XML request to the WPS server,
+        storing it in the xmlPost attribute. 
+        """
         
         if len(self.inputNames) <> len(self.inputValues):
             print "Different number of input names and values."
             return
         
-        inputs = ""
-        for i in range(0, len(self.inputNames)):
-            inputs += self.inputNames[i] + "=" + self.inputValues[i]
-            if (i < (len(self.inputNames) - 1)):
-                inputs += ";"
-                
-        self.request  = self.serverAddress
-        self.request += "&REQUEST=Execute&IDENTIFIER=" + self.processId
-        self.request += "&SERVICE=WPS&VERSION=1.0.0&DATAINPUTS=" + inputs
-        self.request += "&STOREEXECUTERESPONSE=true&STATUS=true"
+        self.xmlPost = XMLPost(self.processName)
         
+        for i in range(0, len(self.inputNames)):
+            if ("http://" in self.inputValues[i]): 
+                self.xmlPost.addRefInput(self.inputNames[i], self.inputValues[i])
+            else:
+                self.xmlPost.addLiteralInput(self.inputNames[i], self.inputValues[i])
+        
+        for o in self.outputNames:
+            self.xmlPost.addOutput(o)
+            
     def sendRequest(self):
-        """ 
-        It is inspired on this page:
-        http://stpreAckoverflow.com/questions/862173/how-to-download-a-file-using-python-in-a-smarter-way/863017#863017
-        """       
+        """
+        Sends the XML request encoded by the xmlPost attribute to the remote 
+        WPS server through an HTTP Post. Process the response by storing the
+        status URL and the process in the statusURL and processId attributes.
+        
+        :returns: string with the status URL, None in case of error
+        """
         
         self.buildRequest()
         
-        if(self.request == None):
+        if(self.xmlPost == None):
             print "It wasn't possible to build a request with the given arguments"
-            return
-
-        if DEBUG:
-            print "Starting download of %s" %self.request
-    
-        r = urllib2.urlopen(urllib2.Request(self.request))
-        self.xmlResponse = r.read()
-        r.close()
+            return None
+        
+        request = self.xmlPost.getString()
+        if(request == None):
+            print "It wasn't possible to build a request with the given arguments"
+            return None
+        
+        rest = self.serverAddress.replace("http://", "")     
+        split = rest.split("/")
+        
+        if(len(split) < 2):
+            print "It wasn't possible to process the server address"
+            return None
+        
+        host = split[0]
+        
+        api_url = rest.replace(host, "", 1)        
+        api_url = api_url.replace("?", "")
         
         if DEBUG:
-            print "First response:\n"
+            print "API: " + api_url
+            print "HOST: " + host
+            print "Sending the request:\n"
+            print request + "\n"
+        
+        webservice = httplib.HTTP(host)
+        webservice.putrequest("POST", api_url)
+        webservice.putheader("Host", host)
+        webservice.putheader("User-Agent","Python post")
+        webservice.putheader("Content-type", "text/xml; charset=\"UTF-8\"")
+        webservice.putheader("Content-length", "%d" % len(request))
+        webservice.endheaders()
+        webservice.send(request)
+        statuscode, statusmessage, header = webservice.getreply()
+        self.xmlResponse = webservice.getfile().read()
+        
+        if DEBUG:
+            print "Request results:"
+            print statuscode, statusmessage, header
             print self.xmlResponse
-            
-        #Check if the process was accepted
-        if not (Tags.preAck in self.xmlResponse):
-            print "Failed to start process at the remote server with following message:\n"
-            print self.xmlResponse
-            return
         
         self.statusURL = self.xmlResponse.split("statusLocation=\"")[1].split("\"")[0]
+        self.processId = self.decodeId(self.statusURL)
+        
+        return self.statusURL  
 
     def checkStatus(self):
+        """
+        Sends a request to the status URL checking the progress of the remote 
+        process. If the process has finished creates the necessary Output 
+        objects to fetch the results and stores them in the resultsLiteral and
+        resultsComplex attributes.
         
+        :returns: True if succeeded, False in case of error
+        :rtype: Boolean
+        """
+        
+        self.processError = ""
+        self.processErrorCode = ""
+        self.processErrorText = ""
+
         if (self.statusURL == None):
             print "To soon to ask for status"
             return False
@@ -227,10 +296,23 @@ class WPSClient:
         self.xmlResponse = r.read()
         r.close()
         
-        #Check if the process failed
+        # Check if the process failed
         if (Tags.preFail in self.xmlResponse):
-            print "The process failed with the following message:"
-            print self.xmlResponse.split(Tags.preFail)[1].split(Tags.sufFail)[0]
+            self.processError = self.xmlResponse.split(Tags.preFail)[1].split(Tags.sufFail)[0]
+
+            #                                             group1                     group2                          DOTALL makes multiline match easier
+            m = re.search('<ows:Exception.+exceptionCode="([^"]+).+<ows:ExceptionText>(.+)</ows:ExceptionText>', self.processError, re.DOTALL)
+            if m:
+                self.processErrorCode = m.group(1)
+                self.processErrorText = m.group(2).strip()
+            else:
+                self.processErrorCode = "Unknown"
+                self.processErrorText = "Unknown"
+
+            if DEBUG:
+                print "The process failed with the following message:"
+                print self.processErrorText
+                
             return True
            
         #Check if the process has finished
@@ -242,8 +324,8 @@ class WPSClient:
             return False
         
         if DEBUG:
-            print "The process has finished successfully. \n \
-            Processing the results..."
+            print "The process has finished successfully."
+            print "Processing the results..."
         
         #Process the results
         outVector = self.xmlResponse.split(Tags.preOut)
@@ -251,12 +333,12 @@ class WPSClient:
             if o.count(Tags.preLit) > 0:
                 self.resultsLiteral.append(LiteralOutput(o))
             elif o.count(Tags.preCplx) > 0:
-                self.resultsComplex.append(ComplexOutput(o, self.UUID))
+                self.resultsComplex.append(ComplexOutput(o, self.processId))
             # Reference outputs
             elif o.count(Tags.preRef) > 0:
                 # Assumes that Complex outputs have a mimeType
                 if o.count("mimeType") > 0:
-                    self.resultsComplex.append(ComplexOutput(o, self.UUID))
+                    self.resultsComplex.append(ComplexOutput(o, self.processId))
                 else:
                     self.resultsLiteral.append(LiteralOutput(o))
                     
@@ -269,10 +351,13 @@ class WPSClient:
         
     def generateMapFile(self):
         """
-        :returns: The path to the map file generated.
+        Creates the MapFile object that encodes a map file publishing the 
+        complex outputs and writes it to disk.
+        
+        :returns: string with the path to the map file generated.
         """
         
-        self.map = UMN.MapFile(self.UUID)
+        self.map = UMN.MapFile(self.processId)
         
         self.map.shapePath    = self.pathFilesGML
         self.map.epsgCode     = self.epsg
@@ -315,6 +400,10 @@ class WPSClient:
         return self.map.filePath()
         
     def getMapFilePath(self):
+        """
+        Is this method really needed?
+        :returns: string with the path to the generated mapfile
+        """
        
         if self.map <> None:
             return self.map.filePath()

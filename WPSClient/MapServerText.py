@@ -4,35 +4,61 @@ Created on Aug 9, 2012
 @author: Luis de Sousa [luis.desousa@tudor.lu]
 
 This file contains classes that serve as wrappers for the several components of
-a MapServer mapfile. It can produce a sample mafile with a single layer if no 
-arguments are passed to the constructors. 
+a MapServer map file. It can produce a sample map file with a single layer if 
+no arguments are passed to the constructors. 
 
 Issues:
 . Not yet taking into account layer EPSG
 . No support for PostGis layers. 
-
 '''
 
-mapscript=False
-try:
-    from mapscript import *
-    mapscript=True
-except Exception,e:
-    print "MapScript could not be loaded, mapserver not supported: %s"
-
 class MapFile:
-    """ This class wraps up a MapServer map file containing vector data.
-        The layers exposed are provided through both the WMS and WFS stadards """
+    """ 
+    This class wraps up a MapServer map file containing vector data. The layers 
+    exposed are provided through both the WMS, WCS and WFS standards. 
+    
+    :param nameInit: string with the name for the map file
+    
+    .. attribute:: name
+        Name of the map file; used as the file name in the disk
+        
+    .. attribute:: bBox
+        List of numerical values with the cartographic bounds of the map file
+    
+    .. attribute:: shapePath
+        Path to the spatial data sets that are published by this map file
+
+    .. attribute:: serviceTitle
+        String describing the services provided by this map file
+    
+    .. attribute:: mapTemplate
+        Path to the MapServer map template
+    
+    .. attribute:: imagePath
+        Path to the MapServer images folder
+    
+    .. attribute:: imageURL
+        URL to the MapServer images folder
+    
+    .. attribute:: mapServerURL
+        URL to the instance of MapServer processing this map file
+    
+    .. attribute:: mapFilesPath
+        Path to the folder where to store this map file
+    
+    .. attribute:: otherProjs
+        String listing EPSG codes of further coordinate systems to be provided
+        by this map file
+    
+    .. attribute:: layers
+        List of Layer objects composing this map file
+    """
 
     name            = None 
     bBox            = (91979, 436326, 92617, 437659.5)
-#   minX            = "91979" 
-#   minY            = "436326" 
-#   maxX            = "92617"
-#   maxY            = "437659.5" 
     shapePath       = "/home/desousa/Tudor/MUSIC/Rotterdam"
     epsgCode        = "28992"
-    serviceTitle    = " A test service for the city of Rotterdam"
+    serviceTitle    = "A mapping service generated with the iGUESS WPS Client."
     mapTemplate     = "/var/www/MapServ/map.html"
     imagePath       = "/var/www/MapServ/map_images/"
     imageURL        = "/MapServ/map_images/"
@@ -47,6 +73,11 @@ class MapFile:
         # self.mapHeader()
         
     def calculateBBoxFromLayers(self):
+        """
+        Calculates the minimum bounding box enclosing all the Layers composing
+        this map file (listed in the layers attribute) storing the result in the
+        bBox attribute
+        """
         
         if len(self.layers) > 0:
             self.bBox = self.layers[0].bBox
@@ -63,9 +94,10 @@ class MapFile:
             if self.layers[i].bBox[3] > self.bBox[3]:
                 self.bBox[3] = self.layers[i].bBox[3]
                                     
-            
-
     def mapHeader(self):
+        """
+        :returns: string with the MAP and WEB sections of the map file
+        """
         
         self.calculateBBoxFromLayers()
 
@@ -99,6 +131,9 @@ class MapFile:
         return text
 
     def mapFooter(self):
+        """
+        :returns: string with closing the LAYERS section
+        """
 
         text  = "  # End of LAYER DEFINITIONS -------------------------------\n"
         text += "END "
@@ -106,16 +141,28 @@ class MapFile:
         return text
 
     def filePath(self):
+        """
+        :returns: Path to the map file in the disk
+        """
 
         return self.mapFilesPath + self.name + ".map"
 
 
     def addLayer(self, layer):
+        """
+        Adds a Layer object to the map file
+        
+        :param layer: a Layer object
+        """
 
         self.layers.append(layer)
 
 
     def getString(self):
+        """
+        :returns: string with the complete map file definition, including the 
+        list of layers, generated from the layers attribute
+        """
 
         result = self.mapHeader()
         # If no layer has been declared add default layer
@@ -129,6 +176,11 @@ class MapFile:
         return result
 
     def writeToDisk(self):
+        """
+        Writes the map file to the disk location defined by the mapFilesPath, 
+        name and extension attributes
+        """
+        
         FILE = open(self.filePath(),"w")
         FILE.write(self.getString())
         FILE.close()
@@ -136,26 +188,55 @@ class MapFile:
 ###########################################################################
 
 class Layer:
+    """ 
+    Abstract class for generic layers in a MapServer map file. 
+    
+    :param path: string with the path to a spatial data set
+    :param bounds: list of four numerical values defining the cartographic 
+        extent of the spatial data set
+    :param epsg: string with EPSG code of the coordinate system of this layer
+    :param nameInit: string with layer name
+    
+    .. attribute:: name
+        Name of the layer
+        
+    .. attribute:: title
+        Abstract describing this layer
+        
+    .. attribute:: bBox
+        List of numerical values with the cartographic bounds of the map file
+        
+    .. attribute:: epsgCode
+        EPSG code of the coordinate system used to define this layer
+        
+    .. attribute:: path
+        Path to the spatial data set in the disk
+    """
     
     name        = None
-    layerType   = None
     title       = "A test layer"
     bBox        = None
     epsgCode    = None
+    path         = None
     
     def __init__(self, path, bounds, epsg, nameInit = "TestLayer"):
         
-        self.path = path
         self.name = nameInit
         self.bBox = bounds
         self.epsgCode = epsg 
+        self.path = path
 
 ###############################################################################
 
 class RasterLayer(Layer):
     """
-    Check this example:
-    RO_localOWS_test.amp
+    Wrapper for Raster layers in a MapServer map file
+        
+    :param path: string with the path to a spatial data set
+    :param bounds: list of four numerical values defining the cartographic 
+        extent of the spatial data set
+    :param epsg: string with EPSG code of the coordinate system of this layer
+    :param nameInit: string with layer name
     """
     
     def __init__(self, path, bounds, epsg, nameInit = "TestLayer"):
@@ -163,6 +244,9 @@ class RasterLayer(Layer):
         Layer.__init__(self, path, bounds, epsg, nameInit) 
         
     def getString(self):
+        """
+        :returns: a string with the MapServer layer definition for a map file
+        """
         
         text =  "  LAYER \n"
         text += "    NAME \"" + self.name + "\"\n"
@@ -185,10 +269,23 @@ class RasterLayer(Layer):
 ###########################################################################
 
 class VectorLayer(Layer):
-    """ Wrapper for the layer component of a MapServer mapfile.
-        At this stage it supports vector layers."""
+    """
+    Wrapper for Vector layers in a MapServer map file
+        
+    :param path: string with the path to a spatial data set
+    :param bounds: list of four numerical values defining the cartographic 
+        extent of the spatial data set
+    :param epsg: string with EPSG code of the coordinate system of this layer
+    :param nameInit: string with layer name
+        
+    .. attribute:: layerType
+        Type of geometries in this layer: "Point", "Line" or "Polygon"
+            
+    .. attribute:: styles
+        List of MapStyle objects defining the layer graphical rendition
+    """
 
-    path         = None
+    layerType   = None
     styles       = []
 
     def __init__(self, path, bounds, epsg, nameInit = "TestLayer"):
@@ -197,6 +294,9 @@ class VectorLayer(Layer):
         # self.LayerHeader()
 
     def layerHeader(self):
+        """
+        :returns: a string with the header of the MapServer layer definition
+        """
 
         text  = "  LAYER # " + self.name + " " + self.layerType + " ------------------------\n\n"
         text += "    NAME           \"" + self.name + "\"\n"
@@ -218,6 +318,9 @@ class VectorLayer(Layer):
 
 
     def layerFooter(self):
+        """
+        :returns: a string with the footer of the MapServer layer definition
+        """
 
         text  = "    END \n"
         text += "  END #" + self.name + " " + self.layerType + " ------------------------\n\n"
@@ -225,11 +328,20 @@ class VectorLayer(Layer):
 
 
     def addStyle(self, style):
+        """
+        Adds a MapStyle object to the list of styles for this layer.
+        
+        :param style: a MapStyle object
+        """
 
         self.styles.append(style)
 
 
     def getString(self):
+        """
+        :returns: a string with the complete MapServer layer definition, 
+            including a list of styles generated from the styles attribute
+        """
 
         result = self.layerHeader()
         # If no style has been declared add default style
@@ -246,10 +358,21 @@ class VectorLayer(Layer):
 ##############################################################################
 
 class MapStyle:
-    """ Wrapper for the MapServer style component of a vector layer. """
+    """ 
+    Wrapper for the MapServer style component of a vector layer. 
+    
+    :param pen: string with the border width 
+    :param col: string with a MapServer RGB definition for the border color 
+    
+    .. attribute:: penWidth
+        Width of the style border 
+        
+    .. attribute:: colour
+        Colour used to render the border 
+    """
 
-    penWidth = "2"
-    colour = "220 100 100"
+    penWidth = None
+    colour = None
 
     def __init__(self, pen = "2", col = "160 0 0"):
 
@@ -257,14 +380,27 @@ class MapStyle:
         self.colour = col
     
     def setColour(self, col):
+        """
+        Sets the style border colour
+        
+        :param col: a string with a MapServer RGB definition
+        """
 
         self.colour = col
 
     def setPen(self, pen):
+        """
+        Sets the style border width
+        
+        :param pen: a string with the border width
+        """
 
         self.penWidth = pen
 
     def getString(self):
+        """       
+        :returns: a string with the full MapServer definition of this style
+        """
 
         text  = "      STYLE \n"
         text += "        COLOR        " + self.colour + "\n"

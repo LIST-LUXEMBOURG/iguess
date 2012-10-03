@@ -260,7 +260,6 @@ WFS.stripGetCapReq = function(serverUrl) {
   return serverUrl.replace(WFS.getCapStr, '').slice(0, -1);   // slice strips last char
 };
 
-
 // Helper functions for creating and deconstructing urls
 WPS.getCapStr = 'VERSION=1.0.0&REQUEST=GetCapabilities&SERVICE=WPS';
 

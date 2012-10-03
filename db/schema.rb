@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120926144341) do
+ActiveRecord::Schema.define(:version => 20121003095331) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -63,13 +63,14 @@ ActiveRecord::Schema.define(:version => 20120926144341) do
     t.text     "identifier"
     t.text     "name"
     t.text     "descr"
-    t.datetime "created_at",    :null => false
-    t.datetime "updated_at",    :null => false
+    t.datetime "created_at",                    :null => false
+    t.datetime "updated_at",                    :null => false
     t.text     "status"
     t.datetime "run_started"
     t.datetime "run_ended"
     t.text     "pid"
     t.integer  "city_id"
+    t.text     "status_text",   :default => ""
   end
 
   create_table "spatial_ref_sys", :id => false, :force => true do |t|

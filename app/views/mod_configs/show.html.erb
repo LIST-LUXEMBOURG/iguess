@@ -30,6 +30,12 @@
   }
 
 
+  function showRunButton(text) {
+    $('#run-module-button').attr('value', text);
+    $('#run_module_button_container').show();
+  }
+
+
   // See https://github.com/jeremyw/jquery-smart-poll
   function startPolling() {
     $.poll(function(retry) {
@@ -105,9 +111,9 @@
 
         if(!ready) { return; }
 
-        $('#run_module_button_container').show();
         $('#explanation').html("This module has all its data and is ready to run.  Click the Run button to start the process.");
         enableEditing();
+        showRunButton('Run Module >>>');
 
       } else if(statusCode == 'RUNNING') {    // Module is running
         $('#stop_module_button_container').show();
@@ -122,8 +128,10 @@
         disableEditing();
 
       } else if(statusCode == 'ERROR') {    // Module run ended in error
-        $('#explanation').html("We experienced an error running this configuration.");
+        $('#explanation').html("We experienced an error running this configuration.  The WPS server replied:<br>" +
+                               "<code><%= escape_javascript @mod_config.status_text %></code>");
         enableEditing();
+        showRunButton('Try Running Module Again >>>');
       }
 
       $("body").css("cursor", "auto");
@@ -214,7 +222,7 @@
   <span id="run_module_button_container" style="display:none">
     <%= button_to 'Run Module >>>', { :action => 'run', :controller => 'mod_configs', :id => @mod_config }, 
                                    :remote => true, :class => 'linkbutton', :id => 'run-module-button', 
-                                   :confirm =>'Are you sure?',
+                                   # :confirm =>'Are you sure?',
                                    form: { :id => "run-module-form", 'data-type' => 'json' }  %>
   </span>
 
