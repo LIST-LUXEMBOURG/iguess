@@ -321,7 +321,7 @@ class WPSClient:
 
             return True
            
-        #Check if the process has finished
+        # Check if the process has finished
         if not (Tags.preSucc in self.xmlResponse):
             self.status = self.RUNNING
             print "The process hasn't finished yet."
@@ -334,8 +334,9 @@ class WPSClient:
             print "The process has finished successfully."
             print "Processing the results..."
         
-        #Process the results
+        # Process the results
         outVector = self.xmlResponse.split(Tags.preOut)
+        self.status = self.FINISHED
         for o in outVector:
             if o.count(Tags.preLit) > 0:
                 self.resultsLiteral.append(LiteralOutput(o))
