@@ -135,9 +135,8 @@
                                "or check back later to monitor the module's progress, " +
                                "but you cannot change dataset information while the module is running.");
 
-          var status = '<%= escape_javascript @mod_config.status_text %>';
-          if(status != '') {
-            $('#status_display').append('<br>' + status);
+          if(message != '') {
+            $('#status_display').append('<br>' + message);
           }
         
           disableEditing();
