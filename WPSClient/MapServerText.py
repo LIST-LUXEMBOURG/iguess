@@ -167,7 +167,7 @@ class MapFile:
         result = self.mapHeader()
         # If no layer has been declared add default layer
         if len(self.layers) <= 0:
-            result += VectorLayer().getString()
+            result += VectorLayer(None, None, None).getString()
         else:
             for layer in self.layers:
                 result += layer.getString()
@@ -298,13 +298,13 @@ class VectorLayer(Layer):
         :returns: a string with the header of the MapServer layer definition
         """
 
-        text  = "  LAYER # " + self.name + " " + self.layerType + " ------------------------\n\n"
+        text  = "  LAYER # " + self.name + " " + str(self.layerType) + " ------------------------\n\n"
         text += "    NAME           \"" + self.name + "\"\n"
         text += "    CONNECTIONTYPE OGR\n"
-        text += "    CONNECTION     \"" + self.path + "\"\n"
+        text += "    CONNECTION     \"" + str(self.path) + "\"\n"
         #text += "    DATA         " + self.name + "\n"
         text += "    STATUS         OFF \n"
-        text += "    TYPE           " + self.layerType + "\n"
+        text += "    TYPE           " + str(self.layerType) + "\n"
 
         text += "  METADATA \n"
         text += "    \"DESCRIPTION\" \"" + self.name + "\"\n"
@@ -323,7 +323,7 @@ class VectorLayer(Layer):
         """
 
         text  = "    END \n"
-        text += "  END #" + self.name + " " + self.layerType + " ------------------------\n\n"
+        text += "  END #" + self.name + " " + str(self.layerType) + " ------------------------\n\n"
         return text
 
 

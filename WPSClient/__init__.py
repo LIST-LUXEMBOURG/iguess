@@ -28,7 +28,6 @@ from Output import ComplexOutput
 from Output import LiteralOutput
 from XMLPost import XMLPost
 import MapServerText as UMN
-import DataSet as GDAL
 import re  # For regular expression matching
 
 DEBUG = True
@@ -291,7 +290,7 @@ class WPSClient:
         self.processError = ""
         self.processErrorCode = ""
         self.processErrorText = ""
-        self.status = 0                     # 1 == Running, 2 == Done, 3 == Error
+        self.status = None                     
 
         if (self.statusURL == None):
             print "Incomplete request -- missing URL"
@@ -378,26 +377,34 @@ class WPSClient:
         
         for c in self.resultsComplex:
             
-            ds = GDAL.DataSet(c.path)
-            
-            if ds.dataType == "vector":
-                style = UMN.MapStyle()
-                layer = UMN.VectorLayer(c.path, ds.getBBox(), ds.getEPSG(), c.name)
-                type = str(ds.getGeometryType())
-                if type <> None:
-                    layer.layerType = type
+            if c.dataSet <> None:
+                       
+                if c.dataSet.dataType == "vector":
+                    style = UMN.MapStyle()
+                    layer = UMN.VectorLayer(
+                                            c.path, 
+                                            c.dataSet.getBBox(), 
+                                            c.dataSet.getEPSG(), 
+                                            c.name)
+                    type = str(c.dataSet.getGeometryType())
+                    if type <> None:
+                        layer.layerType = type
+                    else:
+                        layer.layerType = "Polygon"
+                    print "The layer type: " + str(c.dataSet.getGeometryType())
+                    layer.addStyle(style)
+                    self.map.addLayer(layer)
+                  
+                elif c.dataSet.dataType == "raster":
+                    layer = UMN.RasterLayer(
+                                            c.path, 
+                                            c.dataSet.getBBox(), 
+                                            c.dataSet.getEPSG(), 
+                                            c.name)
+                    self.map.addLayer(layer)
+                    
                 else:
-                    layer.layerType = "Polygon"
-                print "The layer type: " + str(ds.getGeometryType())
-                layer.addStyle(style)
-                self.map.addLayer(layer)
-              
-            elif ds.dataType == "raster":
-                layer = UMN.RasterLayer(c.path, ds.getBBox(), ds.getEPSG(), c.name)
-                self.map.addLayer(layer)
-                
-            else:
-                print "Warning: couldn't determine the type of Complex output " + c.name
+                    print "Warning: couldn't determine the type of Complex output " + c.name
                   
         
         self.map.writeToDisk()

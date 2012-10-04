@@ -10,6 +10,7 @@ and store locally the results of a remote WPS process.
 import os
 import urllib2
 from Tags import Tags
+import DataSet as GDAL
 
 ###########################################################
 
@@ -85,7 +86,7 @@ class ComplexOutput(Output):
     :param rawString: the section of the WPS process XML response corresponding
     to this output
     
-    :para unique: unique identifier of the process that generated the output
+    :param unique: unique identifier of the process that generated the output
             
     .. attribute:: uniqueID
         Unique identifier used in the name of the file storing the output
@@ -95,12 +96,16 @@ class ComplexOutput(Output):
 
     .. value:: extension
         Extension of the output file
+        
+    .. value:: dataSet
+        GDAL wrapper object for the physical data set file
 
     """
 
     uniqueID = None
     path = None
     extension = "gml"
+    dataSet = None
 
     def __init__(self, rawString, unique):
 
@@ -134,9 +139,14 @@ class ComplexOutput(Output):
         try:
             file = open(self.path, 'w')
             file.write(self.value)
+            file.close()
             print "Saved output file: %s\n" %self.path
+            self.dataSet = GDAL.DataSet(self.path)
         except Exception, err:
             print "Error saving %s:\n%s" %(self.path, err)
+            return
         finally:
             if file <> None:
                 file.close()
+       
+        
