@@ -14,7 +14,7 @@
 #
 development:
   adapter: postgresql
-  host: crtedb.esch.tudor.lu
+  host: 10.1.8.2 #crtedb.esch.tudor.lu
   database: music 
   schema_search_path: iguess_dev, public
   encoding: unicode

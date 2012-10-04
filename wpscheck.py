@@ -54,13 +54,15 @@ for row in rows:
 
     client.initFromURL(pid)
 
-    status = client.checkStatus()
+    status = client.checkStatus()        # Returns true if checkStatus worked, false if it failed
 
     if not status:
         print "There was an error checking the status of running modules!"
         sys.exit(2)
 
-    if client.status == client.RUNNING:      
+    print "Status = ", client.status
+
+    if client.status == client.RUNNING:      # 1
         queryTemplate = "UPDATE " + schema + ".mod_configs " \
                         "SET status = 'RUNNING', status_text = %s " \
                         "WHERE id = %s"
@@ -68,8 +70,10 @@ for row in rows:
         conn.commit()
 
 
-    elif client.status == client.FINISHED:   
+    elif client.status == client.FINISHED:   # 2
         # try:
+
+            # Update status in the database
             queryTemplate = "UPDATE " + schema + ".mod_configs " \
                             "SET status = 'FINISHED', status_text = %s, run_ended = %s " \
                             "WHERE id = %s" 
@@ -78,15 +82,19 @@ for row in rows:
                    
             for r in client.resultsLiteral:
 
+                # Clean out any old results
                 queryTemplate = "DELETE FROM " + schema + ".config_text_inputs " \
                                 "WHERE mod_config_id = %s AND column_name = %s AND is_input = %s"
                 cur.execute(queryTemplate, (recordId, r.name, False))      
 
 
+                # Insert fresh ones
                 queryTemplate = "INSERT INTO " + schema + ".config_text_inputs "\
                                 "(mod_config_id, column_name, value, is_input)" \
                                 "VALUES(%s, %s, %s, %s)"
                 cur.execute(queryTemplate, (recordId, r.name, r.value, False))
+
+                print "inserting " + str(recordId) + " " + r.name + " " + r.value
 
 
             print "============= Complex\n"
