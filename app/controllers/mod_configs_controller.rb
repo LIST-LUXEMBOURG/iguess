@@ -54,9 +54,7 @@ class ModConfigsController < ApplicationController
   # have been provided.  This really just detects that there are blank text items.  This function should probably be removed.
   def getStatus(mod_config)
     if(mod_config.status == nil || mod_config.status == 'READY' || mod_config.status == 'NEEDS_DATA')
-      # Need to see if all inputs/outputs are present
-      emptyFields = ConfigTextInput.find_by_mod_config_id_and_value(mod_config.id, "")
-      return emptyFields.nil? ? 'READY' : 'NEEDS_DATA'
+      return 'READY'
     else
       return mod_config.status
     end
@@ -82,7 +80,7 @@ class ModConfigsController < ApplicationController
     @mod_config = ModConfig.find(params[:id])
     # @city = 
 
-    wpsClientPath ='/home/eykamp/iguess/iguess';
+    wpsClientPath ='/home/iguess/iguess/iguess_test';
 
     require 'rubypython'
     require 'uri'
@@ -96,8 +94,6 @@ class ModConfigsController < ApplicationController
     if not sys.path.include?(wpsClientPath)
       sys.path.append(wpsClientPath)
     end
-
-    wpsClient = RubyPython.import 'WPSClient'
 
     inputFields = []
     inputValues = []
@@ -120,8 +116,6 @@ class ModConfigsController < ApplicationController
                                               end
                                       }
 
-
-    client = wpsClient.WPSClient()
 
     inputFieldsStr = inputFields.map   { |i| "'" + i.to_s + "'" }.join(",")
     inputValuesStr = inputValues.map   { |i| "'" + i.to_s + "'" }.join(",")

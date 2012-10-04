@@ -9,7 +9,10 @@ switches = { 'url':str, 'procname':str, 'names':list, 'vals':list, 'outnames':li
 
 singles = '' . join([x[0] + ':' for x in switches])
 long_form = [x + '=' for x in switches]
-d = { x[0] + ':' : '--' + x for x in switches }
+
+d = {}
+for x in switches:
+	d[x[0] + ':'] = '--' + x
 
 try:            
     opts, args = getopt.getopt(argv, singles, long_form)

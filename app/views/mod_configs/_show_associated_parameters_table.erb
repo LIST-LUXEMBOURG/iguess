@@ -60,7 +60,7 @@
         cell.attr("nowrap", true);
 
 
-        if('<%= mode %>' == 'input' && items[i].type == "complex") {
+        if('<%= mode %>' == 'input' && items[i].type == "complex") {      // Dropdown showing existing datasets of proper type
           var control = createDatasetSelectionControl(item.identifier, '<%= mode %>');
 
           if(control.children().length == 0) {
@@ -82,8 +82,20 @@
             }
           }
         }
+        else if('<%= mode %>' == 'output' && items[i].type != "complex") {    // No input required, just display of value
+
+          var value = (formValues == undefined) ? "" : formValues[item.identifier + '<%= mode %>'];
+
+          // cell.html('<input type="hidden" name="<%= mode %>[' + item.identifier + ']" value ="">');    // Make sure something gets put in the database for this field
+
+          if(value == undefined || value == "") {
+            cell.append('<i>Will be computed</i>');
+          } else {
+            cell.append('<b>' + value + '</b>');
+          }
+        }
         else {    // Data is a simple type like integer or string -- use a textfield
-          var value       = (formValues == undefined)   ? ""                    : formValues[item.identifier + '<%= mode %>'];
+          var value = (formValues == undefined) ? "" : formValues[item.identifier + '<%= mode %>'];
           var placeholder = ('<%= mode %>' == 'output') ? "Output dataset name" : items[i].type.capitalize() + " value";
 
           cell.html('<input type="text" name="<%= mode %>[' + item.identifier + ']" placeholder="' + placeholder + '" ' +

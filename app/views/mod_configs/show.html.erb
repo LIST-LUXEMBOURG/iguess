@@ -37,16 +37,16 @@
 
 
   // See https://github.com/jeremyw/jquery-smart-poll
-  function startPolling() {
-    $.poll(function(retry) {
-      $.get('get_config_status/<%= @mod_config.id %>', function(response, status) {
-        if(response != 3)
-          updateScreen(response);
-        else
-          retry();
-      })
-    })
-  }
+  // function startPolling() {
+  //   $.poll(function(retry) {
+  //     $.get('get_config_status/<%= @mod_config.id %>', function(response, status) {
+  //       if(response != 3)
+  //         updateScreen(response);
+  //       else
+  //         retry();
+  //     })
+  //   })
+  // }
 
 
   // When we load the page, we need to get a process description from the hosting WPS server.  Here we handle the server's response.
@@ -100,6 +100,8 @@
         // The server _thinks_ we've got everything, but only we know for sure.  So let's make sure all inputs are in fact specified.
 
         var ready = true;
+
+
         $('#input-output-form').find(':input').each( function(){
           if($(this).is('select')) {
             if($(this).val() == -1) { 
@@ -110,6 +112,18 @@
         });
 
         if(!ready) { return; }
+
+        $('#input-output-form').find(':input').each( function(){
+          if($(this).is('input')) {
+            if($(this).val() == "") { 
+              updateScreen('NEEDS_DATA');   // Found a missing dataset, so update the status to NEEDS_DATA and quit
+              ready = false;
+            }
+          }
+        });
+
+        if(!ready) { return; }
+
 
         $('#explanation').html("This module has all its data and is ready to run.  Click the Run button to start the process.");
         enableEditing();
@@ -277,8 +291,6 @@
   <%= link_to 'Delete This Module', @mod_config,
      confirm: "Deleting this module is a permanent action.\n\n" + 
               "Click OK if you are sure you want to delete this module.", method: :delete %>
-     |
-  <%= link_to(t(:reset), :action => 'reset', :method => :reset, :id => @mod_config.id ) %>
 </div>
 
 <br><br>

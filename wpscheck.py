@@ -69,7 +69,44 @@ for row in rows:
 
 
     elif client.status == client.FINISHED:   
-        pass
+        # try:
+            queryTemplate = "UPDATE " + schema + ".mod_configs " \
+                            "SET status = 'FINISHED', status_text = %s, run_ended = %s " \
+                            "WHERE id = %s" 
+
+            cur.execute(queryTemplate, (client.processErrorText, str(datetime.datetime.now()), recordId))
+                   
+            for r in client.resultsLiteral:
+
+                queryTemplate = "DELETE FROM " + schema + ".config_text_inputs " \
+                                "WHERE mod_config_id = %s AND column_name = %s AND is_input = %s"
+                cur.execute(queryTemplate, (recordId, r.name, False))      
+
+
+                queryTemplate = "INSERT INTO " + schema + ".config_text_inputs "\
+                                "(mod_config_id, column_name, value, is_input)" \
+                                "VALUES(%s, %s, %s, %s)"
+                cur.execute(queryTemplate, (recordId, r.name, r.value, False))
+
+
+            print "============= Complex\n"
+            for r in client.resultsComplex:
+                print r.name, " ==> ", r.uniqueID, " --- ", 
+
+                if srs.startswith("EPSG:"):     # Strip prefix, if it exists
+                    srs = srs[5:]
+
+                client.epsg = srs   
+    
+                print "XXX ==>" + client.generateMapFile()
+
+
+
+            conn.commit()
+
+        # except:
+        #     print "Can't update process status!"
+        #     sys.exit(2)    
 
     elif client.status == client.ERROR:    
 
@@ -93,13 +130,6 @@ for row in rows:
         sys.exit(2)
 
 
-    print "\n\n\n\n\n"
     print client.xmlResponse
 
-    print "\n\n\n\n\n"
-        # client.epsg = srs   # Need to chunk off prefix?
-    
-        # client.generateMapFile()
-
-        # Update status in the database...
 
