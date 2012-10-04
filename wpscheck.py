@@ -82,6 +82,8 @@ for row in rows:
                    
             for r in client.resultsLiteral:
 
+                print "Processing literal result ", r.name, " = ", r.value, "..."
+
                 # Clean out any old results
                 queryTemplate = "DELETE FROM " + schema + ".config_text_inputs " \
                                 "WHERE mod_config_id = %s AND column_name = %s AND is_input = %s"
