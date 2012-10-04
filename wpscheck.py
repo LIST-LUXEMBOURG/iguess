@@ -25,7 +25,7 @@ except:
 cur = conn.cursor()
 
 try:
-    query = "SELECT mc.id, pid, c.srs " \
+    query = "SELECT mc.id, pid, c.srs, c.id " \
             "FROM " + schema + ".mod_configs AS mc " \
             "LEFT JOIN " + schema + ".cities AS c ON c.id = mc.city_id " \
             "WHERE status = 'RUNNING'"
@@ -44,6 +44,7 @@ for row in rows:
     recordId = row[0]
     pid = row[1]
     srs = row[2]
+    city_id = row[3]
 
     print "\n\nChecking ", pid, "..."
 
@@ -111,10 +112,14 @@ for row in rows:
                 # Retrieve and save the data locally to disk, creating a mapfile in the process
                 mapfile = client.generateMapFile()
 
-                print mapfile
+                url = 'http://services.iguess.tudor.lu/cgi-bin/mapserv?map=' + mapfile
+                identifier = r.name
+                dataset_type = 'Mapping Only'        # For now
 
-                url = 'http://services.iguess.tudor.lu/cgi-bin/mapserv?map=' + mapfile + '&service=WMS&version=1.'
-
+                queryTemplate = "INSERT INTO " + schema + ".datasets "\
+                                "(server_url, identifier, dataset_type, city_id, finalized, created_at, updated_at)" \
+                                "VALUES(%s, %s, %s, %s, %s, %s, %s)"
+                cur.execute(queryTemplate, (url, identifier, datast_type, str(city_id), True, str(datetime.datetime.now()), str(datetime.datetime.now()))
                 #http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/LB_localOWS_test.map
 
             conn.commit()
