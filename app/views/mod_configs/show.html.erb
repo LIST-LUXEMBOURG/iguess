@@ -85,6 +85,36 @@
 
   <%= render :partial => '/shared/include_get_pretty_name_function.html.erb' %>
 
+
+  function checkDataStatus() {
+
+    stat = 'READY';
+
+    if(anyDatasetsMissing) {
+      stat = 'NEEDS_DATA';
+    }
+
+
+    $('#input-output-form').find(':input').each( function() {
+      if($(this).is('select')) {
+        if($(this).val() == -1) { 
+          stat = 'NEEDS_DATA';   // Found a missing dataset, so update the status to NEEDS_DATA and quit
+        }
+      }
+    });
+
+    $('#input-output-form').find(':input').each( function() {
+      if($(this).is('input')) {
+        if($(this).val() == "") { 
+          stat = 'NEEDS_DATA';   // Found a missing dataset, so update the status to NEEDS_DATA and quit
+        }
+      }
+    });
+
+    return stat;
+  }
+
+
   function updateScreen(statusCode, message) {
       hideButtons();
 
@@ -99,40 +129,10 @@
         // The thing is, we still don't really know if we're ready, as the server has no knowledge of exactly what params we need.
         // The server _thinks_ we've got everything, but only we know for sure.  So let's make sure all inputs are in fact specified.
 
-        var ready = true;
-
-        if(anyDatasetsMissing) {
-          updateScreen('NEEDS_DATA', message);
-          ready = false;
-        }
-
-
-        $('#input-output-form').find(':input').each( function() {
-          if($(this).is('select')) {
-            if($(this).val() == -1) { 
-              updateScreen('NEEDS_DATA', message);   // Found a missing dataset, so update the status to NEEDS_DATA and quit
-              ready = false;
-            }
-          }
-        });
-
-        if(!ready) { return; }
-
-        $('#input-output-form').find(':input').each( function() {
-          if($(this).is('input')) {
-            if($(this).val() == "") { 
-              updateScreen('NEEDS_DATA', message);   // Found a missing dataset, so update the status to NEEDS_DATA and quit
-              ready = false;
-            }
-          }
-        });
-
-        if(!ready) { return; }
-
-
         $('#explanation').html("This module has all its data and is ready to run.  Click the Run button to start the process.");
         enableEditing();
         showRunButton('Run Module >>>');
+
 
       } else if(statusCode == 'RUNNING') {    // Module is running
         $('#stop_module_button_container').show();
@@ -163,6 +163,9 @@
 
     // User has updated an input or output entry slot (called via onChange event)
     var onInputOutputTextEntryChanged = function() {
+      var status = checkDataStatus();
+      $('#hidden_status_tag').val(status);
+
       $('#input-output-form').submit();
     }
 
@@ -173,18 +176,9 @@
 
     // Gets triggered when a selected dataset changes
     function onSelectedDatasetChanged() {
-      // var identifier = this.name.replace('datasets[', '').slice(0, -1);   // slice strips last char;
-      // var datasetId  = this.options[this.selectedIndex].value;
 
-      // // Tell the server we've changed the selected dataset 
-      // $.ajax({
-      //   type: 'PUT',      // PUT combined with url below triggers "update" action on controller
-      //   url:  '<%= url_for(:controller => 'config_datasets', :action => 'update') %>',
-      //   data: 'dataset=' + datasetId + '&identifier=' + identifier,
-      //   headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
-      //   success: function(xhr, data, status) { updateScreen(JSON.parse(data).status); }
-      // });
-
+      var status = checkDataStatus();
+      $('#hidden_status_tag').val(status);
       $('#input-output-form').submit();
     }
 
@@ -233,6 +227,8 @@
 
     <%= render :partial => "show_associated_parameters_table",
                :locals  => { :mode => :output, :config => @mod_config, :newConfig => false  } %>
+
+    <input name="mod_config[status]" type="hidden" value="NEEDS_DATA" id="hidden_status_tag" />
   <% end %>
 
 </div>

@@ -236,7 +236,6 @@ class ModConfigsController < ApplicationController
 
     ok = true
 
-
     if(params[:datasets]) then        # Not every module has input datasets
 
       @config_datasets = ConfigDataset.find_all_by_mod_config_id(@mod_config.id)
@@ -281,7 +280,7 @@ class ModConfigsController < ApplicationController
 
     @mod_config.status = nil
 
-    @mod_config.status = getStatus(@mod_config)
+    # @mod_config.status = getStatus(@mod_config)
 
     ok == ok && @mod_config.update_attributes(params[:mod_config])
 
