@@ -96,21 +96,26 @@ for row in rows:
                                 "VALUES(%s, %s, %s, %s)"
                 cur.execute(queryTemplate, (recordId, r.name, r.value, False))
 
-                print "inserting " + str(recordId) + " " + r.name + " " + r.value
 
-
-            print "============= Complex\n"
             for r in client.resultsComplex:
-                print r.name, " ==> ", r.uniqueID, " --- ", 
+                print "Processing complex result ", r.name, " with id of ", r.uniqueID
+
+
+
 
                 if srs.startswith("EPSG:"):     # Strip prefix, if it exists
                     srs = srs[5:]
 
                 client.epsg = srs   
     
-                print "XXX ==>" + client.generateMapFile()
+                # Retrieve and save the data locally to disk, creating a mapfile in the process
+                mapfile = client.generateMapFile()
 
+                print mapfile
 
+                url = 'http://services.iguess.tudor.lu/cgi-bin/mapserv?map=' + mapfile + '&service=WMS&version=1.'
+
+                #http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/LB_localOWS_test.map
 
             conn.commit()
 
