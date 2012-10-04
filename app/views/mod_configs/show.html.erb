@@ -71,7 +71,7 @@
     populateInputTable (inputs, formValues, datasetValues);
     populateOutputTable(outputs, formValues);
 
-    updateScreen('<%= @mod_config.status %>'); 
+    updateScreen('<%= @mod_config.status %>', '<%= escape_javascript @mod_config.status_text %>'); 
   }
 
   // Initiate the request to the WPS server for info about the process that this modConfig is based on
@@ -85,7 +85,7 @@
 
   <%= render :partial => '/shared/include_get_pretty_name_function.html.erb' %>
 
-  function updateScreen(statusCode) {
+  function updateScreen(statusCode, message) {
       hideButtons();
 
       $('#status_display').text(getPrettyStatusName(statusCode));
@@ -105,7 +105,7 @@
         $('#input-output-form').find(':input').each( function(){
           if($(this).is('select')) {
             if($(this).val() == -1) { 
-              updateScreen('NEEDS_DATA');   // Found a missing dataset, so update the status to NEEDS_DATA and quit
+              updateScreen('NEEDS_DATA', message);   // Found a missing dataset, so update the status to NEEDS_DATA and quit
               ready = false;
             }
           }
@@ -116,7 +116,7 @@
         $('#input-output-form').find(':input').each( function(){
           if($(this).is('input')) {
             if($(this).val() == "") { 
-              updateScreen('NEEDS_DATA');   // Found a missing dataset, so update the status to NEEDS_DATA and quit
+              updateScreen('NEEDS_DATA', message);   // Found a missing dataset, so update the status to NEEDS_DATA and quit
               ready = false;
             }
           }
@@ -259,17 +259,17 @@
   <script type="text/javascript">
     // User clicked the Run button
     $('#run-module-form').bind('ajax:success', function(xhr, data, status) { 
-      updateScreen(data.status); 
+      updateScreen(data.status, data.status_text); 
     });
 
 
     $('#stop-module-form').bind('ajax:success', function(xhr, data, status) { 
-      updateScreen(data.status); 
+      updateScreen(data.status, data.status_text); 
     });
 
     // An input/output text field has been updated; data contains a ModConfig object
     $('#input-output-form').bind('ajax:success', function(xhr, data, status) {
-      updateScreen(data.status); 
+      updateScreen(data.status, data.status_text); 
     });
 
     $('#input-output-form').bind('ajax:error', function(evnt, jqXHR, ajaxSettings, thrownError) { 
@@ -279,7 +279,7 @@
 
     // Response handler for best_in_class fields (Name and Note)
     $('.best_in_place').best_in_place().bind('ajax:success', function(xhr, data, status) { 
-      updateScreen(JSON.parse(data).status); 
+      updateScreen(JSON.parse(data).status, JSON.parse(data).status_text); 
     });
   </script>
 
