@@ -64,7 +64,7 @@
           var control = createDatasetSelectionControl(item.identifier, '<%= mode %>');
 
           if(control.children().length == 0) {
-              cell.text('No registered datasets of this type');
+              cell.text('No registered datasets of this type [' + item.identifier + ']');
               anyDatasetsMissing = true;
           }
           else {

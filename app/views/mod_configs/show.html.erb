@@ -80,7 +80,8 @@
 
   function doneProcessing(url, type, status)  // status will be OK or ERROR
   {
-    alert("Done processing triggered!");
+      getWmsLayers(registeredDataServers);
+  getWfsLayers(registeredDataServers);
   }
 
   <%= render :partial => '/shared/include_get_pretty_name_function.html.erb' %>
@@ -101,8 +102,13 @@
 
         var ready = true;
 
+        if(anyDatasetsMissing) {
+          updateScreen('NEEDS_DATA', message);
+          ready = false;
+        }
 
-        $('#input-output-form').find(':input').each( function(){
+
+        $('#input-output-form').find(':input').each( function() {
           if($(this).is('select')) {
             if($(this).val() == -1) { 
               updateScreen('NEEDS_DATA', message);   // Found a missing dataset, so update the status to NEEDS_DATA and quit
@@ -113,7 +119,7 @@
 
         if(!ready) { return; }
 
-        $('#input-output-form').find(':input').each( function(){
+        $('#input-output-form').find(':input').each( function() {
           if($(this).is('input')) {
             if($(this).val() == "") { 
               updateScreen('NEEDS_DATA', message);   // Found a missing dataset, so update the status to NEEDS_DATA and quit
@@ -160,6 +166,10 @@
     var onInputOutputTextEntryChanged = function() {
       $('#input-output-form').submit();
     }
+
+
+  getWmsLayers(registeredDataServers);
+  getWfsLayers(registeredDataServers);
 
 
     // Gets triggered when a selected dataset changes
