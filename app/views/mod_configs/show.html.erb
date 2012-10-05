@@ -262,6 +262,13 @@
 
   <script type="text/javascript">
     // User clicked the Run button
+
+
+    $('#run-module-form').bind('ajax:before', function(xhr, data, status) { 
+      showRunButton('Working...');
+    });
+
+
     $('#run-module-form').bind('ajax:success', function(xhr, data, status) { 
       updateScreen(data.status, data.status_text); 
     });
