@@ -12,7 +12,7 @@
     </thead>
     <tbody>
       <% @datasets.each do |d| %>
-        <tr>  <!--- First and last below should be layer name -->
+        <tr class='layer-for-city-<%= d.city_id %> all-layers'>  <!--- First and last below should be layer name -->
           <td><a href=# onclick="addNewLayer('<%= d.identifier%>','<%= d.server_url%>','<%= d.identifier%>')"><%= d.identifier%></a> </td>
         </tr>
       <% end %>

@@ -337,6 +337,7 @@ OpenLayers.WPS = OpenLayers.Class({
      */
     parseGetCapabilities: function (resp) {
         this.responseText = resp.responseText;
+
         var dom = resp.responseXML ? resp.responseXML : OpenLayers.parseXMLString(resp.responseText);
         this.responseDOM = dom;
 

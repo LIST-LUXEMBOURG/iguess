@@ -250,6 +250,8 @@
     );
 
     map.addLayer(layer);
+
+    console.log(layer.getDataExtent());
   }
 
   //////////////////////////////////////////////////////////////////
@@ -439,6 +441,10 @@
       point.transform(proj, map.getProjectionObject());
 
       map.setCenter(point, <%= city.zoom %>);
+
+      $('.all-layers').hide();
+      $('.layer-for-city-<%= city.id %>').show();
+
       return;
     }
     <% end %>
