@@ -119,7 +119,7 @@ for row in rows:
                 queryTemplate = "INSERT INTO " + schema + ".datasets "\
                                 "(server_url, identifier, dataset_type, city_id, finalized, created_at, updated_at)" \
                                 "VALUES(%s, %s, %s, %s, %s, %s, %s)"
-                cur.execute(queryTemplate, (url, identifier, datast_type, str(city_id), True, str(datetime.datetime.now()), str(datetime.datetime.now())))
+                cur.execute(queryTemplate, (url, identifier, dataset_type, str(city_id), True, str(datetime.datetime.now()), str(datetime.datetime.now())))
                 #http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/LB_localOWS_test.map
 
             conn.commit()
