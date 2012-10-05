@@ -37,6 +37,7 @@
               '</td>' +
               '<td nowrap>' + (d.dataset_type == "" ? "Unknown" : d.dataset_type) + '</td>' +
               '<td width = 145><div class="status-' + serverUrlIdLookup[d.server_url] + '" id="status-' + d.id + '">Probing server...  <img src="/assets/loading_spinner.gif"></div></td>' +
+              '<td><u>Unregister</u></td> ' + 
               // '<td>SHOW MODULE LIST HERE??</td>' +
             '</tr>'
         );
@@ -149,10 +150,12 @@
 
     function setLayerStatus(serverUrl)
     {
+
       // Wait until we've heard back from all servers: wfs and wms
       if(serverStatus[serverUrl].length < 2) { return; }
 
       serverUrlId = serverUrlIdLookup[serverUrl];
+
 
       if(!(serverStatus[serverUrl][0] || serverStatus[serverUrl][1])) {    // Server failed, all datasets from this server kaput
         $('.status-' + serverUrlId).html('<img src="/assets/server_responding_no.png" alt="WMS server not responding">');
@@ -180,6 +183,7 @@
 
             var identifier = record.get("name");
 
+alert(datasets[i]+'     ' + identifier + '     ' + (datasets[i] == identifier));
             if(datasets[i] == identifier) {
               var railsId = railsIdLookup[makeKey(serverUrl, identifier)];
 
@@ -194,7 +198,7 @@
               $('#status-' + railsId).html('<img src="/assets/layer_available_yes.png" alt="Layer available">');
 
               found = true;
-              break;
+              // break;
             }
           }
         }
@@ -216,7 +220,7 @@
 
   <table id="sortable_table" class="zebra sortable">
     <thead>
-      <tr><th>Name</th><th>Type</th><th>Status</th><!-- <th>Configured Modules Using Dataset</th> --></tr>
+      <tr><th>Name</th><th>Type</th><th>Status</th><th></th><!-- <th>Configured Modules Using Dataset</th> --></tr>
     </thead>
 
     <tbody id="dataset-list">
