@@ -23,6 +23,17 @@
     onLocationChanged('<%= @current_city.name %>');   // Build the initial dataset list
   });
 
+
+  // Make the railsIdLookup, which looks up a unique id for each  URL / identifier pair.
+  // Allows us to have shorter class names and avoid illegal characters in a class which might exist in a URL.
+  railsIdLookup = { };
+
+  <%= @datasets.reject{ |d| d.finalized == false }
+               .uniq{ |x| x.server_url + x.identifier }
+               .map{ |d| "railsIdLookup[makeKey('" + d.server_url + "','" + d.identifier + "')] = '" + d.id.to_s + "';\n" }
+               .join(' ') %>
+
+
   // We've got a new batch of datasets to display!
   // Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
   renderTable = function(datasets) {
@@ -30,13 +41,18 @@
     for(var i = 0; i < datasets.length; i++) {
       var d = datasets[i];
 
+
+      var r = railsIdLookup[makeKey(d.server_url, d.identifier)];
+
+
       $('#dataset-list').append(
             '<tr valign=middle>' +
-              '<td class="dataset-name-' + serverUrlIdLookup[d.server_url] + '" ' +
-                    'id="dataset-name-' + d.id + '" title="Server URL: ' + d.server_url + '">Retrieving...' +
+              '<td class="dataset-name-' + serverUrlIdLookup[d.server_url] + ' dataset-name2-' + r + '" ' +
+                    '" title="Server URL: ' + d.server_url + '">Retrieving...' +
               '</td>' +
               '<td nowrap>' + (d.dataset_type == "" ? "Unknown" : d.dataset_type) + '</td>' +
-              '<td width = 145><div class="status-' + serverUrlIdLookup[d.server_url] + '" id="status-' + d.id + '">Probing server...  <img src="/assets/loading_spinner.gif"></div></td>' +
+              '<td width = 145><div class="status-' + serverUrlIdLookup[d.server_url] + ' status2-' + r + '">Probing server...  ' +
+              '<img src="/assets/loading_spinner.gif"></div></td>' +
               '<td><u>Unregister</u></td> ' + 
               // '<td>SHOW MODULE LIST HERE??</td>' +
             '</tr>'
@@ -45,13 +61,6 @@
       processUrl(d.server_url);
     }
   }
-
-
-  railsIdLookup = { };
-
-  <%= @datasets.reject{ |d| d.finalized == false }
-               .map{ |d| "railsIdLookup[makeKey('" + d.server_url + "','" + d.identifier + "')] = '" + d.id.to_s + "';" }
-               .join(' ') %>
 
 
   // The following creates a mapping of server urls to short unique tokens, in both ruby and javascript.
@@ -183,7 +192,6 @@
 
             var identifier = record.get("name");
 
-alert(datasets[i]+'     ' + identifier + '     ' + (datasets[i] == identifier));
             if(datasets[i] == identifier) {
               var railsId = railsIdLookup[makeKey(serverUrl, identifier)];
 
@@ -191,21 +199,21 @@ alert(datasets[i]+'     ' + identifier + '     ' + (datasets[i] == identifier));
               title = title.replace(/ /g,'&nbsp;');
 
               // See http://stackoverflow.com/questions/244758/jquery-animation-smooth-size-transition
-              var selector = '#dataset-name-' + railsId;
+              var selector = '.dataset-name2-' + railsId;
               $(selector).html(title);
 
               var railsId = railsIdLookup[makeKey(serverUrl, datasets[i])];
-              $('#status-' + railsId).html('<img src="/assets/layer_available_yes.png" alt="Layer available">');
+              $('.status2-' + railsId).html('<img src="/assets/layer_available_yes.png" alt="Layer available">');
 
               found = true;
-              // break;
+              break;
             }
           }
         }
 
         if(!found) {
           var railsId = railsIdLookup[makeKey(serverUrl, datasets[i])];
-          $('#status-' + railsId).html('<img src="/assets/layer_available_no.png" alt="Layer not available">');
+          $('.status2-' + railsId).html('<img src="/assets/layer_available_no.png" alt="Layer not available">');
         }
       }
     }
