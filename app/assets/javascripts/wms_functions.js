@@ -67,11 +67,12 @@ WPS.onDescribedProcessFunction_passthrough = function(process)
 };
 
 showErrorMessage = function (process, code, text) {
-    alert("ERROR");
-	newWin = window.open('', 'Service Error Message', 'height=400, width=600, toolbar=no, menubar=no');
-	newWin.document.write("ShowErrorMessage");
-    newWin.document.write("There was an error retrieving your data.");
-	newWin.document.write(process.responseText);
+  console.log(arguments);
+    // alert("ERROR");
+	// newWin = window.open('', 'Service Error Message', 'height=400, width=600, toolbar=no, menubar=no');
+	// newWin.document.write("ShowErrorMessage");
+ //  newWin.document.write("There was an error retrieving your data.");
+	// newWin.document.write(process.responseText);
 //    newWin.document.write(code);
 //    newWin.document.write(text);
 };

@@ -37,7 +37,7 @@
               '</td>' +
               '<td nowrap>' + (d.dataset_type == "" ? "Unknown" : d.dataset_type) + '</td>' +
               '<td width = 145><div class="status-' + serverUrlIdLookup[d.server_url] + '" id="status-' + d.id + '">Probing server...  <img src="/assets/loading_spinner.gif"></div></td>' +
-              '<td>SHOW MODULE LIST HERE??</td>' +
+              // '<td>SHOW MODULE LIST HERE??</td>' +
             '</tr>'
         );
 
@@ -216,7 +216,7 @@
 
   <table id="sortable_table" class="zebra sortable">
     <thead>
-      <tr><th>Name</th><th>Type</th><th>Status</th><th>Configured Modules Using Dataset</th></tr>
+      <tr><th>Name</th><th>Type</th><th>Status</th><!-- <th>Configured Modules Using Dataset</th> --></tr>
     </thead>
 
     <tbody id="dataset-list">
