@@ -42,21 +42,23 @@
       var d = datasets[i];
 
 
+console.log(d);
+
       var r = railsIdLookup[makeKey(d.server_url, d.identifier)];
 
 
       $('#dataset-list').append(
-            '<tr valign=middle>' +
-              '<td class="dataset-name-' + serverUrlIdLookup[d.server_url] + ' dataset-name2-' + r + '" ' +
-                    '" title="Server URL: ' + d.server_url + '">Retrieving...' +
-              '</td>' +
-              '<td nowrap>' + (d.dataset_type == "" ? "Unknown" : d.dataset_type) + '</td>' +
-              '<td width = 145><div class="status-' + serverUrlIdLookup[d.server_url] + ' status2-' + r + '">Probing server...  ' +
-              '<img src="/assets/loading_spinner.gif"></div></td>' +
-              '<td><u>Unregister</u></td> ' + 
-              // '<td>SHOW MODULE LIST HERE??</td>' +
-            '</tr>'
-        );
+          '<tr valign=middle>' +
+            '<td class="dataset-name-' + serverUrlIdLookup[d.server_url] + ' dataset-name2-' + r + '" ' +
+                  '" title="Server URL: ' + d.server_url + '">Retrieving...' +
+            '</td>' +
+            '<td nowrap>' + (d.dataset_type == "" ? "Unknown" : d.dataset_type) + '</td>' +
+            '<td width = 145><div class="status-' + serverUrlIdLookup[d.server_url] + ' status2-' + r + '">Probing server...  ' +
+            '<img src="/assets/loading_spinner.gif"></div></td>' +
+            '<td><a href="/datasets/' + d.id + '" data-confirm="Are you sure you want to unregister this dataset?" data-method="delete" data-remote="true" rel="nofollow">Unregister</a></td> ' + 
+            // '<td>SHOW MODULE LIST HERE??</td>' +
+          '</tr>'
+      );
 
       processUrl(d.server_url);
     }
