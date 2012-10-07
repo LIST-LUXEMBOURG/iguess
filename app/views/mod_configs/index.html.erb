@@ -149,12 +149,12 @@
         var animTime = 200;
 
         if($(this).hasClass("current")){
-            $(this).removeClass("current");
-            $(".catalog-item").slideUp(animTime);
+          $(this).removeClass("current");
+          $(".catalog-item").slideUp(animTime);
         } else {
-            $(".catalog-item").slideUp(animTime);
-            $(this).addClass("current");
-            $(this).next().slideDown(animTime);
+          $(".catalog-item").slideUp(animTime);
+          $(this).addClass("current");
+          $(this).next().slideDown(animTime);
         }
       });
 
