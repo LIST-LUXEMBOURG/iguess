@@ -137,14 +137,6 @@
     // waiting for any others
     if(responses == WPS.getResponsesExpected()) {
       $('#wps-probing-indicator').hide();           // This indicator is on the Module Catalog tab
-
-      // Prepare the module list accordion tab effect -- set ititialIndex to null to prevent any tabs from opening by default
-      // $('#module-catalog').tabs(
-      //   '#module-catalog div.catalog-item', { tabs: 'h2', effect: 'slide', initialIndex: null }
-      // );
-
-
-
     }
 
     var description = '<h2 class="process-title">' + process.title + '</h2>' +
