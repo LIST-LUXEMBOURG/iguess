@@ -143,20 +143,7 @@
       //   '#module-catalog div.catalog-item', { tabs: 'h2', effect: 'slide', initialIndex: null }
       // );
 
-      // Custom accordion initialization code -- allows user to reclose accordion item by clicking on header
-      $("#module-catalog > h2").bind("click", function(){
-                
-        var animTime = 200;
 
-        if($(this).hasClass("current")) {
-          $(this).removeClass("current");
-          $(".catalog-item").slideUp(animTime);   // Close
-        } else {
-          $(".catalog-item").slideUp(animTime);
-          $(this).addClass("current");
-          $(this).next().slideDown(animTime);     // Open 
-        }
-      });
 
     }
 
@@ -202,6 +189,29 @@
                    '</div>';    // End of "catalog-item" div
 
     $('#module-catalog').append(description);
+
+      // Custom accordion initialization code -- allows user to reclose accordion item by clicking on header
+      // This init code will be called repeatedly as we add a new item to the catalog.  This will let users expand items
+      // before everything is fully loaded, making the UI feel much more responsive.  But we have to be careful not to add
+      // multiple click events to any item; to prevent this, we unbind everything before rebinding.
+
+      $("#module-catalog > h2").unbind("click");  // Clear out previously added click handlers
+
+      $("#module-catalog > h2").bind("click", function() {
+
+        var animTime = 200;
+
+        $(".catalog-item").slideUp(animTime);     // Close any open panes
+
+        if($(this).hasClass("current")) {
+          $(this).removeClass("current");
+        } else {
+          $(".current").removeClass("current");
+          $(this).addClass("current");
+          $(this).next().slideDown(animTime);     // Open selected pane
+        }
+      });
+
 
     // Update modules structure with module title, now that one is available 
     var modcount = modules.length;
