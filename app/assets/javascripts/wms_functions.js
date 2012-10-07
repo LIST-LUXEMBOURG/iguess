@@ -100,10 +100,9 @@ showPreErrorMessage = function (process, code, text) {
 
 
 
-WPS.onGetServerInfo = function(xxx)
+WPS.onGetServerInfo = function()
 {
-  console.log(xxx);
-
+  console.log(arguments);
 };
 
 
