@@ -81,21 +81,21 @@ showErrorMessage = function (process, code, text) {
 // This will get called if the wps url points to a server that doesn't much exist.... TODO: something
 // We got back an error from one of our requested processes... do something useful
 showErrorMessage2 = function (request) {
-    alert(request.statusText);
-    newWin = window.open('', 'Service Error Message', 'height=400, width=600, toolbar=no, menubar=no');
-    newWin.document.write("ShowErrorMessage");
-    newWin.document.write("There was an error retrieving your data.");
-    newWin.document.write(process.responseText);
+    // alert(request.statusText);
+    // newWin = window.open('', 'Service Error Message', 'height=400, width=600, toolbar=no, menubar=no');
+    // newWin.document.write("ShowErrorMessage");
+    // newWin.document.write("There was an error retrieving your data.");
+    // newWin.document.write(process.responseText);
 //    newWin.document.write(code);
 //    newWin.document.write(text);
 };
 
 
 showPreErrorMessage = function (process, code, text) {
-  newWin = window.open('', 'Service Error Message', 'height=400, width=600, toolbar=no, menubar=no');
-  newWin.document.write("ShowPreErrorMessage");
+  // newWin = window.open('', 'Service Error Message', 'height=400, width=600, toolbar=no, menubar=no');
+  // newWin.document.write("ShowPreErrorMessage");
 
-  newWin.document.write("<pre>" + process.responseText + "</pre>");
+  // newWin.document.write("<pre>" + process.responseText + "</pre>");
 };
 
 
