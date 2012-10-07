@@ -143,9 +143,11 @@
       //   '#module-catalog div.catalog-item', { tabs: 'h2', effect: 'slide', initialIndex: null }
       // );
 
+      // Custom accordion initialization code -- allows user to reclose accordion item by clicking on header
       $("#module-catalog > h2").bind("click", function(){
                 
         var animTime = 200;
+
         if($(this).hasClass("current")){
             $(this).removeClass("current");
             $(".catalog-item").slideUp(animTime);
@@ -154,7 +156,6 @@
             $(this).addClass("current");
             $(this).next().slideDown(animTime);
         }
-
       });
 
     }
