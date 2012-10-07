@@ -33,6 +33,7 @@ populateSelectBox = function(control, options) {
 // Combine server and other identifier to create a unique key
 makeKey = function(server, identifier)
 {
+  debugger
   try{
     // Strip out any special chars because these confuse things parsing the DOM!
     // Replace with nothing because sometimes things get here with the backslashes already munged out
