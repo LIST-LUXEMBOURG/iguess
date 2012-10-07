@@ -137,3 +137,53 @@
 
 
 
+/* Accordion tabs for Module Catalog */
+
+/* root element for accordion. decorated with rounded borders and gradient background image */
+#module-catalog {
+    /*background:#333 url(/media/img/gradient/h300.png) 0 0;*/
+    border:1px solid #333;
+    /*-background:#666;*/
+    margin: 0 auto;
+}
+
+/* accordion header */
+#module-catalog h2 {
+    background:#ccc url(/media/img/gradient/h30.png);
+    line-height: 14px;
+    margin:0;
+    padding:5px 15px;
+    font-size:14px;
+    font-weight:normal;
+    border:1px solid #fff;
+    border-bottom:1px solid #ddd;
+    cursor:pointer;
+}
+
+/* currently active header */
+#module-catalog h2.current {
+    cursor:default;
+    /*background-color:#fff;*/
+}
+
+/* accordion pane */
+#module-catalog .catalog-item {
+    border:1px solid #fff;
+    border-width:0 2px;
+    display:none;
+    /*height:180px;*/
+    padding:15px;
+    /*color:#fff;*/
+    /*font-size:12px;*/
+}
+
+/* a title inside pane */
+#module-catalog .catalog-item h3 {
+    font-weight:normal;
+    margin:0;
+    font-size:16px;
+    color:#999;
+}
+
+
+
