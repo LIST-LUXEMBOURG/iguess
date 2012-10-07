@@ -1,7 +1,8 @@
 <script type="text/javascript">
-  var fillContainer = function(items, container)
+  var fillContainer = function(items)
   {
     var i, o;
+    var container = [];
     var inputCount = items.length;
     for(i = 0; i < inputCount; i++) {
       o = new Object;
@@ -12,6 +13,8 @@
 
       container.push(o);
     }
+
+    return container;
   }
 </script>
 

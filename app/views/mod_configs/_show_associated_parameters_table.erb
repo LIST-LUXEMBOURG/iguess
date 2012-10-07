@@ -1,178 +1,114 @@
 <!-- Print a table of parameters for the module specified in mod -->
 
-<% newConfig = newConfig || false %>  <%# True if we're creating a new configuration, false if editing an existing one %>
+<!--<% newConfig = newConfig || false %>  <%# True if we're creating a new configuration, false if editing an existing one %>-->
 
 <label class="simple_form label"><%= mode.slice(0,1).capitalize + mode.slice(1..-1) %>s</label>
 <table class="zebra" id="<%= mode %>-table">
-
+  <!-- Will be populated below -->
 </table>
-
-<%# Provide code for revalidating form after any best_in_place fields have been altered %>
-<% if not defined?(form) %>
-  <script type="text/javascript">
-    $('.best_in_place').best_in_place().bind('ajax:success', function(e) {
-      $.get('get_config_status/<%= config.id %>',
-        function(response, status) {
-          showButtons(response);
-          $("body").css("cursor", "auto");          // Restore cursor to normal
-        });
-    });
-  </script>
-<% end %>
 
 
 <script type="text/javascript">
 
   var anyDatasetsMissing = false;
 
-  <% if mode == :input %>  <%# Only include this once %>
-    <%# Gets triggered when a selected dataset changes, but is only used when editing an existing config %>
-    function onSelectedDatasetChanged() {
-      var identifier = this.name.replace('datasets[', '').slice(0, -1);   // slice strips last char;
-      var datasetId  = this.options[this.selectedIndex].value;
-
-      <%#  Tell the server we've changed the selected dataset %>
-      $.ajax({
-        type: 'PUT',      // PUT combined with url below triggers "update" action on controller
-        url:  '<%= url_for(:controller => 'config_datasets', :action => 'update') %>',
-        data: 'dataset=' + datasetId + '&identifier=' + identifier,
-        headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
-        success: function(data) { /*alert("ok!");*/ }
-      });
-
-      readyToRunModule();
-    }
-
-    function onTextEntryChanged() {
-      var identifier, mode;
-
-      if(this.name.substr(0,5) == 'input') {
-        identifier = this.name.replace('input[', '').slice(0, -1);   // slice strips last char;
-        mode = 'input';
-      } else {
-        identifier = this.name.replace('output[', '').slice(0, -1);
-        mode = 'output';
-      }
-
-      var inputVal  = this.value;
-
-      <% if params[:id].blank? %>
-        var idToken = '';
-      <% else %>
-        idToken = '&id=' + <%= params[:id] %>;
-      <% end %>
-
-      $.ajax({
-        type: 'PUT',      // PUT combined with url below triggers "update" action on controller
-        url:  '<%= url_for(:controller => 'config_text_inputs', :action => 'update') %>',
-        data: 'inputval=' + inputVal + '&identifier=' + identifier + '&mode=' + mode + idToken, <%# <== why do we need to add id manually? %>
-        headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
-        success: function(data) { /* alert("ok!"); */ }
-      });
-
-      readyToRunModule();
-    }
-
-  <% end %>
-
   <%# Creates fn called populateInputTable or populateOutputTable %>
   // formValues & datasetValues will only be defined when calling from the main Module Configuration page
   // When mode is output, datasetValues will be undefined
   function populate<%= mode.slice(0,1).capitalize + mode.slice(1..-1) %>Table(items, formValues, datasetValues)
   {
-    var table = $('#<%= mode %>-table');
-    table.empty();
-
-    var headerRow = '<tr><th>Parameter Name</th>' +
-                    '<% if mode == :input %><th>Selected Dataset or Value</th><% else %><th>Output Dataset Identifier</th><% end %></tr>';
-
-    table.append(headerRow);
-
     var itemCount = items.length;
 
-    for(var i = 0; i < itemCount; i++)
-    {
-      var row  = $(document.createElement('tr'));
-      var cell = $(document.createElement('td'));   // Param name
+    var table = $('#<%= mode %>-table');    // Find the exsiting table called input-table or output-table
 
-      item = items[i];
-
-      var html = item.title;
-
-      if(item.descr != null) {
-        html += '<img src="/assets/small_question_mark.gif" style="padding-left: 8px; padding-top: 3px" ' +
-                'alt="More info" title="' + item.descr + '">'
+    if(itemCount == 0) {
+      if('<%= mode %>' == 'input') {
+        table.html("<span class='no-inputs-ouputs'>This module configuration requires no inputs.</span>");
       }
+      else {
+        table.html("<span class='no-inputs-ouputs'>This module configuration produces no outputs.</span>");
+      }
+    }
+    else {
 
-      cell.html(html);
-      row.append(cell);
+      table.empty();
 
-      cell = $(document.createElement('td'));   // Dataset
-      cell.attr("nowrap", true);
+      var headerRow = '<tr><th>Parameter Name</th>' +
+                      '<% if mode == :input %><th>Selected Dataset or Value</th><% else %><th>Output Dataset Identifier</th><% end %></tr>';
+
+      table.append(headerRow);
 
 
-      if('<%= mode %>' == 'input' && items[i].type == "complex") {
-        var control = createDatasetSelectionControl(item.identifier, '<%= mode %>');
 
-        if(control.children().length == 0) {
-            cell.text('No registered datasets of this type');
-            anyDatasetsMissing = true;
+      for(var i = 0; i < itemCount; i++)
+      {
+        var row  = $(document.createElement('tr'));
+        var cell = $(document.createElement('td'));   // Param name
+
+        item = items[i];
+
+        cell.html(item.title);
+
+        if(item.descr != null) {
+          cell.append('<img src="/assets/small_question_mark.gif" style="padding-left: 8px; padding-top: 3px" ' +
+                  'alt="More info" title="' + item.descr + '">');
         }
-        else {
-          control.prepend("<option value=-1>No dataset selected</option>");
-          control.change(onSelectedDatasetChanged);
-          control.attr('class', 'req-select');
 
-          cell.html(control);
+        row.append(cell);
 
-          if(datasetValues != undefined)  {
-            var selectedVal = datasetValues[item.identifier];
-            if(selectedVal != undefined)  {
-              control.val(selectedVal);
+        cell = $(document.createElement('td'));   // Dataset
+        cell.attr("nowrap", true);
+
+
+        if('<%= mode %>' == 'input' && items[i].type == "complex") {      // Dropdown showing existing datasets of proper type
+          var control = createDatasetSelectionControl(item.identifier, '<%= mode %>');
+
+          if(control.children().length == 0) {
+              cell.text('No registered datasets of this type [' + item.identifier + ']');
+              anyDatasetsMissing = true;
+          }
+          else {
+            control.prepend("<option value=-1>No dataset selected</option>");
+            control.change(onSelectedDatasetChanged);
+            control.attr('class', 'req-select');
+
+            cell.html(control);
+
+            if(datasetValues != undefined)  {
+              var selectedVal = datasetValues[item.identifier];
+              if(selectedVal != undefined)  {
+                control.val(selectedVal);
+              }
             }
           }
         }
+        else if('<%= mode %>' == 'output' && items[i].type != "complex") {    // No input required, just display of value
+
+          var value = (formValues == undefined) ? "" : formValues[item.identifier + '<%= mode %>'];
+
+          // cell.html('<input type="hidden" name="<%= mode %>[' + item.identifier + ']" value ="">');    // Make sure something gets put in the database for this field
+
+          if(value == undefined || value == "") {
+            cell.append('<i>Will be computed</i>');
+          } else {
+            cell.append('<b>' + value + '</b>');
+          }
+        }
+        else {    // Data is a simple type like integer or string -- use a textfield
+          var value = (formValues == undefined) ? "" : formValues[item.identifier + '<%= mode %>'];
+          var placeholder = ('<%= mode %>' == 'output') ? "Output dataset name" : items[i].type.capitalize() + " value";
+
+          cell.html('<input type="text" name="<%= mode %>[' + item.identifier + ']" placeholder="' + placeholder + '" ' +
+                           'value="' + value + '" class="req-textentry" onchange="onInputOutputTextEntryChanged()">');
+        }
+
+        row.append(cell);
+        table.append(row);
+
       }
-      else {    // Data is a simple type like integer or string -- use a textfield
-        var value = "";
-        var placeholder;
-
-        if('<%= mode %>' == 'output') {
-          placeholder = "Output dataset name";
-        }
-        else {
-          placeholder = items[i].type.capitalize() + " value";
-        }
-
-        if(formValues != undefined) {
-          var value = formValues[item.identifier + '<%= mode %>'];
-
-          if(value == undefined) {  value = "";  }
-        }
-
-        var ctrl = $(document.createElement('input'));
-        ctrl.attr('name', '<%= mode %>[' + item.identifier + ']');
-        ctrl.attr('placeholder', placeholder);
-        ctrl.attr('value', value);
-        ctrl.attr('class', 'req-textentry');
-        ctrl.change(onTextEntryChanged);
-
-        cell.html(ctrl);
-      }
-
-      row.append(cell);
-
-      table.append(row);
     }
   }
 
-
-    // processControl.attr({ class:'process-dropdown-control', id:'processControl' });
-
-    // What to do when the user changes dataType for a layer
-    // processControl.change(function() {
-      // onProcessChanged();
-    // });
 
   // discoveredLayers comes from the /shared/_build_data_layers partial
   function createDatasetSelectionControl(identifier, mode)

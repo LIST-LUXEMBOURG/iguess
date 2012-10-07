@@ -5,7 +5,7 @@
   <%= stylesheet_link_tag    :application %>
   <%= javascript_include_tag :application %>
   <%= csrf_meta_tags %>
-  
+
 
 
 
@@ -18,39 +18,19 @@
           function() { $(this).addClass('ui-state-hover'); },
           function() { $(this).removeClass('ui-state-hover'); }
       );
-
   });
-  
-  
-  var gotoLocation = function(cityName) {
-    // Set cookie to help us remember the location
-    $.cookie('city', cityName, { expires: 9999, path: '/' });
-    
-    <% for city in City.all %>
-        if(cityName == "<%= city.name %>")
-        {
-          var proj = new OpenLayers.Projection("<%= city.srs %>");
-          var point = new OpenLayers.LonLat(
-            (<%= city.minx %> + <%= city.maxx %>) / 2, 
-            (<%= city.miny %> + <%= city.maxy %>) / 2);
-          point.transform(proj, map.getProjectionObject());
-          
-          map.setCenter(point, <%= city.zoom %>);
-          return;
-        }
-    <% end %>
-  }
-  
-</script> 
+
+</script>
 
 
 <!-- TODO: Figure out how to get these into the regular asset pipeline -->
 <!-- See http://flowplayer.org/tools/release-notes/index.html -->
 
-<script src="http://cdn.jquerytools.org/1.2.6/full/jquery.tools.min.js"></script>    <!-- For tooltips and tabs --> 
+<!-- <script src="http://cdn.jquerytools.org/1.2.6/full/jquery.tools.min.js"></script>    <!-- For tooltips and tabs -->
 <script src="http://jquery.malsup.com/block/jquery.blockUI.js?v2.38"></script>
 <script src="https://raw.github.com/jeremyw/jquery-smart-poll/master/lib/jquery.smart-poll.js"></script>
 <script src="https://raw.github.com/bernat/best_in_place/master/lib/assets/javascripts/best_in_place.js"></script>
+<script src="https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"></script>   <!-- Must get rid of this!!! -->
 
 </head>
 
@@ -62,49 +42,72 @@
   <div id="top_banner">
     <div style="float:left; margin-top:1.3em; margin-left: .7em;">
       <%= link_to image_tag("tudor_logo.png", :border => 0, :size => "99x35", :alt => "Henri Tudor Institute"), "http://www.tudor.lu/" %>
-    </div>   
-          
+    </div>
+
     <div style="float:right; margin-top:.6em; margin-right: .7em;">
       <%= link_to image_tag("music_logo.png", :border => 1, :alt => "MUSIC Project"), "http://themusicproject.eu" %>&nbsp;
       <%= link_to image_tag("interreg_logo.png", :border => 0, :alt => "INTERREG IVB"), 'http://www.nweurope.eu/' %>
-    </div>  
-    
-    <div style="text-align:center;">                                 
+    </div>
+
+    <div style="text-align:center;">
       <div style="font-size: 300%; margin-bottom:-.35em">iGUESS</div>
       <div style="padding-bottom: .5em">integrated Geospatial Urban Energy information and Support System</div>
-    </div> 
-    
+    </div>
+
     <div id="navbar" style="z-index:10;">
       <ul id="nav">
         <li id="nav-1" title="<u><b>Return to starting screen</b></u>">
             <a href="/">Home</a></li>
         <li id="nav-2" title="<u><b>Manage data</b></u><br>Upload new data, and view existing datasets">
-            <%= link_to "Data Manager", datasets_path %></li>   
+            <%= link_to "Data Manager", datasets_path %></li>
         <li id="nav-3" title="<u><b>ModConfigure & run modules</b></u><br>Create new datasets by running calculations">
             <%= link_to "Modules", mod_configs_path %></li>
-        <li id="nav-4" title="<u><b>Define and run scenarios</b></u><br>Scnarios are complex models of potential future situations">
+        <li id="nav-4" title="<u><b>Define and run scenarios</b></u><br>Scenarios are complex models of potential future situations">
             <a href="/scenarios.htm">Scenarios</a></li>
         <li id="nav-5" title="<u><b>Decision support tools</b></u><br>Compare scenario results, and access related tools">
             <a href="/decision_support.htm">Decision Support</a></li>
         <li id="nav-6" title="<u><b>View maps</b></u><br>Visualize data and model results">
-            <%= link_to "Maps", maps_path %></li> 
-      
-      
+            <%= link_to "Maps", maps_path %></li>
+
+
         <div>
-          <select name="cities" id="city-dropdown" onchange="gotoLocation(this.value);">
+          <select name="cities" id="city-dropdown">
             <% for city in City.all %>
-              <option value="<%= city.name %>" <% if city.name == cookies[:city] %>selected<% end %>><%= city.name %></option>
+              <option value="<%= city.name %>" <% if city.name == cookies['city'] %>selected<% end %>><%= city.name %></option>
             <% end %>
           </select>
-          
+
+
+          <script type="text/javascript">
+
+            function setCityCookie(city) {
+              $.cookie('city', city, { expires: 99999 });
+            }
+
+            // If the city cookie doesn't exist when we load this page, create it
+            $(document).ready(function() {
+              if($.cookie('city') == null) {
+                setCityCookie(document.getElementById("city-dropdown").value);
+              }
+            });
+
+            $('#city-dropdown').change(function() {
+              setCityCookie(this.value);
+              if(typeof onLocationChanged != "undefined") {
+                onLocationChanged(this.value);        // Implement this function on a page if you want to be alerted to a location change
+              }
+            });
+          </script>
+
+
           <div id="login"><a href="#" onclick="alert('Logins not implemented yet!!')">[Login]</a></div>
         </div>
       </ul>
-            
-  
+
+
     </div>
   </div>
-  
+
   <br>
 <% end %>
 
@@ -112,12 +115,11 @@
   <%= yield %>
 </div>
 
-<script src="https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"></script>
 <script>
-  $('#navbar li[title]').tooltip({ position: 'bottom center', offset: [0,55] });   // Activate our tooltips   
+  $('#navbar li[title]').tooltip({ position: 'bottom center', offset: [0,55] });   // Activate our tooltips
 </script>
 
-<% if params[:popup].nil? %>  
+<% if params[:popup].nil? %>
   <br><br><br>
 <% end %>
 

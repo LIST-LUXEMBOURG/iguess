@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120424093542) do
+ActiveRecord::Schema.define(:version => 20121003095331) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -29,6 +29,13 @@ ActiveRecord::Schema.define(:version => 20120424093542) do
   create_table "config_datasets", :force => true do |t|
     t.integer "dataset_id",    :null => false
     t.integer "mod_config_id", :null => false
+  end
+
+  create_table "config_text_inputs", :force => true do |t|
+    t.integer "mod_config_id", :null => false
+    t.text    "column_name",   :null => false
+    t.text    "value"
+    t.boolean "is_input"
   end
 
   create_table "datasets", :force => true do |t|
@@ -56,8 +63,14 @@ ActiveRecord::Schema.define(:version => 20120424093542) do
     t.text     "identifier"
     t.text     "name"
     t.text     "descr"
-    t.datetime "created_at",    :null => false
-    t.datetime "updated_at",    :null => false
+    t.datetime "created_at",                    :null => false
+    t.datetime "updated_at",                    :null => false
+    t.text     "status"
+    t.datetime "run_started"
+    t.datetime "run_ended"
+    t.text     "pid"
+    t.integer  "city_id"
+    t.text     "status_text",   :default => ""
   end
 
   create_table "spatial_ref_sys", :id => false, :force => true do |t|

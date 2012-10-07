@@ -10,7 +10,7 @@
 
 body {
   font: 62.5% "Trebuchet MS", sans-serif;
-  margin: 0px;
+  margin: 0;
 }
 
 /* Body in "normal" mode */
@@ -46,7 +46,7 @@ a:active {
 
 /* H1 text at top of each page */
 .page_header {
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 
 /* Explanatory text just below each header */
@@ -63,7 +63,6 @@ a:active {
 .dataset_body, .front_page_col_body {
   padding: 8px;
   margin-bottom: 10px;
-
 }
 
 /* Differentiate mod and dataset pages by making the bodies a slightly different color */
@@ -83,15 +82,49 @@ a:active {
   padding-left: .5em;
 }
 
-.big_button {
-  font-size: 30px;
-  color: red;
-  margin-bottom: 20px;
-  margin-left: 0px;
-  margin-right: 25px;
-  padding: 12px;
-  display: inline;
+
+/* Make a link look like a button... or, hell, make a button look like a button! */
+.linkbutton {
+
+  padding: 8px; 
+  font-size: 20px;
+  color: #222;
+  text-decoration: none;
+  margin-right: 5px;
+  margin-bottom: 15px;
+
+  /* Based on http://www.css3.me/ */
+  background-color: #ffffff;
+  border: 1px solid #999999;
+  border-radius: 3px;
+  /*box-shadow: 0px 0px 1px #000000;*/
+  background-image: -moz-linear-gradient(top, #ffffff, #bbb);
+  background-image: -ms-linear-gradient(top, #ffffff, #bbb);
+  background-image: -o-linear-gradient(top, #ffffff, #bbb);
+  background-image: -webkit-linear-gradient(top, #ffffff, #bbb);
+  background-image: linear-gradient(top, #ffffff, #bbb);
+  background-clip: padding-box;
+  /*Use "background-clip: padding-box" when using rounded corners to avoid the gradient bleeding through the corners*/
+  /*--IE9 DOES NOT SUPPORT CSS3 GRADIENT BACKGROUNDS--*/
 }
+
+.linkbutton:not([disabled="disabled"]):hover
+{
+  background-image: -moz-linear-gradient(top, #ddddff, #99b);
+  background-image: -ms-linear-gradient(top, #ddddff, #99b);
+  background-image: -o-linear-gradient(top, #ddddff, #99b);
+  background-image: -webkit-linear-gradient(top, #ddddff, #99b);
+  background-image: linear-gradient(top, #ddddff, #99b);
+  background-clip: padding-box;
+}
+
+
+.linkbutton[disabled]
+{ 
+  color: #777;
+}
+
+
 
 .button_to {
   display: inline;
@@ -223,4 +256,5 @@ a:active {
 .hidden {
   visibility: hidden;
 }
+
 

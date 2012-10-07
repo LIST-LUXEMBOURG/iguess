@@ -1,0 +1,23 @@
+/*
+ *      Styles for making checkboxes look like iOS-like switches
+ */
+
+.switchbox a:hover {
+    color: white;
+    background-color: black;
+}
+
+.js .switchbox {
+    display: none;
+}
+
+.toggle {
+    background:url("toggle.png") bottom left;
+    display: block;
+    width: 220px;
+    height: 22px;
+}
+
+.toggle.checked {
+    background-position: top left;
+}

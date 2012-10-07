@@ -1,7 +1,12 @@
 class ModConfigsController < ApplicationController
   # GET /mod_configs
   # GET /mod_configs.json
+
+  respond_to :html, :js
+
+
   def index
+    @current_city = (City.find_by_name(cookies['city']) or City.first)
     @mod_configs = ModConfig.all
     @wps_servers = WpsServer.all
 
@@ -44,9 +49,112 @@ class ModConfigsController < ApplicationController
     @mod_config = ModConfig.find(params[:id])
   end
 
+
+  # NOTE that this is not a definitve status -- we don't know, for example, which datasets are needed, and whether they
+  # have been provided.  This really just detects that there are blank text items.  This function should probably be removed.
+  def getStatus(mod_config)
+    if(mod_config.status == nil || mod_config.status == 'READY' || mod_config.status == 'NEEDS_DATA')
+      return 'READY'
+    else
+      return mod_config.status
+    end
+  end
+
+
+  # Only called via ajax request... All we need to do is set status in the database to stop
+  def stop_running
+    @mod_config = ModConfig.find(params[:id])
+    @mod_config.status = 'READY'
+    @mod_config.save
+
+    respond_with do |format|
+      format.js { render :json => @mod_config, :status => :ok }
+    end
+  end
+
+
+  # Only called via ajax request... need to fire up WPSClient and tell it to start
+  # running the specified module
+  def run
+
+    @mod_config = ModConfig.find(params[:id])
+    # @city = 
+
+    wpsClientPath ='/home/iguess/iguess/iguess_test';
+
+    require 'rubypython'
+    require 'uri'
+
+    RubyPython.start
+    sys = RubyPython.import 'sys'
+
+    # Make sure the path of WPSClient is on python's module path, but ensure it's only there once
+    # Since we can't close the RubyPython instance without crashing Ruby, there is a danger we will
+    # add the WPSClient path more than once.
+    if not sys.path.include?(wpsClientPath)
+      sys.path.append(wpsClientPath)
+    end
+
+    inputFields = []
+    inputValues = []
+    outputFields = []
+
+    # Drop downs -- always inputs
+    @mod_config.datasets.map { |x| dataname = x.server_url + (x.server_url.include?("?") == -1 ? "?" : "&") +   
+                                      URI.escape('SERVICE=WFS&VERSION=1.0.0&REQUEST=getFeature&TYPENAME=' + x.identifier)
+                                   inputFields.push(x.dataset_type)
+                                   inputValues.push(dataname) 
+                            }
+
+
+    # Text fields -- both inputs and outputs
+    @mod_config.config_text_inputs.map { |x|  if x.is_input then 
+                                                inputFields.push(x.column_name)
+                                                inputValues.push(x.value)
+                                              else
+                                                outputFields.push(x.column_name)
+                                              end
+                                      }
+
+
+    inputFieldsStr = inputFields.map   { |i| "'" + i.to_s + "'" }.join(",")
+    inputValuesStr = inputValues.map   { |i| "'" + i.to_s + "'" }.join(",")
+    outputFieldsStr = outputFields.map { |i| "'" + i.to_s + "'" }.join(",")
+
+    argUrl =  '--url=' + @mod_config.wps_server.url 
+    argProc = '--procname=' + @mod_config.identifier        
+    argName = '--names=['  + inputFields.map    { |i| "'" + i.to_s + "'" }.join(",") + ']' 
+    argVals = '--vals=['   + inputValues.map    { |i| "'" + i.to_s + "'" }.join(",") + ']' 
+    argOuts = '--outnames=[' + outputFields.map { |i| "'" + i.to_s + "'" }.join(",") + ']'
+
+    
+    require 'open3'
+    output, stat = Open3.capture2('python', 'wpsstart.py', argUrl, argProc, argName, argVals, argOuts)
+
+    # Currently, WPSClient spews out lots of garbage.  We only want the last line.
+    output =~ /^OK:(.*)$/
+    pid = $1
+
+    print "PID = " ,pid
+
+    # Need some error checking here...
+    @mod_config.status = 'RUNNING'
+    @mod_config.pid = pid
+    @mod_config.run_started = Time.now
+    @mod_config.status_text = ''
+    @mod_config.save
+
+
+    @mod_config = ModConfig.find(params[:id])
+    respond_with do |format|
+      format.js { render :json => @mod_config, :status => :ok }
+    end
+  end
+
   # POST /mod_configs
   # POST /mod_configs.json
   def create
+    @current_city = (City.find_by_name(cookies['city']) or City.first)
     @mod_config = ModConfig.new(params[:mod_config])
 
     @mod_config.name = @mod_config.name.strip
@@ -55,18 +163,24 @@ class ModConfigsController < ApplicationController
       @mod_config.name = "Unnamed Configuration"
     end
 
+    @mod_config.city = @current_city
+
     server = WpsServer.find_by_url(params[:wps_server_url])
     @mod_config.wps_server = server
     @mod_config.identifier = params[:identifier]
-    success = @mod_config.save
+
+    success = true
+
 
     # Move on to save all the selected datasets
-    if(success) then
-      if(params[:datasets]) then        # Not every module has input datasets
-        params[:datasets].each_key do |key|
-          if(not params[:datasets][key].empty? and success) then
+    if(params[:datasets]) then        # Not every module has input datasets
+      params[:datasets].each do |d|
+        name = d[0]
+        id = d[1]
+        if(not name.empty?) then
+          if(id != "-1") then
             confds = ConfigDataset.new()
-            dataset = Dataset.find(params[:datasets][key])
+            dataset = Dataset.find(id)
             confds.mod_config = @mod_config
             confds.dataset    = dataset
 
@@ -80,9 +194,9 @@ class ModConfigsController < ApplicationController
     if(success) then
       paramkeys = ['input', 'output']
       paramkeys.each { |paramkey|
-        if(params[paramkey]) then
+        if(params[paramkey]) then                 # Iterate over params['input'], params['output']
           params[paramkey].each_key do |key|
-            if(success) then
+            if(success) then 
               textval = ConfigTextInput.new()
               textval.mod_config = @mod_config
               textval.column_name = key
@@ -97,6 +211,10 @@ class ModConfigsController < ApplicationController
     end
 
 
+    @mod_config.status = getStatus(@mod_config)
+
+    success &= @mod_config.save
+
     respond_to do |format|
       if success
         format.html { redirect_to @mod_config, notice: 'Mod config was successfully created.' }
@@ -108,25 +226,77 @@ class ModConfigsController < ApplicationController
     end
   end
 
+
   # PUT /mod_configs/1
   # PUT /mod_configs/1.json
+  # We get here when a module name or description is updated, or when one of the inputs or outputs is changed.
+  # Should always be via json, though, not by normal form submit.
   def update
     @mod_config = ModConfig.find(params[:id])
 
+    ok = true
+
+    if(params[:datasets]) then        # Not every module has input datasets
+
+      @config_datasets = ConfigDataset.find_all_by_mod_config_id(@mod_config.id)
+      @config_datasets.each { |cd| 
+        ok == ok && cd.delete()
+      }
+    
+
+      params[:datasets].each do |d|
+        name = d[0]
+        id = d[1]
+        if(not name.empty?) then
+          if(id != "-1") then
+            confds = ConfigDataset.new()
+            dataset = Dataset.find(id)
+            confds.mod_config = @mod_config
+            confds.dataset    = dataset
+
+            ok &= confds.save()
+          end
+        end
+      end
+    end
+
+
+    # Update any text inputs/outputs.  Since we don't know the ids of the items, we'll need to do a little hunting
+
+    paramkeys = [:input, :output]
+    paramkeys.each do |paramkey|
+      if(params[paramkey]) then                 # Iterate over params['input'], params['output']
+        params[paramkey].each { |p| 
+
+          name = p[0]
+          val = p[1].strip    # strip off leading and trailing whitespace
+
+          @output = ConfigTextInput.find_by_mod_config_id_and_column_name_and_is_input(@mod_config.id, name, paramkey == :input)
+          @output.value = val;
+          ok = ok && @output.save
+        }
+      end
+    end
+
+    @mod_config.status = nil
+
+    # @mod_config.status = getStatus(@mod_config)
+
+    ok == ok && @mod_config.update_attributes(params[:mod_config])
+
+
     respond_to do |format|
-      if @mod_config.update_attributes(params[:mod_config])
-        format.html { redirect_to @mod_config, notice: 'Mod config was successfully updated.' }
-        format.json { head :no_content }
+      if ok
+        format.html { redirect_to @mod_config, notice: 'Mod config was successfully updated.' }  # <== Used at all?
+        # Next line is text not json because for some reason something wasn't working...  this should
+        format.js   { render :json => @mod_config, :status => :ok }   # <== For handling ajax requests for form input changes
+        format.json { render :json => @mod_config, :status => :ok }   # <== For best_in_place
       else
-        format.html { render action: "edit" }
-        format.json { render json: @mod_config.errors, status: :unprocessable_entity }
+        format.html { render action: "edit" }   # Need to handle errors here
+        format.js { render json: @mod_config.errors, status: :unprocessable_entity }
       end
     end
   end
-  #
-  #def update_dataset
-  #  @mod_config = ModConfig.find(params[:id])
-  #end
 
   # DELETE /mod_configs/1
   # DELETE /mod_configs/1.json

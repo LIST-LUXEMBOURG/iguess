@@ -8,6 +8,10 @@
 	<p>
 	iGUESS will probe for WFS and WMS servers at the URL provided below.  Layers offered by the WMS will be available for mapping,
 	and layers offered by the WFS will be available for using as inputs to web processes.
+
+  <ul>
+    <li>http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map&SERVICE=WMS&VERSION=1.0.0&REQUEST=GetCapabilities
+    <li>http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/LB_localOWS_test.map&SERVICE=WMS&VERSION=1.0.0&REQUEST=GetCapabilities
 </div>
 
 
@@ -16,7 +20,6 @@
   // Add "js" style to body -- makes fancy checkboxes work
   $('body').attr("class",$('body').attr("class") + " js");
 
-  LOCAL_SRS  = '<%= @current_city.srs %>';
   GOOGLE_SRS = 'EPSG:3857';
 
   var urls = [<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>];
@@ -56,15 +59,16 @@
 
 		$.ajax({
 			type: 'PUT',      // PUT combined with url below triggers "update" action on controller
-			url: '<%= url_for(:controller => 'datasets', :action => 'update_data_type') %>',
-			data: 'dataset[identifier]=' + layerName +
-			      '&dataset[server_url]=' + server +
+			url:  '<%= url_for(:controller => 'datasets', :action => 'update_data_type') %>',
+			data: 'dataset[identifier]='    + layerName +
+			      '&dataset[server_url]='   + server    +
 			      '&dataset[dataset_type]=' + dataTypeControl.value,
 			headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
 			success: function(data) {  }
 	  });
 
-	  registeredDataLayers[layerKey] = dataTypeControl.value;
+    var rubyId = registeredDataLayers[layerKey].rubyId;
+	  registeredDataLayers[layerKey] = makeRegisteredLayer(dataTypeControl.value, rubyId, 0);
   }
 
 
@@ -76,13 +80,23 @@
     if(registeredDataLayers[layerKey] == undefined || registeredDataLayers[layerKey].configCount == 0) { return true; }
 
     var ct = registeredDataLayers[layerKey].configCount;
-    var c = (ct == 1) ? "configuration" : "configurations";
-    var t = (ct == 1) ? "this" : "these";
+    var c  = (ct == 1) ? "configuration" : "configurations";
+    var t  = (ct == 1) ? "this" : "these";
     var th = (ct == 1) ? "it" : "them";
 
     return confirm("This dataset is in use by " + ct + " " + c + ". " +
                    "Changing its type will cause it to be removed from " + t + " " + c + ".\n\n" +
                    "Click OK if you are sure you want to change the type of this dataset.");
+  }
+
+
+  // The city dropdown on the UR of the screen has changed
+  var onLocationChanged = function(cityName) {
+    // Update to default city URL -- use gsub to fix those @#$%^ backslashes in the URL...
+    $('#dataset_url').val(
+            { <% @cities.each do |city| %>'<%= city.name %>':'<%= city.url.gsub(/\\/, '\\\\\\') %>',<% end %>}[cityName]
+    );
+    LOCAL_SRS = { <% @cities.each do |city| %>'<%= city.name %>':'<%= city.srs %>',<% end %>}[cityName];
   }
 
 
@@ -196,7 +210,7 @@
 
           if(layer.type.hasObject('WFS')) {
             for(var j = 0, jlen = dataTypeList.length; j < jlen; j++) {
-              dataTypeControl.append('<option>' + dataTypeList[j] + '</option>');
+              dataTypeControl.append('<option value="' + dataTypeList[j].id + '">' + dataTypeList[j].id + '</option>');
             }
           }
 
@@ -266,7 +280,7 @@
                  .append(dataTypeControl);
 
         var sample_map = $(document.createElement('div'));
-        sample_map.attr({ id: mapDivId, class:'sample-map' });
+        sample_map.attr({ id:mapDivId, class:'sample-map' });   // Map will be rendered based on div's id
 
         var container = $(document.createElement('div'));
         container.attr({ class:'dataset ' + (registered ? 'registered_dataset' : 'unregistered_dataset'), id:'td_' + layer.identifier });
@@ -283,29 +297,43 @@
         tr_element.append(container);
 
         $('#layer-table').append(tr_element);
+//        console.log(layer.bbox);
 
-        if(layer.bbox !== null && layer.bbox.length > 0)
+        var activeSRS = null;
+        if(layer.bbox !== null) {
+          for (e in layer.bbox) { activeSRS = e; break; }
+        }
+
+//        console.log(layer);
+//        console.log(layer.bbox);
+//        console.log(firstEspg);
+
+        if(activeSRS !== null)
         {
-          var activeSRS = layer.bbox[0].srs;
+//          console.log(activeSRS);
+
           var bbox = layer.bbox[activeSRS].bbox;
 
           var bounds = new OpenLayers.Bounds(bbox[0], bbox[1], bbox[2], bbox[3]);  //minx miny maxx maxy
 
-
           var miniMap = new OpenLayers.Map({
-                  maxExtent: bounds,
+                  maxExtent:  bounds,
                   projection: new OpenLayers.Projection(activeSRS)
           });
 
           var lyr = new OpenLayers.Layer.WMS(
                   layer.title,
                   server,
-                  { layers: layer.identifier,
-                    format: "image/gif",
+                  { layers:  layer.identifier,
+                    format:  "image/gif",
                     srsName: activeSRS,
-                    srs: activeSRS
+                    srs:     activeSRS
                   }
           );
+
+//          alert(lyr.bbox);
+//          alert(lyr.bbox.ESPG[0]);
+//          lyr.bbox.ESPG[0].bbox = [92000,437000,92600,436500];
 
           miniMap.addLayer(lyr);
           miniMap.zoomToMaxExtent();
@@ -341,10 +369,10 @@
       var layerKey = makeKey(server, layerName);
 
       if(registeredDataLayers[layerKey] != undefined && registeredDataLayers[layerKey].configCount > 0) {
-        var ct = registeredDataLayers[layerKey].configCount;
-        var c = (ct == 1) ? "configuration" : "configurations";
-        var t = (ct == 1) ? "this" : "these";
-        var th = (ct == 1) ? "it" : "them";
+        var ct = registeredDataLayers[layerKey].configCount || 0;
+        var c =  (ct == 1) ? "configuration" : "configurations";
+        var t =  (ct == 1) ? "this"          : "these";
+        var th = (ct == 1) ? "it"            : "them";
 
         if(!confirm("This dataset is in use by " + ct + " " + c + ". " +
                     "Unregistering it will cause it to be removed from " + t + " " + c + ".\n\n" +
@@ -382,16 +410,17 @@
         // our datasets table.
         $.ajax({
           type: 'POST',      // POST combined with url below triggers "create" action on controller
-          url: '<%= url_for(:controller => 'datasets', :action => 'create') %>',
+          url: '<%= url_for(:controller => 'datasets', :action => 'create', :format=>:json) %>',
           data: 'dataset[identifier]=' + layerName +
                 '&dataset[server_url]=' + server +
-                '&dataset[dataset_type]=' + dataTypeControl.value,
+                '&dataset[dataset_type]=' + dataTypeControl.value +
+                '&cityName=' + $.cookie('city'),
           headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
-          success: function(data) { }
+          success: function(data) {
+            // Add layer to the list of registered layers
+            registeredDataLayers[layerKey] = makeRegisteredLayer(data.identifier, data.id, 0);
+          }
         });
-
-        // Add layer to the list of registered layers
-        registeredDataLayers[layerKey] = dataTypeControl.value;
       }
 
       $(this).toggleClass("checked");
@@ -401,7 +430,6 @@
       e.preventDefault();
 
     });  // end toggle state change handler
-
   }
 
 
@@ -440,68 +468,29 @@
 
   $(document).ready(function ()
   {
+    onLocationChanged('<%= @current_city.name %>');   // Update SRS and set default URL
     $('#dataset_url').change(update);
     $('#refresh_layers_button').click(update);
     hideProbingIndicators();
   });
-
-
-  // The city dropdown on the UR of the screen has changed
-  function gotoLocation(cityName) {
-    LOCAL_SRS = { <% @cities.each do |city| %>'<%= city.name %>':'<%= city.srs %>',<% end %>}[cityName];
-  }
 </script>
 
 
-<style>
-
-.switchbox a:hover {
-	color: white;
-	background-color: black;
-}
-
-.js .switchbox {
-  display:none;
-}
-
-
-.toggle {
-   background:url("/assets/toggle.png") bottom left;
-    display:block;
-    width:220px;
-    height:22px;
-}
-
-.toggle.checked {
-  background-position:top left;
-}
-</style>
-
-
-<div class="explanation">
-  Sample URLs (this list will be removed in future)
-  <ul>
-    <li>Select "Rotterdam" from the drop-down on the UR corner of the screen then use the following URL:<br>
-        http://ows.gis.rotterdam.nl/cgi-bin/mapserv.exe?map=d:\gwr\webdata\mapserver\map\gwr_basis_pub.map</li>
-
-    <li>Select "Ludwigsburg" from the drop-down on the UR corner of the screen then use the following URL:<br>
-        http://logis.ludwigsburg.de/mapguide2011/mapagent/mapagent.fcgi</li>
-
-    <li>http://iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/LB_localOWS_test.map</li>
-
-    <li>http://iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/Ludwigsburg02.map</li>
-
-  </ul>
-</div>
-
+<!--<div class="explanation">-->
+  <!--Sample URLs for local mirror of Ludwigsburg (this list will be removed in future)-->
+  <!--<ul>-->
+    <!--<li>http://iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/LB_localOWS_test.map</li>-->
+    <!--<li>http://iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/Ludwigsburg02.map</li>-->
+  <!--</ul>-->
+<!--</div>-->
 
 
 <form id="url_form">
 
 <div class="field">
   Remote Data Server URL:<br>
-  <input id="dataset_url" type="text" value="http://ows.gis.rotterdam.nl/cgi-bin/mapserv.exe?map=d:\gwr\webdata\mapserver\map\gwr_basis_pub.map" size="90"/>
-  <button type="button" id="refresh_layers_button">Refresh</button>
+  <input id="dataset_url" type="text" size="90"/>
+  <button type="button" id="refresh_layers_button" style="padding-left: 20px; padding-right:20px;">Load</button>
 </div>
 </form>
 
@@ -525,20 +514,12 @@
 </div>
 
 <script>
-  $("#radio-show-wfs").click(function() {
-    displayLayers();
-  });
-  $("#radio-show-wms").click(function() {
-    displayLayers();
-  });
-  $("#radio-show-both").click(function() {
-    displayLayers();
-  });
+  $("#radio-show-wfs") .click(function() { displayLayers(); });
+  $("#radio-show-wms") .click(function() { displayLayers(); });
+  $("#radio-show-both").click(function() { displayLayers(); });
 </script>
 
 <span style="padding-left: 5px;" id="probing-wms">Probing WMS server... <img src="/assets/loading_spinner.gif"></span>
 <span style="padding-left: 5px;" id="probing-wfs">Probing WFS server... <img src="/assets/loading_spinner.gif"></span>
 
-
 <div id="layer-display"></div>
-

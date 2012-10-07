@@ -4,7 +4,7 @@
 
 
 .process-dropdown-control {
-  
+
 }
 
 
@@ -16,19 +16,19 @@
 }
 
 #server-list li {
-    
+
 }
 
 .model-descr-table {
   //font-family:"Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
   //font-size:12px;
   //width:80%;
-  
+
   text-align:left;
   border-collapse:collapse;
   margin:40px;
   margin-top: 0px;
- 
+
 }
 
 .model-descr-table th {
@@ -61,7 +61,7 @@
   //color:#669;
   border-top:1px solid transparent;
   padding:8px;
-  
+
   // Keep tables from growing too wide!
   max-width:600px;
   word-wrap: break-word;
@@ -72,6 +72,24 @@
   color:#339;
 }
 
+// MODULE STATUS message box text (not including "MODULE STATUS")
+#status_display {
+  text-align: right;
+  font-style: italic;
+}
+
+.module-status-box {
+  float: right;
+  border: 1px solid black;
+  padding: 10px;
+  text-align: right;
+}
+
+
+// Text displayed when there are no inputs or outputs for a configuration
+.no-inputs-ouputs {
+  font-style: italic;
+}
 
 // Title of server in the server list
 .wps-title {
@@ -85,12 +103,12 @@
 
 // Name of each process in module catalog
 .process-title {
-  
+
 }
 
 // Descy of each process in module catalog
 .process-descr {
-  
+
 }
 
 // Server name for each process in module catalog
@@ -103,18 +121,68 @@
 }
 
 .process-server-name .server-name {
-  
+
 }
 
 
 // Left column of inputs/outputs table
 .param-name {
-  
+
 }
 
 // Right column of inputs/outputs table
 .param-descr {
-  
+
+}
+
+
+
+/* Accordion tabs for Module Catalog */
+
+/* root element for accordion. decorated with rounded borders and gradient background image */
+#module-catalog {
+    /*background:#333 url(/media/img/gradient/h300.png) 0 0;*/
+    border:1px solid #333;
+    /*-background:#666;*/
+    margin: 0 auto;
+}
+
+/* accordion header */
+#module-catalog h2 {
+    background:#ddf;
+    line-height: 14px;
+    margin:0;
+    padding:5px 15px;
+    font-size:14px;
+    font-weight:normal;
+    border:1px solid #fff;
+    border-bottom:1px solid #ddd;
+    cursor:pointer;
+}
+
+/* currently active header */
+#module-catalog h2.current {
+    /*cursor:default;*/
+    /*background-color:#fff;*/
+}
+
+/* accordion pane */
+#module-catalog .catalog-item {
+    border:1px solid #fff;
+    border-width:0 2px;
+    display:none;
+    /*height:180px;*/
+    padding:15px;
+    /*color:#fff;*/
+    /*font-size:12px;*/
+}
+
+/* a title inside pane */
+#module-catalog .catalog-item h3 {
+    font-weight:normal;
+    margin:0;
+    font-size:16px;
+    color:#999;
 }
 
 

@@ -1,12 +1,13 @@
 class ConfigTextInputsController < ApplicationController
 
-  # This is only called with ajax
+  # This is only called with ajax, when a text field tied to an input or output is updated
   def update
 
     @mod_config = ModConfig.find(params[:id])   # This is the mod_config we're working with
 
     # Find the config_text_input that we need to update
-    ids = ConfigTextInput.find_all_by_mod_config_id_and_column_name_and_is_input(@mod_config.id, params[:identifier], (params[:mode] == 'input'))
+    ids = ConfigTextInput.find_all_by_mod_config_id_and_column_name_and_is_input(
+                                @mod_config.id, params[:identifier], (params[:mode] == 'input'))
 
     # ids should have either 0 or 1 element in it
 
@@ -15,8 +16,8 @@ class ConfigTextInputsController < ApplicationController
     ok = :true
 
 
-    if inputval.empty?   # Find and delete ConfigTextInput -- if ids.length == 0, we have nothing to do
-      if ids.length > 0
+    if inputval.empty?    # User cleared the textbox: Find and delete ConfigTextInput 
+      if ids.length > 0   # If ids.length == 0, we have nothing to delete
         @config_text_input = ConfigTextInput.find(ids[0])
 
         ok = @config_text_input.delete
@@ -39,7 +40,7 @@ class ConfigTextInputsController < ApplicationController
 
     respond_to do |format|
       if ok
-        format.html { render :text => "OK"  }
+        format.html { render :text => "UNKNOWN" }
         format.json { head :no_content }
       else
         format.html { render :text => "Error" }
