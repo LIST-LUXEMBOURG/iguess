@@ -307,10 +307,11 @@
         {
           var bbox = layer.bbox[activeSRS].bbox;
 
-          var bounds = new OpenLayers.Bounds(bbox[0], bbox[1], bbox[2], bbox[3]);  //minx miny maxx maxy
+          // var bounds = new OpenLayers.Bounds(bbox[0], bbox[1], bbox[2], bbox[3]);  //minx miny maxx maxy
+          var boundsMap  = new OpenLayers.Bounds(-1015000, 5845000, 1100000, 8000000);  // Nothing will be displayed outside these bounds (Poland - Ireland)
 
           var miniMap = new OpenLayers.Map({
-                  maxExtent:  bounds,
+                  maxExtent:  boundsMap,
                   projection: new OpenLayers.Projection(activeSRS)
           });
 
