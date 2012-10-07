@@ -42,13 +42,13 @@
       var d = datasets[i];
 
 
-console.log(d);
+// console.log(d);
 
       var r = railsIdLookup[makeKey(d.server_url, d.identifier)];
 
 
       $('#dataset-list').append(
-          '<tr valign=middle>' +
+          '<tr valign=middle id="dataset-id-' + d.id + '">' +
             '<td class="dataset-name-' + serverUrlIdLookup[d.server_url] + ' dataset-name2-' + r + '" ' +
                   '" title="Server URL: ' + d.server_url + '">Retrieving...' +
             '</td>' +
@@ -63,6 +63,10 @@ console.log(d);
       processUrl(d.server_url);
     }
   }
+
+  $(document).bind('ajax:success', function(xhr, data, status) { 
+    $('#dataset-id-' + data).hide();
+  });
 
 
   // The following creates a mapping of server urls to short unique tokens, in both ruby and javascript.
