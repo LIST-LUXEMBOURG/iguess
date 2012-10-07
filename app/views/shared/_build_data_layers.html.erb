@@ -91,13 +91,10 @@
   }
 
 
-  var onWmsGetCapabilitiesFailed = function(e,f,g,h,i,j) {   // <-- Probably not right...
+  var onWmsGetCapabilitiesFailed = function() {   // <-- Probably not right...
 
-    console.log(e);
-    console.log(f);
-    console.log(g);
-    console.log(h);
-    console.log(i);
+    console.log("WMS GetCapabilities failed");
+    console.log(arguments);
 
     $('#layer-display').html('<div class="form_error_message">Error: Either this is an invalid address, or the WMS server is not responding.</div>');
 
@@ -114,20 +111,13 @@
   }
 
 
-  var onWfsGetCapabilitiesFailed = function(e,f,g,h,i,j,k) {   // <-- Probably not right...
-    debugger;
-    console.log(e);
-    console.log(f);
-    console.log(g);
-    console.log(h);
-    console.log(i);
-    console.log(j);
+  var onWfsGetCapabilitiesFailed = function() {   // <-- Probably not right...
+    console.log("WFS GetCapabilities failed");
+    console.log(arguments);
     showPreErrorMessage(i);
 
 
     doneProcessing('???', 'WFS', 'ERROR');
   }
-
-
 
 </script>
