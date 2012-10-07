@@ -162,13 +162,17 @@
 
   function initMap() {
 
-    var bounds = new OpenLayers.Bounds(995196.25, 6240993.46, 1057535.16, 6274861.39);
+
+    var boundsInit = new OpenLayers.Bounds(995196.25, 6240993.46, 1057535.16, 6274861.39);    
+    var boundsMap  = new OpenLayers.Bounds(-1015000, 5845000, 1100000, 8000000);  // Nothing will be displayed outside these bounds (Poland - Ireland)
+
+    // var bounds = new OpenLayers.Bounds(995196.25, 6240993.46, 1057535.16, 6274861.39);
 
     map = new OpenLayers.Map("BroadMap",{
       projection: new OpenLayers.Projection(mapProjection),
       displayProjection: new OpenLayers.Projection(displayProjection),
       units: "m",
-      maxExtent: bounds,
+      maxExtent: boundsMap,
       controls: []
     });
 
@@ -224,7 +228,7 @@
 
     //map.addLayers([iBusLines]);
 
-    map.setCenter(bounds.getCenterLonLat(), 13);
+    map.setCenter(boundsInit.getCenterLonLat(), 13);
   }
 
   function zoomToCity() {
