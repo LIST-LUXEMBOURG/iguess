@@ -138,12 +138,24 @@
     if(responses == WPS.getResponsesExpected()) {
       $('#wps-probing-indicator').hide();           // This indicator is on the Module Catalog tab
 
-      // Prepare the module list accordion tab effect -- set ititialIndex to -1 to prevent any tabs from opening by default
-      $('#module-catalog').tabs(
-        '#module-catalog div.catalog-item', { tabs: 'h2', effect: 'slide', initialIndex: -1 }
-      );
+      // Prepare the module list accordion tab effect -- set ititialIndex to null to prevent any tabs from opening by default
+      // $('#module-catalog').tabs(
+      //   '#module-catalog div.catalog-item', { tabs: 'h2', effect: 'slide', initialIndex: null }
+      // );
 
+      $("#module-catalog > h2").bind("click", function(){
+                
+        var animTime = 200;
+        if($(this).hasClass("current")){
+            $(this).removeClass("current");
+            $(".catalog-item").slideUp(animTime);
+        } else {
+            $(".catalog-item").slideUp(animTime);
+            $(this).addClass("current");
+            $(this).next().slideDown(animTime);
+        }
 
+      });
 
     }
 
