@@ -297,7 +297,7 @@
         tr_element.append(container);
 
         $('#layer-table').append(tr_element);
-
+open
         var activeSRS = null;
         if(layer.bbox !== null) {
           for (e in layer.bbox) { activeSRS = e; break; }
@@ -312,7 +312,8 @@
 
           var miniMap = new OpenLayers.Map({
                   maxExtent:  boundsMap,
-                  projection: new OpenLayers.Projection(activeSRS)
+                  projection: new OpenLayers.Projection(activeSRS),
+                  controls: []
           });
 
           var lyr = new OpenLayers.Layer.WMS(
