@@ -189,6 +189,7 @@ function onDescribedProcess_getDataTypesProbe(process)
 WMS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
   jQuery('.form_error_message').text("");    // Clear all error messages
   // $('#refresh_layers_button').attr('disabled', true);
+
   jQuery('#layers_loading_indicator').show();
 
   var fullUrl = WMS.getCapReq(serverUrl);
@@ -199,6 +200,8 @@ WMS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
   // Add some callbacks to handle various situations
   store.on('load',      successFunction);
   store.on('exception', failureFunction);
+
+console.log(store);
 
   store.load();
 };
@@ -248,7 +251,7 @@ WMS.stripGetCapReq = function(serverUrl) {
 };
 
 
-WFS.getCapStr = 'SERVICE=WFS&VERSION=1.0.0&REQUEST=GetCapabilities';
+WFS.getCapStr = 'SERVICE=WFS&VERSION=1.1.0&REQUEST=GetCapabilities';
 
 WFS.getCapReq = function(serverUrl) {
   var joinchar = getJoinChar(serverUrl);

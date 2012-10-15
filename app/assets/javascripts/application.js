@@ -15,4 +15,9 @@
 //= require jquery.cookie
 //= require jquery.tools.min
 //= require best_in_place
+//= require Ext-base
+//= require Ext-all
+//= require OpenLayers-2.12-debug
+//= require OpenLayers-2.12-debug-deprecate
+//= require GeoExt-debug
 //= require_tree .

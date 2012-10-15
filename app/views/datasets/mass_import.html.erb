@@ -47,11 +47,13 @@
 
 <script type="text/javascript">
 
+  function getServerUrl() { return $('#dataset_url').val().trim(); }
+
   // User changes the value of one of the dataType dropdowns
   function onDataTypeChanged(id)
   {
     var layerName = getLayerNameFromDataTypeId(id);
-    var server = $('#dataset_url').val();
+    var server = getServerUrl();
     var layerKey = makeKey(server, layerName);
 
     // Let the server know the dataType has changed
@@ -74,8 +76,8 @@
 
   function confirmChange(id) {
     var layerName = getLayerNameFromDataTypeId(id);
-    var server = $('#dataset_url').val();
-    var layerKey = makeKey(server, layerName);
+    var server    = getServerUrl();
+    var layerKey  = makeKey(server, layerName);
 
     if(registeredDataLayers[layerKey] == undefined || registeredDataLayers[layerKey].configCount == 0) { return true; }
 
@@ -137,7 +139,7 @@
 
   var displayLayers = function()
   {
-    var server = $('#dataset_url').val();
+    var server = getServerUrl();
     var mapId = 0;
     var first = true;
 
@@ -355,7 +357,7 @@
       var layerName = getLayerNameFromCheckboxId(checkboxID);
 
       var dataTypeControl = document.getElementById(getDataTypeControlId(layerName));
-      var server = $('#dataset_url').val();
+      var server = getServerUrl();
 
       var layerKey = makeKey(server, layerName);
 
@@ -433,8 +435,8 @@
     wfsProcessingComplete = false;
     wmsProcessingComplete = false;
 
-    WFS.updateLayerList($('#dataset_url').val(), onWfsGetCapabilitiesSucceeded, onWfsGetCapabilitiesFailed);
-    WMS.updateLayerList($('#dataset_url').val(), onWmsGetCapabilitiesSucceeded, onWmsGetCapabilitiesFailed);
+    WFS.updateLayerList(getServerUrl(), onWfsGetCapabilitiesSucceeded, onWfsGetCapabilitiesFailed);
+    WMS.updateLayerList(getServerUrl(), onWmsGetCapabilitiesSucceeded, onWmsGetCapabilitiesFailed);
   };
 
 
