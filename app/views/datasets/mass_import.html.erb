@@ -129,9 +129,15 @@
       $('#probing-wms').hide();
       wmsProcessingComplete = true;
     }
+    else if(type == 'WCS') {
+      $('#probing-wcs').hide();
+      wcsProcessingComplete = true;
+    }
+    else { alert("Unknown type " + type); }
 
     if(!(wfsProcessingComplete || !showWfs() &&
-         wmsProcessingComplete || !showWms())    ) { return; }   // Still waiting for another service to return
+         wmsProcessingComplete || !showWms() &&
+         wcsProcessingComplete || !showWcs() )    ) { return; }   // Still waiting for another service to return
 
     displayLayers();
   }
@@ -182,7 +188,7 @@
         var srsList = [ ];
 
         if(layer.srs !== null) {
-          availableInLocalProjection  = LOCAL_SRS in layer.srs;
+          availableInLocalProjection  = LOCAL_SRS  in layer.srs;
           availableInGoogleProjection = GOOGLE_SRS in layer.srs;
           srsList = Object.keys(layer.srs);
         }
@@ -273,9 +279,7 @@
         var data_info = $(document.createElement('div'));
         data_info.attr({ class:'data-info' });
 
-        data_info.append(titleNode)
-                 .append(abstractNode)
-                 .append(srsNode)
+        data_info.append(srsNode)
                  .append(registerControl)
                  .append(servicesAvailNode)
                  .append('<br>')
@@ -286,7 +290,9 @@
 
         var container = $(document.createElement('div'));
         container.attr({ class:'dataset ' + (registered ? 'registered_dataset' : 'unregistered_dataset'), id:'td_' + layer.identifier });
-        container.append(data_info)
+        container.append(titleNode)
+                 .append(abstractNode)
+                 .append(data_info)
                  .append(sample_map);
 
         // tr_element (map-data-item)
@@ -426,17 +432,94 @@
   }
 
 
+
+  // Class declaration
+  function ServiceProbe(serverUrl) {   
+    this.successCount = 0;
+    this.failCount    = 0;
+    this.WmsSucceeded = null;
+    this.WfsSucceeded = null;
+    this.WcsSucceeded = null;
+    this.serverUrl    = serverUrl;
+
+    var self = this;    // Stored pointer to ourselves, will be needed in the callback
+  
+    
+    this.statusChanged = function() {
+      
+    }
+
+    this.onGetCapabilitiesSucceeded = function() {
+      self.successCount++;
+      self.statusChanged();
+    }
+
+    this.onGetCapabilitiesFailed = function() {
+      self.failCount++;
+      self.statusChanged();
+    }
+
+    this.onWfsGetCapabilitiesSucceeded = function(store, records) { 
+      self.onGetCapabilitiesSucceeded();
+      self.WfsSucceeded = true; 
+
+      onWfsGetCapabilitiesSucceeded(store, records);
+    }
+
+    this.onWmsGetCapabilitiesSucceeded = function(store, records) { 
+      self.onGetCapabilitiesSucceeded();
+      self.WmsSucceeded = true;
+
+      onWmsGetCapabilitiesSucceeded(store, records);
+    }
+
+    this.onWcsGetCapabilitiesSucceeded = function(store, records) { 
+      self.onGetCapabilitiesSucceeded();
+      self.WcsSucceeded = true;
+
+      onWcsGetCapabilitiesSucceeded(store, records);
+    }
+
+    this.onWfsGetCapabilitiesFailed = function() { 
+      self.onGetCapabilitiesFailed();
+      self.WfsSucceeded = false;
+      doneProcessing(self.serverUrl, 'WFS', 'ERROR');
+    }
+
+    this.onWmsGetCapabilitiesFailed = function() { 
+      self.onGetCapabilitiesFailed();
+      self.WmsSucceeded = false;
+      doneProcessing(self.serverUrl, 'WMS', 'ERROR');
+    }
+
+    this.onWcsGetCapabilitiesFailed = function() { 
+      self.onGetCapabilitiesFailed();
+      self.WcsSucceeded = false;
+      doneProcessing(self.serverUrl, 'WCS', 'ERROR');
+    }
+
+    this.startProbing = function() { 
+      WFS.updateLayerList(self.serverUrl, self.onWfsGetCapabilitiesSucceeded, self.onWfsGetCapabilitiesFailed );
+      WMS.updateLayerList(self.serverUrl, self.onWmsGetCapabilitiesSucceeded, self.onWmsGetCapabilitiesFailed );
+
+    };
+  }
+
+
+  // This gets called when the Remote Data Server URL is changed
   var update = function()
   {
     showProbingIndicators();
 
     $('#layer-display').html('');
     discoveredLayers = { };
+
     wfsProcessingComplete = false;
     wmsProcessingComplete = false;
+    wcsProcessingComplete = true;   // for now
 
-    WFS.updateLayerList(getServerUrl(), onWfsGetCapabilitiesSucceeded, onWfsGetCapabilitiesFailed);
-    WMS.updateLayerList(getServerUrl(), onWmsGetCapabilitiesSucceeded, onWmsGetCapabilitiesFailed);
+    var probe = new ServiceProbe(getServerUrl());
+    probe.startProbing();
   };
 
 
@@ -448,34 +531,38 @@
     return $('#radio-show-wms').prop('checked') || $('#radio-show-both').prop('checked');
   }
 
+  function showWcs() {
+    return false; //$('#radio-show-wfs').prop('checked') || $('#radio-show-both').prop('checked');
+  }
+
   function showProbingIndicators() {
     if(showWfs()) { $('#probing-wfs').show(); }
     if(showWms()) { $('#probing-wms').show(); }
+    if(showWcs()) { $('#probing-wcs').show(); }
   }
 
   function hideProbingIndicators() {
     $('#probing-wms').hide();
     $('#probing-wfs').hide();
+    $('#probing-wcs').hide();
   }
 
 
   $(document).ready(function ()
   {
+    hideProbingIndicators();
     onLocationChanged('<%= @current_city.name %>');   // Update SRS and set default URL
+
+    // Event handlers for various controls
     $('#dataset_url').change(update);
     $('#refresh_layers_button').click(update);
-    hideProbingIndicators();
+
+    // Event handlers for our radio buttons
+    $("#radio-show-wfs") .click(function() { displayLayers(); });
+    $("#radio-show-wms") .click(function() { displayLayers(); });
+    $("#radio-show-both").click(function() { displayLayers(); });
   });
 </script>
-
-
-<!--<div class="explanation">-->
-  <!--Sample URLs for local mirror of Ludwigsburg (this list will be removed in future)-->
-  <!--<ul>-->
-    <!--<li>http://iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/LB_localOWS_test.map</li>-->
-    <!--<li>http://iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/Ludwigsburg02.map</li>-->
-  <!--</ul>-->
-<!--</div>-->
 
 
 <form id="url_form">
@@ -506,13 +593,9 @@
   </label>
 </div>
 
-<script>
-  $("#radio-show-wfs") .click(function() { displayLayers(); });
-  $("#radio-show-wms") .click(function() { displayLayers(); });
-  $("#radio-show-both").click(function() { displayLayers(); });
-</script>
 
-<span style="padding-left: 5px;" id="probing-wms">Probing WMS server... <img src="/assets/loading_spinner.gif"></span>
-<span style="padding-left: 5px;" id="probing-wfs">Probing WFS server... <img src="/assets/loading_spinner.gif"></span>
+<span style="padding-left: 5px;" id="probing-wms">Probing map server... <img src="/assets/loading_spinner.gif"></span>
+<span style="padding-left: 5px;" id="probing-wfs">Probing feature server... <img src="/assets/loading_spinner.gif"></span>
+<span style="padding-left: 5px;" id="probing-wcs">Probing coverage server... <img src="/assets/loading_spinner.gif"></span>
 
 <div id="layer-display"></div>

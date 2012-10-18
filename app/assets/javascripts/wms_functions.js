@@ -221,6 +221,7 @@ WFS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
 };
 
 
+
 var geoProxyPrefix = '/home/geoproxy?url=';
 
 var wrapGeoProxy = function(url) {
@@ -309,7 +310,19 @@ WMS.unwrapServer = function(url) {
 
 unwrapServer = function(url, format)
 {
-    if(format == 'WFSCapabilities') { return WFS.unwrapServer(url); }
-    if(format == 'WMSCapabilities') { return WMS.unwrapServer(url); }
-    return null;
+  if(format == 'WFSCapabilities') { return WFS.unwrapServer(url); }
+  if(format == 'WMSCapabilities') { return WMS.unwrapServer(url); }
+  if(format == 'WCSCapabilities') { return WCS.unwrapServer(url); }
+
+  return null;
+};
+
+
+getService = function(format)
+{
+  if(format == 'WFSCapabilities') { return "WFS"; }
+  if(format == 'WMSCapabilities') { return "WMS"; }
+  if(format == 'WCSCapabilities') { return "WCS"; }
+
+  return null;
 };
