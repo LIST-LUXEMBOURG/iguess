@@ -211,6 +211,8 @@
       var url     = unwrapServer(store.url, format);
       var service = getService(format);
 
+      console.log("Success", arguments);
+
       serverStatus[url].push( new ServerResponse(true, records.length, store, service) );
 
       setLayerStatus(url);
@@ -231,7 +233,7 @@
       serverStatus[url].push( new ServerResponse(false, 0, null, service) );
 
       // alert("Error retrieving data -- see console for details!");
-      console.log(arguments);
+      console.log("Failure!",arguments);
 
       setLayerStatus(url);
     }

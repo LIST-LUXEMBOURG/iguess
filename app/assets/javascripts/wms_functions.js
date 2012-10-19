@@ -67,27 +67,14 @@ WPS.onDescribedProcessFunction_passthrough = function(process)
 };
 
 showErrorMessage = function (process, code, text) {
-  console.log(arguments);
-    // alert("ERROR");
-	// newWin = window.open('', 'Service Error Message', 'height=400, width=600, toolbar=no, menubar=no');
-	// newWin.document.write("ShowErrorMessage");
- //  newWin.document.write("There was an error retrieving your data.");
-	// newWin.document.write(process.responseText);
-//    newWin.document.write(code);
-//    newWin.document.write(text);
+  console.log("showErrorMessage", arguments);
 };
 
 
 // This will get called if the wps url points to a server that doesn't much exist.... TODO: something
 // We got back an error from one of our requested processes... do something useful
 showErrorMessage2 = function (request) {
-    // alert(request.statusText);
-    // newWin = window.open('', 'Service Error Message', 'height=400, width=600, toolbar=no, menubar=no');
-    // newWin.document.write("ShowErrorMessage");
-    // newWin.document.write("There was an error retrieving your data.");
-    // newWin.document.write(process.responseText);
-//    newWin.document.write(code);
-//    newWin.document.write(text);
+  console.log("showErrorMessage2", arguments);
 };
 
 
@@ -102,7 +89,7 @@ showPreErrorMessage = function (process, code, text) {
 
 WPS.onGetServerInfo = function()
 {
-  console.log(arguments);
+  console.log("WPS.onGetServerInfo", arguments);
 };
 
 
@@ -200,8 +187,6 @@ WMS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
   // Add some callbacks to handle various situations
   store.on('load',      successFunction);
   store.on('exception', failureFunction);
-
-console.log(store);
 
   store.load();
 };
