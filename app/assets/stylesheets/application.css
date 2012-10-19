@@ -257,4 +257,11 @@ a:active {
   visibility: hidden;
 }
 
+/* Those little question mark icons that provide more info about something */
+.info-icon {
+  margin-left: 8px;
+  margin-top: 3px;
+  cursor:pointer;
+}
+
 
