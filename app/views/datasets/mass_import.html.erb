@@ -434,7 +434,7 @@
 
 
   // Class declaration
-  function ServiceProbe(serverUrl) {   
+  var ServiceProbe = function(serverUrl) {   
     this.successCount = 0;
     this.failCount    = 0;
     this.WmsSucceeded = null;
