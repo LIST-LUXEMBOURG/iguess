@@ -25,13 +25,10 @@ class HomeController < ApplicationController
 
     rescue Timeout::Error
       @page = "TIMEOUT"
-      status = 504    # 504 Gateway Timeout  We're the gateway, we timed out.  Seems logical
+      status = 504    # 504 Gateway Timeout  We're the gateway, we timed out.  Seems logical.
     end
 
     render :layout => false, :status => status, :content_type => content_type
   end
 end
-
-
-
 
