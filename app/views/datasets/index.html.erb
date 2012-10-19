@@ -20,6 +20,7 @@
 
   $(document).ready(function() {
     onLocationChanged('<%= @current_city.name %>');   // Build the initial dataset list
+    // $('#sortable_table').tablesorter();               // Initialize sorter
   });
 
 
@@ -61,14 +62,31 @@
   }
 
 
+  var showTechnicalDetails = function() {
+    $('.technical-details').show(); 
+    $('.show-details').click(function(){ hideTechnicalDetails(); });
+    $('.show-details').html('<<< Hide details');
+  }
+
+  var hideTechnicalDetails = function() {
+    $('.technical-details').hide();
+    $('.show-details').click(function(){ showTechnicalDetails(); });
+    $('.show-details').html('Show details >>>');
+  }
+
+
   // Create the popup info table for this dataset
   var renderInfoTable = function(dataset, railsId) {
     return '<div class="infotable" id="infotable-' + railsId + '">' +
-           '<h1><span class="dataset-name2-' + railsId + '"></h1>' +
-           '<dl>' +
-           '<dt>Services available:</dt><dd id="services-' + railsId + '">Waiting for response from server...</dd>' + 
-           '<dt>Server URL:</dt><dd>' + dataset.server_url + '</dd>' +
-           '</dl></div>';
+             '<h1><span class="dataset-name2-' + railsId + '"></h1>' +
+             '<div class="dataset-descr-' + railsId + '"></div>' +
+             '<div style="overflow:hidden"><dl>' +
+               '<dt>Services available:</dt><dd id="services-' + railsId + '">Waiting for response from server...</dd>' + 
+               '<dt>Server URL:</dt><dd>' + dataset.server_url + '</dd>' +
+             '</dl></div>' +
+             '<div class="technical-details">content here<br><br>sdfjlsdkfjsa;dlkfj<br><br>sdfjlsdkfjsa;dlkfj<br><br>sdfjlsdkfjsa;dlkfj</div>' +
+             '<div><a href="#" class="show-details"></a></div>' +
+           '</div>';
   }
 
   // We've got a new batch of datasets to display!
@@ -87,8 +105,18 @@
       processUrl(dataset.server_url);
     }
 
-    $("img[rel]").overlay();
+    $('img[rel]').overlay();    // Set up the layer info overlays
+    $('img[rel]').click(function(){ hideTechnicalDetails() });   // Close details panel on open
 
+    $('.show-details').click(function(){ showTechnicalDetails(); });
+
+
+          // Make sure table is sorted
+      // var sorting = [[1,0], [0,0]]; 
+      // // sort on the first column 
+
+      // $('#sortable_table').trigger("update"); 
+      // $('#sortable_table').trigger("sorton",[sorting]); 
   }
 
 
@@ -113,8 +141,6 @@
 <div>
   <h1 class="page_header">Registered Datasets</h1>
   <div class="page_subheader"></div>
-
-  <!--- < %= render :partial => '/shared/sortable_table_code.html.erb', :locals => { :initialSortlist => "[[1,0], [0,0]]" } %> -->
 
 
   <script type="text/javascript">
@@ -257,6 +283,7 @@
               title = title.replace(/ /g,'&nbsp;');
 
               $('.dataset-name2-' + railsId).html(title);    // Appears in the name column, also on infotable popup
+              $('.dataset-descr-' + railsId).html(record.get("abstract"));
 
               $('#services-' + railsId).html(services.join(' ,'));
 
@@ -289,9 +316,7 @@
       <tr><th>Name</th><th>Type</th><th>Status</th><!-- <th>Configured Modules Using Dataset</th> --></tr>
     </thead>
 
-    <tbody id="dataset-list">
-
-    </tbody>
+    <tbody id="dataset-list"></tbody>  <!-- Will be populated later -->
   </table>
 
   <div id="infotables"><!-- Placeholder for popup infotables --></div>

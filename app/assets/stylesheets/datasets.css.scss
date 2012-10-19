@@ -118,7 +118,6 @@
     background-color:#E1E5EA;
  
     width:675px;
-    min-height:200px;
     border:1px solid #666;
     padding: 10px;
  
@@ -166,4 +165,10 @@
   margin: 0;
   padding: 5px;
   border-top: 1px solid #999;
+}
+
+
+/* Details panel on infotables */
+.technical-details {
+  display:none;         /* Starts off hidden */
 }
