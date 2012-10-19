@@ -195,8 +195,8 @@
       WFS.updateLayerList(url, success, failure);
     }
 
-    // Describes response from server, either success or failure
-    function ServerResponse(success, records, store, service) {
+    // Class that describes response from server, either success or failure
+    var ServerResponse = function(success, records, store, service) {
       this.success = success;
       this.recordCount = records;
       this.layerStore = store;
