@@ -135,9 +135,9 @@
     }
     else { alert("Unknown type " + type); }
 
-    if(!(wfsProcessingComplete || !showWfs() &&
-         wmsProcessingComplete || !showWms() &&
-         wcsProcessingComplete || !showWcs() )    ) { return; }   // Still waiting for another service to return
+    if(!((wfsProcessingComplete || !showWfs()) &&
+         (wmsProcessingComplete || !showWms()) &&
+         (wcsProcessingComplete || !showWcs()) )    ) { return; }   // Still waiting for another service to return
 
     displayLayers();
   }
@@ -458,40 +458,50 @@
       self.statusChanged();
     }
 
-    this.onWfsGetCapabilitiesSucceeded = function(store, records) { 
+    // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-load
+    this.onWfsGetCapabilitiesSucceeded = function(dataProxy, records, options) { 
+      // console.log("WFSSuccess>>", arguments);
       self.onGetCapabilitiesSucceeded();
       self.WfsSucceeded = true; 
 
-      onWfsGetCapabilitiesSucceeded(store, records);
+      onWfsGetCapabilitiesSucceeded(dataProxy, records);
     }
 
-    this.onWmsGetCapabilitiesSucceeded = function(store, records) { 
+    this.onWmsGetCapabilitiesSucceeded = function(dataProxy, records, options) { 
       self.onGetCapabilitiesSucceeded();
       self.WmsSucceeded = true;
 
-      onWmsGetCapabilitiesSucceeded(store, records);
+      onWmsGetCapabilitiesSucceeded(dataProxy, records);
     }
 
-    this.onWcsGetCapabilitiesSucceeded = function(store, records) { 
+    this.onWcsGetCapabilitiesSucceeded = function(dataProxy, records, options) { 
       self.onGetCapabilitiesSucceeded();
       self.WcsSucceeded = true;
 
-      onWcsGetCapabilitiesSucceeded(store, records);
+      onWcsGetCapabilitiesSucceeded(dataProxy, records);
     }
 
-    this.onWfsGetCapabilitiesFailed = function() { 
+    // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-exception
+    this.onWfsGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) { 
+      if(type == 'response') {
+        // alert("Cannot parse response from WFS server.");
+        // console.log("Response", response.responseText)
+      }
+
+      // console.log("WFS Exception 99", arguments);
       self.onGetCapabilitiesFailed();
       self.WfsSucceeded = false;
       doneProcessing(self.serverUrl, 'WFS', 'ERROR');
     }
 
-    this.onWmsGetCapabilitiesFailed = function() { 
+    this.onWmsGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) { 
+      // alert("Error encountered on wms request");
       self.onGetCapabilitiesFailed();
       self.WmsSucceeded = false;
       doneProcessing(self.serverUrl, 'WMS', 'ERROR');
     }
 
-    this.onWcsGetCapabilitiesFailed = function() { 
+    this.onWcsGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) { 
       self.onGetCapabilitiesFailed();
       self.WcsSucceeded = false;
       doneProcessing(self.serverUrl, 'WCS', 'ERROR');
