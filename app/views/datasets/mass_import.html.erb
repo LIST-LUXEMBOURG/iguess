@@ -530,6 +530,12 @@
   // This gets called when the Remote Data Server URL is changed
   var update = function()
   {
+    var serverUrl = getServerUrl();
+
+    if(serverUrl == "") {
+      return;   // Do nothing if URL is blank
+    }
+
     showProbingIndicators();
 
     $('#layer-display').html('');
@@ -539,7 +545,7 @@
     wmsProcessingComplete = false;
     wcsProcessingComplete = true;   // for now
 
-    var probe = new ServiceProbe(getServerUrl());
+    var probe = new ServiceProbe(serverUrl);
     probe.startProbing();
   };
 
