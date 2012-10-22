@@ -201,7 +201,6 @@ WFS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
   // Add some callbacks to handle various situations
   store.on('load', successFunction);
   store.on('exception', failureFunction);
-
   store.load();
 };
 
@@ -236,8 +235,8 @@ WMS.stripGetCapReq = function(serverUrl) {
   return serverUrl.replace(WMS.getCapStr, '').slice(0, -1);   // slice strips last char
 };
 
-
-WFS.getCapStr = 'SERVICE=WFS&VERSION=1.1.0&REQUEST=GetCapabilities';
+// http://www.mail-archive.com/users@geoext.org/msg01843.html
+WFS.getCapStr = 'SERVICE=WFS&VERSION=1.0.0&REQUEST=GetCapabilities';    // Geoext has some problems with 1.1.0
 
 WFS.getCapReq = function(serverUrl) {
   var joinchar = getJoinChar(serverUrl);
