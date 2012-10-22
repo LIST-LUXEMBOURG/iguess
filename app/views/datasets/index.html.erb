@@ -222,11 +222,13 @@
     // We pepper each server with WMS, WFS, and WCS requests.  One of these has failed, 
     // which might be bad, or it might be perfectly fine.  It might mean that the server 
     // is down, or that it has not been configured to respond to a particular service.
-    function failure(httpProxy, response, action, scope, status, error)   
+
+    // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-exception
+    function failure(httpProxy, type, action, options, response, arg)
     {
       // status.responseText has response from data server?
 
-      var format  = scope.reader.meta.format.name;
+      var format  = options.reader.meta.format.name;
       var url     = unwrapServer(httpProxy.url, format);
       var service = getService(format);
 
@@ -235,7 +237,25 @@
       // alert("Error retrieving data -- see console for details!");
       console.log("Failure!",arguments);
 
+      // server xxx does not support service yyy ???
+
       setLayerStatus(url);
+    }
+
+
+    function displayLayerInfo(serverUrl, dataset, available, name, descr, services) {
+      var railsId = railsIdLookup[makeKey(serverUrl, dataset)];
+
+      $('.dataset-name2-' + railsId).html(name);    // Appears in the name column, also on infotable popup
+      $('.dataset-descr-' + railsId).html(descr);
+      $('#services-' + railsId).html(services);
+
+      if(available) {
+        $('.status2-' + railsId).html(
+          '<img class="status-indicator" src="/assets/layer_available_yes.png" alt="Layer available">');
+      } else {
+        $('.status2-' + railsId).html('<img class="status-indicator" src="/assets/layer_available_no.png" alt="Layer not available">');
+      }
     }
 
 
@@ -279,18 +299,11 @@
             var identifier = record.get("name");
 
             if(datasets[i] == identifier) {
-              var railsId = railsIdLookup[makeKey(serverUrl, identifier)];
-
               var title = record.get("title") || record.get("name");
               title = title.replace(/ /g,'&nbsp;');
 
-              $('.dataset-name2-' + railsId).html(title);    // Appears in the name column, also on infotable popup
-              $('.dataset-descr-' + railsId).html(record.get("abstract"));
 
-              $('#services-' + railsId).html(services.join(' ,'));
-
-              $('.status2-' + railsId).html(
-                  '<img class="status-indicator" src="/assets/layer_available_yes.png" alt="Layer available">');
+              displayLayerInfo(serverUrl, identifier, true, title, record.get("abstract"), services.join(' ,'))
 
               found = true;
               break;
@@ -299,8 +312,9 @@
         }
 
         if(!found) {
-          var railsId = railsIdLookup[makeKey(serverUrl, datasets[i])];
-          $('.status2-' + railsId).html('<img class="status-indicator" src="/assets/layer_available_no.png" alt="Layer not available">');
+          displayLayerInfo(serverUrl, datasets[i], false, datasets[i], 
+            'This dataset could no longer be located on the data server',     // Descr
+            'None');                                                          // Services
         }
       }
     }
