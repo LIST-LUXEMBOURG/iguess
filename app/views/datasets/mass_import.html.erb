@@ -545,6 +545,8 @@
     wmsProcessingComplete = false;
     wcsProcessingComplete = true;   // for now
 
+    $('#refresh_layers_button').html('Reload');
+
     var probe = new ServiceProbe(serverUrl);
     probe.startProbing();
   };
@@ -583,6 +585,7 @@
     // Event handlers for various controls
     $('#dataset_url').change(update);
     $('#refresh_layers_button').click(update);
+    $('#dataset_url').focus(function() { $('#refresh_layers_button').html('Load'); });
 
     // Event handlers for our radio buttons
     $("#radio-show-wfs") .click(function() { displayLayers(); });
