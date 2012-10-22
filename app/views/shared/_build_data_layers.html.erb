@@ -62,7 +62,6 @@
     else if(service == 'WCS') { server = WCS.unwrapServer(store.url); }
     else { alert('Unexpected type ' + service); }
 
-
     for(var i = 0; i < count; i++) {
       var record = store.getAt(i);
       var dataset = new Dataset(server, record, service);

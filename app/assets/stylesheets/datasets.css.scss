@@ -128,13 +128,13 @@
  
 /* close button positioned on upper right corner */
 .infotable .close {
-  background-image:url(/assets/close.png);
-  position:absolute;
+  background-image: url(/assets/close.png);
+  position: absolute;
   right: 5px;
   top: 5px;
-  cursor:pointer;
-  height:24px;
-  width:24px;
+  cursor: pointer;
+  height:2 4px;
+  width: 24px;
 }
 
 
@@ -171,4 +171,17 @@
 /* Details panel on infotables */
 .technical-details {
   display:none;         /* Starts off hidden */
+}
+
+
+/* Error box title */
+.errorHeader {
+  color: red;
+  font-weight: bold;
+}
+
+/* Error box body */
+.errorBody {
+  color: red;
+  font-size: 25px;
 }

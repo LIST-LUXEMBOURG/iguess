@@ -152,7 +152,19 @@
     var layerCount = Object.keys(discoveredLayers).length;
     var visibleLayers = 0;
 
-    $('#layer-table').html('');   // Clear the decks
+
+    // If no layers were loaded, show an intelligble error message and bail
+    if(layerCount == 0) {
+      $('#layer-display').html('<div class="errorHeader">Please check the number and dial again</div>' +
+                             '<div class="errorBody">No data layers could be found on the specified server.<br>' +
+                             'Either the URL is not that of a WMS/WFS/WCS data server, or the server is not responding. ' +
+                             '</div>');
+      return;
+    }
+
+
+    $('#layer-display').html('');   // Clear the decks
+
 
     // Render found datasets in two passes -- first for registered items, second for unregistered ones.
     // This puts registered items at the top of the screen.
