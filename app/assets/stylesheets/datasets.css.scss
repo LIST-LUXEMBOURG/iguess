@@ -189,11 +189,24 @@
 
 /* Server name and description, shown above the data tiles */
 .server-name {
-  margin-top: 10px;
   font-size: 25px;
   font-weight: bold;
 }
 
 .server-descr {
   margin-bottom: 30px;
+}
+
+/* Div enclosing server name, descr, and map tiles, starts out hidden, will be made visible when filled */
+.server-info {
+  display: none;
+  background-color: #f8f8f8;
+  padding: 5px;
+}
+
+/* Div containing progress indicators */
+.progress-container {
+  padding: 5px;
+  background-color: #f8f8f8;
+  display: none;
 }

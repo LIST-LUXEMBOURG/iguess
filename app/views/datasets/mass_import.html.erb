@@ -127,6 +127,7 @@
          (wmsProcessingComplete || !showWms()) &&
          (wcsProcessingComplete || !showWcs()) )    ) { return; }   // Still waiting for another service to return
 
+    $('.progress-container').hide();
     displayLayers();
   }
 
@@ -140,6 +141,7 @@
 
       $('.server-name').html('Server: ' + serverName);
       $('.server-descr').html(serverDescr);
+      $('.server-info').show();
     }
 
   }
@@ -564,15 +566,27 @@
   }
 
   function showProbingIndicators() {
-    if(showWfs()) { $('#probing-wfs').show(); }
-    if(showWms()) { $('#probing-wms').show(); }
-    if(showWcs()) { $('#probing-wcs').show(); }
+    var anyShown = false;
+
+    if(showWfs()) { $('#probing-wfs').show(); anyShown = true; }
+    if(showWms()) { $('#probing-wms').show(); anyShown = true; }
+    if(showWcs()) { $('#probing-wcs').show(); anyShown = true; }
+
+    if(anyShown)
+    {
+      $('.progress-container').show();
+    }
+    else {
+      $('.progress-container').hide();
+    }
   }
+
 
   function hideProbingIndicators() {
     $('#probing-wms').hide();
     $('#probing-wfs').hide();
     $('#probing-wcs').hide();
+    $('.progress-container').hide();
   }
 
 
@@ -639,12 +653,15 @@
   </label>
 </div>
 
-<span style="padding-left: 5px;" id="probing-wms">Probing map server... <img src="/assets/loading_spinner.gif"></span>
-<span style="padding-left: 5px;" id="probing-wfs">Probing feature server... <img src="/assets/loading_spinner.gif"></span>
-<span style="padding-left: 5px;" id="probing-wcs">Probing coverage server... <img src="/assets/loading_spinner.gif"></span>
+<div class="progress-container">
+  <span style="padding-left: 5px;" id="probing-wms">Probing map server... <img src="/assets/loading_spinner.gif"></span>
+  <span style="padding-left: 5px;" id="probing-wfs">Probing feature server... <img src="/assets/loading_spinner.gif"></span>
+  <span style="padding-left: 5px;" id="probing-wcs">Probing coverage server... <img src="/assets/loading_spinner.gif"></span>
+</div>
 
-<div class="server-name"></div>
-<div class="server-descr"></div>
+<div class="server-info">
+  <div class="server-name"></div>
+  <div class="server-descr"></div>
 
-
-<div id="layer-display"></div>
+  <div id="layer-display"></div>
+</div>
