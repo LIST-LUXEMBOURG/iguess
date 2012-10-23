@@ -1,5 +1,4 @@
 <h1 class="page_header">Modules</h1>
-<div class="page_subheader"></div>
 
 
 <div class="explanation">
@@ -253,7 +252,7 @@
         <%= link_to 'Click here to create one.', new_mod_config_path %>
       </div>   
       <div id='mod-list'>       <!-- Div will be hidden when there are no configurations for current city -->
-        <div class="page_subheader">Configured Modules</div>
+        These are the calculation modules that have been configured.
 
         <%= render :partial => '/shared/sortable_table_code.html.erb',
                    :locals => { :initialSortlist => "[[0,0]], headers: { 3: {sorter: false}}" } %>
