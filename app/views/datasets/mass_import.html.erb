@@ -157,8 +157,8 @@
 
     // If no layers were loaded, show an intelligble error message and bail
     if(layerCount == 0) {
-      $('#layer-display').html('<div class="errorHeader">Please check the number and dial again</div>' +
-                             '<div class="errorBody">No data layers could be found on the specified server.<br>' +
+      $('#layer-display').html('<div class="error-header">Please check the number and dial again</div>' +
+                             '<div class="error-body">No data layers could be found on the specified server.<br>' +
                              'Either the URL is not that of a WMS/WFS/WCS data server, or the server is not responding. ' +
                              '</div>');
       return;
@@ -639,13 +639,12 @@
   </label>
 </div>
 
-<div class="server-name"></div>
-<div class="server-descr"></div>
-
-
-
 <span style="padding-left: 5px;" id="probing-wms">Probing map server... <img src="/assets/loading_spinner.gif"></span>
 <span style="padding-left: 5px;" id="probing-wfs">Probing feature server... <img src="/assets/loading_spinner.gif"></span>
 <span style="padding-left: 5px;" id="probing-wcs">Probing coverage server... <img src="/assets/loading_spinner.gif"></span>
+
+<div class="server-name"></div>
+<div class="server-descr"></div>
+
 
 <div id="layer-display"></div>

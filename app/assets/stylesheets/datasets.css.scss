@@ -175,13 +175,13 @@
 
 
 /* Error box title */
-.errorHeader {
+.error-header {
   color: red;
   font-weight: bold;
 }
 
 /* Error box body */
-.errorBody {
+.error-body {
   color: red;
   font-size: 25px;
 }
@@ -195,5 +195,5 @@
 }
 
 .server-descr {
-  .margin-bottom: 30px;
+  margin-bottom: 30px;
 }
