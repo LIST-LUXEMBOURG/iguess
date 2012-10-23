@@ -56,15 +56,16 @@
   // Handles results from WMS, WFS, and WCS getCapabilities calls
   function processIncomingLayers(store, count, service)
   {
-    var server;
-    if     (service == 'WFS') { server = WFS.unwrapServer(store.url); }
-    else if(service == 'WMS') { server = WMS.unwrapServer(store.url); }
-    else if(service == 'WCS') { server = WCS.unwrapServer(store.url); }
+    var serverUrl;
+
+    if     (service == 'WFS') { serverUrl = WFS.unwrapserverUrl(store.url); }
+    else if(service == 'WMS') { serverUrl = WMS.unwrapserverUrl(store.url); }
+    else if(service == 'WCS') { serverUrl = WCS.unwrapserverUrl(store.url); }
     else { alert('Unexpected type ' + service); }
 
     for(var i = 0; i < count; i++) {
       var record = store.getAt(i);
-      var dataset = new Dataset(server, record, service);
+      var dataset = new Dataset(serverUrl, record, service);
 
       if(service == 'WMS') {
         dataset.setSrs (record.data.srs);
@@ -76,7 +77,7 @@
       foundDataset(dataset, service);
     }
 
-    doneProcessing(server, service, 'OK');
+    doneProcessing(serverUrl, service, store.reader.raw.service, 'OK');
   }
 
 
@@ -119,7 +120,7 @@
 
     $('#layers_loading_indicator').hide();
     // $('#refresh_layers_button').attr('disabled', false);
-    doneProcessing('???', 'WMS', 'ERROR');
+    doneProcessing('???', 'WMS', null, 'ERROR');
   }
 
 
@@ -129,7 +130,7 @@
     showPreErrorMessage(i);
 
 
-    doneProcessing('???', 'WFS', 'ERROR');
+    doneProcessing('???', 'WFS', null, 'ERROR');
   }
 
 </script>

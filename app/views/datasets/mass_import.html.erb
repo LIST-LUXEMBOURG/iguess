@@ -119,7 +119,7 @@
 
 
   // Called when we've gotten whatever response we're going to get from the server in question
-  function doneProcessing(url, type, status)    // status will be OK or ERROR
+  function doneProcessing(url, type, serverDetails, status)    // status will be OK or ERROR
   {
     if(type == 'WFS') {
       $('#probing-wfs').hide();
@@ -139,8 +139,45 @@
          (wmsProcessingComplete || !showWms()) &&
          (wcsProcessingComplete || !showWcs()) )    ) { return; }   // Still waiting for another service to return
 
+    displayServerDetails(serverDetails);
     displayLayers();
   }
+
+
+  // From https://github.com/opengeo/gxp/blob/master/src/script/plugins/WMSSource.js
+  /**
+   * The WMSCapabilities and WFSDescribeFeatureType formats parse the document and
+   * pass the raw data to the WMSCapabilitiesReader/AttributeReader.  There,
+   * records are created from layer data.  The rest of the data is lost.  It
+   * makes sense to store this raw data somewhere - either on the OpenLayers
+   * format or the GeoExt reader.  Until there is a better solution, we'll
+   * override the reader's readRecords method  here so that we can have access to
+   * the raw data later.
+   * 
+   * The purpose of all of this is to get the service title, feature type and
+   * namespace later.
+   */
+  (function() {
+  function keepRaw(data) {
+      var format = this.meta.format;
+      if (typeof data === "string" || data.nodeType) {
+          data = format.read(data);
+          // cache the data for the single read that readRecord does
+          var origRead = format.read;
+          format.read = function() {
+              format.read = origRead;
+              return data;
+          };
+      }
+      // Here, this is the WFSGetCapabilitiesReader
+      this.raw = data;
+  }
+
+  Ext.intercept(GeoExt.data.WFSCapabilitiesReader.prototype, "readRecords", keepRaw);
+  GeoExt.data.AttributeReader &&
+      Ext.intercept(GeoExt.data.AttributeReader.prototype, "readRecords", keepRaw);
+  })();
+
 
 
   var displayLayers = function()
@@ -328,7 +365,6 @@
           var bbox = layer.bbox[activeSRS].bbox;
 
           var bounds = new OpenLayers.Bounds(bbox[0], bbox[1], bbox[2], bbox[3]);  //minx miny maxx maxy
-          var boundsMap  = new OpenLayers.Bounds(-1015000, 5845000, 1100000, 8000000);  // Nothing will be displayed outside these bounds (Poland - Ireland)
 
           var miniMap = new OpenLayers.Map({
                   maxExtent:  bounds,
@@ -501,20 +537,20 @@
       // console.log("WFS Exception 99", arguments);
       self.onGetCapabilitiesFailed();
       self.WfsSucceeded = false;
-      doneProcessing(self.serverUrl, 'WFS', 'ERROR');
+      doneProcessing(self.serverUrl, 'WFS', null, 'ERROR');
     }
 
     this.onWmsGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) { 
       // alert("Error encountered on wms request");
       self.onGetCapabilitiesFailed();
       self.WmsSucceeded = false;
-      doneProcessing(self.serverUrl, 'WMS', 'ERROR');
+      doneProcessing(self.serverUrl, 'WMS', null, 'ERROR');
     }
 
     this.onWcsGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) { 
       self.onGetCapabilitiesFailed();
       self.WcsSucceeded = false;
-      doneProcessing(self.serverUrl, 'WCS', 'ERROR');
+      doneProcessing(self.serverUrl, 'WCS', null, 'ERROR');
     }
 
     this.startProbing = function() { 

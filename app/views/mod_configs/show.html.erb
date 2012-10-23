@@ -78,7 +78,7 @@
   WPS.describeProcess("<%= @mod_config.wps_server.url %>", "<%= @mod_config.identifier %>", onDescribedProcess);
 
 
-  function doneProcessing(url, type, status)  // status will be OK or ERROR
+  function doneProcessing(url, type, serverDetails, status)  // status will be OK or ERROR
   {
       // Do nothing
   }
