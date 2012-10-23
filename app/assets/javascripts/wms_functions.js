@@ -235,7 +235,7 @@ WFS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
   var store = new GeoExt.data.WFSCapabilitiesStore({ url: fullUrl });
 
   // Add some callbacks to handle various situations
-  store.on('load', successFunction);
+  store.on('load',      successFunction);
   store.on('exception', failureFunction);
   store.load();
 };
@@ -261,10 +261,13 @@ var getJoinChar = function(url) {
 
 WMS.getCapStr = 'VERSION=1.3.0&REQUEST=GetCapabilities&SERVICE=WMS';
 
+WMS.getCapUrl = function(serverUrl) {
+  var joinchar = getJoinChar(serverUrl);
+  return serverUrl + joinchar + WMS.getCapStr;
+}
+
 WMS.getCapReq = function(serverUrl) {
-	//alert('WMS -- http://localhost:3000' + wrapGeoProxy(serverUrl + '?VERSION=1.1.1&REQUEST=GetCapabilities&SERVICE=WMS'));
-	var joinchar = getJoinChar(serverUrl);
-  return wrapGeoProxy(serverUrl + joinchar + WMS.getCapStr);
+  return wrapGeoProxy(WMS.getCapUrl(serverUrl));
 };
 
 WMS.stripGetCapReq = function(serverUrl) {
@@ -274,10 +277,14 @@ WMS.stripGetCapReq = function(serverUrl) {
 // http://www.mail-archive.com/users@geoext.org/msg01843.html
 WFS.getCapStr = 'SERVICE=WFS&VERSION=1.0.0&REQUEST=GetCapabilities';    // Geoext has some problems with 1.1.0
 
-WFS.getCapReq = function(serverUrl) {
+WFS.getCapUrl = function(serverUrl) {
   var joinchar = getJoinChar(serverUrl);
-  // alert(wrapGeoProxy(serverUrl + joinchar + WFS.getCapStr));
-  return wrapGeoProxy(serverUrl + joinchar + WFS.getCapStr);
+  return serverUrl + joinchar + WFS.getCapStr;
+}
+
+
+WFS.getCapReq = function(serverUrl) {
+  return wrapGeoProxy(WFS.getCapUrl(serverUrl));
 };
 
 WFS.stripGetCapReq = function(serverUrl) {
