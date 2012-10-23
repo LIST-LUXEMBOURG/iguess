@@ -78,14 +78,18 @@
   // Create the popup info table for this dataset
   var renderInfoTable = function(dataset, railsId) {
     return '<div class="infotable" id="infotable-' + railsId + '">' +
-             '<h1><span class="dataset-name2-' + railsId + '"></h1>' +
-             '<div class="dataset-descr-' + railsId + '"></div>' +
-             '<div style="overflow:hidden"><dl>' +
-               '<dt>Services available:</dt><dd id="services-' + railsId + '">Waiting for response from server...</dd>' + 
-               '<dt>Server URL:</dt><dd>' + dataset.server_url + '</dd>' +
-             '</dl></div>' +
-             '<div class="technical-details">content here<br><br>sdfjlsdkfjsa;dlkfj<br><br>sdfjlsdkfjsa;dlkfj<br><br>sdfjlsdkfjsa;dlkfj</div>' +
-             '<div><a href="#" class="show-details"></a></div>' +
+              '<div class="close"></div>' +
+              '<h1><span class="dataset-name2-' + railsId + '"></h1>' +
+              '<div class="dataset-descr-' + railsId + '"></div>' +
+              '<div style="overflow:hidden"><dl>' +
+                 '<dt>Services available:</dt><dd id="services-' + railsId + '">Waiting for response from server...</dd>' + 
+                 
+              '</dl></div>' +
+              '<div style="overflow:hidden" class="technical-details">' +
+                '<div class="section-header">Technical Details</div><dl>' +
+                '<dt>Server URL:</dt><dd>' + dataset.server_url + '</dd>' +
+              '</dl></div>' +
+              '<div><a href="#" class="show-details"></a></div>' +
            '</div>';
   }
 
