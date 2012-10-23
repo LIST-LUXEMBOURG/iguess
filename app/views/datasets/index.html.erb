@@ -265,7 +265,7 @@
     function setLayerStatus(serverUrl)
     {
       // Wait until we've heard back from all servers: wfs, wms, and wcs
-      if(serverStatus[serverUrl].length < 2) { return; }    //{P{P should be 3
+      if(serverStatus[serverUrl].length < 2) { return; }    //{P{P should be 3 when WCS comes online
 
       serverUrlId = serverUrlIdLookup[serverUrl];
 
