@@ -77,17 +77,24 @@
 
   // Create the popup info table for this dataset
   var renderInfoTable = function(dataset, railsId) {
+    var serverUrlId = serverUrlIdLookup[dataset.server_url];
+
     return '<div class="infotable" id="infotable-' + railsId + '">' +
               '<div class="close"></div>' +
               '<h1><span class="dataset-name2-' + railsId + '"></h1>' +
               '<div class="dataset-descr-' + railsId + '"></div>' +
               '<div style="overflow:hidden"><dl>' +
+                '<dt>Server Name:</dt><dd class="server-name-' + serverUrlId + '"></dd>' +
                  '<dt>Services available:</dt><dd id="services-' + railsId + '">Waiting for response from server...</dd>' + 
                  
               '</dl></div>' +
               '<div style="overflow:hidden" class="technical-details">' +
                 '<div class="section-header">Technical Details</div><dl>' +
-                '<dt>Server URL:</dt><dd>' + dataset.server_url + '</dd>' +
+                '<dt>Server Base URL:</dt><dd>' + dataset.server_url + '</dd>' +
+                '<dt>Get Capabilities Link(s):</dt><dd><a href="' + WFS.getCapUrl(dataset.server_url) + '">WFS</a>' +
+                                                      '<a href="' + WMS.getCapUrl(dataset.server_url) + '">WMS</a></dd>' +
+                '<dt>Bounding Box:</dt><dd>' + '' + '</dd>' + 
+                '<dt>Attribute Columns:</dt><dd>' + '' + '</dd>' + 
               '</dl></div>' +
               '<div><a href="#" class="show-details"></a></div>' +
            '</div>';
@@ -96,6 +103,7 @@
   // We've got a new batch of datasets to display!
   // Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
   var renderTable = function(datasets) {
+
     $('#dataset-list').empty();    // Clear table
 
     for(var i = 0; i < datasets.length; i++) {
@@ -169,7 +177,7 @@
     var layerRecords = { };
     var layerStores = { };
     var serverDatasets = { };
-    var serverStatus = { };
+    var serverResponses = { };
 
     var processedUrls = [];
 
@@ -179,11 +187,11 @@
       // This function will be called for every dataset registered with the current city.  Many will have the same
       // server.  Avoid processing the same server twice.
       // Called from renderTable(), which is called from onCityChange() event handler
-      if(processedUrls.hasObject(url)) {  setLayerStatus(url); return;  }
+      if(processedUrls.hasObject(url)) {  /*setLayerStatus(url);*/ return;  }
 
       processedUrls.push(url);
 
-      serverStatus[url] = [ ];    
+      serverResponses[url] = [ ];    
 
       // Create an association between a server and all registered datasets it hosts
       <% @server_urls.each do |url| %>    <%# These could be wms, wfs, or wcs addresses %>
@@ -192,30 +200,44 @@
                                                                         .join(', ') %>];
       <% end %>
 
-      WMS.updateLayerList(url, success, failure);
-      WFS.updateLayerList(url, success, failure);
+      WMS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+      WFS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
     }
+
 
     // Class that describes response from server, either success or failure
     var ServerResponse = function(success, records, dataProxy, service) {
       this.success = success;
       this.recordCount = records;
-      this.layerStore = storedataProxy;
+      this.layerStore = dataProxy;
       this.service = service;
-      this.serverInfo = dataProxy.reader.raw.service;
+
+      // For now...
+      if(service == 'WMS') {
+        this.serverName == this.serverName || "Not yet implemented";
+        this.serverDescr == this.serverDescr || "";
+      }
+      else
+
+      if(dataProxy) {
+        var serverInfo = dataProxy.reader.raw.service;
+
+        this.serverName  = serverInfo.title    || serverInfo.name || "Data Server";
+        this.serverDescr = serverInfo.abstract || "";
+      }
     }
 
 
-    // Server has responded to our query and seems happy
-    function success(dataProxy, records) // Need to validate each item in dataProxy
+    // Server has responded to our query and seems happy (from updateLayerList)
+    // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-load
+    function onGetCapabilitiesSucceeded(dataProxy, records, options) // Need to validate each item in dataProxy
     {
       var format  = dataProxy.format.name;
       var url     = unwrapServer(dataProxy.url, format);
       var service = getService(format);
 
-      console.log("Success", arguments);
 
-      serverStatus[url].push( new ServerResponse(true, records.length, dataProxy, service) );
+      serverResponses[url].push( new ServerResponse(true, records.length, dataProxy, service) );
 
       setLayerStatus(url);
     }
@@ -226,7 +248,7 @@
     // is down, or that it has not been configured to respond to a particular service.
 
     // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-exception
-    function failure(dataProxy, type, action, options, response, arg)
+    function onGetCapabilitiesFailed(dataProxy, type, action, options, response, arg)
     {
       // status.responseText has response from data server?
 
@@ -234,7 +256,7 @@
       var url     = unwrapServer(dataProxy.url, format);
       var service = getService(format);
 
-      serverStatus[url].push( new ServerResponse(false, 0, null, service) );
+      serverResponses[url].push( new ServerResponse(false, 0, null, service) );
 
       // alert("Error retrieving data -- see console for details!");
       console.log("Failure!",arguments);
@@ -250,7 +272,7 @@
 
       $('.dataset-name2-' + railsId).html(name);    // Appears in the name column, also on infotable popup
       $('.dataset-descr-' + railsId).html(descr);
-      $('#services-' + railsId).html(services);
+      $('#services-'      + railsId).html(services);
 
       if(available) {
         $('.status2-' + railsId).html(
@@ -261,16 +283,24 @@
     }
 
 
-    // We have a response of some sort from serverUrl -- update the datasets table to show it
+    // We have a response of some sort from serverUrl -- update the datasets table to show it.
+    // serverResponses should be an array of ServerResponse objects.
     function setLayerStatus(serverUrl)
     {
+      var serverResponseArry = serverResponses[serverUrl];
+      var serverUrlId        = serverUrlIdLookup[serverUrl];
+
+      if(serverResponseArry[0].serverName) {
+        $('.server-name-' + serverUrlId).html(serverResponseArry[0].serverName);
+        $('.server-descr-' + serverUrlId).html(serverResponseArry[0].serverDescr);
+      }
+
+
       // Wait until we've heard back from all servers: wfs, wms, and wcs
-      if(serverStatus[serverUrl].length < 2) { return; }    //{P{P should be 3 when WCS comes online
-
-      serverUrlId = serverUrlIdLookup[serverUrl];
+      if(serverResponseArry.length < 2) { return; }    //{P{P should be 3 when WCS comes online
 
 
-      if(!(serverStatus[serverUrl][0].success || serverStatus[serverUrl][1].success)) {    
+      if(!(serverResponseArry[0].success || serverResponseArry[1].success)) {    
         // All services failed, all datasets from this server ganz kaput
         $('.status-' + serverUrlId).html('<img class="status-indicator" src="/assets/server_responding_no.png" alt="WMS server not responding">');
         $('.dataset-name-' + serverUrlId).text("Unknown");
@@ -285,14 +315,14 @@
 
       for(var i = 0; i < datasetCount; i++) {     // Iterate through datasets from the server one-by-one
         var found = false;
-        var layerRecordsCount = serverStatus[serverUrl].length;
+        var layerRecordsCount = serverResponseArry.length;
 
         var services = [];
 
         for(var j = 0; j < layerRecordsCount && !found; j++) {
-          var store    = serverStatus[serverUrl][j].layerStore;
-          var records  = serverStatus[serverUrl][j].recordCount;
-          services.push(serverStatus[serverUrl][j].service);
+          var store    = serverResponseArry[j].layerStore;
+          var records  = serverResponseArry[j].recordCount;
+          services.push(serverResponseArry[j].service);
 
           for(var k = 0; k < records; k++) {
             var record = store.getAt(k);
