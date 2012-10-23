@@ -1,18 +1,3 @@
-<h1>Register Datasets</h1>
-
-<div class="explanation">
-	iGUESS uses datasets stored on remote servers.  To register datasets with the system, enter a server URL in the box below.
-	iGUESS will probe the remote server and present you a list of datasets you can register.  In order to use a dataset with
-	a module, you will need to choose a data type from the drop down box.  If you only want to use the dataset for mapping
-	purposes, select Mapping Only.
-	<p>
-	iGUESS will probe for WFS and WMS servers at the URL provided below.  Layers offered by the WMS will be available for mapping,
-	and layers offered by the WFS will be available for using as inputs to web processes.
-
-  <ul>
-    <li>http://ows.gis.rotterdam.nl/cgi-bin/mapserv.exe?map=d:\gwr\webdata\mapserver\map\gwr_basis_pub.map
-    <li>http://logis.ludwigsburg.de/mapguide2011/mapagent/mapagent.fcgi
-</div>
 
 
 <script type="text/javascript">
@@ -119,7 +104,8 @@
 
 
   // Called when we've gotten whatever response we're going to get from the server in question
-  function doneProcessing(url, type, serverDetails, status)    // status will be OK or ERROR
+  // i.e. when a WFS response arrives.  More responses might be coming (from WMS, and WCS, for example).
+  function doneProcessing(url, type, serverInfo, status)    // status will be OK or ERROR
   {
     if(type == 'WFS') {
       $('#probing-wfs').hide();
@@ -135,49 +121,28 @@
     }
     else { alert("Unknown type " + type); }
 
+    displayServerDetails(serverInfo, type);   // Display this as it comes in
+
     if(!((wfsProcessingComplete || !showWfs()) &&
          (wmsProcessingComplete || !showWms()) &&
          (wcsProcessingComplete || !showWcs()) )    ) { return; }   // Still waiting for another service to return
 
-    displayServerDetails(serverDetails);
     displayLayers();
   }
 
 
-  // From https://github.com/opengeo/gxp/blob/master/src/script/plugins/WMSSource.js
-  /**
-   * The WMSCapabilities and WFSDescribeFeatureType formats parse the document and
-   * pass the raw data to the WMSCapabilitiesReader/AttributeReader.  There,
-   * records are created from layer data.  The rest of the data is lost.  It
-   * makes sense to store this raw data somewhere - either on the OpenLayers
-   * format or the GeoExt reader.  Until there is a better solution, we'll
-   * override the reader's readRecords method  here so that we can have access to
-   * the raw data later.
-   * 
-   * The purpose of all of this is to get the service title, feature type and
-   * namespace later.
-   */
-  (function() {
-  function keepRaw(data) {
-      var format = this.meta.format;
-      if (typeof data === "string" || data.nodeType) {
-          data = format.read(data);
-          // cache the data for the single read that readRecord does
-          var origRead = format.read;
-          format.read = function() {
-              format.read = origRead;
-              return data;
-          };
-      }
-      // Here, this is the WFSGetCapabilitiesReader
-      this.raw = data;
+  // Note that details can be null here
+  var displayServerDetails = function(serverInfo, service) {
+    if(serverInfo && $('.server-name').html() == '')
+    {
+      var serverName  = serverInfo.title    || serverInfo.name || "Data Server";
+      var serverDescr = serverInfo.abstract || "";
+
+      $('.server-name').html('Server: ' + serverName);
+      $('.server-descr').html(serverDescr);
+    }
+
   }
-
-  Ext.intercept(GeoExt.data.WFSCapabilitiesReader.prototype, "readRecords", keepRaw);
-  GeoExt.data.AttributeReader &&
-      Ext.intercept(GeoExt.data.AttributeReader.prototype, "readRecords", keepRaw);
-  })();
-
 
 
   var displayLayers = function()
@@ -225,7 +190,7 @@
         if((pass == 0 && !registered) || (pass == 1 && registered)) { continue; }
 
         if(first) {
-          $('#layer-display').html('<div>Showing <span id="layer-display-count"></span> layers.  ' +
+          $('#layer-display').html('<div>Server has <span id="layer-display-count"></span> layers.  ' +
                                    'Using local SRS "' + LOCAL_SRS + '".</div><ul id="layer-table"></ul>');
           first = false;
         }
@@ -627,6 +592,23 @@
     $("#radio-show-both").click(function() { displayLayers(); });
   });
 </script>
+ 
+
+<h1>Register Datasets</h1>
+
+<div class="explanation">
+  iGUESS uses datasets stored on remote servers.  To register datasets with the system, enter a server URL in the box below.
+  iGUESS will probe the remote server and present you a list of datasets you can register.  In order to use a dataset with
+  a module, you will need to choose a data type from the drop down box.  If you only want to use the dataset for mapping
+  purposes, select Mapping Only.
+  <p>
+  iGUESS will probe for WFS and WMS servers at the URL provided below.  Layers offered by the WMS will be available for mapping,
+  and layers offered by the WFS will be available for using as inputs to web processes.
+
+  <ul>
+    <li>http://ows.gis.rotterdam.nl/cgi-bin/mapserv.exe?map=d:\gwr\webdata\mapserver\map\gwr_basis_pub.map
+    <li>http://logis.ludwigsburg.de/mapguide2011/mapagent/mapagent.fcgi
+</div>
 
 
 <form id="url_form">
@@ -656,6 +638,10 @@
     Both -- Show all datasets on server
   </label>
 </div>
+
+<div class="server-name"></div>
+<div class="server-descr"></div>
+
 
 
 <span style="padding-left: 5px;" id="probing-wms">Probing map server... <img src="/assets/loading_spinner.gif"></span>

@@ -3,6 +3,41 @@
 
 <script type="text/javascript">
 
+  // From https://github.com/opengeo/gxp/blob/master/src/script/plugins/WMSSource.js
+  /**
+   * The WMSCapabilities and WFSDescribeFeatureType formats parse the document and
+   * pass the raw data to the WMSCapabilitiesReader/AttributeReader.  There,
+   * records are created from layer data.  The rest of the data is lost.  It
+   * makes sense to store this raw data somewhere - either on the OpenLayers
+   * format or the GeoExt reader.  Until there is a better solution, we'll
+   * override the reader's readRecords method  here so that we can have access to
+   * the raw data later.
+   * 
+   * The purpose of all of this is to get the service title, feature type and
+   * namespace later.
+   */
+  (function() {
+  function keepRaw(data) {
+      var format = this.meta.format;
+      if (typeof data === "string" || data.nodeType) {
+          data = format.read(data);
+          // cache the data for the single read that readRecord does
+          var origRead = format.read;
+          format.read = function() {
+              format.read = origRead;
+              return data;
+          };
+      }
+      // Here, this is the WFSGetCapabilitiesReader
+      this.raw = data;
+  }
+
+  Ext.intercept(GeoExt.data.WFSCapabilitiesReader.prototype, "readRecords", keepRaw);
+  GeoExt.data.AttributeReader &&
+      Ext.intercept(GeoExt.data.AttributeReader.prototype, "readRecords", keepRaw);
+  })();
+
+
   discoveredLayers = { };
 
   var getWfsLayers = function(registeredDataServers)
@@ -24,16 +59,16 @@
   }
 
   // Callback for WMS get capabilities success
-  var onWmsGetCapabilitiesSucceeded = function(store, records)
+  var onWmsGetCapabilitiesSucceeded = function(dataProxy, records)
   {
-    processIncomingLayers(store, records.length, 'WMS');
+    processIncomingLayers(dataProxy, records.length, 'WMS');
   }
 
 
   // Callback for WFS get capabilities success
-  var onWfsGetCapabilitiesSucceeded = function(store, records)
+  var onWfsGetCapabilitiesSucceeded = function(dataProxy, records)
   {
-    processIncomingLayers(store, records.length, 'WFS');
+    processIncomingLayers(dataProxy, records.length, 'WFS');
   }
 
 
@@ -54,17 +89,17 @@
 
 
   // Handles results from WMS, WFS, and WCS getCapabilities calls
-  function processIncomingLayers(store, count, service)
+  function processIncomingLayers(dataProxy, count, service)
   {
     var serverUrl;
 
-    if     (service == 'WFS') { serverUrl = WFS.unwrapserverUrl(store.url); }
-    else if(service == 'WMS') { serverUrl = WMS.unwrapserverUrl(store.url); }
-    else if(service == 'WCS') { serverUrl = WCS.unwrapserverUrl(store.url); }
+    if     (service == 'WFS') { serverUrl = WFS.unwrapServer(dataProxy.url); }
+    else if(service == 'WMS') { serverUrl = WMS.unwrapServer(dataProxy.url); }
+    else if(service == 'WCS') { serverUrl = WCS.unwrapServer(dataProxy.url); }
     else { alert('Unexpected type ' + service); }
 
     for(var i = 0; i < count; i++) {
-      var record = store.getAt(i);
+      var record = dataProxy.getAt(i);
       var dataset = new Dataset(serverUrl, record, service);
 
       if(service == 'WMS') {
@@ -77,7 +112,8 @@
       foundDataset(dataset, service);
     }
 
-    doneProcessing(serverUrl, service, store.reader.raw.service, 'OK');
+    var serviceInfo = (dataProxy.reader && dataProxy.reader.raw && dataProxy.reader.raw.service) || null;
+    doneProcessing(serverUrl, service, serviceInfo, 'OK');
   }
 
 
