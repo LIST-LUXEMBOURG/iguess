@@ -327,22 +327,20 @@
         {
           var bbox = layer.bbox[activeSRS].bbox;
 
-          // var bounds = new OpenLayers.Bounds(bbox[0], bbox[1], bbox[2], bbox[3]);  //minx miny maxx maxy
+          var bounds = new OpenLayers.Bounds(bbox[0], bbox[1], bbox[2], bbox[3]);  //minx miny maxx maxy
           var boundsMap  = new OpenLayers.Bounds(-1015000, 5845000, 1100000, 8000000);  // Nothing will be displayed outside these bounds (Poland - Ireland)
 
           var miniMap = new OpenLayers.Map({
-                  maxExtent:  boundsMap,
+                  maxExtent:  bounds,
                   projection: new OpenLayers.Projection(activeSRS),
-                  controls: []
+                  controls: [new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]
           });
 
           var lyr = new OpenLayers.Layer.WMS(
                   layer.title,
                   server,
                   { layers:  layer.identifier,
-                    format:  "image/gif",
-                    srsName: activeSRS,
-                    srs:     activeSRS
+                    format:  "image/gif"
                   }
           );
 
