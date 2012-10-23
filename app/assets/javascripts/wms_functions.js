@@ -1,3 +1,39 @@
+// From https://github.com/opengeo/gxp/blob/master/src/script/plugins/WMSSource.js
+/**
+ * The WMSCapabilities and WFSDescribeFeatureType formats parse the document and
+ * pass the raw data to the WMSCapabilitiesReader/AttributeReader.  There,
+ * records are created from layer data.  The rest of the data is lost.  It
+ * makes sense to store this raw data somewhere - either on the OpenLayers
+ * format or the GeoExt reader.  Until there is a better solution, we'll
+ * override the reader's readRecords method  here so that we can have access to
+ * the raw data later.
+ * 
+ * The purpose of all of this is to get the service title, feature type and
+ * namespace later.
+ */
+(function() {
+function keepRaw(data) {
+    var format = this.meta.format;
+    if (typeof data === "string" || data.nodeType) {
+        data = format.read(data);
+        // cache the data for the single read that readRecord does
+        var origRead = format.read;
+        format.read = function() {
+            format.read = origRead;
+            return data;
+        };
+    }
+    // Here, this is the WFSGetCapabilitiesReader
+    this.raw = data;
+}
+
+Ext.intercept(GeoExt.data.WFSCapabilitiesReader.prototype, "readRecords", keepRaw);
+GeoExt.data.AttributeReader &&
+    Ext.intercept(GeoExt.data.AttributeReader.prototype, "readRecords", keepRaw);
+})();
+
+
+
 var WPS = WPS || {};    // Create namespace object for our functions
 var WMS = WMS || {};    // Create namespace object for our functions
 var WFS = WFS || {};    // Create namespace object for our functions
@@ -311,38 +347,3 @@ getService = function(format)
   return null;
 };
 
-
-
-// From https://github.com/opengeo/gxp/blob/master/src/script/plugins/WMSSource.js
-/**
- * The WMSCapabilities and WFSDescribeFeatureType formats parse the document and
- * pass the raw data to the WMSCapabilitiesReader/AttributeReader.  There,
- * records are created from layer data.  The rest of the data is lost.  It
- * makes sense to store this raw data somewhere - either on the OpenLayers
- * format or the GeoExt reader.  Until there is a better solution, we'll
- * override the reader's readRecords method  here so that we can have access to
- * the raw data later.
- * 
- * The purpose of all of this is to get the service title, feature type and
- * namespace later.
- */
-(function() {
-function keepRaw(data) {
-    var format = this.meta.format;
-    if (typeof data === "string" || data.nodeType) {
-        data = format.read(data);
-        // cache the data for the single read that readRecord does
-        var origRead = format.read;
-        format.read = function() {
-            format.read = origRead;
-            return data;
-        };
-    }
-    // Here, this is the WFSGetCapabilitiesReader
-    this.raw = data;
-}
-
-Ext.intercept(GeoExt.data.WFSCapabilitiesReader.prototype, "readRecords", keepRaw);
-GeoExt.data.AttributeReader &&
-    Ext.intercept(GeoExt.data.AttributeReader.prototype, "readRecords", keepRaw);
-})();
