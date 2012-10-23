@@ -197,25 +197,25 @@
     }
 
     // Class that describes response from server, either success or failure
-    var ServerResponse = function(success, records, store, service) {
+    var ServerResponse = function(success, records, dataProxy, service) {
       this.success = success;
       this.recordCount = records;
-      this.layerStore = store;
+      this.layerStore = storedataProxy;
       this.service = service;
-      this.serverInfo = store.reader.raw.service;
+      this.serverInfo = dataProxy.reader.raw.service;
     }
 
 
     // Server has responded to our query and seems happy
-    function success(store, records) // Need to validate each item in store
+    function success(dataProxy, records) // Need to validate each item in dataProxy
     {
-      var format  = store.format.name;
-      var url     = unwrapServer(store.url, format);
+      var format  = dataProxy.format.name;
+      var url     = unwrapServer(dataProxy.url, format);
       var service = getService(format);
 
       console.log("Success", arguments);
 
-      serverStatus[url].push( new ServerResponse(true, records.length, store, service) );
+      serverStatus[url].push( new ServerResponse(true, records.length, dataProxy, service) );
 
       setLayerStatus(url);
     }
@@ -226,12 +226,12 @@
     // is down, or that it has not been configured to respond to a particular service.
 
     // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-exception
-    function failure(httpProxy, type, action, options, response, arg)
+    function failure(dataProxy, type, action, options, response, arg)
     {
       // status.responseText has response from data server?
 
       var format  = options.reader.meta.format.name;
-      var url     = unwrapServer(httpProxy.url, format);
+      var url     = unwrapServer(dataProxy.url, format);
       var service = getService(format);
 
       serverStatus[url].push( new ServerResponse(false, 0, null, service) );
