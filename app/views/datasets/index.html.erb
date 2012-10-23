@@ -62,15 +62,15 @@
   }
 
 
-  var showTechnicalDetails = function() {
+  var showDetails = function() {
     $('.technical-details').show(); 
-    $('.show-details').click(function(){ hideTechnicalDetails(); });
+    $('.show-details').click(function(){ hideDetails(); });
     $('.show-details').html('<<< Hide details');
   }
 
-  var hideTechnicalDetails = function() {
+  var hideDetails = function() {
     $('.technical-details').hide();
-    $('.show-details').click(function(){ showTechnicalDetails(); });
+    $('.show-details').click(function(){ showDetails(); });
     $('.show-details').html('Show details >>>');
   }
 
@@ -106,9 +106,9 @@
     }
 
     $('img[rel]').overlay();    // Set up the layer info overlays
-    $('img[rel]').click(function(){ hideTechnicalDetails() });   // Close details panel on open
+    $('img[rel]').click(function(){ hideDetails() });   // Close details panel on open
 
-    $('.show-details').click(function(){ showTechnicalDetails(); });
+    $('.show-details').click(function(){ showDetails(); });
 
 
           // Make sure table is sorted
