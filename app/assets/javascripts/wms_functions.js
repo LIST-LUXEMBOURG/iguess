@@ -262,7 +262,7 @@ var getJoinChar = function(url) {
 
 // WMS functions
 
-WMS.getCapStr = 'VERSION=1.3.0&REQUEST=GetCapabilities&SERVICE=WMS';
+WMS.getCapStr = 'SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities';
 
 WMS.getCapUrl = function(serverUrl) {
   var joinchar = getJoinChar(serverUrl);
@@ -295,7 +295,7 @@ WFS.stripGetCapReq = function(serverUrl) {
 };
 
 // Helper functions for creating and deconstructing urls
-WPS.getCapStr = 'VERSION=1.0.0&REQUEST=GetCapabilities&SERVICE=WPS';
+WPS.getCapStr = 'SERVICE=WPS&VERSION=1.0.0&REQUEST=GetCapabilities';
 
 WPS.getCapReq = function(serverUrl) {
 	// alert('WPS -- http://localhost:3000' + wrapGeoProxy(serverUrl + '?VERSION=1.0.0&REQUEST=GetCapabilities&SERVICE=WPS'));
