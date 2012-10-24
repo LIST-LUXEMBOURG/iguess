@@ -31456,6 +31456,520 @@ OpenLayers.Format.WFSCapabilities.v1_1_0 = OpenLayers.Class(
     CLASS_NAME: "OpenLayers.Format.WFSCapabilities.v1_1_0" 
 
 });
+
+
+
+/* ======================================================================
+    OpenLayers/Format/WFSCapabilities.js
+   ====================================================================== */
+
+/* Copyright (c) 2006-2012 by OpenLayers Contributors (see authors.txt for 
+ * full list of contributors). Published under the 2-clause BSD license.
+ * See license.txt in the OpenLayers distribution or repository for the
+ * full text of the license. */
+
+/**
+ * @requires OpenLayers/Format/XML/VersionedOGC.js
+ */
+
+/**
+ * Class: OpenLayers.Format.WFSCapabilities
+ * Read WFS Capabilities.
+ * 
+ * Inherits from:
+ *  - <OpenLayers.Format.XML.VersionedOGC>
+ */
+OpenLayers.Format.WFSCapabilities = OpenLayers.Class(OpenLayers.Format.XML.VersionedOGC, {
+    
+    /**
+     * APIProperty: defaultVersion
+     * {String} Version number to assume if none found.  Default is "1.1.0".
+     */
+    defaultVersion: "1.1.0",
+ 
+    /**
+     * APIProperty: errorProperty
+     * {String} Which property of the returned object to check for in order to
+     * determine whether or not parsing has failed. In the case that the
+     * errorProperty is undefined on the returned object, the document will be
+     * run through an OGCExceptionReport parser.
+     */
+    errorProperty: "service",
+
+    /**
+     * Constructor: OpenLayers.Format.WFSCapabilities
+     * Create a new parser for WFS capabilities.
+     *
+     * Parameters:
+     * options - {Object} An optional object whose properties will be set on
+     *     this instance.
+     */
+
+    /**
+     * APIMethod: read
+     * Read capabilities data from a string, and return a list of layers. 
+     * 
+     * Parameters: 
+     * data - {String} or {DOMElement} data to read/parse.
+     *
+     * Returns:
+     * {Array} List of named layers.
+     */
+    
+    CLASS_NAME: "OpenLayers.Format.WFSCapabilities" 
+
+});
+/* ======================================================================
+    OpenLayers/Format/WFSCapabilities/v1.js
+   ====================================================================== */
+
+/* Copyright (c) 2006-2012 by OpenLayers Contributors (see authors.txt for 
+ * full list of contributors). Published under the 2-clause BSD license.
+ * See license.txt in the OpenLayers distribution or repository for the
+ * full text of the license. */
+
+/**
+ * @requires OpenLayers/Format/WFSCapabilities.js
+ */
+
+/**
+ * Class: OpenLayers.Format.WFSCapabilities.v1
+ * Abstract class not to be instantiated directly.
+ * 
+ * Inherits from:
+ *  - <OpenLayers.Format.XML>
+ */
+OpenLayers.Format.WFSCapabilities.v1 = OpenLayers.Class(
+    OpenLayers.Format.XML, {
+
+    /**
+     * Property: namespaces
+     * {Object} Mapping of namespace aliases to namespace URIs.
+     */
+    namespaces: {
+        wfs: "http://www.opengis.net/wfs",
+        xlink: "http://www.w3.org/1999/xlink",
+        xsi: "http://www.w3.org/2001/XMLSchema-instance",
+        ows: "http://www.opengis.net/ows"
+    },
+
+    /**
+     * Property: defaultPrefix
+     */
+    defaultPrefix: "wfs",
+    
+    /**
+     * Constructor: OpenLayers.Format.WFSCapabilities.v1_1
+     * Create an instance of one of the subclasses.
+     *
+     * Parameters:
+     * options - {Object} An optional object whose properties will be set on
+     *     this instance.
+     */
+
+    /**
+     * APIMethod: read
+     * Read capabilities data from a string, and return a list of layers. 
+     * 
+     * Parameters: 
+     * data - {String} or {DOMElement} data to read/parse.
+     *
+     * Returns:
+     * {Array} List of named layers.
+     */
+    read: function(data) {
+        if(typeof data == "string") {
+            data = OpenLayers.Format.XML.prototype.read.apply(this, [data]);
+        }
+        var raw = data;
+        if(data && data.nodeType == 9) {
+            data = data.documentElement;
+        }
+        var capabilities = {};
+        this.readNode(data, capabilities);
+        return capabilities;
+    },
+
+    /**
+     * Property: readers
+     * Contains public functions, grouped by namespace prefix, that will
+     *     be applied when a namespaced node is found matching the function
+     *     name.  The function will be applied in the scope of this parser
+     *     with two arguments: the node being read and a context object passed
+     *     from the parent.
+     */
+    readers: {
+        "wfs": {
+            "WFS_Capabilities": function(node, obj) {
+                this.readChildNodes(node, obj);
+            },
+            "FeatureTypeList": function(node, request) {
+                request.featureTypeList = {
+                    featureTypes: []
+                };
+                this.readChildNodes(node, request.featureTypeList);
+            },
+            "FeatureType": function(node, featureTypeList) {
+                var featureType = {};
+                this.readChildNodes(node, featureType);
+                featureTypeList.featureTypes.push(featureType);
+            },
+            "Name": function(node, obj) {
+                var name = this.getChildValue(node);
+                if(name) {
+                    var parts = name.split(":");
+                    obj.name = parts.pop();
+                    if(parts.length > 0) {
+                        obj.featureNS = this.lookupNamespaceURI(node, parts[0]);
+                    }
+                }
+            },
+            "Title": function(node, obj) {
+                var title = this.getChildValue(node);
+                if(title) {
+                    obj.title = title;
+                }
+            },
+            "Abstract": function(node, obj) {
+                var abst = this.getChildValue(node);
+                if(abst) {
+                    obj["abstract"] = abst;
+                }
+            }
+        }
+    },
+
+    CLASS_NAME: "OpenLayers.Format.WFSCapabilities.v1" 
+
+});
+/* ======================================================================
+    OpenLayers/Format/WFSCapabilities/v1_1_0.js
+   ====================================================================== */
+
+/* Copyright (c) 2006-2012 by OpenLayers Contributors (see authors.txt for 
+ * full list of contributors). Published under the 2-clause BSD license.
+ * See license.txt in the OpenLayers distribution or repository for the
+ * full text of the license. */
+
+/**
+ * @requires OpenLayers/Format/WFSCapabilities/v1.js
+ * @requires OpenLayers/Format/OWSCommon/v1.js
+ */
+
+/**
+ * Class: OpenLayers.Format.WFSCapabilities/v1_1_0
+ * Read WFS Capabilities version 1.1.0.
+ * 
+ * Inherits from:
+ *  - <OpenLayers.Format.WFSCapabilities>
+ */
+OpenLayers.Format.WFSCapabilities.v1_1_0 = OpenLayers.Class(
+    OpenLayers.Format.WFSCapabilities.v1, {
+
+    /**
+     * Property: regExes
+     * Compiled regular expressions for manipulating strings.
+     */
+    regExes: {
+        trimSpace: (/^\s*|\s*$/g),
+        removeSpace: (/\s*/g),
+        splitSpace: (/\s+/),
+        trimComma: (/\s*,\s*/g)
+    },
+    
+    /**
+     * Constructor: OpenLayers.Format.WFSCapabilities.v1_1_0
+     * Create a new parser for WFS capabilities version 1.1.0.
+     *
+     * Parameters:
+     * options - {Object} An optional object whose properties will be set on
+     *     this instance.
+     */
+
+    /**
+     * Property: readers
+     * Contains public functions, grouped by namespace prefix, that will
+     *     be applied when a namespaced node is found matching the function
+     *     name.  The function will be applied in the scope of this parser
+     *     with two arguments: the node being read and a context object passed
+     *     from the parent.
+     */
+    readers: {
+        "wfs": OpenLayers.Util.applyDefaults({
+            "DefaultSRS": function(node, obj) {
+                var defaultSRS = this.getChildValue(node);
+                if (defaultSRS) {
+                    obj.srs = defaultSRS;
+                }
+            }
+        }, OpenLayers.Format.WFSCapabilities.v1.prototype.readers["wfs"]),
+        "ows": OpenLayers.Format.OWSCommon.v1.prototype.readers.ows
+    },
+
+    CLASS_NAME: "OpenLayers.Format.WFSCapabilities.v1_1_0" 
+
+});
+
+
+
+
+
+/* ======================================================================
+    OpenLayers/Format/WCSCapabilities.js
+   ====================================================================== */
+
+/* Copyright (c) 2006-2012 by OpenLayers Contributors (see authors.txt for 
+ * full list of contributors). Published under the 2-clause BSD license.
+ * See license.txt in the OpenLayers distribution or repository for the
+ * full text of the license. */
+
+/**
+ * @requires OpenLayers/Format/XML/VersionedOGC.js
+ */
+
+/**
+ * Class: OpenLayers.Format.WCSCapabilities
+ * Read WCS Capabilities.
+ * 
+ * Inherits from:
+ *  - <OpenLayers.Format.XML.VersionedOGC>
+ */
+OpenLayers.Format.WCSCapabilities = OpenLayers.Class(OpenLayers.Format.XML.VersionedOGC, {
+    
+    /**
+     * APIProperty: defaultVersion
+     * {String} Version number to assume if none found.  Default is "1.1.0".
+     */
+    defaultVersion: "1.1.0",
+ 
+    /**
+     * APIProperty: errorProperty
+     * {String} Which property of the returned object to check for in order to
+     * determine whether or not parsing has failed. In the case that the
+     * errorProperty is undefined on the returned object, the document will be
+     * run through an OGCExceptionReport parser.
+     */
+    errorProperty: "service",
+
+    /**
+     * Constructor: OpenLayers.Format.WCSCapabilities
+     * Create a new parser for WCS capabilities.
+     *
+     * Parameters:
+     * options - {Object} An optional object whose properties will be set on
+     *     this instance.
+     */
+
+    /**
+     * APIMethod: read
+     * Read capabilities data from a string, and return a list of layers. 
+     * 
+     * Parameters: 
+     * data - {String} or {DOMElement} data to read/parse.
+     *
+     * Returns:
+     * {Array} List of named layers.
+     */
+    
+    CLASS_NAME: "OpenLayers.Format.WCSCapabilities" 
+
+});
+/* ======================================================================
+    OpenLayers/Format/WCSCapabilities/v1.js
+   ====================================================================== */
+
+/* Copyright (c) 2006-2012 by OpenLayers Contributors (see authors.txt for 
+ * full list of contributors). Published under the 2-clause BSD license.
+ * See license.txt in the OpenLayers distribution or repository for the
+ * full text of the license. */
+
+/**
+ * @requires OpenLayers/Format/WCSCapabilities.js
+ */
+
+/**
+ * Class: OpenLayers.Format.WCSCapabilities.v1
+ * Abstract class not to be instantiated directly.
+ * 
+ * Inherits from:
+ *  - <OpenLayers.Format.XML>
+ */
+OpenLayers.Format.WCSCapabilities.v1 = OpenLayers.Class(
+    OpenLayers.Format.XML, {
+
+    /**
+     * Property: namespaces
+     * {Object} Mapping of namespace aliases to namespace URIs.
+     */
+    namespaces: {
+        wcs: "http://www.opengis.net/wcs",
+        xlink: "http://www.w3.org/1999/xlink",
+        xsi: "http://www.w3.org/2001/XMLSchema-instance",
+        ows: "http://www.opengis.net/ows"
+    },
+
+    /**
+     * Property: defaultPrefix
+     */
+    defaultPrefix: "wcs",
+    
+    /**
+     * Constructor: OpenLayers.Format.WCSCapabilities.v1_1
+     * Create an instance of one of the subclasses.
+     *
+     * Parameters:
+     * options - {Object} An optional object whose properties will be set on
+     *     this instance.
+     */
+
+    /**
+     * APIMethod: read
+     * Read capabilities data from a string, and return a list of layers. 
+     * 
+     * Parameters: 
+     * data - {String} or {DOMElement} data to read/parse.
+     *
+     * Returns:
+     * {Array} List of named layers.
+     */
+    read: function(data) {
+        if(typeof data == "string") {
+            data = OpenLayers.Format.XML.prototype.read.apply(this, [data]);
+        }
+        var raw = data;
+        if(data && data.nodeType == 9) {
+            data = data.documentElement;
+        }
+        var capabilities = {};
+        this.readNode(data, capabilities);
+        return capabilities;
+    },
+
+    /**
+     * Property: readers
+     * Contains public functions, grouped by namespace prefix, that will
+     *     be applied when a namespaced node is found matching the function
+     *     name.  The function will be applied in the scope of this parser
+     *     with two arguments: the node being read and a context object passed
+     *     from the parent.
+     */
+    readers: {
+        "wcs": {
+            "WCS_Capabilities": function(node, obj) {
+                this.readChildNodes(node, obj);
+            },
+            "FeatureTypeList": function(node, request) {
+                request.featureTypeList = {
+                    featureTypes: []
+                };
+                this.readChildNodes(node, request.featureTypeList);
+            },
+            "FeatureType": function(node, featureTypeList) {
+                var featureType = {};
+                this.readChildNodes(node, featureType);
+                featureTypeList.featureTypes.push(featureType);
+            },
+            "Name": function(node, obj) {
+                var name = this.getChildValue(node);
+                if(name) {
+                    var parts = name.split(":");
+                    obj.name = parts.pop();
+                    if(parts.length > 0) {
+                        obj.featureNS = this.lookupNamespaceURI(node, parts[0]);
+                    }
+                }
+            },
+            "Title": function(node, obj) {
+                var title = this.getChildValue(node);
+                if(title) {
+                    obj.title = title;
+                }
+            },
+            "Abstract": function(node, obj) {
+                var abst = this.getChildValue(node);
+                if(abst) {
+                    obj["abstract"] = abst;
+                }
+            }
+        }
+    },
+
+    CLASS_NAME: "OpenLayers.Format.WCSCapabilities.v1" 
+
+});
+/* ======================================================================
+    OpenLayers/Format/WCSCapabilities/v1_1_0.js
+   ====================================================================== */
+
+/* Copyright (c) 2006-2012 by OpenLayers Contributors (see authors.txt for 
+ * full list of contributors). Published under the 2-clause BSD license.
+ * See license.txt in the OpenLayers distribution or repository for the
+ * full text of the license. */
+
+/**
+ * @requires OpenLayers/Format/WCSCapabilities/v1.js
+ * @requires OpenLayers/Format/OWSCommon/v1.js
+ */
+
+/**
+ * Class: OpenLayers.Format.WCSCapabilities/v1_1_0
+ * Read WCS Capabilities version 1.1.0.
+ * 
+ * Inherits from:
+ *  - <OpenLayers.Format.WCSCapabilities>
+ */
+OpenLayers.Format.WCSCapabilities.v1_1_0 = OpenLayers.Class(
+    OpenLayers.Format.WCSCapabilities.v1, {
+
+    /**
+     * Property: regExes
+     * Compiled regular expressions for manipulating strings.
+     */
+    regExes: {
+        trimSpace: (/^\s*|\s*$/g),
+        removeSpace: (/\s*/g),
+        splitSpace: (/\s+/),
+        trimComma: (/\s*,\s*/g)
+    },
+    
+    /**
+     * Constructor: OpenLayers.Format.WCSCapabilities.v1_1_0
+     * Create a new parser for WCS capabilities version 1.1.0.
+     *
+     * Parameters:
+     * options - {Object} An optional object whose properties will be set on
+     *     this instance.
+     */
+
+    /**
+     * Property: readers
+     * Contains public functions, grouped by namespace prefix, that will
+     *     be applied when a namespaced node is found matching the function
+     *     name.  The function will be applied in the scope of this parser
+     *     with two arguments: the node being read and a context object passed
+     *     from the parent.
+     */
+    readers: {
+        "wcs": OpenLayers.Util.applyDefaults({
+            "DefaultSRS": function(node, obj) {
+                var defaultSRS = this.getChildValue(node);
+                if (defaultSRS) {
+                    obj.srs = defaultSRS;
+                }
+            }
+        }, OpenLayers.Format.WCSCapabilities.v1.prototype.readers["wcs"]),
+        "ows": OpenLayers.Format.OWSCommon.v1.prototype.readers.ows
+    },
+
+    CLASS_NAME: "OpenLayers.Format.WCSCapabilities.v1_1_0" 
+
+});
+
+
+
+
+
+
 /* ======================================================================
     OpenLayers/Layer/Image.js
    ====================================================================== */

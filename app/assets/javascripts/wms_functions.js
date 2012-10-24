@@ -29,17 +29,19 @@ function keepRaw(data) {
 
 Ext.intercept(GeoExt.data.WFSCapabilitiesReader.prototype, "readRecords", keepRaw);
 Ext.intercept(GeoExt.data.WMSCapabilitiesReader.prototype, "readRecords", keepRaw);
-// Ext.intercept(GeoExt.data.WCSCapabilitiesReader.prototype, "readRecords", keepRaw);
+Ext.intercept(GeoExt.data.WCSCapabilitiesReader.prototype, "readRecords", keepRaw);
 
 GeoExt.data.AttributeReader &&
     Ext.intercept(GeoExt.data.AttributeReader.prototype, "readRecords", keepRaw);
 })();
 
 
-
-var WPS = WPS || {};    // Create namespace object for our functions
-var WMS = WMS || {};    // Create namespace object for our functions
-var WFS = WFS || {};    // Create namespace object for our functions
+// Create namespace object for our functions
+var WPS = WPS || { };
+var WMS = WMS || { };
+var WFS = WFS || { };
+var WCS = WCS || { };
+var COMMON = COMMON || { };
 
 
 WPS.responsesExpected = 0;
@@ -222,13 +224,9 @@ WMS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
 
   var store = new GeoExt.data.WMSCapabilitiesStore({ url: fullUrl });
 
-
-  // Add some callbacks to handle various situations
-  store.on('load',      successFunction);
-  store.on('exception', failureFunction);
-
-  store.load();
+  COMMON.updateLayerList(store, successFunction, failureFunction);
 };
+
 
 
 // Probe a WFS and detect which layers are available
@@ -236,13 +234,27 @@ WFS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
   var fullUrl = WFS.getCapReq(serverUrl);
 
   var store = new GeoExt.data.WFSCapabilitiesStore({ url: fullUrl });
+  COMMON.updateLayerList(store, successFunction, failureFunction);
+};
 
-  // Add some callbacks to handle various situations
+
+// Probe a WFS and detect which layers are available
+WCS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
+  var fullUrl = WCS.getCapReq(serverUrl);
+
+  var store = new GeoExt.data.WCSCapabilitiesStore({ url: fullUrl });
+
+  COMMON.updateLayerList(store, successFunction, failureFunction);
+};
+
+
+// Helper for WFS, WMS, and WCS.updateLayerList 
+COMMON.updateLayerList = function(store, successFunction, failureFunction) {
+    // Add some callbacks to handle various situations
   store.on('load',      successFunction);
   store.on('exception', failureFunction);
   store.load();
-};
-
+}
 
 
 var geoProxyPrefix = '/home/geoproxy?url=';
@@ -294,6 +306,26 @@ WFS.stripGetCapReq = function(serverUrl) {
   return serverUrl.replace(WFS.getCapStr, '').slice(0, -1);   // slice strips last char
 };
 
+
+// http://www.mail-archive.com/users@geoext.org/msg01843.html
+WCS.getCapStr = 'SERVICE=WCS&VERSION=1.1.0&REQUEST=GetCapabilities';   
+
+WCS.getCapUrl = function(serverUrl) {
+  var joinchar = getJoinChar(serverUrl);
+  return serverUrl + joinchar + WCS.getCapStr;
+}
+
+
+WCS.getCapReq = function(serverUrl) {
+  return wrapGeoProxy(WCS.getCapUrl(serverUrl));
+};
+
+WCS.stripGetCapReq = function(serverUrl) {
+  return serverUrl.replace(WCS.getCapStr, '').slice(0, -1);   // slice strips last char
+};
+
+
+
 // Helper functions for creating and deconstructing urls
 WPS.getCapStr = 'SERVICE=WPS&VERSION=1.0.0&REQUEST=GetCapabilities';
 
@@ -331,6 +363,10 @@ WPS.unwrapProcServer = function(url, layerIdentifier) {
 
 WFS.unwrapServer = function(url) {
   return WFS.stripGetCapReq(decodeURIComponent(unwrapGeoProxy(url)));
+};
+
+WCS.unwrapServer = function(url) {
+  return WCS.stripGetCapReq(decodeURIComponent(unwrapGeoProxy(url)));
 };
 
 WMS.unwrapServer = function(url) {

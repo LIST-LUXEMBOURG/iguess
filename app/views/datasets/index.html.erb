@@ -93,8 +93,10 @@
                 '<dt>Server Base URL:</dt><dd>' + dataset.server_url + '</dd>' +
                 '<dt>Get Capabilities Links:</dt><dd>' +
                     '<a href="' + WFS.getCapUrl(dataset.server_url) + '" target="_blank">WFS</a> ' +
-                    '<a href="' + WMS.getCapUrl(dataset.server_url) + '" target="_blank">WMS</a>' +
+                    '<a href="' + WMS.getCapUrl(dataset.server_url) + '" target="_blank">WMS</a> ' +
+                    '<a href="' + WCS.getCapUrl(dataset.server_url) + '" target="_blank">WCS</a>' +
                 '</dd>' +
+                '<dt>Projections Available:</dt><dd>' + '' + '</dd>' + 
                 '<dt>Bounding Box:</dt><dd>' + '' + '</dd>' + 
                 '<dt>Attribute Columns:</dt><dd>' + '' + '</dd>' + 
               '</dl></div>' +
@@ -204,20 +206,23 @@
 
       WMS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
       WFS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+      WCS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
     }
 
 
     // Class that describes response from server, either success or failure
-    var ServerResponse = function(success, records, dataProxy, service) {
+    var ServerResponse = function(success, records, dataProxy, service, responseCode, responseText) {
       this.success = success;
       this.recordCount = records;
       this.layerStore = dataProxy;
       this.service = service;
-
-      console.log("ServerResponse:", dataProxy.reader);
+      this.errCode = responseCode || null;
+      this.errText = responseText || null;
 
 
       if(dataProxy) {
+        console.log("ServerResponse:", dataProxy.reader);
+
         var serverInfo = dataProxy.reader.raw.service;
 
         this.serverName  = serverInfo.title    || serverInfo.name || "Data Server";
@@ -239,7 +244,8 @@
       var service = getService(format);
 
 
-      serverResponses[url].push( new ServerResponse(true, records.length, dataProxy, service) );
+      serverResponses[url].push( new ServerResponse(true, records.length, dataProxy, service));
+                                                    
 
       setLayerStatus(url);
     }
@@ -258,7 +264,9 @@
       var url     = unwrapServer(dataProxy.url, format);
       var service = getService(format);
 
-      serverResponses[url].push( new ServerResponse(false, 0, null, service) );
+
+      serverResponses[url].push( new ServerResponse(false, 0, null, service, 
+                                                    response.status, response.responseText) );
 
       // alert("Error retrieving data -- see console for details!");
       console.log("Failure!",arguments);
@@ -293,13 +301,12 @@
       var serverUrlId        = serverUrlIdLookup[serverUrl];
 
       if(serverResponseArry[0].serverName) {
-        $('.server-name-' + serverUrlId).html(serverResponseArry[0].serverName);
+        $('.server-name-'  + serverUrlId).html(serverResponseArry[0].serverName);
         $('.server-descr-' + serverUrlId).html(serverResponseArry[0].serverDescr);
       }
 
-
       // Wait until we've heard back from all servers: wfs, wms, and wcs
-      if(serverResponseArry.length < 2) { return; }    //{P{P should be 3 when WCS comes online
+      if(serverResponseArry.length < 3) { return; } 
 
 
       if(!(serverResponseArry[0].success || serverResponseArry[1].success)) {    
