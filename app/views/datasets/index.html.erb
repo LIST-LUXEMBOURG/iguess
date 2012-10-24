@@ -212,18 +212,18 @@
       this.layerStore = dataProxy;
       this.service = service;
 
-      // For now...
-      if(service == 'WMS') {
-        this.serverName == this.serverName || "Not yet implemented";
-        this.serverDescr == this.serverDescr || "";
-      }
-      else
+      console.log("ServerResponse:", dataProxy.reader);
+
 
       if(dataProxy) {
         var serverInfo = dataProxy.reader.raw.service;
 
         this.serverName  = serverInfo.title    || serverInfo.name || "Data Server";
         this.serverDescr = serverInfo.abstract || "";
+      }
+      else {
+        this.serverName  == this.serverName  || "Data Server";
+        this.serverDescr == this.serverDescr || "";
       }
     }
 
