@@ -36,8 +36,8 @@ for opt, arg in opts:
         else:
             arg_dict[o] = arg
 
-    if not o or not isinstance(arg_dict[o], switches[o]):    
-        f.write(opt + " " + arg + "\nError: bad arg... " + arg_dict[o] + " is not a " + switches[o] + "!\n"
+    if not o or not isinstance(arg_dic:t[o], switches[o]):    
+        f.write(opt + " " + arg + "\nError: bad arg... " + arg_dict[o] + " is not a " + switches[o] + "!\n")
         sys.exit(2)                 
 
 
