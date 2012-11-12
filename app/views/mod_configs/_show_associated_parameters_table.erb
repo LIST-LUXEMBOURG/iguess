@@ -64,7 +64,7 @@
           var control = createDatasetSelectionControl(item.identifier, '<%= mode %>');
 
           if(control.children().length == 0) {
-              cell.text('No registered datasets of this type [' + item.identifier + ']');
+              cell.text('No registered datasets of type "' + item.identifier + '"');
               anyDatasetsMissing = true;
           }
           else {
@@ -110,7 +110,8 @@
   }
 
 
-  // discoveredLayers comes from the /shared/_build_data_layers partial
+  // DiscoveredLayers comes from the /shared/_build_data_layers partial
+  // mode will be "input" or "output"
   function createDatasetSelectionControl(identifier, mode)
   {
     var ctrl = $(document.createElement('select'));
@@ -120,6 +121,7 @@
     for(var layerKey in registeredDataLayers) {
       if(registeredDataLayers[layerKey].identifier == identifier) {
         var title = "Unknown Title";
+
         if(discoveredLayers[layerKey] != undefined) {
           title = discoveredLayers[layerKey].title;
         }

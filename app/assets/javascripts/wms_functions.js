@@ -238,7 +238,7 @@ WFS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
 };
 
 
-// Probe a WFS and detect which layers are available
+// Probe a WCS and detect which layers are available
 WCS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
   var fullUrl = WCS.getCapReq(serverUrl);
 

@@ -91,6 +91,7 @@
               '<div style="overflow:hidden" class="technical-details">' +
                 '<div class="section-header">Technical Details</div><dl>' +
                 '<dt>Server Base URL:</dt><dd>' + dataset.server_url + '</dd>' +
+                '<dt>Dataset Identifier:</dt><dd>' + dataset.identifier + '</dd>' +
                 '<dt>Get Capabilities Links:</dt><dd>' +
                     '<a href="' + WFS.getCapUrl(dataset.server_url) + '" target="_blank">WFS</a> ' +
                     '<a href="' + WMS.getCapUrl(dataset.server_url) + '" target="_blank">WMS</a> ' +
@@ -277,7 +278,7 @@
   }
 
 
-  function displayLayerInfo(serverUrl, dataset, available, name, descr, services) {
+  function updateLayerInfo(serverUrl, dataset, available, name, descr, services) {
     var railsId = railsIdLookup[makeKey(serverUrl, dataset)];
 
     $('.dataset-name2-' + railsId).html(name);    // Appears in the name column, also on infotable popup
@@ -343,7 +344,7 @@
             title = title.replace(/ /g,'&nbsp;');
 
 
-            displayLayerInfo(serverUrl, identifier, true, title, record.get("abstract"), services.join(', '))
+            updateLayerInfo(serverUrl, identifier, true, title, record.get("abstract"), services.join(', '))
 
             found = true;
             break;
@@ -352,7 +353,7 @@
       }
 
       if(!found) {
-        displayLayerInfo(serverUrl, datasets[i], false, datasets[i], 
+        updateLayerInfo(serverUrl, datasets[i], false, datasets[i], 
           'This dataset could no longer be located on the data server',     // Descr
           'None');                                                          // Services
       }
