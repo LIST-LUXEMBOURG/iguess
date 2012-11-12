@@ -1,10 +1,11 @@
-import sys, ast, getopt, types, WPSClient, time
+import sys, ast, getopt, types, WPSClient, time, syslog 
+
 
 argv = sys.argv[1:]
 # Code modeled on http://stackoverflow.com/questions/7605631/passing-a-list-to-python-from-command-line
 arg_dict = { } 
 
-# Params (and their types) we expect
+# Params (and the types) we expect
 switches = { 'url':str, 'procname':str, 'names':list, 'vals':list, 'outnames':list }
 
 singles = '' . join([x[0] + ':' for x in switches])
@@ -14,10 +15,12 @@ d = {}
 for x in switches:
 	d[x[0] + ':'] = '--' + x
 
+f = open("wps.log","a");
+
 try:            
     opts, args = getopt.getopt(argv, singles, long_form)
 except getopt.GetoptError, e:          
-    print "bad arg: ", e.msg
+    f.write("Bad arg: " + e.msg)
     sys.exit(2)       
 
 for opt, arg in opts:
@@ -34,12 +37,8 @@ for opt, arg in opts:
             arg_dict[o] = arg
 
     if not o or not isinstance(arg_dict[o], switches[o]):    
-        print opt, arg, "\nError: bad arg... ", arg_dict[o], " is not a ", switches[o], "!\n"
+        f.write(opt + " " + arg + "\nError: bad arg... " + arg_dict[o] + " is not a " + switches[o] + "!\n"
         sys.exit(2)                 
-
-print "\n\n"
-for e in arg_dict:
-    print e, arg_dict[e]    
 
 
 # No that we have our args sorted out, let's try to launch the WPSClient
@@ -48,7 +47,6 @@ for e in arg_dict:
 iniCli = WPSClient.WPSClient()
 
 # Sanitize vals
-print arg_dict['vals']
 vals = [ v.replace('&', '&amp;') for v in arg_dict['vals'] ]
 
 # Basic test with literal inputs
@@ -82,8 +80,7 @@ iniCli.init(
 
 url = iniCli.sendRequest()
 
-
-sys.stdout.write("OK:" + url);
+f.write("Launching process: " + url + "\n")
 
 # iniCli = None
 
