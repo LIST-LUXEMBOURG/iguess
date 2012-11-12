@@ -13,7 +13,7 @@
 
     return o;
   };
-
+<%binding.pry%>
   <%= @datasets.reject{ |d| d.finalized == false }.
                 map{ |d| "registeredDataLayers[makeKey('" + d.server_url + "','" + d.identifier + "')] = " +
                             "makeRegisteredLayer('" + d.dataset_type + "','" +
