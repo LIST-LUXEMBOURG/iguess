@@ -65,6 +65,8 @@
 
           if(control.children().length == 0) {
               cell.text('No registered datasets of type "' + item.identifier + '"');
+              cell.append('<img src="/assets/small_question_mark.gif" class="info-icon" ' +
+                  'alt="More info" title="You can register new datasets in the Data Manager when you are done here.">');
               anyDatasetsMissing = true;
           }
           else {
