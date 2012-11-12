@@ -2542,7 +2542,7 @@ Ext.extend(GeoExt.data.WFSCapabilitiesStore, Ext.data.Store);
 
 /** api: (define)
  *  module = GeoExt.data
- *  class = WFSCapabilitiesReader
+ *  class = WCSSCapabilitiesReader
  *  base_link = `Ext.data.DataReader <http://dev.sencha.com/deploy/dev/docs/?class=Ext.data.DataReader>`_
  */
 Ext.namespace("GeoExt.data");
@@ -2572,7 +2572,7 @@ GeoExt.data.WCSCapabilitiesReader = function(meta, recordType) {
     if(!(typeof recordType === "function")) {
         recordType = GeoExt.data.LayerRecord.create(
             recordType || meta.fields || [
-                {name: "name", type: "string"},
+                {name: "identifier", type: "string"},
                 {name: "title", type: "string"},
                 {name: "namespace", type: "string", mapping: "featureNS"},
                 {name: "abstract", type: "string"}
