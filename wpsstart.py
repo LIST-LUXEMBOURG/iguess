@@ -1,5 +1,6 @@
 import sys, ast, getopt, types, WPSClient, time, syslog 
 
+f = open("wps.log","a")
 
 argv = sys.argv[1:]
 # Code modeled on http://stackoverflow.com/questions/7605631/passing-a-list-to-python-from-command-line
@@ -14,8 +15,6 @@ long_form = [x + '=' for x in switches]
 d = {}
 for x in switches:
 	d[x[0] + ':'] = '--' + x
-
-f = open("wps.log","a");
 
 try:            
     opts, args = getopt.getopt(argv, singles, long_form)
@@ -32,12 +31,16 @@ for opt, arg in opts:
 
     if o and arg:
         if switches[o] == tuple or switches[o] == list or switches[o] == dict:
+            print arg
             arg_dict[o] = ast.literal_eval(arg)
         else:
             arg_dict[o] = arg
 
-    if not o or not isinstance(arg_dic:t[o], switches[o]):    
-        f.write(opt + " " + arg + "\nError: bad arg... " + arg_dict[o] + " is not a " + switches[o] + "!\n")
+    if not o:
+        f.write("Invalid options!\n")
+        sys.exit(2)
+    if not isinstance(arg_dict[o], switches[o]):
+        f.write(str(opt) + " " + str(arg) + "\nError: bad arg... " + str(arg_dict[o]) + " is not a " + str(switches[o]) + "!\n")
         sys.exit(2)                 
 
 
