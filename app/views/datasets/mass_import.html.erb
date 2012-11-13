@@ -1,18 +1,3 @@
-<h1>Register Datasets</h1>
-
-<div class="explanation">
-	iGUESS uses datasets stored on remote servers.  To register datasets with the system, enter a server URL in the box below.
-	iGUESS will probe the remote server and present you a list of datasets you can register.  In order to use a dataset with
-	a module, you will need to choose a data type from the drop down box.  If you only want to use the dataset for mapping
-	purposes, select Mapping Only.
-	<p>
-	iGUESS will probe for WFS and WMS servers at the URL provided below.  Layers offered by the WMS will be available for mapping,
-	and layers offered by the WFS will be available for using as inputs to web processes.
-
-  <ul>
-    <li>http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map&SERVICE=WMS&VERSION=1.0.0&REQUEST=GetCapabilities
-    <li>http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/LB_localOWS_test.map&SERVICE=WMS&VERSION=1.0.0&REQUEST=GetCapabilities
-</div>
 
 
 <script type="text/javascript">
@@ -47,11 +32,13 @@
 
 <script type="text/javascript">
 
+  function getServerUrl() { return $('#dataset_url').val().trim(); }
+
   // User changes the value of one of the dataType dropdowns
   function onDataTypeChanged(id)
   {
     var layerName = getLayerNameFromDataTypeId(id);
-    var server = $('#dataset_url').val();
+    var server = getServerUrl();
     var layerKey = makeKey(server, layerName);
 
     // Let the server know the dataType has changed
@@ -74,8 +61,8 @@
 
   function confirmChange(id) {
     var layerName = getLayerNameFromDataTypeId(id);
-    var server = $('#dataset_url').val();
-    var layerKey = makeKey(server, layerName);
+    var server    = getServerUrl();
+    var layerKey  = makeKey(server, layerName);
 
     if(registeredDataLayers[layerKey] == undefined || registeredDataLayers[layerKey].configCount == 0) { return true; }
 
@@ -117,7 +104,8 @@
 
 
   // Called when we've gotten whatever response we're going to get from the server in question
-  function doneProcessing(url, type, status)    // status will be OK or ERROR
+  // i.e. when a WFS response arrives.  More responses might be coming (from WMS, and WCS, for example).
+  function doneProcessing(url, type, serverInfo, status)    // status will be OK or ERROR
   {
     if(type == 'WFS') {
       $('#probing-wfs').hide();
@@ -127,24 +115,59 @@
       $('#probing-wms').hide();
       wmsProcessingComplete = true;
     }
+    else if(type == 'WCS') {
+      $('#probing-wcs').hide();
+      wcsProcessingComplete = true;
+    }
+    else { alert("Unknown type " + type); }
 
-    if(!(wfsProcessingComplete || !showWfs() &&
-         wmsProcessingComplete || !showWms())    ) { return; }   // Still waiting for another service to return
+    displayServerDetails(serverInfo, type);   // Display this as it comes in
 
+    if(!((wfsProcessingComplete || !showWfs()) &&
+         (wmsProcessingComplete || !showWms()) &&
+         (wcsProcessingComplete || !showWcs()) )    ) { return; }   // Still waiting for another service to return
+
+    $('.progress-container').hide();
     displayLayers();
+  }
+
+
+  // Note that details can be null here
+  var displayServerDetails = function(serverInfo, service) {
+    if(serverInfo && $('.server-name').html() == '')
+    {
+      var serverName  = serverInfo.title    || serverInfo.name || "Data Server";
+      var serverDescr = serverInfo.abstract || "";
+
+      $('.server-name').html('Server: ' + serverName);
+      $('.server-descr').html(serverDescr);
+      $('.server-info').show();
+    }
   }
 
 
   var displayLayers = function()
   {
-    var server = $('#dataset_url').val();
+    var server = getServerUrl();
     var mapId = 0;
     var first = true;
 
     var layerCount = Object.keys(discoveredLayers).length;
     var visibleLayers = 0;
 
-    $('#layer-table').html('');   // Clear the decks
+
+    // If no layers were loaded, show an intelligble error message and bail
+    if(layerCount == 0) {
+      $('#layer-display').html('<div class="error-header">Please check the number and dial again</div>' +
+                             '<div class="error-body">No data layers could be found on the specified server.<br>' +
+                             'Either the URL is not that of a WMS/WFS/WCS data server, or the server is not responding. ' +
+                             '</div>');
+      return;
+    }
+
+
+    $('#layer-display').html('');   // Clear the decks
+
 
     // Render found datasets in two passes -- first for registered items, second for unregistered ones.
     // This puts registered items at the top of the screen.
@@ -168,7 +191,7 @@
         if((pass == 0 && !registered) || (pass == 1 && registered)) { continue; }
 
         if(first) {
-          $('#layer-display').html('<div>Showing <span id="layer-display-count"></span> layers.  ' +
+          $('#layer-display').html('<div>Server has <span id="layer-display-count"></span> layers.  ' +
                                    'Using local SRS "' + LOCAL_SRS + '".</div><ul id="layer-table"></ul>');
           first = false;
         }
@@ -180,7 +203,7 @@
         var srsList = [ ];
 
         if(layer.srs !== null) {
-          availableInLocalProjection  = LOCAL_SRS in layer.srs;
+          availableInLocalProjection  = LOCAL_SRS  in layer.srs;
           availableInGoogleProjection = GOOGLE_SRS in layer.srs;
           srsList = Object.keys(layer.srs);
         }
@@ -271,9 +294,7 @@
         var data_info = $(document.createElement('div'));
         data_info.attr({ class:'data-info' });
 
-        data_info.append(titleNode)
-                 .append(abstractNode)
-                 .append(srsNode)
+        data_info.append(srsNode)
                  .append(registerControl)
                  .append(servicesAvailNode)
                  .append('<br>')
@@ -284,7 +305,9 @@
 
         var container = $(document.createElement('div'));
         container.attr({ class:'dataset ' + (registered ? 'registered_dataset' : 'unregistered_dataset'), id:'td_' + layer.identifier });
-        container.append(data_info)
+        container.append(titleNode)
+                 .append(abstractNode)
+                 .append(data_info)
                  .append(sample_map);
 
         // tr_element (map-data-item)
@@ -297,43 +320,31 @@
         tr_element.append(container);
 
         $('#layer-table').append(tr_element);
-//        console.log(layer.bbox);
 
         var activeSRS = null;
         if(layer.bbox !== null) {
           for (e in layer.bbox) { activeSRS = e; break; }
         }
 
-//        console.log(layer);
-//        console.log(layer.bbox);
-//        console.log(firstEspg);
-
         if(activeSRS !== null)
         {
-//          console.log(activeSRS);
-
           var bbox = layer.bbox[activeSRS].bbox;
 
           var bounds = new OpenLayers.Bounds(bbox[0], bbox[1], bbox[2], bbox[3]);  //minx miny maxx maxy
 
           var miniMap = new OpenLayers.Map({
                   maxExtent:  bounds,
-                  projection: new OpenLayers.Projection(activeSRS)
+                  projection: new OpenLayers.Projection(activeSRS),
+                  controls: [new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]
           });
 
           var lyr = new OpenLayers.Layer.WMS(
                   layer.title,
                   server,
                   { layers:  layer.identifier,
-                    format:  "image/gif",
-                    srsName: activeSRS,
-                    srs:     activeSRS
+                    format:  "image/gif"
                   }
           );
-
-//          alert(lyr.bbox);
-//          alert(lyr.bbox.ESPG[0]);
-//          lyr.bbox.ESPG[0].bbox = [92000,437000,92600,436500];
 
           miniMap.addLayer(lyr);
           miniMap.zoomToMaxExtent();
@@ -364,7 +375,7 @@
       var layerName = getLayerNameFromCheckboxId(checkboxID);
 
       var dataTypeControl = document.getElementById(getDataTypeControlId(layerName));
-      var server = $('#dataset_url').val();
+      var server = getServerUrl();
 
       var layerKey = makeKey(server, layerName);
 
@@ -433,17 +444,111 @@
   }
 
 
+  // Class declaration
+  var ServiceProbe = function(serverUrl) {   
+    this.successCount = 0;
+    this.failCount    = 0;
+    this.WmsSucceeded = null;
+    this.WfsSucceeded = null;
+    this.WcsSucceeded = null;
+    this.serverUrl    = serverUrl;
+
+    var self = this;    // Stored pointer to ourselves, will be needed in the callback
+  
+    
+    this.statusChanged = function() {
+      
+    }
+
+    this.onGetCapabilitiesSucceeded = function() {
+      self.successCount++;
+      self.statusChanged();
+    }
+
+    this.onGetCapabilitiesFailed = function() {
+      self.failCount++;
+      self.statusChanged();
+    }
+
+    // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-load
+    this.onWfsGetCapabilitiesSucceeded = function(dataProxy, records, options) { 
+      // console.log("WFSSuccess>>", arguments);
+      self.onGetCapabilitiesSucceeded();
+      self.WfsSucceeded = true; 
+
+      onWfsGetCapabilitiesSucceeded(dataProxy, records);
+    }
+
+    this.onWmsGetCapabilitiesSucceeded = function(dataProxy, records, options) { 
+      self.onGetCapabilitiesSucceeded();
+      self.WmsSucceeded = true;
+
+      onWmsGetCapabilitiesSucceeded(dataProxy, records);
+    }
+
+    this.onWcsGetCapabilitiesSucceeded = function(dataProxy, records, options) { 
+      self.onGetCapabilitiesSucceeded();
+      self.WcsSucceeded = true;
+
+      onWcsGetCapabilitiesSucceeded(dataProxy, records);
+    }
+
+    // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-exception
+    this.onWfsGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) { 
+      if(type == 'response') {
+        // alert("Cannot parse response from WFS server.");
+        // console.log("Response", response.responseText)
+      }
+
+      // console.log("WFS Exception 99", arguments);
+      self.onGetCapabilitiesFailed();
+      self.WfsSucceeded = false;
+      doneProcessing(self.serverUrl, 'WFS', null, 'ERROR');
+    }
+
+    this.onWmsGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) { 
+      // alert("Error encountered on wms request");
+      self.onGetCapabilitiesFailed();
+      self.WmsSucceeded = false;
+      doneProcessing(self.serverUrl, 'WMS', null, 'ERROR');
+    }
+
+    this.onWcsGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) { 
+      self.onGetCapabilitiesFailed();
+      self.WcsSucceeded = false;
+      doneProcessing(self.serverUrl, 'WCS', null, 'ERROR');
+    }
+
+    this.startProbing = function() { 
+      WFS.updateLayerList(self.serverUrl, self.onWfsGetCapabilitiesSucceeded, self.onWfsGetCapabilitiesFailed );
+      WMS.updateLayerList(self.serverUrl, self.onWmsGetCapabilitiesSucceeded, self.onWmsGetCapabilitiesFailed );
+
+    };
+  }
+
+
+  // This gets called when the Remote Data Server URL is changed
   var update = function()
   {
+    var serverUrl = getServerUrl();
+
+    if(serverUrl == "") {
+      return;   // Do nothing if URL is blank
+    }
+
     showProbingIndicators();
 
     $('#layer-display').html('');
     discoveredLayers = { };
+
     wfsProcessingComplete = false;
     wmsProcessingComplete = false;
+    wcsProcessingComplete = true;   // for now
 
-    WFS.updateLayerList($('#dataset_url').val(), onWfsGetCapabilitiesSucceeded, onWfsGetCapabilitiesFailed);
-    WMS.updateLayerList($('#dataset_url').val(), onWmsGetCapabilitiesSucceeded, onWmsGetCapabilitiesFailed);
+    $('#refresh_layers_button').html('Reload');
+
+    var probe = new ServiceProbe(serverUrl);
+    probe.startProbing();
   };
 
 
@@ -455,34 +560,68 @@
     return $('#radio-show-wms').prop('checked') || $('#radio-show-both').prop('checked');
   }
 
-  function showProbingIndicators() {
-    if(showWfs()) { $('#probing-wfs').show(); }
-    if(showWms()) { $('#probing-wms').show(); }
+  function showWcs() {
+    return false; //$('#radio-show-wfs').prop('checked') || $('#radio-show-both').prop('checked');
   }
+
+  function showProbingIndicators() {
+    var anyShown = false;
+
+    if(showWfs()) { $('#probing-wfs').show(); anyShown = true; }
+    if(showWms()) { $('#probing-wms').show(); anyShown = true; }
+    if(showWcs()) { $('#probing-wcs').show(); anyShown = true; }
+
+    if(anyShown)
+    {
+      $('.progress-container').show();
+    }
+    else {
+      $('.progress-container').hide();
+    }
+  }
+
 
   function hideProbingIndicators() {
     $('#probing-wms').hide();
     $('#probing-wfs').hide();
+    $('#probing-wcs').hide();
+    $('.progress-container').hide();
   }
 
 
   $(document).ready(function ()
   {
+    hideProbingIndicators();
     onLocationChanged('<%= @current_city.name %>');   // Update SRS and set default URL
+
+    // Event handlers for various controls
     $('#dataset_url').change(update);
     $('#refresh_layers_button').click(update);
-    hideProbingIndicators();
+    $('#dataset_url').focus(function() { $('#refresh_layers_button').html('Load'); });
+
+    // Event handlers for our radio buttons
+    $("#radio-show-wfs") .click(function() { displayLayers(); });
+    $("#radio-show-wms") .click(function() { displayLayers(); });
+    $("#radio-show-both").click(function() { displayLayers(); });
   });
 </script>
+ 
 
+<h1>Register Datasets</h1>
 
-<!--<div class="explanation">-->
-  <!--Sample URLs for local mirror of Ludwigsburg (this list will be removed in future)-->
-  <!--<ul>-->
-    <!--<li>http://iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/LB_localOWS_test.map</li>-->
-    <!--<li>http://iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/Ludwigsburg02.map</li>-->
-  <!--</ul>-->
-<!--</div>-->
+<div class="explanation">
+  iGUESS uses datasets stored on remote servers.  To register datasets with the system, enter a server URL in the box below.
+  iGUESS will probe the remote server and present you a list of datasets you can register.  In order to use a dataset with
+  a module, you will need to choose a data type from the drop down box.  If you only want to use the dataset for mapping
+  purposes, select Mapping Only.
+  <p>
+  iGUESS will probe for WFS and WMS servers at the URL provided below.  Layers offered by the WMS will be available for mapping,
+  and layers offered by the WFS will be available for using as inputs to web processes.
+
+  <ul>
+    <li>http://ows.gis.rotterdam.nl/cgi-bin/mapserv.exe?map=d:\gwr\webdata\mapserver\map\gwr_basis_pub.map
+    <li>http://logis.ludwigsburg.de/mapguide2011/mapagent/mapagent.fcgi
+</div>
 
 
 <form id="url_form">
@@ -513,13 +652,15 @@
   </label>
 </div>
 
-<script>
-  $("#radio-show-wfs") .click(function() { displayLayers(); });
-  $("#radio-show-wms") .click(function() { displayLayers(); });
-  $("#radio-show-both").click(function() { displayLayers(); });
-</script>
+<div class="progress-container">
+  <span style="padding-left: 5px;" id="probing-wms">Probing map server... <img src="/assets/loading_spinner.gif"></span>
+  <span style="padding-left: 5px;" id="probing-wfs">Probing feature server... <img src="/assets/loading_spinner.gif"></span>
+  <span style="padding-left: 5px;" id="probing-wcs">Probing coverage server... <img src="/assets/loading_spinner.gif"></span>
+</div>
 
-<span style="padding-left: 5px;" id="probing-wms">Probing WMS server... <img src="/assets/loading_spinner.gif"></span>
-<span style="padding-left: 5px;" id="probing-wfs">Probing WFS server... <img src="/assets/loading_spinner.gif"></span>
+<div class="server-info">
+  <div class="server-name"></div>
+  <div class="server-descr"></div>
 
-<div id="layer-display"></div>
+  <div id="layer-display"></div>
+</div>

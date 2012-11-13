@@ -40,6 +40,7 @@ rows = cur.fetchall()
 
 client = WPSClient.WPSClient()
 
+
 for row in rows:
     recordId = row[0]
     pid = row[1]

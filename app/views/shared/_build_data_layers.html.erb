@@ -19,85 +19,96 @@
     var serverCount = registeredDataServers.length;
 
     for(var i = 0; i < serverCount; i++) {
-      WFS.updateLayerList(registeredDataServers[i], onWfsGetCapabilitiesSucceeded, onWfsGetCapabilitiesFailed);
+      WFS.updateLayerList(registeredDataServers[i], onWmsGetCapabilitiesSucceeded, onWmsGetCapabilitiesFailed);
     }
   }
 
   // Callback for WMS get capabilities success
-  var onWmsGetCapabilitiesSucceeded = function(store, records)
+  var onWmsGetCapabilitiesSucceeded = function(dataProxy, records)
   {
-    processIncomingLayers(store, records.length, 'WMS');
+    processIncomingLayers(dataProxy, records.length, 'WMS');
   }
 
 
   // Callback for WFS get capabilities success
-  var onWfsGetCapabilitiesSucceeded = function(store, records)
+  var onWfsGetCapabilitiesSucceeded = function(dataProxy, records)
   {
-    processIncomingLayers(store, records.length, 'WFS');
+    processIncomingLayers(dataProxy, records.length, 'WFS');
   }
 
 
-  // Handles results from WMS & WFS getCapabilities calls
-  function processIncomingLayers(store, count, type)
+  // Basic dataset object -- this is what we track for datasets seen on remote server
+  function Dataset(server, record, type) {
+    this.server     = server;
+    this.identifier = record.get("name");
+    this.title      = record.get("title") || record.get("name");
+    this.abstract   = record.get("abstract");
+    this.type       = [type];
+    
+    this.srs  = null;
+    this.bbox = null;
+
+    this.setSrs  = function(srs)  { this.srs = srs; }
+    this.setBbox = function(bbox) { this.bbox = bbox; }
+  }
+
+
+  // Handles results from WMS, WFS, and WCS getCapabilities calls
+  function processIncomingLayers(dataProxy, count, service)
   {
-    var server;
-    if     (type == 'WFS') { server = WFS.unwrapServer(store.url); }
-    else if(type == 'WMS') { server = WMS.unwrapServer(store.url); }
-    else { alert('Unexpected type ' + type); }
+    var serverUrl;
+
+    if     (service == 'WFS') { serverUrl = WFS.unwrapServer(dataProxy.url); }
+    else if(service == 'WMS') { serverUrl = WMS.unwrapServer(dataProxy.url); }
+    else if(service == 'WCS') { serverUrl = WCS.unwrapServer(dataProxy.url); }
+    else { alert('Unexpected type ' + service); }
 
     for(var i = 0; i < count; i++) {
+      var record = dataProxy.getAt(i);
+      var dataset = new Dataset(serverUrl, record, service);
 
-      var record = store.getAt(i);
-
-      var name       = record.get("name");
-      var title      = record.get("title") || record.get("name");
-      var abstract   = record.get("abstract");
-      var srs = null;
-      var bbox = null;
-
-      if(type == 'WMS') {
-        srs  = record.data.srs;
-        bbox = record.data.bbox;
+      if(service == 'WMS') {
+        dataset.setSrs (record.data.srs);
+        dataset.setBbox(record.data.bbox);
       }
+      else console.log(record);
 
-      foundDataset(server, name, title, abstract, srs, bbox, type);
+
+      foundDataset(dataset, service);
     }
 
-    doneProcessing(server, type, 'OK');
+    var serviceInfo = (dataProxy.reader && dataProxy.reader.raw && dataProxy.reader.raw.service) || null;
+    doneProcessing(serverUrl, service, serviceInfo, 'OK');
   }
 
 
-  function foundDataset(server, name, title, abstract, srs, bbox, service)
+  function foundDataset(dataset, service)
   {
-    var layerKey = makeKey(server, name);
-    var registered = layerKey in registeredDataLayers;
+    var layerKey = makeKey(dataset.server, dataset.identifier);
 
     if(layerKey in discoveredLayers) {   // Already found this layer, add service to it
 
       if(discoveredLayers[layerKey].type.hasObject(service)) {    // Will happen if duplicate names are used on the server
         return;
       }
+
       discoveredLayers[layerKey].type.push(service);
-      if(srs !== null) {
-        discoveredLayers[layerKey].srs = srs;
+      if(dataset.srs !== null) {
+        discoveredLayers[layerKey].srs = dataset.srs;
       }
-      if(bbox !== null) {
-        discoveredLayers[layerKey].bbox = bbox;
+      if(dataset.bbox !== null) {
+        discoveredLayers[layerKey].bbox = dataset.bbox;
       }
     }
-    else {                             // New layer, add it to discoveredLayers
-      discoveredLayers[layerKey] = { identifier:name, title:title, abstract:abstract, srs:srs, bbox:bbox, type:[service] };
+    else {    // New layer, add it to discoveredLayers
+      discoveredLayers[layerKey] = dataset;
     }
   }
 
 
-  var onWmsGetCapabilitiesFailed = function(e,f,g,h,i,j) {   // <-- Probably not right...
-
-    console.log(e);
-    console.log(f);
-    console.log(g);
-    console.log(h);
-    console.log(i);
+  var onWmsGetCapabilitiesFailed = function() {  
+    console.log("WMS GetCapabilities failed");
+    console.log(arguments);
 
     $('#layer-display').html('<div class="form_error_message">Error: Either this is an invalid address, or the WMS server is not responding.</div>');
 
@@ -110,24 +121,17 @@
 
     $('#layers_loading_indicator').hide();
     // $('#refresh_layers_button').attr('disabled', false);
-    doneProcessing('???', 'WMS', 'ERROR');
+    doneProcessing('???', 'WMS', null, 'ERROR');
   }
 
 
-  var onWfsGetCapabilitiesFailed = function(e,f,g,h,i,j,k) {   // <-- Probably not right...
-    debugger;
-    console.log(e);
-    console.log(f);
-    console.log(g);
-    console.log(h);
-    console.log(i);
-    console.log(j);
+  var onWfsGetCapabilitiesFailed = function() {   
+    console.log("WFS GetCapabilities failed");
+    console.log(arguments);
     showPreErrorMessage(i);
 
 
-    doneProcessing('???', 'WFS', 'ERROR');
+    doneProcessing('???', 'WFS', null, 'ERROR');
   }
-
-
 
 </script>

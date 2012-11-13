@@ -50,7 +50,7 @@
         cell.html(item.title);
 
         if(item.descr != null) {
-          cell.append('<img src="/assets/small_question_mark.gif" style="padding-left: 8px; padding-top: 3px" ' +
+          cell.append('<img src="/assets/small_question_mark.gif" class="info-icon" ' +
                   'alt="More info" title="' + item.descr + '">');
         }
 
@@ -64,7 +64,9 @@
           var control = createDatasetSelectionControl(item.identifier, '<%= mode %>');
 
           if(control.children().length == 0) {
-              cell.text('No registered datasets of this type [' + item.identifier + ']');
+              cell.text('No registered datasets of type "' + item.identifier + '"');
+              cell.append('<img src="/assets/small_question_mark.gif" class="info-icon" ' +
+                  'alt="More info" title="Don\'t panic!  You can register new datasets in the Data Manager when you are done here.">');
               anyDatasetsMissing = true;
           }
           else {
@@ -104,13 +106,13 @@
 
         row.append(cell);
         table.append(row);
-
       }
     }
   }
 
 
-  // discoveredLayers comes from the /shared/_build_data_layers partial
+  // DiscoveredLayers comes from the /shared/_build_data_layers partial
+  // mode will be "input" or "output"
   function createDatasetSelectionControl(identifier, mode)
   {
     var ctrl = $(document.createElement('select'));
@@ -120,6 +122,7 @@
     for(var layerKey in registeredDataLayers) {
       if(registeredDataLayers[layerKey].identifier == identifier) {
         var title = "Unknown Title";
+
         if(discoveredLayers[layerKey] != undefined) {
           title = discoveredLayers[layerKey].title;
         }

@@ -1,6 +1,6 @@
 class DatasetsController < ApplicationController
 
-  respond_to :html, :json   # See http://railscasts.com/episodes/224-controllers-in-rails-3, c. min 7:00
+  respond_to :html, :json, :js   # See http://railscasts.com/episodes/224-controllers-in-rails-3, c. min 7:00
 
   # GET /datasets
   # GET /datasets.json
@@ -114,7 +114,7 @@ class DatasetsController < ApplicationController
 
     respond_to do |format|
       format.html { redirect_to datasets_url }
-      format.json { head :no_content }
+      format.js { render :text => @dataset.id, :status => :ok}
     end
   end
 

@@ -16,6 +16,7 @@
   padding: 2px;
   outline: 1px solid rgba(0,0,0,0.2);       // Outer line
   height: 100%;
+  max-width: 585px;
 }
 
 // Combines with the below, describes container just inside outer border
@@ -23,7 +24,7 @@
   height: 100%;
   padding: 15px;
   border: 1px solid rgba(0,0,0,0.2);
-  min-height: 200px;
+  min-height: 280px;
 }
 
 // Green tile
@@ -39,9 +40,21 @@
 
 // Container to the left of the map-data-item, holding sample-map and map-data-item below
 .data-info {
+  margin-top: 5px;
   width: 250px;
   height: 100%;
   float: left;
+}
+
+#sortable_table {
+  border-collapse: separate; 
+  border-spacing: 1px;
+}
+
+#sortable_table td {
+    padding: 3px 10px;
+    position: relative;
+    vertical-align: middle;
 }
 
 // Sample map embedded in a map-data-item
@@ -52,6 +65,10 @@
   float: right;
 }
 
+// Style attached to layer available: yes/no indicators (imgs themselves) -- used for vertical centering
+.status-indicator {
+  margin-bottom: -3px;
+}
 
 // Title at top of tile
 .dataset_title {
@@ -59,7 +76,7 @@
 }
 
 .dataset_abstract {
-  
+  margin-bottom: 8px;
 }
 
 // "Services: WFS, WMS" text
@@ -79,5 +96,117 @@
 
 
 .layer-info-popup {
+  display: none;
+}
+
+
+.invisible-cell {
+  background: #fff;
+}
+
+
+/* Styling for the info popup window when user clicks on a "?" icon */
+.infotable {
+ 
+  /* must be initially hidden */
+  display:none;
+
+  /* place overlay on top of other elements */
+  z-index:10000;
+
+  /* styling */
+  background-color:#E1E5EA;
+
+  width:675px;
+  border:1px solid #666;
+  padding: 10px;
+
+  /* CSS3 styling for latest browsers */
+  -moz-box-shadow:0 0 90px 5px #000;
+  -webkit-box-shadow: 0 0 90px #000;
+}
+ 
+/* close button positioned on upper right corner */
+.infotable .close {
+  background-image: url(/assets/close.png);
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  cursor: pointer;
+  height: 24px;
+  width: 24px;
+}
+
+
+.infotable dl
+{
+  float: left;
+  width: 520px;
+  margin: 1em 0;
+  padding: 0;
+  border-bottom: 1px solid #999;
+}
+  
+.infotable dt
+{
+  clear: left;
+  float: left;
+  width: 200px;
+  margin: 0;
+  padding: 5px;
+  border-top: 1px solid #999;
+  font-weight: bold;
+}
+  
+.infotable dd
+{
+  float: left;
+  width: 300px;
+  margin: 0;
+  padding: 5px;
+  border-top: 1px solid #999;
+}
+
+
+/* Details panel on infotables */
+.technical-details {
+  display:none;         /* Starts off hidden */
+}
+
+
+/* Error box title */
+.error-header {
+  color: red;
+  font-weight: bold;
+}
+
+/* Error box body */
+.error-body {
+  color: red;
+  font-size: 25px;
+}
+
+
+/* Server name and description, shown above the data tiles */
+.server-name {
+  font-size: 25px;
+  font-weight: bold;
+}
+
+.server-descr {
+  margin-bottom: 30px;
+}
+
+/* Div enclosing server name, descr, and map tiles, starts out hidden, will be made visible when filled */
+.server-info {
+  display: none;
+  background-color: #f8f8f8;
+  padding: 5px;
+}
+
+/* Div containing progress indicators */
+.progress-container {
+  padding: 5px;
+  background-color: #f8f8f8;
   display: none;
 }

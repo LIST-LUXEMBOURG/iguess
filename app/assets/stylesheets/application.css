@@ -49,11 +49,6 @@ a:active {
   margin-bottom: 0;
 }
 
-/* Explanatory text just below each header */
-.page_subheader {
-  margin-bottom: 1em;
-}
-
 
 .hint {
   font-size: .85em;
@@ -255,6 +250,13 @@ a:active {
 
 .hidden {
   visibility: hidden;
+}
+
+/* Those little question mark icons that provide more info about something */
+.info-icon {
+  margin-left: 8px;
+  margin-top: 3px;
+  cursor:pointer;
 }
 
 
