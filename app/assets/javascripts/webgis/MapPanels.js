@@ -37,7 +37,7 @@ Ext.onReady(function() {
     floatable: false,
     xtype: "gx_mappanel",
     map: WebGIS.map,
-    tbar: createTbarItems(WebGIS.map),
+    tbar: WebGIS.createTbarItems(WebGIS.map),
     items: [zoomSlider]
   });
 
@@ -102,7 +102,7 @@ Ext.onReady(function() {
  * Returns:
  * {Array({GeoExt.Action})} An array of GeoExt.Action objects.
  */
-var createTbarItems = function(map) {
+WebGIS.createTbarItems = function(map) {
   var actions = [];
   actions.push(new GeoExt.Action({
     iconCls: "pan",
