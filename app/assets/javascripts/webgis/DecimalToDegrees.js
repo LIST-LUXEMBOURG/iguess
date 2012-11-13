@@ -10,7 +10,7 @@
   /**
    * Decimal to DMS conversion
    */
-  convertDMS = function(coordinate, type) {
+  WebGIS.convertDMS = function(coordinate, type) {
     var coords = new Array();
 
     abscoordinate = Math.abs(coordinate)
@@ -52,7 +52,7 @@
   /**
    * Return the hemisphere abbreviation for this coordinate.
    */
-  getHemi = function(coordinate, type) {
+  WebGIS.getHemi = function(coordinate, type) {
     var coordinatehemi = "";
     if (type == 'LAT') {
       if (coordinate >= 0) {

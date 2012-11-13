@@ -39,8 +39,8 @@
 
     var mp = new OpenLayers.Control.MousePosition({
       formatOutput: function(lonLat) {
-        var markup = convertDMS(lonLat.lon, "LON") + "  ";
-        markup += convertDMS(lonLat.lat, "LAT");
+        var markup = WebGIS.convertDMS(lonLat.lon, "LON") + "  ";
+        markup += WebGIS.convertDMS(lonLat.lat, "LAT");
         return markup;
       }
     });
