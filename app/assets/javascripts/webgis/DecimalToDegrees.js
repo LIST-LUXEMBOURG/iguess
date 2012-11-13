@@ -1,9 +1,10 @@
-/*********************************************************************************
+  /**
+   * @author Luis de Sousa [luis.desousa@tudor.lu]]
+   * date: 17-01-2012
+   * 
    * This code was downloaded from the OpenLayers Mail-list archive:
    * http://osgeo-org.1803224.n2.nabble.com/How-to-change-the-display-coordinates-td3576165.html
    * Originally created by Codehaus for the MapBuilder project.
-   *
-   * Retrieved in 17-01-2012
    */
 
   /**
@@ -31,10 +32,8 @@
     if( coordinateseconds < 10 )
       coordinateseconds = "0" + coordinateseconds;
 
-    /*****************************************************
+    /**
      * This section had to be changed from the original to look a bit more friendly
-     * Author: Luís de Sousa
-     * Date: 17-01-2012
      */
 
     /*coords[0] = coordinatedegrees;

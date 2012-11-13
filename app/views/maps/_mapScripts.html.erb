@@ -14,9 +14,9 @@
       var point = new OpenLayers.LonLat(
               (<%= city.minx %> + <%= city.maxx %>) / 2,
               (<%= city.miny %> + <%= city.maxy %>) / 2);
-      point.transform(proj, map.getProjectionObject());
+      point.transform(proj, WebGIS.map.getProjectionObject());
 
-      map.setCenter(point, <%= city.zoom %>);
+      WebGIS.map.setCenter(point, <%= city.zoom %>);
 
       $('.all-layers').hide();
       $('.layer-for-city-<%= city.id %>').show();

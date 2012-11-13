@@ -1,9 +1,9 @@
-/***********************************
+/**
+ * @author Luis de Sousa [luis.desousa@tudor.lu]
  * Date: 12-11-2012
- * Author: Luís de Sousa [luis.desousa@tudor.lu]
  *
  * Includes the functions to perform the identify action
- ***********************************/
+ **/
 
 var ctrlIdentify;
 
