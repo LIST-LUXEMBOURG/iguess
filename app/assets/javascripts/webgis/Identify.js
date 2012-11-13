@@ -5,10 +5,10 @@
  * Includes the functions to perform the identify action
  **/
 
-var ctrlIdentify;
+WebGIS.ctrlIdentify = null;
 
 // window dialog
-var treeConfigWin = new Ext.Window({
+WebGIS.treeConfigWin = new Ext.Window({
     layout: "fit",
     hideBorders: true,
     closeAction: "hide",
@@ -31,7 +31,7 @@ var treeConfigWin = new Ext.Window({
     }]
 });
 
-function addControls(map) {
+WebGIS.addControls = function (map) {
 
    ctrlIdentify = new OpenLayers.Control.WMSGetFeatureInfo({
       url: 'http://weastflows.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/Weastflows.map&', 
@@ -45,9 +45,7 @@ function addControls(map) {
 
 }
 
-
-
-function toggleIdentify() {
+WebGIS.toggleIdentify = function () {
 
    if(ctrlIdentify.active) ctrlIdentify.deactivate();
    else ctrlIdentify.activate();
@@ -57,7 +55,7 @@ function toggleIdentify() {
    treeConfigWin.show();
 }
 
-function showInfo(evt) {
+WebGIS.showInfo = function (evt) {
    alert('Id');
     if (evt.features && evt.features.length) {
          highlightLayer.destroyFeatures();
