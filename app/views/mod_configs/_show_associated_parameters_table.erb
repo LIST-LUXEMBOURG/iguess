@@ -15,6 +15,7 @@
   <%# Creates fn called populateInputTable or populateOutputTable %>
   // formValues & datasetValues will only be defined when calling from the main Module Configuration page
   // When mode is output, datasetValues will be undefined
+  // items is a list of input/output requirements the module has
   function populate<%= mode.slice(0,1).capitalize + mode.slice(1..-1) %>Table(items, formValues, datasetValues)
   {
     var itemCount = items.length;
@@ -121,7 +122,7 @@
 
     for(var layerKey in registeredDataLayers) {
       if(registeredDataLayers[layerKey].identifier == identifier) {
-        var title = "Unknown Title";
+        var title = "DSM Data"; //"Unknown Title";  // {P{P <== undo when WCS is working
 
         if(discoveredLayers[layerKey] != undefined) {
           title = discoveredLayers[layerKey].title;
