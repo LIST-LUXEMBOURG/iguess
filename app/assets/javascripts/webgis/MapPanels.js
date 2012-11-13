@@ -5,6 +5,10 @@
  * Adds GeoExt controls and panels to map.
  */ 
 
+//= require webgis/Identify
+
+var WebGIS = WebGIS || { };
+
 Ext.onReady(function() {
 
   Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
@@ -142,10 +146,13 @@ WebGIS.createTbarItems = function(map) {
   actions.push(new GeoExt.Action({
     iconCls: "identify",
     map: map,
+    pressed: false,
     toggleGroup: "tools",
     allowDepress: false,
     tooltip: "Identify - still in development",
-    disabled: true
+    //disabled: true
+    control: WebGIS.ctrlIdentify,
+    handler: WebGIS.toggleIdentify
   }));
   var ctrl = new OpenLayers.Control.NavigationHistory();
   map.addControl(ctrl);

@@ -5,6 +5,8 @@
  * Includes the functions to perform the identify action
  **/
 
+var WebGIS = WebGIS || { };
+
 WebGIS.ctrlIdentify = null;
 
 // window dialog
@@ -31,28 +33,28 @@ WebGIS.treeConfigWin = new Ext.Window({
     }]
 });
 
-WebGIS.addControls = function (map) {
+WebGIS.addIdentifyControl = function (map) {
 
-   ctrlIdentify = new OpenLayers.Control.WMSGetFeatureInfo({
+	WebGIS.ctrlIdentify = new OpenLayers.Control.WMSGetFeatureInfo({
       url: 'http://weastflows.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/Weastflows.map&', 
       title: 'Identify features by clicking',
       //layers: [roads],
       queryVisible: true
    });
 
-   map.events.register("getfeatureinfo", this, showInfo);
-   ctrlIdentify.activate();
-
+   //map.events.register("getfeatureinfo", this, WebGIS.showInfo);
+   map.events.register("getfeatureinfo", WebGIS, WebGIS.showInfo);
+   //WebGIS.ctrlIdentify.activate();
 }
 
 WebGIS.toggleIdentify = function () {
-
-   if(ctrlIdentify.active) ctrlIdentify.deactivate();
-   else ctrlIdentify.activate();
+	
+	alert("Control title: \n" + WebGIS.ctrlIdentify.title + "\n" +
+		  "Active: " + WebGIS.ctrlIdentify.active);
    
-   Ext.getCmp("textarea").setValue("Toggled");
+   /*Ext.getCmp("textarea").setValue("Toggled");
    //treeConfigWin.setValue("Toggled");
-   treeConfigWin.show();
+   WebGIS.treeConfigWin.show();*/
 }
 
 WebGIS.showInfo = function (evt) {
@@ -63,7 +65,7 @@ WebGIS.showInfo = function (evt) {
          highlightLayer.redraw();
     } else {
         //document.getElementById('responseText').innerHTML = evt.text;
-      treeConfigWin.show();
+    	WebGIS.treeConfigWin.show();
         Ext.getCmp("Identify").setValue(evt.text);
     }
 }
