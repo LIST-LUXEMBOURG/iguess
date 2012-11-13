@@ -27,7 +27,7 @@ WebGIS.treeConfigWin = new Ext.Window({
         buttons: [ {
             text: "Close",
             handler: function() {
-                treeConfigWin.hide();
+            	WebGIS.treeConfigWin.hide();
             }
         }]
     }]
@@ -49,12 +49,14 @@ WebGIS.addIdentifyControl = function (map) {
 
 WebGIS.toggleIdentify = function () {
 	
-	alert("Control title: \n" + WebGIS.ctrlIdentify.title + "\n" +
-		  "Active: " + WebGIS.ctrlIdentify.active);
+	/*alert("Control title: \n" + WebGIS.ctrlIdentify.title + "\n" +
+		  "Active: " + WebGIS.ctrlIdentify.active);*/
    
-   /*Ext.getCmp("textarea").setValue("Toggled");
-   //treeConfigWin.setValue("Toggled");
-   WebGIS.treeConfigWin.show();*/
+   Ext.getCmp("textarea").setValue(
+		"This control is stil in development \n\n" + 
+		"Control title: " + WebGIS.ctrlIdentify.title + "\n" +
+		"Active: " + WebGIS.ctrlIdentify.active);
+   WebGIS.treeConfigWin.show();
 }
 
 WebGIS.showInfo = function (evt) {
