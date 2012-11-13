@@ -1,14 +1,15 @@
-//////////////////////////////////////////////////////////////////
-// Author: Luís de Sousa
-// Date: 06-01-2012
-// Adds GeoExt controls and panels to map. Initialization
-// 30-03-2012: Added Base layer and Overlay nodes to the tree
+/**
+ * @author Luis de Sousa [luis.desousa@tudor.lu]
+ * Date: 06-01-2012
+ *
+ * Adds GeoExt controls and panels to map.
+ */ 
 
 Ext.onReady(function() {
 
   Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
 
-  initMap();
+  WebGIS.initMap();
 
   var zoomSlider = new GeoExt.ZoomSlider({
     xtype: "gx_zoomslider",
@@ -35,8 +36,8 @@ Ext.onReady(function() {
     collapsible: false,
     floatable: false,
     xtype: "gx_mappanel",
-    map: map,
-    tbar: createTbarItems(map),
+    map: WebGIS.map,
+    tbar: WebGIS.createTbarItems(WebGIS.map),
     items: [zoomSlider]
   });
 
@@ -91,7 +92,7 @@ Ext.onReady(function() {
     items: [mapPanel, layerTree, dataPanel]
   });
 
-  zoomToCity();
+  WebGIS.zoomToCity();
 });
 
 /**
@@ -101,7 +102,7 @@ Ext.onReady(function() {
  * Returns:
  * {Array({GeoExt.Action})} An array of GeoExt.Action objects.
  */
-var createTbarItems = function(map) {
+WebGIS.createTbarItems = function(map) {
   var actions = [];
   actions.push(new GeoExt.Action({
     iconCls: "pan",
