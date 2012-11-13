@@ -80,19 +80,9 @@ class ModConfigsController < ApplicationController
     @mod_config = ModConfig.find(params[:id])
     # @city = 
 
-    wpsClientPath ='/home/iguess/iguess/iguess_production';
+    wpsClientPath ='/home/iguess/iguess_production';
 
     require 'uri'
-
-    RubyPython.start
-    sys = RubyPython.import 'sys'
-
-    # Make sure the path of WPSClient is on python's module path, but ensure it's only there once
-    # Since we can't close the RubyPython instance without crashing Ruby, there is a danger we will
-    # add the WPSClient path more than once.
-    if not sys.path.include?(wpsClientPath)
-      sys.path.append(wpsClientPath)
-    end
 
     inputFields = []
     inputValues = []
@@ -126,9 +116,10 @@ class ModConfigsController < ApplicationController
     argVals = '--vals="['   + inputValues.map    { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
     argOuts = '--outnames="[' + outputFields.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
 
-    
+   
     require 'open3'
-    output, stat = Open3.capture2('python', 'wpsstart.py', argUrl, argProc, argName, argVals, argOuts)
+    output, stat = Open3.capture2e('cd '+ wpsClientPath +'; /usr/bin/python wpsstart.py ' + argUrl + ' ' + 
+                                   argProc + ' ' + argName + ' ' + argVals + ' ' + argOuts)
 
     # Currently, WPSClient spews out lots of garbage.  We only want the last line.
     output =~ /^OK:(.*)$/

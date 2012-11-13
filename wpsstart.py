@@ -31,7 +31,6 @@ for opt, arg in opts:
 
     if o and arg:
         if switches[o] == tuple or switches[o] == list or switches[o] == dict:
-            print arg
             arg_dict[o] = ast.literal_eval(arg)
         else:
             arg_dict[o] = arg
@@ -84,6 +83,7 @@ iniCli.init(
 url = iniCli.sendRequest()
 
 f.write("Launching process: " + url + "\n")
+sys.stdout.write("OK:" + url)     # This is the line that our rails code will be looking for!
 
 # iniCli = None
 
