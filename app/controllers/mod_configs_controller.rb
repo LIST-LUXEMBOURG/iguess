@@ -80,9 +80,8 @@ class ModConfigsController < ApplicationController
     @mod_config = ModConfig.find(params[:id])
     # @city = 
 
-    wpsClientPath ='/home/iguess/iguess/iguess_test';
+    wpsClientPath ='/home/iguess/iguess/iguess_production';
 
-    require 'rubypython'
     require 'uri'
 
     RubyPython.start
@@ -121,11 +120,11 @@ class ModConfigsController < ApplicationController
     inputValuesStr = inputValues.map   { |i| "'" + i.to_s + "'" }.join(",")
     outputFieldsStr = outputFields.map { |i| "'" + i.to_s + "'" }.join(",")
 
-    argUrl =  '--url=' + @mod_config.wps_server.url 
-    argProc = '--procname=' + @mod_config.identifier        
-    argName = '--names=['  + inputFields.map    { |i| "'" + i.to_s + "'" }.join(",") + ']' 
-    argVals = '--vals=['   + inputValues.map    { |i| "'" + i.to_s + "'" }.join(",") + ']' 
-    argOuts = '--outnames=[' + outputFields.map { |i| "'" + i.to_s + "'" }.join(",") + ']'
+    argUrl =  '--url="' + @mod_config.wps_server.url + '"'
+    argProc = '--procname="' + @mod_config.identifier + '"'
+    argName = '--names="['  + inputFields.map    { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
+    argVals = '--vals="['   + inputValues.map    { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
+    argOuts = '--outnames="[' + outputFields.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
 
     
     require 'open3'
