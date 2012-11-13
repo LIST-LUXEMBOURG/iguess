@@ -5,7 +5,7 @@
   // Add "js" style to body -- makes fancy checkboxes work
   $('body').attr("class",$('body').attr("class") + " js");
 
-  GOOGLE_SRS = 'EPSG:3857';
+  GOOGLE_SRS = 'EPSG:900913';
 
   var urls = [<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>];
 
