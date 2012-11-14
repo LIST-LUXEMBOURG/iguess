@@ -91,7 +91,7 @@ class ModConfigsController < ApplicationController
 
     # Drop downs -- always inputs
     @mod_config.datasets.map { |x| dataname = x.full_url       # {P{P Until WCS working
-                                   if dataname.isEmpty() then
+                                   if dataname.empty? then
                                       dataname = x.server_url + (x.server_url.include?("?") == -1 ? "?" : "&") +   
                                         URI.escape('SERVICE=WFS&VERSION=1.0.0&REQUEST=getFeature&TYPENAME=' + x.identifier)
                                    end
