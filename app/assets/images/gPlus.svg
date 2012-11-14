@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   version="1.1"
+   width="240"
+   height="240"
+   id="svg3833">
+  <defs
+     id="defs3835" />
+  <metadata
+     id="metadata3838">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(-188.57143,-320.93361)"
+     id="layer1">
+    <g
+       transform="translate(122.485,249.85008)"
+       id="g3809">
+      <path
+         d="m 626.29458,313.94067 a 120.20815,120.20815 0 1 1 -240.41631,0 120.20815,120.20815 0 1 1 240.41631,0 z"
+         transform="matrix(0.9982684,0,0,0.9982684,-319.12366,-122.31352)"
+         id="path3757"
+         style="fill:#f2f2f2;fill-opacity:1;stroke:none" />
+      <text
+         x="186.15704"
+         y="293.28549"
+         id="text3759"
+         xml:space="preserve"
+         style="font-size:289.30148315px;font-style:normal;font-weight:normal;text-align:center;line-height:125%;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"><tspan
+           x="186.15704"
+           y="293.28549"
+           id="tspan3761"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:Arial;-inkscape-font-specification:Arial Bold">+</tspan></text>
+    </g>
+  </g>
+</svg>
