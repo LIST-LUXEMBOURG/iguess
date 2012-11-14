@@ -133,6 +133,40 @@
     </ul>
   </div>
 
+  <div id="front-page-tabs">
+      <!-- tab "panes" -->
+      <div class="panes">
+         <div class="front-page-tab-body" id="view-some-data">
+            View registered data or register new datasets
+         </div>
+         <div class="front-page-tab-body" id="run-a-module">
+            Configure and run a caculation module
+         </div>
+         <div class="front-page-tab-body" id="check-module">
+            Check on the status of a running module
+         </div>
+      </div>
+
+      <div class="tabs">
+         <ul class="dosomething">
+            <li><a href="#">View Some Data</a></li>
+            <li><a href="#">Run Calculation Module</a></li>
+            <li><a href="#">Check Running Module</a></li>
+         </ul>
+      </div>
+</div>
+
+<div class="clear"></div>
+
+   <script type="text/javascript">  // Activate the tabs
+      // perform JavaScript after the document is scriptable.
+      $(function() {
+          // setup ul.tabs to work as tabs for each div directly under div.panes
+          $("ul.dosomething").tabs("div.panes > div");
+      });
+   </script>
+
+
   <h1 class="front_page_col_header">Who is using iGUESS?</h1>
   <div class="front_page_col_body">
     Currently, iGUESS is used within the MUSIC project by its 5 partner cities Aberdeen,
