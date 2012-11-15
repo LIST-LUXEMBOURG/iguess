@@ -36,7 +36,7 @@
         displayProjection: new OpenLayers.Projection(WebGIS.displayProjection),
         units:             "m",
         maxExtent:         boundsMap,
-        controls:          []
+        controls:          [ new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]
     });
 
     var mp = new OpenLayers.Control.MousePosition({
