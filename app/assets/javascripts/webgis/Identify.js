@@ -5,6 +5,8 @@
  * Includes the functions to perform the identify action
  **/
 
+var WebGIS = WebGIS || { };
+
 WebGIS.ctrlIdentify = null;
 
 // window dialog
