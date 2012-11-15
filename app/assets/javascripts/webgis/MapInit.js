@@ -67,7 +67,7 @@
             {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22}
     );
 
-    WebGIS.map.addLayers([ghyb, gphy, gmap, gsat]);
+    WebGIS.map.addLayers([/*gphy,*/ ghyb, gmap, gsat]);
 
     /* This is layer is just for testing */
     var iBusLines = new OpenLayers.Layer.WMS(
