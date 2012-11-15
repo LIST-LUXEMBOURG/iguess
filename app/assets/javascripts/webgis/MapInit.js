@@ -30,11 +30,11 @@
     var boundsMap  = new OpenLayers.Bounds(-1015000, 5845000, 1100000, 8000000);  
     
     WebGIS.map = new OpenLayers.Map("BroadMap",{
-      projection: new OpenLayers.Projection(WebGIS.mapProjection),
-      displayProjection: new OpenLayers.Projection(WebGIS.displayProjection),
-      units: "m",
-      maxExtent: boundsMap,
-      controls: []
+        projection:        new OpenLayers.Projection(WebGIS.mapProjection),
+        displayProjection: new OpenLayers.Projection(WebGIS.displayProjection),
+        units:             "m",
+        maxExtent:         boundsMap,
+        controls:          []
     });
 
     var mp = new OpenLayers.Control.MousePosition({
