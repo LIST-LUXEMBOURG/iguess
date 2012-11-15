@@ -112,26 +112,14 @@
     </script> -->
 
 <div>
-  <h1 class="front_page_col_header">What is iGUESS?</h1>
+   <div class="headline" id="headline1">
+      understand your options...
+   </div>
+   <div class="headline" id="headline2">
+      plan the future.
+   </div>
 
-  <div class="front_page_col_body">
-    iGUESS is a web based spatial decision support platform for urban energy planning.
-    European cities are in need of comprehensive geospatial tools to develop and implement
-    their carbon-reductive planning and policies and to monitor the progress they make.
-    With iGUESS, cities will be able to compute and visualise energy consumption and
-    their related CO2 emissions, identify opportunities for balancing energy sources and
-    sinks via scenarios and monitor the effects of energy saving measures in their city.
-    iGUESS will help your city to:
-
-    <ul>
-      <li>compute and visualise urban energy maps, with information on costs, consump-
-        tion and emissions;
-      <li>support urban planning by identifying of renewable energy potentials, e.g. solar,
-        wind, geothermal, heat;
-      <li>evelop and test different scenarios and optimise a city’s energy system;
-      <li>monitor emission mitigation actions.
-    </ul>
-  </div>
+   <p id="headline-spacer"></p>
 
   <div id="front-page-tabs">
          <div class="tabs">
@@ -145,7 +133,13 @@
       <!-- tab "panes" -->
       <div class="panes">
          <div class="front-page-tab-body" id="view-some-data">
-            View registered data or register new datasets
+            View your data or register new datasets
+            <p class="intro">iGUESS can show you any registered dataset on an interactive map of your city.</p>
+            <div class="inner-content">
+               <p><%= link_to "Explore maps of my city", :controller => 'maps'%></p>
+               <p><%= link_to "See my datasets", :controller => 'datasets'%></p>
+               <p><%= link_to "Register new data", :controller => 'datasets', :action => 'mass_import', :id => 1 %></p>
+            </div>
          </div>
          <div class="front-page-tab-body" id="run-a-module">
             Configure and run a caculation module
@@ -169,11 +163,11 @@
    </script>
 
 
-  <h1 class="front_page_col_header">Who is using iGUESS?</h1>
+ <!--  <h1 class="front_page_col_header">Who is using iGUESS?</h1>
   <div class="front_page_col_body">
     Currently, iGUESS is used within the MUSIC project by its 5 partner cities Aberdeen,
     Ghent, Ludwigsburg, Montreuil and Rotterdam. The development is done by the
-    Public Research Centre Henri Tudor.
+    Public Research Centre Henri Tudor. -->
 
 
 

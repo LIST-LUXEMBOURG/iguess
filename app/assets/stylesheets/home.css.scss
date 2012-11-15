@@ -80,6 +80,45 @@ $lineHeight: $panelHeight / 3 - 1px;
    font-size: 23px;
 }
 
+#front-page-tabs .inner-content {
+   margin-left: 220px;
+   margin-top: 40px;
+   font-size: 80%;
+}
+
+.inner-content a {
+   text-decoration: none;
+}
+
+.inner-content a:hover {
+   text-decoration: underline;
+}
+
+.headline {
+   font-size: 50px;
+   color: #3C77B4;
+   width: $totalWidth - 50px; 
+   margin-left: 100px;
+}
+
+#headline1 {
+
+}
+
+#headline2 {
+   padding-left: 500px;
+}
+
+
+#headline-spacer {
+   height: 20px;
+}
+
+#front-page-tabs .intro {
+   font-size: 50%;
+   margin-left: 20px;
+}
+
 $height: 423px;
 $bgImageHeight: 150px;
 $bgMargin: 20px;
