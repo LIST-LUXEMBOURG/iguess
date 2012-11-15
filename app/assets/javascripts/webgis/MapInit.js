@@ -50,10 +50,10 @@
     // Add OpenStreetMap layers
     WebGIS.map.addLayer(new OpenLayers.Layer.OSM());
 
-    var gphy = new OpenLayers.Layer.Google(
-            "Google Physical",
-            {type: google.maps.MapTypeId.TERRAIN, numZoomLevels: 20}
-    );
+    // var gphy = new OpenLayers.Layer.Google(
+    //         "Google Physical",
+    //         {type: google.maps.MapTypeId.TERRAIN, numZoomLevels: 20}
+    // );
     var gmap = new OpenLayers.Layer.Google(
             "Google Streets", // the default
             {numZoomLevels: 20}
