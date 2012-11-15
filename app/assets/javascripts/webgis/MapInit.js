@@ -70,17 +70,17 @@
     WebGIS.map.addLayers([/*gphy,*/ ghyb, gmap, gsat]);
 
     /* This is layer is just for testing */
-    var iBusLines = new OpenLayers.Layer.WMS(
-            "iBus lines",
-            "http://iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/Ludwigsburg02.map",
-            {layers: "BusLines",
-              format: "image/gif",
-              srsName: WebGIS.requestProjection,
-              srs: WebGIS.requestProjection,
-              transparent: "true"},
-            {isBaseLayer: false,
-              visibility: false}
-    );
+    // var iBusLines = new OpenLayers.Layer.WMS(
+    //         "iBus lines",
+    //         "http://iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/Ludwigsburg02.map",
+    //         {layers: "BusLines",
+    //           format: "image/gif",
+    //           srsName: WebGIS.requestProjection,
+    //           srs: WebGIS.requestProjection,
+    //           transparent: "true"},
+    //         {isBaseLayer: false,
+    //           visibility: false}
+    // );
 
     //map.addLayers([iBusLines]);
 
