@@ -63,6 +63,7 @@
 
         if('<%= mode %>' == 'input' && items[i].type == "complex") {      // Dropdown showing existing datasets of proper type
           var control = createDatasetSelectionControl(item.identifier, '<%= mode %>');
+          control.attr('class', 'disablable');
 
           if(control.children().length == 0) {
               cell.text('No registered datasets of type "' + item.identifier + '"');
@@ -73,7 +74,7 @@
           else {
             control.prepend("<option value=-1>No dataset selected</option>");
             control.change(onSelectedDatasetChanged);
-            control.attr('class', 'req-select');
+            control.attr('class', 'req-select disablable');
 
             cell.html(control);
 
@@ -102,7 +103,7 @@
           var placeholder = ('<%= mode %>' == 'output') ? "Output dataset name" : items[i].type.capitalize() + " value";
 
           cell.html('<input type="text" name="<%= mode %>[' + item.identifier + ']" placeholder="' + placeholder + '" ' +
-                           'value="' + value + '" class="req-textentry" onchange="onInputOutputTextEntryChanged()">');
+                           'value="' + value + '" class="req-textentry disablable" onchange="onInputOutputTextEntryChanged()">');
         }
 
         row.append(cell);
