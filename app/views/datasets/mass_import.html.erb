@@ -335,7 +335,7 @@
           var miniMap = new OpenLayers.Map({
                   maxExtent:  bounds,
                   projection: new OpenLayers.Projection(activeSRS),
-                  controls: [new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]
+                  controls: [ new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]
           });
 
           var lyr = new OpenLayers.Layer.WMS(
