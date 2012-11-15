@@ -4,10 +4,12 @@ Created on Aug 21, 2012
 @author: Luis de Sousa [luis.desousa@tudor.lu]
 
 Module providing tools to retrieve information from spatial datasets stored 
-in the disk. This code is inspired in the UMN module of the PyWPS process [1].
+in the disk. This code is inspired in the UMN module of the PyWPS project [1].
 
 [1] http://wiki.rsg.pml.ac.uk/pywps/Main_Page
 '''
+
+import logging
 
 gdal=False
 #try:
@@ -27,7 +29,7 @@ class DataSet:
 	:param path: string with the path to the physical data set.
 		
 	.. attribute:: dataSet
-		GDAL object wraping the spatial data set
+		GDAL object wrapping the spatial data set
 			
 	.. attribute:: dataType
 		Data set type: "raster" or "vector"
@@ -47,11 +49,9 @@ class DataSet:
 			return
 		self.getSpatialReference()
 		
-		if (DEBUG):
-			print "Read a data set of type " + str(self.dataType)
-			print "It has the following SRS: " + str(self.getEPSG())
-			print "And the following bounds: " + str(self.getBBox())
-			#print "First bound: " + str(self.getBBox()[0])
+		logging.debug("Read a data set of type " + str(self.dataType))
+		logging.debug("It has the following SRS: " + str(self.getEPSG()))
+		logging.debug("And the following bounds: " + str(self.getBBox()))
 
 	def getDataSet(self, path):
 		"""
@@ -63,8 +63,7 @@ class DataSet:
 		:returns: "raster" or "vector", None in case of error
 		"""
 
-		#logging.debug("Importing given output [%s] using gdal" % output.value)
-		print "Importing given output [%s] using gdal" % path
+		logging.debug("Trying to import [%s] using gdal" % path)
 		#If dataset is XML it will make an error like ERROR 4: `/var/www/html/wpsoutputs/vectorout-26317EUFxeb' not recognised as a supported file format.
 		self.dataSet = gdal.Open(path)
 
@@ -72,14 +71,13 @@ class DataSet:
 			return "raster"
 
 		if not self.dataSet:
-			#logging.debug("Importing given output [%s] using ogr" % output.value)
-			print "Importing given output [%s] using ogr" % path
+			logging.debug("Trying to import [%s] using ogr" % path)
 			self.dataSet = ogr.Open(path)
 
 		if self.dataSet:
 			return "vector"
 		else:
-			print "Error importing dataset: " + path
+			logging.error("It wasn't possible to import the dataset using gdal or ogr.")
 			return None
 
 	def getSpatialReference(self):

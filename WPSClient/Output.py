@@ -9,6 +9,7 @@ and store locally the results of a remote WPS process.
 
 import os
 import urllib2
+import logging
 from Tags import Tags
 import DataSet as GDAL
 
@@ -46,7 +47,7 @@ class Output:
         """
         
         if not (Tags.preRef in rawString):
-            print "Error: tried to download a non reference output."
+            logging.error("Output not created, tried to download a non reference output")
             return;
         
         url = rawString.split("wps:Reference href=\"")[1].split("\"")[0]
@@ -140,10 +141,10 @@ class ComplexOutput(Output):
             file = open(self.path, 'w')
             file.write(self.value)
             file.close()
-            print "Saved output file: %s\n" %self.path
+            logging.info("Saved output file: %s\n" %self.path)
             self.dataSet = GDAL.DataSet(self.path)
         except Exception, err:
-            print "Error saving %s:\n%s" %(self.path, err)
+            logging.error("Error saving %s:\n%s" %(self.path, err))
             return
         finally:
             if file <> None:
