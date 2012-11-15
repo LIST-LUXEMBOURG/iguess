@@ -1,29 +1,7 @@
 <script src="https://raw.github.com/carhartl/jquery-cookie/master/jquery.cookie.js"></script>   <!-- Must get rid of this!!!-->
 
+<!-- TODO: Make this a partial -->
 <script type="text/javascript">
-
-  // Let the server know this layer is now registered -- to do this we must create a new record in
-  // our datasets table.
-
-  var onLocationChanged = function(city) {
-    $.ajax({
-      type: 'POST',
-      url: '<%= url_for(:controller => 'datasets', :action => 'get_for_city', :format => :json) %>',
-      data: 'cityName=' + $.cookie('city'),
-      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
-      success: function(data) {
-        renderTable(data);
-        hideUnregisterAndFriends();
-      }
-    });
-  }
-
-  $(document).ready(function() {
-    onLocationChanged('<%= @current_city.name %>');   // Build the initial dataset list
-    // $('#sortable_table').tablesorter();               // Initialize sorter
-  });
-
-
   // Make the railsIdLookup, which looks up a unique id for each  URL / identifier pair.
   // Allows us to have shorter class names and avoid illegal characters in a class which might exist in a URL.
   railsIdLookup = { };
@@ -32,6 +10,29 @@
                .uniq{ |x| x.server_url + x.identifier }
                .map{ |d| "railsIdLookup[makeKey('" + d.server_url + "','" + d.identifier + "')] = '" + d.id.to_s + "';\n" }
                .join(' ') %>
+</script>
+
+
+<%# Include some map related utility functions; these need to be processed by Rails so they have to be in a partial %>
+<%= render :partial => '/shared/map_utils.html.erb' %>
+
+
+<script type="text/javascript">
+
+
+  $(document).ready(function() {
+    onLocationChanged('<%= @current_city.name %>');   // Build the initial dataset list
+    // $('#sortable_table').tablesorter();               // Initialize sorter
+  });
+
+
+
+  var onLocationChanged = function(cityName) {
+    MapUtils.retrieveDatasetsForCity(cityName, function(data) { 
+                                                    renderTable(data); 
+                                                    hideUnregisterAndFriends(); });
+  }
+
 
 
   hideUnregisterAndFriends = function() {
@@ -179,12 +180,12 @@
 
 <script type="text/javascript">
   <% index = 0 %>
-  var layerRecords = { };
-  var layerStores = { };
-  var serverDatasets = { };
+  var layerRecords    = { };
+  var layerStores     = { };
+  var serverDatasets  = { };
   var serverResponses = { };
 
-  var processedUrls = [];
+  var processedUrls   = [ ];
 
 
   var processUrl = function(url)
@@ -244,10 +245,8 @@
     var url     = unwrapServer(dataProxy.url, format);
     var service = getService(format);
 
-
     serverResponses[url].push( new ServerResponse(true, records.length, dataProxy, service));
                                                   
-
     setLayerStatus(url);
   }
 

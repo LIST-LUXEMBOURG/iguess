@@ -85,8 +85,8 @@ class ModConfigsController < ApplicationController
 
     require 'uri'
 
-    inputFields = []
-    inputValues = []
+    inputFields  = []
+    inputValues  = []
     outputFields = []
 
     # Drop downs -- always inputs

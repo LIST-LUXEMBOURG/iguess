@@ -1,46 +1,470 @@
-<%# Include some JS functions we need to makes the maps work %>
-<%= render :partial => 'mapScripts.html.erb' %>
+<%# Include Google Map code %>
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?v=3.5&sensor=false"></script>
+
+
+<!--- TODO: Pull this out into a partial; used in at least two places -->
+<script type="text/javascript">
+  // Make the railsIdLookup, which looks up a unique id for each  URL / identifier pair.
+  // Allows us to have shorter class names and avoid illegal characters in a class which might exist in a URL.
+  railsIdLookup = { };
+
+  <%= @datasets.reject{ |d| d.finalized == false }
+               .uniq{ |x| x.server_url + x.identifier }
+               .map{ |d| "railsIdLookup[makeKey('" + d.server_url + "','" + d.identifier + "')] = '" + d.id.to_s + "';\n" }
+               .join(' ') %>
+</script>
+
+
+<%# Include some map related utility functions; these need to be processed by Rails so they have to be in a partial %>
+<%= render :partial => '/shared/map_utils.html.erb' %>
+
+
+<script type="text/javascript">
+
+ $(document).ready(function() {
+    onLocationChanged('<%= @current_city.name %>');   // Build the initial dataset list
+    // $('#sortable_table').tablesorter();               // Initialize sorter
+  });
+
+
+
+  // This gets run when user changes city dropdown
+  var onLocationChanged = function(cityName) {
+    // Retrieve all datasets for specified city
+    MapUtils.retrieveDatasetsForCity(cityName, function(data){ renderTable(data); });
+
+    // Notify WebGIS that things have changed
+    <% for city in City.all %>
+      if(cityName == "<%= city.name %>")
+      {
+        var proj = new OpenLayers.Projection("<%= city.srs %>");
+        var point = new OpenLayers.LonLat(
+                (<%= city.minx %> + <%= city.maxx %>) / 2,
+                (<%= city.miny %> + <%= city.maxy %>) / 2);
+        point.transform(proj, WebGIS.map.getProjectionObject());
+
+        WebGIS.map.setCenter(point, <%= city.zoom %>);
+
+        $('.all-layers').hide();
+        $('.layer-for-city-<%= city.id %>').show();
+
+        return;
+      }
+    <% end %>
+  }
+
+
+  var renderTable = function(datasets) {
+
+      $('#dataset-list').empty();    // Clear table
+
+      for(var i = 0; i < datasets.length; i++) {
+        var dataset = datasets[i];
+
+        var railsId = railsIdLookup[makeKey(dataset.server_url, dataset.identifier)];
+        $('#dataset-list').append(renderTableRow(dataset));
+
+        $('#infotables').append(renderInfoTable(dataset, railsId));
+
+        processUrl(dataset.server_url);
+      }
+
+      $('img[rel]').overlay();    // Set up the layer info overlays
+      $('img[rel]').click(function(){ hideDetails() });   // Close details panel on open
+
+      $('.show-details').click(function(){ showDetails(); });
+
+
+            // Make sure table is sorted
+        // var sorting = [[1,0], [0,0]]; 
+        // // sort on the first column 
+
+        // $('#sortable_table').trigger("update"); 
+        // $('#sortable_table').trigger("sorton",[sorting]); 
+    }
+
+
+</script>
+
+<script type="text/javascript">
+  $(function() {
+    var theTable = $('#sortable_table')
+
+    theTable.find("tbody > tr").find("td:eq(1)").mousedown(function(){
+      $(this).prev().find(":checkbox").click()
+    });
+
+    $("#filter").keyup(function() {
+      $.uiTableFilter( theTable, this.value );
+    })
+
+    $('#filter-form').submit(function(){
+      theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
+      return false;
+    }).focus(); //Give focus to input field
+  });
+</script>
+
+
+
+<script type="text/javascript">
+// Generate html for Registered Datasets table row
+  // Note: status-xxx below are classes that are common to all datasets on a server
+  //       status2-xxx are classes that are common only to server-identifier pairs (i.e. duplicate datasets)
+  var renderTableRow = function(dataset) {
+
+    return '<tr><td>' +
+              '<a href=# class="dataset-name2-' + dataset.id + '">Retrieving name...</a>' + 
+           '</td></tr>';
+
+//<img src="/assets/small_question_mark.gif" class="info-icon" alt="More info" rel="#infotable-' + railsId + '">
+    // return '<tr class="layer-for-city-< %= d.city_id %> all-layers">' +  
+    //          '<td class="dataset-name-' + serverUrlIdLookup[dataset.server_url] + '">' + 
+    //            '<a href=# onclick="WebGIS.addNewLayer(\'XXX\',\'< %= d.server_url%>\',\'< %= d.identifier%>'\)" class="dataset-name2-' + railsId + '">Retrieving...</a>
+    //         
+    //       </td>
+    //     </tr>
+
+
+
+
+    // return '<tr id="dataset-id-' + dataset.id + '" onmouseover="$(this).find(\'.invisible-cell\').show();"' +
+    //                                               'onmouseout ="$(this).find(\'.invisible-cell\').hide();">' +
+    //   '<td class="dataset-name-' + serverUrlIdLookup[dataset.server_url] + '">' +
+    //     '<span class="dataset-name2-' + railsId + '">Retrieving...</span>' +
+    //     '<img src="/assets/small_question_mark.gif" class="info-icon" ' +
+    //               'alt="More info" rel="#infotable-' + railsId + '">' +
+    //   '</td>' +
+    //   '<td nowrap>' + (dataset.dataset_type == "" ? "Unknown" : dataset.dataset_type) + '</td>' +
+    //   '<td width=145><div class="status-' + serverUrlIdLookup[dataset.server_url] + 
+    //     ' status2-' + railsId + '">Probing server...  ' +
+    //     '<img src="/assets/loading_spinner.gif"></div></td>' +
+    //   '<td class="invisible-cell"><a href="/datasets/' + dataset.id + '" ' + 
+    //     'data-confirm="Are you sure you want to unregister this dataset?" data-method="delete" ' +
+    //     'data-remote="true" rel="nofollow">Unregister</a></td> ' + 
+    //   // '<td>SHOW MODULE LIST HERE??</td>' +
+    // '</tr>';
+  }
+
+
+  var showDetails = function() {
+    $('.technical-details').show(); 
+    $('.show-details').click(function(){ hideDetails(); });
+    $('.show-details').html('<<< Hide details');
+  }
+
+  var hideDetails = function() {
+    $('.technical-details').hide();
+    $('.show-details').click(function(){ showDetails(); });
+    $('.show-details').html('Show details >>>');
+  }
+
+
+  // Create the popup info table for this dataset
+  var renderInfoTable = function(dataset, railsId) {
+    var serverUrlId = serverUrlIdLookup[dataset.server_url];
+
+    return '<div class="infotable" id="infotable-' + railsId + '">' +
+              '<div class="close"></div>' +
+              '<h1><span class="dataset-name2-' + railsId + '"></h1>' +
+              '<div class="dataset-descr-' + railsId + '"></div>' +
+              '<div style="overflow:hidden"><dl>' +
+                '<dt>Server Name:</dt><dd class="server-name-' + serverUrlId + '"></dd>' +
+                 '<dt>Services available:</dt><dd id="services-' + railsId + '">Waiting for response from server...</dd>' + 
+                 
+              '</dl></div>' +
+              '<div style="overflow:hidden" class="technical-details">' +
+                '<div class="section-header">Technical Details</div><dl>' +
+                '<dt>Server Base URL:</dt><dd>' + dataset.server_url + '</dd>' +
+                '<dt>Dataset Identifier:</dt><dd>' + dataset.identifier + '</dd>' +
+                '<dt>Get Capabilities Links:</dt><dd>' +
+                    '<a href="' + WFS.getCapUrl(dataset.server_url) + '" target="_blank">WFS</a> ' +
+                    '<a href="' + WMS.getCapUrl(dataset.server_url) + '" target="_blank">WMS</a> ' +
+                    '<a href="' + WCS.getCapUrl(dataset.server_url) + '" target="_blank">WCS</a>' +
+                '</dd>' +
+                '<dt>Projections Available:</dt><dd>' + '' + '</dd>' + 
+                '<dt>Bounding Box:</dt><dd>' + '' + '</dd>' + 
+                '<dt>Attribute Columns:</dt><dd>' + '' + '</dd>' + 
+              '</dl></div>' +
+              '<div><a href="#" class="show-details"></a></div>' +
+           '</div>';
+  }
+
+  // We've got a new batch of datasets to display!
+  // Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
+  var renderTable = function(datasets) {
+
+    $('#dataset-list').empty();    // Clear table
+
+    for(var i = 0; i < datasets.length; i++) {
+      var dataset = datasets[i];
+
+      var railsId = railsIdLookup[makeKey(dataset.server_url, dataset.identifier)];
+      $('#dataset-list').append(renderTableRow(dataset));
+
+      $('#infotables').append(renderInfoTable(dataset, railsId));
+
+      processUrl(dataset.server_url);
+    }
+
+    $('img[rel]').overlay();    // Set up the layer info overlays
+    $('img[rel]').click(function(){ hideDetails() });   // Close details panel on open
+
+    $('.show-details').click(function(){ showDetails(); });
+
+
+          // Make sure table is sorted
+      // var sorting = [[1,0], [0,0]]; 
+      // // sort on the first column 
+
+      // $('#sortable_table').trigger("update"); 
+      // $('#sortable_table').trigger("sorton",[sorting]); 
+  }
+
+
+  $(document).bind('ajax:success', function(xhr, data, status) { 
+    $('#dataset-id-' + data).hide();
+  });
+
+
+  // The following creates a mapping of server urls to short unique tokens, in both ruby and javascript.
+  <% serverUrlIdLookup = { } %>
+  <% @datasets.reject{ |d| d.finalized == false }
+              .map{ |d| serverUrlIdLookup[d.server_url] = d.id.to_s } %>
+
+  serverUrlIdLookup = { };
+  <% lines = "" %>
+  <% serverUrlIdLookup.each{ |u, i| lines += "serverUrlIdLookup['" + u + "'] = '" + i + "'; " } %>
+  <%= raw lines %>
+
+</script>
+
+
+
+
+<script type="text/javascript">
+  $(function() {
+    var theTable = $('#sortable_table')
+
+    theTable.find("tbody > tr").find("td:eq(1)").mousedown(function(){
+      $(this).prev().find(":checkbox").click()
+    });
+
+    $("#filter").keyup(function() {
+      $.uiTableFilter( theTable, this.value );
+    })
+
+    $('#filter-form').submit(function(){
+      theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
+      return false;
+    }).focus(); //Give focus to input field
+  });
+</script>
+
+
+<script type="text/javascript">
+  <% index = 0 %>
+  var layerRecords    = { };
+  var layerStores     = { };
+  var serverDatasets  = { };
+  var serverResponses = { };
+
+  var processedUrls   = [ ];
+
+
+  var processUrl = function(url)
+  {
+    // This function will be called for every dataset registered with the current city.  Many will have the same
+    // server.  Avoid processing the same server twice.
+    // Called from renderTable(), which is called from onCityChange() event handler
+    if(processedUrls.hasObject(url)) {  /*setLayerStatus(url);*/ return;  }
+
+    processedUrls.push(url);
+
+    serverResponses[url] = [ ];    
+
+    // Create an association between a server and all registered datasets it hosts
+    <% @server_urls.each do |url| %>    <%# These could be wms, wfs, or wcs addresses %>
+      serverDatasets['<%= url.gsub(/\\/, '\\\\\\') %>'] = [<%= @datasets.reject {|d| d.server_url != url}
+                                                                      .map{|d| "'" + d.identifier + "'"}
+                                                                      .join(', ') %>];
+    <% end %>
+
+    WMS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+    WFS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+    WCS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+  }
+
+
+  // Class that describes response from server, either success or failure
+  var ServerResponse = function(success, records, dataProxy, service, responseCode, responseText) {
+    this.success = success;
+    this.recordCount = records;
+    this.layerStore = dataProxy;
+    this.service = service;
+    this.errCode = responseCode || null;
+    this.errText = responseText || null;
+
+
+    if(dataProxy) {
+      console.log("ServerResponse:", dataProxy.reader);
+
+      var serverInfo = dataProxy.reader.raw.service;
+
+      this.serverName  = serverInfo.title    || serverInfo.name || "Data Server";
+      this.serverDescr = serverInfo.abstract || "";
+    }
+    else {
+      this.serverName  == this.serverName  || "Data Server";
+      this.serverDescr == this.serverDescr || "";
+    }
+  }
+
+
+  // Server has responded to our query and seems happy (from updateLayerList)
+  // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-load
+  function onGetCapabilitiesSucceeded(dataProxy, records, options) // Need to validate each item in dataProxy
+  {
+    var format  = dataProxy.format.name;
+    var url     = unwrapServer(dataProxy.url, format);
+    var service = getService(format);
+
+    serverResponses[url].push( new ServerResponse(true, records.length, dataProxy, service));
+                                                  
+    setLayerStatus(url);
+  }
+
+
+  // We pepper each server with WMS, WFS, and WCS requests.  One of these has failed, 
+  // which might be bad, or it might be perfectly fine.  It might mean that the server 
+  // is down, or that it has not been configured to respond to a particular service.
+
+  // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-exception
+  function onGetCapabilitiesFailed(dataProxy, type, action, options, response, arg)
+  {
+    // status.responseText has response from data server?
+
+    var format  = options.reader.meta.format.name;
+    var url     = unwrapServer(dataProxy.url, format);
+    var service = getService(format);
+
+
+    serverResponses[url].push( new ServerResponse(false, 0, null, service, 
+                                                  response.status, response.responseText) );
+
+    // alert("Error retrieving data -- see console for details!");
+    console.log("Failure!",arguments);
+
+    // server xxx does not support service yyy ???
+
+    setLayerStatus(url);
+  }
+
+
+  function updateLayerInfo(serverUrl, dataset, available, name, descr, services) {
+
+    var railsId = railsIdLookup[makeKey(serverUrl, dataset)];
+
+
+    $('.dataset-name2-' + railsId).click(function(event){
+                                            WebGIS.addNewLayer(name,serverUrl,dataset);});
+
+
+    $('.dataset-name2-' + railsId).html(name);    // Appears in the name column, also on infotable popup
+    $('.dataset-descr-' + railsId).html(descr);
+    $('#services-'      + railsId).html(services);
+
+    if(available) {
+      $('.status2-' + railsId).html(
+        '<img class="status-indicator" src="/assets/layer_available_yes.png" alt="Layer available">');
+    } else {
+      $('.status2-' + railsId).html('<img class="status-indicator" src="/assets/layer_available_no.png" alt="Layer not available">');
+    }
+  }
+
+
+  // We have a response of some sort from serverUrl -- update the datasets table to show it.
+  // serverResponses should be an array of ServerResponse objects.
+  function setLayerStatus(serverUrl)
+  {
+    var serverResponseArry = serverResponses[serverUrl];
+    var serverUrlId        = serverUrlIdLookup[serverUrl];
+
+    if(serverResponseArry[0].serverName) {
+      $('.server-name-'  + serverUrlId).html(serverResponseArry[0].serverName);
+      $('.server-descr-' + serverUrlId).html(serverResponseArry[0].serverDescr);
+    }
+
+    // Wait until we've heard back from all servers: wfs, wms, and wcs
+    if(serverResponseArry.length < 3) { return; } 
+
+    if(!(serverResponseArry[0].success || serverResponseArry[1].success)) {    
+      // All services failed, all datasets from this server ganz kaput
+      $('.status-' + serverUrlId).html('<img class="status-indicator" src="/assets/server_responding_no.png" alt="WMS server not responding">');
+      $('.dataset-name-' + serverUrlId).text("Unknown");
+      return;
+    }
+
+    // At least one server succeeded, vist each one-by-one
+
+    var datasets = serverDatasets[serverUrl];   // List of registered datasets available on this server
+
+    datasetCount = datasets.length;
+
+    for(var i = 0; i < datasetCount; i++) {     // Iterate through datasets from the server one-by-one
+      var found = false;
+      var layerRecordsCount = serverResponseArry.length;
+
+      var services = [];
+
+      for(var j = 0; j < layerRecordsCount && !found; j++) {
+        var store    = serverResponseArry[j].layerStore;
+        var records  = serverResponseArry[j].recordCount;
+        services.push(serverResponseArry[j].service);
+
+        for(var k = 0; k < records; k++) {
+          var record = store.getAt(k);
+
+          var identifier = record.get("name");
+
+          if(datasets[i] == identifier) {
+            var title = record.get("title") || record.get("name");
+            title = title.replace(/ /g,'&nbsp;');
+
+
+            updateLayerInfo(serverUrl, identifier, true, title, record.get("abstract"), services.join(', '))
+
+            found = true;
+            break;
+          }
+        }
+      }
+
+      if(!found) {
+        updateLayerInfo(serverUrl, datasets[i], false, datasets[i], 
+          'This dataset could no longer be located on the data server',     // Descr
+          'None');                                                          // Services
+      }
+    }
+  }
+
+</script>
+
+
+
+
+
 
 <div id="data">
-<table id="dataSetsTable" class="zebra sortable" width="180px">
-    <thead>
-      <tr><th>Dataset name</th></tr>
-    </thead>
-    <tbody>
-      <% @datasets.each do |d| %>
-        <tr class='layer-for-city-<%= d.city_id %> all-layers'>  <!--- First and last below should be layer name -->
-          <td><a href=# onclick="WebGIS.addNewLayer('<%= d.identifier%>','<%= d.server_url%>','<%= d.identifier%>')"><%= d.identifier%></a> </td>
-        </tr>
-      <% end %>
-    </tbody>
+  <p id="add-layer-instructions">Add a layer to the map by clicking on its name.</p>
+  <table id="dataset-list" class="zebra sortable" width="180px">
+    <thead> <tr><th>Dataset name</th></tr> </thead>
+    <tbody><!-- Rows will be inserted here by the script --></tbody>
   </table>
-  A new layer can be added to the map by clicking on the dataset name.
 </div>
 
 <div style="float: left; width:100%; min-height:100%; margin:2px;" id="BroadMap"></div>
 
-
-  <!-- Don't know why we have to include this here, as it's already auto-included in the header, but if
-        we omit this line, it just doesn't work... odd -->
-
-  <script type="text/javascript">
-    $(function() {
-      var theTable = $('#sortable_table')
-
-      theTable.find("tbody > tr").find("td:eq(1)").mousedown(function(){
-        $(this).prev().find(":checkbox").click()
-      });
-
-      $("#filter").keyup(function() {
-        $.uiTableFilter( theTable, this.value );
-      })
-
-      $('#filter-form').submit(function(){
-        theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
-        return false;
-      }).focus(); //Give focus to input field
-    });
-  </script>
 
 
 

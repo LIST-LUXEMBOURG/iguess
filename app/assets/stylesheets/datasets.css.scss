@@ -3,6 +3,15 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 
+
+#add-layer-instructions {
+  text-align: center;
+  padding-left: 6px;
+  padding-right: 6px;
+  margin-bottom: 0px;
+}
+
+
 #layer-table {      // ul
   margin: 0px;
   padding: 0px;
@@ -208,4 +217,15 @@
   padding: 5px;
   background-color: #f8f8f8;
   display: none;
+}
+
+
+/* These for the maps */
+.x-panel-body ul {
+  list-style: none;
+}
+
+
+.x-tree-node {
+  margin-left: 0;
 }
