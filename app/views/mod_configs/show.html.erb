@@ -150,6 +150,8 @@
         $('#explanation').html("This module has been successfully run.  You can now view the outputs in the Data Manager.");
         disableEditing();
 
+        showRunButton('Run Module Again >>>');
+
       } else if(statusCode == 'ERROR') {    // Module run ended in error
         $('#explanation').html("We experienced an error running this configuration.  The WPS server replied:<br>" +
                                "<code><%= escape_javascript @mod_config.status_text %></code>");
