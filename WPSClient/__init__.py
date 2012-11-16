@@ -168,19 +168,12 @@ class WPSClient:
         self.processName = processName
         self.inputNames = inputNames
         self.inputValues = inputValues
-        self.outputNames = outputNames
+        self.outputNames = outputNames       
         
-        if(len(outputNames) <> len(outputTitles)):
-            logging.warning("Output titles missing or incomplete, using names.")
-            for i in range(0, len(outputNames)):
-                self.outputTitles[outputNames[i]] = outputNames[i]
-                
-        else:
-            for i in range(0, len(outputNames)):
-                self.outputTitles[outputNames[i]] = outputTitles[i]
+        self.processOutputTitles(outputNames, outputTitles)
         
         
-    def initFromURL(self, url):
+    def initFromURL(self, url, outputNames, outputTitles):
         """
         Initialises the WPSClient with the status URL address of a running 
         remote process. Used when a request has already been sent.
@@ -190,6 +183,9 @@ class WPSClient:
         
         self.statusURL = url
         self.processId = self.decodeId(url)
+        
+        self.processOutputTitles(outputNames, outputTitles)
+        
         
     def loadConfigs(self):
         """ 
@@ -209,6 +205,7 @@ class WPSClient:
         self.imageURL     = parser.get('MapServer', 'imgeURL')
         self.otherProjs   = parser.get('MapServer', 'otherProjs')
         
+        
     def setupLogging(self):
         """
         Sets up the logging file.
@@ -220,6 +217,25 @@ class WPSClient:
         else:
             logging.basicConfig(filename=self.logFile,level=self.logLevel,format=format)
             #logFile = open(fileName, "a")
+            
+            
+    def processOutputTitles(self, outputNames, outputTitles):
+        """
+        Creates the dictionary with output names and output titles.
+           
+        :param outputNames: array with output names
+        :param outputTitles: array with output titles      
+        """
+        
+        if(len(outputNames) <> len(outputTitles)):
+            logging.warning("Output titles missing or incomplete, using names.")
+            for i in range(0, len(outputNames)):
+                self.outputTitles[outputNames[i]] = outputNames[i]
+                
+        else:
+            for i in range(0, len(outputNames)):
+                self.outputTitles[outputNames[i]] = outputTitles[i]
+        
         
     def decodeId(self, url):
         """
