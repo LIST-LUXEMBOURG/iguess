@@ -54,7 +54,23 @@ for row in rows:
         print "Found invalid mod_config record with id " + str(recordId)
         continue
 
-    client.initFromURL(pid)
+    identifiers = [ ]
+    titles = [ ]
+
+
+    try:
+        query = "select column_name, value from " + schema + ".config_text_inputs where mod_config_id = " + str(recordId) + " and is_input = FALSE"
+        cur.execute(query)
+    except:
+        print "Can't get params for config id " + str(recordId)
+        continue
+
+    outs = cur.fetchall()
+    for out in outs:
+        identifiers.append(out[0])
+        titles.append(out[1])
+
+    client.initFromURL(pid, identifiers, titles)
 
     status = client.checkStatus()        # Returns true if checkStatus worked, false if it failed
 
