@@ -219,6 +219,9 @@ class Layer:
     
     .. attribute:: name
         Name of the layer
+    
+    .. attribute:: title
+        Title for a short layer description
         
     .. attribute:: abstract
         Abstract describing this layer
@@ -234,14 +237,16 @@ class Layer:
     """
     
     name        = None
-    abstract       = "A layer generated automatically"
+    title       = None
+    abstract    = "A layer generated automatically"
     bBox        = None
     epsgCode    = None
     path        = None
     
-    def __init__(self, path, bounds, epsg, nameInit = "TestLayer"):
+    def __init__(self, path, bounds, epsg, nameInit = "TestLayer", title = "Test layer"):
         
         self.name = nameInit
+        self.title = title
         self.bBox = bounds
         self.epsgCode = epsg 
         self.path = path
@@ -259,9 +264,9 @@ class RasterLayer(Layer):
     :param nameInit: string with layer name
     """
     
-    def __init__(self, path, bounds, epsg, nameInit = "TestLayer"):
+    def __init__(self, path, bounds, epsg, nameInit = "TestLayer", title = "Test layer"):
         
-        Layer.__init__(self, path, bounds, epsg, nameInit) 
+        Layer.__init__(self, path, bounds, epsg, nameInit, title) 
         
     def getString(self):
         """
@@ -276,7 +281,7 @@ class RasterLayer(Layer):
         text += "    PROCESSING \"SCALE=AUTO\" \n\n"
         
         text += "    METADATA \n"
-        text += "      \"ows_title\" \"" + self.name + "\" \n"
+        text += "      \"ows_title\" \"" + self.title + "\" \n"
         text += "      \"ows_abstract\" \"" + self.abstract + "\"\n\n"
         text += "      \"wcs_label\"           \"" + self.name + "\"   ### required \n"
         text += "      \"wcs_rangeset_name\"   \"Range 1\"  ### required to support DescribeCoverage request \n"
@@ -308,9 +313,9 @@ class VectorLayer(Layer):
     layerType   = None
     styles       = []
 
-    def __init__(self, path, bounds, epsg, nameInit = "TestLayer"):
+    def __init__(self, path, bounds, epsg, nameInit = "TestLayer", title = "Test layer"):
         
-        Layer.__init__(self, path, bounds, epsg, nameInit) 
+        Layer.__init__(self, path, bounds, epsg, nameInit, title) 
         # self.LayerHeader()
 
     def layerHeader(self):
@@ -328,7 +333,7 @@ class VectorLayer(Layer):
 
         text += "  METADATA \n"
         text += "    \"DESCRIPTION\" \"" + self.name + "\"\n"
-        text += "    \"ows_title\"   \"" + self.name + "\"\n"
+        text += "    \"ows_title\"   \"" + self.title + "\"\n"
         text += "    \"gml_include_items\" \"all\" \n"
         text += "  END  # Metadata \n\n"
 

@@ -430,7 +430,7 @@ class WPSClient:
                                             c.path, 
                                             c.dataSet.getBBox(), 
                                             c.dataSet.getEPSG(), 
-                                            #c.name)
+                                            c.name,
                                             self.outputTitles[c.name])
                     type = str(c.dataSet.getGeometryType())
                     if type <> None:
@@ -446,7 +446,7 @@ class WPSClient:
                                             c.path, 
                                             c.dataSet.getBBox(), 
                                             c.dataSet.getEPSG(), 
-                                            #c.name)
+                                            c.name,
                                             self.outputTitles[c.name])
                     self.map.addLayer(layer)
                     
