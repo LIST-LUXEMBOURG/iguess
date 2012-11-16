@@ -6,15 +6,16 @@ argv = sys.argv[1:]
 # Code modeled on http://stackoverflow.com/questions/7605631/passing-a-list-to-python-from-command-line
 arg_dict = { } 
 
-# Params (and the types) we expect
-switches = { 'url':str, 'procname':str, 'names':list, 'vals':list, 'outnames':list, 'outtitles':list }
+# Params (and the types) we expect  IMPORTANT: make sure each starts with a different letter!!!
+switches = { 'url':str, 'procname':str, 'names':list, 'vals':list, 'outnames':list, 'titles':list }
 
 singles = '' . join([x[0] + ':' for x in switches])
 long_form = [x + '=' for x in switches]
 
 d = {}
 for x in switches:
-	d[x[0] + ':'] = '--' + x
+    d[x[0] + ':'] = '--' + x
+
 
 try:            
     opts, args = getopt.getopt(argv, singles, long_form)
@@ -80,7 +81,8 @@ iniCli.init(
     # Output names
     arg_dict['outnames'],
     # Titles for those datasets
-    arg_dict['outtitles'] )
+    arg_dict['titles'] )
+
 
 url = iniCli.sendRequest()
 

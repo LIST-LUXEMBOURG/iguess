@@ -88,6 +88,7 @@ class ModConfigsController < ApplicationController
     inputFields  = []
     inputValues  = []
     outputFields = []
+    outputTitles = []
 
     # Drop downs -- always inputs
     @mod_config.datasets.map { |x| dataname = x.full_url       # {P{P Until WCS working
@@ -111,19 +112,26 @@ class ModConfigsController < ApplicationController
                                               end
                                       }
 
-    argUrl       =  '--url="' + @mod_config.wps_server.url + '"'
+    argUrl       = '--url="'        + @mod_config.wps_server.url + '"'
     argProc      = '--procname="'   + @mod_config.identifier + '"'
 
     argName      = '--names="[' + inputFields.map  { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
     argVals      = '--vals="['  + inputValues.map  { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
 
     argOuts      = '--outnames="['  + outputFields.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
-    argOutTitles = '--outtitles="[' + outputTitles.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
+    argOutTitles = '--titles="['    + outputTitles.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
+
+    cmd = 'cd '+ wpsClientPath +'; /usr/bin/python wpsstart.py ' + argUrl + ' ' +
+                                   argProc + ' ' + argName + ' ' + argVals + ' ' + argOuts + ' ' + argOutTitles
 
    
     require 'open3'
-    output, stat = Open3.capture2e('cd '+ wpsClientPath +'; /usr/bin/python wpsstart.py ' + argUrl + ' ' + 
-                                   argProc + ' ' + argName + ' ' + argVals + ' ' + argOuts + ' ' + argOutTitles)
+    output, stat = Open3.capture2e(cmd)
+
+#logger.debug("running pyscript...")
+#logger.debug(cmd)
+#logger.debug(output)
+#logger.flush
 
     # Currently, WPSClient spews out lots of garbage.  We only want the last line.
     output =~ /^OK:(.*)$/
