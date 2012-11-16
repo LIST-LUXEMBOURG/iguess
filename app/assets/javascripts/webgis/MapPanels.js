@@ -37,9 +37,10 @@ Ext.onReady(function() {
     floatable: false,
     xtype: "gx_mappanel",
     map: WebGIS.map,
-    // tbar: WebGIS.createTbarItems(WebGIS.map),
+    tbar: WebGIS.createTbarItems(WebGIS.map),
     items: [zoomSlider]
   });
+
 
   var LayerNodeUI = Ext.extend(
           GeoExt.tree.LayerNodeUI,
