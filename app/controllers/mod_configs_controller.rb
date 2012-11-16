@@ -107,24 +107,23 @@ class ModConfigsController < ApplicationController
                                                 inputValues.push(x.value)
                                               else
                                                 outputFields.push(x.column_name)
+                                                outputTitles.push(x.value)
                                               end
                                       }
 
+    argUrl       =  '--url="' + @mod_config.wps_server.url + '"'
+    argProc      = '--procname="'   + @mod_config.identifier + '"'
 
-    inputFieldsStr = inputFields.map   { |i| "'" + i.to_s + "'" }.join(",")
-    inputValuesStr = inputValues.map   { |i| "'" + i.to_s + "'" }.join(",")
-    outputFieldsStr = outputFields.map { |i| "'" + i.to_s + "'" }.join(",")
+    argName      = '--names="[' + inputFields.map  { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
+    argVals      = '--vals="['  + inputValues.map  { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
 
-    argUrl =  '--url="' + @mod_config.wps_server.url + '"'
-    argProc = '--procname="' + @mod_config.identifier + '"'
-    argName = '--names="['  + inputFields.map    { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
-    argVals = '--vals="['   + inputValues.map    { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
-    argOuts = '--outnames="[' + outputFields.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
+    argOuts      = '--outnames="['  + outputFields.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
+    argOutTitles = '--outtitles="[' + outputTitles.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
 
    
     require 'open3'
     output, stat = Open3.capture2e('cd '+ wpsClientPath +'; /usr/bin/python wpsstart.py ' + argUrl + ' ' + 
-                                   argProc + ' ' + argName + ' ' + argVals + ' ' + argOuts)
+                                   argProc + ' ' + argName + ' ' + argVals + ' ' + argOuts + ' ' + argOutTitles)
 
     # Currently, WPSClient spews out lots of garbage.  We only want the last line.
     output =~ /^OK:(.*)$/

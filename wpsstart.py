@@ -7,7 +7,7 @@ argv = sys.argv[1:]
 arg_dict = { } 
 
 # Params (and the types) we expect
-switches = { 'url':str, 'procname':str, 'names':list, 'vals':list, 'outnames':list }
+switches = { 'url':str, 'procname':str, 'names':list, 'vals':list, 'outnames':list, 'outtitles':list }
 
 singles = '' . join([x[0] + ':' for x in switches])
 long_form = [x + '=' for x in switches]
@@ -78,7 +78,9 @@ iniCli.init(
     # Input values - '&' character must be passed as '&amp;'
     vals,
     # Output names
-    arg_dict['outnames'] )
+    arg_dict['outnames'],
+    # Titles for those datasets
+    arg_dict['outtitles'] )
 
 url = iniCli.sendRequest()
 
