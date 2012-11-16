@@ -53,6 +53,9 @@ class WPSClient:
     .. attribute:: outputNames
         List with the names of the process outputs. Needed to build the XML
         request
+           
+    .. attribute:: outputTitles
+        List with the titles of outputs to use in the Map file.
     
     .. attribute:: xmlPost
         Object of the type XMLPost containing the request coded as XML sent 
@@ -119,6 +122,7 @@ class WPSClient:
     inputNames = None
     inputValues = None
     outputNames = None
+    outputTitles = {}
     xmlPost = None
     statusURL = None
     processId = None
@@ -148,7 +152,7 @@ class WPSClient:
         self.loadConfigs()
         self.setupLogging()
         
-    def init(self, serverAddress, processName, inputNames, inputValues, outputNames):
+    def init(self, serverAddress, processName, inputNames, inputValues, outputNames, outputTitles):
         """
         Initialises the WPSClient object with the required arguments to create
         the WPS request.
@@ -165,6 +169,16 @@ class WPSClient:
         self.inputNames = inputNames
         self.inputValues = inputValues
         self.outputNames = outputNames
+        
+        if(len(outputNames) <> len(outputTitles)):
+            logging.warning("Output titles missing or incomplete, using names.")
+            for i in range(0, len(outputNames)):
+                self.outputTitles[outputNames[i]] = outputNames[i]
+                
+        else:
+            for i in range(0, len(outputNames)):
+                self.outputTitles[outputNames[i]] = outputTitles[i]
+        
         
     def initFromURL(self, url):
         """
@@ -400,7 +414,8 @@ class WPSClient:
                                             c.path, 
                                             c.dataSet.getBBox(), 
                                             c.dataSet.getEPSG(), 
-                                            c.name)
+                                            #c.name)
+                                            self.outputTitles[c.name])
                     type = str(c.dataSet.getGeometryType())
                     if type <> None:
                         layer.layerType = type
@@ -415,7 +430,8 @@ class WPSClient:
                                             c.path, 
                                             c.dataSet.getBBox(), 
                                             c.dataSet.getEPSG(), 
-                                            c.name)
+                                            #c.name)
+                                            self.outputTitles[c.name])
                     self.map.addLayer(layer)
                     
                 else:

@@ -220,7 +220,7 @@ class Layer:
     .. attribute:: name
         Name of the layer
         
-    .. attribute:: title
+    .. attribute:: abstract
         Abstract describing this layer
         
     .. attribute:: bBox
@@ -234,10 +234,10 @@ class Layer:
     """
     
     name        = None
-    title       = "A test layer"
+    abstract       = "A layer generated automatically"
     bBox        = None
     epsgCode    = None
-    path         = None
+    path        = None
     
     def __init__(self, path, bounds, epsg, nameInit = "TestLayer"):
         
@@ -277,7 +277,7 @@ class RasterLayer(Layer):
         
         text += "    METADATA \n"
         text += "      \"ows_title\" \"" + self.name + "\" \n"
-        text += "      \"ows_abstract\" \"" + self.title + "\"\n\n"
+        text += "      \"ows_abstract\" \"" + self.abstract + "\"\n\n"
         text += "      \"wcs_label\"           \"" + self.name + "\"   ### required \n"
         text += "      \"wcs_rangeset_name\"   \"Range 1\"  ### required to support DescribeCoverage request \n"
         text += "      \"wcs_rangeset_label\"  \"My Label\" ### required to support DescribeCoverage request \n"
@@ -333,7 +333,7 @@ class VectorLayer(Layer):
         text += "  END  # Metadata \n\n"
 
         text += "    CLASS \n"
-        text += "      NAME       \"" + self.title + "\"\n"
+        text += "      NAME       \"" + self.abstract + "\"\n"
 
         return text
 
