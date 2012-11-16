@@ -95,7 +95,7 @@
 
 
   // Adds a new layer to the map "on the fly"
-  WebGIS.addNewLayer = function (title, serviceURL, layerName)
+  WebGIS.addNewLayer = function (title, serviceURL, layerName, visible)
   {
     var layer =  new OpenLayers.Layer.WMS(
             title,
@@ -106,7 +106,7 @@
               srs: WebGIS.requestProjection,
               transparent: "true"},
             {isBaseLayer: false,
-              visibility: true}
+              visibility: visible}
     );
 
     WebGIS.map.addLayer(layer);

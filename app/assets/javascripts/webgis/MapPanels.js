@@ -23,13 +23,13 @@ Ext.onReady(function() {
     })
   });
 
-  var dataPanel = new Ext.Panel({
-    title: 'Datasets',
-    region:'west',
-    collapsible: true,
-    width: 182,
-    contentEl: 'data'
-  });
+  // var dataPanel = new Ext.Panel({
+  //   title: 'Datasets',
+  //   region:'west',
+  //   collapsible: true,
+  //   width: 182,
+  //   contentEl: 'data'
+  // });
 
   var mapPanel = new GeoExt.MapPanel({
     region: "center",
@@ -55,10 +55,11 @@ Ext.onReady(function() {
     expanded: true
   }];
 
+  // Layer list
   var layerTree = new Ext.tree.TreePanel({
-    region: "east",
+    region: "west",
     title: 'Map Layers',
-    width: 170,
+    width: 273,
     collapsible: true,
     autoScroll: true,
     enableDD: true,
@@ -90,7 +91,7 @@ Ext.onReady(function() {
       autoHide: false,
       useSplitTips: true,
     },
-    items: [mapPanel, layerTree, dataPanel]
+    items: [mapPanel, layerTree/*, dataPanel*/]
   });
 
   WebGIS.zoomToCity();

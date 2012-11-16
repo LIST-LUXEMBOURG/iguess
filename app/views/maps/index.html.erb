@@ -198,7 +198,7 @@
       var railsId = railsIdLookup[makeKey(dataset.server_url, dataset.identifier)];
       $('#dataset-list').append(renderTableRow(dataset));
 
-      $('#infotables').append(renderInfoTable(dataset, railsId));
+      // $('#infotables').append(renderInfoTable(dataset, railsId));
 
       processUrl(dataset.server_url);
     }
@@ -362,8 +362,7 @@
     var railsId = railsIdLookup[makeKey(serverUrl, dataset)];
 
 
-    $('.dataset-name2-' + railsId).click(function(event){
-                                            WebGIS.addNewLayer(name,serverUrl,dataset);});
+    WebGIS.addNewLayer(name,serverUrl,dataset, false);
 
 
     $('.dataset-name2-' + railsId).html(name);    // Appears in the name column, also on infotable popup
@@ -448,20 +447,5 @@
 
 
 
-
-
-
-<div id="data">
-  <p id="add-layer-instructions">Add a layer to the map by clicking on its name.</p>
-  <table id="dataset-list" class="zebra sortable" width="180px">
-    <thead> <tr><th>Dataset name</th></tr> </thead>
-    <tbody><!-- Rows will be inserted here by the script --></tbody>
-  </table>
-</div>
-
 <div style="float: left; width:100%; min-height:100%; margin:2px;" id="BroadMap"></div>
-
-
-
-
 
