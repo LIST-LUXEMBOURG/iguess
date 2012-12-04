@@ -86,6 +86,7 @@
               '<div style="overflow:hidden"><dl>' +
                 '<dt>Server Name:</dt><dd class="server-name-' + serverUrlId + '"></dd>' +
                  '<dt>Services available:</dt><dd id="services-' + railsId + '">Waiting for response from server...</dd>' + 
+                 '<dt>Result Services:</dt><dd id="results-' + railsId + '">Waiting for response from server...</dd>' + 
                  
               '</dl></div>' +
               '<div style="overflow:hidden" class="technical-details">' +
@@ -279,9 +280,29 @@
   function updateLayerInfo(serverUrl, dataset, available, name, descr, services) {
     var railsId = railsIdLookup[makeKey(serverUrl, dataset)];
 
+    var serviceStr;
+
+    if(services.length == 0)
+      serviceStr = "None";
+    else
+      serviceStr = services.join(', ');
+
+
     $('.dataset-name2-' + railsId).html(name);    // Appears in the name column, also on infotable popup
     $('.dataset-descr-' + railsId).html(descr);
-    $('#services-'      + railsId).html(services);
+    $('#services-'      + railsId).html(serviceStr);
+    
+
+    // Parse services... provide links for whatever services
+    if(services)
+
+    $('#results-'       + railsId).html(services);
+
+
+//     WFS.getCapUrl(dataset.server_url)
+// WMS.getCapUrl(dataset.server_url)
+// WCS.getCapUrl(dataset.server_url)
+
 
     if(available) {
       $('.status2-' + railsId).html(
@@ -342,7 +363,7 @@
             title = title.replace(/ /g,'&nbsp;');
 
 
-            updateLayerInfo(serverUrl, identifier, true, title, record.get("abstract"), services.join(', '))
+            updateLayerInfo(serverUrl, identifier, true, title, record.get("abstract"), services)
 
             found = true;
             break;
@@ -353,7 +374,7 @@
       if(!found) {
         updateLayerInfo(serverUrl, datasets[i], false, datasets[i], 
           'This dataset could no longer be located on the data server',     // Descr
-          'None');                                                          // Services
+          [] );                                                             // Services
       }
     }
   }
