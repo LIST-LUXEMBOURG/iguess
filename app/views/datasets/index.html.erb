@@ -295,7 +295,7 @@
       else if(services[i] == 'WCS') {
         url = WCS.getCapUrl(serverUrl);
       }
-      $('#results-' + railsId).append('<a href="' + url + '">' + services[i] + '</a>&nbsp;');
+      $('#results-' + railsId).append('<a href="' + url + '" target="_blank">' + services[i] + '</a>&nbsp;');
     }
 
     if(url != '') {
