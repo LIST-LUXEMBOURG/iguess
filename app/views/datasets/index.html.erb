@@ -85,8 +85,7 @@
               '<div class="dataset-descr-' + railsId + '"></div>' +
               '<div style="overflow:hidden"><dl>' +
                 '<dt>Server Name:</dt><dd class="server-name-' + serverUrlId + '"></dd>' +
-                 '<dt>Services available:</dt><dd id="services-' + railsId + '">Waiting for response from server...</dd>' + 
-                 '<dt>Result Services:</dt><dd id="results-' + railsId + '">Waiting for response from server...</dd>' + 
+                 '<dt>Data Services:</dt><dd id="results-' + railsId + '">Waiting for response from server...</dd>' + 
                  
               '</dl></div>' +
               '<div style="overflow:hidden" class="technical-details">' +
@@ -280,28 +279,28 @@
   function updateLayerInfo(serverUrl, dataset, available, name, descr, services) {
     var railsId = railsIdLookup[makeKey(serverUrl, dataset)];
 
-    var serviceStr;
-
-    if(services.length == 0)
-      serviceStr = "None";
-    else
-      serviceStr = services.join(', ');
-
-
     $('.dataset-name2-' + railsId).html(name);    // Appears in the name column, also on infotable popup
     $('.dataset-descr-' + railsId).html(descr);
-    $('#services-'      + railsId).html(serviceStr);
-    
+    $('#results-'       + railsId).html('');      // Clear
 
+    var url = '';
     // Parse services... provide links for whatever services
-    if(services)
+    for (var i = 0; i < services.length; i++) {
+      if(services[i] == 'WMS') {
+        url = WMS.getCapUrl(serverUrl);
+      }
+      else if(services[i] == 'WFS') {
+        url = WFS.getCapUrl(serverUrl);
+      }
+      else if(services[i] == 'WCS') {
+        url = WCS.getCapUrl(serverUrl);
+      }
+      $('#results-' + railsId).append('<a href="' + url + '">' + services[i] + '</a>&nbsp;');
+    }
 
-    $('#results-'       + railsId).html(services);
-
-
-//     WFS.getCapUrl(dataset.server_url)
-// WMS.getCapUrl(dataset.server_url)
-// WCS.getCapUrl(dataset.server_url)
+    if(url != '') {
+      $('#results-' + railsId).append('&nbsp;(Right-click, Copy Link Location)');
+    }
 
 
     if(available) {
