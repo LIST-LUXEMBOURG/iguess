@@ -5,7 +5,7 @@
   // Add "js" style to body -- makes fancy checkboxes work
   $('body').attr("class",$('body').attr("class") + " js");
 
-  GOOGLE_SRS = 'EPSG:3857';
+  GOOGLE_SRS = 'EPSG:900913';
 
   var urls = [<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>];
 
@@ -335,7 +335,7 @@
           var miniMap = new OpenLayers.Map({
                   maxExtent:  bounds,
                   projection: new OpenLayers.Projection(activeSRS),
-                  controls: [new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]
+                  controls: [ new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]
           });
 
           var lyr = new OpenLayers.Layer.WMS(
@@ -441,6 +441,9 @@
       e.preventDefault();
 
     });  // end toggle state change handler
+
+
+    equalizeTileHeight();
   }
 
 
@@ -589,6 +592,18 @@
   }
 
 
+  // Make sure all the data tiles are the same height
+  function equalizeTileHeight() {
+    var tallestElement = 0;
+    $('.dataset').each(function(i, el) {
+        if( $(this).outerHeight() > tallestElement ) {
+            tallestElement = $(this).outerHeight();
+        }     
+    });
+    $('.dataset').css('min-height', tallestElement);
+  }
+
+
   $(document).ready(function ()
   {
     hideProbingIndicators();
@@ -604,6 +619,9 @@
     $("#radio-show-wms") .click(function() { displayLayers(); });
     $("#radio-show-both").click(function() { displayLayers(); });
   });
+
+
+
 </script>
  
 

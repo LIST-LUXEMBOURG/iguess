@@ -1,6 +1,27 @@
-
-<!-- TODO: Make this a partial -->
 <script type="text/javascript">
+
+  // Let the server know this layer is now registered -- to do this we must create a new record in
+  // our datasets table.
+
+  var onLocationChanged = function(city) {
+    $.ajax({
+      type: 'POST',
+      url: '<%= url_for(:controller => 'datasets', :action => 'get_for_city', :format => :json) %>',
+      data: 'cityName=' + $.cookie('city'),
+      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
+      success: function(data) {
+        renderTable(data);
+        hideUnregisterAndFriends();
+      }
+    });
+  }
+
+  $(document).ready(function() {
+    onLocationChanged('<%= @current_city.name %>');   // Build the initial dataset list
+    // $('#sortable_table').tablesorter();               // Initialize sorter
+  });
+
+
   // Make the railsIdLookup, which looks up a unique id for each  URL / identifier pair.
   // Allows us to have shorter class names and avoid illegal characters in a class which might exist in a URL.
   railsIdLookup = { };
@@ -9,29 +30,6 @@
                .uniq{ |x| x.server_url + x.identifier }
                .map{ |d| "railsIdLookup[makeKey('" + d.server_url + "','" + d.identifier + "')] = '" + d.id.to_s + "';\n" }
                .join(' ') %>
-</script>
-
-
-<%# Include some map related utility functions; these need to be processed by Rails so they have to be in a partial %>
-<%= render :partial => '/shared/map_utils.html.erb' %>
-
-
-<script type="text/javascript">
-
-
-  $(document).ready(function() {
-    onLocationChanged('<%= @current_city.name %>');   // Build the initial dataset list
-    // $('#sortable_table').tablesorter();               // Initialize sorter
-  });
-
-
-
-  var onLocationChanged = function(cityName) {
-    MapUtils.retrieveDatasetsForCity(cityName, function(data) { 
-                                                    renderTable(data); 
-                                                    hideUnregisterAndFriends(); });
-  }
-
 
 
   hideUnregisterAndFriends = function() {
@@ -85,14 +83,14 @@
               '<div class="dataset-descr-' + railsId + '"></div>' +
               '<div style="overflow:hidden"><dl>' +
                 '<dt>Server Name:</dt><dd class="server-name-' + serverUrlId + '"></dd>' +
-                 '<dt>Data Services:</dt><dd id="results-' + railsId + '">Waiting for response from server...</dd>' + 
+                 '<dt>Services available:</dt><dd id="services-' + railsId + '">Waiting for response from server...</dd>' + 
                  
               '</dl></div>' +
               '<div style="overflow:hidden" class="technical-details">' +
                 '<div class="section-header">Technical Details</div><dl>' +
                 '<dt>Server Base URL:</dt><dd>' + dataset.server_url + '</dd>' +
                 '<dt>Dataset Identifier:</dt><dd>' + dataset.identifier + '</dd>' +
-                '<dt>All Get Capabilities Links:</dt><dd>' +
+                '<dt>Get Capabilities Links:</dt><dd>' +
                     '<a href="' + WFS.getCapUrl(dataset.server_url) + '" target="_blank">WFS</a> ' +
                     '<a href="' + WMS.getCapUrl(dataset.server_url) + '" target="_blank">WMS</a> ' +
                     '<a href="' + WCS.getCapUrl(dataset.server_url) + '" target="_blank">WCS</a>' +
@@ -179,12 +177,12 @@
 
 <script type="text/javascript">
   <% index = 0 %>
-  var layerRecords    = { };
-  var layerStores     = { };
-  var serverDatasets  = { };
+  var layerRecords = { };
+  var layerStores = { };
+  var serverDatasets = { };
   var serverResponses = { };
 
-  var processedUrls   = [ ];
+  var processedUrls = [];
 
 
   var processUrl = function(url)
@@ -244,8 +242,10 @@
     var url     = unwrapServer(dataProxy.url, format);
     var service = getService(format);
 
+
     serverResponses[url].push( new ServerResponse(true, records.length, dataProxy, service));
                                                   
+
     setLayerStatus(url);
   }
 
@@ -281,27 +281,7 @@
 
     $('.dataset-name2-' + railsId).html(name);    // Appears in the name column, also on infotable popup
     $('.dataset-descr-' + railsId).html(descr);
-    $('#results-'       + railsId).html('');      // Clear
-
-    var url = '';
-    // Parse services... provide links for whatever services
-    for (var i = 0; i < services.length; i++) {
-      if(services[i] == 'WMS') {
-        url = WMS.getCapUrl(serverUrl);
-      }
-      else if(services[i] == 'WFS') {
-        url = WFS.getCapUrl(serverUrl);
-      }
-      else if(services[i] == 'WCS') {
-        url = WCS.getCapUrl(serverUrl);
-      }
-      $('#results-' + railsId).append('<a href="' + url + '" target="_blank">' + services[i] + '</a>&nbsp;');
-    }
-
-    if(url != '') {
-      $('#results-' + railsId).append('&nbsp;(Right-click, Copy Link Location)');
-    }
-
+    $('#services-'      + railsId).html(services);
 
     if(available) {
       $('.status2-' + railsId).html(
@@ -362,7 +342,7 @@
             title = title.replace(/ /g,'&nbsp;');
 
 
-            updateLayerInfo(serverUrl, identifier, true, title, record.get("abstract"), services)
+            updateLayerInfo(serverUrl, identifier, true, title, record.get("abstract"), services.join(', '))
 
             found = true;
             break;
@@ -373,7 +353,7 @@
       if(!found) {
         updateLayerInfo(serverUrl, datasets[i], false, datasets[i], 
           'This dataset could no longer be located on the data server',     // Descr
-          [] );                                                             // Services
+          'None');                                                          // Services
       }
     }
   }
@@ -403,5 +383,6 @@
 
   <br />
 </div>
+
 
 

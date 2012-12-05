@@ -1,3 +1,149 @@
 // Place all the styles related to the home controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+
+$tabWidth: 300px;
+$totalWidth: 1100px;
+$panelHeight: 423px;
+
+// Big task oriented tabs
+#front-page-tabs {
+   padding: 0;
+   font-size: 30px;
+   float:left;
+   /*width: $tabWidth;*/
+
+   border-radius: 5px;
+   -moz-box-sizing: border-box;
+   box-sizing: border-box;
+   margin: 0 auto;
+   margin-left: 50px;      // Indent the whole shebang
+   border: 1px solid #DDD;
+   position: relative;
+   width: $totalWidth;
+}
+
+#front-page-tabs .tabs {
+   display: block;
+   height: $panelHeight;
+   float: left;
+   margin-left: 0;
+}
+
+#front-page-tabs .tabs ul {
+   float: left;
+   display: block;
+   background: none;
+   padding: 0;
+   width: $tabWidth;
+   z-index: 1;
+   margin-bottom: 0;
+}
+
+
+$lineHeight: $panelHeight / 3 - 1px;
+#front-page-tabs li {
+   list-style: none;
+   margin: 0;
+   padding-left: 18px;
+
+   background: whiteSmoke;
+   background: -webkit-linear-gradient(whiteSmoke, #EEE);
+   background: -moz-linear-gradient(whiteSmoke, #EEE);
+   background: -ms-linear-gradient(whiteSmoke, #EEE);
+   background: -o-linear-gradient(whiteSmoke, #EEE);
+   background: linear-gradient(whiteSmoke, #EEE);
+
+   border-bottom: 1px solid #DDD;
+   border-left: 1px solid #DDD;
+
+   -webkit-box-shadow: inset 0 1px 0 white;
+   box-shadow: inset 0 1px 0 white;
+   height: $lineHeight;
+   top: auto;
+
+   line-height: $lineHeight;   // Vertically center text links
+}
+
+#front-page-tabs .panes {
+   float: left;
+   font-size: 40px;
+   margin-left: 0;
+   margin-right: 0;
+}
+
+// Tab links themselves
+#front-page-tabs .tabs a {
+   text-decoration: none;
+   color: #3C77B4;
+   font-size: 23px;
+}
+
+#front-page-tabs .inner-content {
+   margin-left: 220px;
+   margin-top: 40px;
+   font-size: 80%;
+}
+
+.inner-content a {
+   text-decoration: none;
+}
+
+.inner-content a:hover {
+   text-decoration: underline;
+}
+
+.headline {
+   font-size: 35px;
+   color: #3C77B4;
+   width: $totalWidth - 50px; 
+   margin-left: 160px;
+}
+
+#headline1 {
+
+}
+
+#headline2 {
+   padding-left: 500px;
+}
+
+
+#headline-spacer {
+   height: 40px;
+}
+
+#front-page-tabs .intro {
+   font-size: 50%;
+   margin-left: 20px;
+}
+
+$height: 423px;
+$bgImageHeight: 150px;
+$bgMargin: 20px;
+$textMargin: 20px;
+
+// Styles for div holding the content itself;  bg image set below
+.front-page-tab-body {
+   background-repeat:no-repeat;
+   background-size: $bgImageHeight;    
+   background-position: $bgMargin $height - $bgImageHeight - $bgMargin;  
+
+   height: $height;
+   margin: 0;
+   width: $totalWidth - $tabWidth - $textMargin;
+   padding-left: $textMargin - 2px;
+}
+
+#view-some-data {
+   background-image: url('gPlus.svg');
+}
+
+#run-a-module {
+   background-image: url('gPlay.svg');
+}
+
+#check-module {
+   background-image: url('gCheck.svg');
+}

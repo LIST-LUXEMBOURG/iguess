@@ -133,7 +133,6 @@
         enableEditing();
         showRunButton('Run Module >>>');
 
-
       } else if(statusCode == 'RUNNING') {    // Module is running
         $('#stop_module_button_container').show();
         $('#explanation').html("This module is currently running.  You can refresh this page, " +
@@ -149,7 +148,9 @@
 
       } else if(statusCode == 'FINISHED') {   // Module run compete
         $('#explanation').html("This module has been successfully run.  You can now view the outputs in the Data Manager.");
-        disableEditing();
+        enableEditing();
+
+        showRunButton('Run Module Again >>>');
 
       } else if(statusCode == 'ERROR') {    // Module run ended in error
         $('#explanation').html("We experienced an error running this configuration.  The WPS server replied:<br>" +

@@ -6,15 +6,16 @@ argv = sys.argv[1:]
 # Code modeled on http://stackoverflow.com/questions/7605631/passing-a-list-to-python-from-command-line
 arg_dict = { } 
 
-# Params (and the types) we expect
-switches = { 'url':str, 'procname':str, 'names':list, 'vals':list, 'outnames':list }
+# Params (and the types) we expect  IMPORTANT: make sure each starts with a different letter!!!
+switches = { 'url':str, 'procname':str, 'names':list, 'vals':list, 'outnames':list, 'titles':list }
 
 singles = '' . join([x[0] + ':' for x in switches])
 long_form = [x + '=' for x in switches]
 
 d = {}
 for x in switches:
-	d[x[0] + ':'] = '--' + x
+    d[x[0] + ':'] = '--' + x
+
 
 try:            
     opts, args = getopt.getopt(argv, singles, long_form)
@@ -31,7 +32,6 @@ for opt, arg in opts:
 
     if o and arg:
         if switches[o] == tuple or switches[o] == list or switches[o] == dict:
-            print arg
             arg_dict[o] = ast.literal_eval(arg)
         else:
             arg_dict[o] = arg
@@ -79,11 +79,15 @@ iniCli.init(
     # Input values - '&' character must be passed as '&amp;'
     vals,
     # Output names
-    arg_dict['outnames'] )
+    arg_dict['outnames'],
+    # Titles for those datasets
+    arg_dict['titles'] )
+
 
 url = iniCli.sendRequest()
 
 f.write("Launching process: " + url + "\n")
+sys.stdout.write("OK:" + url)     # This is the line that our rails code will be looking for!
 
 # iniCli = None
 

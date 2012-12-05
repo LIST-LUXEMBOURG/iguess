@@ -54,6 +54,10 @@ a:active {
   font-size: .85em;
 }
 
+.clear {
+    clear:both;
+}
+
 
 .dataset_body, .front_page_col_body {
   padding: 8px;

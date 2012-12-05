@@ -22,6 +22,7 @@ __all__ = ["Tags","Output","DataSet","MapServerText"]
 import os
 import urllib2
 import httplib
+import logging
 from ConfigParser import SafeConfigParser
 from Tags import Tags
 from Output import ComplexOutput
@@ -29,8 +30,6 @@ from Output import LiteralOutput
 from XMLPost import XMLPost
 import MapServerText as UMN
 import re  # For regular expression matching
-
-DEBUG = True
 
 ##########################################################
 
@@ -54,6 +53,9 @@ class WPSClient:
     .. attribute:: outputNames
         List with the names of the process outputs. Needed to build the XML
         request
+           
+    .. attribute:: outputTitles
+        List with the titles of outputs to use in the Map file.
     
     .. attribute:: xmlPost
         Object of the type XMLPost containing the request coded as XML sent 
@@ -85,6 +87,12 @@ class WPSClient:
     .. attribute:: epsg
         EPSG code of the primary coordinate system used to publish complex 
         outputs
+        
+    .. attribute:: logFile
+        Path to the log file
+        
+    .. attribute:: logLevel
+        Level of logging
     
     .. attribute:: pathFilesGML
         Path where to store the GML files with complex outputs
@@ -114,6 +122,7 @@ class WPSClient:
     inputNames = None
     inputValues = None
     outputNames = None
+    outputTitles = {}
     xmlPost = None
     statusURL = None
     processId = None
@@ -124,6 +133,8 @@ class WPSClient:
     epsg = None
     
     #Configs
+    logFile      = None
+    logLevel     = None
     pathFilesGML = None
     mapServerURL = None
     mapFilesPath = None
@@ -139,8 +150,9 @@ class WPSClient:
     def __init__(self):
          
         self.loadConfigs()
+        self.setupLogging()
         
-    def init(self, serverAddress, processName, inputNames, inputValues, outputNames):
+    def init(self, serverAddress, processName, inputNames, inputValues, outputNames, outputTitles):
         """
         Initialises the WPSClient object with the required arguments to create
         the WPS request.
@@ -156,9 +168,12 @@ class WPSClient:
         self.processName = processName
         self.inputNames = inputNames
         self.inputValues = inputValues
-        self.outputNames = outputNames
+        self.outputNames = outputNames       
         
-    def initFromURL(self, url):
+        self.processOutputTitles(outputNames, outputTitles)
+        
+        
+    def initFromURL(self, url, outputNames, outputTitles):
         """
         Initialises the WPSClient with the status URL address of a running 
         remote process. Used when a request has already been sent.
@@ -169,6 +184,9 @@ class WPSClient:
         self.statusURL = url
         self.processId = self.decodeId(url)
         
+        self.processOutputTitles(outputNames, outputTitles)
+        
+        
     def loadConfigs(self):
         """ 
         Loads default attribute values from the configuration file. 
@@ -177,6 +195,8 @@ class WPSClient:
         parser = SafeConfigParser()
         parser.read('WPSClient.cfg')
     
+        self.logFile      = parser.get('Logging',   'logFile')
+        self.logLevel     = parser.get('Logging',   'logLevel')
         self.pathFilesGML = parser.get('Data',      'GMLfilesPath')
         self.mapServerURL = parser.get('MapServer', 'MapServerURL')
         self.mapFilesPath = parser.get('MapServer', 'mapFilesPath')
@@ -184,6 +204,38 @@ class WPSClient:
         self.imagePath    = parser.get('MapServer', 'imagePath')
         self.imageURL     = parser.get('MapServer', 'imgeURL')
         self.otherProjs   = parser.get('MapServer', 'otherProjs')
+        
+        
+    def setupLogging(self):
+        """
+        Sets up the logging file.
+        """
+        #global logFile
+        format = "[%(asctime)s] %(levelname)s: %(message)s"
+        if(self.logFile == None):
+            logging.basicConfig(level=self.logLevel,format=format)
+        else:
+            logging.basicConfig(filename=self.logFile,level=self.logLevel,format=format)
+            #logFile = open(fileName, "a")
+            
+            
+    def processOutputTitles(self, outputNames, outputTitles):
+        """
+        Creates the dictionary with output names and output titles.
+           
+        :param outputNames: array with output names
+        :param outputTitles: array with output titles      
+        """
+        
+        if(len(outputNames) <> len(outputTitles)):
+            logging.warning("Output titles missing or incomplete, using names.")
+            for i in range(0, len(outputNames)):
+                self.outputTitles[outputNames[i]] = outputNames[i]
+                
+        else:
+            for i in range(0, len(outputNames)):
+                self.outputTitles[outputNames[i]] = outputTitles[i]
+        
         
     def decodeId(self, url):
         """
@@ -203,7 +255,7 @@ class WPSClient:
         """
         
         if len(self.inputNames) <> len(self.inputValues):
-            print "Different number of input names and values."
+            logging.error("Different number of input names and values.")
             return
         
         self.xmlPost = XMLPost(self.processName)
@@ -229,19 +281,19 @@ class WPSClient:
         self.buildRequest()
         
         if(self.xmlPost == None):
-            print "It wasn't possible to build a request with the given arguments"
+            logging.error("It wasn't possible to build a request with the given arguments.")
             return None
         
         request = self.xmlPost.getString()
         if(request == None):
-            print "It wasn't possible to build a request with the given arguments"
+            logging.error("It wasn't possible to build a request with the given arguments.")
             return None
         
         rest = self.serverAddress.replace("http://", "")     
         split = rest.split("/")
         
         if(len(split) < 2):
-            print "It wasn't possible to process the server address"
+            logging.error("It wasn't possible to process the server address.")
             return None
         
         host = split[0]
@@ -249,11 +301,10 @@ class WPSClient:
         api_url = rest.replace(host, "", 1)        
         api_url = api_url.replace("?", "")
         
-        if DEBUG:
-            print "API: " + api_url
-            print "HOST: " + host
-            print "Sending the request:\n"
-            print request + "\n"
+        logging.debug("API: " + api_url)
+        logging.debug("HOST: " + host)
+        logging.debug("Sending the request:\n")
+        logging.debug(request + "\n")
         
         webservice = httplib.HTTP(host)
         webservice.putrequest("POST", api_url)
@@ -266,10 +317,8 @@ class WPSClient:
         statuscode, statusmessage, header = webservice.getreply()
         self.xmlResponse = webservice.getfile().read()
         
-        if DEBUG:
-            print "Request results:"
-            print statuscode, statusmessage, header
-            print self.xmlResponse
+        logging.debug("Request info:" + str(statuscode) + str(statusmessage) + str(header))
+        logging.debug("Response:\n" + self.xmlResponse)
         
         self.statusURL = self.xmlResponse.split("statusLocation=\"")[1].split("\"")[0]
         self.processId = self.decodeId(self.statusURL)
@@ -293,7 +342,7 @@ class WPSClient:
         self.status = None                     
 
         if (self.statusURL == None):
-            print "Incomplete request -- missing URL"
+            logging.error("Incomplete request -- missing URL")
             return False
         
         r = urllib2.urlopen(urllib2.Request(self.statusURL))
@@ -314,24 +363,20 @@ class WPSClient:
                 self.processErrorCode = "Unknown"
                 self.processErrorText = "Unknown"
 
-            if DEBUG:
-                print "The process failed with the following message:"
-                print self.processErrorText
+            logging.error("The process failed with the following message:" + self.processErrorText)
 
             return True
            
         # Check if the process has finished
         if not (Tags.preSucc in self.xmlResponse):
             self.status = self.RUNNING
-            print "The process hasn't finished yet."
+            logging.debug("The process hasn't finished yet.")
             if ("percentCompleted" in self.xmlResponse):
                 self.percentCompleted = self.xmlResponse.split("percentCompleted=\"")[1].split("\"")[0]
-                print str(self.percentCompleted) + " % of the execution complete."
-            return True
+                logging.info(str(self.percentCompleted) + " % of the execution complete.")
+            return False
         
-        if DEBUG:
-            print "The process has finished successfully."
-            print "Processing the results..."
+        logging.debug("The process has finished successfully.\nProcessing the results...")
         
         # Process the results
         outVector = self.xmlResponse.split(Tags.preOut)
@@ -385,13 +430,14 @@ class WPSClient:
                                             c.path, 
                                             c.dataSet.getBBox(), 
                                             c.dataSet.getEPSG(), 
-                                            c.name)
+                                            c.name,
+                                            self.outputTitles[c.name])
                     type = str(c.dataSet.getGeometryType())
                     if type <> None:
                         layer.layerType = type
                     else:
                         layer.layerType = "Polygon"
-                    print "The layer type: " + str(c.dataSet.getGeometryType())
+                    logging.debug("The layer type: " + str(c.dataSet.getGeometryType()))
                     layer.addStyle(style)
                     self.map.addLayer(layer)
                   
@@ -400,17 +446,17 @@ class WPSClient:
                                             c.path, 
                                             c.dataSet.getBBox(), 
                                             c.dataSet.getEPSG(), 
-                                            c.name)
+                                            c.name,
+                                            self.outputTitles[c.name])
                     self.map.addLayer(layer)
                     
                 else:
-                    print "Warning: couldn't determine the type of Complex output " + c.name
-                  
+                    logging.warning("Warning: couldn't determine the type of Complex output " + c.name)
+
         
         self.map.writeToDisk()
         
-        if DEBUG:
-            print "Wrote map file to disk:\n" + self.map.filePath()
+        logging.info("Wrote map file to disk:\n" + self.map.filePath())
             
         return self.map.filePath()
         

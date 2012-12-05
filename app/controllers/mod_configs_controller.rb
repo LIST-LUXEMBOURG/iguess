@@ -20,7 +20,8 @@ class ModConfigsController < ApplicationController
   # GET /mod_configs/1.json
   def show
     @mod_config = ModConfig.find(params[:id])
-    @datasets = Dataset.all
+    @current_city = (City.find_by_name(cookies['city']) or City.first)
+    @datasets = Dataset.find_all_by_city_id(@current_city.id)
     @dataset_inputs = ConfigDataset.find_all_by_mod_config_id(params[:id])
     @text_inputs = ConfigTextInput.find_all_by_mod_config_id(@mod_config)
 
@@ -80,27 +81,22 @@ class ModConfigsController < ApplicationController
     @mod_config = ModConfig.find(params[:id])
     # @city = 
 
-    wpsClientPath ='/home/iguess/iguess/iguess_production';
+    wpsClientPath ='/home/iguess/iguess_production';
 
     require 'uri'
 
-    RubyPython.start
-    sys = RubyPython.import 'sys'
-
-    # Make sure the path of WPSClient is on python's module path, but ensure it's only there once
-    # Since we can't close the RubyPython instance without crashing Ruby, there is a danger we will
-    # add the WPSClient path more than once.
-    if not sys.path.include?(wpsClientPath)
-      sys.path.append(wpsClientPath)
-    end
-
-    inputFields = []
-    inputValues = []
+    inputFields  = []
+    inputValues  = []
     outputFields = []
+    outputTitles = []
 
     # Drop downs -- always inputs
-    @mod_config.datasets.map { |x| dataname = x.server_url + (x.server_url.include?("?") == -1 ? "?" : "&") +   
-                                      URI.escape('SERVICE=WFS&VERSION=1.0.0&REQUEST=getFeature&TYPENAME=' + x.identifier)
+    @mod_config.datasets.map { |x| dataname = x.full_url       # {P{P Until WCS working
+                                   if dataname.empty? then
+                                      dataname = x.server_url + (x.server_url.include?("?") == -1 ? "?" : "&") +   
+                                        URI.escape('SERVICE=WFS&VERSION=1.0.0&REQUEST=getFeature&TYPENAME=' + x.identifier)
+                                   end
+
                                    inputFields.push(x.dataset_type)
                                    inputValues.push(dataname) 
                             }
@@ -112,23 +108,30 @@ class ModConfigsController < ApplicationController
                                                 inputValues.push(x.value)
                                               else
                                                 outputFields.push(x.column_name)
+                                                outputTitles.push(x.value)
                                               end
                                       }
 
+    argUrl       = '--url="'        + @mod_config.wps_server.url + '"'
+    argProc      = '--procname="'   + @mod_config.identifier + '"'
 
-    inputFieldsStr = inputFields.map   { |i| "'" + i.to_s + "'" }.join(",")
-    inputValuesStr = inputValues.map   { |i| "'" + i.to_s + "'" }.join(",")
-    outputFieldsStr = outputFields.map { |i| "'" + i.to_s + "'" }.join(",")
+    argName      = '--names="[' + inputFields.map  { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
+    argVals      = '--vals="['  + inputValues.map  { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
 
-    argUrl =  '--url="' + @mod_config.wps_server.url + '"'
-    argProc = '--procname="' + @mod_config.identifier + '"'
-    argName = '--names="['  + inputFields.map    { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
-    argVals = '--vals="['   + inputValues.map    { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
-    argOuts = '--outnames="[' + outputFields.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
+    argOuts      = '--outnames="['  + outputFields.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
+    argOutTitles = '--titles="['    + outputTitles.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
 
-    
+    cmd = 'cd '+ wpsClientPath +'; /usr/bin/python wpsstart.py ' + argUrl + ' ' +
+                                   argProc + ' ' + argName + ' ' + argVals + ' ' + argOuts + ' ' + argOutTitles
+
+   
     require 'open3'
-    output, stat = Open3.capture2('python', 'wpsstart.py', argUrl, argProc, argName, argVals, argOuts)
+    output, stat = Open3.capture2e(cmd)
+
+#logger.debug("running pyscript...")
+#logger.debug(cmd)
+#logger.debug(output)
+#logger.flush
 
     # Currently, WPSClient spews out lots of garbage.  We only want the last line.
     output =~ /^OK:(.*)$/

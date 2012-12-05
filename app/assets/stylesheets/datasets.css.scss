@@ -3,6 +3,15 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 
+
+#add-layer-instructions {
+  text-align: center;
+  padding-left: 6px;
+  padding-right: 6px;
+  margin-bottom: 0px;
+}
+
+
 #layer-table {      // ul
   margin: 0px;
   padding: 0px;
@@ -21,7 +30,6 @@
 
 // Combines with the below, describes container just inside outer border
 .dataset {
-  height: 100%;
   padding: 15px;
   border: 1px solid rgba(0,0,0,0.2);
   min-height: 280px;
@@ -189,7 +197,7 @@
 
 /* Server name and description, shown above the data tiles */
 .server-name {
-  font-size: 25px;
+  font-size: 15px;
   font-weight: bold;
 }
 
@@ -209,4 +217,15 @@
   padding: 5px;
   background-color: #f8f8f8;
   display: none;
+}
+
+
+/* These for the maps */
+.x-panel-body ul {
+  list-style: none;
+}
+
+
+.x-tree-node {
+  margin-left: 0;
 }
