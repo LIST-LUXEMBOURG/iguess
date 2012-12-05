@@ -13,10 +13,10 @@
    * All layers will always use the base layer projection for the request.
    * Since we are using Google and OSM anything other than EPSG:900913 will be ignored.
    */
-  WebGIS.mapProjection = "EPSG:900913";
-  //WebGIS.mapProjection = "EPSG:3857";
-  WebGIS.requestProjection = "EPSG:900913";
-  //WebGIS.requestProjection = "EPSG:3857";
+  //WebGIS.mapProjection = "EPSG:900913";
+  WebGIS.mapProjection = "EPSG:3857";
+  //WebGIS.requestProjection = "EPSG:900913";
+  WebGIS.requestProjection = "EPSG:3857";
   WebGIS.displayProjection = "EPSG:4326";
 
   /**
@@ -29,13 +29,14 @@
 
   WebGIS.initMap = function () {
 
-
+	var mapProjection = new OpenLayers.Projection(WebGIS.mapProjection);
+	
     var boundsInit = new OpenLayers.Bounds(995196.25, 6240993.46, 1057535.16, 6274861.39);    
     // Nothing will be displayed outside these bounds (Poland - Ireland)
     var boundsMap  = new OpenLayers.Bounds(-1015000, 5845000, 1100000, 8000000);  
     
     WebGIS.map = new OpenLayers.Map("BroadMap",{
-      projection: new OpenLayers.Projection(WebGIS.mapProjection),
+      projection: mapProjection,
       displayProjection: new OpenLayers.Projection(WebGIS.displayProjection),
       units: "m",
       maxExtent: boundsMap,
@@ -53,8 +54,7 @@
     
     WebGIS.addIdentifyControl(WebGIS.map);
 
-    // Add OpenStreetMap layers
-    WebGIS.map.addLayer(new OpenLayers.Layer.OSM());
+    var osm = new OpenLayers.Layer.OSM();
 
     var gphy = new OpenLayers.Layer.Google(
             "Google Physical",
@@ -72,8 +72,14 @@
             "Google Satellite",
             {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22}
     );
+    
+    osm.projection  = mapProjection;
+    gphy.projection = mapProjection;
+    gmap.projection = mapProjection;
+    ghyb.projection = mapProjection;
+    gsat.projection = mapProjection;
 
-    WebGIS.map.addLayers([ghyb, gphy, gmap, gsat]);
+    WebGIS.map.addLayers([osm, ghyb, gphy, gmap, gsat]);
 
     /* This is layer is just for testing */
     var iBusLines = new OpenLayers.Layer.WMS(
@@ -106,9 +112,11 @@
             {layers: layerName,
               format: "image/png",
               srsName: WebGIS.requestProjection,
+              srs: WebGIS.requestProjection,
               transparent: "true"},
             {isBaseLayer: false,
-              visibility: true}
+              visibility: true,
+              singleTile: true}
     );
 
     WebGIS.map.addLayer(layer);
