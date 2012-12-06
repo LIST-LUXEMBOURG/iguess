@@ -33,12 +33,6 @@
   }
 
 
-
-  hideUnregisterAndFriends = function() {
-    $('.invisible-cell').hide();
-  }
-
-
   // Generate html for Registered Datasets table row
   // Note: status-xxx below are classes that are common to all datasets on a server
   //       status2-xxx are classes that are common only to server-identifier pairs (i.e. duplicate datasets)
@@ -61,18 +55,6 @@
     '</tr>';
   }
 
-
-  var showDetails = function() {
-    $('.technical-details').show(); 
-    $('.show-details').click(function(){ hideDetails(); });
-    $('.show-details').html('<<< Hide details');
-  }
-
-  var hideDetails = function() {
-    $('.technical-details').hide();
-    $('.show-details').click(function(){ showDetails(); });
-    $('.show-details').html('Show details >>>');
-  }
 
 
   // Create the popup info table for this dataset

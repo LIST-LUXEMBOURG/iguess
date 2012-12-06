@@ -32,9 +32,7 @@
                .join(' ') %>
 
 
-  hideUnregisterAndFriends = function() {
-    $('.invisible-cell').hide();
-  }
+
 
 
   // Generate html for Registered Datasets table row
@@ -57,19 +55,6 @@
         'data-remote="true" rel="nofollow">Unregister</a></td> ' + 
       // '<td>SHOW MODULE LIST HERE??</td>' +
     '</tr>';
-  }
-
-
-  var showDetails = function() {
-    $('.technical-details').show(); 
-    $('.show-details').click(function(){ hideDetails(); });
-    $('.show-details').html('<<< Hide details');
-  }
-
-  var hideDetails = function() {
-    $('.technical-details').hide();
-    $('.show-details').click(function(){ showDetails(); });
-    $('.show-details').html('Show details >>>');
   }
 
 
