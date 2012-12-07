@@ -1,4 +1,13 @@
 
+<script type="text/javascript">
+ $(document).ready(function() {
+    onLocationChanged('<%= @current_city.name %>');   // Build the initial dataset list
+    // $('#sortable_table').tablesorter();               // Initialize sorter
+  });
+</script>
+
+
+
 <!-- TODO: Make this a partial -->
 <script type="text/javascript">
   // Make the railsIdLookup, which looks up a unique id for each  URL / identifier pair.
@@ -17,14 +26,6 @@
 
 
 <script type="text/javascript">
-
-
-  $(document).ready(function() {
-    onLocationChanged('<%= @current_city.name %>');   // Build the initial dataset list
-    // $('#sortable_table').tablesorter();               // Initialize sorter
-  });
-
-
 
   var onLocationChanged = function(cityName) {
     MapUtils.retrieveDatasetsForCity(cityName, function(data) { 

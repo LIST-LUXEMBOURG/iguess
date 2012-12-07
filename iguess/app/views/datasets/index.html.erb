@@ -1,5 +1,12 @@
 <script type="text/javascript">
+ $(document).ready(function() {
+    onLocationChanged('<%= @current_city.name %>');   // Build the initial dataset list
+    // $('#sortable_table').tablesorter();               // Initialize sorter
+  });
+</script>
 
+
+<script type="text/javascript">
   // Let the server know this layer is now registered -- to do this we must create a new record in
   // our datasets table.
 
@@ -15,11 +22,6 @@
       }
     });
   }
-
-  $(document).ready(function() {
-    onLocationChanged('<%= @current_city.name %>');   // Build the initial dataset list
-    // $('#sortable_table').tablesorter();               // Initialize sorter
-  });
 
 
   // Make the railsIdLookup, which looks up a unique id for each  URL / identifier pair.
