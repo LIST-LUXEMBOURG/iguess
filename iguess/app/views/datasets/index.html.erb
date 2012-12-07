@@ -88,38 +88,7 @@
            '</div>';
   }
  
-  // We've got a new batch of datasets to display!
-  // Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
-  var renderTable = function(datasets) {
-
-    $('#dataset-list').empty();    // Clear table
-
-    for(var i = 0; i < datasets.length; i++) {
-      var dataset = datasets[i];
-
-      var railsId = railsIdLookup[makeKey(dataset.server_url, dataset.identifier)];
-      $('#dataset-list').append(renderTableRow(dataset, railsId));
-
-      $('#infotables').append(renderInfoTable(dataset, railsId));
-
-      processUrl(dataset.server_url);
-    }
-
-    $('img[rel]').overlay();    // Set up the layer info overlays
-    $('img[rel]').click(function(){ hideDetails() });   // Close details panel on open
-
-    $('.show-details').click(function(){ showDetails(); });
-
-
-          // Make sure table is sorted
-      // var sorting = [[1,0], [0,0]]; 
-      // // sort on the first column 
-
-      // $('#sortable_table').trigger("update"); 
-      // $('#sortable_table').trigger("sorton",[sorting]); 
-  }
-
-
+ 
   $(document).bind('ajax:success', function(xhr, data, status) { 
     $('#dataset-id-' + data).hide();
   });
