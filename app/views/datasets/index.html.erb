@@ -7,19 +7,7 @@
 </script>
 
 
-
-<!-- TODO: Make this a partial -->
-<script type="text/javascript">
-  // Make the railsIdLookup, which looks up a unique id for each  URL / identifier pair.
-  // Allows us to have shorter class names and avoid illegal characters in a class which might exist in a URL.
-  railsIdLookup = { };
-
-  <%= @datasets.reject{ |d| d.finalized == false }
-               .uniq{ |x| x.server_url + x.identifier }
-               .map{ |d| "railsIdLookup[makeKey('" + d.server_url + "','" + d.identifier + "')] = '" + d.id.to_s + "';\n" }
-               .join(' ') %>
-</script>
-
+<%= render :partial => '/shared/make_railsid_lookup.html.erb' %>
 
 <%# Include some map related utility functions; these need to be processed by Rails so they have to be in a partial %>
 <%= render :partial => '/shared/map_utils.html.erb' %>

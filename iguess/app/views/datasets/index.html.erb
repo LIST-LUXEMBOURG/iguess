@@ -5,6 +5,7 @@
   });
 </script>
 
+<%= render :partial => '/shared/make_railsid_lookup.html.erb' %>
 
 <script type="text/javascript">
   // Let the server know this layer is now registered -- to do this we must create a new record in
@@ -22,19 +23,6 @@
       }
     });
   }
-
-
-  // Make the railsIdLookup, which looks up a unique id for each  URL / identifier pair.
-  // Allows us to have shorter class names and avoid illegal characters in a class which might exist in a URL.
-  railsIdLookup = { };
-
-  <%= @datasets.reject{ |d| d.finalized == false }
-               .uniq{ |x| x.server_url + x.identifier }
-               .map{ |d| "railsIdLookup[makeKey('" + d.server_url + "','" + d.identifier + "')] = '" + d.id.to_s + "';\n" }
-               .join(' ') %>
-
-
-
 
 
   // Generate html for Registered Datasets table row
