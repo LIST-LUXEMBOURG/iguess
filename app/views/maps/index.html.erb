@@ -212,33 +212,6 @@
     setLayerStatus(url);
   }
 
-
-  function updateLayerInfo(serverUrl, dataset, available, name, descr, services) {
-
-    var railsId = railsIdLookup[makeKey(serverUrl, dataset)];
-
-    var serviceStr;
-
-    if(services.length == 0)
-      serviceStr = 'None';
-    else
-      serviceStr = services.join(', ');
-
-
-    WebGIS.addNewLayer(name, serverUrl, dataset, false);
-
-
-    $('.dataset-name2-' + railsId).html(name);    // Appears in the name column, also on infotable popup
-    $('.dataset-descr-' + railsId).html(descr);
-    $('#services-'      + railsId).html(services);
-
-    if(available) {
-      $('.status2-' + railsId).html(
-        '<img class="status-indicator" src="/assets/layer_available_yes.png" alt="Layer available">');
-    } else {
-      $('.status2-' + railsId).html('<img class="status-indicator" src="/assets/layer_available_no.png" alt="Layer not available">');
-    }
-  }
 </script>
 
 
