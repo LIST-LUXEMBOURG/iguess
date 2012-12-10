@@ -150,45 +150,6 @@
     WCS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
   }
 
-
-
-
-  function updateLayerInfo(serverUrl, dataset, available, name, descr, services) {
-    var railsId = railsIdLookup[makeKey(serverUrl, dataset)];
-
-    $('.dataset-name2-' + railsId).html(name);    // Appears in the name column, also on infotable popup
-    $('.dataset-descr-' + railsId).html(descr);
-    $('#results-'       + railsId).html('');      // Clear
-
-    var url = '';
-    // Parse services... provide links for whatever services
-    for (var i = 0; i < services.length; i++) {
-      if(services[i] == 'WMS') {
-        url = WMS.getCapUrl(serverUrl);
-      }
-      else if(services[i] == 'WFS') {
-        url = WFS.getCapUrl(serverUrl);
-      }
-      else if(services[i] == 'WCS') {
-        url = WCS.getCapUrl(serverUrl);
-      }
-      $('#results-' + railsId).append('<a href="' + url + '" target="_blank">' + services[i] + '</a>&nbsp;');
-    }
-
-    if(url != '') {
-      $('#results-' + railsId).append('&nbsp;(Right-click, Copy Link Location)');
-    }
-
-
-    if(available) {
-      $('.status2-' + railsId).html(
-        '<img class="status-indicator" src="/assets/layer_available_yes.png" alt="Layer available">');
-    } else {
-      $('.status2-' + railsId).html('<img class="status-indicator" src="/assets/layer_available_no.png" alt="Layer not available">');
-    }
-  }
-
-
 </script>
 
 
