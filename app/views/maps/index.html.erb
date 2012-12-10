@@ -187,31 +187,6 @@
   }
 
 
-  // We pepper each server with WMS, WFS, and WCS requests.  One of these has failed, 
-  // which might be bad, or it might be perfectly fine.  It might mean that the server 
-  // is down, or that it has not been configured to respond to a particular service.
-
-  // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-exception
-  function onGetCapabilitiesFailed(dataProxy, type, action, options, response, arg)
-  {
-    // status.responseText has response from data server?
-
-    var format  = options.reader.meta.format.name;
-    var url     = unwrapServer(dataProxy.url, format);
-    var service = getService(format);
-
-
-    serverResponses[url].push( new ServerResponse(false, 0, null, service, 
-                                                  response.status, response.responseText) );
-
-    // alert("Error retrieving data -- see console for details!");
-    console.log("Failure!",arguments);
-
-    // server xxx does not support service yyy ???
-
-    setLayerStatus(url);
-  }
-
 </script>
 
 
