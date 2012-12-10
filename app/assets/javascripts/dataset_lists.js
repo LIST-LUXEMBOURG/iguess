@@ -275,8 +275,8 @@
 
       if(!found) {
         updateLayerInfo(serverUrl, datasets[i], false, datasets[i], 
-          'This dataset could no longer be located on the data server',     // Descr
-          [ ]);                                                          // Services
+          'This dataset could no longer be located on the data server',    // Descr
+          [ ]);                                                            // Services
       }
     }
   }
