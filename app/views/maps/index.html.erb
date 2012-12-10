@@ -214,38 +214,39 @@
   var processedUrls   = [ ];
 
 
-  var processUrl = function(url)
-  {
-    // This function will be called for every dataset registered with the current city.  Many will have the same
-    // server.  Avoid processing the same server twice.
-    // Called from renderTable(), which is called from onCityChange() event handler
-    if(processedUrls.hasObject(url)) {  /*setLayerStatus(url);*/ return;  }
+      var processUrl = function(url)
+      {
+        // This function will be called for every dataset registered with the current city.  Many will have the same
+        // server.  Avoid processing the same server twice.
+        // Called from renderTable(), which is called from onCityChange() event handler
+        if(processedUrls.hasObject(url)) {  /*setLayerStatus(url);*/ return;  }
 
-    processedUrls.push(url);
+        processedUrls.push(url);
 
-    serverResponses[url] = [ ];    
+        serverResponses[url] = [ ];    
 
-    // Create an association between a server and all registered datasets it hosts
-    <% @server_urls.each do |url| %>    <%# These could be wms, wfs, or wcs addresses %>
-      serverDatasets['<%= url.gsub(/\\/, '\\\\\\') %>'] = [<%= @datasets.reject {|d| d.server_url != url}
-                                                                      .map{|d| "'" + d.identifier + "'"}
-                                                                      .join(', ') %>];
-    <% end %>
+        // Create an association between a server and all registered datasets it hosts
+        <% @server_urls.each do |url| %>    <%# These could be wms, wfs, or wcs addresses %>
+          serverDatasets['<%= url.gsub(/\\/, '\\\\\\') %>'] = [<%= @datasets.reject {|d| d.server_url != url}
+                                                                          .map{|d| "'" + d.identifier + "'"}
+                                                                          .join(', ') %>];
+        <% end %>
 
-    WMS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
-    WFS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
-    WCS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
-  }
+        WMS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+        WFS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+        WCS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+      }
+
 
 
   // Class that describes response from server, either success or failure
   var ServerResponse = function(success, records, dataProxy, service, responseCode, responseText) {
-    this.success = success;
+    this.success     = success;
     this.recordCount = records;
-    this.layerStore = dataProxy;
-    this.service = service;
-    this.errCode = responseCode || null;
-    this.errText = responseText || null;
+    this.layerStore  = dataProxy;
+    this.service     = service;
+    this.errCode     = responseCode || null;
+    this.errText     = responseText || null;
 
 
     if(dataProxy) {
