@@ -18,6 +18,10 @@
   }
 
 
+  var layerRecords    = { };
+  var layerStores     = { };
+  var serverResponses = { };
+
 
   // We've got a new batch of datasets to display!
   // Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
@@ -238,4 +242,37 @@
     WMS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
     WFS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
     WCS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+  }
+
+
+
+  // Create a popup info display for this dataset 
+  var renderInfoTable = function(dataset, railsId) 
+  {
+    var serverUrlId = serverUrlIdLookup[dataset.server_url];
+
+    return '<div class="infotable" id="infotable-' + railsId + '">' +
+              '<div class="close"></div>' +
+              '<h1><span class="dataset-name2-' + railsId + '"></h1>' +
+              '<div class="dataset-descr-' + railsId + '"></div>' +
+              '<div style="overflow:hidden"><dl>' +
+                '<dt>Server Name:</dt><dd class="server-name-' + serverUrlId + '"></dd>' +
+                 '<dt>Data Services:</dt><dd id="results-' + railsId + '">Waiting for response from server...</dd>' + 
+                 
+              '</dl></div>' +
+              '<div style="overflow:hidden" class="technical-details">' +
+                '<div class="section-header">Technical Details</div><dl>' +
+                '<dt>Server Base URL:</dt><dd>' + dataset.server_url + '</dd>' +
+                '<dt>Dataset Identifier:</dt><dd>' + dataset.identifier + '</dd>' +
+                '<dt>All Get Capabilities Links:</dt><dd>' +
+                    '<a href="' + WFS.getCapUrl(dataset.server_url) + '" target="_blank">WFS</a> ' +
+                    '<a href="' + WMS.getCapUrl(dataset.server_url) + '" target="_blank">WMS</a> ' +
+                    '<a href="' + WCS.getCapUrl(dataset.server_url) + '" target="_blank">WCS</a>' +
+                '</dd>' +
+                '<dt>Projections Available:</dt><dd>' + '' + '</dd>' + 
+                '<dt>Bounding Box:</dt><dd>' + '' + '</dd>' + 
+                '<dt>Attribute Columns:</dt><dd>' + '' + '</dd>' + 
+              '</dl></div>' +
+              '<div><a href="#" class="show-details"></a></div>' +
+           '</div>';
   }
