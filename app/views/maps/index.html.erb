@@ -172,24 +172,5 @@
 </script>
 
 
-<script type="text/javascript">
-  // Server has responded to our query and seems happy (from updateLayerList)
-  // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-load
-  function onGetCapabilitiesSucceeded(dataProxy, records, options) // Need to validate each item in dataProxy
-  {
-    var format  = dataProxy.format.name;
-    var url     = unwrapServer(dataProxy.url, format);
-    var service = getService(format);
-
-    serverResponses[url].push( new ServerResponse(true, records.length, dataProxy, service));
-                                                  
-    setLayerStatus(url);
-  }
-
-
-</script>
-
-
-
 <div style="float: left; width:100%; min-height:100%; margin:2px;" id="BroadMap"><!-- Map goes here --></div>
 
