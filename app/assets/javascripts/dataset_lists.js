@@ -219,3 +219,23 @@
       }
     }
   }
+
+
+
+  var processedUrls   = [ ];
+
+  var processUrl = function(url)
+  {
+    // This function will be called for every dataset registered with the current city.  Many will have the same
+    // server.  Avoid processing the same server twice.
+    // Called from renderTable(), which is called from onCityChange() event handler
+    if(processedUrls.hasObject(url)) {  /*setLayerStatus(url);*/ return;  }
+
+    processedUrls.push(url);
+
+    serverResponses[url] = [ ];    
+
+    WMS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+    WFS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+    WCS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+  }

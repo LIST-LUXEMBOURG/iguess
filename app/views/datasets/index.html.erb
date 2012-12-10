@@ -120,35 +120,7 @@
 <script type="text/javascript">
   var layerRecords    = { };
   var layerStores     = { };
-  var serverDatasets  = { };
   var serverResponses = { };
-
-  var processedUrls   = [ ];
-
-
-  var processUrl = function(url)
-  {
-    // This function will be called for every dataset registered with the current city.  Many will have the same
-    // server.  Avoid processing the same server twice.
-    // Called from renderTable(), which is called from onCityChange() event handler
-    if(processedUrls.hasObject(url)) {  /*setLayerStatus(url);*/ return;  }
-
-    processedUrls.push(url);
-
-    serverResponses[url] = [ ];    
-
-    // Create an association between a server and all registered datasets it hosts
-    <% @server_urls.each do |url| %>    <%# These could be wms, wfs, or wcs addresses %>
-      serverDatasets['<%= url.gsub(/\\/, '\\\\\\') %>'] = [<%= @datasets.reject {|d| d.server_url != url}
-                                                                      .map{|d| "'" + d.identifier + "'"}
-                                                                      .join(', ') %>];
-    <% end %>
-
-    WMS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
-    WFS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
-    WCS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
-  }
-
 </script>
 
 
