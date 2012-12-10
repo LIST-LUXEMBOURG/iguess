@@ -55,32 +55,6 @@
   } 
 
 
-    // Class that describes response from server, either success or failure
-  var ServerResponse = function(success, records, dataProxy, service, responseCode, responseText) {
-
-    this.success     = success;
-    this.recordCount = records;
-    this.layerStore  = dataProxy;
-    this.service     = service;
-    this.errCode     = responseCode || null;
-    this.errText     = responseText || null;
-
-
-    if(dataProxy) {
-      console.log("ServerResponse:", dataProxy.reader);
-
-      var serverInfo = dataProxy.reader.raw.service;
-
-      this.serverName  = serverInfo.title    || serverInfo.name || "Data Server";
-      this.serverDescr = serverInfo.abstract || "";
-    }
-    else {
-      this.serverName  == this.serverName  || "Data Server";
-      this.serverDescr == this.serverDescr || "";
-    }
-  }
-
-
   // Server has responded to our query and seems happy (from updateLayerList)
   // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-load
   var onGetCapabilitiesSucceeded = function(dataProxy, records, options) // Need to validate each item in dataProxy
@@ -275,4 +249,32 @@
               '</dl></div>' +
               '<div><a href="#" class="show-details"></a></div>' +
            '</div>';
+  }
+
+
+
+// Class that describes response from server, either success or failure
+  var ServerResponse = function(success, records, dataProxy, service, responseCode, responseText) 
+  {
+
+    this.success     = success;
+    this.recordCount = records;
+    this.layerStore  = dataProxy;
+    this.service     = service;
+    this.errCode     = responseCode || null;
+    this.errText     = responseText || null;
+
+
+    if(dataProxy) {
+      console.log("ServerResponse:", dataProxy.reader);
+
+      var serverInfo = dataProxy.reader.raw.service;
+
+      this.serverName  = serverInfo.title    || serverInfo.name || "Data Server";
+      this.serverDescr = serverInfo.abstract || "";
+    }
+    else {
+      this.serverName  == this.serverName  || "Data Server";
+      this.serverDescr == this.serverDescr || "";
+    }
   }
