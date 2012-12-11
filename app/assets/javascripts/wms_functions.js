@@ -23,7 +23,7 @@ function keepRaw(data) {
             return data;
         };
     }
-    // Here, this is the WFSGetCapabilitiesReader
+    // Here, this is the WXSGetCapabilitiesReader
     this.raw = data;
 }
 
