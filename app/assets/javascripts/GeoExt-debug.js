@@ -2574,7 +2574,7 @@ GeoExt.data.WCSCapabilitiesReader = function(meta, recordType) {
             recordType || meta.fields || [
                 {name: "identifier", type: "string"},
                 {name: "title", type: "string"},
-                {name: "namespace", type: "string", mapping: "featureNS"},
+                // {name: "namespace", type: "string", mapping: "featureNS"},
                 {name: "abstract", type: "string"}
             ]
         );
