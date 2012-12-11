@@ -5,14 +5,6 @@
 
   discoveredLayers = { };
 
-  var getWfsLayers = function(registeredDataServers)
-  {
-    var serverCount = registeredDataServers.length;
-
-    for(var i = 0; i < serverCount; i++) {
-      WFS.updateLayerList(registeredDataServers[i], onWfsGetCapabilitiesSucceeded, onWfsGetCapabilitiesFailed);
-    }
-  }
 
   var getWmsLayers = function(registeredDataServers)
   {
@@ -22,6 +14,27 @@
       WFS.updateLayerList(registeredDataServers[i], onWmsGetCapabilitiesSucceeded, onWmsGetCapabilitiesFailed);
     }
   }
+
+
+  var getWfsLayers = function(registeredDataServers)
+  {
+    var serverCount = registeredDataServers.length;
+
+    for(var i = 0; i < serverCount; i++) {
+      WFS.updateLayerList(registeredDataServers[i], onWfsGetCapabilitiesSucceeded, onWfsGetCapabilitiesFailed);
+    }
+  }
+
+
+  var getWcsLayers = function(registeredDataServers)
+  {
+    var serverCount = registeredDataServers.length;
+
+    for(var i = 0; i < serverCount; i++) {
+      WCS.updateLayerList(registeredDataServers[i], onWcsGetCapabilitiesSucceeded, onWcsGetCapabilitiesFailed);
+    }
+  }
+
 
   // Callback for WMS get capabilities success
   var onWmsGetCapabilitiesSucceeded = function(dataProxy, records)
@@ -35,6 +48,14 @@
   {
     processIncomingLayers(dataProxy, records.length, 'WFS');
   }
+
+
+ // Callback for WCS get capabilities success
+  var onWcsGetCapabilitiesSucceeded = function(dataProxy, records)
+  {
+    processIncomingLayers(dataProxy, records.length, 'WCS');
+  }
+
 
 
   // Basic dataset object -- this is what we track for datasets seen on remote server
