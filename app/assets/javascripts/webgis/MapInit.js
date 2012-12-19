@@ -53,7 +53,7 @@ WebGIS.initMap = function () {
     });
     WebGIS.map.addControl(mp);
     
-    WebGIS.addIdentifyControl(WebGIS.map);
+    WebGIS.registerIdentify(WebGIS.map, this);
 
     var osm = new OpenLayers.Layer.OSM();
 
@@ -74,6 +74,8 @@ WebGIS.initMap = function () {
             {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22}
     );
     
+
+    
     osm.projection  = mapProjection;
     gphy.projection = mapProjection;
     gmap.projection = mapProjection;
@@ -83,6 +85,9 @@ WebGIS.initMap = function () {
     WebGIS.map.addLayers([osm, ghyb, gphy, gmap, gsat]);
 
     WebGIS.map.setCenter(boundsInit.getCenterLonLat(), 13);
+    
+    //WebGIS.addNewLayer("RO DSM", "http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map", "ro_dsm");
+    
   }
 
 WebGIS.zoomToCity = function () {

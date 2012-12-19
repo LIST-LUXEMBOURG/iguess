@@ -9,11 +9,15 @@
 
 var WebGIS = WebGIS || { };
 
+WebGIS.layerTree;
+
 Ext.onReady(function() {
 
   Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
 
   WebGIS.initMap();
+  
+  WebGIS.initWinIdentify();
 
   var zoomSlider = new GeoExt.ZoomSlider({
     xtype: "gx_zoomslider",
@@ -27,21 +31,13 @@ Ext.onReady(function() {
     })
   });
 
-  // var dataPanel = new Ext.Panel({
-  //   title: 'Datasets',
-  //   region:'west',
-  //   collapsible: true,
-  //   width: 182,
-  //   contentEl: 'data'
-  // });
-
   var mapPanel = new GeoExt.MapPanel({
     region: "center",
     collapsible: false,
     floatable: false,
     xtype: "gx_mappanel",
     map: WebGIS.map,
-    // tbar: WebGIS.createTbarItems(WebGIS.map),
+    tbar: WebGIS.createTbarItems(WebGIS.map),
     items: [zoomSlider]
   });
 
@@ -60,7 +56,7 @@ Ext.onReady(function() {
   }];
 
   // Layer list
-  var layerTree = new Ext.tree.TreePanel({
+  WebGIS.layerTree = new Ext.tree.TreePanel({
     region: "west",
     title: 'Map Layers',
     width: 273,
@@ -77,10 +73,15 @@ Ext.onReady(function() {
       }
     },
     root: {
-
       children: treeConfig
     },
-    rootVisible: false
+    rootVisible: false,
+    lines: false,
+	listeners: {
+        click: {
+            fn:WebGIS.treeClickListener
+        }
+    }
   });
 
   var mainPanel = new Ext.Panel({
@@ -95,7 +96,7 @@ Ext.onReady(function() {
       autoHide: false,
       useSplitTips: true,
     },
-    items: [mapPanel, layerTree/*, dataPanel*/]
+    items: [mapPanel, WebGIS.layerTree]
   });
 
   WebGIS.zoomToCity();
@@ -151,7 +152,7 @@ WebGIS.createTbarItems = function(map) {
     pressed: false,
     toggleGroup: "tools",
     allowDepress: false,
-    tooltip: "Identify - still in development",
+    tooltip: "Identify",
     //disabled: true
     control: WebGIS.ctrlIdentify,
     handler: WebGIS.toggleIdentify
