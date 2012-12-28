@@ -250,7 +250,7 @@ WCS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
 
 // Helper for WFS, WMS, and WCS.updateLayerList 
 COMMON.updateLayerList = function(store, successFunction, failureFunction) {
-    // Add some callbacks to handle various situations
+  // Add some callbacks to handle various situations
   store.on('load',      successFunction);
   store.on('exception', failureFunction);
   store.load();
