@@ -272,9 +272,16 @@ var getJoinChar = function(url) {
 	return(url.indexOf("?") == -1 ? "?" : "&");
 };
 
-// WMS functions
 
-WMS.getCapStr = 'SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities';
+// Version info
+WMS.version = '1.3.0';
+WFS.version = '1.0.0';    // Geoext has some problems with 1.1.0; use 1.0.0 for now
+WCS.version = '1.1.0';
+WPS.version = '1.0.0';
+
+
+// WMS functions
+WMS.getCapStr = 'SERVICE=WMS&VERSION=' + WMS.version + '&REQUEST=GetCapabilities';
 
 WMS.getCapUrl = function(serverUrl) {
   var joinchar = getJoinChar(serverUrl);
@@ -289,8 +296,9 @@ WMS.stripGetCapReq = function(serverUrl) {
   return serverUrl.replace(WMS.getCapStr, '').slice(0, -1);   // slice strips last char
 };
 
+
 // http://www.mail-archive.com/users@geoext.org/msg01843.html
-WFS.getCapStr = 'SERVICE=WFS&VERSION=1.0.0&REQUEST=GetCapabilities';    // Geoext has some problems with 1.1.0
+WFS.getCapStr = 'SERVICE=WFS&VERSION=' + WCS.version + '&REQUEST=GetCapabilities';    
 
 WFS.getCapUrl = function(serverUrl) {
   var joinchar = getJoinChar(serverUrl);
@@ -308,7 +316,7 @@ WFS.stripGetCapReq = function(serverUrl) {
 
 
 // http://www.mail-archive.com/users@geoext.org/msg01843.html
-WCS.getCapStr = 'SERVICE=WCS&VERSION=1.1.0&REQUEST=GetCapabilities';   
+WCS.getCapStr = 'SERVICE=WCS&VERSION=' + WCS.version + '&REQUEST=GetCapabilities';   
 
 WCS.getCapUrl = function(serverUrl) {
   var joinchar = getJoinChar(serverUrl);
@@ -325,9 +333,8 @@ WCS.stripGetCapReq = function(serverUrl) {
 };
 
 
-
 // Helper functions for creating and deconstructing urls
-WPS.getCapStr = 'SERVICE=WPS&VERSION=1.0.0&REQUEST=GetCapabilities';
+WPS.getCapStr = 'SERVICE=WPS&VERSION=' + WPS.version + '&REQUEST=GetCapabilities';
 
 WPS.getCapReq = function(serverUrl) {
 	// alert('WPS -- http://localhost:3000' + wrapGeoProxy(serverUrl + '?VERSION=1.0.0&REQUEST=GetCapabilities&SERVICE=WPS'));
@@ -341,7 +348,7 @@ WPS.stripGetCapReq = function(serverUrl) {
 
 
 WPS.getDescrProcString = function (layerIdentifier) {
-  return 'SERVICE=WPS&VERSION=1.0.0&REQUEST=DescribeProcess&IDENTIFIER=' + layerIdentifier;
+  return 'SERVICE=WPS&VERSION=' + WPS.version + '&REQUEST=DescribeProcess&IDENTIFIER=' + layerIdentifier;
 };
 
 WPS.getDescProcUrl = function(serverUrl, layerIdentifier) {
