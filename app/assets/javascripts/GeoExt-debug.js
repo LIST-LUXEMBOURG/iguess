@@ -2612,7 +2612,6 @@ Ext.extend(GeoExt.data.WCSCapabilitiesReader, Ext.data.DataReader, {
      *  Create a data block containing Ext.data.Records from an XML document.
      */
     readRecords: function(data) {
-        debugger;
         if(typeof data === "string" || data.nodeType) {
             data = this.meta.format.read(data);
         }
