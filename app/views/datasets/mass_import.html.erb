@@ -518,7 +518,7 @@
     }
 
     this.onWcsGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) { 
-      alert("Error with wcs request");
+      alert("Error with WCS request");
       self.onGetCapabilitiesFailed();
       self.WcsSucceeded = false;
       doneProcessing(self.serverUrl, 'WCS', null, 'ERROR');
