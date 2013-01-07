@@ -86,8 +86,21 @@ WebGIS.initMap = function () {
 
     WebGIS.map.setCenter(boundsInit.getCenterLonLat(), 13);
     
-    //WebGIS.addNewLayer("RO DSM", "http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map", "ro_dsm");
+    var buildsIGUESS =  new OpenLayers.Layer.WMS(
+    	"Builds iGUESS",
+    	"http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
+        {layers: "RO_building_footprints", 
+         format: "image/png",
+         srsName: WebGIS.requestProjection,
+	 	 transparent: "true",
+     	 projection: new OpenLayers.Projection(WebGIS.requestProjection)},
+        {isBaseLayer: false,  
+     	 visibility: false}
+    );
     
+    WebGIS.map.addLayer(buildsIGUESS);
+    
+    //WebGIS.addNewLayer("Builds iGUESS", "http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map", "RO_building_footprints");
   }
 
 WebGIS.zoomToCity = function () {
@@ -116,7 +129,7 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName)
 //Remove all layers from the current map
 WebGIS.clearLayers = function(alsoClearBaseLayers)
 {
-  alsoClearBaseLayers = alsoClearBaseLayers || false;
+ /* alsoClearBaseLayers = alsoClearBaseLayers || false;
   var layers = WebGIS.map.layers;
   var layerCount = layers.length;
 
@@ -124,5 +137,5 @@ WebGIS.clearLayers = function(alsoClearBaseLayers)
     if(layers[i].isBaseLayer == alsoClearBaseLayers) {
       WebGIS.map.removeLayer(layers[i]);
     }
-  }
+  }*/
 }

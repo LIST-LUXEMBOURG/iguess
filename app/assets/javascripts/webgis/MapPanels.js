@@ -124,7 +124,6 @@ WebGIS.createTbarItems = function(map) {
     iconCls: "maxExtent",
     map: map,
     tooltip: "Zoom to max extent",
-    //control: new OpenLayers.Control.ZoomToMaxExtent()
     handler: WebGIS.zoomToCity
   }));
   actions.push(new GeoExt.Action({
