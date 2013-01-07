@@ -2574,7 +2574,7 @@ GeoExt.data.WCSCapabilitiesReader = function(meta, recordType) {
             recordType || meta.fields || [
                 {name: "identifier", type: "string"},
                 {name: "title", type: "string"},
-                {name: "namespace", type: "string", mapping: "featureNS"},
+                // {name: "namespace", type: "string", mapping: "featureNS"},
                 {name: "abstract", type: "string"}
             ]
         );
@@ -2616,10 +2616,10 @@ Ext.extend(GeoExt.data.WCSCapabilitiesReader, Ext.data.DataReader, {
             data = this.meta.format.read(data);
         }
 
-        var featureTypes = data.featureTypeList.featureTypes;
+        var contents = data.contents;
         var fields = this.recordType.prototype.fields;
 
-        var featureType, values, field, v, parts, layer;
+        var coverageSummary, values, field, v, parts, layer;
         var layerOptions, protocolOptions;
 
         var protocolDefaults = {
@@ -2628,44 +2628,48 @@ Ext.extend(GeoExt.data.WCSCapabilitiesReader, Ext.data.DataReader, {
 
         var records = [];
 
-        for(var i=0, lenI=featureTypes.length; i<lenI; i++) {
-            featureType = featureTypes[i];
-            if(featureType.name) {
+        for(var i=0, lenI=contents.length; i<lenI; i++) {
+            coverageSummary = contents[i];
+            if(coverageSummary.identifier) {
                 values = {};
+                values['identifier'] = coverageSummary.identifier;
+                values['title'] = coverageSummary.title;
+                values['abstract'] = coverageSummary.abstract;
 
-                for(var j=0, lenJ=fields.length; j<lenJ; j++) {
-                    field = fields.items[j];
-                    v = featureType[field.mapping || field.name] ||
-                        field.defaultValue;
-                    v = field.convert(v);
-                    values[field.name] = v;
-                }
 
-                protocolOptions = {
-                    featureType: featureType.name,
-                    featureNS: featureType.featureNS
-                };
-                if(this.meta.protocolOptions) {
-                    Ext.apply(protocolOptions, this.meta.protocolOptions, 
-                        protocolDefaults);
-                } else {
-                    Ext.apply(protocolOptions, {}, protocolDefaults);
-                }
+                // for(var j=0, lenJ=fields.length; j<lenJ; j++) {
+                //     field = fields.items[j];
+                //     v = featureType[field.mapping || field.name] ||
+                //         field.defaultValue;
+                //     v = field.convert(v);
+                //     values[field.name] = v;
+                // }
 
-                layerOptions = {
-                    protocol: new OpenLayers.Protocol.WCS(protocolOptions),
-                    strategies: [new OpenLayers.Strategy.Fixed()]
-                };
-                var metaLayerOptions = this.meta.layerOptions;
-                if (metaLayerOptions) {
-                    Ext.apply(layerOptions, Ext.isFunction(metaLayerOptions) ?
-                        metaLayerOptions() : metaLayerOptions);
-                }
+                // protocolOptions = {
+                //     featureType: featureType.name,
+                //     featureNS: featureType.featureNS
+                // };
+                // if(this.meta.protocolOptions) {
+                //     Ext.apply(protocolOptions, this.meta.protocolOptions, 
+                //         protocolDefaults);
+                // } else {
+                //     Ext.apply(protocolOptions, {}, protocolDefaults);
+                // }
 
-                values.layer = new OpenLayers.Layer.Vector(
-                    featureType.title || featureType.name,
-                    layerOptions
-                );
+                // layerOptions = {
+                //     protocol: new OpenLayers.Protocol.WCS(protocolOptions),
+                //     strategies: [new OpenLayers.Strategy.Fixed()]
+                // };
+                // var metaLayerOptions = this.meta.layerOptions;
+                // if (metaLayerOptions) {
+                //     Ext.apply(layerOptions, Ext.isFunction(metaLayerOptions) ?
+                //         metaLayerOptions() : metaLayerOptions);
+                // }
+
+                // values.layer = new OpenLayers.Layer.Vector(
+                //     featureType.title || featureType.name,
+                //     layerOptions
+                // );
 
                 records.push(new this.recordType(values, values.layer.id));
             }

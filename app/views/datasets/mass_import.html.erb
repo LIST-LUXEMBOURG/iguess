@@ -180,6 +180,7 @@
         // Skip layers that the user has filtered out with the service radio buttons
         if(!showWfs() && !layer.type.hasObject('WMS')) { continue; }
         if(!showWms() && !layer.type.hasObject('WFS')) { continue; }
+        if(!showWcs() && !layer.type.hasObject('WCS')) { continue; }
 
         // Avoid double-counting: only count layers during first pass
         if(pass == 0) {
@@ -231,7 +232,7 @@
             dataTypeControl.append('<option>Mapping Only</option>');
           }
 
-          if(layer.type.hasObject('WFS')) {
+          if(layer.type.hasObject('WFS') || layer.type.hasObject('WCS')) {
             for(var j = 0, jlen = dataTypeList.length; j < jlen; j++) {
               dataTypeControl.append('<option value="' + dataTypeList[j].id + '">' + dataTypeList[j].id + '</option>');
             }
@@ -517,6 +518,7 @@
     }
 
     this.onWcsGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) { 
+      alert("Error with wcs request");
       self.onGetCapabilitiesFailed();
       self.WcsSucceeded = false;
       doneProcessing(self.serverUrl, 'WCS', null, 'ERROR');
@@ -524,8 +526,8 @@
 
     this.startProbing = function() { 
       WFS.updateLayerList(self.serverUrl, self.onWfsGetCapabilitiesSucceeded, self.onWfsGetCapabilitiesFailed );
+      WCS.updateLayerList(self.serverUrl, self.onWcsGetCapabilitiesSucceeded, self.onWcsGetCapabilitiesFailed );
       WMS.updateLayerList(self.serverUrl, self.onWmsGetCapabilitiesSucceeded, self.onWmsGetCapabilitiesFailed );
-
     };
   }
 
@@ -542,7 +544,6 @@
     showProbingIndicators();
 
     $('#layer-display').html('');
-    discoveredLayers = { };
 
     wfsProcessingComplete = false;
     wmsProcessingComplete = false;
@@ -564,7 +565,7 @@
   }
 
   function showWcs() {
-    return false; //$('#radio-show-wfs').prop('checked') || $('#radio-show-both').prop('checked');
+    return $('#radio-show-wfs').prop('checked') || $('#radio-show-both').prop('checked');
   }
 
   function showProbingIndicators() {
@@ -633,8 +634,8 @@
   a module, you will need to choose a data type from the drop down box.  If you only want to use the dataset for mapping
   purposes, select Mapping Only.
   <p>
-  iGUESS will probe for WFS and WMS servers at the URL provided below.  Layers offered by the WMS will be available for mapping,
-  and layers offered by the WFS will be available for using as inputs to web processes.
+  iGUESS will probe for WFS, WCS, and WMS servers at the URL provided below.  Layers offered by the WMS will be available for mapping,
+  and layers offered by the WFS/WCS will be available for using as inputs to web processes.
 
   <ul>
     <li>http://ows.gis.rotterdam.nl/cgi-bin/mapserv.exe?map=d:\gwr\webdata\mapserver\map\gwr_basis_pub.map
@@ -659,11 +660,20 @@
   </label>
   <br>
 
+  <label class="label_radio" for="radio-show-wcs">
+    <input name="rx" id="radio-show-wcs" value="2" type="radio" />
+    WCS -- Only show datasets suitable for mapping
+  </label>
+  <br>
+
   <label class="label_radio" for="radio-show-wms">
     <input name="rx" id="radio-show-wms" value="2" type="radio" />
     WMS -- Only show datasets suitable for mapping
   </label>
   <br>
+
+
+
   <label class="label_radio" for="radio-show-both">
     <input name="rx" id="radio-show-both" value="3" type="radio" checked/>
     Both -- Show all datasets on server

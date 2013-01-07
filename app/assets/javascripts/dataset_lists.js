@@ -265,7 +265,7 @@
             title = title.replace(/ /g,'&nbsp;');
 
 
-            updateLayerInfo(serverUrl, identifier, true, title, record.get("abstract"), services.join(', '))
+            updateLayerInfo(serverUrl, identifier, true, title, record.get("abstract"), services);
 
             found = true;
             break;
@@ -275,8 +275,8 @@
 
       if(!found) {
         updateLayerInfo(serverUrl, datasets[i], false, datasets[i], 
-          'This dataset could no longer be located on the data server',     // Descr
-          'None');                                                          // Services
+          'This dataset could no longer be located on the data server',    // Descr
+          [ ]);                                                            // Services
       }
     }
   }

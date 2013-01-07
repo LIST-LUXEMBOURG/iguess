@@ -29,7 +29,6 @@
     $('.hideable').hide();
   }
 
-
   function showRunButton(text) {
     $('#run-module-button').attr('value', text);
     $('#run_module_button_container').show();
@@ -173,6 +172,7 @@
 
   getWmsLayers(registeredDataServers);
   getWfsLayers(registeredDataServers);
+  getWcsLayers(registeredDataServers);
 
 
     // Gets triggered when a selected dataset changes
