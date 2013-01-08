@@ -494,6 +494,8 @@
       self.onGetCapabilitiesSucceeded();
       self.WcsSucceeded = true;
 
+      // debugger
+
       onWcsGetCapabilitiesSucceeded(dataProxy, records);
     }
 
@@ -518,6 +520,7 @@
     }
 
     this.onWcsGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) { 
+      debugger
       alert("Error with WCS request");
       self.onGetCapabilitiesFailed();
       self.WcsSucceeded = false;
