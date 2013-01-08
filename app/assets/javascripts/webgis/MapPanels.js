@@ -37,7 +37,50 @@ Ext.onReady(function() {
     floatable: false,
     xtype: "gx_mappanel",
     map: WebGIS.map,
-    tbar: WebGIS.createTbarItems(WebGIS.map),
+    tbar: {
+        height: 100,
+        items:[
+            '-',
+            WebGIS.createTbarItems(WebGIS.map),
+            '-',
+            '->',
+            '-',
+            /*{
+			    xtype       : 'button',
+			    text        : 'Toggle Button'
+			},*/
+           {
+               xtype:'splitbutton',
+               text: 'Open Street Map',
+               height: 20,
+               menu: [{
+            	   text: 'Open Street Map',
+            	   checked: true,
+            	   handler  : WebGIS.baseOSM,
+            	   group: 'baseLayer'
+               },{
+            	   text: 'Google Satellite',
+            	   checked: false,
+            	   handler  : WebGIS.baseGoogleSat,
+            	   group: 'baseLayer'
+               },{
+            	   text: 'Google Streets',
+            	   checked: false,
+            	   handler  : WebGIS.baseGoogleSt,
+            	   group: 'baseLayer'
+               },{
+            	   text: 'Google Physical',
+            	   checked: false,
+            	   handler  : WebGIS.baseGooglePhy,
+            	   group: 'baseLayer'
+               },{
+            	   text: 'Google Hybrid',
+            	   checked: false,
+            	   handler  : WebGIS.baseGoogleHy,
+            	   group: 'baseLayer'
+               }]
+       		}]
+    },
     items: [zoomSlider]
   });
 
@@ -48,9 +91,6 @@ Ext.onReady(function() {
   );
 
   var treeConfig = [{
-    nodeType: "gx_baselayercontainer",
-    expanded: true
-  }, {
     nodeType: "gx_overlaylayercontainer",
     expanded: true
   }];

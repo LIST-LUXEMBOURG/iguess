@@ -6,6 +6,8 @@
  * in the home page.
  **/ 
 
+//= require webgis/BaseLayers
+
 var WebGIS = WebGIS || { };
 
 WebGIS.map;
@@ -55,34 +57,7 @@ WebGIS.initMap = function () {
     
     WebGIS.registerIdentify(WebGIS.map, this);
 
-    var osm = new OpenLayers.Layer.OSM();
-
-    var gphy = new OpenLayers.Layer.Google(
-            "Google Physical",
-            {type: google.maps.MapTypeId.TERRAIN, numZoomLevels: 20}
-    );
-    var gmap = new OpenLayers.Layer.Google(
-            "Google Streets", // the default
-            {numZoomLevels: 20}
-    );
-    var ghyb = new OpenLayers.Layer.Google(
-            "Google Hybrid",
-            {type: google.maps.MapTypeId.HYBRID, numZoomLevels: 20}
-    );
-    var gsat = new OpenLayers.Layer.Google(
-            "Google Satellite",
-            {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22}
-    );
-    
-
-    
-    osm.projection  = mapProjection;
-    gphy.projection = mapProjection;
-    gmap.projection = mapProjection;
-    ghyb.projection = mapProjection;
-    gsat.projection = mapProjection;
-
-    WebGIS.map.addLayers([osm, ghyb, gphy, gmap, gsat]);
+    WebGIS.map.addLayers(WebGIS.getBaseLayers());
 
     WebGIS.map.setCenter(boundsInit.getCenterLonLat(), 13);
     
@@ -100,7 +75,6 @@ WebGIS.initMap = function () {
     
     WebGIS.map.addLayer(buildsIGUESS);
     
-    //WebGIS.addNewLayer("Builds iGUESS", "http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map", "RO_building_footprints");
   }
 
 WebGIS.zoomToCity = function () {
@@ -139,3 +113,5 @@ WebGIS.clearLayers = function(alsoClearBaseLayers)
     }
   }*/
 }
+
+
