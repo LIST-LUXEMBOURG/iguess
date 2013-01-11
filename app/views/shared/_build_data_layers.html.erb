@@ -61,7 +61,7 @@
   // Basic dataset object -- this is what we track for datasets seen on remote server
   function Dataset(server, record, type) {
     this.server     = server;
-    this.identifier = record.get("name");
+    this.identifier = record.get("name") || record.id;
     this.title      = record.get("title") || record.get("name");
     this.abstract   = record.get("abstract");
     this.type       = [type];

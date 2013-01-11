@@ -16309,6 +16309,17 @@ OpenLayers.Format.OGCExceptionReport = OpenLayers.Class(OpenLayers.Format.XML, {
  * Class: OpenLayers.Format.XML.VersionedOGC
  * Base class for versioned formats, i.e. a format which supports multiple
  * versions.
+ *
+ * To enable checking if parsing succeeded, you will need to define a property
+ * called errorProperty on the parser you want to check. The parser will then
+ * check the returned object to see if that property is present. If it is, it
+ * assumes the parsing was successful. If it is not present (or is null), it will
+ * pass the document through an OGCExceptionReport parser.
+ * 
+ * If errorProperty is undefined for the parser, this error checking mechanism
+ * will be disabled.
+ *
+ *
  * 
  * Inherits from:
  *  - <OpenLayers.Format.XML>
@@ -16341,7 +16352,6 @@ OpenLayers.Format.XML.VersionedOGC = OpenLayers.Class(OpenLayers.Format.XML, {
      * missing the specifics of the profile. Defaults to false.
      */
     allowFallback: false,
-
 
     /**
      * Property: name
@@ -44062,7 +44072,7 @@ OpenLayers.Renderer.Elements = OpenLayers.Class(OpenLayers.Renderer, {
 });
 
 /* ======================================================================
-    OpenLayers/Protocol.js
+    OpenLayers/Control/ArgParser.js
    ====================================================================== */
 
 /* Copyright (c) 2006-2012 by OpenLayers Contributors (see authors.txt for 
@@ -44070,382 +44080,444 @@ OpenLayers.Renderer.Elements = OpenLayers.Class(OpenLayers.Renderer, {
  * See license.txt in the OpenLayers distribution or repository for the
  * full text of the license. */
 
+
 /**
- * @requires OpenLayers/BaseTypes/Class.js
+ * @requires OpenLayers/Control.js
  */
 
 /**
- * Class: OpenLayers.Protocol
- * Abstract vector layer protocol class.  Not to be instantiated directly.  Use
- *     one of the protocol subclasses instead.
+ * Class: OpenLayers.Control.ArgParser
+ * The ArgParser control adds location bar query string parsing functionality 
+ * to an OpenLayers Map.
+ * When added to a Map control, on a page load/refresh, the Map will 
+ * automatically take the href string and parse it for lon, lat, zoom, and 
+ * layers information. 
+ *
+ * Inherits from:
+ *  - <OpenLayers.Control>
  */
-OpenLayers.Protocol = OpenLayers.Class({
-    
-    /**
-     * Property: format
-     * {<OpenLayers.Format>} The format used by this protocol.
-     */
-    format: null,
-    
-    /**
-     * Property: options
-     * {Object} Any options sent to the constructor.
-     */
-    options: null,
+OpenLayers.Control.ArgParser = OpenLayers.Class(OpenLayers.Control, {
 
     /**
-     * Property: autoDestroy
-     * {Boolean} The creator of the protocol can set autoDestroy to false
-     *      to fully control when the protocol is destroyed. Defaults to
-     *      true.
+     * Property: center
+     * {<OpenLayers.LonLat>}
      */
-    autoDestroy: true,
-   
-    /**
-     * Property: defaultFilter
-     * {<OpenLayers.Filter>} Optional default filter to read requests
-     */
-    defaultFilter: null,
+    center: null,
     
     /**
-     * Constructor: OpenLayers.Protocol
-     * Abstract class for vector protocols.  Create instances of a subclass.
-     *
-     * Parameters:
-     * options - {Object} Optional object whose properties will be set on the
-     *     instance.
+     * Property: zoom
+     * {int}
      */
-    initialize: function(options) {
-        options = options || {};
-        OpenLayers.Util.extend(this, options);
-        this.options = options;
-    },
+    zoom: null,
 
     /**
-     * Method: mergeWithDefaultFilter
-     * Merge filter passed to the read method with the default one
+     * Property: layers
+     * {String} Each character represents the state of the corresponding layer 
+     *     on the map.
+     */
+    layers: null,
+    
+    /** 
+     * APIProperty: displayProjection
+     * {<OpenLayers.Projection>} Requires proj4js support. 
+     *     Projection used when reading the coordinates from the URL. This will
+     *     reproject the map coordinates from the URL into the map's
+     *     projection.
+     *
+     *     If you are using this functionality, be aware that any permalink
+     *     which is added to the map will determine the coordinate type which
+     *     is read from the URL, which means you should not add permalinks with
+     *     different displayProjections to the same map. 
+     */
+    displayProjection: null, 
+
+    /**
+     * Constructor: OpenLayers.Control.ArgParser
      *
      * Parameters:
-     * filter - {<OpenLayers.Filter>}
+     * options - {Object}
      */
-    mergeWithDefaultFilter: function(filter) {
-        var merged;
-        if (filter && this.defaultFilter) {
-            merged = new OpenLayers.Filter.Logical({
-                type: OpenLayers.Filter.Logical.AND,
-                filters: [this.defaultFilter, filter]
-            });
-        } else {
-            merged = filter || this.defaultFilter || undefined;
+
+    /**
+     * Method: getParameters
+     */    
+    getParameters: function(url) {
+        url = url || window.location.href;
+        var parameters = OpenLayers.Util.getParameters(url);
+
+        // If we have an anchor in the url use it to split the url
+        var index = url.indexOf('#');
+        if (index > 0) {
+            // create an url to parse on the getParameters
+            url = '?' + url.substring(index + 1, url.length);
+
+            OpenLayers.Util.extend(parameters,
+                    OpenLayers.Util.getParameters(url));
         }
-        return merged;
+        return parameters;
+    },
+    
+    /**
+     * Method: setMap
+     * Set the map property for the control. 
+     * 
+     * Parameters:
+     * map - {<OpenLayers.Map>} 
+     */
+    setMap: function(map) {
+        OpenLayers.Control.prototype.setMap.apply(this, arguments);
+
+        //make sure we dont already have an arg parser attached
+        for(var i=0, len=this.map.controls.length; i<len; i++) {
+            var control = this.map.controls[i];
+            if ( (control != this) &&
+                 (control.CLASS_NAME == "OpenLayers.Control.ArgParser") ) {
+                
+                // If a second argparser is added to the map, then we 
+                // override the displayProjection to be the one added to the
+                // map. 
+                if (control.displayProjection != this.displayProjection) {
+                    this.displayProjection = control.displayProjection;
+                }    
+                
+                break;
+            }
+        }
+        if (i == this.map.controls.length) {
+
+            var args = this.getParameters();
+            // Be careful to set layer first, to not trigger unnecessary layer loads
+            if (args.layers) {
+                this.layers = args.layers;
+    
+                // when we add a new layer, set its visibility 
+                this.map.events.register('addlayer', this, 
+                                         this.configureLayers);
+                this.configureLayers();
+            }
+            if (args.lat && args.lon) {
+                this.center = new OpenLayers.LonLat(parseFloat(args.lon),
+                                                    parseFloat(args.lat));
+                if (args.zoom) {
+                    this.zoom = parseFloat(args.zoom);
+                }
+    
+                // when we add a new baselayer to see when we can set the center
+                this.map.events.register('changebaselayer', this, 
+                                         this.setCenter);
+                this.setCenter();
+            }
+        }
+    },
+   
+    /** 
+     * Method: setCenter
+     * As soon as a baseLayer has been loaded, we center and zoom
+     *   ...and remove the handler.
+     */
+    setCenter: function() {
+        
+        if (this.map.baseLayer) {
+            //dont need to listen for this one anymore
+            this.map.events.unregister('changebaselayer', this, 
+                                       this.setCenter);
+            
+            if (this.displayProjection) {
+                this.center.transform(this.displayProjection, 
+                                      this.map.getProjectionObject()); 
+            }      
+
+            this.map.setCenter(this.center, this.zoom);
+        }
     },
 
+    /** 
+     * Method: configureLayers
+     * As soon as all the layers are loaded, cycle through them and 
+     *   hide or show them. 
+     */
+    configureLayers: function() {
+
+        if (this.layers.length == this.map.layers.length) { 
+            this.map.events.unregister('addlayer', this, this.configureLayers);
+
+            for(var i=0, len=this.layers.length; i<len; i++) {
+                
+                var layer = this.map.layers[i];
+                var c = this.layers.charAt(i);
+                
+                if (c == "B") {
+                    this.map.setBaseLayer(layer);
+                } else if ( (c == "T") || (c == "F") ) {
+                    layer.setVisibility(c == "T");
+                }
+            }
+        }
+    },     
+
+    CLASS_NAME: "OpenLayers.Control.ArgParser"
+});
+/* ======================================================================
+    OpenLayers/Control/Permalink.js
+   ====================================================================== */
+
+/* Copyright (c) 2006-2012 by OpenLayers Contributors (see authors.txt for 
+ * full list of contributors). Published under the 2-clause BSD license.
+ * See license.txt in the OpenLayers distribution or repository for the
+ * full text of the license. */
+
+
+/**
+ * @requires OpenLayers/Control.js
+ * @requires OpenLayers/Control/ArgParser.js
+ * @requires OpenLayers/Lang.js
+ */
+
+/**
+ * Class: OpenLayers.Control.Permalink
+ * The Permalink control is hyperlink that will return the user to the 
+ * current map view. By default it is drawn in the lower right corner of the
+ * map. The href is updated as the map is zoomed, panned and whilst layers
+ * are switched.
+ * 
+ * Inherits from:
+ *  - <OpenLayers.Control>
+ */
+OpenLayers.Control.Permalink = OpenLayers.Class(OpenLayers.Control, {
+    
+    /**
+     * APIProperty: argParserClass
+     * {Class} The ArgParser control class (not instance) to use with this
+     *     control.
+     */
+    argParserClass: OpenLayers.Control.ArgParser,
+
+    /** 
+     * Property: element 
+     * {DOMElement}
+     */
+    element: null,
+    
+    /** 
+     * APIProperty: anchor
+     * {Boolean} This option changes 3 things:
+     *     the character '#' is used in place of the character '?',
+     *     the window.href is updated if no element is provided.
+     *     When this option is set to true it's not recommend to provide
+     *     a base without provide an element.
+     */
+    anchor: false,
+
+    /** 
+     * APIProperty: base
+     * {String}
+     */
+    base: '',
+
+    /** 
+     * APIProperty: displayProjection
+     * {<OpenLayers.Projection>} Requires proj4js support.  Projection used
+     *     when creating the coordinates in the link. This will reproject the
+     *     map coordinates into display coordinates. If you are using this
+     *     functionality, the permalink which is last added to the map will
+     *     determine the coordinate type which is read from the URL, which
+     *     means you should not add permalinks with different
+     *     displayProjections to the same map. 
+     */
+    displayProjection: null, 
+
+    /**
+     * Constructor: OpenLayers.Control.Permalink
+     *
+     * Parameters: 
+     * element - {DOMElement} 
+     * base - {String} 
+     * options - {Object} options to the control.
+     *
+     * Or for anchor:
+     * options - {Object} options to the control.
+     */
+    initialize: function(element, base, options) {
+        if (element !== null && typeof element == 'object' && !OpenLayers.Util.isElement(element)) {
+            options = element;
+            this.base = document.location.href;
+            OpenLayers.Control.prototype.initialize.apply(this, [options]);
+            if (this.element != null) {
+                this.element = OpenLayers.Util.getElement(this.element);
+            }
+        }
+        else {
+            OpenLayers.Control.prototype.initialize.apply(this, [options]);
+            this.element = OpenLayers.Util.getElement(element);
+            this.base = base || document.location.href;
+        }
+    },
+    
     /**
      * APIMethod: destroy
-     * Clean up the protocol.
      */
-    destroy: function() {
-        this.options = null;
-        this.format = null;
-    },
-    
-    /**
-     * APIMethod: read
-     * Construct a request for reading new features.
-     *
-     * Parameters:
-     * options - {Object} Optional object for configuring the request.
-     *
-     * Returns:
-     * {<OpenLayers.Protocol.Response>} An <OpenLayers.Protocol.Response>
-     * object, the same object will be passed to the callback function passed
-     * if one exists in the options object.
-     */
-    read: function(options) {
-        options = options || {};
-        options.filter = this.mergeWithDefaultFilter(options.filter);
-    },
-    
-    
-    /**
-     * APIMethod: create
-     * Construct a request for writing newly created features.
-     *
-     * Parameters:
-     * features - {Array({<OpenLayers.Feature.Vector>})} or
-     *            {<OpenLayers.Feature.Vector>}
-     * options - {Object} Optional object for configuring the request.
-     *
-     * Returns:
-     * {<OpenLayers.Protocol.Response>} An <OpenLayers.Protocol.Response>
-     * object, the same object will be passed to the callback function passed
-     * if one exists in the options object.
-     */
-    create: function() {
-    },
-    
-    /**
-     * APIMethod: update
-     * Construct a request updating modified features.
-     *
-     * Parameters:
-     * features - {Array({<OpenLayers.Feature.Vector>})} or
-     *            {<OpenLayers.Feature.Vector>}
-     * options - {Object} Optional object for configuring the request.
-     *
-     * Returns:
-     * {<OpenLayers.Protocol.Response>} An <OpenLayers.Protocol.Response>
-     * object, the same object will be passed to the callback function passed
-     * if one exists in the options object.
-     */
-    update: function() {
-    },
-    
-    /**
-     * APIMethod: delete
-     * Construct a request deleting a removed feature.
-     *
-     * Parameters:
-     * feature - {<OpenLayers.Feature.Vector>}
-     * options - {Object} Optional object for configuring the request.
-     *
-     * Returns:
-     * {<OpenLayers.Protocol.Response>} An <OpenLayers.Protocol.Response>
-     * object, the same object will be passed to the callback function passed
-     * if one exists in the options object.
-     */
-    "delete": function() {
+    destroy: function()  {
+        if (this.element && this.element.parentNode == this.div) {
+            this.div.removeChild(this.element);
+            this.element = null;
+        }
+        if (this.map) {
+            this.map.events.unregister('moveend', this, this.updateLink);
+        }
+
+        OpenLayers.Control.prototype.destroy.apply(this, arguments); 
     },
 
     /**
-     * APIMethod: commit
-     * Go over the features and for each take action
-     * based on the feature state. Possible actions are create,
-     * update and delete.
-     *
+     * Method: setMap
+     * Set the map property for the control. 
+     * 
      * Parameters:
-     * features - {Array({<OpenLayers.Feature.Vector>})}
-     * options - {Object} Object whose possible keys are "create", "update",
-     *      "delete", "callback" and "scope", the values referenced by the
-     *      first three are objects as passed to the "create", "update", and
-     *      "delete" methods, the value referenced by the "callback" key is
-     *      a function which is called when the commit operation is complete
-     *      using the scope referenced by the "scope" key.
-     *
-     * Returns:
-     * {Array({<OpenLayers.Protocol.Response>})} An array of
-     * <OpenLayers.Protocol.Response> objects.
+     * map - {<OpenLayers.Map>} 
      */
-    commit: function() {
+    setMap: function(map) {
+        OpenLayers.Control.prototype.setMap.apply(this, arguments);
+
+        //make sure we have an arg parser attached
+        for(var i=0, len=this.map.controls.length; i<len; i++) {
+            var control = this.map.controls[i];
+            if (control.CLASS_NAME == this.argParserClass.CLASS_NAME) {
+                
+                // If a permalink is added to the map, and an ArgParser already
+                // exists, we override the displayProjection to be the one
+                // on the permalink. 
+                if (control.displayProjection != this.displayProjection) {
+                    this.displayProjection = control.displayProjection;
+                }    
+                
+                break;
+            }
+        }
+        if (i == this.map.controls.length) {
+            this.map.addControl(new this.argParserClass(
+                { 'displayProjection': this.displayProjection }));       
+        }
+
     },
 
     /**
-     * Method: abort
-     * Abort an ongoing request.
+     * Method: draw
      *
-     * Parameters:
-     * response - {<OpenLayers.Protocol.Response>}
-     */
-    abort: function(response) {
+     * Returns:
+     * {DOMElement}
+     */    
+    draw: function() {
+        OpenLayers.Control.prototype.draw.apply(this, arguments);
+          
+        if (!this.element && !this.anchor) {
+            this.element = document.createElement("a");
+            this.element.innerHTML = OpenLayers.i18n("Permalink");
+            this.element.href="";
+            this.div.appendChild(this.element);
+        }
+        this.map.events.on({
+            'moveend': this.updateLink,
+            'changelayer': this.updateLink,
+            'changebaselayer': this.updateLink,
+            scope: this
+        });
+        
+        // Make it so there is at least a link even though the map may not have
+        // moved yet.
+        this.updateLink();
+        
+        return this.div;
     },
    
     /**
-     * Method: createCallback
-     * Returns a function that applies the given public method with resp and
-     *     options arguments.
-     *
+     * Method: updateLink 
+     */
+    updateLink: function() {
+        var separator = this.anchor ? '#' : '?';
+        var href = this.base;
+        var anchor = null;
+        if (href.indexOf("#") != -1 && this.anchor == false) {
+            anchor = href.substring( href.indexOf("#"), href.length);
+        }
+        if (href.indexOf(separator) != -1) {
+            href = href.substring( 0, href.indexOf(separator) );
+        }
+        var splits = href.split("#");
+        href = splits[0] + separator+ OpenLayers.Util.getParameterString(this.createParams());
+        if (anchor) {
+            href += anchor;
+        }
+        if (this.anchor && !this.element) {
+            window.location.href = href;
+        }
+        else {
+            this.element.href = href;
+        }
+    }, 
+    
+    /**
+     * APIMethod: createParams
+     * Creates the parameters that need to be encoded into the permalink url.
+     * 
      * Parameters:
-     * method - {Function} The method to be applied by the callback.
-     * response - {<OpenLayers.Protocol.Response>} The protocol response object.
-     * options - {Object} Options sent to the protocol method
-     */
-    createCallback: function(method, response, options) {
-        return OpenLayers.Function.bind(function() {
-            method.apply(this, [response, options]);
-        }, this);
-    },
-   
-    CLASS_NAME: "OpenLayers.Protocol" 
-});
-
-/**
- * Class: OpenLayers.Protocol.Response
- * Protocols return Response objects to their users.
- */
-OpenLayers.Protocol.Response = OpenLayers.Class({
-    /**
-     * Property: code
-     * {Number} - OpenLayers.Protocol.Response.SUCCESS or
-     *            OpenLayers.Protocol.Response.FAILURE
-     */
-    code: null,
-
-    /**
-     * Property: requestType
-     * {String} The type of request this response corresponds to. Either
-     *      "create", "read", "update" or "delete".
-     */
-    requestType: null,
-
-    /**
-     * Property: last
-     * {Boolean} - true if this is the last response expected in a commit,
-     * false otherwise, defaults to true.
-     */
-    last: true,
-
-    /**
-     * Property: features
-     * {Array({<OpenLayers.Feature.Vector>})} or {<OpenLayers.Feature.Vector>}
-     * The features returned in the response by the server. Depending on the 
-     * protocol's read payload, either features or data will be populated.
-     */
-    features: null,
-
-    /**
-     * Property: data
-     * {Object}
-     * The data returned in the response by the server. Depending on the 
-     * protocol's read payload, either features or data will be populated.
-     */
-    data: null,
-
-    /**
-     * Property: reqFeatures
-     * {Array({<OpenLayers.Feature.Vector>})} or {<OpenLayers.Feature.Vector>}
-     * The features provided by the user and placed in the request by the
-     *      protocol.
-     */
-    reqFeatures: null,
-
-    /**
-     * Property: priv
-     */
-    priv: null,
-
-    /**
-     * Property: error
-     * {Object} The error object in case a service exception was encountered.
-     */
-    error: null,
-
-    /**
-     * Constructor: OpenLayers.Protocol.Response
-     *
-     * Parameters:
-     * options - {Object} Optional object whose properties will be set on the
-     *     instance.
-     */
-    initialize: function(options) {
-        OpenLayers.Util.extend(this, options);
-    },
-
-    /**
-     * Method: success
-     *
+     * center - {<OpenLayers.LonLat>} center to encode in the permalink.
+     *     Defaults to the current map center.
+     * zoom - {Integer} zoom level to encode in the permalink. Defaults to the
+     *     current map zoom level.
+     * layers - {Array(<OpenLayers.Layer>)} layers to encode in the permalink.
+     *     Defaults to the current map layers.
+     * 
      * Returns:
-     * {Boolean} - true on success, false otherwise
+     * {Object} Hash of parameters that will be url-encoded into the
+     * permalink.
      */
-    success: function() {
-        return this.code > 0;
-    },
+    createParams: function(center, zoom, layers) {
+        center = center || this.map.getCenter();
+          
+        var params = OpenLayers.Util.getParameters(this.base);
+        
+        // If there's still no center, map is not initialized yet. 
+        // Break out of this function, and simply return the params from the
+        // base link.
+        if (center) { 
 
-    CLASS_NAME: "OpenLayers.Protocol.Response"
+            //zoom
+            params.zoom = zoom || this.map.getZoom(); 
+
+            //lon,lat
+            var lat = center.lat;
+            var lon = center.lon;
+            
+            if (this.displayProjection) {
+                var mapPosition = OpenLayers.Projection.transform(
+                  { x: lon, y: lat }, 
+                  this.map.getProjectionObject(), 
+                  this.displayProjection );
+                lon = mapPosition.x;  
+                lat = mapPosition.y;  
+            }       
+            params.lat = Math.round(lat*100000)/100000;
+            params.lon = Math.round(lon*100000)/100000;
+    
+            //layers        
+            layers = layers || this.map.layers;  
+            params.layers = '';
+            for (var i=0, len=layers.length; i<len; i++) {
+                var layer = layers[i];
+    
+                if (layer.isBaseLayer) {
+                    params.layers += (layer == this.map.baseLayer) ? "B" : "0";
+                } else {
+                    params.layers += (layer.getVisibility()) ? "T" : "F";           
+                }
+            }
+        }
+
+        return params;
+    }, 
+
+    CLASS_NAME: "OpenLayers.Control.Permalink"
 });
-
-OpenLayers.Protocol.Response.SUCCESS = 1;
-OpenLayers.Protocol.Response.FAILURE = 0;
-/* ======================================================================
-    OpenLayers/Protocol/WCS.js
-   ====================================================================== */
-
-/* Copyright (c) 2006-2012 by OpenLayers Contributors (see authors.txt for 
- * full list of contributors). Published under the 2-clause BSD license.
- * See license.txt in the OpenLayers distribution or repository for the
- * full text of the license. */
-
-/**
- * @requires OpenLayers/Protocol.js
- */
-
-/**
- * Class: OpenLayers.Protocol.WCS
- * Used to create a versioned WCS protocol.  Default version is 1.0.0.
- *
- * Returns:
- * {<OpenLayers.Protocol>} A WCS protocol of the given version.
- *
- * Example:
- * (code)
- *     var protocol = new OpenLayers.Protocol.WCS({
- *         version: "1.1.0",
- *         url:  "http://demo.opengeo.org/geoserver/wcs",
- *         featureType: "tasmania_roads",
- *         featureNS: "http://www.openplans.org/topp",
- *         geometryName: "the_geom"
- *     });
- * (end)
- *
- * See the protocols for specific WCS versions for more detail.
- */
-OpenLayers.Protocol.WCS = function(options) {
-    options = OpenLayers.Util.applyDefaults(
-        options, OpenLayers.Protocol.WCS.DEFAULTS
-    );
-    var cls = OpenLayers.Protocol.WCS["v"+options.version.replace(/\./g, "_")];
-    if(!cls) {
-        throw "Unsupported WCS version: " + options.version;
-    }
-    return new cls(options);
-};
-
-/**
- * Function: fromWMSLayer
- * Convenience function to create a WCS protocol from a WMS layer.  This makes
- *     the assumption that a WCS requests can be issued at the same URL as
- *     WMS requests and that a WCS featureType exists with the same name as the
- *     WMS layer.
- *     
- * This function is designed to auto-configure <url>, <featureType>,
- *     <featurePrefix> and <srsName> for WCS <version> 1.1.0. Note that
- *     srsName matching with the WMS layer will not work with WCS 1.0.0.
- * 
- * Parameters:
- * layer - {<OpenLayers.Layer.WMS>} WMS layer that has a matching WCS
- *     FeatureType at the same server url with the same typename.
- * options - {Object} Default properties to be set on the protocol.
- *
- * Returns:
- * {<OpenLayers.Protocol.WCS>}
- */
-OpenLayers.Protocol.WCS.fromWMSLayer = function(layer, options) {
-    var typeName, featurePrefix;
-    var param = layer.params["LAYERS"];
-    var parts = (OpenLayers.Util.isArray(param) ? param[0] : param).split(":");
-    if(parts.length > 1) {
-        featurePrefix = parts[0];
-    }
-    typeName = parts.pop();
-    var protocolOptions = {
-        url: layer.url,
-        featureType: typeName,
-        featurePrefix: featurePrefix,
-        srsName: layer.projection && layer.projection.getCode() ||
-                 layer.map && layer.map.getProjectionObject().getCode(),
-        version: "1.1.0"
-    };
-    return new OpenLayers.Protocol.WCS(OpenLayers.Util.applyDefaults(
-        options, protocolOptions
-    ));
-};
-
-/**
- * Constant: OpenLayers.Protocol.WCS.DEFAULTS
- */
-OpenLayers.Protocol.WCS.DEFAULTS = {
-    "version": "1.0.0"
-};
 /* ======================================================================
     OpenLayers/Layer/TMS.js
    ====================================================================== */
@@ -44679,7 +44751,6 @@ OpenLayers.Format.WCSCapabilities = OpenLayers.Class(OpenLayers.Format.XML.Versi
      * {String} Version number to assume if none found.  Default is "1.1.0".
      */
     defaultVersion: "1.1.0",
- 
 
     /**
      * Constructor: OpenLayers.Format.WCSCapabilities
@@ -44692,13 +44763,13 @@ OpenLayers.Format.WCSCapabilities = OpenLayers.Class(OpenLayers.Format.XML.Versi
 
     /**
      * APIMethod: read
-     * Read capabilities data from a string, and return a list of layers. 
+     * Read capabilities data from a string, and return a list of coverages. 
      * 
      * Parameters: 
      * data - {String} or {DOMElement} data to read/parse.
      *
      * Returns:
-     * {Array} List of named layers.
+     * {Array} List of named coverages.
      */
     
     CLASS_NAME: "OpenLayers.Format.WCSCapabilities" 
@@ -44736,25 +44807,16 @@ OpenLayers.Format.WCSCapabilities.v1 = OpenLayers.Class(
      * Property: defaultPrefix
      */
     defaultPrefix: "wcs",
-    
-    /**
-     * Constructor: OpenLayers.Format.WCSCapabilities.v1_1
-     * Create an instance of one of the subclasses.
-     *
-     * Parameters:
-     * options - {Object} An optional object whose properties will be set on
-     *     this instance.
-     */
 
     /**
      * APIMethod: read
-     * Read capabilities data from a string, and return a list of layers. 
+     * Read capabilities data from a string, and return a list of coverages. 
      * 
      * Parameters: 
      * data - {String} or {DOMElement} data to read/parse.
      *
      * Returns:
-     * {Array} List of named layers.
+     * {Array} List of named coverages.
      */
     read: function(data) {
         if(typeof data == "string") {
@@ -44767,22 +44829,6 @@ OpenLayers.Format.WCSCapabilities.v1 = OpenLayers.Class(
         var capabilities = {};
         this.readNode(data, capabilities);
         return capabilities;
-    },
-
-    /**
-     * Property: readers
-     * Contains public functions, grouped by namespace prefix, that will
-     *     be applied when a namespaced node is found matching the function
-     *     name.  The function will be applied in the scope of this parser
-     *     with two arguments: the node being read and a context object passed
-     *     from the parent.
-     */
-    readers: {
-        "wcs": {
-            "WCS_Capabilities": function(node, obj) {           // In 1.0.0, this was WCS_Capabilties, changed in 1.1.0
-                this.readChildNodes(node, obj);
-            }
-        }
     },
 
     CLASS_NAME: "OpenLayers.Format.WCSCapabilities.v1" 
@@ -44799,6 +44845,7 @@ OpenLayers.Format.WCSCapabilities.v1 = OpenLayers.Class(
 
 /**
  * @requires OpenLayers/Format/WCSCapabilities/v1.js
+ * @requires OpenLayers/Format/GML/v3.js
  */
 
 /**
@@ -44820,7 +44867,6 @@ OpenLayers.Format.WCSCapabilities.v1_0_0 = OpenLayers.Class(
      *     this instance.
      */
 
-
     /**
      * Property: namespaces
      * {Object} Mapping of namespace aliases to namespace URIs.
@@ -44832,16 +44878,14 @@ OpenLayers.Format.WCSCapabilities.v1_0_0 = OpenLayers.Class(
         ows: "http://www.opengis.net/ows"
     },
 
-
     /**
-     * APIProperty: errorProperty
+     * Property: errorProperty
      * {String} Which property of the returned object to check for in order to
      * determine whether or not parsing has failed. In the case that the
      * errorProperty is undefined on the returned object, the document will be
      * run through an OGCExceptionReport parser.
      */
     errorProperty: "service",
-
 
     /**
      * Property: readers
@@ -44852,23 +44896,21 @@ OpenLayers.Format.WCSCapabilities.v1_0_0 = OpenLayers.Class(
      *     from the parent.
      */
     readers: {
-        "wcs": OpenLayers.Util.applyDefaults({
+        "wcs": {
+             "WCS_Capabilities": function(node, obj) {          
+                this.readChildNodes(node, obj);
+            },
             "Service": function(node, obj) {
                 obj.service = {};
                 this.readChildNodes(node, obj.service);
-            },
-            "name": function(node, service) {  
-                service.name = this.getChildValue(node);
-            },
-            "label": function(node, service) {  
-                service.label = this.getChildValue(node);
             },
             "keywords": function(node, service) { 
                 service.keywords = []; 
                 this.readChildNodes(node, service.keywords);
             },
             "keyword": function(node, keywords) { 
-                keywords.push(this.getChildValue(node));      // Append the keyword to the keywords list
+                // Append the keyword to the keywords list
+                keywords.push(this.getChildValue(node));      
             },
             "responsibleParty": function(node, service) {
                 service.responsibleParty = {};
@@ -44932,59 +44974,31 @@ OpenLayers.Format.WCSCapabilities.v1_0_0 = OpenLayers.Class(
                 contentMetadata.push(coverageOfferingBrief);
             },
             "name": function(node, coverageOfferingBrief) {
-                coverageOfferingBrief.name = this.getChildValue(node);
+                // Use 1.1.0 name here because it's less ambiguous moving forward
+                coverageOfferingBrief.identifier = this.getChildValue(node);
             },
             "label": function(node, coverageOfferingBrief) {
-                coverageOfferingBrief.label = this.getChildValue(node);
+                // Use 1.1.0 name here because it's less ambiguous moving forward
+                coverageOfferingBrief.title = this.getChildValue(node);
             },
             "lonLatEnvelope": function(node, coverageOfferingBrief) {
-
-               // Look for <gml:pos>.  Only write the data if everything parsed neatly.
-               // This works well for the data samples I have access to, but may need to be generalized to cover other possible use cases.
                 var nodeList = this.getElementsByTagNameNS(node, "http://www.opengis.net/gml", "pos");
 
                 // We expect two nodes here, to create the corners of a bounding box
                 if(nodeList.length == 2) {
-                    var min = {}, 
-                        max = {};
+                    var min = {};
+                    var max = {};
 
-                    var ok = true;
+                    OpenLayers.Format.GML.v3.prototype.readers["gml"].pos.apply(this, [nodeList[0], min]);
+                    OpenLayers.Format.GML.v3.prototype.readers["gml"].pos.apply(this, [nodeList[1], max]);
 
-                    // min    
-                    var coordString = nodeList[0].firstChild.nodeValue;
-
-                    coordString = coordString.replace(this.regExes.trimSpace, "");
-                    var coords = coordString.split(this.regExes.splitSpace);
-
-                    if(coords.length == 2) {
-                        min.lon = coords[0];
-                        min.lat = coords[1];
-                    } else {
-                        ok = false;
-                    }
-
-                    // max
-                    var coordString = nodeList[1].firstChild.nodeValue;
-
-                    coordString = coordString.replace(this.regExes.trimSpace, "");
-                    var coords = coordString.split(this.regExes.splitSpace);
-
-                    if(coords.length == 2) {
-                        max.lon = coords[0];
-                        max.lat = coords[1];
-                    } else {
-                        ok = false;
-                    }
-
-                    if(ok) {
-                        coverageOfferingBrief.lonLatEnvelope = {};
-                        coverageOfferingBrief.lonLatEnvelope.srsName = node.getAttribute("srsName");
-                        coverageOfferingBrief.lonLatEnvelope.min = min;
-                        coverageOfferingBrief.lonLatEnvelope.max = max;
-                    }
+                    coverageOfferingBrief.lonLatEnvelope = {};
+                    coverageOfferingBrief.lonLatEnvelope.srsName = node.getAttribute("srsName");
+                    coverageOfferingBrief.lonLatEnvelope.min = min.points[0];
+                    coverageOfferingBrief.lonLatEnvelope.max = max.points[0];
                 }
-            },
-        }, OpenLayers.Format.WCSCapabilities.v1.prototype.readers["wcs"])
+            }
+        }
     },
     
     CLASS_NAME: "OpenLayers.Format.WCSCapabilities.v1_0_0" 
@@ -45397,6 +45411,301 @@ OpenLayers.Layer.PointTrack.TARGET_NODE = 0;
  * - TARGET_NODE: take data/attributes from the target node of the line
  */
 OpenLayers.Layer.PointTrack.dataFrom = {'SOURCE_NODE': -1, 'TARGET_NODE': 0};
+/* ======================================================================
+    OpenLayers/Protocol.js
+   ====================================================================== */
+
+/* Copyright (c) 2006-2012 by OpenLayers Contributors (see authors.txt for 
+ * full list of contributors). Published under the 2-clause BSD license.
+ * See license.txt in the OpenLayers distribution or repository for the
+ * full text of the license. */
+
+/**
+ * @requires OpenLayers/BaseTypes/Class.js
+ */
+
+/**
+ * Class: OpenLayers.Protocol
+ * Abstract vector layer protocol class.  Not to be instantiated directly.  Use
+ *     one of the protocol subclasses instead.
+ */
+OpenLayers.Protocol = OpenLayers.Class({
+    
+    /**
+     * Property: format
+     * {<OpenLayers.Format>} The format used by this protocol.
+     */
+    format: null,
+    
+    /**
+     * Property: options
+     * {Object} Any options sent to the constructor.
+     */
+    options: null,
+
+    /**
+     * Property: autoDestroy
+     * {Boolean} The creator of the protocol can set autoDestroy to false
+     *      to fully control when the protocol is destroyed. Defaults to
+     *      true.
+     */
+    autoDestroy: true,
+   
+    /**
+     * Property: defaultFilter
+     * {<OpenLayers.Filter>} Optional default filter to read requests
+     */
+    defaultFilter: null,
+    
+    /**
+     * Constructor: OpenLayers.Protocol
+     * Abstract class for vector protocols.  Create instances of a subclass.
+     *
+     * Parameters:
+     * options - {Object} Optional object whose properties will be set on the
+     *     instance.
+     */
+    initialize: function(options) {
+        options = options || {};
+        OpenLayers.Util.extend(this, options);
+        this.options = options;
+    },
+
+    /**
+     * Method: mergeWithDefaultFilter
+     * Merge filter passed to the read method with the default one
+     *
+     * Parameters:
+     * filter - {<OpenLayers.Filter>}
+     */
+    mergeWithDefaultFilter: function(filter) {
+        var merged;
+        if (filter && this.defaultFilter) {
+            merged = new OpenLayers.Filter.Logical({
+                type: OpenLayers.Filter.Logical.AND,
+                filters: [this.defaultFilter, filter]
+            });
+        } else {
+            merged = filter || this.defaultFilter || undefined;
+        }
+        return merged;
+    },
+
+    /**
+     * APIMethod: destroy
+     * Clean up the protocol.
+     */
+    destroy: function() {
+        this.options = null;
+        this.format = null;
+    },
+    
+    /**
+     * APIMethod: read
+     * Construct a request for reading new features.
+     *
+     * Parameters:
+     * options - {Object} Optional object for configuring the request.
+     *
+     * Returns:
+     * {<OpenLayers.Protocol.Response>} An <OpenLayers.Protocol.Response>
+     * object, the same object will be passed to the callback function passed
+     * if one exists in the options object.
+     */
+    read: function(options) {
+        options = options || {};
+        options.filter = this.mergeWithDefaultFilter(options.filter);
+    },
+    
+    
+    /**
+     * APIMethod: create
+     * Construct a request for writing newly created features.
+     *
+     * Parameters:
+     * features - {Array({<OpenLayers.Feature.Vector>})} or
+     *            {<OpenLayers.Feature.Vector>}
+     * options - {Object} Optional object for configuring the request.
+     *
+     * Returns:
+     * {<OpenLayers.Protocol.Response>} An <OpenLayers.Protocol.Response>
+     * object, the same object will be passed to the callback function passed
+     * if one exists in the options object.
+     */
+    create: function() {
+    },
+    
+    /**
+     * APIMethod: update
+     * Construct a request updating modified features.
+     *
+     * Parameters:
+     * features - {Array({<OpenLayers.Feature.Vector>})} or
+     *            {<OpenLayers.Feature.Vector>}
+     * options - {Object} Optional object for configuring the request.
+     *
+     * Returns:
+     * {<OpenLayers.Protocol.Response>} An <OpenLayers.Protocol.Response>
+     * object, the same object will be passed to the callback function passed
+     * if one exists in the options object.
+     */
+    update: function() {
+    },
+    
+    /**
+     * APIMethod: delete
+     * Construct a request deleting a removed feature.
+     *
+     * Parameters:
+     * feature - {<OpenLayers.Feature.Vector>}
+     * options - {Object} Optional object for configuring the request.
+     *
+     * Returns:
+     * {<OpenLayers.Protocol.Response>} An <OpenLayers.Protocol.Response>
+     * object, the same object will be passed to the callback function passed
+     * if one exists in the options object.
+     */
+    "delete": function() {
+    },
+
+    /**
+     * APIMethod: commit
+     * Go over the features and for each take action
+     * based on the feature state. Possible actions are create,
+     * update and delete.
+     *
+     * Parameters:
+     * features - {Array({<OpenLayers.Feature.Vector>})}
+     * options - {Object} Object whose possible keys are "create", "update",
+     *      "delete", "callback" and "scope", the values referenced by the
+     *      first three are objects as passed to the "create", "update", and
+     *      "delete" methods, the value referenced by the "callback" key is
+     *      a function which is called when the commit operation is complete
+     *      using the scope referenced by the "scope" key.
+     *
+     * Returns:
+     * {Array({<OpenLayers.Protocol.Response>})} An array of
+     * <OpenLayers.Protocol.Response> objects.
+     */
+    commit: function() {
+    },
+
+    /**
+     * Method: abort
+     * Abort an ongoing request.
+     *
+     * Parameters:
+     * response - {<OpenLayers.Protocol.Response>}
+     */
+    abort: function(response) {
+    },
+   
+    /**
+     * Method: createCallback
+     * Returns a function that applies the given public method with resp and
+     *     options arguments.
+     *
+     * Parameters:
+     * method - {Function} The method to be applied by the callback.
+     * response - {<OpenLayers.Protocol.Response>} The protocol response object.
+     * options - {Object} Options sent to the protocol method
+     */
+    createCallback: function(method, response, options) {
+        return OpenLayers.Function.bind(function() {
+            method.apply(this, [response, options]);
+        }, this);
+    },
+   
+    CLASS_NAME: "OpenLayers.Protocol" 
+});
+
+/**
+ * Class: OpenLayers.Protocol.Response
+ * Protocols return Response objects to their users.
+ */
+OpenLayers.Protocol.Response = OpenLayers.Class({
+    /**
+     * Property: code
+     * {Number} - OpenLayers.Protocol.Response.SUCCESS or
+     *            OpenLayers.Protocol.Response.FAILURE
+     */
+    code: null,
+
+    /**
+     * Property: requestType
+     * {String} The type of request this response corresponds to. Either
+     *      "create", "read", "update" or "delete".
+     */
+    requestType: null,
+
+    /**
+     * Property: last
+     * {Boolean} - true if this is the last response expected in a commit,
+     * false otherwise, defaults to true.
+     */
+    last: true,
+
+    /**
+     * Property: features
+     * {Array({<OpenLayers.Feature.Vector>})} or {<OpenLayers.Feature.Vector>}
+     * The features returned in the response by the server. Depending on the 
+     * protocol's read payload, either features or data will be populated.
+     */
+    features: null,
+
+    /**
+     * Property: data
+     * {Object}
+     * The data returned in the response by the server. Depending on the 
+     * protocol's read payload, either features or data will be populated.
+     */
+    data: null,
+
+    /**
+     * Property: reqFeatures
+     * {Array({<OpenLayers.Feature.Vector>})} or {<OpenLayers.Feature.Vector>}
+     * The features provided by the user and placed in the request by the
+     *      protocol.
+     */
+    reqFeatures: null,
+
+    /**
+     * Property: priv
+     */
+    priv: null,
+
+    /**
+     * Property: error
+     * {Object} The error object in case a service exception was encountered.
+     */
+    error: null,
+
+    /**
+     * Constructor: OpenLayers.Protocol.Response
+     *
+     * Parameters:
+     * options - {Object} Optional object whose properties will be set on the
+     *     instance.
+     */
+    initialize: function(options) {
+        OpenLayers.Util.extend(this, options);
+    },
+
+    /**
+     * Method: success
+     *
+     * Returns:
+     * {Boolean} - true on success, false otherwise
+     */
+    success: function() {
+        return this.code > 0;
+    },
+
+    CLASS_NAME: "OpenLayers.Protocol.Response"
+});
+
+OpenLayers.Protocol.Response.SUCCESS = 1;
+OpenLayers.Protocol.Response.FAILURE = 0;
 /* ======================================================================
     OpenLayers/Protocol/WFS.js
    ====================================================================== */
@@ -62102,7 +62411,7 @@ OpenLayers.Marker.Box = OpenLayers.Class(OpenLayers.Marker, {
     * sz - {<OpenLayers.Size>} 
     * 
     * Returns: 
-    * {DOMElement} A new DOM Image with this marker?s icon set at the 
+    * {DOMElement} A new DOM Image with this marker´s icon set at the 
     *         location passed-in
     */
     draw: function(px, sz) {
@@ -67588,7 +67897,7 @@ OpenLayers.Format.QueryStringFilter = (function() {
 
 /**
  * @requires OpenLayers/Format/WCSCapabilities/v1.js
- * @requires OpenLayers/Format/OWSCommon/v1.js
+ * @requires OpenLayers/Format/OWSCommon/v1_1_0.js
  */
 
 /**
@@ -67596,11 +67905,10 @@ OpenLayers.Format.QueryStringFilter = (function() {
  * Read WCS Capabilities version 1.1.0.
  * 
  * Inherits from:
- *  - <OpenLayers.Format.WCSCapabilities>
+ *  - <OpenLayers.Format.WCSCapabilities.v1>
  */
 OpenLayers.Format.WCSCapabilities.v1_1_0 = OpenLayers.Class(
     OpenLayers.Format.WCSCapabilities.v1, {
-
 
     /**
      * Property: namespaces
@@ -67622,7 +67930,6 @@ OpenLayers.Format.WCSCapabilities.v1_1_0 = OpenLayers.Class(
      */
     errorProperty: "operationsMetadata",
 
-
     /**
      * Constructor: OpenLayers.Format.WCSCapabilities.v1_1_0
      * Create a new parser for WCS capabilities version 1.1.0.
@@ -67642,18 +67949,21 @@ OpenLayers.Format.WCSCapabilities.v1_1_0 = OpenLayers.Class(
      */
     readers: {
         "wcs": OpenLayers.Util.applyDefaults({
-
-            "Capabilities": function(node, obj) {           // In 1.0.0, this was WCS_Capabilties, in 1.1.0, it's just Capabilities
+            // In 1.0.0, this was WCS_Capabilties, in 1.1.0, it's Capabilities
+            "Capabilities": function(node, obj) {           
                 this.readChildNodes(node, obj);
             },
             "Contents": function(node, request) {
-                request.contents = [];
-                this.readChildNodes(node, request.contents);
+                request.contentMetadata = [];
+                this.readChildNodes(node, request.contentMetadata);
             },
-            "CoverageSummary": function(node, contents) {
+            "CoverageSummary": function(node, contentMetadata) {
                 var coverageSummary = {};
-                this.readChildNodes(node, coverageSummary);     // Read the summary
-                contents.push(coverageSummary);                 // Add it to the contents array
+                // Read the summary:
+                this.readChildNodes(node, coverageSummary);   
+
+                // Add it to the contentMetadata array:  
+                contentMetadata.push(coverageSummary);                 
             },
             "Identifier": function(node, coverageSummary) {
                 coverageSummary.identifier = this.getChildValue(node);
@@ -67662,29 +67972,28 @@ OpenLayers.Format.WCSCapabilities.v1_1_0 = OpenLayers.Class(
               coverageSummary.title = this.getChildValue(node);
             },
             "Abstract": function(node, coverageSummary) {
-                coverageSummary.abstract = this.getChildValue(node);
+                coverageSummary["abstract"] = this.getChildValue(node);
             },
             "SupportedCRS": function(node, coverageSummary) {
                 var crs = this.getChildValue(node);
                 if(crs) {
-                    if(!coverageSummary["supportedCRS"]) { 
-                        coverageSummary["supportedCRS"] = [];
+                    if(!coverageSummary.supportedCRS) { 
+                        coverageSummary.supportedCRS = [];
                     }
-                    coverageSummary["supportedCRS"].push(crs);
+                    coverageSummary.supportedCRS.push(crs);
                 }
             },
             "SupportedFormat": function(node, coverageSummary) {
                 var format = this.getChildValue(node);
                 if(format) {
-                    if(!coverageSummary["supportedFormat"]) { 
-                        coverageSummary["supportedFormat"] = [];
+                    if(!coverageSummary.supportedFormat) { 
+                        coverageSummary.supportedFormat = [];
                     }
-                    coverageSummary["supportedFormat"].push(format);
+                    coverageSummary.supportedFormat.push(format);
                 }
-            },
-
+            }
         }, OpenLayers.Format.WCSCapabilities.v1.prototype.readers["wcs"]),
-        "ows": OpenLayers.Format.OWSCommon.v1.prototype.readers["ows"]
+        "ows": OpenLayers.Format.OWSCommon.v1_1_0.prototype.readers["ows"]
     },
 
     CLASS_NAME: "OpenLayers.Format.WCSCapabilities.v1_1_0" 
@@ -74170,8 +74479,8 @@ OpenLayers.Protocol.WFS.v1_0_0 = OpenLayers.Class(OpenLayers.Protocol.WFS.v1, {
  *
  * Example text file:
  * (code)
- * lat  lon title   description iconSize    iconOffset  icon
- * 10   20  title   description 21,25       -10,-25     http://www.openlayers.org/dev/img/marker.png
+ * lat	lon	title	description	iconSize	iconOffset	icon
+ * 10	20	title	description	21,25		-10,-25		http://www.openlayers.org/dev/img/marker.png
  * (end)
  *
  * Inherits from:
@@ -80917,453 +81226,6 @@ OpenLayers.Format.WMSCapabilities.v1_1_1_WMSC = OpenLayers.Class(
 
     CLASS_NAME: "OpenLayers.Format.WMSCapabilities.v1_1_1_WMSC" 
 
-});
-/* ======================================================================
-    OpenLayers/Control/ArgParser.js
-   ====================================================================== */
-
-/* Copyright (c) 2006-2012 by OpenLayers Contributors (see authors.txt for 
- * full list of contributors). Published under the 2-clause BSD license.
- * See license.txt in the OpenLayers distribution or repository for the
- * full text of the license. */
-
-
-/**
- * @requires OpenLayers/Control.js
- */
-
-/**
- * Class: OpenLayers.Control.ArgParser
- * The ArgParser control adds location bar query string parsing functionality 
- * to an OpenLayers Map.
- * When added to a Map control, on a page load/refresh, the Map will 
- * automatically take the href string and parse it for lon, lat, zoom, and 
- * layers information. 
- *
- * Inherits from:
- *  - <OpenLayers.Control>
- */
-OpenLayers.Control.ArgParser = OpenLayers.Class(OpenLayers.Control, {
-
-    /**
-     * Property: center
-     * {<OpenLayers.LonLat>}
-     */
-    center: null,
-    
-    /**
-     * Property: zoom
-     * {int}
-     */
-    zoom: null,
-
-    /**
-     * Property: layers
-     * {String} Each character represents the state of the corresponding layer 
-     *     on the map.
-     */
-    layers: null,
-    
-    /** 
-     * APIProperty: displayProjection
-     * {<OpenLayers.Projection>} Requires proj4js support. 
-     *     Projection used when reading the coordinates from the URL. This will
-     *     reproject the map coordinates from the URL into the map's
-     *     projection.
-     *
-     *     If you are using this functionality, be aware that any permalink
-     *     which is added to the map will determine the coordinate type which
-     *     is read from the URL, which means you should not add permalinks with
-     *     different displayProjections to the same map. 
-     */
-    displayProjection: null, 
-
-    /**
-     * Constructor: OpenLayers.Control.ArgParser
-     *
-     * Parameters:
-     * options - {Object}
-     */
-
-    /**
-     * Method: getParameters
-     */    
-    getParameters: function(url) {
-        url = url || window.location.href;
-        var parameters = OpenLayers.Util.getParameters(url);
-
-        // If we have an anchor in the url use it to split the url
-        var index = url.indexOf('#');
-        if (index > 0) {
-            // create an url to parse on the getParameters
-            url = '?' + url.substring(index + 1, url.length);
-
-            OpenLayers.Util.extend(parameters,
-                    OpenLayers.Util.getParameters(url));
-        }
-        return parameters;
-    },
-    
-    /**
-     * Method: setMap
-     * Set the map property for the control. 
-     * 
-     * Parameters:
-     * map - {<OpenLayers.Map>} 
-     */
-    setMap: function(map) {
-        OpenLayers.Control.prototype.setMap.apply(this, arguments);
-
-        //make sure we dont already have an arg parser attached
-        for(var i=0, len=this.map.controls.length; i<len; i++) {
-            var control = this.map.controls[i];
-            if ( (control != this) &&
-                 (control.CLASS_NAME == "OpenLayers.Control.ArgParser") ) {
-                
-                // If a second argparser is added to the map, then we 
-                // override the displayProjection to be the one added to the
-                // map. 
-                if (control.displayProjection != this.displayProjection) {
-                    this.displayProjection = control.displayProjection;
-                }    
-                
-                break;
-            }
-        }
-        if (i == this.map.controls.length) {
-
-            var args = this.getParameters();
-            // Be careful to set layer first, to not trigger unnecessary layer loads
-            if (args.layers) {
-                this.layers = args.layers;
-    
-                // when we add a new layer, set its visibility 
-                this.map.events.register('addlayer', this, 
-                                         this.configureLayers);
-                this.configureLayers();
-            }
-            if (args.lat && args.lon) {
-                this.center = new OpenLayers.LonLat(parseFloat(args.lon),
-                                                    parseFloat(args.lat));
-                if (args.zoom) {
-                    this.zoom = parseFloat(args.zoom);
-                }
-    
-                // when we add a new baselayer to see when we can set the center
-                this.map.events.register('changebaselayer', this, 
-                                         this.setCenter);
-                this.setCenter();
-            }
-        }
-    },
-   
-    /** 
-     * Method: setCenter
-     * As soon as a baseLayer has been loaded, we center and zoom
-     *   ...and remove the handler.
-     */
-    setCenter: function() {
-        
-        if (this.map.baseLayer) {
-            //dont need to listen for this one anymore
-            this.map.events.unregister('changebaselayer', this, 
-                                       this.setCenter);
-            
-            if (this.displayProjection) {
-                this.center.transform(this.displayProjection, 
-                                      this.map.getProjectionObject()); 
-            }      
-
-            this.map.setCenter(this.center, this.zoom);
-        }
-    },
-
-    /** 
-     * Method: configureLayers
-     * As soon as all the layers are loaded, cycle through them and 
-     *   hide or show them. 
-     */
-    configureLayers: function() {
-
-        if (this.layers.length == this.map.layers.length) { 
-            this.map.events.unregister('addlayer', this, this.configureLayers);
-
-            for(var i=0, len=this.layers.length; i<len; i++) {
-                
-                var layer = this.map.layers[i];
-                var c = this.layers.charAt(i);
-                
-                if (c == "B") {
-                    this.map.setBaseLayer(layer);
-                } else if ( (c == "T") || (c == "F") ) {
-                    layer.setVisibility(c == "T");
-                }
-            }
-        }
-    },     
-
-    CLASS_NAME: "OpenLayers.Control.ArgParser"
-});
-/* ======================================================================
-    OpenLayers/Control/Permalink.js
-   ====================================================================== */
-
-/* Copyright (c) 2006-2012 by OpenLayers Contributors (see authors.txt for 
- * full list of contributors). Published under the 2-clause BSD license.
- * See license.txt in the OpenLayers distribution or repository for the
- * full text of the license. */
-
-
-/**
- * @requires OpenLayers/Control.js
- * @requires OpenLayers/Control/ArgParser.js
- * @requires OpenLayers/Lang.js
- */
-
-/**
- * Class: OpenLayers.Control.Permalink
- * The Permalink control is hyperlink that will return the user to the 
- * current map view. By default it is drawn in the lower right corner of the
- * map. The href is updated as the map is zoomed, panned and whilst layers
- * are switched.
- * 
- * Inherits from:
- *  - <OpenLayers.Control>
- */
-OpenLayers.Control.Permalink = OpenLayers.Class(OpenLayers.Control, {
-    
-    /**
-     * APIProperty: argParserClass
-     * {Class} The ArgParser control class (not instance) to use with this
-     *     control.
-     */
-    argParserClass: OpenLayers.Control.ArgParser,
-
-    /** 
-     * Property: element 
-     * {DOMElement}
-     */
-    element: null,
-    
-    /** 
-     * APIProperty: anchor
-     * {Boolean} This option changes 3 things:
-     *     the character '#' is used in place of the character '?',
-     *     the window.href is updated if no element is provided.
-     *     When this option is set to true it's not recommend to provide
-     *     a base without provide an element.
-     */
-    anchor: false,
-
-    /** 
-     * APIProperty: base
-     * {String}
-     */
-    base: '',
-
-    /** 
-     * APIProperty: displayProjection
-     * {<OpenLayers.Projection>} Requires proj4js support.  Projection used
-     *     when creating the coordinates in the link. This will reproject the
-     *     map coordinates into display coordinates. If you are using this
-     *     functionality, the permalink which is last added to the map will
-     *     determine the coordinate type which is read from the URL, which
-     *     means you should not add permalinks with different
-     *     displayProjections to the same map. 
-     */
-    displayProjection: null, 
-
-    /**
-     * Constructor: OpenLayers.Control.Permalink
-     *
-     * Parameters: 
-     * element - {DOMElement} 
-     * base - {String} 
-     * options - {Object} options to the control.
-     *
-     * Or for anchor:
-     * options - {Object} options to the control.
-     */
-    initialize: function(element, base, options) {
-        if (element !== null && typeof element == 'object' && !OpenLayers.Util.isElement(element)) {
-            options = element;
-            this.base = document.location.href;
-            OpenLayers.Control.prototype.initialize.apply(this, [options]);
-            if (this.element != null) {
-                this.element = OpenLayers.Util.getElement(this.element);
-            }
-        }
-        else {
-            OpenLayers.Control.prototype.initialize.apply(this, [options]);
-            this.element = OpenLayers.Util.getElement(element);
-            this.base = base || document.location.href;
-        }
-    },
-    
-    /**
-     * APIMethod: destroy
-     */
-    destroy: function()  {
-        if (this.element && this.element.parentNode == this.div) {
-            this.div.removeChild(this.element);
-            this.element = null;
-        }
-        if (this.map) {
-            this.map.events.unregister('moveend', this, this.updateLink);
-        }
-
-        OpenLayers.Control.prototype.destroy.apply(this, arguments); 
-    },
-
-    /**
-     * Method: setMap
-     * Set the map property for the control. 
-     * 
-     * Parameters:
-     * map - {<OpenLayers.Map>} 
-     */
-    setMap: function(map) {
-        OpenLayers.Control.prototype.setMap.apply(this, arguments);
-
-        //make sure we have an arg parser attached
-        for(var i=0, len=this.map.controls.length; i<len; i++) {
-            var control = this.map.controls[i];
-            if (control.CLASS_NAME == this.argParserClass.CLASS_NAME) {
-                
-                // If a permalink is added to the map, and an ArgParser already
-                // exists, we override the displayProjection to be the one
-                // on the permalink. 
-                if (control.displayProjection != this.displayProjection) {
-                    this.displayProjection = control.displayProjection;
-                }    
-                
-                break;
-            }
-        }
-        if (i == this.map.controls.length) {
-            this.map.addControl(new this.argParserClass(
-                { 'displayProjection': this.displayProjection }));       
-        }
-
-    },
-
-    /**
-     * Method: draw
-     *
-     * Returns:
-     * {DOMElement}
-     */    
-    draw: function() {
-        OpenLayers.Control.prototype.draw.apply(this, arguments);
-          
-        if (!this.element && !this.anchor) {
-            this.element = document.createElement("a");
-            this.element.innerHTML = OpenLayers.i18n("Permalink");
-            this.element.href="";
-            this.div.appendChild(this.element);
-        }
-        this.map.events.on({
-            'moveend': this.updateLink,
-            'changelayer': this.updateLink,
-            'changebaselayer': this.updateLink,
-            scope: this
-        });
-        
-        // Make it so there is at least a link even though the map may not have
-        // moved yet.
-        this.updateLink();
-        
-        return this.div;
-    },
-   
-    /**
-     * Method: updateLink 
-     */
-    updateLink: function() {
-        var separator = this.anchor ? '#' : '?';
-        var href = this.base;
-        var anchor = null;
-        if (href.indexOf("#") != -1 && this.anchor == false) {
-            anchor = href.substring( href.indexOf("#"), href.length);
-        }
-        if (href.indexOf(separator) != -1) {
-            href = href.substring( 0, href.indexOf(separator) );
-        }
-        var splits = href.split("#");
-        href = splits[0] + separator+ OpenLayers.Util.getParameterString(this.createParams());
-        if (anchor) {
-            href += anchor;
-        }
-        if (this.anchor && !this.element) {
-            window.location.href = href;
-        }
-        else {
-            this.element.href = href;
-        }
-    }, 
-    
-    /**
-     * APIMethod: createParams
-     * Creates the parameters that need to be encoded into the permalink url.
-     * 
-     * Parameters:
-     * center - {<OpenLayers.LonLat>} center to encode in the permalink.
-     *     Defaults to the current map center.
-     * zoom - {Integer} zoom level to encode in the permalink. Defaults to the
-     *     current map zoom level.
-     * layers - {Array(<OpenLayers.Layer>)} layers to encode in the permalink.
-     *     Defaults to the current map layers.
-     * 
-     * Returns:
-     * {Object} Hash of parameters that will be url-encoded into the
-     * permalink.
-     */
-    createParams: function(center, zoom, layers) {
-        center = center || this.map.getCenter();
-          
-        var params = OpenLayers.Util.getParameters(this.base);
-        
-        // If there's still no center, map is not initialized yet. 
-        // Break out of this function, and simply return the params from the
-        // base link.
-        if (center) { 
-
-            //zoom
-            params.zoom = zoom || this.map.getZoom(); 
-
-            //lon,lat
-            var lat = center.lat;
-            var lon = center.lon;
-            
-            if (this.displayProjection) {
-                var mapPosition = OpenLayers.Projection.transform(
-                  { x: lon, y: lat }, 
-                  this.map.getProjectionObject(), 
-                  this.displayProjection );
-                lon = mapPosition.x;  
-                lat = mapPosition.y;  
-            }       
-            params.lat = Math.round(lat*100000)/100000;
-            params.lon = Math.round(lon*100000)/100000;
-    
-            //layers        
-            layers = layers || this.map.layers;  
-            params.layers = '';
-            for (var i=0, len=layers.length; i<len; i++) {
-                var layer = layers[i];
-    
-                if (layer.isBaseLayer) {
-                    params.layers += (layer == this.map.baseLayer) ? "B" : "0";
-                } else {
-                    params.layers += (layer.getVisibility()) ? "T" : "F";           
-                }
-            }
-        }
-
-        return params;
-    }, 
-
-    CLASS_NAME: "OpenLayers.Control.Permalink"
 });
 /* ======================================================================
     OpenLayers/Control/LayerSwitcher.js
