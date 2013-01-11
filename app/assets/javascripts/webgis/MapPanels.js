@@ -37,6 +37,7 @@ Ext.onReady(function() {
     floatable: false,
     xtype: "gx_mappanel",
     map: WebGIS.map,
+    items: [zoomSlider],
     tbar: {
         height: 100,
         items:[
@@ -45,14 +46,9 @@ Ext.onReady(function() {
             '-',
             '->',
             '-',
-            /*{
-			    xtype       : 'button',
-			    text        : 'Toggle Button'
-			},*/
            {
                xtype:'splitbutton',
                text: 'Open Street Map',
-               height: 20,
                menu: [{
             	   text: 'Open Street Map',
             	   checked: true,
@@ -80,8 +76,7 @@ Ext.onReady(function() {
             	   group: 'baseLayer'
                }]
        		}]
-    },
-    items: [zoomSlider]
+    }
   });
 
 
@@ -186,17 +181,6 @@ WebGIS.createTbarItems = function(map) {
       out: true
     })
   }));
-  actions.push(new GeoExt.Action({
-    iconCls: "identify",
-    map: map,
-    pressed: false,
-    toggleGroup: "tools",
-    allowDepress: false,
-    tooltip: "Identify",
-    //disabled: true
-    control: WebGIS.ctrlIdentify,
-    handler: WebGIS.toggleIdentify
-  }));
   var ctrl = new OpenLayers.Control.NavigationHistory();
   map.addControl(ctrl);
   actions.push(new GeoExt.Action({
@@ -210,6 +194,18 @@ WebGIS.createTbarItems = function(map) {
     iconCls: "next",
     tooltip: "next",
     disabled: true
+  }));
+  actions.push("-");
+  actions.push(new GeoExt.Action({
+	    iconCls: "identify",
+	    map: map,
+	    pressed: false,
+	    toggleGroup: "tools",
+	    allowDepress: false,
+	    tooltip: "Identify",
+	    //disabled: true
+	    control: WebGIS.ctrlIdentify,
+	    handler: WebGIS.toggleIdentify
   }));
   actions.push(new GeoExt.Action({
     iconCls: "print",
