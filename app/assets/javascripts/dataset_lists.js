@@ -184,11 +184,11 @@
   // Class that describes response from server, either success or failure
   var ServerResponse = function(success, dataProxy, records, service, responseCode, responseText) 
   {
-    this.success     = success;
-    this.records     = records;
-    this.service     = service;
-    this.errCode     = responseCode || null;
-    this.errText     = responseText || null;
+    this.success = success;
+    this.records = records;
+    this.service = service;
+    this.errCode = responseCode || null;
+    this.errText = responseText || null;
 
     if(success) { 
 
