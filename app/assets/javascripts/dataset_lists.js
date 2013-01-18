@@ -55,6 +55,25 @@
   } 
 
 
+  var processedUrls   = [ ];
+
+  var processUrl = function(url)
+  {
+    // This function will be called for every dataset registered with the current city.  Many will have the same
+    // server.  Avoid processing the same server twice.
+    // Called from renderTable(), which is called from onCityChange() event handler
+    if(processedUrls.hasObject(url)) {  /*setLayerStatus(url);*/ return;  }
+
+    processedUrls.push(url);
+
+    serverResponses[url] = [ ];    
+
+    WMS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+    WFS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+    WCS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+  }
+
+
   // Server has responded to our query and seems happy (from updateLayerList)
   // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-load
   var onGetCapabilitiesSucceeded = function(dataProxy, records, options) // Need to validate each item in dataProxy
@@ -77,19 +96,16 @@
   // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-exception
   var onGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) {
     // status.responseText has response from data server?
+    // We might get here if server the server does not support service WxS
 
     var format  = options.reader.meta.format.name;
     var url     = unwrapServer(dataProxy.url, format);
     var service = getService(format);
 
+    // alert("server " + dataProxy.url + " had no " + service + " service");
 
     serverResponses[url].push( new ServerResponse(false, 0, null, service, 
                                                   response.status, response.responseText) );
-
-    // alert("Error retrieving data -- see console for details!");
-    console.log("Failure!",arguments);
-
-    // server xxx does not support service yyy ???
 
     setLayerStatus(url);
   }
@@ -118,6 +134,7 @@
       $('#results-' + railsId).append('<a href="' + url + '" target="_blank">' + services[i] + '</a>&nbsp;');
     }
 
+
     if(url != '') {
       $('#results-' + railsId).append('&nbsp;(Right-click, Copy Link Location)');
     }
@@ -130,28 +147,6 @@
       $('.status2-' + railsId).html('<img class="status-indicator" src="/assets/layer_available_no.png" alt="Layer not available">');
     }
   }
-
-
-
-  var processedUrls   = [ ];
-
-  var processUrl = function(url)
-  {
-    // This function will be called for every dataset registered with the current city.  Many will have the same
-    // server.  Avoid processing the same server twice.
-    // Called from renderTable(), which is called from onCityChange() event handler
-    if(processedUrls.hasObject(url)) {  /*setLayerStatus(url);*/ return;  }
-
-    processedUrls.push(url);
-
-    serverResponses[url] = [ ];    
-
-    WMS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
-    WFS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
-    WCS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
-  }
-
-
 
   // Create a popup info display for this dataset 
   var renderInfoTable = function(dataset, railsId) 
@@ -186,10 +181,9 @@
 
 
 
-// Class that describes response from server, either success or failure
+  // Class that describes response from server, either success or failure
   var ServerResponse = function(success, records, dataProxy, service, responseCode, responseText) 
   {
-
     this.success     = success;
     this.recordCount = records;
     this.layerStore  = dataProxy;
@@ -197,14 +191,25 @@
     this.errCode     = responseCode || null;
     this.errText     = responseText || null;
 
+    if(success) { 
 
-    if(dataProxy) {
-      console.log("ServerResponse:", dataProxy.reader);
+      var obj = dataProxy.reader.raw;
 
-      var serverInfo = dataProxy.reader.raw.service;
-
-      this.serverName  = serverInfo.title    || serverInfo.name || "Data Server";
-      this.serverDescr = serverInfo.abstract || "";
+      if(service === "WMS") {
+        // These work for both 1.1.1 and 1.3.0
+        this.serverName  = obj.service.title || obj.service.name || "Map Server";
+        this.serverDescr = obj.service.abstract || this.serverName;
+      }
+      else if(service === "WFS") {
+        // These work for both 1.0.0 and 1.1.0
+        this.serverName  = obj.service.name || "Web Feature Server";
+        this.serverDescr = obj.service.title || this.serverName;
+      }
+      else if(service === "WCS") {
+        // These work for both 1.0.0 and 1.1.0
+        this.serverName  = obj.serviceIdentification.title || "Web Coverage Server";
+        this.serverDescr = obj.serviceIdentification.abstract || this.serverName;
+      }
     }
     else {
       this.serverName  == this.serverName  || "Data Server";
@@ -213,10 +218,8 @@
   }
 
 
-
-
   // We have a response of some sort from serverUrl -- update the datasets table to show it.
-  // serverResponses should be an array of ServerResponse objects.
+  // serverResponses should be an array of 3 ServerResponse objects.
   var setLayerStatus = function(serverUrl)
   {
     var serverResponseArry = serverResponses[serverUrl];
@@ -231,7 +234,7 @@
     if(serverResponseArry.length < 3) { return; } 
 
 
-    if(!(serverResponseArry[0].success || serverResponseArry[1].success)) {    
+    if(!(serverResponseArry[0].success || serverResponseArry[1].success || serverResponseArry[2].success)) {    
       // All services failed, all datasets from this server ganz kaput
       $('.status-' + serverUrlId).html('<img class="status-indicator" src="/assets/server_responding_no.png" alt="WMS server not responding">');
       $('.dataset-name-' + serverUrlId).text("Unknown");
@@ -239,6 +242,8 @@
     }
 
     // At least one server succeeded, vist each one-by-one
+
+    debugger
 
     var datasets = serverDatasets[serverUrl];   // List of registered datasets available on this server
 
