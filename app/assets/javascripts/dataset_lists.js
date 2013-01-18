@@ -88,7 +88,6 @@
   }
 
 
-
   // We pepper each server with WMS, WFS, and WCS requests.  One of these has failed, 
   // which might be bad, or it might be perfectly fine.  It might mean that the server 
   // is down, or that it has not been configured to respond to a particular service.
