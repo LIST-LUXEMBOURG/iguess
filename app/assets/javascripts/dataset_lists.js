@@ -119,6 +119,7 @@
     $('#results-'       + railsId).html('');      // Clear
 
     var url = '';
+    
     // Parse services... provide links for whatever services
     for (var i = 0; i < services.length; i++) {
       if(services[i] == 'WMS') {
@@ -130,6 +131,7 @@
       else if(services[i] == 'WCS') {
         url = WCS.getCapUrl(serverUrl);
       }
+
       $('#results-' + railsId).append('<a href="' + url + '" target="_blank">' + services[i] + '</a>&nbsp;');
     }
 
