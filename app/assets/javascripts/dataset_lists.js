@@ -82,7 +82,7 @@
     var url     = unwrapServer(dataProxy.url, format);
     var service = getService(format);
 
-    serverResponses[url].push( new ServerResponse(true, records.length, dataProxy, service));
+    serverResponses[url].push( new ServerResponse(true, dataProxy, records, service));
                                                   
     setLayerStatus(url);
   }
@@ -103,7 +103,7 @@
 
     // alert("server " + dataProxy.url + " had no " + service + " service");
 
-    serverResponses[url].push( new ServerResponse(false, 0, null, service, 
+    serverResponses[url].push( new ServerResponse(false, null, [], service, 
                                                   response.status, response.responseText) );
 
     setLayerStatus(url);
@@ -119,7 +119,7 @@
     $('#results-'       + railsId).html('');      // Clear
 
     var url = '';
-    
+
     // Parse services... provide links for whatever services
     for (var i = 0; i < services.length; i++) {
       if(services[i] == 'WMS') {
@@ -139,7 +139,6 @@
     if(url != '') {
       $('#results-' + railsId).append('&nbsp;(Right-click, Copy Link Location)');
     }
-
 
     if(available) {
       $('.status2-' + railsId).html(
@@ -183,11 +182,10 @@
 
 
   // Class that describes response from server, either success or failure
-  var ServerResponse = function(success, records, dataProxy, service, responseCode, responseText) 
+  var ServerResponse = function(success, dataProxy, records, service, responseCode, responseText) 
   {
     this.success     = success;
-    this.recordCount = records;
-    this.layerStore  = dataProxy;
+    this.records     = records;
     this.service     = service;
     this.errCode     = responseCode || null;
     this.errText     = responseText || null;
@@ -244,8 +242,6 @@
 
     // At least one server succeeded, vist each one-by-one
 
-    debugger
-
     var datasets = serverDatasets[serverUrl];   // List of registered datasets available on this server
 
     datasetCount = datasets.length;
@@ -257,19 +253,18 @@
       var services = [];
 
       for(var j = 0; j < layerRecordsCount && !found; j++) {
-        var store    = serverResponseArry[j].layerStore;
-        var records  = serverResponseArry[j].recordCount;
         services.push(serverResponseArry[j].service);
 
-        for(var k = 0; k < records; k++) {
-          var record = store.getAt(k);
+        for(var k = 0, records = serverResponseArry[j].records.length; k < records; k++) {
+          var record = serverResponseArry[j].records[k];
 
           var identifier = record.get("name");
+          if(!identifier)
+              debugger;
 
           if(datasets[i] == identifier) {
             var title = record.get("title") || record.get("name");
             title = title.replace(/ /g,'&nbsp;');
-
 
             updateLayerInfo(serverUrl, identifier, true, title, record.get("abstract"), services);
 
