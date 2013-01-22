@@ -29,7 +29,7 @@ var renderTable = function(datasets) {
 
   $('#dataset-list').empty();    // Clear table
 
-  for(var i = 0; i < datasets.length; i++) {
+  for(var i = 0, len = datasets.length; i < len; i++) {
     var dataset = datasets[i];
 
     var railsId = railsIdLookup[makeKey(dataset.server_url, dataset.identifier)];
@@ -86,7 +86,7 @@ var onGetCapabilitiesSucceeded = function(dataProxy, records, options) // Need t
 // if(url==='http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map') debugger
 
   serverResponses[url][service] = new ServerResponse(true, dataProxy, records, service);
-  updateDatasets(dataProxy, records, service);
+  updateDatasets(url, dataProxy, records, service);
                                                 
   setLayerStatus(url);
 };
@@ -117,27 +117,31 @@ var onGetCapabilitiesFailed = function(dataProxy, type, action, options, respons
 
 var Datasets = {};
 
-var updateDatasets = function(dataProxy, records, service)  // service will be WMS, WFS, or WCS
+var updateDatasets = function(serverUrl, dataProxy, records, service)  // service will be WMS, WFS, or WCS
 {
   for(var i = 0, count = records.length; i < count; i++) {
     var record = records[i];
 
     var identifier = record.data.name;
+    var serverUrl  = serverUrl;
     var title      = record.data.title;
-    var descr      = record.data["abstract"] || title;    
+    var descr      = record.data["abstract"] || title;   
+    var key        = makeKey(serverUrl, identifier);      // This should be unique!
 
 
-    if(!Datasets[identifier]) {
-      Datasets[identifier] = { 
-        identifier: identifier,
-        title: "",
-        descr: "",
+    if(!Datasets[key]) {
+      Datasets[key] = { 
+        identifier:      identifier,
+        serverUrl:       serverUrl,
+        key:             key,
+        title:           "",
+        descr:           "",
         nameCameFromWms: false,
-        services: []
+        services:        []
       };
     }
 
-    var dataset = Datasets[identifier];
+    var dataset = Datasets[key];
 
     dataset[service] = {};
     dataset.services.push(service);
@@ -231,15 +235,15 @@ var getGetCapUrl = function(serverUrl, service)
 
 
 // We found the layer
-var updateLayerInfo = function(serverUrl, dataset, name, descr, services) 
+var updateLayerInfo = function(serverUrl, datasetKey, name, descr, services) 
 {
-  var railsId = railsIdLookup[makeKey(serverUrl, dataset)];
+  var railsId = railsIdLookup[datasetKey];
   $('.dataset-name2-' + railsId).html(name);    // Appears in the name column, also on infotable popup
   $('.dataset-descr-' + railsId).html(descr);
   $('#results-'       + railsId).html('');      // Clear
   var url = '';
   // Parse services... provide links for whatever services
-  for (var i = 0; i < services.length; i++) {
+  for (var i = 0, len = services.length; i < len; i++) {
     url = getGetCapUrl(serverUrl, services[i]);
     $('#results-' + railsId).append('<a href="' + url + '" target="_blank">' + services[i] + '</a>&nbsp;');
   }
@@ -251,9 +255,9 @@ var updateLayerInfo = function(serverUrl, dataset, name, descr, services)
 
 
 // We did not find the layer
-var layerMissing = function(serverUrl, dataset)
+var layerMissing = function(datsetKey)
 {
-  var railsId = railsIdLookup[makeKey(serverUrl, dataset)];
+  var railsId = railsIdLookup[datsetKey];
 
   $('.dataset-name2-' + railsId).html('Missing');   // Appears in the name column, also on infotable popup
   $('.dataset-descr-' + railsId).html('This dataset appears to have been removed from the server');
@@ -295,13 +299,15 @@ var setLayerStatus = function(serverUrl)
   var ids = serverDatasets[serverUrl];   // List of registered datasets available on this server
 
   for(var i = 0, recs = ids.length; i < recs; i++) {
-    var dataset = Datasets[ids[i]];
+    var key = makeKey(serverUrl, ids[i]);
+
+    var dataset = Datasets[key];
     if(!!!dataset) {
-      layerMissing(serverUrl, ids[i])
+      layerMissing(key);
       return;
     }
 
-    updateLayerInfo(serverUrl, ids[i], dataset.title.replace(/ /g,'&nbsp;'), dataset.descr, dataset.services);
+    updateLayerInfo(serverUrl, key, dataset.title.replace(/ /g,'&nbsp;'), dataset.descr, dataset.services);
   }
 };
 
