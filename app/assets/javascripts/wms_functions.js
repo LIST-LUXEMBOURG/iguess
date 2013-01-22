@@ -275,7 +275,7 @@ var getJoinChar = function(url) {
 
 // Version info
 WMS.version = '1.3.0';
-WFS.version = '1.0.0';    // Geoext has some problems with 1.1.0; use 1.0.0 for now
+WFS.version = '1.0.0';    // Still having problems with 1.1.0; use 1.0.0 for now
 WCS.version = '1.1.0';
 WPS.version = '1.0.0';
 
@@ -298,7 +298,7 @@ WMS.stripGetCapReq = function(serverUrl) {
 
 
 // http://www.mail-archive.com/users@geoext.org/msg01843.html
-WFS.getCapStr = 'SERVICE=WFS&VERSION=' + WCS.version + '&REQUEST=GetCapabilities';    
+WFS.getCapStr = 'SERVICE=WFS&VERSION=' + WFS.version + '&REQUEST=GetCapabilities';    
 
 WFS.getCapUrl = function(serverUrl) {
   var joinchar = getJoinChar(serverUrl);

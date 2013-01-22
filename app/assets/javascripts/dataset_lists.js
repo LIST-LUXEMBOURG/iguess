@@ -76,19 +76,22 @@ var processUrl = function(url)
 
 // Server has responded to our query and seems happy (from updateLayerList)
 // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-load
-var onGetCapabilitiesSucceeded = function(dataProxy, records, options) // Need to validate each item in dataProxy
+var onGetCapabilitiesSucceeded = function(dataProxy, records, options)
 {
-  var format  = dataProxy.format.name;
-  var url     = unwrapServer(dataProxy.url, format);
-  var service = getService(format);
+  var format    = dataProxy.format.name;
+  var serverUrl = unwrapServer(dataProxy.url, format);
+  var service   = getService(format);
 
 
-// if(url==='http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map') debugger
+// if(serverUrl==='http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map') debugger
 
-  serverResponses[url][service] = new ServerResponse(true, dataProxy, records, service);
-  updateDatasets(url, dataProxy, records, service);
+  serverResponses[serverUrl][service] = new ServerResponse(true, dataProxy, records, service);
+  updateDatasets(serverUrl, dataProxy, records, service);
+
+    // if(serverUrl === 'http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map') debugger
+
                                                 
-  setLayerStatus(url);
+  setLayerStatus(serverUrl);
 };
 
 
@@ -103,15 +106,17 @@ var onGetCapabilitiesFailed = function(dataProxy, type, action, options, respons
   // We might get here if server the server does not support service WxS
 
   var format  = options.reader.meta.format.name;
-  var url     = unwrapServer(dataProxy.url, format);
+  var serverUrl     = unwrapServer(dataProxy.url, format);
   var service = getService(format);
+
+  if(serverUrl==='http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map') debugger
 
   // alert("server " + dataProxy.url + " had no " + service + " service");
 
-  serverResponses[url][service] = new ServerResponse(false, null, [], service, 
-                                                response.status, response.responseText);
+  serverResponses[serverUrl][service] = new ServerResponse(false, null, [], service, 
+                                                           response.status, response.responseText);
 
-  setLayerStatus(url);
+  setLayerStatus(serverUrl);
 };
 
 
@@ -119,6 +124,7 @@ var Datasets = {};
 
 var updateDatasets = function(serverUrl, dataProxy, records, service)  // service will be WMS, WFS, or WCS
 {
+  
   for(var i = 0, count = records.length; i < count; i++) {
     var record = records[i];
 
@@ -150,7 +156,7 @@ var updateDatasets = function(serverUrl, dataProxy, records, service)  // servic
     if(!dataset.nameCameFromWms) {
       dataset.title   = title;
       dataset.descr   = descr;
-      nameCameFromWms = (service == WMS);
+      nameCameFromWms = (service == 'WMS');
     }
   }
 };
