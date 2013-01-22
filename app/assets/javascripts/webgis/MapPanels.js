@@ -9,11 +9,15 @@
 
 var WebGIS = WebGIS || { };
 
+WebGIS.layerTree;
+
 Ext.onReady(function() {
 
   Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
 
   WebGIS.initMap();
+  
+  WebGIS.initWinIdentify();
 
   var zoomSlider = new GeoExt.ZoomSlider({
     xtype: "gx_zoomslider",
@@ -27,22 +31,52 @@ Ext.onReady(function() {
     })
   });
 
-  // var dataPanel = new Ext.Panel({
-  //   title: 'Datasets',
-  //   region:'west',
-  //   collapsible: true,
-  //   width: 182,
-  //   contentEl: 'data'
-  // });
-
   var mapPanel = new GeoExt.MapPanel({
     region: "center",
     collapsible: false,
     floatable: false,
     xtype: "gx_mappanel",
     map: WebGIS.map,
-    // tbar: WebGIS.createTbarItems(WebGIS.map),
-    items: [zoomSlider]
+    items: [zoomSlider],
+    tbar: {
+        height: 100,
+        items:[
+            '-',
+            WebGIS.createTbarItems(WebGIS.map),
+            '-',
+            '->',
+            '-',
+           {
+               xtype:'splitbutton',
+               text: 'Open Street Map',
+               menu: [{
+            	   text: 'Open Street Map',
+            	   checked: true,
+            	   handler  : WebGIS.baseOSM,
+            	   group: 'baseLayer'
+               },{
+            	   text: 'Google Satellite',
+            	   checked: false,
+            	   handler  : WebGIS.baseGoogleSat,
+            	   group: 'baseLayer'
+               },{
+            	   text: 'Google Streets',
+            	   checked: false,
+            	   handler  : WebGIS.baseGoogleSt,
+            	   group: 'baseLayer'
+               },{
+            	   text: 'Google Physical',
+            	   checked: false,
+            	   handler  : WebGIS.baseGooglePhy,
+            	   group: 'baseLayer'
+               },{
+            	   text: 'Google Hybrid',
+            	   checked: false,
+            	   handler  : WebGIS.baseGoogleHy,
+            	   group: 'baseLayer'
+               }]
+       		}]
+    }
   });
 
 
@@ -52,15 +86,12 @@ Ext.onReady(function() {
   );
 
   var treeConfig = [{
-    nodeType: "gx_baselayercontainer",
-    expanded: true
-  }, {
     nodeType: "gx_overlaylayercontainer",
     expanded: true
   }];
 
   // Layer list
-  var layerTree = new Ext.tree.TreePanel({
+  WebGIS.layerTree = new Ext.tree.TreePanel({
     region: "west",
     title: 'Map Layers',
     width: 273,
@@ -77,10 +108,15 @@ Ext.onReady(function() {
       }
     },
     root: {
-
       children: treeConfig
     },
-    rootVisible: false
+    rootVisible: false,
+    lines: false,
+	listeners: {
+        click: {
+            fn:WebGIS.treeClickListener
+        }
+    }
   });
 
   var mainPanel = new Ext.Panel({
@@ -95,7 +131,7 @@ Ext.onReady(function() {
       autoHide: false,
       useSplitTips: true,
     },
-    items: [mapPanel, layerTree/*, dataPanel*/]
+    items: [mapPanel, WebGIS.layerTree]
   });
 
   WebGIS.zoomToCity();
@@ -123,7 +159,7 @@ WebGIS.createTbarItems = function(map) {
     iconCls: "maxExtent",
     map: map,
     tooltip: "Zoom to max extent",
-    control: new OpenLayers.Control.ZoomToMaxExtent()
+    handler: WebGIS.zoomToCity
   }));
   actions.push(new GeoExt.Action({
     iconCls: "zoomin",
@@ -145,17 +181,6 @@ WebGIS.createTbarItems = function(map) {
       out: true
     })
   }));
-  actions.push(new GeoExt.Action({
-    iconCls: "identify",
-    map: map,
-    pressed: false,
-    toggleGroup: "tools",
-    allowDepress: false,
-    tooltip: "Identify - still in development",
-    //disabled: true
-    control: WebGIS.ctrlIdentify,
-    handler: WebGIS.toggleIdentify
-  }));
   var ctrl = new OpenLayers.Control.NavigationHistory();
   map.addControl(ctrl);
   actions.push(new GeoExt.Action({
@@ -169,6 +194,18 @@ WebGIS.createTbarItems = function(map) {
     iconCls: "next",
     tooltip: "next",
     disabled: true
+  }));
+  actions.push("-");
+  actions.push(new GeoExt.Action({
+	    iconCls: "identify",
+	    map: map,
+	    pressed: false,
+	    toggleGroup: "tools",
+	    allowDepress: false,
+	    tooltip: "Identify",
+	    //disabled: true
+	    control: WebGIS.ctrlIdentify,
+	    handler: WebGIS.toggleIdentify
   }));
   actions.push(new GeoExt.Action({
     iconCls: "print",

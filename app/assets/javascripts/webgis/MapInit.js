@@ -6,6 +6,8 @@
  * in the home page.
  **/ 
 
+//= require webgis/BaseLayers
+
 var WebGIS = WebGIS || { };
 
 WebGIS.map;
@@ -53,36 +55,26 @@ WebGIS.initMap = function () {
     });
     WebGIS.map.addControl(mp);
     
-    WebGIS.addIdentifyControl(WebGIS.map);
+    WebGIS.registerIdentify(WebGIS.map, this);
 
-    var osm = new OpenLayers.Layer.OSM();
-
-    var gphy = new OpenLayers.Layer.Google(
-            "Google Physical",
-            {type: google.maps.MapTypeId.TERRAIN, numZoomLevels: 20}
-    );
-    var gmap = new OpenLayers.Layer.Google(
-            "Google Streets", // the default
-            {numZoomLevels: 20}
-    );
-    var ghyb = new OpenLayers.Layer.Google(
-            "Google Hybrid",
-            {type: google.maps.MapTypeId.HYBRID, numZoomLevels: 20}
-    );
-    var gsat = new OpenLayers.Layer.Google(
-            "Google Satellite",
-            {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22}
-    );
-    
-    osm.projection  = mapProjection;
-    gphy.projection = mapProjection;
-    gmap.projection = mapProjection;
-    ghyb.projection = mapProjection;
-    gsat.projection = mapProjection;
-
-    WebGIS.map.addLayers([osm, ghyb, gphy, gmap, gsat]);
+    WebGIS.map.addLayers(WebGIS.getBaseLayers());
 
     WebGIS.map.setCenter(boundsInit.getCenterLonLat(), 13);
+    
+    var buildsIGUESS =  new OpenLayers.Layer.WMS(
+    	"Builds iGUESS",
+    	"http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
+        {layers: "RO_building_footprints", 
+         format: "image/png",
+         srsName: WebGIS.requestProjection,
+	 	 transparent: "true",
+     	 projection: new OpenLayers.Projection(WebGIS.requestProjection)},
+        {isBaseLayer: false,  
+     	 visibility: false}
+    );
+    
+    WebGIS.map.addLayer(buildsIGUESS);
+    
   }
 
 WebGIS.zoomToCity = function () {
@@ -111,7 +103,7 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName)
 //Remove all layers from the current map
 WebGIS.clearLayers = function(alsoClearBaseLayers)
 {
-  alsoClearBaseLayers = alsoClearBaseLayers || false;
+ /* alsoClearBaseLayers = alsoClearBaseLayers || false;
   var layers = WebGIS.map.layers;
   var layerCount = layers.length;
 
@@ -119,5 +111,7 @@ WebGIS.clearLayers = function(alsoClearBaseLayers)
     if(layers[i].isBaseLayer == alsoClearBaseLayers) {
       WebGIS.map.removeLayer(layers[i]);
     }
-  }
+  }*/
 }
+
+

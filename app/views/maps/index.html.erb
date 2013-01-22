@@ -25,7 +25,8 @@
         var point = new OpenLayers.LonLat(
                 (<%= city.minx %> + <%= city.maxx %>) / 2,
                 (<%= city.miny %> + <%= city.maxy %>) / 2);
-        point.transform(proj, WebGIS.map.getProjectionObject());
+        if(WebGIS != null)
+        	point.transform(proj, WebGIS.map.getProjectionObject());
 
         WebGIS.map.setCenter(point, <%= city.zoom %>);
 
@@ -174,3 +175,5 @@
 
 <div style="float: left; width:100%; min-height:100%; margin:2px;" id="BroadMap"><!-- Map goes here --></div>
 
+<!-- Identify window -->
+<div id="winDivIdentify"></div>
