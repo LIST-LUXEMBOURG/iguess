@@ -265,62 +265,6 @@
   };
 
 
-      // for(var j = 0; j < 3 && !found; j++) {
-      //   services.push(serverResponseArry[j].service);
-
-      //   for(var k = 0, records = serverResponseArry[j].records.length; k < records; k++) {
-      //     var record = serverResponseArry[j].records[k];
-
-      //     var identifier = record.get("name");
-
-      //     if(datasets[i] == identifier) {
-      //       var title = record.get("title") || record.get("name");
-      //       title = title.replace(/ /g,'&nbsp;');
-
-      //       updateLayerInfo(serverUrl, identifier, true, title, record.get("abstract"), services);
-
-      //       found = true;
-      //       break;
-      //     }
-      //   }
-      // }
-
-      // if(!found) {
-      //   updateLayerInfo(serverUrl, datasets[i], false, datasets[i], 
-      //     'This dataset could no longer be located on the data server',    // Descr
-      //     [ ]);                                                            // Services
-      // }
-
-
-  // var updateLayerInfo = function(serverUrl, identifier, available, name, descr, services) 
-  // {
-
-  //   var railsId = railsIdLookup[makeKey(serverUrl, identifier)];
-
-  //   // Servers will have both registered and unregistered datasets.  If the railsId is not defined, that means this is not a 
-  //   // retistered dataset, and there will be no layerInfo to update.
-  //   if(!!!railsId)
-  //     return;
-
-  //   $('.dataset-name2-' + railsId).html(name);    // Appears in the name column, also on infotable popup
-  //   $('.dataset-descr-' + railsId).html(descr);
-  //   $('#results-'       + railsId).html('');      // Clear
-
-  //   // Provide service link for whatever services
-  //   var currentHtml = $('#results-' + railsId).html;
-  //   $('#results-' + railsId).html('<a href="' + getGetCapUrl(serverUrl, service) + '" target="_blank">' + service + '</a>&nbsp;') + currentHtml;
-  //   if(currentHtml === '') {
-  //     $('#results-' + railsId).append('&nbsp;(Right-click, Copy Link Location)');
-  //   }
-
-  //   if(available) {
-  //     $('.status2-' + railsId).html('<img class="status-indicator" src="/assets/layer_available_yes.png" alt="Layer available">');
-  //   } else {
-  //     $('.status2-' + railsId).html('<img class="status-indicator" src="/assets/layer_available_no.png" alt="Layer not available">');
-  //   }
-  // }
-
-
   var updateLayerInfo = function(serverUrl, dataset, name, descr, services) 
   {
     var railsId = railsIdLookup[makeKey(serverUrl, dataset)];
