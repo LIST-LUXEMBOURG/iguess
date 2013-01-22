@@ -171,7 +171,7 @@ var renderInfoTable = function(dataset, railsId)
                
             '</dl></div>' +
             '<div style="overflow:hidden" class="technical-details">' +
-              '<div class="section-header">Technical Details</div><dl>' +
+              '<div class="technical-details-header">Technical Details</div><dl>' +
               '<dt>Server Base URL:</dt><dd>' + dataset.server_url + '</dd>' +
               '<dt>Dataset Identifier:</dt><dd>' + dataset.identifier + '</dd>' +
               '<dt>All Get Capabilities Links:</dt><dd>' +
