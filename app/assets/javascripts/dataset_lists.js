@@ -290,7 +290,7 @@ var setLayerStatus = function(serverUrl)
   }
 
 
-  // At least one server succeeded, vist each one-by-one
+  // At least one server succeeded, vist each dataset one-by-one
 
   var ids = serverDatasets[serverUrl];   // List of registered datasets available on this server
 
