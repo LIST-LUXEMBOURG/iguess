@@ -2,20 +2,20 @@
 
   var hideUnregisterAndFriends = function() {
     $('.invisible-cell').hide();
-  }
+  };
 
 
    var showDetails = function() {
     $('.technical-details').show(); 
     $('.show-details').click(function(){ hideDetails(); });
     $('.show-details').html('<<< Hide details');
-  }
+  };
 
   var hideDetails = function() {
     $('.technical-details').hide();
     $('.show-details').click(function(){ showDetails(); });
     $('.show-details').html('Show details >>>');
-  }
+  };
 
 
   var layerRecords    = { };
@@ -41,7 +41,7 @@
     }
 
     $('img[rel]').overlay();                            // Set up the layer info overlays
-    $('img[rel]').click(function(){ hideDetails() });   // Close details panel on open
+    $('img[rel]').click(function(){ hideDetails(); });   // Close details panel on open
 
     $('.show-details').click(function(){ showDetails(); });
 
@@ -52,7 +52,7 @@
 
       // $('#sortable_table').trigger("update"); 
       // $('#sortable_table').trigger("sorton",[sorting]); 
-  } 
+  }; 
 
 
   var processedUrls   = [ ];
@@ -66,12 +66,12 @@
 
     processedUrls.push(url);
 
-    serverResponses[url] = [ ];    
+    serverResponses[url] = { };    
 
     WMS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
     WFS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
     WCS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
-  }
+  };
 
 
   // Server has responded to our query and seems happy (from updateLayerList)
@@ -82,10 +82,14 @@
     var url     = unwrapServer(dataProxy.url, format);
     var service = getService(format);
 
-    serverResponses[url].push( new ServerResponse(true, dataProxy, records, service));
+
+// if(url==='http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map') debugger
+
+    serverResponses[url][service] = new ServerResponse(true, dataProxy, records, service);
+    updateDatasets(dataProxy, records, service);
                                                   
     setLayerStatus(url);
-  }
+  };
 
 
   // We pepper each server with WMS, WFS, and WCS requests.  One of these has failed, 
@@ -93,7 +97,8 @@
   // is down, or that it has not been configured to respond to a particular service.
 
   // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-exception
-  var onGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) {
+  var onGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) 
+  {
     // status.responseText has response from data server?
     // We might get here if server the server does not support service WxS
 
@@ -103,50 +108,49 @@
 
     // alert("server " + dataProxy.url + " had no " + service + " service");
 
-    serverResponses[url].push( new ServerResponse(false, null, [], service, 
-                                                  response.status, response.responseText) );
+    serverResponses[url][service] = new ServerResponse(false, null, [], service, 
+                                                  response.status, response.responseText);
 
     setLayerStatus(url);
-  }
+  };
 
 
-  var updateLayerInfo = function(serverUrl, dataset, available, name, descr, services) 
+  var Datasets = {};
+
+  var updateDatasets = function(dataProxy, records, service)  // service will be WMS, WFS, or WCS
   {
-    var railsId = railsIdLookup[makeKey(serverUrl, dataset)];
+    for(var i = 0, count = records.length; i < count; i++) {
+      var record = records[i];
 
-    $('.dataset-name2-' + railsId).html(name);    // Appears in the name column, also on infotable popup
-    $('.dataset-descr-' + railsId).html(descr);
-    $('#results-'       + railsId).html('');      // Clear
+      var identifier = record.data.name;
+      var title      = record.data.title;
+      var descr      = record.data["abstract"] || title;    
 
-    var url = '';
 
-    // Parse services... provide links for whatever services
-    for (var i = 0; i < services.length; i++) {
-      if(services[i] == 'WMS') {
-        url = WMS.getCapUrl(serverUrl);
-      }
-      else if(services[i] == 'WFS') {
-        url = WFS.getCapUrl(serverUrl);
-      }
-      else if(services[i] == 'WCS') {
-        url = WCS.getCapUrl(serverUrl);
+      if(!Datasets[identifier]) {
+        Datasets[identifier] = { 
+          identifier: identifier,
+          title: "",
+          descr: "",
+          nameCameFromWms: false,
+          services: []
+        };
       }
 
-      $('#results-' + railsId).append('<a href="' + url + '" target="_blank">' + services[i] + '</a>&nbsp;');
-    }
+      var dataset = Datasets[identifier];
 
+      dataset[service] = {};
+      dataset.services.push(service);
 
-    if(url != '') {
-      $('#results-' + railsId).append('&nbsp;(Right-click, Copy Link Location)');
+      // Treat WMS as definitive -- if we have that, don't overwrite dataset attributes
+      if(!dataset.nameCameFromWms) {
+        dataset.title   = title;
+        dataset.descr   = descr;
+        nameCameFromWms = (service == WMS);
+      }
     }
+  };
 
-    if(available) {
-      $('.status2-' + railsId).html(
-        '<img class="status-indicator" src="/assets/layer_available_yes.png" alt="Layer available">');
-    } else {
-      $('.status2-' + railsId).html('<img class="status-indicator" src="/assets/layer_available_no.png" alt="Layer not available">');
-    }
-  }
 
   // Create a popup info display for this dataset 
   var renderInfoTable = function(dataset, railsId) 
@@ -177,7 +181,7 @@
               '</dl></div>' +
               '<div><a href="#" class="show-details"></a></div>' +
            '</div>';
-  }
+  };
 
 
 
@@ -197,7 +201,7 @@
       if(service === "WMS") {
         // These work for both 1.1.1 and 1.3.0
         this.serverName  = obj.service.title || obj.service.name || "Map Server";
-        this.serverDescr = obj.service.abstract || this.serverName;
+        this.serverDescr = obj.service["abstract"] || this.serverName;
       }
       else if(service === "WFS") {
         // These work for both 1.0.0 and 1.1.0
@@ -207,77 +211,149 @@
       else if(service === "WCS") {
         // These work for both 1.0.0 and 1.1.0
         this.serverName  = obj.serviceIdentification.title || "Web Coverage Server";
-        this.serverDescr = obj.serviceIdentification.abstract || this.serverName;
+        this.serverDescr = obj.serviceIdentification["abstract"] || this.serverName;
       }
     }
     else {
-      this.serverName  == this.serverName  || "Data Server";
-      this.serverDescr == this.serverDescr || "";
+      this.serverName  = this.serverName  || "";
+      this.serverDescr = this.serverDescr || "";
     }
-  }
+  };
 
 
   // We have a response of some sort from serverUrl -- update the datasets table to show it.
-  // serverResponses should be an array of 3 ServerResponse objects.
+  // serverResponses should be an object with a ServerResponse object for WFS, WMS, and WCS.
   var setLayerStatus = function(serverUrl)
   {
     var serverResponseArry = serverResponses[serverUrl];
-    var serverUrlId        = serverUrlIdLookup[serverUrl];
-
-    if(serverResponseArry[0].serverName) {
-      $('.server-name-'  + serverUrlId).html(serverResponseArry[0].serverName);
-      $('.server-descr-' + serverUrlId).html(serverResponseArry[0].serverDescr);
-    }
+    var serverUrlId        = serverUrlIdLookup[serverUrl]; 
 
     // Wait until we've heard back from all servers: wfs, wms, and wcs
-    if(serverResponseArry.length < 3) { return; } 
+    if(!!!serverResponseArry.WMS || !!!serverResponseArry.WFS || !!!serverResponseArry.WCS) { return; } 
 
 
-    if(!(serverResponseArry[0].success || serverResponseArry[1].success || serverResponseArry[2].success)) {    
+    // Prioritize WMS response, if any
+    var serverName  = serverResponseArry.WMS.serverName  || serverResponseArry.WFS.serverName  || serverResponseArry.WCS.serverName;
+    var serverDescr = serverResponseArry.WMS.serverDescr || serverResponseArry.WFS.serverDescr || serverResponseArry.WCS.serverDescr;
+
+    if(serverName) {
+      $('.server-name-'  + serverUrlId).html(serverName);
+      $('.server-descr-' + serverUrlId).html(serverDescr || serverName);
+    }
+
+    if(!(serverResponseArry.WMS.success || serverResponseArry.WFS.success || serverResponseArry.WCS.success)) {    
       // All services failed, all datasets from this server ganz kaput
       $('.status-' + serverUrlId).html('<img class="status-indicator" src="/assets/server_responding_no.png" alt="WMS server not responding">');
       $('.dataset-name-' + serverUrlId).text("Unknown");
       return;
     }
 
+
     // At least one server succeeded, vist each one-by-one
 
-    var datasets = serverDatasets[serverUrl];   // List of registered datasets available on this server
+    var ids = serverDatasets[serverUrl];   // List of registered datasets available on this server
 
-    datasetCount = datasets.length;
-
-    for(var i = 0; i < datasetCount; i++) {     // Iterate through datasets from the server one-by-one
-      var found = false;
-      var layerRecordsCount = serverResponseArry.length;
-
-      var services = [];
-
-      for(var j = 0; j < layerRecordsCount && !found; j++) {
-        services.push(serverResponseArry[j].service);
-
-        for(var k = 0, records = serverResponseArry[j].records.length; k < records; k++) {
-          var record = serverResponseArry[j].records[k];
-
-          var identifier = record.get("name");
-          if(!identifier)
-              debugger;
-
-          if(datasets[i] == identifier) {
-            var title = record.get("title") || record.get("name");
-            title = title.replace(/ /g,'&nbsp;');
-
-            updateLayerInfo(serverUrl, identifier, true, title, record.get("abstract"), services);
-
-            found = true;
-            break;
-          }
-        }
+    for(var i = 0, recs = ids.length; i < recs; i++) {
+      var dataset = Datasets[ids[i]];
+      if(!!!dataset) {
+        layerMissing(serverUrl, ids[i])
+        return;
       }
 
-      if(!found) {
-        updateLayerInfo(serverUrl, datasets[i], false, datasets[i], 
-          'This dataset could no longer be located on the data server',    // Descr
-          [ ]);                                                            // Services
-      }
+      updateLayerInfo(serverUrl, ids[i], dataset.title.replace(/ /g,'&nbsp;'), dataset.descr, dataset.services);
     }
-  }
+  };
+
+
+      // for(var j = 0; j < 3 && !found; j++) {
+      //   services.push(serverResponseArry[j].service);
+
+      //   for(var k = 0, records = serverResponseArry[j].records.length; k < records; k++) {
+      //     var record = serverResponseArry[j].records[k];
+
+      //     var identifier = record.get("name");
+
+      //     if(datasets[i] == identifier) {
+      //       var title = record.get("title") || record.get("name");
+      //       title = title.replace(/ /g,'&nbsp;');
+
+      //       updateLayerInfo(serverUrl, identifier, true, title, record.get("abstract"), services);
+
+      //       found = true;
+      //       break;
+      //     }
+      //   }
+      // }
+
+      // if(!found) {
+      //   updateLayerInfo(serverUrl, datasets[i], false, datasets[i], 
+      //     'This dataset could no longer be located on the data server',    // Descr
+      //     [ ]);                                                            // Services
+      // }
+
+
+  // var updateLayerInfo = function(serverUrl, identifier, available, name, descr, services) 
+  // {
+
+  //   var railsId = railsIdLookup[makeKey(serverUrl, identifier)];
+
+  //   // Servers will have both registered and unregistered datasets.  If the railsId is not defined, that means this is not a 
+  //   // retistered dataset, and there will be no layerInfo to update.
+  //   if(!!!railsId)
+  //     return;
+
+  //   $('.dataset-name2-' + railsId).html(name);    // Appears in the name column, also on infotable popup
+  //   $('.dataset-descr-' + railsId).html(descr);
+  //   $('#results-'       + railsId).html('');      // Clear
+
+  //   // Provide service link for whatever services
+  //   var currentHtml = $('#results-' + railsId).html;
+  //   $('#results-' + railsId).html('<a href="' + getGetCapUrl(serverUrl, service) + '" target="_blank">' + service + '</a>&nbsp;') + currentHtml;
+  //   if(currentHtml === '') {
+  //     $('#results-' + railsId).append('&nbsp;(Right-click, Copy Link Location)');
+  //   }
+
+  //   if(available) {
+  //     $('.status2-' + railsId).html('<img class="status-indicator" src="/assets/layer_available_yes.png" alt="Layer available">');
+  //   } else {
+  //     $('.status2-' + railsId).html('<img class="status-indicator" src="/assets/layer_available_no.png" alt="Layer not available">');
+  //   }
+  // }
+
+
+  var updateLayerInfo = function(serverUrl, dataset, name, descr, services) 
+  {
+    var railsId = railsIdLookup[makeKey(serverUrl, dataset)];
+    $('.dataset-name2-' + railsId).html(name);    // Appears in the name column, also on infotable popup
+    $('.dataset-descr-' + railsId).html(descr);
+    $('#results-'       + railsId).html('');      // Clear
+    var url = '';
+    // Parse services... provide links for whatever services
+    for (var i = 0; i < services.length; i++) {
+      url = getGetCapUrl(serverUrl, services[i]);
+      $('#results-' + railsId).append('<a href="' + url + '" target="_blank">' + services[i] + '</a>&nbsp;');
+    }
+    if(url !== '') {
+      $('#results-' + railsId).append('&nbsp;(Right-click, Copy Link Location)');
+    }
+    $('.status2-' + railsId).html('<img class="status-indicator" src="/assets/layer_available_yes.png" alt="Layer available">');
+  };
+
+  var layerMissing = function(serverUrl, dataset)
+  {
+    var railsId = railsIdLookup[makeKey(serverUrl, dataset)];
+
+    $('.dataset-name2-' + railsId).html('Missing');   // Appears in the name column, also on infotable popup
+    $('.dataset-descr-' + railsId).html('This dataset appears to have been removed from the server');
+    $('#results-'       + railsId).html('');          // Clear
+    $('.status2-' + railsId).html('<img class="status-indicator" src="/assets/layer_available_no.png" alt="Layer not available">');
+  };
+
+
+  // Get the proper getCaps URL for this server and service
+  var getGetCapUrl = function(serverUrl, service)
+  {
+    if     (service == 'WMS') { return WMS.getCapUrl(serverUrl); }
+    else if(service == 'WFS') { return WFS.getCapUrl(serverUrl); }
+    else if(service == 'WCS') { return WCS.getCapUrl(serverUrl); }
+  };
