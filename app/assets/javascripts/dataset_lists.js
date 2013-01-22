@@ -200,17 +200,17 @@ var ServerResponse = function(success, dataProxy, records, service, responseCode
 
     if(service === "WMS") {
       // These work for both 1.1.1 and 1.3.0
-      this.serverName  = obj.service.title || obj.service.name || "Map Server";
+      this.serverName  = obj.service.title       || obj.service.name || "Map Server";
       this.serverDescr = obj.service["abstract"] || this.serverName;
     }
     else if(service === "WFS") {
       // These work for both 1.0.0 and 1.1.0
-      this.serverName  = obj.service.name || "Web Feature Server";
+      this.serverName  = obj.service.name  || "Web Feature Server";
       this.serverDescr = obj.service.title || this.serverName;
     }
     else if(service === "WCS") {
       // These work for both 1.0.0 and 1.1.0
-      this.serverName  = obj.serviceIdentification.title || "Web Coverage Server";
+      this.serverName  = obj.serviceIdentification.title       || "Web Coverage Server";
       this.serverDescr = obj.serviceIdentification["abstract"] || this.serverName;
     }
   }
