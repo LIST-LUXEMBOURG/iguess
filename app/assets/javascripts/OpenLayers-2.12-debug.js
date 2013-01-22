@@ -147,7 +147,7 @@ var OpenLayers = {
  * full text of the license. */
 
 /**
- * @requires OpenLayers/SingleFile.js 
+ * @requires OpenLayers/SingleFile.js
  */
 
 /**
@@ -29411,9 +29411,7 @@ OpenLayers.Format.GML.v3 = OpenLayers.Class(OpenLayers.Format.GML.Base, {
                         coords[1], coords[0], coords[2]
                     );
                 }
-                if(!!!obj.points)
-                    obj.points = [];
-                obj.points.push(point);
+                obj.points = [point];
             },
             "posList": function(node, obj) {
                 var str = this.getChildValue(node).replace(
@@ -29499,12 +29497,11 @@ OpenLayers.Format.GML.v3 = OpenLayers.Class(OpenLayers.Format.GML.Base, {
                 this.readChildNodes(node, obj);
             },
             "Envelope": function(node, container) {
-                var obj = {points: []};
+                var obj = {points: new Array(2)};
                 this.readChildNodes(node, obj);
                 if(!container.components) {
                     container.components = [];
                 }
-
                 var min = obj.points[0];
                 var max = obj.points[1];
                 container.components.push(
@@ -30172,301 +30169,6 @@ OpenLayers.Format.WFST.v1_1_0 = OpenLayers.Class(
     CLASS_NAME: "OpenLayers.Format.WFST.v1_1_0" 
 });
 /* ======================================================================
-    OpenLayers/Protocol.js
-   ====================================================================== */
-
-/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for 
- * full list of contributors). Published under the 2-clause BSD license.
- * See license.txt in the OpenLayers distribution or repository for the
- * full text of the license. */
-
-/**
- * @requires OpenLayers/BaseTypes/Class.js
- */
-
-/**
- * Class: OpenLayers.Protocol
- * Abstract vector layer protocol class.  Not to be instantiated directly.  Use
- *     one of the protocol subclasses instead.
- */
-OpenLayers.Protocol = OpenLayers.Class({
-    
-    /**
-     * Property: format
-     * {<OpenLayers.Format>} The format used by this protocol.
-     */
-    format: null,
-    
-    /**
-     * Property: options
-     * {Object} Any options sent to the constructor.
-     */
-    options: null,
-
-    /**
-     * Property: autoDestroy
-     * {Boolean} The creator of the protocol can set autoDestroy to false
-     *      to fully control when the protocol is destroyed. Defaults to
-     *      true.
-     */
-    autoDestroy: true,
-   
-    /**
-     * Property: defaultFilter
-     * {<OpenLayers.Filter>} Optional default filter to read requests
-     */
-    defaultFilter: null,
-    
-    /**
-     * Constructor: OpenLayers.Protocol
-     * Abstract class for vector protocols.  Create instances of a subclass.
-     *
-     * Parameters:
-     * options - {Object} Optional object whose properties will be set on the
-     *     instance.
-     */
-    initialize: function(options) {
-        options = options || {};
-        OpenLayers.Util.extend(this, options);
-        this.options = options;
-    },
-
-    /**
-     * Method: mergeWithDefaultFilter
-     * Merge filter passed to the read method with the default one
-     *
-     * Parameters:
-     * filter - {<OpenLayers.Filter>}
-     */
-    mergeWithDefaultFilter: function(filter) {
-        var merged;
-        if (filter && this.defaultFilter) {
-            merged = new OpenLayers.Filter.Logical({
-                type: OpenLayers.Filter.Logical.AND,
-                filters: [this.defaultFilter, filter]
-            });
-        } else {
-            merged = filter || this.defaultFilter || undefined;
-        }
-        return merged;
-    },
-
-    /**
-     * APIMethod: destroy
-     * Clean up the protocol.
-     */
-    destroy: function() {
-        this.options = null;
-        this.format = null;
-    },
-    
-    /**
-     * APIMethod: read
-     * Construct a request for reading new features.
-     *
-     * Parameters:
-     * options - {Object} Optional object for configuring the request.
-     *
-     * Returns:
-     * {<OpenLayers.Protocol.Response>} An <OpenLayers.Protocol.Response>
-     * object, the same object will be passed to the callback function passed
-     * if one exists in the options object.
-     */
-    read: function(options) {
-        options = options || {};
-        options.filter = this.mergeWithDefaultFilter(options.filter);
-    },
-    
-    
-    /**
-     * APIMethod: create
-     * Construct a request for writing newly created features.
-     *
-     * Parameters:
-     * features - {Array({<OpenLayers.Feature.Vector>})} or
-     *            {<OpenLayers.Feature.Vector>}
-     * options - {Object} Optional object for configuring the request.
-     *
-     * Returns:
-     * {<OpenLayers.Protocol.Response>} An <OpenLayers.Protocol.Response>
-     * object, the same object will be passed to the callback function passed
-     * if one exists in the options object.
-     */
-    create: function() {
-    },
-    
-    /**
-     * APIMethod: update
-     * Construct a request updating modified features.
-     *
-     * Parameters:
-     * features - {Array({<OpenLayers.Feature.Vector>})} or
-     *            {<OpenLayers.Feature.Vector>}
-     * options - {Object} Optional object for configuring the request.
-     *
-     * Returns:
-     * {<OpenLayers.Protocol.Response>} An <OpenLayers.Protocol.Response>
-     * object, the same object will be passed to the callback function passed
-     * if one exists in the options object.
-     */
-    update: function() {
-    },
-    
-    /**
-     * APIMethod: delete
-     * Construct a request deleting a removed feature.
-     *
-     * Parameters:
-     * feature - {<OpenLayers.Feature.Vector>}
-     * options - {Object} Optional object for configuring the request.
-     *
-     * Returns:
-     * {<OpenLayers.Protocol.Response>} An <OpenLayers.Protocol.Response>
-     * object, the same object will be passed to the callback function passed
-     * if one exists in the options object.
-     */
-    "delete": function() {
-    },
-
-    /**
-     * APIMethod: commit
-     * Go over the features and for each take action
-     * based on the feature state. Possible actions are create,
-     * update and delete.
-     *
-     * Parameters:
-     * features - {Array({<OpenLayers.Feature.Vector>})}
-     * options - {Object} Object whose possible keys are "create", "update",
-     *      "delete", "callback" and "scope", the values referenced by the
-     *      first three are objects as passed to the "create", "update", and
-     *      "delete" methods, the value referenced by the "callback" key is
-     *      a function which is called when the commit operation is complete
-     *      using the scope referenced by the "scope" key.
-     *
-     * Returns:
-     * {Array({<OpenLayers.Protocol.Response>})} An array of
-     * <OpenLayers.Protocol.Response> objects.
-     */
-    commit: function() {
-    },
-
-    /**
-     * Method: abort
-     * Abort an ongoing request.
-     *
-     * Parameters:
-     * response - {<OpenLayers.Protocol.Response>}
-     */
-    abort: function(response) {
-    },
-   
-    /**
-     * Method: createCallback
-     * Returns a function that applies the given public method with resp and
-     *     options arguments.
-     *
-     * Parameters:
-     * method - {Function} The method to be applied by the callback.
-     * response - {<OpenLayers.Protocol.Response>} The protocol response object.
-     * options - {Object} Options sent to the protocol method
-     */
-    createCallback: function(method, response, options) {
-        return OpenLayers.Function.bind(function() {
-            method.apply(this, [response, options]);
-        }, this);
-    },
-   
-    CLASS_NAME: "OpenLayers.Protocol" 
-});
-
-/**
- * Class: OpenLayers.Protocol.Response
- * Protocols return Response objects to their users.
- */
-OpenLayers.Protocol.Response = OpenLayers.Class({
-    /**
-     * Property: code
-     * {Number} - OpenLayers.Protocol.Response.SUCCESS or
-     *            OpenLayers.Protocol.Response.FAILURE
-     */
-    code: null,
-
-    /**
-     * Property: requestType
-     * {String} The type of request this response corresponds to. Either
-     *      "create", "read", "update" or "delete".
-     */
-    requestType: null,
-
-    /**
-     * Property: last
-     * {Boolean} - true if this is the last response expected in a commit,
-     * false otherwise, defaults to true.
-     */
-    last: true,
-
-    /**
-     * Property: features
-     * {Array({<OpenLayers.Feature.Vector>})} or {<OpenLayers.Feature.Vector>}
-     * The features returned in the response by the server. Depending on the 
-     * protocol's read payload, either features or data will be populated.
-     */
-    features: null,
-
-    /**
-     * Property: data
-     * {Object}
-     * The data returned in the response by the server. Depending on the 
-     * protocol's read payload, either features or data will be populated.
-     */
-    data: null,
-
-    /**
-     * Property: reqFeatures
-     * {Array({<OpenLayers.Feature.Vector>})} or {<OpenLayers.Feature.Vector>}
-     * The features provided by the user and placed in the request by the
-     *      protocol.
-     */
-    reqFeatures: null,
-
-    /**
-     * Property: priv
-     */
-    priv: null,
-
-    /**
-     * Property: error
-     * {Object} The error object in case a service exception was encountered.
-     */
-    error: null,
-
-    /**
-     * Constructor: OpenLayers.Protocol.Response
-     *
-     * Parameters:
-     * options - {Object} Optional object whose properties will be set on the
-     *     instance.
-     */
-    initialize: function(options) {
-        OpenLayers.Util.extend(this, options);
-    },
-
-    /**
-     * Method: success
-     *
-     * Returns:
-     * {Boolean} - true on success, false otherwise
-     */
-    success: function() {
-        return this.code > 0;
-    },
-
-    CLASS_NAME: "OpenLayers.Protocol.Response"
-});
-
-OpenLayers.Protocol.Response.SUCCESS = 1;
-OpenLayers.Protocol.Response.FAILURE = 0;
-/* ======================================================================
     OpenLayers/Format/JSON.js
    ====================================================================== */
 
@@ -30869,1107 +30571,6 @@ OpenLayers.Format.JSON = OpenLayers.Class(OpenLayers.Format, {
 
 });     
 /* ======================================================================
-    OpenLayers/Format/GeoJSON.js
-   ====================================================================== */
-
-/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for 
- * full list of contributors). Published under the 2-clause BSD license.
- * See license.txt in the OpenLayers distribution or repository for the
- * full text of the license. */
-
-/**
- * @requires OpenLayers/Format/JSON.js
- * @requires OpenLayers/Feature/Vector.js
- * @requires OpenLayers/Geometry/Point.js
- * @requires OpenLayers/Geometry/MultiPoint.js
- * @requires OpenLayers/Geometry/LineString.js
- * @requires OpenLayers/Geometry/MultiLineString.js
- * @requires OpenLayers/Geometry/Polygon.js
- * @requires OpenLayers/Geometry/MultiPolygon.js
- * @requires OpenLayers/Console.js
- */
-
-/**
- * Class: OpenLayers.Format.GeoJSON
- * Read and write GeoJSON. Create a new parser with the
- *     <OpenLayers.Format.GeoJSON> constructor.
- *
- * Inherits from:
- *  - <OpenLayers.Format.JSON>
- */
-OpenLayers.Format.GeoJSON = OpenLayers.Class(OpenLayers.Format.JSON, {
-
-    /**
-     * APIProperty: ignoreExtraDims
-     * {Boolean} Ignore dimensions higher than 2 when reading geometry
-     * coordinates.
-     */ 
-    ignoreExtraDims: false,
-    
-    /**
-     * Constructor: OpenLayers.Format.GeoJSON
-     * Create a new parser for GeoJSON.
-     *
-     * Parameters:
-     * options - {Object} An optional object whose properties will be set on
-     *     this instance.
-     */
-
-    /**
-     * APIMethod: read
-     * Deserialize a GeoJSON string.
-     *
-     * Parameters:
-     * json - {String} A GeoJSON string
-     * type - {String} Optional string that determines the structure of
-     *     the output.  Supported values are "Geometry", "Feature", and
-     *     "FeatureCollection".  If absent or null, a default of
-     *     "FeatureCollection" is assumed.
-     * filter - {Function} A function which will be called for every key and
-     *     value at every level of the final result. Each value will be
-     *     replaced by the result of the filter function. This can be used to
-     *     reform generic objects into instances of classes, or to transform
-     *     date strings into Date objects.
-     *
-     * Returns: 
-     * {Object} The return depends on the value of the type argument. If type
-     *     is "FeatureCollection" (the default), the return will be an array
-     *     of <OpenLayers.Feature.Vector>. If type is "Geometry", the input json
-     *     must represent a single geometry, and the return will be an
-     *     <OpenLayers.Geometry>.  If type is "Feature", the input json must
-     *     represent a single feature, and the return will be an
-     *     <OpenLayers.Feature.Vector>.
-     */
-    read: function(json, type, filter) {
-        type = (type) ? type : "FeatureCollection";
-        var results = null;
-        var obj = null;
-        if (typeof json == "string") {
-            obj = OpenLayers.Format.JSON.prototype.read.apply(this,
-                                                              [json, filter]);
-        } else { 
-            obj = json;
-        }    
-        if(!obj) {
-            OpenLayers.Console.error("Bad JSON: " + json);
-        } else if(typeof(obj.type) != "string") {
-            OpenLayers.Console.error("Bad GeoJSON - no type: " + json);
-        } else if(this.isValidType(obj, type)) {
-            switch(type) {
-                case "Geometry":
-                    try {
-                        results = this.parseGeometry(obj);
-                    } catch(err) {
-                        OpenLayers.Console.error(err);
-                    }
-                    break;
-                case "Feature":
-                    try {
-                        results = this.parseFeature(obj);
-                        results.type = "Feature";
-                    } catch(err) {
-                        OpenLayers.Console.error(err);
-                    }
-                    break;
-                case "FeatureCollection":
-                    // for type FeatureCollection, we allow input to be any type
-                    results = [];
-                    switch(obj.type) {
-                        case "Feature":
-                            try {
-                                results.push(this.parseFeature(obj));
-                            } catch(err) {
-                                results = null;
-                                OpenLayers.Console.error(err);
-                            }
-                            break;
-                        case "FeatureCollection":
-                            for(var i=0, len=obj.features.length; i<len; ++i) {
-                                try {
-                                    results.push(this.parseFeature(obj.features[i]));
-                                } catch(err) {
-                                    results = null;
-                                    OpenLayers.Console.error(err);
-                                }
-                            }
-                            break;
-                        default:
-                            try {
-                                var geom = this.parseGeometry(obj);
-                                results.push(new OpenLayers.Feature.Vector(geom));
-                            } catch(err) {
-                                results = null;
-                                OpenLayers.Console.error(err);
-                            }
-                    }
-                break;
-            }
-        }
-        return results;
-    },
-    
-    /**
-     * Method: isValidType
-     * Check if a GeoJSON object is a valid representative of the given type.
-     *
-     * Returns:
-     * {Boolean} The object is valid GeoJSON object of the given type.
-     */
-    isValidType: function(obj, type) {
-        var valid = false;
-        switch(type) {
-            case "Geometry":
-                if(OpenLayers.Util.indexOf(
-                    ["Point", "MultiPoint", "LineString", "MultiLineString",
-                     "Polygon", "MultiPolygon", "Box", "GeometryCollection"],
-                    obj.type) == -1) {
-                    // unsupported geometry type
-                    OpenLayers.Console.error("Unsupported geometry type: " +
-                                              obj.type);
-                } else {
-                    valid = true;
-                }
-                break;
-            case "FeatureCollection":
-                // allow for any type to be converted to a feature collection
-                valid = true;
-                break;
-            default:
-                // for Feature types must match
-                if(obj.type == type) {
-                    valid = true;
-                } else {
-                    OpenLayers.Console.error("Cannot convert types from " +
-                                              obj.type + " to " + type);
-                }
-        }
-        return valid;
-    },
-    
-    /**
-     * Method: parseFeature
-     * Convert a feature object from GeoJSON into an
-     *     <OpenLayers.Feature.Vector>.
-     *
-     * Parameters:
-     * obj - {Object} An object created from a GeoJSON object
-     *
-     * Returns:
-     * {<OpenLayers.Feature.Vector>} A feature.
-     */
-    parseFeature: function(obj) {
-        var feature, geometry, attributes, bbox;
-        attributes = (obj.properties) ? obj.properties : {};
-        bbox = (obj.geometry && obj.geometry.bbox) || obj.bbox;
-        try {
-            geometry = this.parseGeometry(obj.geometry);
-        } catch(err) {
-            // deal with bad geometries
-            throw err;
-        }
-        feature = new OpenLayers.Feature.Vector(geometry, attributes);
-        if(bbox) {
-            feature.bounds = OpenLayers.Bounds.fromArray(bbox);
-        }
-        if(obj.id) {
-            feature.fid = obj.id;
-        }
-        return feature;
-    },
-    
-    /**
-     * Method: parseGeometry
-     * Convert a geometry object from GeoJSON into an <OpenLayers.Geometry>.
-     *
-     * Parameters:
-     * obj - {Object} An object created from a GeoJSON object
-     *
-     * Returns: 
-     * {<OpenLayers.Geometry>} A geometry.
-     */
-    parseGeometry: function(obj) {
-        if (obj == null) {
-            return null;
-        }
-        var geometry, collection = false;
-        if(obj.type == "GeometryCollection") {
-            if(!(OpenLayers.Util.isArray(obj.geometries))) {
-                throw "GeometryCollection must have geometries array: " + obj;
-            }
-            var numGeom = obj.geometries.length;
-            var components = new Array(numGeom);
-            for(var i=0; i<numGeom; ++i) {
-                components[i] = this.parseGeometry.apply(
-                    this, [obj.geometries[i]]
-                );
-            }
-            geometry = new OpenLayers.Geometry.Collection(components);
-            collection = true;
-        } else {
-            if(!(OpenLayers.Util.isArray(obj.coordinates))) {
-                throw "Geometry must have coordinates array: " + obj;
-            }
-            if(!this.parseCoords[obj.type.toLowerCase()]) {
-                throw "Unsupported geometry type: " + obj.type;
-            }
-            try {
-                geometry = this.parseCoords[obj.type.toLowerCase()].apply(
-                    this, [obj.coordinates]
-                );
-            } catch(err) {
-                // deal with bad coordinates
-                throw err;
-            }
-        }
-        // We don't reproject collections because the children are reprojected
-        // for us when they are created.
-        if (this.internalProjection && this.externalProjection && !collection) {
-            geometry.transform(this.externalProjection, 
-                               this.internalProjection); 
-        }                       
-        return geometry;
-    },
-    
-    /**
-     * Property: parseCoords
-     * Object with properties corresponding to the GeoJSON geometry types.
-     *     Property values are functions that do the actual parsing.
-     */
-    parseCoords: {
-        /**
-         * Method: parseCoords.point
-         * Convert a coordinate array from GeoJSON into an
-         *     <OpenLayers.Geometry>.
-         *
-         * Parameters:
-         * array - {Object} The coordinates array from the GeoJSON fragment.
-         *
-         * Returns:
-         * {<OpenLayers.Geometry>} A geometry.
-         */
-        "point": function(array) {
-            if (this.ignoreExtraDims == false && 
-                  array.length != 2) {
-                    throw "Only 2D points are supported: " + array;
-            }
-            return new OpenLayers.Geometry.Point(array[0], array[1]);
-        },
-        
-        /**
-         * Method: parseCoords.multipoint
-         * Convert a coordinate array from GeoJSON into an
-         *     <OpenLayers.Geometry>.
-         *
-         * Parameters:
-         * array - {Object} The coordinates array from the GeoJSON fragment.
-         *
-         * Returns:
-         * {<OpenLayers.Geometry>} A geometry.
-         */
-        "multipoint": function(array) {
-            var points = [];
-            var p = null;
-            for(var i=0, len=array.length; i<len; ++i) {
-                try {
-                    p = this.parseCoords["point"].apply(this, [array[i]]);
-                } catch(err) {
-                    throw err;
-                }
-                points.push(p);
-            }
-            return new OpenLayers.Geometry.MultiPoint(points);
-        },
-
-        /**
-         * Method: parseCoords.linestring
-         * Convert a coordinate array from GeoJSON into an
-         *     <OpenLayers.Geometry>.
-         *
-         * Parameters:
-         * array - {Object} The coordinates array from the GeoJSON fragment.
-         *
-         * Returns:
-         * {<OpenLayers.Geometry>} A geometry.
-         */
-        "linestring": function(array) {
-            var points = [];
-            var p = null;
-            for(var i=0, len=array.length; i<len; ++i) {
-                try {
-                    p = this.parseCoords["point"].apply(this, [array[i]]);
-                } catch(err) {
-                    throw err;
-                }
-                points.push(p);
-            }
-            return new OpenLayers.Geometry.LineString(points);
-        },
-        
-        /**
-         * Method: parseCoords.multilinestring
-         * Convert a coordinate array from GeoJSON into an
-         *     <OpenLayers.Geometry>.
-         *
-         * Parameters:
-         * array - {Object} The coordinates array from the GeoJSON fragment.
-         *
-         * Returns:
-         * {<OpenLayers.Geometry>} A geometry.
-         */
-        "multilinestring": function(array) {
-            var lines = [];
-            var l = null;
-            for(var i=0, len=array.length; i<len; ++i) {
-                try {
-                    l = this.parseCoords["linestring"].apply(this, [array[i]]);
-                } catch(err) {
-                    throw err;
-                }
-                lines.push(l);
-            }
-            return new OpenLayers.Geometry.MultiLineString(lines);
-        },
-        
-        /**
-         * Method: parseCoords.polygon
-         * Convert a coordinate array from GeoJSON into an
-         *     <OpenLayers.Geometry>.
-         *
-         * Returns:
-         * {<OpenLayers.Geometry>} A geometry.
-         */
-        "polygon": function(array) {
-            var rings = [];
-            var r, l;
-            for(var i=0, len=array.length; i<len; ++i) {
-                try {
-                    l = this.parseCoords["linestring"].apply(this, [array[i]]);
-                } catch(err) {
-                    throw err;
-                }
-                r = new OpenLayers.Geometry.LinearRing(l.components);
-                rings.push(r);
-            }
-            return new OpenLayers.Geometry.Polygon(rings);
-        },
-
-        /**
-         * Method: parseCoords.multipolygon
-         * Convert a coordinate array from GeoJSON into an
-         *     <OpenLayers.Geometry>.
-         *
-         * Parameters:
-         * array - {Object} The coordinates array from the GeoJSON fragment.
-         *
-         * Returns:
-         * {<OpenLayers.Geometry>} A geometry.
-         */
-        "multipolygon": function(array) {
-            var polys = [];
-            var p = null;
-            for(var i=0, len=array.length; i<len; ++i) {
-                try {
-                    p = this.parseCoords["polygon"].apply(this, [array[i]]);
-                } catch(err) {
-                    throw err;
-                }
-                polys.push(p);
-            }
-            return new OpenLayers.Geometry.MultiPolygon(polys);
-        },
-
-        /**
-         * Method: parseCoords.box
-         * Convert a coordinate array from GeoJSON into an
-         *     <OpenLayers.Geometry>.
-         *
-         * Parameters:
-         * array - {Object} The coordinates array from the GeoJSON fragment.
-         *
-         * Returns:
-         * {<OpenLayers.Geometry>} A geometry.
-         */
-        "box": function(array) {
-            if(array.length != 2) {
-                throw "GeoJSON box coordinates must have 2 elements";
-            }
-            return new OpenLayers.Geometry.Polygon([
-                new OpenLayers.Geometry.LinearRing([
-                    new OpenLayers.Geometry.Point(array[0][0], array[0][1]),
-                    new OpenLayers.Geometry.Point(array[1][0], array[0][1]),
-                    new OpenLayers.Geometry.Point(array[1][0], array[1][1]),
-                    new OpenLayers.Geometry.Point(array[0][0], array[1][1]),
-                    new OpenLayers.Geometry.Point(array[0][0], array[0][1])
-                ])
-            ]);
-        }
-
-    },
-
-    /**
-     * APIMethod: write
-     * Serialize a feature, geometry, array of features into a GeoJSON string.
-     *
-     * Parameters:
-     * obj - {Object} An <OpenLayers.Feature.Vector>, <OpenLayers.Geometry>,
-     *     or an array of features.
-     * pretty - {Boolean} Structure the output with newlines and indentation.
-     *     Default is false.
-     *
-     * Returns:
-     * {String} The GeoJSON string representation of the input geometry,
-     *     features, or array of features.
-     */
-    write: function(obj, pretty) {
-        var geojson = {
-            "type": null
-        };
-        if(OpenLayers.Util.isArray(obj)) {
-            geojson.type = "FeatureCollection";
-            var numFeatures = obj.length;
-            geojson.features = new Array(numFeatures);
-            for(var i=0; i<numFeatures; ++i) {
-                var element = obj[i];
-                if(!element instanceof OpenLayers.Feature.Vector) {
-                    var msg = "FeatureCollection only supports collections " +
-                              "of features: " + element;
-                    throw msg;
-                }
-                geojson.features[i] = this.extract.feature.apply(
-                    this, [element]
-                );
-            }
-        } else if (obj.CLASS_NAME.indexOf("OpenLayers.Geometry") == 0) {
-            geojson = this.extract.geometry.apply(this, [obj]);
-        } else if (obj instanceof OpenLayers.Feature.Vector) {
-            geojson = this.extract.feature.apply(this, [obj]);
-            if(obj.layer && obj.layer.projection) {
-                geojson.crs = this.createCRSObject(obj);
-            }
-        }
-        return OpenLayers.Format.JSON.prototype.write.apply(this,
-                                                            [geojson, pretty]);
-    },
-
-    /**
-     * Method: createCRSObject
-     * Create the CRS object for an object.
-     *
-     * Parameters:
-     * object - {<OpenLayers.Feature.Vector>} 
-     *
-     * Returns:
-     * {Object} An object which can be assigned to the crs property
-     * of a GeoJSON object.
-     */
-    createCRSObject: function(object) {
-       var proj = object.layer.projection.toString();
-       var crs = {};
-       if (proj.match(/epsg:/i)) {
-           var code = parseInt(proj.substring(proj.indexOf(":") + 1));
-           if (code == 4326) {
-               crs = {
-                   "type": "name",
-                   "properties": {
-                       "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
-                   }
-               };
-           } else {    
-               crs = {
-                   "type": "name",
-                   "properties": {
-                       "name": "EPSG:" + code
-                   }
-               };
-           }    
-       }
-       return crs;
-    },
-    
-    /**
-     * Property: extract
-     * Object with properties corresponding to the GeoJSON types.
-     *     Property values are functions that do the actual value extraction.
-     */
-    extract: {
-        /**
-         * Method: extract.feature
-         * Return a partial GeoJSON object representing a single feature.
-         *
-         * Parameters:
-         * feature - {<OpenLayers.Feature.Vector>}
-         *
-         * Returns:
-         * {Object} An object representing the point.
-         */
-        'feature': function(feature) {
-            var geom = this.extract.geometry.apply(this, [feature.geometry]);
-            var json = {
-                "type": "Feature",
-                "properties": feature.attributes,
-                "geometry": geom
-            };
-            if (feature.fid != null) {
-                json.id = feature.fid;
-            }
-            return json;
-        },
-        
-        /**
-         * Method: extract.geometry
-         * Return a GeoJSON object representing a single geometry.
-         *
-         * Parameters:
-         * geometry - {<OpenLayers.Geometry>}
-         *
-         * Returns:
-         * {Object} An object representing the geometry.
-         */
-        'geometry': function(geometry) {
-            if (geometry == null) {
-                return null;
-            }
-            if (this.internalProjection && this.externalProjection) {
-                geometry = geometry.clone();
-                geometry.transform(this.internalProjection, 
-                                   this.externalProjection);
-            }                       
-            var geometryType = geometry.CLASS_NAME.split('.')[2];
-            var data = this.extract[geometryType.toLowerCase()].apply(this, [geometry]);
-            var json;
-            if(geometryType == "Collection") {
-                json = {
-                    "type": "GeometryCollection",
-                    "geometries": data
-                };
-            } else {
-                json = {
-                    "type": geometryType,
-                    "coordinates": data
-                };
-            }
-            
-            return json;
-        },
-
-        /**
-         * Method: extract.point
-         * Return an array of coordinates from a point.
-         *
-         * Parameters:
-         * point - {<OpenLayers.Geometry.Point>}
-         *
-         * Returns: 
-         * {Array} An array of coordinates representing the point.
-         */
-        'point': function(point) {
-            return [point.x, point.y];
-        },
-
-        /**
-         * Method: extract.multipoint
-         * Return an array of point coordinates from a multipoint.
-         *
-         * Parameters:
-         * multipoint - {<OpenLayers.Geometry.MultiPoint>}
-         *
-         * Returns:
-         * {Array} An array of point coordinate arrays representing
-         *     the multipoint.
-         */
-        'multipoint': function(multipoint) {
-            var array = [];
-            for(var i=0, len=multipoint.components.length; i<len; ++i) {
-                array.push(this.extract.point.apply(this, [multipoint.components[i]]));
-            }
-            return array;
-        },
-        
-        /**
-         * Method: extract.linestring
-         * Return an array of coordinate arrays from a linestring.
-         *
-         * Parameters:
-         * linestring - {<OpenLayers.Geometry.LineString>}
-         *
-         * Returns:
-         * {Array} An array of coordinate arrays representing
-         *     the linestring.
-         */
-        'linestring': function(linestring) {
-            var array = [];
-            for(var i=0, len=linestring.components.length; i<len; ++i) {
-                array.push(this.extract.point.apply(this, [linestring.components[i]]));
-            }
-            return array;
-        },
-
-        /**
-         * Method: extract.multilinestring
-         * Return an array of linestring arrays from a linestring.
-         * 
-         * Parameters:
-         * multilinestring - {<OpenLayers.Geometry.MultiLineString>}
-         * 
-         * Returns:
-         * {Array} An array of linestring arrays representing
-         *     the multilinestring.
-         */
-        'multilinestring': function(multilinestring) {
-            var array = [];
-            for(var i=0, len=multilinestring.components.length; i<len; ++i) {
-                array.push(this.extract.linestring.apply(this, [multilinestring.components[i]]));
-            }
-            return array;
-        },
-        
-        /**
-         * Method: extract.polygon
-         * Return an array of linear ring arrays from a polygon.
-         *
-         * Parameters:
-         * polygon - {<OpenLayers.Geometry.Polygon>}
-         * 
-         * Returns:
-         * {Array} An array of linear ring arrays representing the polygon.
-         */
-        'polygon': function(polygon) {
-            var array = [];
-            for(var i=0, len=polygon.components.length; i<len; ++i) {
-                array.push(this.extract.linestring.apply(this, [polygon.components[i]]));
-            }
-            return array;
-        },
-
-        /**
-         * Method: extract.multipolygon
-         * Return an array of polygon arrays from a multipolygon.
-         * 
-         * Parameters:
-         * multipolygon - {<OpenLayers.Geometry.MultiPolygon>}
-         * 
-         * Returns:
-         * {Array} An array of polygon arrays representing
-         *     the multipolygon
-         */
-        'multipolygon': function(multipolygon) {
-            var array = [];
-            for(var i=0, len=multipolygon.components.length; i<len; ++i) {
-                array.push(this.extract.polygon.apply(this, [multipolygon.components[i]]));
-            }
-            return array;
-        },
-        
-        /**
-         * Method: extract.collection
-         * Return an array of geometries from a geometry collection.
-         * 
-         * Parameters:
-         * collection - {<OpenLayers.Geometry.Collection>}
-         * 
-         * Returns:
-         * {Array} An array of geometry objects representing the geometry
-         *     collection.
-         */
-        'collection': function(collection) {
-            var len = collection.components.length;
-            var array = new Array(len);
-            for(var i=0; i<len; ++i) {
-                array[i] = this.extract.geometry.apply(
-                    this, [collection.components[i]]
-                );
-            }
-            return array;
-        }
-        
-
-    },
-
-    CLASS_NAME: "OpenLayers.Format.GeoJSON" 
-
-});     
-/* ======================================================================
-    OpenLayers/Protocol/Script.js
-   ====================================================================== */
-
-/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for 
- * full list of contributors). Published under the 2-clause BSD license.
- * See license.txt in the OpenLayers distribution or repository for the
- * full text of the license. */
-
-/**
- * @requires OpenLayers/Protocol.js
- * @requires OpenLayers/Feature/Vector.js
- * @requires OpenLayers/Format/GeoJSON.js
- */
-
-/**
- * if application uses the query string, for example, for BBOX parameters,
- * OpenLayers/Format/QueryStringFilter.js should be included in the build config file
- */
-
-/**
- * Class: OpenLayers.Protocol.Script
- * A basic Script protocol for vector layers.  Create a new instance with the
- *     <OpenLayers.Protocol.Script> constructor.  A script protocol is used to
- *     get around the same origin policy.  It works with services that return
- *     JSONP - that is, JSON wrapped in a client-specified callback.  The
- *     protocol handles fetching and parsing of feature data and sends parsed
- *     features to the <callback> configured with the protocol.  The protocol
- *     expects features serialized as GeoJSON by default, but can be configured
- *     to work with other formats by setting the <format> property.
- *
- * Inherits from:
- *  - <OpenLayers.Protocol>
- */
-OpenLayers.Protocol.Script = OpenLayers.Class(OpenLayers.Protocol, {
-
-    /**
-     * APIProperty: url
-     * {String} Service URL.  The service is expected to return serialized 
-     *     features wrapped in a named callback (where the callback name is
-     *     generated by this protocol).
-     *     Read-only, set through the options passed to the constructor.
-     */
-    url: null,
-
-    /**
-     * APIProperty: params
-     * {Object} Query string parameters to be appended to the URL.
-     *     Read-only, set through the options passed to the constructor.
-     *     Example: {maxFeatures: 50}
-     */
-    params: null,
-    
-    /**
-     * APIProperty: callback
-     * {Object} Function to be called when the <read> operation completes.
-     */
-    callback: null,
-
-    /**
-     * APIProperty: callbackTemplate
-     * {String} Template for creating a unique callback function name
-     * for the registry. Should include ${id}.  The ${id} variable will be
-     * replaced with a string identifier prefixed with a "c" (e.g. c1, c2).
-     * Default is "OpenLayers.Protocol.Script.registry.${id}".
-     */
-    callbackTemplate: "OpenLayers.Protocol.Script.registry.${id}",
-
-    /**
-     * APIProperty: callbackKey
-     * {String} The name of the query string parameter that the service 
-     *     recognizes as the callback identifier.  Default is "callback".
-     *     This key is used to generate the URL for the script.  For example
-     *     setting <callbackKey> to "myCallback" would result in a URL like 
-     *     http://example.com/?myCallback=...
-     */
-    callbackKey: "callback",
-
-    /**
-     * APIProperty: callbackPrefix
-     * {String} Where a service requires that the callback query string 
-     *     parameter value is prefixed by some string, this value may be set.
-     *     For example, setting <callbackPrefix> to "foo:" would result in a
-     *     URL like http://example.com/?callback=foo:...  Default is "".
-     */
-    callbackPrefix: "",
-
-    /**
-     * APIProperty: scope
-     * {Object} Optional ``this`` object for the callback. Read-only, set 
-     *     through the options passed to the constructor.
-     */
-    scope: null,
-
-    /**
-     * APIProperty: format
-     * {<OpenLayers.Format>} Format for parsing features.  Default is an 
-     *     <OpenLayers.Format.GeoJSON> format.  If an alternative is provided,
-     *     the format's read method must take an object and return an array
-     *     of features.
-     */
-    format: null,
-
-    /**
-     * Property: pendingRequests
-     * {Object} References all pending requests.  Property names are script 
-     *     identifiers and property values are script elements.
-     */
-    pendingRequests: null,
-
-    /**
-     * APIProperty: srsInBBOX
-     * {Boolean} Include the SRS identifier in BBOX query string parameter.
-     *     Setting this property has no effect if a custom filterToParams method
-     *     is provided.   Default is false.  If true and the layer has a 
-     *     projection object set, any BBOX filter will be serialized with a 
-     *     fifth item identifying the projection.  
-     *     E.g. bbox=-1000,-1000,1000,1000,EPSG:900913
-     */
-    srsInBBOX: false,
-
-    /**
-     * Constructor: OpenLayers.Protocol.Script
-     * A class for giving layers generic Script protocol.
-     *
-     * Parameters:
-     * options - {Object} Optional object whose properties will be set on the
-     *     instance.
-     *
-     * Valid options include:
-     * url - {String}
-     * params - {Object}
-     * callback - {Function}
-     * scope - {Object}
-     */
-    initialize: function(options) {
-        options = options || {};
-        this.params = {};
-        this.pendingRequests = {};
-        OpenLayers.Protocol.prototype.initialize.apply(this, arguments);
-        if (!this.format) {
-            this.format = new OpenLayers.Format.GeoJSON();
-        }
-
-        if (!this.filterToParams && OpenLayers.Format.QueryStringFilter) {
-            var format = new OpenLayers.Format.QueryStringFilter({
-                srsInBBOX: this.srsInBBOX
-            });
-            this.filterToParams = function(filter, params) {
-                return format.write(filter, params);
-            };
-        }
-    },
-    
-    /**
-     * APIMethod: read
-     * Construct a request for reading new features.
-     *
-     * Parameters:
-     * options - {Object} Optional object for configuring the request.
-     *     This object is modified and should not be reused.
-     *
-     * Valid options:
-     * url - {String} Url for the request.
-     * params - {Object} Parameters to get serialized as a query string.
-     * filter - {<OpenLayers.Filter>} Filter to get serialized as a
-     *     query string.
-     *
-     * Returns:
-     * {<OpenLayers.Protocol.Response>} A response object, whose "priv" property
-     *     references the injected script.  This object is also passed to the
-     *     callback function when the request completes, its "features" property
-     *     is then populated with the features received from the server.
-     */
-    read: function(options) {
-        OpenLayers.Protocol.prototype.read.apply(this, arguments);
-        options = OpenLayers.Util.applyDefaults(options, this.options);
-        options.params = OpenLayers.Util.applyDefaults(
-            options.params, this.options.params
-        );
-        if (options.filter && this.filterToParams) {
-            options.params = this.filterToParams(
-                options.filter, options.params
-            );
-        }
-        var response = new OpenLayers.Protocol.Response({requestType: "read"});
-        var request = this.createRequest(
-            options.url, 
-            options.params, 
-            OpenLayers.Function.bind(function(data) {
-                response.data = data;
-                this.handleRead(response, options);
-            }, this)
-        );
-        response.priv = request;
-        return response;
-    },
-
-    /** 
-     * APIMethod: filterToParams 
-     * Optional method to translate an <OpenLayers.Filter> object into an object 
-     *     that can be serialized as request query string provided.  If a custom 
-     *     method is not provided, any filter will not be serialized. 
-     * 
-     * Parameters: 
-     * filter - {<OpenLayers.Filter>} filter to convert. 
-     * params - {Object} The parameters object. 
-     * 
-     * Returns: 
-     * {Object} The resulting parameters object. 
-     */
-
-    /** 
-     * Method: createRequest
-     * Issues a request for features by creating injecting a script in the 
-     *     document head.
-     *
-     * Parameters:
-     * url - {String} Service URL.
-     * params - {Object} Query string parameters.
-     * callback - {Function} Callback to be called with resulting data.
-     *
-     * Returns:
-     * {HTMLScriptElement} The script pending execution.
-     */
-    createRequest: function(url, params, callback) {
-        var id = OpenLayers.Protocol.Script.register(callback);
-        var name = OpenLayers.String.format(this.callbackTemplate, {id: id});
-        params = OpenLayers.Util.extend({}, params);
-        params[this.callbackKey] = this.callbackPrefix + name;
-        url = OpenLayers.Util.urlAppend(
-            url, OpenLayers.Util.getParameterString(params)
-        );
-        var script = document.createElement("script");
-        script.type = "text/javascript";
-        script.src = url;
-        script.id = "OpenLayers_Protocol_Script_" + id;
-        this.pendingRequests[script.id] = script;
-        var head = document.getElementsByTagName("head")[0];
-        head.appendChild(script);
-        return script;
-    },
-    
-    /** 
-     * Method: destroyRequest
-     * Remove a script node associated with a response from the document.  Also
-     *     unregisters the callback and removes the script from the 
-     *     <pendingRequests> object.
-     *
-     * Parameters:
-     * script - {HTMLScriptElement}
-     */
-    destroyRequest: function(script) {
-        OpenLayers.Protocol.Script.unregister(script.id.split("_").pop());
-        delete this.pendingRequests[script.id];
-        if (script.parentNode) {
-            script.parentNode.removeChild(script);
-        }
-    },
-
-    /**
-     * Method: handleRead
-     * Individual callbacks are created for read, create and update, should
-     *     a subclass need to override each one separately.
-     *
-     * Parameters:
-     * response - {<OpenLayers.Protocol.Response>} The response object to pass to
-     *     the user callback.
-     * options - {Object} The user options passed to the read call.
-     */
-    handleRead: function(response, options) {
-        this.handleResponse(response, options);
-    },
-
-    /**
-     * Method: handleResponse
-     * Called by CRUD specific handlers.
-     *
-     * Parameters:
-     * response - {<OpenLayers.Protocol.Response>} The response object to pass to
-     *     any user callback.
-     * options - {Object} The user options passed to the create, read, update,
-     *     or delete call.
-     */
-    handleResponse: function(response, options) {
-        if (options.callback) {
-            if (response.data) {
-                response.features = this.parseFeatures(response.data);
-                response.code = OpenLayers.Protocol.Response.SUCCESS;
-            } else {
-                response.code = OpenLayers.Protocol.Response.FAILURE;
-            }
-            this.destroyRequest(response.priv);
-            options.callback.call(options.scope, response);
-        }
-    },
-
-    /**
-     * Method: parseFeatures
-     * Read Script response body and return features.
-     *
-     * Parameters:
-     * data - {Object} The data sent to the callback function by the server.
-     *
-     * Returns:
-     * {Array({<OpenLayers.Feature.Vector>})} or
-     *     {<OpenLayers.Feature.Vector>} Array of features or a single feature.
-     */
-    parseFeatures: function(data) {
-        return this.format.read(data);
-    },
-
-    /**
-     * APIMethod: abort
-     * Abort an ongoing request.  If no response is provided, all pending 
-     *     requests will be aborted.
-     *
-     * Parameters:
-     * response - {<OpenLayers.Protocol.Response>} The response object returned
-     *     from a <read> request.
-     */
-    abort: function(response) {
-        if (response) {
-            this.destroyRequest(response.priv);
-        } else {
-            for (var key in this.pendingRequests) {
-                this.destroyRequest(this.pendingRequests[key]);
-            }
-        }
-    },
-    
-    /**
-     * APIMethod: destroy
-     * Clean up the protocol.
-     */
-    destroy: function() {
-        this.abort();
-        delete this.params;
-        delete this.format;
-        OpenLayers.Protocol.prototype.destroy.apply(this);
-    },
-
-    CLASS_NAME: "OpenLayers.Protocol.Script" 
-});
-
-(function() {
-    var o = OpenLayers.Protocol.Script;
-    var counter = 0;
-    o.registry = {};
-    
-    /**
-     * Function: OpenLayers.Protocol.Script.register
-     * Register a callback for a newly created script.
-     *
-     * Parameters:
-     * callback - {Function} The callback to be executed when the newly added
-     *     script loads.  This callback will be called with a single argument
-     *     that is the JSON returned by the service.
-     *
-     * Returns:
-     * {Number} An identifier for retrieving the registered callback.
-     */
-    o.register = function(callback) {
-        var id = "c"+(++counter);
-        o.registry[id] = function() {
-            callback.apply(this, arguments);
-        };
-        return id;
-    };
-    
-    /**
-     * Function: OpenLayers.Protocol.Script.unregister
-     * Unregister a callback previously registered with the register function.
-     *
-     * Parameters:
-     * id - {Number} The identifer returned by the register function.
-     */
-    o.unregister = function(id) {
-        delete o.registry[id];
-    };
-})();
-/* ======================================================================
     OpenLayers/Format/EncodedPolyline.js
    ====================================================================== */
 
@@ -32228,7 +30829,7 @@ OpenLayers.Format.EncodedPolyline = OpenLayers.Class(OpenLayers.Format, {
     CLASS_NAME: "OpenLayers.Format.EncodedPolyline"
 });
 /* ======================================================================
-    OpenLayers/Format/WCSDescribeCoverage.js
+    OpenLayers/Control/Panel.js
    ====================================================================== */
 
 /* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for 
@@ -32237,56 +30838,641 @@ OpenLayers.Format.EncodedPolyline = OpenLayers.Class(OpenLayers.Format, {
  * full text of the license. */
 
 /**
- * @requires OpenLayers/Format/XML/VersionedOGC.js
+ * @requires OpenLayers/Control.js
+ * @requires OpenLayers/Events/buttonclick.js
  */
 
 /**
- * Class: OpenLayers.Format.WCSDescribeCoverage
- * Parse results from WCS DescribeCoverage request.
- * 
+ * Class: OpenLayers.Control.Panel
+ * The Panel control is a container for other controls. With it toolbars
+ * may be composed.
+ *
  * Inherits from:
- *  - <OpenLayers.Format.XML.VersionedOGC>
+ *  - <OpenLayers.Control>
  */
-OpenLayers.Format.WCSDescribeCoverage = OpenLayers.Class(OpenLayers.Format.XML.VersionedOGC, {
+OpenLayers.Control.Panel = OpenLayers.Class(OpenLayers.Control, {
+    /**
+     * Property: controls
+     * {Array(<OpenLayers.Control>)}
+     */
+    controls: null,    
     
     /**
-     * APIProperty: defaultVersion
-     * {String} Version number to assume if none found.  Default is "1.1.0".
+     * APIProperty: autoActivate
+     * {Boolean} Activate the control when it is added to a map.  Default is
+     *     true.
      */
-    defaultVersion: "1.1.0",
+    autoActivate: true,
+
+    /** 
+     * APIProperty: defaultControl
+     * {<OpenLayers.Control>} The control which is activated when the control is
+     * activated (turned on), which also happens at instantiation.
+     * If <saveState> is true, <defaultControl> will be nullified after the
+     * first activation of the panel.
+     */
+    defaultControl: null,
+    
+    /**
+     * APIProperty: saveState
+     * {Boolean} If set to true, the active state of this panel's controls will
+     * be stored on panel deactivation, and restored on reactivation. Default
+     * is false.
+     */
+    saveState: false,
+      
+    /**
+     * APIProperty: allowDepress
+     * {Boolean} If is true the <OpenLayers.Control.TYPE_TOOL> controls can 
+     *     be deactivated by clicking the icon that represents them.  Default 
+     *     is false.
+     */
+    allowDepress: false,
+    
+    /**
+     * Property: activeState
+     * {Object} stores the active state of this panel's controls.
+     */
+    activeState: null,
 
     /**
-     * Constructor: OpenLayers.Format.WCSDescribeCoverage
-     * Create a new parser for WCS DescribeCoverage response.
+     * Constructor: OpenLayers.Control.Panel
+     * Create a new control panel.
+     *
+     * Each control in the panel is represented by an icon. When clicking 
+     *     on an icon, the <activateControl> method is called.
+     *
+     * Specific properties for controls on a panel:
+     * type - {Number} One of <OpenLayers.Control.TYPE_TOOL>,
+     *     <OpenLayers.Control.TYPE_TOGGLE>, <OpenLayers.Control.TYPE_BUTTON>.
+     *     If not provided, <OpenLayers.Control.TYPE_TOOL> is assumed.
+     * title - {string} Text displayed when mouse is over the icon that 
+     *     represents the control.     
+     *
+     * The <OpenLayers.Control.type> of a control determines the behavior when
+     * clicking its icon:
+     * <OpenLayers.Control.TYPE_TOOL> - The control is activated and other
+     *     controls of this type in the same panel are deactivated. This is
+     *     the default type.
+     * <OpenLayers.Control.TYPE_TOGGLE> - The active state of the control is
+     *     toggled.
+     * <OpenLayers.Control.TYPE_BUTTON> - The
+     *     <OpenLayers.Control.Button.trigger> method of the control is called,
+     *     but its active state is not changed.
+     *
+     * If a control is <OpenLayers.Control.active>, it will be drawn with the
+     * olControl[Name]ItemActive class, otherwise with the
+     * olControl[Name]ItemInactive class.
      *
      * Parameters:
-     * options - {Object} An optional object whose properties will be set on
-     *     this instance.
+     * options - {Object} An optional object whose properties will be used
+     *     to extend the control.
      */
+    initialize: function(options) {
+        OpenLayers.Control.prototype.initialize.apply(this, [options]);
+        this.controls = [];
+        this.activeState = {};
+    },
 
     /**
-     * APIMethod: read
-     * Read response data from a string, and return a list of coverage descriptions. 
+     * APIMethod: destroy
+     */
+    destroy: function() {
+        if (this.map) {
+            this.map.events.unregister("buttonclick", this, this.onButtonClick);
+        }
+        OpenLayers.Control.prototype.destroy.apply(this, arguments);
+        for (var ctl, i = this.controls.length - 1; i >= 0; i--) {
+            ctl = this.controls[i];
+            if (ctl.events) {
+                ctl.events.un({
+                    activate: this.iconOn,
+                    deactivate: this.iconOff
+                });
+            }
+            ctl.panel_div = null;
+        }
+        this.activeState = null;
+    },
+
+    /**
+     * APIMethod: activate
+     */
+    activate: function() {
+        if (OpenLayers.Control.prototype.activate.apply(this, arguments)) {
+            var control;
+            for (var i=0, len=this.controls.length; i<len; i++) {
+                control = this.controls[i];
+                if (control === this.defaultControl ||
+                            (this.saveState && this.activeState[control.id])) {
+                    control.activate();
+                }
+            }    
+            if (this.saveState === true) {
+                this.defaultControl = null;
+            }
+            this.redraw();
+            return true;
+        } else {
+            return false;
+        }
+    },
+    
+    /**
+     * APIMethod: deactivate
+     */
+    deactivate: function() {
+        if (OpenLayers.Control.prototype.deactivate.apply(this, arguments)) {
+            var control;
+            for (var i=0, len=this.controls.length; i<len; i++) {
+                control = this.controls[i];
+                this.activeState[control.id] = control.deactivate();
+            }    
+            this.redraw();
+            return true;
+        } else {
+            return false;
+        }
+    },
+    
+    /**
+     * Method: draw
+     *
+     * Returns:
+     * {DOMElement}
+     */    
+    draw: function() {
+        OpenLayers.Control.prototype.draw.apply(this, arguments);
+        if (this.outsideViewport) {
+            this.events.attachToElement(this.div);
+            this.events.register("buttonclick", this, this.onButtonClick);
+        } else {
+            this.map.events.register("buttonclick", this, this.onButtonClick);
+        }
+        this.addControlsToMap(this.controls);
+        return this.div;
+    },
+
+    /**
+     * Method: redraw
+     */
+    redraw: function() {
+        for (var l=this.div.childNodes.length, i=l-1; i>=0; i--) {
+            this.div.removeChild(this.div.childNodes[i]);
+        }
+        this.div.innerHTML = "";
+        if (this.active) {
+            for (var i=0, len=this.controls.length; i<len; i++) {
+                this.div.appendChild(this.controls[i].panel_div);
+            }
+        }
+    },
+    
+    /**
+     * APIMethod: activateControl
+     * This method is called when the user click on the icon representing a 
+     *     control in the panel.
+     *
+     * Parameters:
+     * control - {<OpenLayers.Control>}
+     */
+    activateControl: function (control) {
+        if (!this.active) { return false; }
+        if (control.type == OpenLayers.Control.TYPE_BUTTON) {
+            control.trigger();
+            return;
+        }
+        if (control.type == OpenLayers.Control.TYPE_TOGGLE) {
+            if (control.active) {
+                control.deactivate();
+            } else {
+                control.activate();
+            }
+            return;
+        }
+        if (this.allowDepress && control.active) {
+            control.deactivate();
+        } else {
+            var c;
+            for (var i=0, len=this.controls.length; i<len; i++) {
+                c = this.controls[i];
+                if (c != control &&
+                   (c.type === OpenLayers.Control.TYPE_TOOL || c.type == null)) {
+                    c.deactivate();
+                }
+            }
+            control.activate();
+        }
+    },
+
+    /**
+     * APIMethod: addControls
+     * To build a toolbar, you add a set of controls to it. addControls
+     * lets you add a single control or a list of controls to the 
+     * Control Panel.
+     *
+     * Parameters:
+     * controls - {<OpenLayers.Control>} Controls to add in the panel.
+     */    
+    addControls: function(controls) {
+        if (!(OpenLayers.Util.isArray(controls))) {
+            controls = [controls];
+        }
+        this.controls = this.controls.concat(controls);
+
+        for (var i=0, len=controls.length; i<len; i++) {
+            var control = controls[i],
+                element = this.createControlMarkup(control);
+            OpenLayers.Element.addClass(element, 
+                                        control.displayClass + "ItemInactive");
+            OpenLayers.Element.addClass(element, "olButton");
+            if (control.title != ""  && !element.title) {
+                element.title = control.title;
+            }
+            control.panel_div = element;
+        }
+
+        if (this.map) { // map.addControl() has already been called on the panel
+            this.addControlsToMap(controls);
+            this.redraw();
+        }
+    },
+
+    /**
+     * APIMethod: createControlMarkup
+     * This function just creates a div for the control. If specific HTML
+     * markup is needed this function can be overridden in specific classes,
+     * or at panel instantiation time:
+     *
+     * Example:
+     * (code)
+     * var panel = new OpenLayers.Control.Panel({
+     *     defaultControl: control,
+     *     // ovverride createControlMarkup to create actual buttons
+     *     // including texts wrapped into span elements.
+     *     createControlMarkup: function(control) {
+     *         var button = document.createElement('button'),
+     *             span = document.createElement('span');
+     *         if (control.text) {
+     *             span.innerHTML = control.text;
+     *         }
+     *         return button;
+     *     }
+     *  });
+     * (end)
+     *
+     * Parameters:
+     * control - {<OpenLayers.Control>} The control to create the HTML
+     *     markup for.
+     *
+     * Returns:
+     * {DOMElement} The markup.
+     */
+    createControlMarkup: function(control) {
+        return document.createElement("div");
+    },
+   
+    /**
+     * Method: addControlsToMap
+     * Only for internal use in draw() and addControls() methods.
+     *
+     * Parameters:
+     * controls - {Array(<OpenLayers.Control>)} Controls to add into map.
+     */         
+    addControlsToMap: function (controls) {
+        var control;
+        for (var i=0, len=controls.length; i<len; i++) {
+            control = controls[i];
+            if (control.autoActivate === true) {
+                control.autoActivate = false;
+                this.map.addControl(control);
+                control.autoActivate = true;
+            } else {
+                this.map.addControl(control);
+                control.deactivate();
+            }
+            control.events.on({
+                activate: this.iconOn,
+                deactivate: this.iconOff
+            });
+        }  
+    },
+
+    /**
+     * Method: iconOn
+     * Internal use, for use only with "controls[i].events.on/un".
+     */
+     iconOn: function() {
+        var d = this.panel_div; // "this" refers to a control on panel!
+        var re = new RegExp("\\b(" + this.displayClass + "Item)Inactive\\b");
+        d.className = d.className.replace(re, "$1Active");
+    },
+
+    /**
+     * Method: iconOff
+     * Internal use, for use only with "controls[i].events.on/un".
+     */
+     iconOff: function() {
+        var d = this.panel_div; // "this" refers to a control on panel!
+        var re = new RegExp("\\b(" + this.displayClass + "Item)Active\\b");
+        d.className = d.className.replace(re, "$1Inactive");
+    },
+    
+    /**
+     * Method: onButtonClick
+     *
+     * Parameters:
+     * evt - {Event}
+     */
+    onButtonClick: function (evt) {
+        var controls = this.controls,
+            button = evt.buttonElement;
+        for (var i=controls.length-1; i>=0; --i) {
+            if (controls[i].panel_div === button) {
+                this.activateControl(controls[i]);
+                break;
+            }
+        }
+    },
+
+    /**
+     * APIMethod: getControlsBy
+     * Get a list of controls with properties matching the given criteria.
+     *
+     * Parameters:
+     * property - {String} A control property to be matched.
+     * match - {String | Object} A string to match.  Can also be a regular
+     *     expression literal or object.  In addition, it can be any object
+     *     with a method named test.  For reqular expressions or other, if
+     *     match.test(control[property]) evaluates to true, the control will be
+     *     included in the array returned.  If no controls are found, an empty
+     *     array is returned.
+     *
+     * Returns:
+     * {Array(<OpenLayers.Control>)} A list of controls matching the given criteria.
+     *     An empty array is returned if no matches are found.
+     */
+    getControlsBy: function(property, match) {
+        var test = (typeof match.test == "function");
+        var found = OpenLayers.Array.filter(this.controls, function(item) {
+            return item[property] == match || (test && match.test(item[property]));
+        });
+        return found;
+    },
+
+    /**
+     * APIMethod: getControlsByName
+     * Get a list of contorls with names matching the given name.
+     *
+     * Parameters:
+     * match - {String | Object} A control name.  The name can also be a regular
+     *     expression literal or object.  In addition, it can be any object
+     *     with a method named test.  For reqular expressions or other, if
+     *     name.test(control.name) evaluates to true, the control will be included
+     *     in the list of controls returned.  If no controls are found, an empty
+     *     array is returned.
+     *
+     * Returns:
+     * {Array(<OpenLayers.Control>)} A list of controls matching the given name.
+     *     An empty array is returned if no matches are found.
+     */
+    getControlsByName: function(match) {
+        return this.getControlsBy("name", match);
+    },
+
+    /**
+     * APIMethod: getControlsByClass
+     * Get a list of controls of a given type (CLASS_NAME).
+     *
+     * Parameters:
+     * match - {String | Object} A control class name.  The type can also be a
+     *     regular expression literal or object.  In addition, it can be any
+     *     object with a method named test.  For reqular expressions or other,
+     *     if type.test(control.CLASS_NAME) evaluates to true, the control will
+     *     be included in the list of controls returned.  If no controls are
+     *     found, an empty array is returned.
+     *
+     * Returns:
+     * {Array(<OpenLayers.Control>)} A list of controls matching the given type.
+     *     An empty array is returned if no matches are found.
+     */
+    getControlsByClass: function(match) {
+        return this.getControlsBy("CLASS_NAME", match);
+    },
+
+    CLASS_NAME: "OpenLayers.Control.Panel"
+});
+
+/* ======================================================================
+    OpenLayers/Control/Button.js
+   ====================================================================== */
+
+/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for 
+ * full list of contributors). Published under the 2-clause BSD license.
+ * See license.txt in the OpenLayers distribution or repository for the
+ * full text of the license. */
+
+/**
+ * @requires OpenLayers/Control.js
+ */
+
+/**
+ * Class: OpenLayers.Control.Button 
+ * The Button control is a very simple push-button, for use with 
+ * <OpenLayers.Control.Panel>.
+ * When clicked, the function trigger() is executed.
+ * 
+ * Inherits from:
+ *  - <OpenLayers.Control>
+ *
+ * Use:
+ * (code)
+ * var button = new OpenLayers.Control.Button({
+ *     displayClass: "MyButton", trigger: myFunction
+ * });
+ * panel.addControls([button]);
+ * (end)
+ * 
+ * Will create a button with CSS class MyButtonItemInactive, that
+ *     will call the function MyFunction() when clicked.
+ */
+OpenLayers.Control.Button = OpenLayers.Class(OpenLayers.Control, {
+    /**
+     * Property: type
+     * {Integer} OpenLayers.Control.TYPE_BUTTON.
+     */
+    type: OpenLayers.Control.TYPE_BUTTON,
+    
+    /**
+     * Method: trigger
+     * Called by a control panel when the button is clicked.
+     */
+    trigger: function() {},
+
+    CLASS_NAME: "OpenLayers.Control.Button"
+});
+/* ======================================================================
+    OpenLayers/Control/ZoomIn.js
+   ====================================================================== */
+
+/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for 
+ * full list of contributors). Published under the 2-clause BSD license.
+ * See license.txt in the OpenLayers distribution or repository for the
+ * full text of the license. */
+
+/**
+ * @requires OpenLayers/Control/Button.js
+ */
+
+/**
+ * Class: OpenLayers.Control.ZoomIn
+ * The ZoomIn control is a button to increase the zoom level of a map.
+ *
+ * Inherits from:
+ *  - <OpenLayers.Control>
+ */
+OpenLayers.Control.ZoomIn = OpenLayers.Class(OpenLayers.Control.Button, {
+
+    /**
+     * Method: trigger
+     */
+    trigger: function(){
+        if (this.map) {
+            this.map.zoomIn();
+        }
+    },
+
+    CLASS_NAME: "OpenLayers.Control.ZoomIn"
+});
+/* ======================================================================
+    OpenLayers/Control/ZoomOut.js
+   ====================================================================== */
+
+/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for 
+ * full list of contributors). Published under the 2-clause BSD license.
+ * See license.txt in the OpenLayers distribution or repository for the
+ * full text of the license. */
+
+/**
+ * @requires OpenLayers/Control/Button.js
+ */
+
+/**
+ * Class: OpenLayers.Control.ZoomOut
+ * The ZoomOut control is a button to decrease the zoom level of a map.
+ *
+ * Inherits from:
+ *  - <OpenLayers.Control>
+ */
+OpenLayers.Control.ZoomOut = OpenLayers.Class(OpenLayers.Control.Button, {
+
+    /**
+     * Method: trigger
+     */
+    trigger: function(){
+        if (this.map) {
+            this.map.zoomOut();
+        }
+    },
+
+    CLASS_NAME: "OpenLayers.Control.ZoomOut"
+});
+/* ======================================================================
+    OpenLayers/Control/ZoomToMaxExtent.js
+   ====================================================================== */
+
+/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for 
+ * full list of contributors). Published under the 2-clause BSD license.
+ * See license.txt in the OpenLayers distribution or repository for the
+ * full text of the license. */
+
+/**
+ * @requires OpenLayers/Control/Button.js
+ */
+
+/**
+ * Class: OpenLayers.Control.ZoomToMaxExtent 
+ * The ZoomToMaxExtent control is a button that zooms out to the maximum
+ * extent of the map. It is designed to be used with a 
+ * <OpenLayers.Control.Panel>.
+ * 
+ * Inherits from:
+ *  - <OpenLayers.Control>
+ */
+OpenLayers.Control.ZoomToMaxExtent = OpenLayers.Class(OpenLayers.Control.Button, {
+
+    /**
+     * Method: trigger
      * 
-     * Parameters: 
-     * data - {String} or {DOMElement} data to read/parse.
-     *
-     * Returns:
-     * {Array} List of coverage descriptions.
+     * Called whenever this control is being rendered inside of a panel and a 
+     *     click occurs on this controls element. Actually zooms to the maximum
+     *     extent of this controls map.
      */
+    trigger: function() {
+        if (this.map) {
+            this.map.zoomToMaxExtent();
+        }    
+    },
+
+    CLASS_NAME: "OpenLayers.Control.ZoomToMaxExtent"
+});
+/* ======================================================================
+    OpenLayers/Control/ZoomPanel.js
+   ====================================================================== */
+
+/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for 
+ * full list of contributors). Published under the 2-clause BSD license.
+ * See license.txt in the OpenLayers distribution or repository for the
+ * full text of the license. */
+
+/**
+ * @requires OpenLayers/Control/Panel.js
+ * @requires OpenLayers/Control/ZoomIn.js
+ * @requires OpenLayers/Control/ZoomOut.js
+ * @requires OpenLayers/Control/ZoomToMaxExtent.js
+ */
+
+/**
+ * Class: OpenLayers.Control.ZoomPanel
+ * The ZoomPanel control is a compact collecton of 3 zoom controls: a 
+ * <OpenLayers.Control.ZoomIn>, a <OpenLayers.Control.ZoomToMaxExtent>, and a
+ * <OpenLayers.Control.ZoomOut>. By default it is drawn in the upper left 
+ * corner of the map.
+ *
+ * Note: 
+ * If you wish to use this class with the default images and you want 
+ *       it to look nice in ie6, you should add the following, conditionally
+ *       added css stylesheet to your HTML file:
+ * 
+ * (code)
+ * <!--[if lte IE 6]>
+ *   <link rel="stylesheet" href="../theme/default/ie6-style.css" type="text/css" />
+ * <![endif]-->
+ * (end)
+ * 
+ * Inherits from:
+ *  - <OpenLayers.Control.Panel>
+ */
+OpenLayers.Control.ZoomPanel = OpenLayers.Class(OpenLayers.Control.Panel, {
 
     /**
-     * Method: read
+     * Constructor: OpenLayers.Control.ZoomPanel 
+     * Add the three zooming controls.
      *
      * Parameters:
-     * data - {DOMElement|String} A WFS DescribeFeatureType document.
-     *
-     * Returns:
-     * {Object} An object representing the WFS DescribeFeatureType response.
+     * options - {Object} An optional object whose properties will be used
+     *     to extend the control.
      */
-     
-    CLASS_NAME: "OpenLayers.Format.WCSDescribeCoverage" 
+    initialize: function(options) {
+        OpenLayers.Control.Panel.prototype.initialize.apply(this, [options]);
+        this.addControls([
+            new OpenLayers.Control.ZoomIn(),
+            new OpenLayers.Control.ZoomToMaxExtent(),
+            new OpenLayers.Control.ZoomOut()
+        ]);
+    },
 
+    CLASS_NAME: "OpenLayers.Control.ZoomPanel"
 });
 /* ======================================================================
     OpenLayers/Layer/HTTPRequest.js
@@ -38491,652 +37677,6 @@ OpenLayers.Format.WMSDescribeLayer = OpenLayers.Class(OpenLayers.Format.XML.Vers
     
     CLASS_NAME: "OpenLayers.Format.WMSDescribeLayer" 
 
-});
-/* ======================================================================
-    OpenLayers/Control/Panel.js
-   ====================================================================== */
-
-/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for 
- * full list of contributors). Published under the 2-clause BSD license.
- * See license.txt in the OpenLayers distribution or repository for the
- * full text of the license. */
-
-/**
- * @requires OpenLayers/Control.js
- * @requires OpenLayers/Events/buttonclick.js
- */
-
-/**
- * Class: OpenLayers.Control.Panel
- * The Panel control is a container for other controls. With it toolbars
- * may be composed.
- *
- * Inherits from:
- *  - <OpenLayers.Control>
- */
-OpenLayers.Control.Panel = OpenLayers.Class(OpenLayers.Control, {
-    /**
-     * Property: controls
-     * {Array(<OpenLayers.Control>)}
-     */
-    controls: null,    
-    
-    /**
-     * APIProperty: autoActivate
-     * {Boolean} Activate the control when it is added to a map.  Default is
-     *     true.
-     */
-    autoActivate: true,
-
-    /** 
-     * APIProperty: defaultControl
-     * {<OpenLayers.Control>} The control which is activated when the control is
-     * activated (turned on), which also happens at instantiation.
-     * If <saveState> is true, <defaultControl> will be nullified after the
-     * first activation of the panel.
-     */
-    defaultControl: null,
-    
-    /**
-     * APIProperty: saveState
-     * {Boolean} If set to true, the active state of this panel's controls will
-     * be stored on panel deactivation, and restored on reactivation. Default
-     * is false.
-     */
-    saveState: false,
-      
-    /**
-     * APIProperty: allowDepress
-     * {Boolean} If is true the <OpenLayers.Control.TYPE_TOOL> controls can 
-     *     be deactivated by clicking the icon that represents them.  Default 
-     *     is false.
-     */
-    allowDepress: false,
-    
-    /**
-     * Property: activeState
-     * {Object} stores the active state of this panel's controls.
-     */
-    activeState: null,
-
-    /**
-     * Constructor: OpenLayers.Control.Panel
-     * Create a new control panel.
-     *
-     * Each control in the panel is represented by an icon. When clicking 
-     *     on an icon, the <activateControl> method is called.
-     *
-     * Specific properties for controls on a panel:
-     * type - {Number} One of <OpenLayers.Control.TYPE_TOOL>,
-     *     <OpenLayers.Control.TYPE_TOGGLE>, <OpenLayers.Control.TYPE_BUTTON>.
-     *     If not provided, <OpenLayers.Control.TYPE_TOOL> is assumed.
-     * title - {string} Text displayed when mouse is over the icon that 
-     *     represents the control.     
-     *
-     * The <OpenLayers.Control.type> of a control determines the behavior when
-     * clicking its icon:
-     * <OpenLayers.Control.TYPE_TOOL> - The control is activated and other
-     *     controls of this type in the same panel are deactivated. This is
-     *     the default type.
-     * <OpenLayers.Control.TYPE_TOGGLE> - The active state of the control is
-     *     toggled.
-     * <OpenLayers.Control.TYPE_BUTTON> - The
-     *     <OpenLayers.Control.Button.trigger> method of the control is called,
-     *     but its active state is not changed.
-     *
-     * If a control is <OpenLayers.Control.active>, it will be drawn with the
-     * olControl[Name]ItemActive class, otherwise with the
-     * olControl[Name]ItemInactive class.
-     *
-     * Parameters:
-     * options - {Object} An optional object whose properties will be used
-     *     to extend the control.
-     */
-    initialize: function(options) {
-        OpenLayers.Control.prototype.initialize.apply(this, [options]);
-        this.controls = [];
-        this.activeState = {};
-    },
-
-    /**
-     * APIMethod: destroy
-     */
-    destroy: function() {
-        if (this.map) {
-            this.map.events.unregister("buttonclick", this, this.onButtonClick);
-        }
-        OpenLayers.Control.prototype.destroy.apply(this, arguments);
-        for (var ctl, i = this.controls.length - 1; i >= 0; i--) {
-            ctl = this.controls[i];
-            if (ctl.events) {
-                ctl.events.un({
-                    activate: this.iconOn,
-                    deactivate: this.iconOff
-                });
-            }
-            ctl.panel_div = null;
-        }
-        this.activeState = null;
-    },
-
-    /**
-     * APIMethod: activate
-     */
-    activate: function() {
-        if (OpenLayers.Control.prototype.activate.apply(this, arguments)) {
-            var control;
-            for (var i=0, len=this.controls.length; i<len; i++) {
-                control = this.controls[i];
-                if (control === this.defaultControl ||
-                            (this.saveState && this.activeState[control.id])) {
-                    control.activate();
-                }
-            }    
-            if (this.saveState === true) {
-                this.defaultControl = null;
-            }
-            this.redraw();
-            return true;
-        } else {
-            return false;
-        }
-    },
-    
-    /**
-     * APIMethod: deactivate
-     */
-    deactivate: function() {
-        if (OpenLayers.Control.prototype.deactivate.apply(this, arguments)) {
-            var control;
-            for (var i=0, len=this.controls.length; i<len; i++) {
-                control = this.controls[i];
-                this.activeState[control.id] = control.deactivate();
-            }    
-            this.redraw();
-            return true;
-        } else {
-            return false;
-        }
-    },
-    
-    /**
-     * Method: draw
-     *
-     * Returns:
-     * {DOMElement}
-     */    
-    draw: function() {
-        OpenLayers.Control.prototype.draw.apply(this, arguments);
-        if (this.outsideViewport) {
-            this.events.attachToElement(this.div);
-            this.events.register("buttonclick", this, this.onButtonClick);
-        } else {
-            this.map.events.register("buttonclick", this, this.onButtonClick);
-        }
-        this.addControlsToMap(this.controls);
-        return this.div;
-    },
-
-    /**
-     * Method: redraw
-     */
-    redraw: function() {
-        for (var l=this.div.childNodes.length, i=l-1; i>=0; i--) {
-            this.div.removeChild(this.div.childNodes[i]);
-        }
-        this.div.innerHTML = "";
-        if (this.active) {
-            for (var i=0, len=this.controls.length; i<len; i++) {
-                this.div.appendChild(this.controls[i].panel_div);
-            }
-        }
-    },
-    
-    /**
-     * APIMethod: activateControl
-     * This method is called when the user click on the icon representing a 
-     *     control in the panel.
-     *
-     * Parameters:
-     * control - {<OpenLayers.Control>}
-     */
-    activateControl: function (control) {
-        if (!this.active) { return false; }
-        if (control.type == OpenLayers.Control.TYPE_BUTTON) {
-            control.trigger();
-            return;
-        }
-        if (control.type == OpenLayers.Control.TYPE_TOGGLE) {
-            if (control.active) {
-                control.deactivate();
-            } else {
-                control.activate();
-            }
-            return;
-        }
-        if (this.allowDepress && control.active) {
-            control.deactivate();
-        } else {
-            var c;
-            for (var i=0, len=this.controls.length; i<len; i++) {
-                c = this.controls[i];
-                if (c != control &&
-                   (c.type === OpenLayers.Control.TYPE_TOOL || c.type == null)) {
-                    c.deactivate();
-                }
-            }
-            control.activate();
-        }
-    },
-
-    /**
-     * APIMethod: addControls
-     * To build a toolbar, you add a set of controls to it. addControls
-     * lets you add a single control or a list of controls to the 
-     * Control Panel.
-     *
-     * Parameters:
-     * controls - {<OpenLayers.Control>} Controls to add in the panel.
-     */    
-    addControls: function(controls) {
-        if (!(OpenLayers.Util.isArray(controls))) {
-            controls = [controls];
-        }
-        this.controls = this.controls.concat(controls);
-
-        for (var i=0, len=controls.length; i<len; i++) {
-            var control = controls[i],
-                element = this.createControlMarkup(control);
-            OpenLayers.Element.addClass(element, 
-                                        control.displayClass + "ItemInactive");
-            OpenLayers.Element.addClass(element, "olButton");
-            if (control.title != ""  && !element.title) {
-                element.title = control.title;
-            }
-            control.panel_div = element;
-        }
-
-        if (this.map) { // map.addControl() has already been called on the panel
-            this.addControlsToMap(controls);
-            this.redraw();
-        }
-    },
-
-    /**
-     * APIMethod: createControlMarkup
-     * This function just creates a div for the control. If specific HTML
-     * markup is needed this function can be overridden in specific classes,
-     * or at panel instantiation time:
-     *
-     * Example:
-     * (code)
-     * var panel = new OpenLayers.Control.Panel({
-     *     defaultControl: control,
-     *     // ovverride createControlMarkup to create actual buttons
-     *     // including texts wrapped into span elements.
-     *     createControlMarkup: function(control) {
-     *         var button = document.createElement('button'),
-     *             span = document.createElement('span');
-     *         if (control.text) {
-     *             span.innerHTML = control.text;
-     *         }
-     *         return button;
-     *     }
-     *  });
-     * (end)
-     *
-     * Parameters:
-     * control - {<OpenLayers.Control>} The control to create the HTML
-     *     markup for.
-     *
-     * Returns:
-     * {DOMElement} The markup.
-     */
-    createControlMarkup: function(control) {
-        return document.createElement("div");
-    },
-   
-    /**
-     * Method: addControlsToMap
-     * Only for internal use in draw() and addControls() methods.
-     *
-     * Parameters:
-     * controls - {Array(<OpenLayers.Control>)} Controls to add into map.
-     */         
-    addControlsToMap: function (controls) {
-        var control;
-        for (var i=0, len=controls.length; i<len; i++) {
-            control = controls[i];
-            if (control.autoActivate === true) {
-                control.autoActivate = false;
-                this.map.addControl(control);
-                control.autoActivate = true;
-            } else {
-                this.map.addControl(control);
-                control.deactivate();
-            }
-            control.events.on({
-                activate: this.iconOn,
-                deactivate: this.iconOff
-            });
-        }  
-    },
-
-    /**
-     * Method: iconOn
-     * Internal use, for use only with "controls[i].events.on/un".
-     */
-     iconOn: function() {
-        var d = this.panel_div; // "this" refers to a control on panel!
-        var re = new RegExp("\\b(" + this.displayClass + "Item)Inactive\\b");
-        d.className = d.className.replace(re, "$1Active");
-    },
-
-    /**
-     * Method: iconOff
-     * Internal use, for use only with "controls[i].events.on/un".
-     */
-     iconOff: function() {
-        var d = this.panel_div; // "this" refers to a control on panel!
-        var re = new RegExp("\\b(" + this.displayClass + "Item)Active\\b");
-        d.className = d.className.replace(re, "$1Inactive");
-    },
-    
-    /**
-     * Method: onButtonClick
-     *
-     * Parameters:
-     * evt - {Event}
-     */
-    onButtonClick: function (evt) {
-        var controls = this.controls,
-            button = evt.buttonElement;
-        for (var i=controls.length-1; i>=0; --i) {
-            if (controls[i].panel_div === button) {
-                this.activateControl(controls[i]);
-                break;
-            }
-        }
-    },
-
-    /**
-     * APIMethod: getControlsBy
-     * Get a list of controls with properties matching the given criteria.
-     *
-     * Parameters:
-     * property - {String} A control property to be matched.
-     * match - {String | Object} A string to match.  Can also be a regular
-     *     expression literal or object.  In addition, it can be any object
-     *     with a method named test.  For reqular expressions or other, if
-     *     match.test(control[property]) evaluates to true, the control will be
-     *     included in the array returned.  If no controls are found, an empty
-     *     array is returned.
-     *
-     * Returns:
-     * {Array(<OpenLayers.Control>)} A list of controls matching the given criteria.
-     *     An empty array is returned if no matches are found.
-     */
-    getControlsBy: function(property, match) {
-        var test = (typeof match.test == "function");
-        var found = OpenLayers.Array.filter(this.controls, function(item) {
-            return item[property] == match || (test && match.test(item[property]));
-        });
-        return found;
-    },
-
-    /**
-     * APIMethod: getControlsByName
-     * Get a list of contorls with names matching the given name.
-     *
-     * Parameters:
-     * match - {String | Object} A control name.  The name can also be a regular
-     *     expression literal or object.  In addition, it can be any object
-     *     with a method named test.  For reqular expressions or other, if
-     *     name.test(control.name) evaluates to true, the control will be included
-     *     in the list of controls returned.  If no controls are found, an empty
-     *     array is returned.
-     *
-     * Returns:
-     * {Array(<OpenLayers.Control>)} A list of controls matching the given name.
-     *     An empty array is returned if no matches are found.
-     */
-    getControlsByName: function(match) {
-        return this.getControlsBy("name", match);
-    },
-
-    /**
-     * APIMethod: getControlsByClass
-     * Get a list of controls of a given type (CLASS_NAME).
-     *
-     * Parameters:
-     * match - {String | Object} A control class name.  The type can also be a
-     *     regular expression literal or object.  In addition, it can be any
-     *     object with a method named test.  For reqular expressions or other,
-     *     if type.test(control.CLASS_NAME) evaluates to true, the control will
-     *     be included in the list of controls returned.  If no controls are
-     *     found, an empty array is returned.
-     *
-     * Returns:
-     * {Array(<OpenLayers.Control>)} A list of controls matching the given type.
-     *     An empty array is returned if no matches are found.
-     */
-    getControlsByClass: function(match) {
-        return this.getControlsBy("CLASS_NAME", match);
-    },
-
-    CLASS_NAME: "OpenLayers.Control.Panel"
-});
-
-/* ======================================================================
-    OpenLayers/Control/Button.js
-   ====================================================================== */
-
-/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for 
- * full list of contributors). Published under the 2-clause BSD license.
- * See license.txt in the OpenLayers distribution or repository for the
- * full text of the license. */
-
-/**
- * @requires OpenLayers/Control.js
- */
-
-/**
- * Class: OpenLayers.Control.Button 
- * The Button control is a very simple push-button, for use with 
- * <OpenLayers.Control.Panel>.
- * When clicked, the function trigger() is executed.
- * 
- * Inherits from:
- *  - <OpenLayers.Control>
- *
- * Use:
- * (code)
- * var button = new OpenLayers.Control.Button({
- *     displayClass: "MyButton", trigger: myFunction
- * });
- * panel.addControls([button]);
- * (end)
- * 
- * Will create a button with CSS class MyButtonItemInactive, that
- *     will call the function MyFunction() when clicked.
- */
-OpenLayers.Control.Button = OpenLayers.Class(OpenLayers.Control, {
-    /**
-     * Property: type
-     * {Integer} OpenLayers.Control.TYPE_BUTTON.
-     */
-    type: OpenLayers.Control.TYPE_BUTTON,
-    
-    /**
-     * Method: trigger
-     * Called by a control panel when the button is clicked.
-     */
-    trigger: function() {},
-
-    CLASS_NAME: "OpenLayers.Control.Button"
-});
-/* ======================================================================
-    OpenLayers/Control/ZoomIn.js
-   ====================================================================== */
-
-/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for 
- * full list of contributors). Published under the 2-clause BSD license.
- * See license.txt in the OpenLayers distribution or repository for the
- * full text of the license. */
-
-/**
- * @requires OpenLayers/Control/Button.js
- */
-
-/**
- * Class: OpenLayers.Control.ZoomIn
- * The ZoomIn control is a button to increase the zoom level of a map.
- *
- * Inherits from:
- *  - <OpenLayers.Control>
- */
-OpenLayers.Control.ZoomIn = OpenLayers.Class(OpenLayers.Control.Button, {
-
-    /**
-     * Method: trigger
-     */
-    trigger: function(){
-        if (this.map) {
-            this.map.zoomIn();
-        }
-    },
-
-    CLASS_NAME: "OpenLayers.Control.ZoomIn"
-});
-/* ======================================================================
-    OpenLayers/Control/ZoomOut.js
-   ====================================================================== */
-
-/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for 
- * full list of contributors). Published under the 2-clause BSD license.
- * See license.txt in the OpenLayers distribution or repository for the
- * full text of the license. */
-
-/**
- * @requires OpenLayers/Control/Button.js
- */
-
-/**
- * Class: OpenLayers.Control.ZoomOut
- * The ZoomOut control is a button to decrease the zoom level of a map.
- *
- * Inherits from:
- *  - <OpenLayers.Control>
- */
-OpenLayers.Control.ZoomOut = OpenLayers.Class(OpenLayers.Control.Button, {
-
-    /**
-     * Method: trigger
-     */
-    trigger: function(){
-        if (this.map) {
-            this.map.zoomOut();
-        }
-    },
-
-    CLASS_NAME: "OpenLayers.Control.ZoomOut"
-});
-/* ======================================================================
-    OpenLayers/Control/ZoomToMaxExtent.js
-   ====================================================================== */
-
-/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for 
- * full list of contributors). Published under the 2-clause BSD license.
- * See license.txt in the OpenLayers distribution or repository for the
- * full text of the license. */
-
-/**
- * @requires OpenLayers/Control/Button.js
- */
-
-/**
- * Class: OpenLayers.Control.ZoomToMaxExtent 
- * The ZoomToMaxExtent control is a button that zooms out to the maximum
- * extent of the map. It is designed to be used with a 
- * <OpenLayers.Control.Panel>.
- * 
- * Inherits from:
- *  - <OpenLayers.Control>
- */
-OpenLayers.Control.ZoomToMaxExtent = OpenLayers.Class(OpenLayers.Control.Button, {
-
-    /**
-     * Method: trigger
-     * 
-     * Called whenever this control is being rendered inside of a panel and a 
-     *     click occurs on this controls element. Actually zooms to the maximum
-     *     extent of this controls map.
-     */
-    trigger: function() {
-        if (this.map) {
-            this.map.zoomToMaxExtent();
-        }    
-    },
-
-    CLASS_NAME: "OpenLayers.Control.ZoomToMaxExtent"
-});
-/* ======================================================================
-    OpenLayers/Control/ZoomPanel.js
-   ====================================================================== */
-
-/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for 
- * full list of contributors). Published under the 2-clause BSD license.
- * See license.txt in the OpenLayers distribution or repository for the
- * full text of the license. */
-
-/**
- * @requires OpenLayers/Control/Panel.js
- * @requires OpenLayers/Control/ZoomIn.js
- * @requires OpenLayers/Control/ZoomOut.js
- * @requires OpenLayers/Control/ZoomToMaxExtent.js
- */
-
-/**
- * Class: OpenLayers.Control.ZoomPanel
- * The ZoomPanel control is a compact collecton of 3 zoom controls: a 
- * <OpenLayers.Control.ZoomIn>, a <OpenLayers.Control.ZoomToMaxExtent>, and a
- * <OpenLayers.Control.ZoomOut>. By default it is drawn in the upper left 
- * corner of the map.
- *
- * Note: 
- * If you wish to use this class with the default images and you want 
- *       it to look nice in ie6, you should add the following, conditionally
- *       added css stylesheet to your HTML file:
- * 
- * (code)
- * <!--[if lte IE 6]>
- *   <link rel="stylesheet" href="../theme/default/ie6-style.css" type="text/css" />
- * <![endif]-->
- * (end)
- * 
- * Inherits from:
- *  - <OpenLayers.Control.Panel>
- */
-OpenLayers.Control.ZoomPanel = OpenLayers.Class(OpenLayers.Control.Panel, {
-
-    /**
-     * Constructor: OpenLayers.Control.ZoomPanel 
-     * Add the three zooming controls.
-     *
-     * Parameters:
-     * options - {Object} An optional object whose properties will be used
-     *     to extend the control.
-     */
-    initialize: function(options) {
-        OpenLayers.Control.Panel.prototype.initialize.apply(this, [options]);
-        this.addControls([
-            new OpenLayers.Control.ZoomIn(),
-            new OpenLayers.Control.ZoomToMaxExtent(),
-            new OpenLayers.Control.ZoomOut()
-        ]);
-    },
-
-    CLASS_NAME: "OpenLayers.Control.ZoomPanel"
 });
 /* ======================================================================
     OpenLayers/Layer/XYZ.js
@@ -47232,6 +45772,301 @@ OpenLayers.Layer.PointTrack.TARGET_NODE = 0;
  * - TARGET_NODE: take data/attributes from the target node of the line
  */
 OpenLayers.Layer.PointTrack.dataFrom = {'SOURCE_NODE': -1, 'TARGET_NODE': 0};
+/* ======================================================================
+    OpenLayers/Protocol.js
+   ====================================================================== */
+
+/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for 
+ * full list of contributors). Published under the 2-clause BSD license.
+ * See license.txt in the OpenLayers distribution or repository for the
+ * full text of the license. */
+
+/**
+ * @requires OpenLayers/BaseTypes/Class.js
+ */
+
+/**
+ * Class: OpenLayers.Protocol
+ * Abstract vector layer protocol class.  Not to be instantiated directly.  Use
+ *     one of the protocol subclasses instead.
+ */
+OpenLayers.Protocol = OpenLayers.Class({
+    
+    /**
+     * Property: format
+     * {<OpenLayers.Format>} The format used by this protocol.
+     */
+    format: null,
+    
+    /**
+     * Property: options
+     * {Object} Any options sent to the constructor.
+     */
+    options: null,
+
+    /**
+     * Property: autoDestroy
+     * {Boolean} The creator of the protocol can set autoDestroy to false
+     *      to fully control when the protocol is destroyed. Defaults to
+     *      true.
+     */
+    autoDestroy: true,
+   
+    /**
+     * Property: defaultFilter
+     * {<OpenLayers.Filter>} Optional default filter to read requests
+     */
+    defaultFilter: null,
+    
+    /**
+     * Constructor: OpenLayers.Protocol
+     * Abstract class for vector protocols.  Create instances of a subclass.
+     *
+     * Parameters:
+     * options - {Object} Optional object whose properties will be set on the
+     *     instance.
+     */
+    initialize: function(options) {
+        options = options || {};
+        OpenLayers.Util.extend(this, options);
+        this.options = options;
+    },
+
+    /**
+     * Method: mergeWithDefaultFilter
+     * Merge filter passed to the read method with the default one
+     *
+     * Parameters:
+     * filter - {<OpenLayers.Filter>}
+     */
+    mergeWithDefaultFilter: function(filter) {
+        var merged;
+        if (filter && this.defaultFilter) {
+            merged = new OpenLayers.Filter.Logical({
+                type: OpenLayers.Filter.Logical.AND,
+                filters: [this.defaultFilter, filter]
+            });
+        } else {
+            merged = filter || this.defaultFilter || undefined;
+        }
+        return merged;
+    },
+
+    /**
+     * APIMethod: destroy
+     * Clean up the protocol.
+     */
+    destroy: function() {
+        this.options = null;
+        this.format = null;
+    },
+    
+    /**
+     * APIMethod: read
+     * Construct a request for reading new features.
+     *
+     * Parameters:
+     * options - {Object} Optional object for configuring the request.
+     *
+     * Returns:
+     * {<OpenLayers.Protocol.Response>} An <OpenLayers.Protocol.Response>
+     * object, the same object will be passed to the callback function passed
+     * if one exists in the options object.
+     */
+    read: function(options) {
+        options = options || {};
+        options.filter = this.mergeWithDefaultFilter(options.filter);
+    },
+    
+    
+    /**
+     * APIMethod: create
+     * Construct a request for writing newly created features.
+     *
+     * Parameters:
+     * features - {Array({<OpenLayers.Feature.Vector>})} or
+     *            {<OpenLayers.Feature.Vector>}
+     * options - {Object} Optional object for configuring the request.
+     *
+     * Returns:
+     * {<OpenLayers.Protocol.Response>} An <OpenLayers.Protocol.Response>
+     * object, the same object will be passed to the callback function passed
+     * if one exists in the options object.
+     */
+    create: function() {
+    },
+    
+    /**
+     * APIMethod: update
+     * Construct a request updating modified features.
+     *
+     * Parameters:
+     * features - {Array({<OpenLayers.Feature.Vector>})} or
+     *            {<OpenLayers.Feature.Vector>}
+     * options - {Object} Optional object for configuring the request.
+     *
+     * Returns:
+     * {<OpenLayers.Protocol.Response>} An <OpenLayers.Protocol.Response>
+     * object, the same object will be passed to the callback function passed
+     * if one exists in the options object.
+     */
+    update: function() {
+    },
+    
+    /**
+     * APIMethod: delete
+     * Construct a request deleting a removed feature.
+     *
+     * Parameters:
+     * feature - {<OpenLayers.Feature.Vector>}
+     * options - {Object} Optional object for configuring the request.
+     *
+     * Returns:
+     * {<OpenLayers.Protocol.Response>} An <OpenLayers.Protocol.Response>
+     * object, the same object will be passed to the callback function passed
+     * if one exists in the options object.
+     */
+    "delete": function() {
+    },
+
+    /**
+     * APIMethod: commit
+     * Go over the features and for each take action
+     * based on the feature state. Possible actions are create,
+     * update and delete.
+     *
+     * Parameters:
+     * features - {Array({<OpenLayers.Feature.Vector>})}
+     * options - {Object} Object whose possible keys are "create", "update",
+     *      "delete", "callback" and "scope", the values referenced by the
+     *      first three are objects as passed to the "create", "update", and
+     *      "delete" methods, the value referenced by the "callback" key is
+     *      a function which is called when the commit operation is complete
+     *      using the scope referenced by the "scope" key.
+     *
+     * Returns:
+     * {Array({<OpenLayers.Protocol.Response>})} An array of
+     * <OpenLayers.Protocol.Response> objects.
+     */
+    commit: function() {
+    },
+
+    /**
+     * Method: abort
+     * Abort an ongoing request.
+     *
+     * Parameters:
+     * response - {<OpenLayers.Protocol.Response>}
+     */
+    abort: function(response) {
+    },
+   
+    /**
+     * Method: createCallback
+     * Returns a function that applies the given public method with resp and
+     *     options arguments.
+     *
+     * Parameters:
+     * method - {Function} The method to be applied by the callback.
+     * response - {<OpenLayers.Protocol.Response>} The protocol response object.
+     * options - {Object} Options sent to the protocol method
+     */
+    createCallback: function(method, response, options) {
+        return OpenLayers.Function.bind(function() {
+            method.apply(this, [response, options]);
+        }, this);
+    },
+   
+    CLASS_NAME: "OpenLayers.Protocol" 
+});
+
+/**
+ * Class: OpenLayers.Protocol.Response
+ * Protocols return Response objects to their users.
+ */
+OpenLayers.Protocol.Response = OpenLayers.Class({
+    /**
+     * Property: code
+     * {Number} - OpenLayers.Protocol.Response.SUCCESS or
+     *            OpenLayers.Protocol.Response.FAILURE
+     */
+    code: null,
+
+    /**
+     * Property: requestType
+     * {String} The type of request this response corresponds to. Either
+     *      "create", "read", "update" or "delete".
+     */
+    requestType: null,
+
+    /**
+     * Property: last
+     * {Boolean} - true if this is the last response expected in a commit,
+     * false otherwise, defaults to true.
+     */
+    last: true,
+
+    /**
+     * Property: features
+     * {Array({<OpenLayers.Feature.Vector>})} or {<OpenLayers.Feature.Vector>}
+     * The features returned in the response by the server. Depending on the 
+     * protocol's read payload, either features or data will be populated.
+     */
+    features: null,
+
+    /**
+     * Property: data
+     * {Object}
+     * The data returned in the response by the server. Depending on the 
+     * protocol's read payload, either features or data will be populated.
+     */
+    data: null,
+
+    /**
+     * Property: reqFeatures
+     * {Array({<OpenLayers.Feature.Vector>})} or {<OpenLayers.Feature.Vector>}
+     * The features provided by the user and placed in the request by the
+     *      protocol.
+     */
+    reqFeatures: null,
+
+    /**
+     * Property: priv
+     */
+    priv: null,
+
+    /**
+     * Property: error
+     * {Object} The error object in case a service exception was encountered.
+     */
+    error: null,
+
+    /**
+     * Constructor: OpenLayers.Protocol.Response
+     *
+     * Parameters:
+     * options - {Object} Optional object whose properties will be set on the
+     *     instance.
+     */
+    initialize: function(options) {
+        OpenLayers.Util.extend(this, options);
+    },
+
+    /**
+     * Method: success
+     *
+     * Returns:
+     * {Boolean} - true on success, false otherwise
+     */
+    success: function() {
+        return this.code > 0;
+    },
+
+    CLASS_NAME: "OpenLayers.Protocol.Response"
+});
+
+OpenLayers.Protocol.Response.SUCCESS = 1;
+OpenLayers.Protocol.Response.FAILURE = 0;
 /* ======================================================================
     OpenLayers/Protocol/WFS.js
    ====================================================================== */
@@ -60149,6 +58984,726 @@ OpenLayers.Format.WMSGetFeatureInfo = OpenLayers.Class(OpenLayers.Format.XML, {
     
 });
 /* ======================================================================
+    OpenLayers/Format/GeoJSON.js
+   ====================================================================== */
+
+/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for 
+ * full list of contributors). Published under the 2-clause BSD license.
+ * See license.txt in the OpenLayers distribution or repository for the
+ * full text of the license. */
+
+/**
+ * @requires OpenLayers/Format/JSON.js
+ * @requires OpenLayers/Feature/Vector.js
+ * @requires OpenLayers/Geometry/Point.js
+ * @requires OpenLayers/Geometry/MultiPoint.js
+ * @requires OpenLayers/Geometry/LineString.js
+ * @requires OpenLayers/Geometry/MultiLineString.js
+ * @requires OpenLayers/Geometry/Polygon.js
+ * @requires OpenLayers/Geometry/MultiPolygon.js
+ * @requires OpenLayers/Console.js
+ */
+
+/**
+ * Class: OpenLayers.Format.GeoJSON
+ * Read and write GeoJSON. Create a new parser with the
+ *     <OpenLayers.Format.GeoJSON> constructor.
+ *
+ * Inherits from:
+ *  - <OpenLayers.Format.JSON>
+ */
+OpenLayers.Format.GeoJSON = OpenLayers.Class(OpenLayers.Format.JSON, {
+
+    /**
+     * APIProperty: ignoreExtraDims
+     * {Boolean} Ignore dimensions higher than 2 when reading geometry
+     * coordinates.
+     */ 
+    ignoreExtraDims: false,
+    
+    /**
+     * Constructor: OpenLayers.Format.GeoJSON
+     * Create a new parser for GeoJSON.
+     *
+     * Parameters:
+     * options - {Object} An optional object whose properties will be set on
+     *     this instance.
+     */
+
+    /**
+     * APIMethod: read
+     * Deserialize a GeoJSON string.
+     *
+     * Parameters:
+     * json - {String} A GeoJSON string
+     * type - {String} Optional string that determines the structure of
+     *     the output.  Supported values are "Geometry", "Feature", and
+     *     "FeatureCollection".  If absent or null, a default of
+     *     "FeatureCollection" is assumed.
+     * filter - {Function} A function which will be called for every key and
+     *     value at every level of the final result. Each value will be
+     *     replaced by the result of the filter function. This can be used to
+     *     reform generic objects into instances of classes, or to transform
+     *     date strings into Date objects.
+     *
+     * Returns: 
+     * {Object} The return depends on the value of the type argument. If type
+     *     is "FeatureCollection" (the default), the return will be an array
+     *     of <OpenLayers.Feature.Vector>. If type is "Geometry", the input json
+     *     must represent a single geometry, and the return will be an
+     *     <OpenLayers.Geometry>.  If type is "Feature", the input json must
+     *     represent a single feature, and the return will be an
+     *     <OpenLayers.Feature.Vector>.
+     */
+    read: function(json, type, filter) {
+        type = (type) ? type : "FeatureCollection";
+        var results = null;
+        var obj = null;
+        if (typeof json == "string") {
+            obj = OpenLayers.Format.JSON.prototype.read.apply(this,
+                                                              [json, filter]);
+        } else { 
+            obj = json;
+        }    
+        if(!obj) {
+            OpenLayers.Console.error("Bad JSON: " + json);
+        } else if(typeof(obj.type) != "string") {
+            OpenLayers.Console.error("Bad GeoJSON - no type: " + json);
+        } else if(this.isValidType(obj, type)) {
+            switch(type) {
+                case "Geometry":
+                    try {
+                        results = this.parseGeometry(obj);
+                    } catch(err) {
+                        OpenLayers.Console.error(err);
+                    }
+                    break;
+                case "Feature":
+                    try {
+                        results = this.parseFeature(obj);
+                        results.type = "Feature";
+                    } catch(err) {
+                        OpenLayers.Console.error(err);
+                    }
+                    break;
+                case "FeatureCollection":
+                    // for type FeatureCollection, we allow input to be any type
+                    results = [];
+                    switch(obj.type) {
+                        case "Feature":
+                            try {
+                                results.push(this.parseFeature(obj));
+                            } catch(err) {
+                                results = null;
+                                OpenLayers.Console.error(err);
+                            }
+                            break;
+                        case "FeatureCollection":
+                            for(var i=0, len=obj.features.length; i<len; ++i) {
+                                try {
+                                    results.push(this.parseFeature(obj.features[i]));
+                                } catch(err) {
+                                    results = null;
+                                    OpenLayers.Console.error(err);
+                                }
+                            }
+                            break;
+                        default:
+                            try {
+                                var geom = this.parseGeometry(obj);
+                                results.push(new OpenLayers.Feature.Vector(geom));
+                            } catch(err) {
+                                results = null;
+                                OpenLayers.Console.error(err);
+                            }
+                    }
+                break;
+            }
+        }
+        return results;
+    },
+    
+    /**
+     * Method: isValidType
+     * Check if a GeoJSON object is a valid representative of the given type.
+     *
+     * Returns:
+     * {Boolean} The object is valid GeoJSON object of the given type.
+     */
+    isValidType: function(obj, type) {
+        var valid = false;
+        switch(type) {
+            case "Geometry":
+                if(OpenLayers.Util.indexOf(
+                    ["Point", "MultiPoint", "LineString", "MultiLineString",
+                     "Polygon", "MultiPolygon", "Box", "GeometryCollection"],
+                    obj.type) == -1) {
+                    // unsupported geometry type
+                    OpenLayers.Console.error("Unsupported geometry type: " +
+                                              obj.type);
+                } else {
+                    valid = true;
+                }
+                break;
+            case "FeatureCollection":
+                // allow for any type to be converted to a feature collection
+                valid = true;
+                break;
+            default:
+                // for Feature types must match
+                if(obj.type == type) {
+                    valid = true;
+                } else {
+                    OpenLayers.Console.error("Cannot convert types from " +
+                                              obj.type + " to " + type);
+                }
+        }
+        return valid;
+    },
+    
+    /**
+     * Method: parseFeature
+     * Convert a feature object from GeoJSON into an
+     *     <OpenLayers.Feature.Vector>.
+     *
+     * Parameters:
+     * obj - {Object} An object created from a GeoJSON object
+     *
+     * Returns:
+     * {<OpenLayers.Feature.Vector>} A feature.
+     */
+    parseFeature: function(obj) {
+        var feature, geometry, attributes, bbox;
+        attributes = (obj.properties) ? obj.properties : {};
+        bbox = (obj.geometry && obj.geometry.bbox) || obj.bbox;
+        try {
+            geometry = this.parseGeometry(obj.geometry);
+        } catch(err) {
+            // deal with bad geometries
+            throw err;
+        }
+        feature = new OpenLayers.Feature.Vector(geometry, attributes);
+        if(bbox) {
+            feature.bounds = OpenLayers.Bounds.fromArray(bbox);
+        }
+        if(obj.id) {
+            feature.fid = obj.id;
+        }
+        return feature;
+    },
+    
+    /**
+     * Method: parseGeometry
+     * Convert a geometry object from GeoJSON into an <OpenLayers.Geometry>.
+     *
+     * Parameters:
+     * obj - {Object} An object created from a GeoJSON object
+     *
+     * Returns: 
+     * {<OpenLayers.Geometry>} A geometry.
+     */
+    parseGeometry: function(obj) {
+        if (obj == null) {
+            return null;
+        }
+        var geometry, collection = false;
+        if(obj.type == "GeometryCollection") {
+            if(!(OpenLayers.Util.isArray(obj.geometries))) {
+                throw "GeometryCollection must have geometries array: " + obj;
+            }
+            var numGeom = obj.geometries.length;
+            var components = new Array(numGeom);
+            for(var i=0; i<numGeom; ++i) {
+                components[i] = this.parseGeometry.apply(
+                    this, [obj.geometries[i]]
+                );
+            }
+            geometry = new OpenLayers.Geometry.Collection(components);
+            collection = true;
+        } else {
+            if(!(OpenLayers.Util.isArray(obj.coordinates))) {
+                throw "Geometry must have coordinates array: " + obj;
+            }
+            if(!this.parseCoords[obj.type.toLowerCase()]) {
+                throw "Unsupported geometry type: " + obj.type;
+            }
+            try {
+                geometry = this.parseCoords[obj.type.toLowerCase()].apply(
+                    this, [obj.coordinates]
+                );
+            } catch(err) {
+                // deal with bad coordinates
+                throw err;
+            }
+        }
+        // We don't reproject collections because the children are reprojected
+        // for us when they are created.
+        if (this.internalProjection && this.externalProjection && !collection) {
+            geometry.transform(this.externalProjection, 
+                               this.internalProjection); 
+        }                       
+        return geometry;
+    },
+    
+    /**
+     * Property: parseCoords
+     * Object with properties corresponding to the GeoJSON geometry types.
+     *     Property values are functions that do the actual parsing.
+     */
+    parseCoords: {
+        /**
+         * Method: parseCoords.point
+         * Convert a coordinate array from GeoJSON into an
+         *     <OpenLayers.Geometry>.
+         *
+         * Parameters:
+         * array - {Object} The coordinates array from the GeoJSON fragment.
+         *
+         * Returns:
+         * {<OpenLayers.Geometry>} A geometry.
+         */
+        "point": function(array) {
+            if (this.ignoreExtraDims == false && 
+                  array.length != 2) {
+                    throw "Only 2D points are supported: " + array;
+            }
+            return new OpenLayers.Geometry.Point(array[0], array[1]);
+        },
+        
+        /**
+         * Method: parseCoords.multipoint
+         * Convert a coordinate array from GeoJSON into an
+         *     <OpenLayers.Geometry>.
+         *
+         * Parameters:
+         * array - {Object} The coordinates array from the GeoJSON fragment.
+         *
+         * Returns:
+         * {<OpenLayers.Geometry>} A geometry.
+         */
+        "multipoint": function(array) {
+            var points = [];
+            var p = null;
+            for(var i=0, len=array.length; i<len; ++i) {
+                try {
+                    p = this.parseCoords["point"].apply(this, [array[i]]);
+                } catch(err) {
+                    throw err;
+                }
+                points.push(p);
+            }
+            return new OpenLayers.Geometry.MultiPoint(points);
+        },
+
+        /**
+         * Method: parseCoords.linestring
+         * Convert a coordinate array from GeoJSON into an
+         *     <OpenLayers.Geometry>.
+         *
+         * Parameters:
+         * array - {Object} The coordinates array from the GeoJSON fragment.
+         *
+         * Returns:
+         * {<OpenLayers.Geometry>} A geometry.
+         */
+        "linestring": function(array) {
+            var points = [];
+            var p = null;
+            for(var i=0, len=array.length; i<len; ++i) {
+                try {
+                    p = this.parseCoords["point"].apply(this, [array[i]]);
+                } catch(err) {
+                    throw err;
+                }
+                points.push(p);
+            }
+            return new OpenLayers.Geometry.LineString(points);
+        },
+        
+        /**
+         * Method: parseCoords.multilinestring
+         * Convert a coordinate array from GeoJSON into an
+         *     <OpenLayers.Geometry>.
+         *
+         * Parameters:
+         * array - {Object} The coordinates array from the GeoJSON fragment.
+         *
+         * Returns:
+         * {<OpenLayers.Geometry>} A geometry.
+         */
+        "multilinestring": function(array) {
+            var lines = [];
+            var l = null;
+            for(var i=0, len=array.length; i<len; ++i) {
+                try {
+                    l = this.parseCoords["linestring"].apply(this, [array[i]]);
+                } catch(err) {
+                    throw err;
+                }
+                lines.push(l);
+            }
+            return new OpenLayers.Geometry.MultiLineString(lines);
+        },
+        
+        /**
+         * Method: parseCoords.polygon
+         * Convert a coordinate array from GeoJSON into an
+         *     <OpenLayers.Geometry>.
+         *
+         * Returns:
+         * {<OpenLayers.Geometry>} A geometry.
+         */
+        "polygon": function(array) {
+            var rings = [];
+            var r, l;
+            for(var i=0, len=array.length; i<len; ++i) {
+                try {
+                    l = this.parseCoords["linestring"].apply(this, [array[i]]);
+                } catch(err) {
+                    throw err;
+                }
+                r = new OpenLayers.Geometry.LinearRing(l.components);
+                rings.push(r);
+            }
+            return new OpenLayers.Geometry.Polygon(rings);
+        },
+
+        /**
+         * Method: parseCoords.multipolygon
+         * Convert a coordinate array from GeoJSON into an
+         *     <OpenLayers.Geometry>.
+         *
+         * Parameters:
+         * array - {Object} The coordinates array from the GeoJSON fragment.
+         *
+         * Returns:
+         * {<OpenLayers.Geometry>} A geometry.
+         */
+        "multipolygon": function(array) {
+            var polys = [];
+            var p = null;
+            for(var i=0, len=array.length; i<len; ++i) {
+                try {
+                    p = this.parseCoords["polygon"].apply(this, [array[i]]);
+                } catch(err) {
+                    throw err;
+                }
+                polys.push(p);
+            }
+            return new OpenLayers.Geometry.MultiPolygon(polys);
+        },
+
+        /**
+         * Method: parseCoords.box
+         * Convert a coordinate array from GeoJSON into an
+         *     <OpenLayers.Geometry>.
+         *
+         * Parameters:
+         * array - {Object} The coordinates array from the GeoJSON fragment.
+         *
+         * Returns:
+         * {<OpenLayers.Geometry>} A geometry.
+         */
+        "box": function(array) {
+            if(array.length != 2) {
+                throw "GeoJSON box coordinates must have 2 elements";
+            }
+            return new OpenLayers.Geometry.Polygon([
+                new OpenLayers.Geometry.LinearRing([
+                    new OpenLayers.Geometry.Point(array[0][0], array[0][1]),
+                    new OpenLayers.Geometry.Point(array[1][0], array[0][1]),
+                    new OpenLayers.Geometry.Point(array[1][0], array[1][1]),
+                    new OpenLayers.Geometry.Point(array[0][0], array[1][1]),
+                    new OpenLayers.Geometry.Point(array[0][0], array[0][1])
+                ])
+            ]);
+        }
+
+    },
+
+    /**
+     * APIMethod: write
+     * Serialize a feature, geometry, array of features into a GeoJSON string.
+     *
+     * Parameters:
+     * obj - {Object} An <OpenLayers.Feature.Vector>, <OpenLayers.Geometry>,
+     *     or an array of features.
+     * pretty - {Boolean} Structure the output with newlines and indentation.
+     *     Default is false.
+     *
+     * Returns:
+     * {String} The GeoJSON string representation of the input geometry,
+     *     features, or array of features.
+     */
+    write: function(obj, pretty) {
+        var geojson = {
+            "type": null
+        };
+        if(OpenLayers.Util.isArray(obj)) {
+            geojson.type = "FeatureCollection";
+            var numFeatures = obj.length;
+            geojson.features = new Array(numFeatures);
+            for(var i=0; i<numFeatures; ++i) {
+                var element = obj[i];
+                if(!element instanceof OpenLayers.Feature.Vector) {
+                    var msg = "FeatureCollection only supports collections " +
+                              "of features: " + element;
+                    throw msg;
+                }
+                geojson.features[i] = this.extract.feature.apply(
+                    this, [element]
+                );
+            }
+        } else if (obj.CLASS_NAME.indexOf("OpenLayers.Geometry") == 0) {
+            geojson = this.extract.geometry.apply(this, [obj]);
+        } else if (obj instanceof OpenLayers.Feature.Vector) {
+            geojson = this.extract.feature.apply(this, [obj]);
+            if(obj.layer && obj.layer.projection) {
+                geojson.crs = this.createCRSObject(obj);
+            }
+        }
+        return OpenLayers.Format.JSON.prototype.write.apply(this,
+                                                            [geojson, pretty]);
+    },
+
+    /**
+     * Method: createCRSObject
+     * Create the CRS object for an object.
+     *
+     * Parameters:
+     * object - {<OpenLayers.Feature.Vector>} 
+     *
+     * Returns:
+     * {Object} An object which can be assigned to the crs property
+     * of a GeoJSON object.
+     */
+    createCRSObject: function(object) {
+       var proj = object.layer.projection.toString();
+       var crs = {};
+       if (proj.match(/epsg:/i)) {
+           var code = parseInt(proj.substring(proj.indexOf(":") + 1));
+           if (code == 4326) {
+               crs = {
+                   "type": "name",
+                   "properties": {
+                       "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+                   }
+               };
+           } else {    
+               crs = {
+                   "type": "name",
+                   "properties": {
+                       "name": "EPSG:" + code
+                   }
+               };
+           }    
+       }
+       return crs;
+    },
+    
+    /**
+     * Property: extract
+     * Object with properties corresponding to the GeoJSON types.
+     *     Property values are functions that do the actual value extraction.
+     */
+    extract: {
+        /**
+         * Method: extract.feature
+         * Return a partial GeoJSON object representing a single feature.
+         *
+         * Parameters:
+         * feature - {<OpenLayers.Feature.Vector>}
+         *
+         * Returns:
+         * {Object} An object representing the point.
+         */
+        'feature': function(feature) {
+            var geom = this.extract.geometry.apply(this, [feature.geometry]);
+            var json = {
+                "type": "Feature",
+                "properties": feature.attributes,
+                "geometry": geom
+            };
+            if (feature.fid != null) {
+                json.id = feature.fid;
+            }
+            return json;
+        },
+        
+        /**
+         * Method: extract.geometry
+         * Return a GeoJSON object representing a single geometry.
+         *
+         * Parameters:
+         * geometry - {<OpenLayers.Geometry>}
+         *
+         * Returns:
+         * {Object} An object representing the geometry.
+         */
+        'geometry': function(geometry) {
+            if (geometry == null) {
+                return null;
+            }
+            if (this.internalProjection && this.externalProjection) {
+                geometry = geometry.clone();
+                geometry.transform(this.internalProjection, 
+                                   this.externalProjection);
+            }                       
+            var geometryType = geometry.CLASS_NAME.split('.')[2];
+            var data = this.extract[geometryType.toLowerCase()].apply(this, [geometry]);
+            var json;
+            if(geometryType == "Collection") {
+                json = {
+                    "type": "GeometryCollection",
+                    "geometries": data
+                };
+            } else {
+                json = {
+                    "type": geometryType,
+                    "coordinates": data
+                };
+            }
+            
+            return json;
+        },
+
+        /**
+         * Method: extract.point
+         * Return an array of coordinates from a point.
+         *
+         * Parameters:
+         * point - {<OpenLayers.Geometry.Point>}
+         *
+         * Returns: 
+         * {Array} An array of coordinates representing the point.
+         */
+        'point': function(point) {
+            return [point.x, point.y];
+        },
+
+        /**
+         * Method: extract.multipoint
+         * Return an array of point coordinates from a multipoint.
+         *
+         * Parameters:
+         * multipoint - {<OpenLayers.Geometry.MultiPoint>}
+         *
+         * Returns:
+         * {Array} An array of point coordinate arrays representing
+         *     the multipoint.
+         */
+        'multipoint': function(multipoint) {
+            var array = [];
+            for(var i=0, len=multipoint.components.length; i<len; ++i) {
+                array.push(this.extract.point.apply(this, [multipoint.components[i]]));
+            }
+            return array;
+        },
+        
+        /**
+         * Method: extract.linestring
+         * Return an array of coordinate arrays from a linestring.
+         *
+         * Parameters:
+         * linestring - {<OpenLayers.Geometry.LineString>}
+         *
+         * Returns:
+         * {Array} An array of coordinate arrays representing
+         *     the linestring.
+         */
+        'linestring': function(linestring) {
+            var array = [];
+            for(var i=0, len=linestring.components.length; i<len; ++i) {
+                array.push(this.extract.point.apply(this, [linestring.components[i]]));
+            }
+            return array;
+        },
+
+        /**
+         * Method: extract.multilinestring
+         * Return an array of linestring arrays from a linestring.
+         * 
+         * Parameters:
+         * multilinestring - {<OpenLayers.Geometry.MultiLineString>}
+         * 
+         * Returns:
+         * {Array} An array of linestring arrays representing
+         *     the multilinestring.
+         */
+        'multilinestring': function(multilinestring) {
+            var array = [];
+            for(var i=0, len=multilinestring.components.length; i<len; ++i) {
+                array.push(this.extract.linestring.apply(this, [multilinestring.components[i]]));
+            }
+            return array;
+        },
+        
+        /**
+         * Method: extract.polygon
+         * Return an array of linear ring arrays from a polygon.
+         *
+         * Parameters:
+         * polygon - {<OpenLayers.Geometry.Polygon>}
+         * 
+         * Returns:
+         * {Array} An array of linear ring arrays representing the polygon.
+         */
+        'polygon': function(polygon) {
+            var array = [];
+            for(var i=0, len=polygon.components.length; i<len; ++i) {
+                array.push(this.extract.linestring.apply(this, [polygon.components[i]]));
+            }
+            return array;
+        },
+
+        /**
+         * Method: extract.multipolygon
+         * Return an array of polygon arrays from a multipolygon.
+         * 
+         * Parameters:
+         * multipolygon - {<OpenLayers.Geometry.MultiPolygon>}
+         * 
+         * Returns:
+         * {Array} An array of polygon arrays representing
+         *     the multipolygon
+         */
+        'multipolygon': function(multipolygon) {
+            var array = [];
+            for(var i=0, len=multipolygon.components.length; i<len; ++i) {
+                array.push(this.extract.polygon.apply(this, [multipolygon.components[i]]));
+            }
+            return array;
+        },
+        
+        /**
+         * Method: extract.collection
+         * Return an array of geometries from a geometry collection.
+         * 
+         * Parameters:
+         * collection - {<OpenLayers.Geometry.Collection>}
+         * 
+         * Returns:
+         * {Array} An array of geometry objects representing the geometry
+         *     collection.
+         */
+        'collection': function(collection) {
+            var len = collection.components.length;
+            var array = new Array(len);
+            for(var i=0; i<len; ++i) {
+                array[i] = this.extract.geometry.apply(
+                    this, [collection.components[i]]
+                );
+            }
+            return array;
+        }
+        
+
+    },
+
+    CLASS_NAME: "OpenLayers.Format.GeoJSON" 
+
+});     
+/* ======================================================================
     OpenLayers/Protocol/WFS/v1.js
    ====================================================================== */
 
@@ -63222,7 +62777,7 @@ OpenLayers.Marker.Box = OpenLayers.Class(OpenLayers.Marker, {
     * sz - {<OpenLayers.Size>} 
     * 
     * Returns: 
-    * {DOMElement} A new DOM Image with this marker?s icon set at the 
+    * {DOMElement} A new DOM Image with this marker´s icon set at the 
     *         location passed-in
     */
     draw: function(px, sz) {
@@ -63846,231 +63401,6 @@ OpenLayers.Control.WMTSGetFeatureInfo = OpenLayers.Class(OpenLayers.Control, {
     },
 
     CLASS_NAME: "OpenLayers.Control.WMTSGetFeatureInfo"
-});
-/* ======================================================================
-    OpenLayers/Format/WCSDescribeCoverage/v1.js
-   ====================================================================== */
-
-/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for 
- * full list of contributors). Published under the 2-clause BSD license.
- * See license.txt in the OpenLayers distribution or repository for the
- * full text of the license. */
-
-/**
- * @requires OpenLayers/Format/WCSCapabilities.js
- */
-
-/**
- * Class: OpenLayers.Format.WCSDescribeCoverage.v1
- * Abstract class not to be instantiated directly.
- * 
- * Inherits from:
- *  - <OpenLayers.Format.XML>
- */
-OpenLayers.Format.WCSDescribeCoverage.v1 = OpenLayers.Class(
-    OpenLayers.Format.XML, {
-
-    regExes: {
-        trimSpace: (/^\s*|\s*$/g),
-        splitSpace: (/\s+/)
-    },
-
-    /**
-     * Property: defaultPrefix
-     */
-    defaultPrefix: "wcs",
-
-    /**
-     * APIMethod: read
-     * Read capabilities data from a string, and return a list of coverages. 
-     * 
-     * Parameters: 
-     * data - {String} or {DOMElement} data to read/parse.
-     *
-     * Returns:
-     * {Array} List of named coverages.
-     */
-
-    /**
-     * APIMethod: read
-     *
-     * Parameters:
-     * data - {DOMElement|String} A WCS DescribeCoverage document.
-     *
-     * Returns:
-     * {Object} An object representing the WCS DescribeCoverage response.
-     */
-    read: function(data) {
-        if(typeof data == "string") { 
-            data = OpenLayers.Format.XML.prototype.read.apply(this, [data]);
-        }
-        if(data && data.nodeType == 9) {
-            data = data.documentElement;
-        }
-        var schema = {};
-        if (data.nodeName.split(":").pop() === 'ExceptionReport') {
-            // an exception must have occurred, so parse it
-            var parser = new OpenLayers.Format.OGCExceptionReport();
-            schema.error = parser.read(data);
-        } else {
-            this.readNode(data, schema);
-        }
-        return schema;
-    },
-
-    CLASS_NAME: "OpenLayers.Format.WCSDescribeCoverage.v1" 
-
-});
-/* ======================================================================
-    OpenLayers/Format/WCSDescribeCoverage/v1_1_0.js
-   ====================================================================== */
-
-/* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for 
- * full list of contributors). Published under the 2-clause BSD license.
- * See license.txt in the OpenLayers distribution or repository for the
- * full text of the license. */
-
-/**
- * @requires OpenLayers/Format/WCSDescribeCoverage/v1.js
- * @requires OpenLayers/Format/OWSCommon/v1_1_0.js
- */
-
-/**
- * Class: OpenLayers.Format.WCSDescribeCoverage/v1_1_0
- * Read WCS Capabilities version 1.1.0.
- * 
- * Inherits from:
- *  - <OpenLayers.Format.WCSDescribeCoverage.v1>
- */
-OpenLayers.Format.WCSDescribeCoverage.v1_1_0 = OpenLayers.Class(
-    OpenLayers.Format.WCSDescribeCoverage.v1, {
-
-    /**
-     * Property: namespaces
-     * {Object} Mapping of namespace aliases to namespace URIs.
-     */
-    namespaces: {
-        wcs: "http://www.opengis.net/wcs/1.1",
-        xlink: "http://www.w3.org/1999/xlink",
-        xsi: "http://www.w3.org/2001/XMLSchema-instance",
-        ows: "http://www.opengis.net/ows/1.1"
-    },
-
-    /**
-     * Constructor: OpenLayers.Format.WCSDescribeCoverage.v1_1_0
-     * Create a new parser for WCS capabilities version 1.1.0.
-     *
-     * Parameters:
-     * options - {Object} An optional object whose properties will be set on
-     *     this instance.
-     */
-
-    /**
-     * Property: readers
-     * Contains public functions, grouped by namespace prefix, that will
-     *     be applied when a namespaced node is found matching the function
-     *     name.  The function will be applied in the scope of this parser
-     *     with two arguments: the node being read and a context object passed
-     *     from the parent.
-     */
-    readers: {
-        "wcs": OpenLayers.Util.applyDefaults({
-            // Root object, contains one or more CoverageDecription entries
-            // In 1.0.0, this was CoverageDescription, in 1.1.0, it's 
-            // CoverageDescriptions (plural)
-            "CoverageDescriptions": function(node, obj) {
-                obj.coverageDescriptions = {};        
-                this.readChildNodes(node, obj.coverageDescriptions);
-
-                obj.coverageDescriptionKeys = [];
-                for(var key in obj.coverageDescriptions) {
-                    if(obj.coverageDescriptions.hasOwnProperty(key)) {
-                        obj.coverageDescriptionKeys.push(key);
-                    }
-                }
-                // This would be more efficient, but only in newer browsers:
-                // obj.coverageDescriptionKeys = Object.keys(obj.coverageDescriptions);
-            },
-            // In 1.0.0, CoverageDescription was called CoverageOffering
-            "CoverageDescription": function(node, descriptions) {
-                var description = {};
-                this.readChildNodes(node, description);
-                descriptions[description.identifier] = description;
-
-                // Provide a consistent handle on the native CRS 
-                description.nativeCRS = 
-                        description.domain.spatialDomain.gridCRS.gridBaseCRS;
-            },
-            "Identifier": function(node, description) {
-                description.identifier = this.getChildValue(node);
-            },
-            "Title": function(node, description) {
-                description.title = this.getChildValue(node);
-            },
-            "Domain": function(node, description) {
-                description.domain = {};
-                this.readChildNodes(node, description.domain);
-            },
-            "SpatialDomain": function(node, domain) {
-                domain.spatialDomain = { boundingBoxes:{} };
-
-                var bb = { BoundingBox:[] };
-
-                this.readChildNodes(node, bb);
-
-                // Repack structure so bounding box list is indexed by CRS --
-                // this will make it easier to find the one we want, and 
-                // provides a consistent structure with 1.0.0
-                for(var i=0, len=bb.BoundingBox.length; i<len;i++) {
-                    if(!!bb.BoundingBox[i].crs) {
-                        domain.spatialDomain.boundingBoxes[bb.BoundingBox[i].crs] = 
-                            bb.BoundingBox[i].bounds;
-                        }
-                }
-                domain.spatialDomain.gridCRS = bb.gridCRS;
-            },
-            "GridCRS": function(node, spatialDomain) {
-                spatialDomain.gridCRS = {};
-                this.readChildNodes(node, spatialDomain.gridCRS);
-            },
-            "GridBaseCRS": function(node, gridCRS) {
-                gridCRS.gridBaseCRS = this.getChildValue(node);
-            },
-            "GridType": function(node, gridCRS) {
-                gridCRS.gridType = this.getChildValue(node);
-            },
-            "GridOrigin": function(node, gridCRS) {
-                var xy = this.getChildValue(node).split(' '); 
-                if(xy.length == 2) {
-                    gridCRS.gridOrigin = {};
-                    gridCRS.gridOrigin.x = Number(xy[0]);
-                    gridCRS.gridOrigin.y = Number(xy[1]);
-                }
-            },
-            "GridOffsets": function(node, gridCRS) {
-                gridCRS.gridOffsets = this.getChildValue(node);
-            },
-            "GridCS": function(node, gridCRS) {
-                gridCRS.gridCS = this.getChildValue(node);
-            },
-            "SupportedCRS": function(node, description) {
-                if(!!!description.supportedCRSs)
-                    description.supportedCRSs = [];
-                var crs = this.getChildValue(node);
-                description.supportedCRSs.push(crs);
-            },
-            "SupportedFormat": function(node, description) {
-                if(!!!description.supportedFormats)
-                    description.supportedFormats = [];
-                var format = this.getChildValue(node);
-                description.supportedFormats.push(format);
-            }
-        }, OpenLayers.Format.WCSDescribeCoverage.v1.prototype.readers["wcs"]),
-        "ows": OpenLayers.Format.OWSCommon.v1_1_0.prototype.readers["ows"]
-    },
-
-    CLASS_NAME: "OpenLayers.Format.WCSDescribeCoverage.v1_1_0" 
-
 });
 /* ======================================================================
     OpenLayers/Control/Scale.js
@@ -78261,7 +77591,7 @@ OpenLayers.TileManager = OpenLayers.Class({
 
 });
 /* ======================================================================
-    OpenLayers/Format/WCSDescribeCoverage/v1_0_0.js
+    OpenLayers/Protocol/Script.js
    ====================================================================== */
 
 /* Copyright (c) 2006-2013 by OpenLayers Contributors (see authors.txt for 
@@ -78270,153 +77600,377 @@ OpenLayers.TileManager = OpenLayers.Class({
  * full text of the license. */
 
 /**
- * @requires OpenLayers/Format/WCSDescribeCoverage/v1.js
- * @requires OpenLayers/Format/OWSCommon/v1_0_0.js
- * @requires OpenLayers/Format/GML/v3.js
+ * @requires OpenLayers/Protocol.js
+ * @requires OpenLayers/Feature/Vector.js
+ * @requires OpenLayers/Format/GeoJSON.js
  */
 
 /**
- * Class: OpenLayers.Format.WCSDescribeCoverage/v1_0_0
- * Read WCS Capabilities version 1.0.0.
- * 
- * Inherits from:
- *  - <OpenLayers.Format.WCSDescribeCoverage.v1>
+ * if application uses the query string, for example, for BBOX parameters,
+ * OpenLayers/Format/QueryStringFilter.js should be included in the build config file
  */
-OpenLayers.Format.WCSDescribeCoverage.v1_0_0 = OpenLayers.Class(
-    OpenLayers.Format.WCSDescribeCoverage.v1, {
+
+/**
+ * Class: OpenLayers.Protocol.Script
+ * A basic Script protocol for vector layers.  Create a new instance with the
+ *     <OpenLayers.Protocol.Script> constructor.  A script protocol is used to
+ *     get around the same origin policy.  It works with services that return
+ *     JSONP - that is, JSON wrapped in a client-specified callback.  The
+ *     protocol handles fetching and parsing of feature data and sends parsed
+ *     features to the <callback> configured with the protocol.  The protocol
+ *     expects features serialized as GeoJSON by default, but can be configured
+ *     to work with other formats by setting the <format> property.
+ *
+ * Inherits from:
+ *  - <OpenLayers.Protocol>
+ */
+OpenLayers.Protocol.Script = OpenLayers.Class(OpenLayers.Protocol, {
 
     /**
-     * Property: namespaces
-     * {Object} Mapping of namespace aliases to namespace URIs.
+     * APIProperty: url
+     * {String} Service URL.  The service is expected to return serialized 
+     *     features wrapped in a named callback (where the callback name is
+     *     generated by this protocol).
+     *     Read-only, set through the options passed to the constructor.
      */
-    namespaces: {
-        wcs: "http://www.opengis.net/wcs",
-        xlink: "http://www.w3.org/1999/xlink",
-        xsi: "http://www.w3.org/2001/XMLSchema-instance",
-        ows: "http://www.opengis.net/ows",
-        gml: "http://www.opengis.net/gml"
-    },
+    url: null,
 
     /**
-     * Constructor: OpenLayers.Format.WCSDescribeCoverage.v1_0_0
-     * Create a new parser for WCS capabilities version 1.0.0.
+     * APIProperty: params
+     * {Object} Query string parameters to be appended to the URL.
+     *     Read-only, set through the options passed to the constructor.
+     *     Example: {maxFeatures: 50}
+     */
+    params: null,
+    
+    /**
+     * APIProperty: callback
+     * {Object} Function to be called when the <read> operation completes.
+     */
+    callback: null,
+
+    /**
+     * APIProperty: callbackTemplate
+     * {String} Template for creating a unique callback function name
+     * for the registry. Should include ${id}.  The ${id} variable will be
+     * replaced with a string identifier prefixed with a "c" (e.g. c1, c2).
+     * Default is "OpenLayers.Protocol.Script.registry.${id}".
+     */
+    callbackTemplate: "OpenLayers.Protocol.Script.registry.${id}",
+
+    /**
+     * APIProperty: callbackKey
+     * {String} The name of the query string parameter that the service 
+     *     recognizes as the callback identifier.  Default is "callback".
+     *     This key is used to generate the URL for the script.  For example
+     *     setting <callbackKey> to "myCallback" would result in a URL like 
+     *     http://example.com/?myCallback=...
+     */
+    callbackKey: "callback",
+
+    /**
+     * APIProperty: callbackPrefix
+     * {String} Where a service requires that the callback query string 
+     *     parameter value is prefixed by some string, this value may be set.
+     *     For example, setting <callbackPrefix> to "foo:" would result in a
+     *     URL like http://example.com/?callback=foo:...  Default is "".
+     */
+    callbackPrefix: "",
+
+    /**
+     * APIProperty: scope
+     * {Object} Optional ``this`` object for the callback. Read-only, set 
+     *     through the options passed to the constructor.
+     */
+    scope: null,
+
+    /**
+     * APIProperty: format
+     * {<OpenLayers.Format>} Format for parsing features.  Default is an 
+     *     <OpenLayers.Format.GeoJSON> format.  If an alternative is provided,
+     *     the format's read method must take an object and return an array
+     *     of features.
+     */
+    format: null,
+
+    /**
+     * Property: pendingRequests
+     * {Object} References all pending requests.  Property names are script 
+     *     identifiers and property values are script elements.
+     */
+    pendingRequests: null,
+
+    /**
+     * APIProperty: srsInBBOX
+     * {Boolean} Include the SRS identifier in BBOX query string parameter.
+     *     Setting this property has no effect if a custom filterToParams method
+     *     is provided.   Default is false.  If true and the layer has a 
+     *     projection object set, any BBOX filter will be serialized with a 
+     *     fifth item identifying the projection.  
+     *     E.g. bbox=-1000,-1000,1000,1000,EPSG:900913
+     */
+    srsInBBOX: false,
+
+    /**
+     * Constructor: OpenLayers.Protocol.Script
+     * A class for giving layers generic Script protocol.
      *
      * Parameters:
-     * options - {Object} An optional object whose properties will be set on
-     *     this instance.
+     * options - {Object} Optional object whose properties will be set on the
+     *     instance.
+     *
+     * Valid options include:
+     * url - {String}
+     * params - {Object}
+     * callback - {Function}
+     * scope - {Object}
      */
+    initialize: function(options) {
+        options = options || {};
+        this.params = {};
+        this.pendingRequests = {};
+        OpenLayers.Protocol.prototype.initialize.apply(this, arguments);
+        if (!this.format) {
+            this.format = new OpenLayers.Format.GeoJSON();
+        }
 
+        if (!this.filterToParams && OpenLayers.Format.QueryStringFilter) {
+            var format = new OpenLayers.Format.QueryStringFilter({
+                srsInBBOX: this.srsInBBOX
+            });
+            this.filterToParams = function(filter, params) {
+                return format.write(filter, params);
+            };
+        }
+    },
+    
     /**
-     * Property: readers
-     * Contains public functions, grouped by namespace prefix, that will
-     *     be applied when a namespaced node is found matching the function
-     *     name.  The function will be applied in the scope of this parser
-     *     with two arguments: the node being read and a context object passed
-     *     from the parent.
+     * APIMethod: read
+     * Construct a request for reading new features.
+     *
+     * Parameters:
+     * options - {Object} Optional object for configuring the request.
+     *     This object is modified and should not be reused.
+     *
+     * Valid options:
+     * url - {String} Url for the request.
+     * params - {Object} Parameters to get serialized as a query string.
+     * filter - {<OpenLayers.Filter>} Filter to get serialized as a
+     *     query string.
+     *
+     * Returns:
+     * {<OpenLayers.Protocol.Response>} A response object, whose "priv" property
+     *     references the injected script.  This object is also passed to the
+     *     callback function when the request completes, its "features" property
+     *     is then populated with the features received from the server.
      */
-    readers: {
-        "wcs": OpenLayers.Util.applyDefaults({
-            // Root object, contains one or more CoverageDecription entries
-            // In 1.0.0, this is CoverageDescription, in 1.1.0, 
-            // it will be CoverageDescriptions (plural)
-            "CoverageDescription": function(node, obj) {
-                obj.coverageDescriptions = {};        
-                this.readChildNodes(node, obj.coverageDescriptions);
-
-                // Make a list of keys for easy access
-                obj.coverageDescriptionKeys = [];
-                for(var key in obj.coverageDescriptions) {
-                    if(obj.coverageDescriptions.hasOwnProperty(key)) {
-                        obj.coverageDescriptionKeys.push(key);
-                    }
-                }
-                // This would be more concise, but only in newer browsers:
-                // obj.coverageDescriptionKeys = Object.keys(obj.coverageDescriptions);
-            },
-            // In 1.1.0, this element is called CoverageDescription.  We'll use
-            // that name because it's... better.
-            "CoverageOffering": function(node, descriptions) {
-                var description = {};
-                this.readChildNodes(node, description);
-                descriptions[description.identifier] = description;
-
-                // Provide a consistent handle on the native CRS 
-                description.nativeCRS = description.supportedCRSs.nativeCRSs[0];
-            },
-            // As with GetCapabilities, we'll use the 1.1.0 element name
-            // (identifier) because it is less ambiguous
-            "name": function(node, description) {
-                description.identifier = this.getChildValue(node);
-            },
-            // As with GetCapabilities, we'll use the 1.1.0 element name
-            // (title) because it is less ambiguous
-            "label": function(node, description) {
-                description.title = this.getChildValue(node);
-            },
-            // This format is the same as that used by GetCapabilities 1.0.0,
-            // so we can reuse that reader
-            "lonLatEnvelope": function(node, description) {
-                OpenLayers.Format.WCSCapabilities.v1_0_0.prototype.readers.wcs.lonLatEnvelope.call(this, node, description);
-                var nodeList = this.getElementsByTagNameNS(node, "http://www.opengis.net/gml", "pos");
-            },
-            // Essentially the same as domain in 1.1.0
-            "domainSet": function(node, description) {
-                description.domain = {};
-                 this.readChildNodes(node, description.domain);
-            },
-            "spatialDomain": function(node, domain) {
-                domain.spatialDomain = {};
-                domain.spatialDomain.boundingBoxes = {};
-                this.readChildNodes(node, domain.spatialDomain);
-            },
-             "nativeCRSs": function(node, description) {
-                if(!!!description.nativeCRSs)
-                    description.nativeCRSs = [];
-                var crs;
-                crs = this.getChildValue(node);
-                description.nativeCRSs.push(crs);
-            },
-            "supportedCRSs": function(node, description) {
-                if(!!!description.supportedCRSs)
-                    description.supportedCRSs = [];
-                this.readChildNodes(node, description.supportedCRSs)
-            },
-            // There will be several of these within the supportedCRSs tag
-            "requestResponseCRSs" : function(node, supportedCRSs) {
-                supportedCRSs.push(this.getChildValue(node));
-            },
-             "supportedFormats": function(node, description) {
-                if(!!!description.supportedFormats)
-                    description.supportedFormats = [];
-                this.readChildNodes(node, description.supportedFormats)
-            },
-            // There will be several of these within the supportedFormats tag
-            "formats" : function(node, supportedFormats) {
-                supportedFormats.push(this.getChildValue(node));
-            },
-        }, OpenLayers.Format.WCSDescribeCoverage.v1.prototype.readers["wcs"]),
- 
-        "ows": OpenLayers.Format.OWSCommon.v1_0_0.prototype.readers["ows"],
-        "gml": OpenLayers.Util.applyDefaults({
-            // Use custom Envelope reader that understands the srsName attribute
-            "Envelope": function(node, spatialDomain) {
-                var srsName = node.getAttribute("srsName");
-                if(!!!srsName)  // No SRS?  What does this envelope mean?!?
-                    return;
-                var obj = {points: []};
-                this.readChildNodes(node, obj);
-
-                var min = obj.points[0];
-                var max = obj.points[1];
-                var bounds = new OpenLayers.Bounds(min.x, min.y, max.x, max.y);
-                spatialDomain.boundingBoxes[srsName] = bounds;
-            }
-        }, OpenLayers.Format.GML.v3.prototype.readers["gml"]) 
+    read: function(options) {
+        OpenLayers.Protocol.prototype.read.apply(this, arguments);
+        options = OpenLayers.Util.applyDefaults(options, this.options);
+        options.params = OpenLayers.Util.applyDefaults(
+            options.params, this.options.params
+        );
+        if (options.filter && this.filterToParams) {
+            options.params = this.filterToParams(
+                options.filter, options.params
+            );
+        }
+        var response = new OpenLayers.Protocol.Response({requestType: "read"});
+        var request = this.createRequest(
+            options.url, 
+            options.params, 
+            OpenLayers.Function.bind(function(data) {
+                response.data = data;
+                this.handleRead(response, options);
+            }, this)
+        );
+        response.priv = request;
+        return response;
     },
 
-    CLASS_NAME: "OpenLayers.Format.WCSDescribeCoverage.v1_0_0" 
+    /** 
+     * APIMethod: filterToParams 
+     * Optional method to translate an <OpenLayers.Filter> object into an object 
+     *     that can be serialized as request query string provided.  If a custom 
+     *     method is not provided, any filter will not be serialized. 
+     * 
+     * Parameters: 
+     * filter - {<OpenLayers.Filter>} filter to convert. 
+     * params - {Object} The parameters object. 
+     * 
+     * Returns: 
+     * {Object} The resulting parameters object. 
+     */
 
+    /** 
+     * Method: createRequest
+     * Issues a request for features by creating injecting a script in the 
+     *     document head.
+     *
+     * Parameters:
+     * url - {String} Service URL.
+     * params - {Object} Query string parameters.
+     * callback - {Function} Callback to be called with resulting data.
+     *
+     * Returns:
+     * {HTMLScriptElement} The script pending execution.
+     */
+    createRequest: function(url, params, callback) {
+        var id = OpenLayers.Protocol.Script.register(callback);
+        var name = OpenLayers.String.format(this.callbackTemplate, {id: id});
+        params = OpenLayers.Util.extend({}, params);
+        params[this.callbackKey] = this.callbackPrefix + name;
+        url = OpenLayers.Util.urlAppend(
+            url, OpenLayers.Util.getParameterString(params)
+        );
+        var script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = url;
+        script.id = "OpenLayers_Protocol_Script_" + id;
+        this.pendingRequests[script.id] = script;
+        var head = document.getElementsByTagName("head")[0];
+        head.appendChild(script);
+        return script;
+    },
+    
+    /** 
+     * Method: destroyRequest
+     * Remove a script node associated with a response from the document.  Also
+     *     unregisters the callback and removes the script from the 
+     *     <pendingRequests> object.
+     *
+     * Parameters:
+     * script - {HTMLScriptElement}
+     */
+    destroyRequest: function(script) {
+        OpenLayers.Protocol.Script.unregister(script.id.split("_").pop());
+        delete this.pendingRequests[script.id];
+        if (script.parentNode) {
+            script.parentNode.removeChild(script);
+        }
+    },
+
+    /**
+     * Method: handleRead
+     * Individual callbacks are created for read, create and update, should
+     *     a subclass need to override each one separately.
+     *
+     * Parameters:
+     * response - {<OpenLayers.Protocol.Response>} The response object to pass to
+     *     the user callback.
+     * options - {Object} The user options passed to the read call.
+     */
+    handleRead: function(response, options) {
+        this.handleResponse(response, options);
+    },
+
+    /**
+     * Method: handleResponse
+     * Called by CRUD specific handlers.
+     *
+     * Parameters:
+     * response - {<OpenLayers.Protocol.Response>} The response object to pass to
+     *     any user callback.
+     * options - {Object} The user options passed to the create, read, update,
+     *     or delete call.
+     */
+    handleResponse: function(response, options) {
+        if (options.callback) {
+            if (response.data) {
+                response.features = this.parseFeatures(response.data);
+                response.code = OpenLayers.Protocol.Response.SUCCESS;
+            } else {
+                response.code = OpenLayers.Protocol.Response.FAILURE;
+            }
+            this.destroyRequest(response.priv);
+            options.callback.call(options.scope, response);
+        }
+    },
+
+    /**
+     * Method: parseFeatures
+     * Read Script response body and return features.
+     *
+     * Parameters:
+     * data - {Object} The data sent to the callback function by the server.
+     *
+     * Returns:
+     * {Array({<OpenLayers.Feature.Vector>})} or
+     *     {<OpenLayers.Feature.Vector>} Array of features or a single feature.
+     */
+    parseFeatures: function(data) {
+        return this.format.read(data);
+    },
+
+    /**
+     * APIMethod: abort
+     * Abort an ongoing request.  If no response is provided, all pending 
+     *     requests will be aborted.
+     *
+     * Parameters:
+     * response - {<OpenLayers.Protocol.Response>} The response object returned
+     *     from a <read> request.
+     */
+    abort: function(response) {
+        if (response) {
+            this.destroyRequest(response.priv);
+        } else {
+            for (var key in this.pendingRequests) {
+                this.destroyRequest(this.pendingRequests[key]);
+            }
+        }
+    },
+    
+    /**
+     * APIMethod: destroy
+     * Clean up the protocol.
+     */
+    destroy: function() {
+        this.abort();
+        delete this.params;
+        delete this.format;
+        OpenLayers.Protocol.prototype.destroy.apply(this);
+    },
+
+    CLASS_NAME: "OpenLayers.Protocol.Script" 
 });
+
+(function() {
+    var o = OpenLayers.Protocol.Script;
+    var counter = 0;
+    o.registry = {};
+    
+    /**
+     * Function: OpenLayers.Protocol.Script.register
+     * Register a callback for a newly created script.
+     *
+     * Parameters:
+     * callback - {Function} The callback to be executed when the newly added
+     *     script loads.  This callback will be called with a single argument
+     *     that is the JSON returned by the service.
+     *
+     * Returns:
+     * {Number} An identifier for retrieving the registered callback.
+     */
+    o.register = function(callback) {
+        var id = "c"+(++counter);
+        o.registry[id] = function() {
+            callback.apply(this, arguments);
+        };
+        return id;
+    };
+    
+    /**
+     * Function: OpenLayers.Protocol.Script.unregister
+     * Unregister a callback previously registered with the register function.
+     *
+     * Parameters:
+     * id - {Number} The identifer returned by the register function.
+     */
+    o.unregister = function(id) {
+        delete o.registry[id];
+    };
+})();
 /* ======================================================================
     OpenLayers/Control/TransformFeature.js
    ====================================================================== */
