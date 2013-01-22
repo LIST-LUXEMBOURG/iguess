@@ -221,6 +221,47 @@
   };
 
 
+  // Get the proper getCaps URL for this server and service
+  var getGetCapUrl = function(serverUrl, service)
+  {
+    if     (service == 'WMS') { return WMS.getCapUrl(serverUrl); }
+    else if(service == 'WFS') { return WFS.getCapUrl(serverUrl); }
+    else if(service == 'WCS') { return WCS.getCapUrl(serverUrl); }
+  };
+
+
+  // We found the layer
+  var updateLayerInfo = function(serverUrl, dataset, name, descr, services) 
+  {
+    var railsId = railsIdLookup[makeKey(serverUrl, dataset)];
+    $('.dataset-name2-' + railsId).html(name);    // Appears in the name column, also on infotable popup
+    $('.dataset-descr-' + railsId).html(descr);
+    $('#results-'       + railsId).html('');      // Clear
+    var url = '';
+    // Parse services... provide links for whatever services
+    for (var i = 0; i < services.length; i++) {
+      url = getGetCapUrl(serverUrl, services[i]);
+      $('#results-' + railsId).append('<a href="' + url + '" target="_blank">' + services[i] + '</a>&nbsp;');
+    }
+    if(url !== '') {
+      $('#results-' + railsId).append('&nbsp;(Right-click, Copy Link Location)');
+    }
+    $('.status2-' + railsId).html('<img class="status-indicator" src="/assets/layer_available_yes.png" alt="Layer available">');
+  };
+
+
+  // We did not find the layer
+  var layerMissing = function(serverUrl, dataset)
+  {
+    var railsId = railsIdLookup[makeKey(serverUrl, dataset)];
+
+    $('.dataset-name2-' + railsId).html('Missing');   // Appears in the name column, also on infotable popup
+    $('.dataset-descr-' + railsId).html('This dataset appears to have been removed from the server');
+    $('#results-'       + railsId).html('');          // Clear
+    $('.status2-' + railsId).html('<img class="status-indicator" src="/assets/layer_available_no.png" alt="Layer not available">');
+  };
+
+
   // We have a response of some sort from serverUrl -- update the datasets table to show it.
   // serverResponses should be an object with a ServerResponse object for WFS, WMS, and WCS.
   var setLayerStatus = function(serverUrl)
@@ -265,39 +306,4 @@
   };
 
 
-  var updateLayerInfo = function(serverUrl, dataset, name, descr, services) 
-  {
-    var railsId = railsIdLookup[makeKey(serverUrl, dataset)];
-    $('.dataset-name2-' + railsId).html(name);    // Appears in the name column, also on infotable popup
-    $('.dataset-descr-' + railsId).html(descr);
-    $('#results-'       + railsId).html('');      // Clear
-    var url = '';
-    // Parse services... provide links for whatever services
-    for (var i = 0; i < services.length; i++) {
-      url = getGetCapUrl(serverUrl, services[i]);
-      $('#results-' + railsId).append('<a href="' + url + '" target="_blank">' + services[i] + '</a>&nbsp;');
-    }
-    if(url !== '') {
-      $('#results-' + railsId).append('&nbsp;(Right-click, Copy Link Location)');
-    }
-    $('.status2-' + railsId).html('<img class="status-indicator" src="/assets/layer_available_yes.png" alt="Layer available">');
-  };
 
-  var layerMissing = function(serverUrl, dataset)
-  {
-    var railsId = railsIdLookup[makeKey(serverUrl, dataset)];
-
-    $('.dataset-name2-' + railsId).html('Missing');   // Appears in the name column, also on infotable popup
-    $('.dataset-descr-' + railsId).html('This dataset appears to have been removed from the server');
-    $('#results-'       + railsId).html('');          // Clear
-    $('.status2-' + railsId).html('<img class="status-indicator" src="/assets/layer_available_no.png" alt="Layer not available">');
-  };
-
-
-  // Get the proper getCaps URL for this server and service
-  var getGetCapUrl = function(serverUrl, service)
-  {
-    if     (service == 'WMS') { return WMS.getCapUrl(serverUrl); }
-    else if(service == 'WFS') { return WFS.getCapUrl(serverUrl); }
-    else if(service == 'WCS') { return WCS.getCapUrl(serverUrl); }
-  };
