@@ -10,7 +10,7 @@
 
 var WebGIS = WebGIS || { };
 
-WebGIS.map;
+WebGIS.map = null;
 /**
  * All layers will always use the base layer projection for the request.
  * Since we are using Google and OSM anything other than EPSG:900913 will be ignored.
@@ -33,7 +33,7 @@ WebGIS.initMap = function () {
 
 	var mapProjection = new OpenLayers.Projection(WebGIS.mapProjection);
 	
-    var boundsInit = new OpenLayers.Bounds(995196.25, 6240993.46, 1057535.16, 6274861.39);
+    //var boundsInit = new OpenLayers.Bounds(995196.25, 6240993.46, 1057535.16, 6274861.39);
     
     // Nothing will be displayed outside these bounds (Poland - Ireland)
     var boundsMap  = new OpenLayers.Bounds(-1015000, 5845000, 1100000, 8000000);  
@@ -59,9 +59,9 @@ WebGIS.initMap = function () {
 
     WebGIS.map.addLayers(WebGIS.getBaseLayers());
 
-    WebGIS.map.setCenter(boundsInit.getCenterLonLat(), 13);
+   //WebGIS.map.setCenter(boundsInit.getCenterLonLat(), 13);
     
-    var buildsIGUESS =  new OpenLayers.Layer.WMS(
+   /* var buildsIGUESS =  new OpenLayers.Layer.WMS(
     	"Builds iGUESS",
     	"http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
         {layers: "RO_building_footprints", 
@@ -73,13 +73,13 @@ WebGIS.initMap = function () {
      	 visibility: false}
     );
     
-    WebGIS.map.addLayer(buildsIGUESS);
+    WebGIS.map.addLayer(buildsIGUESS);*/
     
   }
 
-WebGIS.zoomToCity = function () {
-	  onLocationChanged(document.getElementById("city-dropdown").value);
-	}
+WebGIS.zoomToCity = function () {  
+	onLocationChanged(document.getElementById("city-dropdown").value);
+}
 
 // Adds a new layer to the map "on the fly"
 WebGIS.addNewLayer = function (title, serviceURL, layerName)
