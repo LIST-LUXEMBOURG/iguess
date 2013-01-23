@@ -6,14 +6,16 @@
 
 <script type="text/javascript">
 
+//= require webgis/MapInit
+
  $(document).ready(function() {
-    onLocationChanged('<%= @current_city.name %>');   // Build the initial dataset list
     // $('#sortable_table').tablesorter();               // Initialize sorter
   });
 
 
   // This gets run when user changes city dropdown
   var onLocationChanged = function(cityName) {
+  		
     // Retrieve all datasets for specified city
     MapUtils.retrieveDatasetsForCity(cityName, function(data){ renderTable(data); });
 
@@ -25,13 +27,17 @@
         var point = new OpenLayers.LonLat(
                 (<%= city.minx %> + <%= city.maxx %>) / 2,
                 (<%= city.miny %> + <%= city.maxy %>) / 2);
-        if(WebGIS != null)
+        
+        if(WebGIS.map != null)
         	point.transform(proj, WebGIS.map.getProjectionObject());
 
         WebGIS.map.setCenter(point, <%= city.zoom %>);
-
+        
         $('.all-layers').hide();
+        
         $('.layer-for-city-<%= city.id %>').show();
+
+		alert("Location will change!");
 
         return;
       }
