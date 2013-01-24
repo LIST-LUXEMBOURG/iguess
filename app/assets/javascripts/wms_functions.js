@@ -73,7 +73,7 @@ WPS.probeWPS = function(serverUrl, onReceivedServerInfoFunction, onDescribedProc
                                       onStarted:     function() { alert('start');},
                                       onFailed:      function() { alert('fail');},
                                       onAccepted:    function() { alert('acc');},
-                                      onException:   showErrorMessage2  });
+                                      onException:   probingWPSError  });
 
     // http://localhost:3000/home/geoproxy?url=http%3A%2F%2Figuess.tudor.lu%2Fcgi-bin%2Fpywps.cgi%3FVERSION%3D1.0.0%26REQUEST%3DGetCapabilities%26SERVICE%3DWPS
     // http://iguess.tudor.lu/cgi-bin/pywps.cgi?VERSION=1.0.0&REQUEST=GetCapabilities&SERVICE=WP
@@ -112,11 +112,15 @@ showErrorMessage = function (process, code, text) {
 };
 
 
-// This will get called if the wps url points to a server that doesn't much exist.... TODO: something
-// We got back an error from one of our requested processes... do something useful
-showErrorMessage2 = function (request) {
-  console.log("showErrorMessage2", arguments);
+
+var onWpsError = function() { };    // Override to do something!
+
+
+// This will get called if the wps url points to a server that doesn't much exist, or is not answering the phone, or something..
+probingWPSError = function (request) {
+  onWpsError(WPS.unwrapServer(this.describeProcessUrlGet));
 };
+
 
 
 showPreErrorMessage = function (process, code, text) {

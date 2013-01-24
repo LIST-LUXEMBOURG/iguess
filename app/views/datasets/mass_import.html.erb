@@ -5,7 +5,7 @@
   // Add "js" style to body -- makes fancy checkboxes work
   $('body').attr("class",$('body').attr("class") + " js");
 
-  GOOGLE_SRS = 'EPSG:900913';
+  GOOGLE_SRS = 'EPSG:3857';
 
   var urls = [<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>];
 
@@ -84,6 +84,19 @@
             { <% @cities.each do |city| %>'<%= city.name %>':'<%= city.url.gsub(/\\/, '\\\\\\') %>',<% end %>}[cityName]
     );
     LOCAL_SRS = { <% @cities.each do |city| %>'<%= city.name %>':'<%= city.srs %>',<% end %>}[cityName];
+  }
+
+
+  var wpsServerList = { };
+  <% @wps_servers.each do |srv| %>
+    wpsServerList['<%= srv.url%>'] = '<%= srv.descr %>';
+  <% end %>
+  
+
+  // TODO: Put this message in a div or someting... won't be able to see a proper list of datatypes if this error occurs
+  var onWpsError = function(url)
+  {
+    alert("Connection to process server " + wpsServerList[url] + " failed!");
   }
 
 
