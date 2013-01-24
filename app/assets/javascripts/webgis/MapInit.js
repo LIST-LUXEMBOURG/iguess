@@ -55,23 +55,8 @@ WebGIS.initMap = function () {
     
     WebGIS.registerIdentify(WebGIS.map, this);
 
-    WebGIS.map.addLayers(WebGIS.getBaseLayers());
-    
-   /* var buildsIGUESS =  new OpenLayers.Layer.WMS(
-    	"Builds iGUESS",
-    	"http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
-        {layers: "RO_building_footprints", 
-         format: "image/png",
-         srsName: WebGIS.requestProjection,
-	 	 transparent: "true",
-     	 projection: new OpenLayers.Projection(WebGIS.requestProjection)},
-        {isBaseLayer: false,  
-     	 visibility: false}
-    );
-    
-    WebGIS.map.addLayer(buildsIGUESS);*/
-    
-  }
+    WebGIS.map.addLayers(WebGIS.getBaseLayers());   
+}
 
 WebGIS.zoomToCity = function () {  
 	onLocationChanged(document.getElementById("city-dropdown").value);
