@@ -32,8 +32,6 @@ Proj4js.defs["EPSG:3857"]  = "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_
 WebGIS.initMap = function () {
 
 	var mapProjection = new OpenLayers.Projection(WebGIS.mapProjection);
-	
-    //var boundsInit = new OpenLayers.Bounds(995196.25, 6240993.46, 1057535.16, 6274861.39);
     
     // Nothing will be displayed outside these bounds (Poland - Ireland)
     var boundsMap  = new OpenLayers.Bounds(-1015000, 5845000, 1100000, 8000000);  
@@ -58,8 +56,6 @@ WebGIS.initMap = function () {
     WebGIS.registerIdentify(WebGIS.map, this);
 
     WebGIS.map.addLayers(WebGIS.getBaseLayers());
-
-   //WebGIS.map.setCenter(boundsInit.getCenterLonLat(), 13);
     
    /* var buildsIGUESS =  new OpenLayers.Layer.WMS(
     	"Builds iGUESS",
