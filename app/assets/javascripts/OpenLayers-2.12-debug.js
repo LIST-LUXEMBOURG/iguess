@@ -10818,7 +10818,7 @@ OpenLayers.Events = OpenLayers.Class({
                          - this.element.lefttop[1]
         ); 
     },
-
+ 
     CLASS_NAME: "OpenLayers.Events"
 });
 /* ======================================================================
@@ -61160,7 +61160,7 @@ OpenLayers.Marker.Box = OpenLayers.Class(OpenLayers.Marker, {
     * sz - {<OpenLayers.Size>} 
     * 
     * Returns: 
-    * {DOMElement} A new DOM Image with this marker´s icon set at the 
+    * {DOMElement} A new DOM Image with this marker?s icon set at the 
     *         location passed-in
     */
     draw: function(px, sz) {
