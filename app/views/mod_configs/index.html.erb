@@ -129,6 +129,7 @@
   }
 
 
+  // Create a lookup to pair each URL with a unique numeric id -- this will make it easier to use URLs as part of ids
   var ServerId = {};
   <% @wps_servers.each do |s| %>
     ServerId["<%= s.url %>"] = <%= s.id %>;
