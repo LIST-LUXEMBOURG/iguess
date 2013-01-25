@@ -24,7 +24,7 @@ var serverResponses = { };
 
 
 // We've got a new batch of datasets to display!
-// Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
+// Note that for the status div, all rows from the same server share a common class.  Each has a unique id.
 var renderTable = function(datasets) {
 
   $('#dataset-list').empty();    // Clear table
