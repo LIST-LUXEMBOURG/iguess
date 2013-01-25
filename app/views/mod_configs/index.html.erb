@@ -341,23 +341,6 @@
       });
     }
 
-    // Do this at runtime so we get the proper id
-    <% @wps_servers.each do |s| %>
-      var li = $(document.createElement('li'));
-
-      var id = ServerId["<%= s.url %>"];
-      // style comes from wps-title and wps-descr
-      var liHtml = '<div class="wps-title" id="wps-title' + id + '"></div>' +
-                   '<div class="wps-descr" id="wps-abstr' + id + '"></div>';
-
-                  //  '<img src="/assets/small_question_mark.gif" class="info-icon" ' +
-                  // 'alt="More info" title="Click for details" rel="#infotable-' + ServerId[serverUrl] + '">
-
-      li.html(liHtml);
-
-      $('#wps-server-list').append(li);
-    <% end %>
-
     updateConfigModTables();
   });
   
@@ -428,7 +411,17 @@
         No module servers have been configured.  You can add one by clicking on the link below.
       <% end %>
 
-      <ul id="wps-server-list"></ul>
+      <ul id="wps-server-list">
+        <% @wps_servers.each do |s| %>
+          <li>
+            <div class="wps-title" id="wps-title<%= s.id %>"></div>
+            <div class="wps-descr" id="wps-abstr<%= s.id %>"></div>
+          </li>
+
+<!--                       //  '<img src="/assets/small_question_mark.gif" class="info-icon" ' +
+                      // 'alt="More info" title="Click for details" rel="#infotable-' + ServerId[serverUrl] + '">
+ -->    <% end %>
+      </ul>
       <div id="catalog-add-new-server-link"><a href="#">Add new server</a></div>
     </div>
 
