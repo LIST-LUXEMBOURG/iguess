@@ -1,25 +1,3 @@
-<h1 class="page_header">Modules</h1>
-
-
-<div class="explanation">
-  <% if @wps_servers.length > 0 %>
-    <ul>
-      <li>Users can create Modules from a Module Template by specifying all inputs and outputs that template requires.</li>
-      <li>A list of Module Templates can be found in the Module Catalog.</li>
-    </ul>
-  <% else %>
-    <ul>
-      <li>Before you can start working with modules, you need to add a WPS server using the link below.</li>
-    </ul>
-  <% end %>
-</div>
-
-
-<ul class="tabs">
-  <li><a class="l" id="t1" href="#configured_modules_tab">Configured Modules</a></li>
-  <li><a class="l" id="t2" href="#module_catalog_tab">Module Catalog</a></li>
-</ul>
-
 
 <script type="text/javascript">
 
@@ -89,7 +67,7 @@
   for(var i = 0; i < urls.length; i++) {  WPS.probeWPS(urls[i], onReceivedServerInfo, onDescribedProcess);  }
 
   // This will be called when the GetCapabilities call to the WPS returns.  Should happen once per WPS server.
-  function onReceivedServerInfo(url, title, abstract, processes)
+  var onReceivedServerInfo = function(url, title, abstract, processes)
   {
     var id = ServerId[url];
 
@@ -209,7 +187,7 @@
 
   // This function is called when the describeProcesses response arrives
   // It will be called repeatedly as responses arrive
-  function onDescribedProcess(process, serverName, serverUrl)
+  var onDescribedProcess = function(process, serverName, serverUrl)
   {
     responses++;
 
@@ -241,7 +219,7 @@
 
 
   // Formatting helper -- used by Module Catalog tab
-  function getDescrRow(record)
+  var getDescrRow = function(record)
   {
     var title    = record.title    ? record.title + ' [' + record.identifier + ']' : record.identifier;
     var abstract = record.abstract ? record.abstract : "<div class='center'>-</div>";
@@ -315,6 +293,28 @@
 
 </script>
 
+
+<h1 class="page_header">Modules</h1>
+
+
+<div class="explanation">
+  <% if @wps_servers.length > 0 %>
+    <ul>
+      <li>Users can create Modules from a Module Template by specifying all inputs and outputs that template requires.</li>
+      <li>A list of Module Templates can be found in the Module Catalog.</li>
+    </ul>
+  <% else %>
+    <ul>
+      <li>Before you can start working with modules, you need to add a WPS server using the link below.</li>
+    </ul>
+  <% end %>
+</div>
+
+
+<ul class="tabs">
+  <li><a class="l" id="t1" href="#configured_modules_tab">Configured Modules</a></li>
+  <li><a class="l" id="t2" href="#module_catalog_tab">Module Catalog</a></li>
+</ul>
 
 <div id="tab-panes" class="tab-pane-container">
   <div id="configured_modules_tab">
