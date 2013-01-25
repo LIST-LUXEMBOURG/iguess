@@ -55,6 +55,8 @@ WPS.probing = [];       // List of servers already being probed
 
 ////////////////////////////////////////
 // Send an initial request to a WPS server to see what services it offers
+// onReceivedServerInfoFunction will be called when we get a response from a server, once per server
+// onDescribedProcessFunction will be called once for each process at each server
 WPS.probeWPS = function(serverUrl, onReceivedServerInfoFunction, onDescribedProcessFunction)
 {
   if(WPS.probing.hasObject(serverUrl)) { return; }      // Already probing, nothing to do
