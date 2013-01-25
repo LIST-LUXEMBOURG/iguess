@@ -47,7 +47,7 @@
         }
       }
     }
-  }
+  };
 
 
   // Formatting helper -- used by Module Catalog tab
@@ -58,7 +58,7 @@
 
     return '<tr><td class="param-name">'  + title    + '</td>' +
                '<td class="param-descr">' + abstract + '</td></tr>';
-  }
+  };
 
 
 
@@ -130,21 +130,13 @@
         $(this).next().slideDown(animTime);     // Open selected pane
       }
     });
-  }
+  };
 
 
   // This function is called when the describeProcesses response arrives
   // It will be called repeatedly as responses arrive
   var onDescribedProcess = function(process, serverName, serverUrl)
   {
-    responses++;
-
-    // We know how many WPS describeProcess calls we made, so whenever one returns we should know if we are still
-    // waiting for any others
-    if(responses == WPS.getResponsesExpected()) {
-      $('#wps-probing-indicator').hide();           // This indicator is on the Module Catalog tab
-    }
-
     addItemToCatalog(process, serverName, serverUrl);
     
 
@@ -164,6 +156,14 @@
     if(pidLookup != undefined) {
       // Any elements with this class will be updated with the process title
       $(".name-" + pidLookup.classId).text(process.title);
+    }
+
+
+    responses++;
+    // We know how many WPS describeProcess calls we made, so whenever one returns we should know if we are still
+    // waiting for any others
+    if(responses == WPS.getResponsesExpected()) {
+      $('#wps-probing-indicator').hide();           // This indicator is on the Module Catalog tab
     }
   };
 
@@ -256,13 +256,13 @@
       $('.city-name').text(city);
       $('#mod-list-none').show();
     }
-  }
+  };
 
 
   // Gets fired when city dropdown changes
   var onLocationChanged = function(city) {
     updateConfigModTables();
-  }
+  };
 
 
   // Dynamically generate placeholders for the list of servers; these will be populated after we hear from our servers
