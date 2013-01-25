@@ -8,68 +8,19 @@
   <% end %>
 
   var serverResponsesExpected = <%= @wps_servers.size %>;
-
-// id="wps-title' + id + '"
-// id="wps-abstr' + id + '"
-
-
-
-  // Create a popup info display for this server 
-  var createServerInfoTable = function(url, title, abstract) 
-  {
-    $('#infotables').append(
-      '<div class="infotable" id="infotable-' + ServerId[url] + '">' +
-              '<div class="close"></div>' +
-              '<h1>'+ title + '</h1>' +
-              '<div>' + abstract + '</div>' + 
-              '<div style="overflow:hidden"><dl>' +
-                '<dt>Server URL:</dt><dd>' + url + '</dd>' +
-              '</dl></div>' +
-           '</div>'
-    );
-  };
-
-  //   var serverUrlId = serverUrlIdLookup[dataset.server_url];
-
-  //   return '<div class="infotable" id="infotable-' + ServerId[url] + '">' +
-  //             '<div class="close"></div>' +
-  //             '<h1>'+ title +'</h1>' +
-  //             '<div class="dataset-descr-' + railsId + '"></div>' +
-  //             '<div style="overflow:hidden"><dl>' +
-  //               '<dt>Server Name:</dt><dd class="server-name-' + serverUrlId + '"></dd>' +
-  //                '<dt>Data Services:</dt><dd id="results-' + railsId + '">Waiting for response from server...</dd>' + 
-                 
-  //             '</dl></div>' +
-  //             '<div style="overflow:hidden" class="technical-details">' +
-  //               '<div class="technical-details-header">Technical Details</div><dl>' +
-  //               '<dt>Server Base URL:</dt><dd>' + dataset.server_url + '</dd>' +
-  //               '<dt>Dataset Identifier:</dt><dd>' + dataset.identifier + '</dd>' +
-  //               '<dt>All Get Capabilities Links:</dt><dd>' +
-  //                   '<a href="' + WFS.getCapUrl(dataset.server_url) + '" target="_blank">WFS</a> ' +
-  //                   '<a href="' + WMS.getCapUrl(dataset.server_url) + '" target="_blank">WMS</a> ' +
-  //                   '<a href="' + WCS.getCapUrl(dataset.server_url) + '" target="_blank">WCS</a>' +
-  //               '</dd>' +
-  //               '<dt>Projections Available:</dt><dd>' + '' + '</dd>' + 
-  //               '<dt>Bounding Box:</dt><dd>' + '' + '</dd>' + 
-  //               '<dt>Attribute Columns:</dt><dd>' + '' + '</dd>' + 
-  //             '</dl></div>' +
-  //             '<div><a href="#" class="show-details"></a></div>' +
-  //          '</div>';
-  // };
-
-
   var serverResponsesReceived = 0;
+
 
   // This will be called when the GetCapabilities call to the WPS returns.  Should happen once per WPS server.
   var onReceivedServerInfo = function(url, title, abstract, processes)
   {
     var id = ServerId[url];
 
-    var titleKey = 'wps-title' + id;
-    var abstrKey = 'wps-abstr' + id;
+    var titleKey = 'wps-title-' + id;
+    var abstrKey = 'wps-abstr-' + id;
 
-    $('#' + titleKey).text(title);          // This is the title of the server at the top of the Module Catalog
-    $('#' + abstrKey).text(abstract);
+    $('.' + titleKey).text(title);          // This is the title of the server at the top of the Module Catalog
+    $('.' + abstrKey).text(abstract);
 
     // Now see if there are any servers we were expecting, but are no longer listed on the server
     var len = processes.length;
@@ -101,9 +52,6 @@
     }
 
     serverResponsesReceived++;
-
-    // Add some info about the server for the server-popup pages
-    createServerInfoTable(url, title, abstract);
   };
 
 
@@ -341,6 +289,9 @@
       });
     }
 
+
+    $('img[rel]').overlay();    // Activate layer info overlays we added in the static HTML at the bottom of this file
+
     updateConfigModTables();
   });
   
@@ -414,13 +365,14 @@
       <ul id="wps-server-list">
         <% @wps_servers.each do |s| %>
           <li>
-            <div class="wps-title" id="wps-title<%= s.id %>"></div>
-            <div class="wps-descr" id="wps-abstr<%= s.id %>"></div>
+            <div class="wps-title">
+              <!-- wps-title-xxx is a class not an id because we have several items that need the same treatment --> 
+              <span class="wps-title-<%= s.id %>"> </span>
+              <img src="/assets/small_question_mark.gif" class="info-icon" alt="More info" title="Click for details" rel="#infotable-<%= s.id %>">
+            </div>
+            <div class="wps-descr" class="wps-abstr-<%= s.id %>"></div>
           </li>
-
-<!--                       //  '<img src="/assets/small_question_mark.gif" class="info-icon" ' +
-                      // 'alt="More info" title="Click for details" rel="#infotable-' + ServerId[serverUrl] + '">
- -->    <% end %>
+        <% end %>
       </ul>
       <div id="catalog-add-new-server-link"><a href="#">Add new server</a></div>
     </div>
@@ -434,4 +386,17 @@
   </div>
 </div>
 
-<div id="infotables"><!-- Placeholder for popup infotables --></div>
+<% @wps_servers.each do |s| %>
+  <div id="infotables">
+      <div class="infotable" id="infotable-<%= s.id %>">
+        <div class="close"></div> +
+        <h1  class="wps-title-<%= s.id %>">Server Name</h1>
+        <div class="wps-abstr-<%= s.id %>"> Server description</div>
+        <div style="overflow:hidden">
+          <dl>
+            <dt>Server URL:</dt><dd><%= s.url %></dd>
+          </dl>
+        </div>
+      </div>
+  </div>
+<% end %>
