@@ -251,10 +251,67 @@
   }
 
 
+  var updateConfigModTables = function() 
+  {
+    $('#tableContainer').html("");
+
+    var city = document.getElementById("city-dropdown").value;
+    var rowCount = modules.length;
+    var foundAny = false;
+
+    for(i = 0; i < rowCount; i++) {
+      if(modules[i].city != city) { continue; }    // Only show modules for this city
+      foundAny = true;
+
+      var titleCellContent = modules[i].title == "" ? "Probing server... <img src='/assets/loading_spinner.gif'>" : modules[i].title;
+
+      // Create a new table row; note we assign the 2nd item to a class that lets us easily update when we get the proper title.
+      row = "<td>" + modules[i].name   + "</td>" +
+            "<td class='name-" + processIdLookup[modules[i].server + modules[i].identifier].classId + "'>" + titleCellContent+ "</td>" +
+            "<td>" + modules[i].status + "</td>" + 
+            "<td>" + modules[i].descr  + "</td>";
+
+      $('#tableContainer').append("<tr>" + row + "</tr>");
+    }
+
+    
+    if(foundAny) {
+      $('#mod-list').show();
+      $('#mod-list-none').hide();
+    } else {
+      // Provide empty row to prevent sorting from failing
+      $('#tableContainer').append("<tr> <td></td> <td></td> <td></td> <td></td> </tr>");
+      $('#mod-list').hide();
+      $('.city-name').text(city);
+      $('#mod-list-none').show();
+    }
+  }
+
+
   // Gets fired when city dropdown changes
   onLocationChanged = function(city) {
     updateConfigModTables();
   }
+
+
+  // Dynamically generate placeholders for the list of servers; these will be populated after we hear from our servers
+  $(document).ready(function() {
+    <% @wps_servers.each do |s| %>
+      var li = $(document.createElement('li'));
+
+      var id = ServerId["<%= s.url %>"];
+      // style comes from wps-title and wps-descr
+      var liHtml = '<div class="wps-title" id = "wps-title' + id + '"></div>' +
+                   '<div class="wps-descr" id = "wps-abstr' + id + '"></div>';
+
+      li.html(liHtml);
+
+      $('#server-list').append(li);
+    <% end %>
+
+    updateConfigModTables();
+  });
+  
 
 </script>
 
@@ -290,6 +347,7 @@
     <% end %>
   </div>
 
+
   <div id="module_catalog_tab">
     <div>
       <% if @wps_servers.length > 0 %>
@@ -311,58 +369,4 @@
   </div>
 </div>
 
-<%# Dynamically generate placeholders for the list of servers; these will be populated after we hear from our servers %>
-<script type="text/javascript">
-  <% @wps_servers.each do |s| %>
-    var li = $(document.createElement('li'));
-
-    var id = ServerId["<%= s.url %>"];
-    // style comes from wps-title and wps-descr
-    var liHtml = '<div class="wps-title" id = "wps-title' + id + '"></div>' +
-                 '<div class="wps-descr" id = "wps-abstr' + id + '"></div>';
-
-    li.html(liHtml);
-
-    $('#server-list').append(li);
-  <% end %>
-
-
-  function updateConfigModTables() {
-    $('#tableContainer').html("");
-
-    var city = document.getElementById("city-dropdown").value;
-    var rowCount = modules.length;
-    var foundAny = false;
-
-    for(i = 0; i < rowCount; i++) {
-      if(modules[i].city != city) { continue; }    // Only show modules for this city
-      foundAny = true;
-
-      var titleCellContent = modules[i].title == "" ? "Probing server... <img src='/assets/loading_spinner.gif'>" : modules[i].title;
-
-      // Create a new table row; note we assign the 2nd item to a class that lets us easily update when we get the proper title.
-      row = "<td>" + modules[i].name   + "</td>" +
-            "<td class='name-" + processIdLookup[modules[i].server + modules[i].identifier].classId + "'>" + titleCellContent+ "</td>" +
-            "<td>" + modules[i].status + "</td>" + 
-            "<td>" + modules[i].descr  + "</td>";
-
-      $('#tableContainer').append("<tr>" + row + "</tr>");
-    }
-
-    
-    if(foundAny) {
-      $('#mod-list').show();
-      $('#mod-list-none').hide();
-    } else {
-      // Provide empty row to prevent sorting from failing
-      $('#tableContainer').append("<tr> <td></td> <td></td> <td></td> <td></td> </tr>");
-      $('#mod-list').hide();
-      $('.city-name').text(city);
-      $('#mod-list-none').show();
-    }
-  }
-
-  updateConfigModTables();
-
-</script>
-
+<div id="infotables"><!-- Placeholder for popup infotables --></div>
