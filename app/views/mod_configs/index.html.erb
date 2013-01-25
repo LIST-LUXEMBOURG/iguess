@@ -386,12 +386,14 @@
   </div>
 </div>
 
+<!-- The following will start life hidden, and will only be revealed when the user clicks an info button -->
+<!-- Details (name, descr, etc.) will be populated as we get info from the servers -->
 <% @wps_servers.each do |s| %>
   <div id="infotables">
       <div class="infotable" id="infotable-<%= s.id %>">
         <div class="close"></div> +
         <h1  class="wps-title-<%= s.id %>">Server Name</h1>
-        <div class="wps-abstr-<%= s.id %>"> Server description</div>
+        <div class="wps-abstr-<%= s.id %>">Server description</div>
         <div style="overflow:hidden">
           <dl>
             <dt>Server URL:</dt><dd><%= s.url %></dd>
