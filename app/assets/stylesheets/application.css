@@ -160,7 +160,7 @@ a:active {
 }
 
 
-.form_error_message {
+.form_error_message, .error-msg {
   color: red;
 }
 

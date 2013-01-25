@@ -156,6 +156,7 @@
     if(pidLookup != undefined) {
       // Any elements with this class will be updated with the process title
       $(".name-" + pidLookup.classId).text(process.title);
+      $(".name-" + pidLookup.classId).removeClass('not-found');
     }
 
 
@@ -164,6 +165,10 @@
     // waiting for any others
     if(responses == WPS.getResponsesExpected()) {
       $('#wps-probing-indicator').hide();           // This indicator is on the Module Catalog tab
+
+      // Now check if there are any configured modules that we could not get info for -- it means that the processes
+      // that they are based on are no longer available, and we need to show some sort of message
+      $(".not-found").html('<span class="error-msg">Base module not found</span>');
     }
   };
 
@@ -239,7 +244,7 @@
 
       // Create a new table row; note we assign the 2nd item to a class that lets us easily update when we get the proper title.
       row = "<td>" + modules[i].name   + "</td>" +
-            "<td class='name-" + processIdLookup[modules[i].server + modules[i].identifier].classId + "'>" + titleCellContent+ "</td>" +
+            "<td class='not-found name-" + processIdLookup[modules[i].server + modules[i].identifier].classId + "'>" + titleCellContent+ "</td>" +
             "<td>" + modules[i].status + "</td>" + 
             "<td>" + modules[i].descr  + "</td>";
 
@@ -329,6 +334,7 @@
         No modules have been configured yet for <span class='city-name'></span>.  
         <%= link_to 'Click here to create one.', new_mod_config_path %>
       </div>   
+
       <div id='mod-list'>       <!-- Div will be hidden when there are no configurations for current city -->
         These are the calculation modules that have been configured.
 
