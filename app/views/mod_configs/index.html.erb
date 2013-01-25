@@ -15,12 +15,16 @@
 
 
   // Create a popup info display for this server 
-  var renderInfoTable = function(url, title, abstract) 
+  var createServerInfoTable = function(url, title, abstract) 
   {
     $('#infotables').append(
       '<div class="infotable" id="infotable-' + ServerId[url] + '">' +
               '<div class="close"></div>' +
               '<h1>'+ title + '</h1>' +
+              '<div>' + abstract + '</div>' + 
+              '<div style="overflow:hidden"><dl>' +
+                '<dt>Server URL:</dt><dd>' + url + '</dd>' +
+              '</dl></div>' +
            '</div>'
     );
   };
@@ -99,7 +103,7 @@
     serverResponsesReceived++;
 
     // Add some info about the server for the server-popup pages
-    renderInfoTable(url, title, abstract);
+    createServerInfoTable(url, title, abstract);
   };
 
 
