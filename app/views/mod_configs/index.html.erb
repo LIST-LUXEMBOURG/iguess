@@ -159,6 +159,8 @@
     // Finally, update any modconfigs displayed in the Configured Modules tab 
 
     var pidLookup = processIdLookup[serverUrl + process.identifier];
+
+    // If pidLookup is undefined, it means we have no configured modules using this server/process
     if(pidLookup != undefined) {
       // Any elements with this class will be updated with the process title
       $(".name-" + pidLookup.classId).text(process.title);
