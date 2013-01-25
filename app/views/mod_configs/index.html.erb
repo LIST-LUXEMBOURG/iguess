@@ -126,18 +126,10 @@
     }
   }
 
-  // This function is called when the describeProcesses response arrives
-  // It will be called repeatedly as responses arrive
-  function onDescribedProcess(process, serverName, serverUrl)
+
+  // Add an item to the catalog
+  var addItemToCatalog = function(process, serverName)
   {
-    responses++;
-
-    // We know how many WPS describeProcess calls we made, so whenever one returns we should know if we are still
-    // waiting for any others
-    if(responses == WPS.getResponsesExpected()) {
-      $('#wps-probing-indicator').hide();           // This indicator is on the Module Catalog tab
-    }
-
     var description = '<h2 class="process-title">' + process.title + '</h2>' +
         '<div class="catalog-item">' +
         '<div class="process-descr">' + process.abstract + '</div>' +
@@ -145,8 +137,6 @@
 
         '<table class="model-descr-table">' +
         '<tbody class="inputs">';
-
-
 
     description += '<tr><th colspan=3 class="group-header" scope="rowgroup"><div class="outdent">' + 
                     ((process.inputs.length == 0) ? 'No Inputs' : 'Model Inputs') + 
@@ -181,6 +171,7 @@
 
     $('#module-catalog').append(description);
 
+
     // Custom accordion initialization code -- allows user to reclose accordion item by clicking on header
     // This init code will be called repeatedly as we add a new item to the catalog.  This will let users expand items
     // before everything is fully loaded, making the UI feel much more responsive.  But we have to be careful not to add
@@ -202,7 +193,23 @@
         $(this).next().slideDown(animTime);     // Open selected pane
       }
     });
+  }
 
+
+  // This function is called when the describeProcesses response arrives
+  // It will be called repeatedly as responses arrive
+  function onDescribedProcess(process, serverName, serverUrl)
+  {
+    responses++;
+
+    // We know how many WPS describeProcess calls we made, so whenever one returns we should know if we are still
+    // waiting for any others
+    if(responses == WPS.getResponsesExpected()) {
+      $('#wps-probing-indicator').hide();           // This indicator is on the Module Catalog tab
+    }
+
+    addItemToCatalog(process, serverName);
+    
 
     // Update modules structure with module title, now that one is available 
     var modcount = modules.length;
