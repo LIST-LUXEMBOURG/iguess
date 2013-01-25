@@ -40,7 +40,7 @@ var renderTable = function(datasets) {
     processUrl(dataset.server_url);
   }
 
-  $('img[rel]').overlay();                            // Set up the layer info overlays
+  $('img[rel]').overlay();                             // Set up the layer info overlays
   $('img[rel]').click(function(){ hideDetails(); });   // Close details panel on open
 
   $('.show-details').click(function(){ showDetails(); });
