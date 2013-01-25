@@ -341,7 +341,7 @@
       });
     }
 
-
+    // Do this at runtime so we get the proper id
     <% @wps_servers.each do |s| %>
       var li = $(document.createElement('li'));
 
@@ -349,6 +349,9 @@
       // style comes from wps-title and wps-descr
       var liHtml = '<div class="wps-title" id="wps-title' + id + '"></div>' +
                    '<div class="wps-descr" id="wps-abstr' + id + '"></div>';
+
+                  //  '<img src="/assets/small_question_mark.gif" class="info-icon" ' +
+                  // 'alt="More info" title="Click for details" rel="#infotable-' + ServerId[serverUrl] + '">
 
       li.html(liHtml);
 
