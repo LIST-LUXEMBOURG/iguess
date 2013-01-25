@@ -23,6 +23,25 @@ var layerStores     = { };
 var serverResponses = { };
 
 
+var processedUrls   = [ ];
+
+var processUrl = function(url)
+{
+  // This function will be called for every dataset registered with the current city.  Many will have the same
+  // server.  Avoid processing the same server twice.
+  // Called from renderTable(), which is called from onCityChange() event handler
+  if(processedUrls.hasObject(url)) {  return;  }
+
+  processedUrls.push(url);
+
+  serverResponses[url] = { };    
+
+  WMS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+  WFS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+  WCS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+};
+
+
 // We've got a new batch of datasets to display!
 // Note that for the status div, all rows from the same server share a common class.  Each has a unique id.
 var renderTable = function(datasets) {
@@ -53,25 +72,6 @@ var renderTable = function(datasets) {
     // $('#sortable_table').trigger("update"); 
     // $('#sortable_table').trigger("sorton",[sorting]); 
 }; 
-
-
-var processedUrls   = [ ];
-
-var processUrl = function(url)
-{
-  // This function will be called for every dataset registered with the current city.  Many will have the same
-  // server.  Avoid processing the same server twice.
-  // Called from renderTable(), which is called from onCityChange() event handler
-  if(processedUrls.hasObject(url)) {  return;  }
-
-  processedUrls.push(url);
-
-  serverResponses[url] = { };    
-
-  WMS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
-  WFS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
-  WCS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
-};
 
 
 // Server has responded to our query and seems happy (from updateLayerList)
