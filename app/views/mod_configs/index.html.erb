@@ -91,11 +91,13 @@
   // This will be called when the GetCapabilities call to the WPS returns.  Should happen once per WPS server.
   function onReceivedServerInfo(url, title, abstract, processes)
   {
-    var titleKey = makeKey(url, 'title');
-    var abstractKey = makeKey(url, 'abstract');
+    var id = ServerId[url];
 
-    $('.' + titleKey).text(title);          // This is the title of the server at the top of the Module Catalog
-    $('#' + abstractKey).text(abstract);
+    var titleKey = 'wps-title' + id;
+    var abstrKey = 'wps-abstr' + id;
+
+    $('#' + titleKey).text(title);          // This is the title of the server at the top of the Module Catalog
+    $('#' + abstrKey).text(abstract);
 
     // Now see if there are any servers we were expecting, but are no longer listed on the server
     var len = processes.length;
@@ -127,13 +129,21 @@
   }
 
 
+  var ServerId = {};
+  <% @wps_servers.each do |s| %>
+    ServerId["<%= s.url %>"] = <%= s.id %>;
+  <% end %>
+
+
   // Add an item to the catalog
-  var addItemToCatalog = function(process, serverName)
+  var addItemToCatalog = function(process, serverName, serverUrl)
   {
     var description = '<h2 class="process-title">' + process.title + '</h2>' +
         '<div class="catalog-item">' +
         '<div class="process-descr">' + process.abstract + '</div>' +
-        '<div class="process-server-name"><span class="hosted-by">Hosted by:</span> <span class="server-name">' + serverName + '</span></div>' +
+        '<div class="process-server-name"><span class="hosted-by">Hosted by:</span> <span class="server-name">' + serverName + '</span>' +
+        '<img src="/assets/small_question_mark.gif" class="info-icon" ' +
+                  'alt="More info" title="Click for details" rel="#infotable-' + ServerId[serverUrl] + '"></div>' +
 
         '<table class="model-descr-table">' +
         '<tbody class="inputs">';
@@ -208,7 +218,7 @@
       $('#wps-probing-indicator').hide();           // This indicator is on the Module Catalog tab
     }
 
-    addItemToCatalog(process, serverName);
+    addItemToCatalog(process, serverName, serverUrl);
     
 
     // Update modules structure with module title, now that one is available 
@@ -305,8 +315,10 @@
   <% @wps_servers.each do |s| %>
     var li = $(document.createElement('li'));
 
-    var liHtml = '<div class="wps-title '       + makeKey('<%= s.url %>', 'title')    + '"></div>' +
-                 '<div class="wps-descr" id ="' + makeKey('<%= s.url %>', 'abstract') + '"></div>';
+    var id = ServerId["<%= s.url %>"];
+    // style comes from wps-title and wps-descr
+    var liHtml = '<div class="wps-title" id = "wps-title' + id + '"></div>' +
+                 '<div class="wps-descr" id = "wps-abstr' + id + '"></div>';
 
     li.html(liHtml);
 
