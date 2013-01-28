@@ -96,6 +96,13 @@
   text-decoration: underline;
 }
 
+// Provider of WPS server
+.wps-providerName {
+  font-size: 80%;
+  padding-left: 5px;
+}
+
+
 // Description of server in the server list
 .wps-descr {
   margin-left: 20px;
@@ -106,9 +113,9 @@
 
 }
 
-// Descy of each process in module catalog
+// Description of each process in module catalog
 .process-descr {
-
+  
 }
 
 // Server name for each process in module catalog

@@ -367,9 +367,9 @@
       <ul id="wps-server-list">
         <% @wps_servers.each do |s| %>
           <li>
-            <div class="wps-title">
+            <div>
               <!-- wps-title-xxx is a class not an id because we have several items that need the same treatment --> 
-              <span class="wps-title-<%= s.id %>"> </span>
+              <span class="wps-title wps-title-<%= s.id %>"></span> <span class="wps-providerName wps-providerName-<%= s.id %>"></span>
               <img src="/assets/small_question_mark.gif" class="info-icon" alt="More info" title="Click for details" rel="#infotable-<%= s.id %>">
             </div>
             <div class="wps-descr" class="wps-abstr-<%= s.id %>"></div>
