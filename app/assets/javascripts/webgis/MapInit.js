@@ -92,7 +92,7 @@ WebGIS.clearLayers = function(alsoClearBaseLayers)
   var layersToRemove = [];
 
   for(var i = 0, len = layers.length; i < len; i++) {
-    if(layers[i].isBaseLayer == alsoClearBaseLayers) {
+    if(alsoClearBaseLayers || !layers[i].isBaseLayer) {
       layersToRemove.push(layers[i]);
     }
   }
