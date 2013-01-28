@@ -338,23 +338,32 @@ OpenLayers.WPS = OpenLayers.Class({
     parseGetCapabilities: function (resp) {
         this.responseText = resp.responseText;
 
+
+        var format = new OpenLayers.Format.WPSCapabilities();
+        var responseObj = format.read(resp.responseXML);
+
+        var serviceIdentification = responseObj.serviceIdentification;
+
         var dom = resp.responseXML ? resp.responseXML : OpenLayers.parseXMLString(resp.responseText);
         this.responseDOM = dom;
 
         this.title = null;
         try {
-            this.title = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom,this.owsNS, "Title")[0].firstChild.nodeValue;
+            this.title = serviceIdentification.title;
         } catch(e) {}
 
         this.abstract = null;
         try {
-            this.abstract = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom,this.owsNS, "Abstract")[0].firstChild.nodeValue;
+            this.abstract = serviceIdentification.abstract;
         } catch(e) {}
+
+        this.serviceProvider = responseObj.serviceProvider;
 
         // describeProcess Get, Post
         // execute Get, Post
         var operationsMetadataNode = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom,this.owsNS, "OperationsMetadata")[0];
         var operationsMetadata = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(operationsMetadataNode, this.owsNS, "Operation");
+
         for (var i = 0; i < operationsMetadata.length; i++) {
             var operationName = operationsMetadata[i].getAttribute("name");
             var getNode = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(operationsMetadata[i],this.owsNS, "Get")[0];
@@ -376,6 +385,7 @@ OpenLayers.WPS = OpenLayers.Class({
             }
         }
 
+
         // processes
         var processesNode = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(dom,this.wpsNS, "ProcessOfferings")[0];
         var processes = OpenLayers.Format.XML.prototype.getElementsByTagNameNS(processesNode,this.wpsNS,  "Process");
@@ -384,12 +394,12 @@ OpenLayers.WPS = OpenLayers.Class({
             var identifierTitleAbstract = this.getIdentifierTitleExtract(processes[i]);
 
             var identifier = identifierTitleAbstract.identifier;
-            var title = identifierTitleAbstract.title;
-            var abstract = identifierTitleAbstract.abstract;
+            var title      = identifierTitleAbstract.title;
+            var abstract   = identifierTitleAbstract.abstract;
 
 
             var version = OpenLayers.Format.XML.prototype.getAttributeNS(processes[i],this.wpsNS, "version");
-            var process = new OpenLayers.WPS.Process({identifier:identifier,title: title, abstract: abstract, version: version,wps:this});
+            var process = new OpenLayers.WPS.Process({identifier: identifier, title: title, abstract: abstract, version: version, wps: this});
             this.addProcess(process);
         }
 

@@ -12,21 +12,23 @@
 
 
   // This will be called when the GetCapabilities call to the WPS returns.  Should happen once per WPS server.
-  var onReceivedWpsServerInfo = function(url, title, abstract, processes)
+  var onReceivedWpsServerInfo = function(url, title, abstract, processes, serviceProvider)
   {
     var id = ServerId[url];
 
-    var titleKey = 'wps-title-' + id;
-    var abstrKey = 'wps-abstr-' + id;
+    $('.wps-title-' + id).text(title);          // This is the title of the server at the top of the Module Catalog
+    $('.wps-abstr-' + id).text(abstract);
+    $('.wps-providerName-' + id).text(serviceProvider.providerName);
+    $('.wps-contactName-' + id).text(serviceProvider.serviceContact.individualName);
+    $('.wps-position-' + id).text(serviceProvider.serviceContact.positionName);
 
-    $('.' + titleKey).text(title);          // This is the title of the server at the top of the Module Catalog
-    $('.' + abstrKey).text(abstract);
+    var email = serviceProvider.serviceContact.contactInfo.address.electronicMailAddress;
+    $('.wps-email-' + id).html('(<a href="mailto:' + email + '">' + email + '</a>)');
 
     // Now see if there are any servers we were expecting, but are no longer listed on the server
-    var len = processes.length;
 
     // Populate the "Based on" and status columns of the Configured Modules tab
-    for(var i = 0; i < len; i++) {
+    for(var i = 0, len = processes.length; i < len; i++) {
       var wrappedServer = processes[i].wps.getCapabilitiesUrlGet;
       var server = WPS.unwrapProcServer(wrappedServer, processes[i].identifier);
       var obj = processIdLookup[server + processes[i].identifier];
@@ -392,10 +394,15 @@
   <div id="infotables">
       <div class="infotable" id="infotable-<%= s.id %>">
         <div class="close"></div>
-        <h1  class="wps-title-<%= s.id %>">Server Name</h1>
-        <div class="wps-abstr-<%= s.id %>">Server description</div>
+        <h1  class="wps-title-<%= s.id %>">Retrieving info...</h1>
+        <div class="wps-abstr-<%= s.id %>">Retrieving info...</div>
         <div style="overflow:hidden">
           <dl>
+            <dt>Provider:</dt><dd class="wps-providerName-<%= s.id %>">Retrieving info...</dd>
+            <dt>Contact:</dt><dd>
+              <span class="wps-contactName-<%= s.id %>">Retrieving info...</span>
+              <span class="wps-email-<%= s.id %>"></span>
+            </dd>
             <dt>Server URL:</dt><dd><%= s.url %></dd>
           </dl>
         </div>

@@ -88,8 +88,7 @@ WPS.onGotCapabilities = function()
 {
   // Trigger callback with name and abstract of server
   if(WPS.onReceivedServerInfoFunction != null && WPS.onReceivedServerInfoFunction != undefined) {
-    debugger
-    WPS.onReceivedServerInfoFunction(this.getCapabilitiesUrlPost, this.title, this.abstract, this.processes);
+    WPS.onReceivedServerInfoFunction(this.getCapabilitiesUrlPost, this.title, this.abstract, this.processes, this.serviceProvider);
   }
   WPS.title = this.title;
 
