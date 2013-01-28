@@ -84,7 +84,7 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName)
     WebGIS.map.addLayer(layer);
 };
 
-//Remove all layers from the current map
+// Remove all layers from the current map
 WebGIS.clearLayers = function(alsoClearBaseLayers)
 {
   alsoClearBaseLayers = alsoClearBaseLayers || false;
