@@ -113,7 +113,7 @@
 
     $('#dataset-list').empty();    // Clear table
 
-    for(var i = 0; i < datasets.length; i++) {
+    for(var i = 0, len = datasets.length; i < len; i++) {
       var dataset = datasets[i];
 
       var railsId = railsIdLookup[makeKey(dataset.server_url, dataset.identifier)];
