@@ -56,11 +56,11 @@ WebGIS.initMap = function () {
     WebGIS.registerIdentify(WebGIS.map, this);
 
     WebGIS.map.addLayers(WebGIS.getBaseLayers());   
-}
+};
 
 WebGIS.zoomToCity = function () {  
 	onLocationChanged(document.getElementById("city-dropdown").value);
-}
+};
 
 // Adds a new layer to the map "on the fly"
 WebGIS.addNewLayer = function (title, serviceURL, layerName)
@@ -82,20 +82,25 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName)
     var layer = new OpenLayers.Layer.WMS(title, serviceURL, params, options);
 
     WebGIS.map.addLayer(layer);
-}
+};
 
 //Remove all layers from the current map
 WebGIS.clearLayers = function(alsoClearBaseLayers)
 {
   alsoClearBaseLayers = alsoClearBaseLayers || false;
   var layers = WebGIS.map.layers;
-  var layerCount = layers.length;
+  var layersToRemove = [];
 
-  for(var i = 0; i < layerCount; i++) {
+  for(var i = 0, len = layers.length; i < len; i++) {
     if(layers[i].isBaseLayer == alsoClearBaseLayers) {
-      WebGIS.map.removeLayer(layers[i]);
+      layersToRemove.push(layers[i]);
     }
   }
-}
+
+  for(var i = 0, len = layersToRemove.length; i < len; i++) {
+    WebGIS.map.removeLayer(layersToRemove[i]);
+  }
+
+};
 
 
