@@ -33,7 +33,6 @@
   // One server response might contain info about a whole slew of data layers, so we'll need to parse it
   var gotServerResponse = function(serverUrl, serverResponses)
   {
-
     if(!!!registeredDatasets[serverUrl]) { return; }    // No registered datasets on this server!
 
     var wms = serverResponses['WMS'];
@@ -49,10 +48,7 @@
 
   // We've got a new batch of datasets to display!
   // Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
-  var renderTable = function(datasets) {
-
-    WebGIS.clearLayers(false);
-
+  var startProbing = function(datasets) {
     for(var i = 0, len = datasets.length; i < len; i++) {
       probeServer(datasets[i].server_url, 'WMS');
     }
@@ -60,10 +56,12 @@
 
 
   // This gets run when user changes city dropdown
-  var onLocationChanged = function(cityName) {
-  		
+  var onLocationChanged = function(cityName) 
+  {
+    WebGIS.clearLayers(false);
+
     // Retrieve all datasets for specified city
-    MapUtils.retrieveDatasetsForCity(cityName, function(data){ renderTable(data); });
+    MapUtils.retrieveDatasetsForCity(cityName, function(data){ startProbing(data); });
 
     // Notify WebGIS that things have changed
     <% for city in City.all %>
@@ -86,7 +84,7 @@
         return;
       }
     <% end %>
-  }
+  };
 </script>
 
 
