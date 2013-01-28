@@ -30,7 +30,7 @@ var processUrl = function(url)
   // This function will be called for every dataset registered with the current city.  Many will have the same
   // server.  Avoid processing the same server twice.
   // Called from renderTable(), which is called from onCityChange() event handler
-  if(processedUrls[url] === true) {  return;  }
+  if(processedUrls[url]) {  return;  }
 
   processedUrls[url] = true;
 
