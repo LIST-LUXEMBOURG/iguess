@@ -70,7 +70,7 @@ WPS.probeWPS = function(serverUrl, onReceivedServerInfoFunction, onDescribedProc
   var url = WPS.getCapReq(serverUrl);
 
   // Init the client and run get capabilities.  When a response arrives, we call the function onGotCapabilities
-  var wps = new OpenLayers.WPS(url, { onGotCapabilities: WPS.onGetCapabilities,
+  var wps = new OpenLayers.WPS(url, { onGotCapabilities: WPS.onGotCapabilities,
                                       onSucceeded:   function() { alert('succ');},
                                       onStarted:     function() { alert('start');},
                                       onFailed:      function() { alert('fail');},
@@ -84,10 +84,11 @@ WPS.probeWPS = function(serverUrl, onReceivedServerInfoFunction, onDescribedProc
 };
 
 // This function is called when the getCapabilities response arrives
-WPS.onGetCapabilities = function()
+WPS.onGotCapabilities = function()
 {
   // Trigger callback with name and abstract of server
   if(WPS.onReceivedServerInfoFunction != null && WPS.onReceivedServerInfoFunction != undefined) {
+    debugger
     WPS.onReceivedServerInfoFunction(this.getCapabilitiesUrlPost, this.title, this.abstract, this.processes);
   }
   WPS.title = this.title;
