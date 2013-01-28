@@ -23,16 +23,16 @@ var layerStores     = { };
 var serverResponses = { };
 
 
-var processedUrls   = [ ];
+var processedUrls   = { };
 
 var processUrl = function(url)
 {
   // This function will be called for every dataset registered with the current city.  Many will have the same
   // server.  Avoid processing the same server twice.
   // Called from renderTable(), which is called from onCityChange() event handler
-  if(processedUrls.hasObject(url)) {  return;  }
+  if(processedUrls[url] === true) {  return;  }
 
-  processedUrls.push(url);
+  processedUrls[url] = true;
 
   serverResponses[url] = { };    
 
