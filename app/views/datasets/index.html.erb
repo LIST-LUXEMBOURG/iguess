@@ -28,9 +28,10 @@
 
   // We've got a new batch of datasets to display!
   // Note that for the status div, all rows from the same server share a common class.  Each has a unique id.
-  var renderTable = function(datasets) {
-
+  var renderTable = function(datasets) 
+  {
     $('#dataset-list').empty();    // Clear table
+    resetProbe();                  // Clear out old probe results
 
     for(var i = 0, len = datasets.length; i < len; i++) {
       var dataset = datasets[i];

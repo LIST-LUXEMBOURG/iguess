@@ -48,7 +48,10 @@
 
   // We've got a new batch of datasets to display!
   // Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
-  var startProbing = function(datasets) {
+  var startProbing = function(datasets) 
+  {
+    resetProbe();   // Clear out old probe results
+
     for(var i = 0, len = datasets.length; i < len; i++) {
       probeServer(datasets[i].server_url, 'WMS');
     }

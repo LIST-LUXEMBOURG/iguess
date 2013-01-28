@@ -18,13 +18,19 @@ var hideDetails = function() {
 };
 
 
-var layerRecords       = { };
-var layerStores        = { };
-var serverResponseList = { };
+var layerRecords       = {};
+var layerStores        = {};
+var serverResponseList = {} ;
 
 
-var processedUrls   = { };
+var processedUrls   = {};
 
+
+// Call this before starting a new round of probeServer
+var resetProbe = function() 
+{
+  processedUrls = {};
+}
 
 // This function will be called for every dataset registered with the current city.  Many will have the same
 // server.  Avoid processing the same server twice.
