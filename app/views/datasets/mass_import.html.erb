@@ -462,7 +462,8 @@
 
 
   // Class declaration
-  var ServiceProbe = function(serverUrl) {   
+  var ServiceProbe = function(serverUrl) 
+  {   
     this.successCount = 0;
     this.failCount    = 0;
     this.WmsSucceeded = null;
@@ -473,47 +474,54 @@
     var self = this;    // Stored pointer to ourselves, will be needed in the callback
   
     
-    this.statusChanged = function() {
+    this.statusChanged = function() 
+    {
       
-    }
+    };
 
-    this.onGetCapabilitiesSucceeded = function() {
+    this.onGetCapabilitiesSucceeded = function() 
+    {
       self.successCount++;
       self.statusChanged();
-    }
+    };
 
-    this.onGetCapabilitiesFailed = function() {
+    this.onGetCapabilitiesFailed = function() 
+    {
       self.failCount++;
       self.statusChanged();
-    }
+    };
 
     // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-load
-    this.onWfsGetCapabilitiesSucceeded = function(dataProxy, records, options) { 
+    this.onWfsGetCapabilitiesSucceeded = function(dataProxy, records, options) 
+    { 
       // console.log("WFSSuccess>>", arguments);
       self.onGetCapabilitiesSucceeded();
       self.WfsSucceeded = true; 
 
       onWfsGetCapabilitiesSucceeded(dataProxy, records);
-    }
+    };
 
-    this.onWmsGetCapabilitiesSucceeded = function(dataProxy, records, options) { 
+    this.onWmsGetCapabilitiesSucceeded = function(dataProxy, records, options) 
+    { 
       self.onGetCapabilitiesSucceeded();
       self.WmsSucceeded = true;
 
       onWmsGetCapabilitiesSucceeded(dataProxy, records);
-    }
+    };
 
-    this.onWcsGetCapabilitiesSucceeded = function(dataProxy, records, options) { 
+    this.onWcsGetCapabilitiesSucceeded = function(dataProxy, records, options) 
+    { 
       self.onGetCapabilitiesSucceeded();
       self.WcsSucceeded = true;
 
       // debugger
 
       onWcsGetCapabilitiesSucceeded(dataProxy, records);
-    }
+    };
 
     // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-exception
-    this.onWfsGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) { 
+    this.onWfsGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) 
+    { 
       if(type == 'response') {
         // alert("Cannot parse response from WFS server.");
         // console.log("Response", response.responseText)
@@ -523,24 +531,27 @@
       self.onGetCapabilitiesFailed();
       self.WfsSucceeded = false;
       doneProcessing(self.serverUrl, 'WFS', null, 'ERROR');
-    }
+    };
 
-    this.onWmsGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) { 
+    this.onWmsGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) 
+    { 
       // alert("Error encountered on wms request");
       self.onGetCapabilitiesFailed();
       self.WmsSucceeded = false;
       doneProcessing(self.serverUrl, 'WMS', null, 'ERROR');
-    }
+    };
 
-    this.onWcsGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) { 
-      debugger
-      alert("Error with WCS request");
+    this.onWcsGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) 
+    { 
+      // debugger
+      // alert("Error with WCS request");
       self.onGetCapabilitiesFailed();
       self.WcsSucceeded = false;
       doneProcessing(self.serverUrl, 'WCS', null, 'ERROR');
-    }
+    };
 
-    this.startProbing = function() { 
+    this.startProbing = function() 
+    { 
       WFS.updateLayerList(self.serverUrl, self.onWfsGetCapabilitiesSucceeded, self.onWfsGetCapabilitiesFailed );
       WCS.updateLayerList(self.serverUrl, self.onWcsGetCapabilitiesSucceeded, self.onWcsGetCapabilitiesFailed );
       WMS.updateLayerList(self.serverUrl, self.onWmsGetCapabilitiesSucceeded, self.onWmsGetCapabilitiesFailed );
@@ -572,19 +583,23 @@
   };
 
 
-  function showWfs() {
+  function showWfs() 
+  {
     return $('#radio-show-wfs').prop('checked') || $('#radio-show-both').prop('checked');
-  }
+  };
 
-  function showWms() {
+  function showWms() 
+  {
     return $('#radio-show-wms').prop('checked') || $('#radio-show-both').prop('checked');
-  }
+  };
 
-  function showWcs() {
+  function showWcs() 
+  {
     return $('#radio-show-wfs').prop('checked') || $('#radio-show-both').prop('checked');
-  }
+  };
 
-  function showProbingIndicators() {
+  function showProbingIndicators() 
+  {
     var anyShown = false;
 
     if(showWfs()) { $('#probing-wfs').show(); anyShown = true; }
@@ -598,19 +613,21 @@
     else {
       $('.progress-container').hide();
     }
-  }
+  };
 
 
-  function hideProbingIndicators() {
+  function hideProbingIndicators() 
+  {
     $('#probing-wms').hide();
     $('#probing-wfs').hide();
     $('#probing-wcs').hide();
     $('.progress-container').hide();
-  }
+  };
 
 
   // Make sure all the data tiles are the same height
-  function equalizeTileHeight() {
+  function equalizeTileHeight() 
+  {
     var tallestElement = 0;
     $('.dataset').each(function(i, el) {
         if( $(this).outerHeight() > tallestElement ) {
@@ -618,7 +635,7 @@
         }     
     });
     $('.dataset').css('min-height', tallestElement);
-  }
+  };
 
 
   $(document).ready(function ()
