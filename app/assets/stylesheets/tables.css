@@ -5,6 +5,8 @@
 .zebra tr:nth-child(odd) { background: #EEE }
 .zebra th { background: #EBE300; padding: .25em .5em; }
 
+.x-tree-node-ct li:nth-child(even) { background: #CCC }
+.x-tree-node-ct li:nth-child(odd) { background: #EEE }
 
 /* The following are for sortable tables -- they render the sorting arrows on the column headers */
 table.sortable thead tr .headerSortUp { 
