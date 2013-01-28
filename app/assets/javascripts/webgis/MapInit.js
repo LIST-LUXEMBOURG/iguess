@@ -65,18 +65,21 @@ WebGIS.zoomToCity = function () {
 // Adds a new layer to the map "on the fly"
 WebGIS.addNewLayer = function (title, serviceURL, layerName)
 {
-    var layer =  new OpenLayers.Layer.WMS(
-            title,
-            serviceURL,
-            {layers: layerName,
-              format: "image/png",
-              srsName: WebGIS.requestProjection,
-              srs: WebGIS.requestProjection,
-              transparent: "true"},
-            {isBaseLayer: false,
-              visibility: true,
-              singleTile: true}
-    );
+    // Call OpenLayers.Layer.WMS.initialize()
+
+    var params = { layers: layerName,      
+                   format: "image/png",
+                   srsName: WebGIS.requestProjection,
+                   srs: WebGIS.requestProjection,
+                   transparent: "true"
+                 };
+
+    var options = { isBaseLayer: false,     
+                    visibility:  false,   // By default, layers are off
+                    singleTile:  true
+                  };
+
+    var layer = new OpenLayers.Layer.WMS(title, serviceURL, params, options);
 
     WebGIS.map.addLayer(layer);
 }

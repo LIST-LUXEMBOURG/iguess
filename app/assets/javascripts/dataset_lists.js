@@ -18,9 +18,9 @@ var hideDetails = function() {
 };
 
 
-var layerRecords    = { };
-var layerStores     = { };
-var serverResponses = { };
+var layerRecords       = { };
+var layerStores        = { };
+var serverResponseList = { };
 
 
 var processedUrls   = { };
@@ -29,50 +29,27 @@ var processedUrls   = { };
 // This function will be called for every dataset registered with the current city.  Many will have the same
 // server.  Avoid processing the same server twice.
 // Called from renderTable(), which is called from onCityChange() event handler
-var processUrl = function(url)
+// For service, specify WFS, WMS, WCS, or ALL.  ALL is the default if this paremeter is not supplied.
+var probeServer = function(url, service)
 {
+  var s = service || "ALL";
+
   if(processedUrls[url]) {  return;  }
 
   processedUrls[url] = true;
 
-  serverResponses[url] = { };    
+  serverResponseList[url] = { };    
 
-  WMS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
-  WFS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
-  WCS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+  if(s === 'ALL' || s === 'WMS')
+    WMS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+
+  if(s === 'ALL' || s === 'WFS')
+    WFS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+
+  if(s === 'ALL' || s === 'WCS')
+    WCS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
 };
 
-
-// We've got a new batch of datasets to display!
-// Note that for the status div, all rows from the same server share a common class.  Each has a unique id.
-var renderTable = function(datasets) {
-
-  $('#dataset-list').empty();    // Clear table
-
-  for(var i = 0, len = datasets.length; i < len; i++) {
-    var dataset = datasets[i];
-
-    var railsId = railsIdLookup[makeKey(dataset.server_url, dataset.identifier)];
-    $('#dataset-list').append(renderTableRow(dataset, railsId));
-
-    $('#infotables').append(renderInfoTable(dataset, railsId));
-
-    processUrl(dataset.server_url);
-  }
-
-  $('img[rel]').overlay();                             // Set up the layer info overlays
-  $('img[rel]').click(function(){ hideDetails(); });   // Close details panel on open
-
-  $('.show-details').click(function(){ showDetails(); });
-
-
-        // Make sure table is sorted
-    // var sorting = [[1,0], [0,0]]; 
-    // // sort on the first column 
-
-    // $('#sortable_table').trigger("update"); 
-    // $('#sortable_table').trigger("sorton",[sorting]); 
-}; 
 
 
 // Server has responded to our query and seems happy (from updateLayerList)
@@ -86,13 +63,12 @@ var onGetCapabilitiesSucceeded = function(dataProxy, records, options)
 
 // if(serverUrl==='http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map') debugger
 
-  serverResponses[serverUrl][service] = new ServerResponse(true, dataProxy, records, service);
+  serverResponseList[serverUrl][service] = new ServerResponse(true, dataProxy, records, service);
   updateDatasets(serverUrl, dataProxy, records, service);
 
     // if(serverUrl === 'http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map') debugger
 
-                                                
-  setLayerStatus(serverUrl);
+  gotServerResponse(serverUrl, serverResponseList[serverUrl]);
 };
 
 
@@ -106,18 +82,15 @@ var onGetCapabilitiesFailed = function(dataProxy, type, action, options, respons
   // status.responseText has response from data server?
   // We might get here if server the server does not support service WxS
 
-  var format  = options.reader.meta.format.name;
-  var serverUrl     = unwrapServer(dataProxy.url, format);
-  var service = getService(format);
-
-  if(serverUrl==='http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map') debugger
+  var format    = options.reader.meta.format.name;
+  var serverUrl = unwrapServer(dataProxy.url, format);
+  var service   = getService(format);
 
   // alert("server " + dataProxy.url + " had no " + service + " service");
 
-  serverResponses[serverUrl][service] = new ServerResponse(false, null, [], service, 
+  serverResponseList[serverUrl][service] = new ServerResponse(false, null, [], service, 
                                                            response.status, response.responseText);
-
-  setLayerStatus(serverUrl);
+  gotServerResponse(serverUrl, serverResponseList[serverUrl]);
 };
 
 
@@ -239,84 +212,4 @@ var getGetCapUrl = function(serverUrl, service)
   else if(service == 'WFS') { return WFS.getCapUrl(serverUrl); }
   else if(service == 'WCS') { return WCS.getCapUrl(serverUrl); }
 };
-
-
-// We found the layer
-var updateLayerInfo = function(serverUrl, datasetKey, name, descr, services) 
-{
-  var railsId = railsIdLookup[datasetKey];
-  $('.dataset-name2-' + railsId).html(name);    // Appears in the name column, also on infotable popup
-  $('.dataset-descr-' + railsId).html(descr);
-  $('#results-'       + railsId).html('');      // Clear
-  var url = '';
-  // Parse services... provide links for whatever services
-  for (var i = 0, len = services.length; i < len; i++) {
-    url = getGetCapUrl(serverUrl, services[i]);
-    $('#results-' + railsId).append('<a href="' + url + '" target="_blank">' + services[i] + '</a>&nbsp;');
-  }
-  if(url !== '') {
-    $('#results-' + railsId).append('&nbsp;(Right-click, Copy Link Location)');
-  }
-  $('.status2-' + railsId).html('<img class="status-indicator" src="/assets/layer_available_yes.png" alt="Layer available">');
-};
-
-
-// We did not find the layer
-var layerMissing = function(datsetKey)
-{
-  var railsId = railsIdLookup[datsetKey];
-
-  $('.dataset-name2-' + railsId).html('Missing');   // Appears in the name column, also on infotable popup
-  $('.dataset-descr-' + railsId).html('This dataset appears to have been removed from the server');
-  $('#results-'       + railsId).html('');          // Clear
-  $('.status2-' + railsId).html('<img class="status-indicator" src="/assets/layer_available_no.png" alt="Layer not available">');
-};
-
-
-// We have a response of some sort from serverUrl -- update the datasets table to show it.
-// serverResponses should be an object with a ServerResponse object for WFS, WMS, and WCS.
-var setLayerStatus = function(serverUrl)
-{
-  var serverResponseArry = serverResponses[serverUrl];
-  var serverUrlId        = serverUrlIdLookup[serverUrl]; 
-
-  // Wait until we've heard back from all servers: wfs, wms, and wcs
-  if(!!!serverResponseArry.WMS || !!!serverResponseArry.WFS || !!!serverResponseArry.WCS) { return; } 
-
-
-  // Prioritize WMS response, if any
-  var serverName  = serverResponseArry.WMS.serverName  || serverResponseArry.WFS.serverName  || serverResponseArry.WCS.serverName;
-  var serverDescr = serverResponseArry.WMS.serverDescr || serverResponseArry.WFS.serverDescr || serverResponseArry.WCS.serverDescr;
-
-  if(serverName) {
-    $('.server-name-'  + serverUrlId).html(serverName);
-    $('.server-descr-' + serverUrlId).html(serverDescr || serverName);
-  }
-
-  if(!(serverResponseArry.WMS.success || serverResponseArry.WFS.success || serverResponseArry.WCS.success)) {    
-    // All services failed, all datasets from this server ganz kaput
-    $('.status-' + serverUrlId).html('<img class="status-indicator" src="/assets/server_responding_no.png" alt="WMS server not responding">');
-    $('.dataset-name-' + serverUrlId).text("Unknown");
-    return;
-  }
-
-
-  // At least one server succeeded, vist each dataset one-by-one
-
-  var ids = serverDatasets[serverUrl];   // List of registered datasets available on this server
-
-  for(var i = 0, recs = ids.length; i < recs; i++) {
-    var key = makeKey(serverUrl, ids[i]);
-
-    var dataset = Datasets[key];
-    if(!!!dataset) {
-      layerMissing(key);
-      return;
-    }
-
-    updateLayerInfo(serverUrl, key, dataset.title.replace(/ /g,'&nbsp;'), dataset.descr, dataset.services);
-  }
-};
-
-
 

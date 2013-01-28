@@ -8,9 +8,55 @@
 
 //= require webgis/MapInit
 
- $(document).ready(function() {
-    // $('#sortable_table').tablesorter();               // Initialize sorter
+  $(document).ready(function() {
+  // $('#sortable_table').tablesorter();               // Initialize sorter
   });
+
+
+  var registeredDatasets  = { };
+
+  // Create an association between a server and all registered datasets it hosts
+  // That is, registeredDatasets[url][identifier] = true for every registered dataset
+  //
+  <% @server_urls.each do |url| %>    <%# These could be wms, wfs, or wcs addresses %>
+
+    registeredDatasets['<%= url.gsub(/\\/, '\\\\\\') %>'] = {};
+
+    <%= @datasets.reject { |d| d.server_url != url }
+          .map{ |d| "registeredDatasets['" + url.gsub(/\\/, '\\\\\\') + "']['" + d.identifier + "'] = true;" }
+          .join(' ') %>
+  <% end %>
+
+
+  // We are only expecting a WMS response here, so we can just grab it and go without waiting for
+  // responses from other services.
+  // One server response might contain info about a whole slew of data layers, so we'll need to parse it
+  var gotServerResponse = function(serverUrl, serverResponses)
+  {
+
+    if(!!!registeredDatasets[serverUrl]) { return; }    // No registered datasets on this server!
+
+    var wms = serverResponses['WMS'];
+
+    for(var i = 0, len = wms.records.length; i < len; i++) {
+      var layer = wms.records[i];
+
+      // If the layer is registered, add it to the map
+      if(registeredDatasets[serverUrl][layer.data.name])
+        WebGIS.addNewLayer(layer.data.title, serverUrl, layer.data.name);
+    }
+  };
+
+  // We've got a new batch of datasets to display!
+  // Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
+  var renderTable = function(datasets) {
+
+    WebGIS.clearLayers(false);
+
+    for(var i = 0, len = datasets.length; i < len; i++) {
+      probeServer(datasets[i].server_url, 'WMS');
+    }
+  };
 
 
   // This gets run when user changes city dropdown
@@ -66,76 +112,6 @@
 
 
 <script type="text/javascript">
-// Generate html for Registered Datasets table row
-  // Note: status-xxx below are classes that are common to all datasets on a server
-  //       status2-xxx are classes that are common only to server-identifier pairs (i.e. duplicate datasets)
-  var renderTableRow = function(dataset) {
-
-    return '<tr><td>' +
-              '<a href=# class="dataset-name2-' + dataset.id + '">Retrieving name...</a>' + 
-           '</td></tr>';
-
-//<img src="/assets/small_question_mark.gif" class="info-icon" alt="More info" rel="#infotable-' + railsId + '">
-    // return '<tr class="layer-for-city-< %= d.city_id %> all-layers">' +  
-    //          '<td class="dataset-name-' + serverUrlIdLookup[dataset.server_url] + '">' + 
-    //            '<a href=# onclick="WebGIS.addNewLayer(\'XXX\',\'< %= d.server_url%>\',\'< %= d.identifier%>'\)" class="dataset-name2-' + railsId + '">Retrieving...</a>
-    //         
-    //       </td>
-    //     </tr>
-
-
-
-
-    // return '<tr id="dataset-id-' + dataset.id + '" onmouseover="$(this).find(\'.invisible-cell\').show();"' +
-    //                                               'onmouseout ="$(this).find(\'.invisible-cell\').hide();">' +
-    //   '<td class="dataset-name-' + serverUrlIdLookup[dataset.server_url] + '">' +
-    //     '<span class="dataset-name2-' + railsId + '">Retrieving...</span>' +
-    //     '<img src="/assets/small_question_mark.gif" class="info-icon" ' +
-    //               'alt="More info" rel="#infotable-' + railsId + '">' +
-    //   '</td>' +
-    //   '<td nowrap>' + (dataset.dataset_type == "" ? "Unknown" : dataset.dataset_type) + '</td>' +
-    //   '<td width=145><div class="status-' + serverUrlIdLookup[dataset.server_url] + 
-    //     ' status2-' + railsId + '">Probing server...  ' +
-    //     '<img src="/assets/loading_spinner.gif"></div></td>' +
-    //   '<td class="invisible-cell"><a href="/datasets/' + dataset.id + '" ' + 
-    //     'data-confirm="Are you sure you want to unregister this dataset?" data-method="delete" ' +
-    //     'data-remote="true" rel="nofollow">Unregister</a></td> ' + 
-    //   // '<td>SHOW MODULE LIST HERE??</td>' +
-    // '</tr>';
-  }
-
-
-  // We've got a new batch of datasets to display!
-  // Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
-  var renderTable = function(datasets) {
-
-    WebGIS.clearLayers(false);
-
-    $('#dataset-list').empty();    // Clear table
-
-    for(var i = 0, len = datasets.length; i < len; i++) {
-      var dataset = datasets[i];
-
-      var railsId = railsIdLookup[makeKey(dataset.server_url, dataset.identifier)];
-      $('#dataset-list').append(renderTableRow(dataset));
-
-      processUrl(dataset.server_url);
-    }
-
-    $('img[rel]').overlay();    // Set up the layer info overlays
-    $('img[rel]').click(function(){ hideDetails() });   // Close details panel on open
-
-    $('.show-details').click(function(){ showDetails(); });
-
-
-          // Make sure table is sorted
-      // var sorting = [[1,0], [0,0]]; 
-      // // sort on the first column 
-
-      // $('#sortable_table').trigger("update"); 
-      // $('#sortable_table').trigger("sorton",[sorting]); 
-  }
-
 
   $(document).bind('ajax:success', function(xhr, data, status) { 
     $('#dataset-id-' + data).hide();
@@ -174,8 +150,10 @@
   });
 </script>
 
-
 <div style="float: left; width:100%; min-height:100%; margin:2px;" id="BroadMap"><!-- Map goes here --></div>
 
 <!-- Identify window -->
 <div id="winDivIdentify"></div>
+
+
+
