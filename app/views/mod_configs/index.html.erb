@@ -12,7 +12,7 @@
 
 
   // This will be called when the GetCapabilities call to the WPS returns.  Should happen once per WPS server.
-  var onReceivedServerInfo = function(url, title, abstract, processes)
+  var onReceivedWpsServerInfo = function(url, title, abstract, processes)
   {
     var id = ServerId[url];
 
@@ -231,9 +231,9 @@
   var responses = 0;
 
   // For each WPS url in our database, start probing the server
-  // We need the results of onReceivedServerInfo to complete the Configured Modules tab
+  // We need the results of onReceivedWpsServerInfo to complete the Configured Modules tab
   // We need the results of onDescribedProcess to complete the Module Catalog tab
-  for(var i = 0; i < urls.length; i++) { WPS.probeWPS(urls[i], onReceivedServerInfo, onDescribedProcess);  }
+  for(var i = 0; i < urls.length; i++) { WPS.probeWPS(urls[i], onReceivedWpsServerInfo, onDescribedProcess);  }
 
 
   var updateConfigModTables = function() 
