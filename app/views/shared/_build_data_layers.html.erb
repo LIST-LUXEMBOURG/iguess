@@ -71,6 +71,32 @@
   }
 
 
+   discoveredLayers = { };
+
+  var foundDataset = function(dataset, service)
+  {
+    var layerKey = makeKey(dataset.server, dataset.identifier);
+
+    if(layerKey in discoveredLayers) {   // Already found this layer, add service to it
+
+      if(discoveredLayers[layerKey].type.hasObject(service)) {    // Will happen if duplicate names are used on the server
+        return;
+      }
+
+      discoveredLayers[layerKey].type.push(service);
+      if(dataset.srs !== null) {
+        discoveredLayers[layerKey].srs = dataset.srs;
+      }
+      if(dataset.bbox !== null) {
+        discoveredLayers[layerKey].bbox = dataset.bbox;
+      }
+    }
+    else {    // New layer, add it to discoveredLayers
+      discoveredLayers[layerKey] = dataset;
+    }
+  };
+
+
   // Handles results from WMS, WFS, and WCS getCapabilities calls
   function processIncomingLayers(dataProxy, count, service)
   {
@@ -99,31 +125,6 @@
     doneProcessing(serverUrl, service, serviceInfo, 'OK');
   }
 
-
-  discoveredLayers = { };
-
-  function foundDataset(dataset, service)
-  {
-    var layerKey = makeKey(dataset.server, dataset.identifier);
-
-    if(layerKey in discoveredLayers) {   // Already found this layer, add service to it
-
-      if(discoveredLayers[layerKey].type.hasObject(service)) {    // Will happen if duplicate names are used on the server
-        return;
-      }
-
-      discoveredLayers[layerKey].type.push(service);
-      if(dataset.srs !== null) {
-        discoveredLayers[layerKey].srs = dataset.srs;
-      }
-      if(dataset.bbox !== null) {
-        discoveredLayers[layerKey].bbox = dataset.bbox;
-      }
-    }
-    else {    // New layer, add it to discoveredLayers
-      discoveredLayers[layerKey] = dataset;
-    }
-  }
 
 
   var onWmsGetCapabilitiesFailed = function() {  
