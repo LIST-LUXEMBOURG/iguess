@@ -113,6 +113,28 @@
   }
 
 
+  // Create a structure of registered datasets organized by identifier -- this will make retrieval below much more efficient
+  registeredDataLayersById = {};
+
+  <%= @datasets.reject{ |d| d.finalized == false }
+               .map{ |d| d.dataset_type }
+               .uniq
+               .map{ |d| "registeredDataLayersById['" + d + "'] = [];\n" }
+               .join(' ') %>
+                         
+
+  <%= @datasets.reject{ |d| d.finalized == false }.
+                map{ |d| "registeredDataLayersById['" + d.dataset_type + "'].push({" +
+                            "identifier:'" + d.dataset_type + "'," +
+                            "rubyId:"      + d.id.to_s()    + ","  +
+                            "configCount:" + d.mod_configs.count.to_s() + "," +
+                            "layerKey:       makeKey('" + d.server_url + "','" + d.identifier + "')" + 
+                          "});\n"
+                    }.
+                join(' ') %>
+
+
+
   // mode will be "input" or "output"
   function createDatasetSelectionControl(parameterIdentifier, mode)
   {
@@ -120,18 +142,18 @@
     ctrl.attr('name', 'datasets[' + parameterIdentifier + ']');
     ctrl.attr('id', parameterIdentifier + mode);
 
-    for(var layerKey in registeredDataLayers) {
-      if(registeredDataLayers[layerKey].identifier == parameterIdentifier) {
-        var title = "Unknown Title";  
+    for(var i = 0, len = registeredDataLayersById[parameterIdentifier].length; i < len; i++) {
+      layerKey = registeredDataLayersById[parameterIdentifier][i].layerKey;
 
-        if(discoveredLayers[layerKey] != undefined) {
-          title = discoveredLayers[layerKey].title;
-        }
+      var title = "Unknown Title";  
 
-        // Here we create our dropdown of possible datasets.  All datasets presented have already been registered with the server.
-        // Note that the value here will be the id of this layer as stored in the database on the server.
-        ctrl.append('<option value="' + registeredDataLayers[layerKey].rubyId + '">' + title + '</option>');
+      if(discoveredLayers[layerKey]) {
+        title = discoveredLayers[layerKey].title;
       }
+
+      // Here we create our dropdown of possible datasets.  All datasets presented have already been registered with the server.
+      // Note that the value here will be the id of this layer as stored in the database on the server.
+      ctrl.append('<option value="' + registeredDataLayersById[parameterIdentifier][i].rubyId + '">' + title + '</option>');
     }
 
     return ctrl;
