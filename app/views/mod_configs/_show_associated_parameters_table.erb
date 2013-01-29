@@ -114,14 +114,14 @@
 
 
   // mode will be "input" or "output"
-  function createDatasetSelectionControl(identifier, mode)
+  function createDatasetSelectionControl(parameterIdentifier, mode)
   {
     var ctrl = $(document.createElement('select'));
-    ctrl.attr('name', 'datasets[' + identifier + ']');
-    ctrl.attr('id', identifier + mode);
+    ctrl.attr('name', 'datasets[' + parameterIdentifier + ']');
+    ctrl.attr('id', parameterIdentifier + mode);
 
     for(var layerKey in registeredDataLayers) {
-      if(registeredDataLayers[layerKey].identifier == identifier) {
+      if(registeredDataLayers[layerKey].identifier == parameterIdentifier) {
         var title = "Unknown Title";  
 
         if(discoveredLayers[layerKey] != undefined) {
