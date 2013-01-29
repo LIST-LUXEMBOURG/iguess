@@ -113,7 +113,6 @@
   }
 
 
-  // DiscoveredLayers comes from the /shared/_build_data_layers partial
   // mode will be "input" or "output"
   function createDatasetSelectionControl(identifier, mode)
   {
@@ -123,7 +122,7 @@
 
     for(var layerKey in registeredDataLayers) {
       if(registeredDataLayers[layerKey].identifier == identifier) {
-        var title = "DSM Data"; //"Unknown Title";  // {P{P <== undo when WCS is working
+        var title = "Unknown Title";  
 
         if(discoveredLayers[layerKey] != undefined) {
           title = discoveredLayers[layerKey].title;
