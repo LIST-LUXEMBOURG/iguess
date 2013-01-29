@@ -5,20 +5,12 @@
 <script type="text/javascript">
   registeredDataLayers = { };
 
-  makeRegisteredLayer = function(identifier, rubyId, configCount) {
-    var o = new Object;
-    o.identifier = identifier;
-    o.rubyId = rubyId;
-    o.configCount = configCount;
-
-    return o;
-  };
-
   <%= @datasets.reject{ |d| d.finalized == false }.
-                map{ |d| "registeredDataLayers[makeKey('" + d.server_url + "','" + d.identifier + "')] = " +
-                            "makeRegisteredLayer('" + d.dataset_type + "','" +
-                                                      d.id.to_s() + "','" +
-                                                      d.mod_configs.count.to_s() + "');\n"
+                map{ |d| "registeredDataLayers[makeKey('" + d.server_url + "','" + d.identifier + "')] = {" +
+                            "identifier:'" + d.dataset_type + "'," +
+                            "id:"          + d.id.to_s()    + ","  +
+                            "configCount:" + d.mod_configs.count.to_s() + 
+                          "};\n"
                     }.
                 join(' ') %>
 
