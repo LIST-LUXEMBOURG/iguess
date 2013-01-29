@@ -19,28 +19,4 @@
                                         .map   {|d| "'" + d.server_url.gsub('\\') { '\\\\' } + "'"}
                                         .join(',') %>];
 
-
-
-  // Another struct, only used by Module Configuration screen at the moment... move there if no one else is interested
-
-  registeredDataLayersById = {};
-
-  <%= @datasets.reject{ |d| d.finalized == false }
-               .map{ |d| d.dataset_type }
-               .uniq
-               .map{ |d| "registeredDataLayersById['" + d + "'] = [];\n" }
-               .join(' ') %>
-                         
-
-  <%= @datasets.reject{ |d| d.finalized == false }.
-                map{ |d| "registeredDataLayersById['" + d.dataset_type + "'].push({" +
-                            "identifier:'" + d.dataset_type + "'," +
-                            "rubyId:"      + d.id.to_s()    + ","  +
-                            "configCount:" + d.mod_configs.count.to_s() + "," +
-                            "layerKey:       makeKey('" + d.server_url + "','" + d.identifier + "')" + 
-                          "});\n"
-                    }.
-                join(' ') %>
-
-
 </script>
