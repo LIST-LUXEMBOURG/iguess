@@ -3,9 +3,6 @@
 
 <script type="text/javascript">
 
-  discoveredLayers = { };
-
-
   var getWmsLayers = function(registeredDataServers)
   {
     var serverCount = registeredDataServers.length;
@@ -102,6 +99,8 @@
     doneProcessing(serverUrl, service, serviceInfo, 'OK');
   }
 
+
+  discoveredLayers = { };
 
   function foundDataset(dataset, service)
   {
