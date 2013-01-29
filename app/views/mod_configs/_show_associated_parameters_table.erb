@@ -127,6 +127,8 @@
 
 
   // mode will be "input" or "output"
+  // We may get here before discoveredLayers is populated.  In which case, we'll assign a class id, and update the entry
+  // as further items arrive.  In other contexts, discoveredLayers may already be fully populated.
   function createDatasetSelectionControl(parameterIdentifier, mode)
   {
     var ctrl = $(document.createElement('select'));
@@ -144,7 +146,9 @@
 
       // Here we create our dropdown of possible datasets.  All datasets presented have already been registered with the server.
       // Note that the value here will be the id of this layer as stored in the database on the server.
-      ctrl.append('<option value="' + registeredDataLayersById[parameterIdentifier][i].rubyId + '">' + title + '</option>');
+      var id = registeredDataLayersById[parameterIdentifier][i].rubyId;
+
+      ctrl.append('<option class="dataset-title-' + id + '" value="' + id + '">' + title + '</option>');
     }
 
     return ctrl;
