@@ -18,5 +18,4 @@
                                         .uniq  {|d| d.server_url}
                                         .map   {|d| "'" + d.server_url.gsub('\\') { '\\\\' } + "'"}
                                         .join(',') %>];
-
 </script>
