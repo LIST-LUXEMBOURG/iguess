@@ -1,5 +1,61 @@
 <script type="text/javascript">
 
+
+
+  // Create a structure of registered datasets organized by identifier -- this will make retrieval below much more efficient
+  registeredDataLayersById = {};
+
+  <%= @datasets.reject{ |d| d.finalized == false }
+               .map{ |d| d.dataset_type }
+               .uniq
+               .map{ |d| "registeredDataLayersById['" + d + "'] = [];\n" }
+               .join(' ') %>
+                         
+
+  <%= @datasets.reject{ |d| d.finalized == false }.
+                map{ |d| "registeredDataLayersById['" + d.dataset_type + "'].push({" +
+                            "identifier:'" + d.identifier + "'," +
+                            "layerKey:       makeKey('" + d.server_url + "','" + d.identifier + "')," + 
+                            "serverUrl:'"  + d.server_url + "'" +
+                          "});\n"
+                    }.
+                join(' ') %>
+
+
+  // mode will be "input" or "output"
+  // We may get here before discoveredLayers is populated.  In which case, we'll assign a class id, and update the entry
+  // as further items arrive.  In other contexts, discoveredLayers may already be fully populated.
+  var createDatasetSelectionControl = function(parameterIdentifier, mode)
+  {
+    var ctrl = $(document.createElement('select'));
+    ctrl.attr('name', 'datasets[' + parameterIdentifier + ']');
+    ctrl.attr('id', parameterIdentifier + mode);
+
+    for(var i = 0, len = registeredDataLayersById[parameterIdentifier].length; i < len; i++) {
+      layerKey = registeredDataLayersById[parameterIdentifier][i].layerKey;
+
+      var title = "Unknown Title";  
+
+      // If we already know the title of this one, insert it now
+      if(discoveredLayers[layerKey]) {
+        title = discoveredLayers[layerKey].title;
+      } 
+
+      // Here we create our dropdown of possible datasets.  All datasets presented have already been registered with the server.
+      // Note that the value here will be the id of this layer as stored in the database on the server.
+      var serverUrl         = registeredDataLayersById[parameterIdentifier][i].serverUrl;
+      var datasetIdentifier = registeredDataLayersById[parameterIdentifier][i].identifier;
+      var id                = registeredDatasets[serverUrl][datasetIdentifier];
+
+      if(id) {
+        ctrl.append('<option class="dataset-title-' + id + '" value="' + id + '">' + title + '</option>');
+      }
+    }
+
+    return ctrl;
+  };
+
+
   var anyDatasetsMissing = false;
 
   <%# Creates fn called populateInputTable or populateOutputTable %>
@@ -28,7 +84,6 @@
                       '<% if mode == :input %><th>Selected Dataset or Value</th><% else %><th>Output Dataset Identifier</th><% end %></tr>';
 
       table.append(headerRow);
-
 
 
       for(var i = 0; i < itemCount; i++)
@@ -100,60 +155,6 @@
         table.append(row);
       }
     }
-  }
-
-
-  // Create a structure of registered datasets organized by identifier -- this will make retrieval below much more efficient
-  registeredDataLayersById = {};
-
-  <%= @datasets.reject{ |d| d.finalized == false }
-               .map{ |d| d.dataset_type }
-               .uniq
-               .map{ |d| "registeredDataLayersById['" + d + "'] = [];\n" }
-               .join(' ') %>
-                         
-
-  <%= @datasets.reject{ |d| d.finalized == false }.
-                map{ |d| "registeredDataLayersById['" + d.dataset_type + "'].push({" +
-                            "identifier:'" + d.identifier + "'," +
-                            "layerKey:       makeKey('" + d.server_url + "','" + d.identifier + "')," + 
-                            "serverUrl:'"  + d.server_url + "'" +
-                          "});\n"
-                    }.
-                join(' ') %>
-
-
-  // mode will be "input" or "output"
-  // We may get here before discoveredLayers is populated.  In which case, we'll assign a class id, and update the entry
-  // as further items arrive.  In other contexts, discoveredLayers may already be fully populated.
-  function createDatasetSelectionControl(parameterIdentifier, mode)
-  {
-    var ctrl = $(document.createElement('select'));
-    ctrl.attr('name', 'datasets[' + parameterIdentifier + ']');
-    ctrl.attr('id', parameterIdentifier + mode);
-
-    for(var i = 0, len = registeredDataLayersById[parameterIdentifier].length; i < len; i++) {
-      layerKey = registeredDataLayersById[parameterIdentifier][i].layerKey;
-
-      var title = "Unknown Title";  
-
-      // If we already know the title of this one, insert it now
-      if(discoveredLayers[layerKey]) {
-        title = discoveredLayers[layerKey].title;
-      } 
-
-      // Here we create our dropdown of possible datasets.  All datasets presented have already been registered with the server.
-      // Note that the value here will be the id of this layer as stored in the database on the server.
-      var serverUrl         = registeredDataLayersById[parameterIdentifier][i].serverUrl;
-      var datasetIdentifier = registeredDataLayersById[parameterIdentifier][i].identifier;
-      var id                = registeredDatasets[serverUrl][datasetIdentifier];
-
-      if(id) {
-        ctrl.append('<option class="dataset-title-' + id + '" value="' + id + '">' + title + '</option>');
-      }
-    }
-
-    return ctrl;
   }
 
  </script>
