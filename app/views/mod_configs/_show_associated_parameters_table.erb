@@ -117,7 +117,6 @@
                 map{ |d| "registeredDataLayersById['" + d.dataset_type + "'].push({" +
                             "identifier:'" + d.identifier + "'," +
                             "rubyId:"      + d.id.to_s()    + ","  +
-                            "configCount:" + d.mod_configs.count.to_s() + "," +
                             "layerKey:       makeKey('" + d.server_url + "','" + d.identifier + "')," + 
                             "serverUrl:'"  + d.server_url + "'" +
                           "});\n"
