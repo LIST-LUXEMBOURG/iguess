@@ -6,7 +6,7 @@
   registeredDataLayers = {};
 
   <%= @datasets.reject{ |d| d.finalized == false }.
-                map{ |d| "registeredDataLayers[makeKey('" + d.server_url + "','" + d.identifier + "')] = {" +
+                map{ |d| "registeredDataLayers[makeKey('" + d.server_url.gsub('\\') { '\\\\' } + "','" + d.identifier + "')] = {" +
                             "identifier:'" + d.dataset_type + "'," +
                             "id:"          + d.id.to_s()    + ","  +
                             "configCount:" + d.mod_configs.count.to_s() + 
@@ -17,7 +17,7 @@
 
   registeredDataServers = [<%= @datasets.reject{|d| d.dataset_type == "Mapping Only"}
                                         .uniq  {|d| d.server_url}
-                                        .map   {|d| "'" + d.server_url.gsub('\\') { '\\\\' } + "'"}
+                                        .map   {|d| "'" + d.server_url.gsub('\\') { '\\\\\\' } + "'"}
                                         .join(',') %>];
 
   var registeredDatasets  = { };

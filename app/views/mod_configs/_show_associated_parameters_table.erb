@@ -15,8 +15,8 @@
   <%= @datasets.reject{ |d| d.finalized == false }.
                 map{ |d| "registeredDataLayersById['" + d.dataset_type + "'].push({" +
                             "identifier:'" + d.identifier + "'," +
-                            "layerKey:       makeKey('" + d.server_url + "','" + d.identifier + "')," + 
-                            "serverUrl:'"  + d.server_url + "'" +
+                            "layerKey:       makeKey('" + d.server_url.gsub('\\') { '\\\\' } + "','" + d.identifier + "')," + 
+                            "serverUrl:'"  + d.server_url.gsub('\\') { '\\\\' } + "'" +
                           "});\n"
                     }.
                 join(' ') %>

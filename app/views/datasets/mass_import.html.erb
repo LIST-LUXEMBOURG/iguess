@@ -509,7 +509,7 @@
       onWmsGetCapabilitiesSucceeded(dataProxy, records);
     };
 
-    this.onWcsGetCapabilitiesSucceeded = function(dataProxy, records, options) 
+    var onWcsGetCapabilitiesSucceeded = function(dataProxy, records, options) 
     { 
       self.onGetCapabilitiesSucceeded();
       self.WcsSucceeded = true;

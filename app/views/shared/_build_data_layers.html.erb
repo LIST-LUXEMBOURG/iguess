@@ -3,6 +3,62 @@
 
 <script type="text/javascript">
 
+// Callback for WMS get capabilities success
+  var onWmsGetCapabilitiesSucceeded = function(dataProxy, records)
+  {
+    processIncomingLayers(dataProxy, records.length, 'WMS');
+  };
+
+
+  // Callback for WFS get capabilities success
+  var onWfsGetCapabilitiesSucceeded = function(dataProxy, records)
+  {
+    processIncomingLayers(dataProxy, records.length, 'WFS');
+  };
+
+
+ // Callback for WCS get capabilities success
+  var onWcsGetCapabilitiesSucceeded = function(dataProxy, records)
+  {
+    processIncomingLayers(dataProxy, records.length, 'WCS');
+  };
+
+  var onWmsGetCapabilitiesFailed = function() {  
+    console.log("WMS GetCapabilities failed");
+    console.log(arguments);
+
+    $('#layer-display').html('<div class="form_error_message">Error: Either this is an invalid address, or the WMS server is not responding.</div>');
+
+    $('#layer_name_error_message').text("Error: Layer could not be retrieved from the server");
+    $('#dataset_layer_name').html('<option>No layer names available</option>');
+
+    $('#submit_error_message').text("Cannot submit form until all errors are corrected");
+    $('#dataset_layer_name').prop('disabled', true);
+    $('#submit_form_button').prop('disabled', true);
+
+    $('#layers_loading_indicator').hide();
+    // $('#refresh_layers_button').attr('disabled', false);
+    doneProcessing('???', 'WMS', null, 'ERROR');
+  };
+
+
+  var onWfsGetCapabilitiesFailed = function() {   
+    console.log("WFS GetCapabilities failed");
+    console.log(arguments);
+    showPreErrorMessage(i);
+
+    doneProcessing('???', 'WFS', null, 'ERROR');
+  };
+
+  var onWcsGetCapabilitiesFailed = function() {   
+    console.log("WCS GetCapabilities failed");
+    console.log(arguments);
+    showPreErrorMessage(i);
+
+    doneProcessing('???', 'WCS', null, 'ERROR');
+  };
+
+
   var getWmsLayers = function(registeredDataServers)
   {
     var serverCount = registeredDataServers.length;
@@ -33,30 +89,8 @@
   }
 
 
-  // Callback for WMS get capabilities success
-  var onWmsGetCapabilitiesSucceeded = function(dataProxy, records)
-  {
-    processIncomingLayers(dataProxy, records.length, 'WMS');
-  }
-
-
-  // Callback for WFS get capabilities success
-  var onWfsGetCapabilitiesSucceeded = function(dataProxy, records)
-  {
-    processIncomingLayers(dataProxy, records.length, 'WFS');
-  }
-
-
- // Callback for WCS get capabilities success
-  var onWcsGetCapabilitiesSucceeded = function(dataProxy, records)
-  {
-    processIncomingLayers(dataProxy, records.length, 'WCS');
-  }
-
-
-
   // Basic dataset object -- this is what we track for datasets seen on remote server
-  function Dataset(server, record, type) {
+  var Dataset = function(server, record, type) {
     this.server     = server;
     this.identifier = record.get("name") || record.id;
     this.title      = record.get("title") || record.get("name");
@@ -100,7 +134,7 @@
 
 
   // Handles results from WMS, WFS, and WCS getCapabilities calls
-  function processIncomingLayers(dataProxy, count, service)
+  var processIncomingLayers = function(dataProxy, count, service)
   {
     var serverUrl;
 
@@ -125,36 +159,6 @@
 
     var serviceInfo = (dataProxy.reader && dataProxy.reader.raw && dataProxy.reader.raw.service) || null;
     doneProcessing(serverUrl, service, serviceInfo, 'OK');
-  }
-
-
-
-  var onWmsGetCapabilitiesFailed = function() {  
-    console.log("WMS GetCapabilities failed");
-    console.log(arguments);
-
-    $('#layer-display').html('<div class="form_error_message">Error: Either this is an invalid address, or the WMS server is not responding.</div>');
-
-    $('#layer_name_error_message').text("Error: Layer could not be retrieved from the server");
-    $('#dataset_layer_name').html('<option>No layer names available</option>');
-
-    $('#submit_error_message').text("Cannot submit form until all errors are corrected");
-    $('#dataset_layer_name').prop('disabled', true);
-    $('#submit_form_button').prop('disabled', true);
-
-    $('#layers_loading_indicator').hide();
-    // $('#refresh_layers_button').attr('disabled', false);
-    doneProcessing('???', 'WMS', null, 'ERROR');
-  }
-
-
-  var onWfsGetCapabilitiesFailed = function() {   
-    console.log("WFS GetCapabilities failed");
-    console.log(arguments);
-    showPreErrorMessage(i);
-
-
-    doneProcessing('???', 'WFS', null, 'ERROR');
-  }
+  };
 
 </script>
