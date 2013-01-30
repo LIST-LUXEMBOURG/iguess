@@ -116,7 +116,6 @@
   <%= @datasets.reject{ |d| d.finalized == false }.
                 map{ |d| "registeredDataLayersById['" + d.dataset_type + "'].push({" +
                             "identifier:'" + d.identifier + "'," +
-                            "rubyId:"      + d.id.to_s()    + ","  +
                             "layerKey:       makeKey('" + d.server_url + "','" + d.identifier + "')," + 
                             "serverUrl:'"  + d.server_url + "'" +
                           "});\n"
@@ -147,12 +146,10 @@
       // Note that the value here will be the id of this layer as stored in the database on the server.
       var serverUrl         = registeredDataLayersById[parameterIdentifier][i].serverUrl;
       var datasetIdentifier = registeredDataLayersById[parameterIdentifier][i].identifier;
-      var rubyId            = registeredDataLayersById[parameterIdentifier][i].rubyId;
-
       var id                = registeredDatasets[serverUrl][datasetIdentifier];
 
       if(id) {
-        ctrl.append('<option class="dataset-title-' + id + '" value="' + rubyId + '">' + title + '</option>');
+        ctrl.append('<option class="dataset-title-' + id + '" value="' + id + '">' + title + '</option>');
       }
     }
 
