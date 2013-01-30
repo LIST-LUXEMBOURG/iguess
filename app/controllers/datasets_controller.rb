@@ -12,7 +12,7 @@ class DatasetsController < ApplicationController
     @wps_servers = WpsServer.all
 
     # Find all unique server urls in @datasets, ignoring any blank entries
-    @server_urls = @datasets.map{|d| d.server_url}.uniq
+    @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @datasets }

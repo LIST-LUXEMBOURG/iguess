@@ -24,6 +24,7 @@ class ModConfigsController < ApplicationController
     @datasets = Dataset.find_all_by_city_id(@current_city.id)
     @dataset_inputs = ConfigDataset.find_all_by_mod_config_id(params[:id])
     @text_inputs = ConfigTextInput.find_all_by_mod_config_id(@mod_config)
+    @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
 
     respond_to do |format|
       format.html # show.html.erb

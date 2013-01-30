@@ -14,8 +14,25 @@
                     }.
                 join(' ') %>
 
+
   registeredDataServers = [<%= @datasets.reject{|d| d.dataset_type == "Mapping Only"}
                                         .uniq  {|d| d.server_url}
                                         .map   {|d| "'" + d.server_url.gsub('\\') { '\\\\' } + "'"}
                                         .join(',') %>];
+
+  var registeredDatasets  = { };
+
+  var id = 1;
+
+  // Create an association between a server and all registered datasets it hosts
+  // That is, registeredDatasets[url][identifier] = someUniqueId for every registered dataset
+  <% @dataserver_urls.each do |url| %>    <%# These could be wms, wfs, or wcs addresses %>
+
+    registeredDatasets['<%= url.gsub(/\\/, '\\\\\\') %>'] = {};
+
+    <%= @datasets.reject { |d| d.server_url != url }
+          .map{ |d| "registeredDatasets['" + url.gsub(/\\/, '\\\\\\') + "']['" + d.identifier + "'] = id; id++;" }
+          .join(' ') %>
+  <% end %>   
+                                       
 </script>

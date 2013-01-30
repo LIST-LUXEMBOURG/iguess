@@ -127,7 +127,7 @@
   //  registeredDatasetLists['http://montreuil.dynmap.com/carte_pour_iguess/carteWS.php'] = ['_IRIS99_montreuil_cc49', 'Bati_remarquable',
   //     '_domaine_non_cadastre_2011', 'Cimetiere_line', '_domaine_non_cadastr__2011_CC49', '_IRIS99_montreuil_cc49_line'];
   //
-  <% @server_urls.each do |url| %>    <%# These could be wms, wfs, or wcs addresses %>
+  <% @dataserver_urls.each do |url| %>    <%# These could be wms, wfs, or wcs addresses %>
     registeredDatasetLists['<%= url.gsub(/\\/, '\\\\\\') %>'] = [<%= @datasets.reject {|d| d.server_url != url}
                                                                     .map{|d| "'" + d.identifier + "'"}
                                                                     .join(', ') %>];

@@ -1,3 +1,4 @@
+<%= render :partial => '/shared/build_registered_layers.html.erb' %>  <%# Builds registeredDataLayers structure %>
 
 <script type="text/javascript">
 
@@ -116,14 +117,14 @@
 
   <%= @datasets.reject{ |d| d.finalized == false }.
                 map{ |d| "registeredDataLayersById['" + d.dataset_type + "'].push({" +
-                            "identifier:'" + d.dataset_type + "'," +
+                            "identifier:'" + d.identifier + "'," +
                             "rubyId:"      + d.id.to_s()    + ","  +
                             "configCount:" + d.mod_configs.count.to_s() + "," +
-                            "layerKey:       makeKey('" + d.server_url + "','" + d.identifier + "')" + 
+                            "layerKey:       makeKey('" + d.server_url + "','" + d.identifier + "')," + 
+                            "serverUrl:'"  + d.server_url + "'" +
                           "});\n"
                     }.
                 join(' ') %>
-
 
 
   // mode will be "input" or "output"
@@ -140,15 +141,20 @@
 
       var title = "Unknown Title";  
 
+      // If we already know the title of this one, insert it now
       if(discoveredLayers[layerKey]) {
         title = discoveredLayers[layerKey].title;
       } 
 
       // Here we create our dropdown of possible datasets.  All datasets presented have already been registered with the server.
       // Note that the value here will be the id of this layer as stored in the database on the server.
-      var id = registeredDataLayersById[parameterIdentifier][i].rubyId;
+      var serverUrl = registeredDataLayersById[parameterIdentifier][i].serverUrl;
+      var datasetIdentifier = registeredDataLayersById[parameterIdentifier][i].identifier;
+      var id = registeredDatasets[serverUrl][datasetIdentifier];
 
-      ctrl.append('<option class="dataset-title-' + id + '" value="' + id + '">' + title + '</option>');
+      if(id) {
+        ctrl.append('<option class="dataset-title-' + id + '" value="' + id + '">' + title + '</option>');
+      }
     }
 
     return ctrl;

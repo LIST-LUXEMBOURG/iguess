@@ -24,7 +24,7 @@ class MapsController < ApplicationController
     @current_city = (City.find_by_name(cookies['city']) or City.first)
 
     @datasets = Dataset.all
-    @server_urls = @datasets.map{|d| d.server_url}.uniq
+    @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
 
     @configs = ModConfig.all
     

@@ -13,21 +13,6 @@
   });
 
 
-  var registeredDatasets  = { };
-
-  // Create an association between a server and all registered datasets it hosts
-  // That is, registeredDatasets[url][identifier] = true for every registered dataset
-  //
-  <% @server_urls.each do |url| %>    <%# These could be wms, wfs, or wcs addresses %>
-
-    registeredDatasets['<%= url.gsub(/\\/, '\\\\\\') %>'] = {};
-
-    <%= @datasets.reject { |d| d.server_url != url }
-          .map{ |d| "registeredDatasets['" + url.gsub(/\\/, '\\\\\\') + "']['" + d.identifier + "'] = true;" }
-          .join(' ') %>
-  <% end %>
-
-
   // We are only expecting a WMS response here, so we can just grab it and go without waiting for
   // responses from other services.
   // One server response might contain info about a whole slew of data layers, so we'll need to parse it

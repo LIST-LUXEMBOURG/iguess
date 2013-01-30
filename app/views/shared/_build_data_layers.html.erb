@@ -71,7 +71,7 @@
   }
 
 
-  discoveredLayers = { };
+  discoveredLayers = {};
 
   var foundDataset = function(dataset, service)
   {
@@ -94,6 +94,8 @@
     else {    // New layer, add it to discoveredLayers
       discoveredLayers[layerKey] = dataset;
     }
+
+    $(".dataset-title-" + registeredDatasets[dataset.server][dataset.identifier]).text(dataset.title);
   };
 
 
