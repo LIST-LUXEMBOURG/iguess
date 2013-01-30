@@ -146,12 +146,14 @@
 
       // Here we create our dropdown of possible datasets.  All datasets presented have already been registered with the server.
       // Note that the value here will be the id of this layer as stored in the database on the server.
-      var serverUrl = registeredDataLayersById[parameterIdentifier][i].serverUrl;
+      var serverUrl         = registeredDataLayersById[parameterIdentifier][i].serverUrl;
       var datasetIdentifier = registeredDataLayersById[parameterIdentifier][i].identifier;
-      var id = registeredDatasets[serverUrl][datasetIdentifier];
+      var rubyId            = registeredDataLayersById[parameterIdentifier][i].rubyId;
+
+      var id                = registeredDatasets[serverUrl][datasetIdentifier];
 
       if(id) {
-        ctrl.append('<option class="dataset-title-' + id + '" value="' + id + '">' + title + '</option>');
+        ctrl.append('<option class="dataset-title-' + id + '" value="' + rubyId + '">' + title + '</option>');
       }
     }
 
