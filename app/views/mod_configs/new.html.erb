@@ -54,8 +54,8 @@
     populateInputTable (Procs[$('#processControl').val()].inputs);
     populateOutputTable(Procs[$('#processControl').val()].outputs);
 
-    var identifier = Procs[$('#processControl').val()].identifier;
-    var wrappedUrl  = Procs[$('#processControl').val()].serverUrl;
+    var identifier   = Procs[$('#processControl').val()].identifier;
+    var wrappedUrl   = Procs[$('#processControl').val()].serverUrl;
     var unwrappedUrl = WPS.unwrapProcServer(wrappedUrl, identifier);
 
     $("#wps_server_url").val(unwrappedUrl);
