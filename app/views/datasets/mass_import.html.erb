@@ -186,9 +186,9 @@
     // This puts registered items at the top of the screen.
     for(var pass = 0; pass < 2; pass++)
     {
-      for(var layerKey in discoveredLayers)
+      for(var datasetId in discoveredLayers)
       {
-        var layer = discoveredLayers[layerKey];
+        var layer = discoveredLayers[datasetId];
 
         // Skip layers that the user has filtered out with the service radio buttons
         if(!showWfs() && !layer.type.hasObject('WMS')) { continue; }
@@ -200,7 +200,7 @@
           visibleLayers += 1;
         }
 
-        var registered = layerKey in registeredDataLayers;
+        var registered = (datasetId in registeredDataLayers);
 
         if((pass == 0 && !registered) || (pass == 1 && registered)) { continue; }
 
@@ -251,8 +251,8 @@
             }
           }
 
-          if(registeredDataLayers[layerKey] != undefined) {
-            dataTypeControl.val(registeredDataLayers[layerKey].identifier);    // Make selected item selected
+          if(registeredDataLayers[datasetId] != undefined) {
+            dataTypeControl.val(registeredDataLayers[datasetId].identifier);    // Make selected item selected
           }
         }
 
@@ -286,8 +286,8 @@
         servicesAvailNode.attr({ class:'dataset_services_available' });
         servicesAvailNode.text("Services: " + layer.type.join(', ') );
 
-        if(registeredDataLayers[layerKey] != undefined) {
-          servicesAvailNode.append('<br>Used in ' + registeredDataLayers[layerKey].configCount + ' configurations');
+        if(registeredDataLayers[datasetId] != undefined) {
+          servicesAvailNode.append('<br>Used in ' + registeredDataLayers[datasetId].configCount + ' configurations');
         }
 
         var abstractNode = "";

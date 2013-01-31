@@ -109,24 +109,24 @@
 
   var foundDataset = function(dataset, service)
   {
-    var layerKey = makeKey(dataset.server, dataset.identifier);
+    var layerId = registeredDatasets[dataset.server][dataset.identifier];
 
-    if(layerKey in discoveredLayers) {   // Already found this layer, add service to it
+    if(layerId in discoveredLayers) {   // Already found this layer, add service to it
 
-      if(discoveredLayers[layerKey].type.hasObject(service)) {    // Will happen if duplicate names are used on the server
+      if(discoveredLayers[layerId].type.hasObject(service)) {    // Will happen if duplicate names are used on the server
         return;
       }
 
-      discoveredLayers[layerKey].type.push(service);
+      discoveredLayers[layerId].type.push(service);
       if(dataset.srs !== null) {
-        discoveredLayers[layerKey].srs = dataset.srs;
+        discoveredLayers[layerId].srs = dataset.srs;
       }
       if(dataset.bbox !== null) {
-        discoveredLayers[layerKey].bbox = dataset.bbox;
+        discoveredLayers[layerId].bbox = dataset.bbox;
       }
     }
     else {    // New layer, add it to discoveredLayers
-      discoveredLayers[layerKey] = dataset;
+      discoveredLayers[layerId] = dataset;
     }
 
     $(".dataset-title-" + registeredDatasets[dataset.server][dataset.identifier]).text(dataset.title);
