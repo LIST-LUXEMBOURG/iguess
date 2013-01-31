@@ -37,9 +37,9 @@
   // User changes the value of one of the dataType dropdowns
   function onDataTypeChanged(id)
   {
-    var layerName = getLayerNameFromDataTypeId(id);
+    var layerIdentifier = getLayerNameFromDataTypeId(id);
     var server = getServerUrl();
-    var layerKey = makeKey(server, layerName);
+    var layerKey = makeKey(server, layerIdentifier);
 
     // Let the server know the dataType has changed
 		var dataTypeControl = document.getElementById(id);
@@ -47,15 +47,15 @@
 		$.ajax({
 			type: 'PUT',      // PUT combined with url below triggers "update" action on controller
 			url:  '<%= url_for(:controller => 'datasets', :action => 'update_data_type') %>',
-			data: 'dataset[identifier]='    + layerName +
+			data: 'dataset[identifier]='    + layerIdentifier +
 			      '&dataset[server_url]='   + server    +
 			      '&dataset[dataset_type]=' + dataTypeControl.value,
 			headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
 			success: function(data) {  }
 	  });
 
-    var rubyId = registeredDataLayers[layerKey].rubyId;
-	  registeredDataLayers[layerKey] = makeRegisteredLayer(dataTypeControl.value, rubyId, 0);
+    var datasetId = registeredDatasets[server, layerIdentifier];
+	  registeredDataLayers[layerKey] = makeRegisteredLayer(dataTypeControl.value, datasetId, 0);
   }
 
 
