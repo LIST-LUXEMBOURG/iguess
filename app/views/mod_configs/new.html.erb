@@ -26,7 +26,7 @@
     var serverUrl = process.wps.executeUrlGet;
     var key = makeKey(serverUrl, process.identifier);   // This will uniquely describe this service
 
-    Procs[key]            = new Object;
+    Procs[key] = {};
     Procs[key].identifier = process.identifier;
     Procs[key].title      = process.title || process.identifier;
     Procs[key].descr      = process.abstract;
