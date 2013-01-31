@@ -30,17 +30,6 @@ populateSelectBox = function(control, options) {
 }
 
 
-// Combine server and other identifier to create a unique key
-makeKey = function(server, identifier)
-{
-  try{
-    // Strip out any special chars because these confuse things parsing the DOM!
-    // Replace with nothing because sometimes things get here with the backslashes already munged out
-    return (server.replace(/[\\\/:\.]/g, '') + '---' + identifier.replace(/[\\\/:\.]/g, ''));
-  } catch(e) { debugger; }
-}
-
-
 // See http://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery
 String.prototype.makeHash = function(){
     var hash = 0;

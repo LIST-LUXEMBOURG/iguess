@@ -24,7 +24,7 @@
   var onDescribedProcess = function(process)
   {
     var serverUrl = process.wps.executeUrlGet;
-    var key = makeKey(serverUrl, process.identifier);   // This will uniquely describe this service
+    var key = serverUrl + '---' + process.identifier;    // This will uniquely describe this service
 
     Procs[key] = {
       identifier: process.identifier,
