@@ -121,15 +121,10 @@
 
             cell.html(control);
 
-            if(datasetValues != undefined)  {
-              var selectedVal = datasetValues[item.identifier];
-              if(selectedVal != undefined)  {
-                control.val(selectedVal);
-              }
-              else {
-                control.val(-1);
-              }
-            }
+            if(datasetValues && datasetValues[item.identifier])
+              control.val(datasetValues[item.identifier]);
+            else 
+              control.val(-1);
           }
         }
         else if('<%= mode %>' == 'output' && items[i].type != "complex") {    // No input required, just display of value
