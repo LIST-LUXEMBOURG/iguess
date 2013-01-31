@@ -15,6 +15,7 @@
                 join(' ') %>
 
 
+  // A list of servers that have registered WFS and WCS data
   registeredDataServers = [<%= @datasets.reject{|d| d.dataset_type == "Mapping Only"}
                                         .uniq  {|d| d.server_url}
                                         .map   {|d| "'" + d.server_url.gsub('\\') { '\\\\\\' } + "'"}
