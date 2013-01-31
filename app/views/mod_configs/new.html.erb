@@ -19,21 +19,20 @@
   var serverProcessingComplete  = false;  // True when we have all the dataset info we expect
   var processProcessingComplete = false;  // True when we have all the process info we expect
 
-  var Procs = {};
+  var Procs = [];
 
   var onDescribedProcess = function(process)
   {
     var serverUrl = process.wps.executeUrlGet;
-    var key = serverUrl + '---' + process.identifier;    // This will uniquely describe this service
 
-    Procs[key] = {
+    Procs.push({
       identifier: process.identifier,
       title:      process.title || process.identifier,
       descr:      process.abstract,
       serverUrl:  serverUrl,
       inputs:     fillContainer(process.inputs),
       outputs:    fillContainer(process.outputs)
-    };
+    });
 
     WPS.responsesReceived++;
 
