@@ -36,7 +36,7 @@ var resetProbe = function()
 // server.  Avoid processing the same server twice.
 // Called from renderTable(), which is called from onCityChange() event handler
 // For service, specify WFS, WMS, WCS, or ALL.  ALL is the default if this paremeter is not supplied.
-var probeServer = function(url, service)
+var probeDataServer = function(url, service)
 {
   var s = service || "ALL";
 
