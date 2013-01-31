@@ -39,7 +39,6 @@
   {
     var layerIdentifier = getLayerNameFromDataTypeId(id);
     var server          = getServerUrl();
-    var layerKey        = makeKey(server, layerIdentifier);
 
     // Let the server know the dataType has changed
 		var dataTypeControl = document.getElementById(id);
@@ -55,18 +54,18 @@
 	  });
 
     var datasetId = registeredDatasets[server, layerIdentifier];
-	  registeredDataLayers[layerKey] = makeRegisteredLayer(dataTypeControl.value, datasetId, 0);
+	  registeredDataLayers[datasetId] = makeRegisteredLayer(dataTypeControl.value, datasetId, 0);
   }
 
 
   function confirmChange(id) {
     var layerName = getLayerNameFromDataTypeId(id);
     var server    = getServerUrl();
-    var layerKey  = makeKey(server, layerName);
+    var datasetId = registeredDatasets[server, layerIdentifier];
 
-    if(registeredDataLayers[layerKey] == undefined || registeredDataLayers[layerKey].configCount == 0) { return true; }
+    if(registeredDataLayers[datasetId] == undefined || registeredDataLayers[datasetId].configCount == 0) { return true; }
 
-    var ct = registeredDataLayers[layerKey].configCount;
+    var ct = registeredDataLayers[datasetId].configCount;
     var c  = (ct == 1) ? "configuration" : "configurations";
     var t  = (ct == 1) ? "this" : "these";
     var th = (ct == 1) ? "it" : "them";
@@ -391,10 +390,10 @@
       var dataTypeControl = document.getElementById(getDataTypeControlId(layerName));
       var server = getServerUrl();
 
-      var layerKey = makeKey(server, layerName);
+      var datasetId = registeredDatasets[server][layerName];
 
-      if(registeredDataLayers[layerKey] != undefined && registeredDataLayers[layerKey].configCount > 0) {
-        var ct = registeredDataLayers[layerKey].configCount || 0;
+      if(registeredDataLayers[datasetId] != undefined && registeredDataLayers[datasetId].configCount > 0) {
+        var ct = registeredDataLayers[datasetId].configCount || 0;
         var c =  (ct == 1) ? "configuration" : "configurations";
         var t =  (ct == 1) ? "this"          : "these";
         var th = (ct == 1) ? "it"            : "them";
@@ -424,7 +423,7 @@
           });
 
         // Remove layer from the list of registered layers
-        delete registeredDataLayers[layerKey];
+        delete registeredDataLayers[datasetId];
 
       } else {
          // ===== Registering dataset =====
@@ -443,7 +442,7 @@
           headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
           success: function(data) {
             // Add layer to the list of registered layers
-            registeredDataLayers[layerKey] = makeRegisteredLayer(data.identifier, data.id, 0);
+            registeredDataLayers[datasetId] = makeRegisteredLayer(data.identifier, data.id, 0);
           }
         });
       }
