@@ -6,8 +6,8 @@
   });
 </script>
 
-
 <%= render :partial => '/shared/make_railsid_lookup.html.erb' %>
+<%= render :partial => '/shared/build_registered_layers.html.erb' %>  <%# Builds registeredDataLayers structure %>
 
 <%# Include some map related utility functions; these need to be processed by Rails so they have to be in a partial %>
 <%= render :partial => '/shared/map_utils.html.erb' %>
@@ -72,7 +72,7 @@
     return '<tr id="dataset-id-' + dataset.id + '" onmouseover="$(this).find(\'.invisible-cell\').show();"' +
                                                   'onmouseout ="$(this).find(\'.invisible-cell\').hide();">' +
       '<td class="dataset-name-' + serverUrlIdLookup[dataset.server_url] + '">' +
-        '<span class="dataset-name2-' + railsId + '">Retrieving...</span>' +
+        '<span class="dataset-title-' + railsId + '">Retrieving...</span>' +
         '<img src="/assets/small_question_mark.gif" class="info-icon" ' +
                   'alt="More info" title="Click for details" rel="#infotable-' + railsId + '">' +
       '</td>' +
@@ -89,34 +89,31 @@
 
 
   // We found the layer
-  var updateLayerInfo = function(serverUrl, datasetKey, name, descr, services) 
+  var updateLayerInfo = function(serverUrl, datasetId, name, descr, services) 
   {
-    var railsId = railsIdLookup[datasetKey];
-    $('.dataset-name2-' + railsId).html(name);    // Appears in the name column, also on infotable popup
-    $('.dataset-descr-' + railsId).html(descr);
-    $('#results-'       + railsId).html('');      // Clear
+    $('.dataset-title-' + datasetId).html(name);    // Appears in the name column, also on infotable popup
+    $('.dataset-descr-' + datasetId).html(descr);
+    $('#results-'       + datasetId).html('');      // Clear
     var url = '';
     // Parse services... provide links for whatever services
     for (var i = 0, len = services.length; i < len; i++) {
       url = getGetCapUrl(serverUrl, services[i]);
-      $('#results-' + railsId).append('<a href="' + url + '" target="_blank">' + services[i] + '</a>&nbsp;');
+      $('#results-' + datasetId).append('<a href="' + url + '" target="_blank">' + services[i] + '</a>&nbsp;');
     }
     if(url !== '') {
-      $('#results-' + railsId).append('&nbsp;(Right-click, Copy Link Location)');
+      $('#results-' + datasetId).append('&nbsp;(Right-click, Copy Link Location)');
     }
-    $('.status2-' + railsId).html('<img class="status-indicator" src="/assets/layer_available_yes.png" alt="Layer available">');
+    $('.status2-' + datasetId).html('<img class="status-indicator" src="/assets/layer_available_yes.png" alt="Layer available">');
   };
 
 
   // We did not find a layer we expected to
-  var expectedLayerNotFound = function(datsetKey)
+  var expectedLayerNotFound = function(datasetId)
   {
-    var railsId = railsIdLookup[datsetKey];
-
-    $('.dataset-name2-' + railsId).html('Missing');   // Appears in the name column, also on infotable popup
-    $('.dataset-descr-' + railsId).html('This dataset appears to have been removed from the server');
-    $('#results-'       + railsId).html('');          // Clear
-    $('.status2-'       + railsId).html('<img class="status-indicator" src="/assets/layer_available_no.png" alt="Layer not available">');
+    $('.dataset-title-' + datasetId).html('Missing');   // Appears in the name column, also on infotable popup
+    $('.dataset-descr-' + datasetId).html('This dataset appears to have been removed from the server');
+    $('#results-'       + datasetId).html('');          // Clear
+    $('.status2-'       + datasetId).html('<img class="status-indicator" src="/assets/layer_available_no.png" alt="Layer not available">');
   };
 
 
@@ -142,7 +139,7 @@
   // serverResponses should be an object with a ServerResponse object for WFS, WMS, and WCS.
   var gotServerResponse = function(serverUrl, serverResponses)
   {
-    var serverUrlId = serverUrlIdLookup[serverUrl]; 
+    var serverId = serverUrlIdLookup[serverUrl]; 
 
     // Wait until we've heard back from all servers: wfs, wms, and wcs
     if(!!!serverResponses["WMS"] || !!!serverResponses["WFS"] || !!!serverResponses["WCS"]) { return; } 
@@ -153,14 +150,14 @@
     var serverDescr = serverResponses["WMS"].serverDescr || serverResponses["WFS"].serverDescr || serverResponses["WCS"].serverDescr;
 
     if(serverName) {
-      $('.server-name-'  + serverUrlId).html(serverName);
-      $('.server-descr-' + serverUrlId).html(serverDescr || serverName);
+      $('.server-name-'  + serverId).html(serverName);
+      $('.server-descr-' + serverId).html(serverDescr || serverName);
     }
 
     if(!(serverResponses["WMS"].success || serverResponses["WFS"].success || serverResponses["WCS"].success)) {    
       // All services failed, all datasets from this server ganz kaput
-      $('.status-' + serverUrlId).html('<img class="status-indicator" src="/assets/server_responding_no.png" alt="WMS server not responding">');
-      $('.dataset-name-' + serverUrlId).text("Unknown");
+      $('.status-' + serverId).html('<img class="status-indicator" src="/assets/server_responding_no.png" alt="WMS server not responding">');
+      $('.dataset-name-' + serverId).text("Unknown");
       return;
     }
 
@@ -169,15 +166,15 @@
     var ids = registeredDatasetLists[serverUrl];   // List of registered datasets available on this server
 
     for(var i = 0, recs = ids.length; i < recs; i++) {
-      var key = makeKey(serverUrl, ids[i]);
+      var datasetId = registeredDatasets[serverUrl][ids[i]];
 
-      var dataset = Datasets[key];
+      var dataset = Datasets[datasetId];
       if(!!!dataset) {
-        expectedLayerNotFound(key);
+        expectedLayerNotFound(datasetId);
         return;
       }
 
-      updateLayerInfo(serverUrl, key, dataset.title.replace(/ /g,'&nbsp;'), dataset.descr, dataset.services);
+      updateLayerInfo(serverUrl, datasetId, dataset.title.replace(/ /g,'&nbsp;'), dataset.descr, dataset.services);
     }
   };
 

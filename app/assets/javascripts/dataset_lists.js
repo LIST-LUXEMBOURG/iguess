@@ -1,5 +1,4 @@
 
-
 var hideUnregisterAndFriends = function() {
   $('.invisible-cell').hide();
 };
@@ -30,7 +29,7 @@ var processedUrls   = {};
 var resetProbe = function() 
 {
   processedUrls = {};
-}
+};
 
 // This function will be called for every dataset registered with the current city.  Many will have the same
 // server.  Avoid processing the same server twice.
@@ -112,14 +111,14 @@ var updateDatasets = function(serverUrl, dataProxy, records, service)  // servic
     var serverUrl  = serverUrl;
     var title      = record.data.title;
     var descr      = record.data["abstract"] || title;   
-    var key        = makeKey(serverUrl, identifier);      // This should be unique!
+    var datasetId  = registeredDatasets[serverUrl][identifier];
 
 
-    if(!Datasets[key]) {
-      Datasets[key] = { 
+    if(!Datasets[datasetId]) {
+      Datasets[datasetId] = { 
         identifier:      identifier,
         serverUrl:       serverUrl,
-        key:             key,
+        key:             datasetId,
         title:           "",
         descr:           "",
         nameCameFromWms: false,
@@ -127,7 +126,7 @@ var updateDatasets = function(serverUrl, dataProxy, records, service)  // servic
       };
     }
 
-    var dataset = Datasets[key];
+    var dataset = Datasets[datasetId];
 
     dataset[service] = {};
     dataset.services.push(service);
@@ -149,7 +148,7 @@ var renderInfoTable = function(dataset, railsId)
 
   return '<div class="infotable" id="infotable-' + railsId + '">' +
             '<div class="close"></div>' +
-            '<h1><span class="dataset-name2-' + railsId + '"></h1>' +
+            '<h1><span class="dataset-title-' + railsId + '"></h1>' +
             '<div class="dataset-descr-' + railsId + '"></div>' +
             '<div style="overflow:hidden"><dl>' +
               '<dt>Server Name:</dt><dd class="server-name-' + serverUrlId + '"></dd>' +
