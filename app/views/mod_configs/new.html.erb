@@ -43,7 +43,25 @@
       processProcessingComplete = true;
       buildModuleList();
     }
-  }
+  };
+
+
+    // User has selected a different process from the drop down box... need to rebuild inputs/outputs sections
+  var function onProcessChanged()
+  {
+    // These functions are defined in _show_assocated_parameters_table.erb
+
+    populateInputTable (Procs[$('#processControl').val()].inputs);
+    populateOutputTable(Procs[$('#processControl').val()].outputs);
+
+    var identifier = Procs[$('#processControl').val()].identifier;
+    var wrappedUrl  = Procs[$('#processControl').val()].serverUrl;
+    var unwrappedUrl = WPS.unwrapProcServer(wrappedUrl, identifier);
+
+    $("#wps_server_url").val(unwrappedUrl);
+    $("#identifier").val(identifier);
+    $("#proc-descr").val(Procs[$('#processControl').val()].descr);
+  };
 
 
   var buildModuleList = function()
@@ -74,24 +92,7 @@
     }
     $('#proc-ctrl-container').html(processControl);
     onProcessChanged();
-  }
-
-  // User has selected a different process from the drop down box... need to rebuild inputs/outputs sections
-  function onProcessChanged()
-  {
-    // These functions are defined in _show_assocated_parameters_table.erb
-
-    populateInputTable (Procs[$('#processControl').val()].inputs);
-    populateOutputTable(Procs[$('#processControl').val()].outputs);
-
-    var identifier = Procs[$('#processControl').val()].identifier;
-    var wrappedUrl  = Procs[$('#processControl').val()].serverUrl;
-    var unwrappedUrl = WPS.unwrapProcServer(wrappedUrl, identifier);
-
-    $("#wps_server_url").val(unwrappedUrl);
-    $("#identifier").val(identifier);
-    $("#proc-descr").val(Procs[$('#processControl').val()].descr);
-  }
+  };
 
 
   var urls = [<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>];
