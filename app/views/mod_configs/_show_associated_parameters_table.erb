@@ -13,7 +13,7 @@
   <%= @datasets.reject{ |d| d.finalized == false }.
                 map{ |d| "registeredDataLayersById['" + d.dataset_type + "'].push({" +
                             "identifier:'" + d.identifier + "'," +
-                            "datasetId:"   + d.id.to_s() + 
+                            "datasetId:"   + d.id.to_s() + " " +
                             "serverUrl:'"  + d.server_url.gsub('\\') { '\\\\' } + "'" +
                           "});\n"
                     }.
