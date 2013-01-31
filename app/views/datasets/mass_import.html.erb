@@ -38,8 +38,8 @@
   function onDataTypeChanged(id)
   {
     var layerIdentifier = getLayerNameFromDataTypeId(id);
-    var server = getServerUrl();
-    var layerKey = makeKey(server, layerIdentifier);
+    var server          = getServerUrl();
+    var layerKey        = makeKey(server, layerIdentifier);
 
     // Let the server know the dataType has changed
 		var dataTypeControl = document.getElementById(id);
