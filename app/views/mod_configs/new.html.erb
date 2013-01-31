@@ -78,14 +78,14 @@
       onProcessChanged();
     });
 
-    for(var key in Procs) {
+    for(var i = 0, len = Procs.length; i < len; i++) {
       <% if params['template'].blank? %>
         var selstr = '';
       <% else %>
-        var hash = (Procs[key].title + 'Q' + Procs[key].serverUrl).makeHash();
+        var hash = (Procs[i].title + 'Q' + Procs[i].serverUrl).makeHash();
         var selstr = (hash == <%= params['template'] %>) ? " selected" : "";
       <% end %>
-      processControl.append('<option value="' + key + '"' + selstr + '>' + Procs[key].title + '</option>');
+      processControl.append('<option value=' + i + selstr + '>' + Procs[i].title + '</option>');
     }
     $('#proc-ctrl-container').html(processControl);
     onProcessChanged();
