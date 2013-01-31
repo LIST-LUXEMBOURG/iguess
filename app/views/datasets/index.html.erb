@@ -36,10 +36,10 @@
     for(var i = 0, len = datasets.length; i < len; i++) {
       var dataset = datasets[i];
 
-      var railsId = railsIdLookup[makeKey(dataset.server_url, dataset.identifier)];
-      $('#dataset-list').append(renderTableRow(dataset, railsId));
+      var datasetId = registeredDatasets[dataset.server_url][dataset.identifier];
+      $('#dataset-list').append(renderTableRow(dataset, datasetId));
 
-      $('#infotables').append(renderInfoTable(dataset, railsId));
+      $('#infotables').append(renderInfoTable(dataset, datasetId));
 
       probeDataServer(dataset.server_url, 'ALL');
     }
@@ -68,17 +68,17 @@
   // Generate html for Registered Datasets table row
   // Note: status-xxx below are classes that are common to all datasets on a server
   //       status2-xxx are classes that are common only to server-identifier pairs (i.e. duplicate datasets)
-  var renderTableRow = function(dataset, railsId) {
+  var renderTableRow = function(dataset, datasetId) {
     return '<tr id="dataset-id-' + dataset.id + '" onmouseover="$(this).find(\'.invisible-cell\').show();"' +
                                                   'onmouseout ="$(this).find(\'.invisible-cell\').hide();">' +
       '<td class="dataset-name-' + serverUrlIdLookup[dataset.server_url] + '">' +
-        '<span class="dataset-title-' + railsId + '">Retrieving...</span>' +
+        '<span class="dataset-title-' + datasetId + '">Retrieving...</span>' +
         '<img src="/assets/small_question_mark.gif" class="info-icon" ' +
-                  'alt="More info" title="Click for details" rel="#infotable-' + railsId + '">' +
+                  'alt="More info" title="Click for details" rel="#infotable-' + datasetId + '">' +
       '</td>' +
       '<td nowrap>' + (dataset.dataset_type === "" ? "Unknown" : dataset.dataset_type) + '</td>' +
       '<td width=145><div class="status-' + serverUrlIdLookup[dataset.server_url] + 
-        ' status2-' + railsId + '">Probing server...  ' +
+        ' status2-' + datasetId + '">Probing server...  ' +
         '<img src="/assets/loading_spinner.gif"></div></td>' +
       '<td class="invisible-cell"><a href="/datasets/' + dataset.id + '" ' + 
         'data-confirm="Are you sure you want to unregister this dataset?" data-method="delete" ' +
