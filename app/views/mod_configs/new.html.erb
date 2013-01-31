@@ -19,22 +19,22 @@
   var serverProcessingComplete  = false;  // True when we have all the dataset info we expect
   var processProcessingComplete = false;  // True when we have all the process info we expect
 
-  var procs = { };
+  var Procs = {};
 
   var onDescribedProcess = function(process)
   {
     var serverUrl = process.wps.executeUrlGet;
     var key = makeKey(serverUrl, process.identifier);   // This will uniquely describe this service
 
-    procs[key]            = new Object;
-    procs[key].identifier = process.identifier;
-    procs[key].title      = process.title || process.identifier;
-    procs[key].descr      = process.abstract;
-    procs[key].serverUrl  = serverUrl;
+    Procs[key]            = new Object;
+    Procs[key].identifier = process.identifier;
+    Procs[key].title      = process.title || process.identifier;
+    Procs[key].descr      = process.abstract;
+    Procs[key].serverUrl  = serverUrl;
 
 
-    procs[key].inputs  = fillContainer(process.inputs);
-    procs[key].outputs = fillContainer(process.outputs);
+    Procs[key].inputs  = fillContainer(process.inputs);
+    Procs[key].outputs = fillContainer(process.outputs);
 
 
     WPS.responsesReceived++;
@@ -63,14 +63,14 @@
       onProcessChanged();
     });
 
-    for(var key in procs) {
+    for(var key in Procs) {
       <% if params['template'].blank? %>
         var selstr = '';
       <% else %>
-        var hash = (procs[key].title + 'Q' + procs[key].serverUrl).makeHash();
+        var hash = (Procs[key].title + 'Q' + Procs[key].serverUrl).makeHash();
         var selstr = (hash == <%= params['template'] %>) ? " selected" : "";
       <% end %>
-      processControl.append('<option value="' + key + '"' + selstr + '>' + procs[key].title + '</option>');
+      processControl.append('<option value="' + key + '"' + selstr + '>' + Procs[key].title + '</option>');
     }
     $('#proc-ctrl-container').html(processControl);
     onProcessChanged();
@@ -81,16 +81,16 @@
   {
     // These functions are defined in _show_assocated_parameters_table.erb
 
-    populateInputTable (procs[$('#processControl').val()].inputs);
-    populateOutputTable(procs[$('#processControl').val()].outputs);
+    populateInputTable (Procs[$('#processControl').val()].inputs);
+    populateOutputTable(Procs[$('#processControl').val()].outputs);
 
-    var identifier = procs[$('#processControl').val()].identifier;
-    var wrappedUrl  = procs[$('#processControl').val()].serverUrl;
+    var identifier = Procs[$('#processControl').val()].identifier;
+    var wrappedUrl  = Procs[$('#processControl').val()].serverUrl;
     var unwrappedUrl = WPS.unwrapProcServer(wrappedUrl, identifier);
 
     $("#wps_server_url").val(unwrappedUrl);
     $("#identifier").val(identifier);
-    $("#proc-descr").val(procs[$('#processControl').val()].descr);
+    $("#proc-descr").val(Procs[$('#processControl').val()].descr);
   }
 
 
