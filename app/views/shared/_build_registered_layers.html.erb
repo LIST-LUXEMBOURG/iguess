@@ -27,7 +27,7 @@
   // That is, registeredDatasets[url][identifier] = someUniqueId for every registered dataset.
   // We'll use the database id of the dataset as that unique number, so we can use it for talking with the server.
 
-  <% @dataserver_urls.each do |url| %>    <%# These could be wms, wfs, or wcs addresses %>
+  <% @dataserver_urls.each do |url| %>    <%# These could be WMS, WFS, or WCS addresses %>
 
     registeredDatasets['<%= url.gsub(/\\/, '\\\\\\') %>'] = {};
 
