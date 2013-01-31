@@ -66,7 +66,7 @@
     for(var i = 0; i < serverCount; i++) {
       WFS.updateLayerList(registeredDataServers[i], onWmsGetCapabilitiesSucceeded, onWmsGetCapabilitiesFailed);
     }
-  }
+  };
 
 
   var getWfsLayers = function(registeredDataServers)
@@ -76,7 +76,7 @@
     for(var i = 0; i < serverCount; i++) {
       WFS.updateLayerList(registeredDataServers[i], onWfsGetCapabilitiesSucceeded, onWfsGetCapabilitiesFailed);
     }
-  }
+  };
 
 
   var getWcsLayers = function(registeredDataServers)
@@ -86,7 +86,7 @@
     for(var i = 0; i < serverCount; i++) {
       WCS.updateLayerList(registeredDataServers[i], onWcsGetCapabilitiesSucceeded, onWcsGetCapabilitiesFailed);
     }
-  }
+  };
 
 
   // Basic dataset object -- this is what we track for datasets seen on remote server
@@ -102,7 +102,7 @@
 
     this.setSrs  = function(srs)  { this.srs = srs; }
     this.setBbox = function(bbox) { this.bbox = bbox; }
-  }
+  };
 
 
   discoveredLayers = {};
