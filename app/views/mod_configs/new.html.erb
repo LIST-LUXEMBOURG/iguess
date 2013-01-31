@@ -26,16 +26,14 @@
     var serverUrl = process.wps.executeUrlGet;
     var key = makeKey(serverUrl, process.identifier);   // This will uniquely describe this service
 
-    Procs[key] = {};
-    Procs[key].identifier = process.identifier;
-    Procs[key].title      = process.title || process.identifier;
-    Procs[key].descr      = process.abstract;
-    Procs[key].serverUrl  = serverUrl;
-
-
-    Procs[key].inputs  = fillContainer(process.inputs);
-    Procs[key].outputs = fillContainer(process.outputs);
-
+    Procs[key] = {
+      identifier: process.identifier,
+      title:      process.title || process.identifier,
+      descr:      process.abstract,
+      serverUrl:  serverUrl,
+      inputs:     fillContainer(process.inputs),
+      outputs:    fillContainer(process.outputs)
+    };
 
     WPS.responsesReceived++;
 
