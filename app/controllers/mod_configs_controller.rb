@@ -97,22 +97,41 @@ class ModConfigsController < ApplicationController
 # SERVICE=WCS&VERSION=1.0.0&REQUEST=GetCoverage&IDENTIFIER=ro_dsm_mini&
 # FORMAT=image/tiff&BBOX=92213,436671.500,92348,436795.000&CRS=EPSG:28992&RESX=1&RESY=1
 
-    # Drop downs -- always inputs
-    @mod_config.datasets.map { |x| dataname = x.server_url + (x.server_url.include?("?") == -1 ? "?" : "&") +   
-                                    URI.escape('SERVICE=WFS&VERSION=1.0.0&REQUEST=getFeature&TYPENAME=' + x.identifier)
 
-                                   inputFields.push(x.dataset_type)
+    # Drop downs -- always inputs
+    @mod_config.datasets.map { |d| 
+                                    if(d.service == 'WCS') then
+                                          format = "image/tiff"
+                                          bbox = "92213,436671.500,92348,436795.000"
+                                          crs = "EPSG:28992"
+                                          resx = "1"
+                                          resy = "1"
+
+                                          params = "&FORMAT=" + format +
+                                                   "&BBOX=" + bbox +
+                                                   "&CRS=" + crs +
+                                                   "&RESX=" + resx +
+                                                   "&RESY=" + resy
+                                    else
+                                      params = ""
+                                    end
+
+                                    dataname = d.server_url + (d.server_url.include?("?") == -1 ? "?" : "&") +
+                                    'SERVICE=' + d.service + params +
+                                    URI.escape('&VERSION=1.0.0&REQUEST=getFeature&TYPENAME=' + d.identifier)
+
+                                   inputFields.push(d.dataset_type)
                                    inputValues.push(dataname) 
                             }
 
 
     # Text fields -- both inputs and outputs
-    @mod_config.config_text_inputs.map { |x|  if x.is_input then 
-                                                inputFields.push(x.column_name)
-                                                inputValues.push(x.value)
+    @mod_config.config_text_inputs.map { |d|  if d.is_input then 
+                                                inputFields.push(d.column_name)
+                                                inputValues.push(d.value)
                                               else
-                                                outputFields.push(x.column_name)
-                                                outputTitles.push(x.value)
+                                                outputFields.push(d.column_name)
+                                                outputTitles.push(d.value)
                                               end
                                       }
 
