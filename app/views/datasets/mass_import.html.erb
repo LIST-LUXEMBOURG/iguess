@@ -412,12 +412,12 @@
       var checkboxID = $(this).attr("ref");
 
       var checkbox = document.getElementById(checkboxID);
-      var layerName = getLayerNameFromCheckboxId(checkboxID);
+      var datasetIdentifier = getLayerNameFromCheckboxId(checkboxID);
 
-      var dataTypeControl = document.getElementById(getDataTypeControlId(layerName));
+      var dataTypeControl = document.getElementById(getDataTypeControlId(datasetIdentifier));
       var serverUrl = getServerUrl();
 
-      var dataLayer = registeredDataLayers[serverUrl][layerName];
+      var dataLayer = registeredDataLayers[serverUrl][datasetIdentifier];
 
       if(dataLayer && dataLayer.configCount > 0) {
         var ct = dataLayer.configCount || 0;
@@ -443,7 +443,7 @@
         $.ajax({
           type: 'DELETE',      // DELETE combined with url below triggers "destroy_by_params" action on controller
           url: '<%= url_for(:controller => 'datasets', :action => 'destroy_by_params') %>',
-          data: 'dataset[identifier]='  + layerName +
+          data: 'dataset[identifier]='  + datasetIdentifier +
                 '&dataset[server_url]=' + serverUrl,
 
           headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
@@ -451,22 +451,25 @@
           });
 
         // Remove layer from the list of registered layers
-        delete registeredDataLayers[serverUrl][layerName];
+        delete registeredDataLayers[serverUrl][datasetIdentifier];
 
       } else {
-         // ===== Registering dataset =====
-         checkbox.checked = true;
-         dataTypeControl.disabled = false;
+        // ===== Registering dataset =====
+        checkbox.checked = true;
+        dataTypeControl.disabled = false;
 
-         var service = 'XXX';
+        var layer = discoveredLayers[serverUrl + datasetIdentifier];
+
+        var service = '';
+        if(     layer.type.hasObject('WFS')) { service = 'WFS'; }
+        else if(layer.type.hasObject('WCS')) { service = 'WCS'; }
 
         // Let the server know this layer is now registered -- to do this we must create a new record in
         // our datasets table.
-
         $.ajax({
           type: 'POST',      // POST combined with url below triggers "create" action on controller
           url: '<%= url_for(:controller => 'datasets', :action => 'create', :format=>:json) %>',
-          data: 'dataset[identifier]='    + layerName +
+          data: 'dataset[identifier]='    + datasetIdentifier +
                 '&dataset[service]='      + service   +
                 '&dataset[server_url]='   + serverUrl +
                 '&dataset[dataset_type]=' + dataTypeControl.value +
