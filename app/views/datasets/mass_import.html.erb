@@ -443,8 +443,9 @@
         $.ajax({
           type: 'DELETE',      // DELETE combined with url below triggers "destroy_by_params" action on controller
           url: '<%= url_for(:controller => 'datasets', :action => 'destroy_by_params') %>',
-          data: 'dataset[identifier]=' + layerName +
+          data: 'dataset[identifier]='  + layerName +
                 '&dataset[server_url]=' + serverUrl,
+
           headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
           success: function(data) {  }
           });
@@ -457,14 +458,17 @@
          checkbox.checked = true;
          dataTypeControl.disabled = false;
 
+         var service = 'XXX';
+
         // Let the server know this layer is now registered -- to do this we must create a new record in
         // our datasets table.
 
         $.ajax({
           type: 'POST',      // POST combined with url below triggers "create" action on controller
           url: '<%= url_for(:controller => 'datasets', :action => 'create', :format=>:json) %>',
-          data: 'dataset[identifier]=' + layerName +
-                '&dataset[server_url]=' + serverUrl +
+          data: 'dataset[identifier]='    + layerName +
+                '&dataset[service]='      + service   +
+                '&dataset[server_url]='   + serverUrl +
                 '&dataset[dataset_type]=' + dataTypeControl.value +
                 '&cityName=' + $.cookie('city'),
           headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
