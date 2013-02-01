@@ -92,12 +92,14 @@ class ModConfigsController < ApplicationController
     outputFields = []
     outputTitles = []
 
+
+# http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map&
+# SERVICE=WCS&VERSION=1.0.0&REQUEST=GetCoverage&IDENTIFIER=ro_dsm_mini&
+# FORMAT=image/tiff&BBOX=92213,436671.500,92348,436795.000&CRS=EPSG:28992&RESX=1&RESY=1
+
     # Drop downs -- always inputs
-    @mod_config.datasets.map { |x| dataname = x.full_url       # {P{P Until WCS working
-                                   if dataname.empty? then
-                                      dataname = x.server_url + (x.server_url.include?("?") == -1 ? "?" : "&") +   
-                                        URI.escape('SERVICE=WFS&VERSION=1.0.0&REQUEST=getFeature&TYPENAME=' + x.identifier)
-                                   end
+    @mod_config.datasets.map { |x| dataname = x.server_url + (x.server_url.include?("?") == -1 ? "?" : "&") +   
+                                    URI.escape('SERVICE=WFS&VERSION=1.0.0&REQUEST=getFeature&TYPENAME=' + x.identifier)
 
                                    inputFields.push(x.dataset_type)
                                    inputValues.push(dataname) 
