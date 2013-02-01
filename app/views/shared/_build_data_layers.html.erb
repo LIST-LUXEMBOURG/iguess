@@ -132,7 +132,9 @@
       discoveredLayers[key] = dataset;
     }
 
-    $(".dataset-title-" + registeredDatasets[dataset.serverUrl][dataset.identifier]).text(dataset.title);
+    // If we know the title (as we will for all registered layers), update it now
+    if(registeredDatasets[dataset.serverUrl] && registeredDatasets[dataset.serverUrl][dataset.identifier])
+      $(".dataset-title-" + registeredDatasets[dataset.serverUrl][dataset.identifier]).text(dataset.title);
   };
 
 
