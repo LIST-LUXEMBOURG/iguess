@@ -3,23 +3,17 @@
       be retrieved separately %>
 
 <script type="text/javascript">
-  registeredDataLayers = {};
-
-  <%= @datasets.reject{ |d| d.finalized == false }.
-                map{ |d| "registeredDataLayers[" + d.id.to_s() + "] = {" +
-                            "identifier:'" + d.dataset_type + "'," +
-                            "id:"          + d.id.to_s()    + ","  +
-                            "configCount:" + d.mod_configs.count.to_s() + 
-                          "};\n"
-                    }.
-                join(' ') %>
-
 
   // A list of servers that have registered WFS and WCS data
   registeredDataServers = [<%= @datasets.reject{|d| d.dataset_type == "Mapping Only"}
                                         .uniq  {|d| d.server_url}
                                         .map   {|d| "'" + d.server_url.gsub('\\') { '\\\\\\' } + "'"}
                                         .join(',') %>];
+
+
+  registeredDataAndMapServers = [<%= @datasets.uniq  {|d| d.server_url}
+                                              .map   {|d| "'" + d.server_url.gsub('\\') { '\\\\\\' } + "'"}
+                                              .join(',') %>];                                        
 
   var registeredDatasets  = { };
 

@@ -104,17 +104,6 @@
     $('#dataset-id-' + data).hide();
   });
 
-
-  // The following creates a mapping of server urls to short unique tokens, in both ruby and javascript.
-  <% serverUrlIdLookup = { } %>
-  <% @datasets.reject{ |d| d.finalized == false }
-              .map{ |d| serverUrlIdLookup[d.server_url] = d.id.to_s } %>
-
-  serverUrlIdLookup = { };
-  <% lines = "" %>
-  <% serverUrlIdLookup.each{ |u, i| lines += "serverUrlIdLookup['" + u + "'] = '" + i + "'; " } %>
-  <%= raw lines %>
-
 </script>
 
 

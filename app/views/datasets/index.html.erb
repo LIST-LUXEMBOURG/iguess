@@ -14,17 +14,6 @@
 
 <script type="text/javascript">
 
-  // Create a mapping of server urls to an arbitrary but unique numeric id
-  <% serverUrlIdLookup = { } %>
-  <% @datasets.reject{ |d| d.finalized == false }
-              .map{ |d| serverUrlIdLookup[d.server_url] = d.id.to_s } %>
-
-  serverUrlIdLookup = { };
-  <% lines = "" %>
-  <% serverUrlIdLookup.each{ |u, i| lines += "serverUrlIdLookup['" + u + "'] = '" + i + "';\n" } %>
-  <%= raw lines %>
-
-
   // We've got a new batch of datasets to display!
   // Note that for the status div, all rows from the same server share a common class.  Each has a unique id.
   var renderTable = function(datasets) 
@@ -70,13 +59,13 @@
   var renderTableRow = function(dataset, datasetId) {
     return '<tr id="dataset-id-' + dataset.id + '" onmouseover="$(this).find(\'.invisible-cell\').show();"' +
                                                   'onmouseout ="$(this).find(\'.invisible-cell\').hide();">' +
-      '<td class="dataset-name-' + serverUrlIdLookup[dataset.server_url] + '">' +
+      '<td class="dataset-name-' + registeredDataAndMapServers[dataset.server_url] + '">' +
         '<span class="dataset-title-' + datasetId + '">Retrieving...</span>' +
         '<img src="/assets/small_question_mark.gif" class="info-icon" ' +
                   'alt="More info" title="Click for details" rel="#infotable-' + datasetId + '">' +
       '</td>' +
       '<td nowrap>' + (dataset.dataset_type === "" ? "Unknown" : dataset.dataset_type) + '</td>' +
-      '<td width=145><div class="status-' + serverUrlIdLookup[dataset.server_url] + 
+      '<td width=145><div class="status-' + registeredDataAndMapServers[dataset.server_url] + 
         ' status2-' + datasetId + '">Probing server...  ' +
         '<img src="/assets/loading_spinner.gif"></div></td>' +
       '<td class="invisible-cell"><a href="/datasets/' + dataset.id + '" ' + 
@@ -138,7 +127,7 @@
   // serverResponses should be an object with a ServerResponse object for WFS, WMS, and WCS.
   var gotServerResponse = function(serverUrl, serverResponses)
   {
-    var serverId = serverUrlIdLookup[serverUrl]; 
+    var serverId = registeredDataAndMapServers[serverUrl]; 
 
     // Wait until we've heard back from all servers: wfs, wms, and wcs
     if(!!!serverResponses["WMS"] || !!!serverResponses["WFS"] || !!!serverResponses["WCS"]) { return; } 

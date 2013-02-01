@@ -34,11 +34,39 @@
 
   function getServerUrl() { return $('#dataset_url').val().trim(); }
 
+
+  registeredDataLayers = {};
+
+
+  var makeRegisteredLayer = function(serverUrl, datasetIdentifier, datasetId, configCount) {
+
+    if(registeredDataLayers[serverUrl] === undefined)
+      registeredDataLayers[serverUrl] = {};
+
+    registeredDataLayers[serverUrl][datasetIdentifier] = {
+      serverUrl:   serverUrl,
+      identifier:  datasetIdentifier,
+      id:          datasetId,
+      configCount: configCount
+    };
+  };
+
+
+  // Populate registeredDataLayers with data from the database
+  <%= @datasets.reject{ |d| d.finalized == false }.
+                map{ |d| "makeRegisteredLayer('" + d.server_url.gsub(/\\/, '\\\\\\') + "'," + 
+                                             "'" + d.identifier + "'," + 
+                                                   d.id.to_s() + "," + 
+                                                   d.mod_configs.count.to_s() + ");"
+                    }.
+                join(' ') %>  
+
+
   // User changes the value of one of the dataType dropdowns
   function onDataTypeChanged(id)
   {
     var layerIdentifier = getLayerNameFromDataTypeId(id);
-    var server          = getServerUrl();
+    var serverUrl       = getServerUrl();
 
     // Let the server know the dataType has changed
 		var dataTypeControl = document.getElementById(id);
@@ -47,25 +75,25 @@
 			type: 'PUT',      // PUT combined with url below triggers "update" action on controller
 			url:  '<%= url_for(:controller => 'datasets', :action => 'update_data_type') %>',
 			data: 'dataset[identifier]='    + layerIdentifier +
-			      '&dataset[server_url]='   + server    +
+			      '&dataset[server_url]='   + serverUrl    +
 			      '&dataset[dataset_type]=' + dataTypeControl.value,
 			headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
 			success: function(data) {  }
 	  });
 
-    var datasetId = registeredDatasets[server, layerIdentifier];
-	  registeredDataLayers[datasetId] = makeRegisteredLayer(dataTypeControl.value, datasetId, 0);
+	  makeRegisteredLayer(serverUrl, dataTypeControl.value, registeredDatasets[serverUrl][layerIdentifier], 0);
   }
 
 
-  function confirmChange(id) {
+  function confirmChange(id) 
+  {
     var layerName = getLayerNameFromDataTypeId(id);
     var server    = getServerUrl();
-    var datasetId = registeredDatasets[server, layerIdentifier];
+    var dataLayer = registeredDataLayers[server][layerIdentifier];
 
-    if(registeredDataLayers[datasetId] == undefined || registeredDataLayers[datasetId].configCount == 0) { return true; }
+    if(dataLayer && dataLayer.configCount == 0) { return true; }
 
-    var ct = registeredDataLayers[datasetId].configCount;
+    var ct = dataLayer.configCount;
     var c  = (ct == 1) ? "configuration" : "configurations";
     var t  = (ct == 1) ? "this" : "these";
     var th = (ct == 1) ? "it" : "them";
@@ -96,7 +124,7 @@
   var onWpsError = function(url)
   {
     alert("Connection to process server " + wpsServerList[url] + " failed!");
-  }
+  };
 
 
   function getDataTypeControlId(layerName)
@@ -167,7 +195,6 @@
     var layerCount = Object.keys(discoveredLayers).length;
     var visibleLayers = 0;
 
-
     // If no layers were loaded, show an intelligble error message and bail
     if(layerCount == 0) {
       $('#layer-display').html('<div class="error-header">Please check the number and dial again</div>' +
@@ -199,7 +226,7 @@
           visibleLayers += 1;
         }
 
-        var registered = (datasetId in registeredDataLayers);
+        var registered = registeredDataLayers[layer.serverUrl] && registeredDataLayers[layer.serverUrl][layer.identifier];  
 
         if((pass == 0 && !registered) || (pass == 1 && registered)) { continue; }
 
@@ -388,12 +415,12 @@
       var layerName = getLayerNameFromCheckboxId(checkboxID);
 
       var dataTypeControl = document.getElementById(getDataTypeControlId(layerName));
-      var server = getServerUrl();
+      var serverUrl = getServerUrl();
 
-      var datasetId = registeredDatasets[server][layerName];
+      var dataLayer = registeredDataLayers[serverUrl][layerName];
 
-      if(registeredDataLayers[datasetId] != undefined && registeredDataLayers[datasetId].configCount > 0) {
-        var ct = registeredDataLayers[datasetId].configCount || 0;
+      if(dataLayer && dataLayer.configCount > 0) {
+        var ct = dataLayer.configCount || 0;
         var c =  (ct == 1) ? "configuration" : "configurations";
         var t =  (ct == 1) ? "this"          : "these";
         var th = (ct == 1) ? "it"            : "them";
@@ -417,13 +444,13 @@
           type: 'DELETE',      // DELETE combined with url below triggers "destroy_by_params" action on controller
           url: '<%= url_for(:controller => 'datasets', :action => 'destroy_by_params') %>',
           data: 'dataset[identifier]=' + layerName +
-                '&dataset[server_url]=' + server,
+                '&dataset[server_url]=' + serverUrl,
           headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
           success: function(data) {  }
           });
 
         // Remove layer from the list of registered layers
-        delete registeredDataLayers[datasetId];
+        delete registeredDataLayers[serverUrl][layerName];
 
       } else {
          // ===== Registering dataset =====
@@ -432,17 +459,18 @@
 
         // Let the server know this layer is now registered -- to do this we must create a new record in
         // our datasets table.
+
         $.ajax({
           type: 'POST',      // POST combined with url below triggers "create" action on controller
           url: '<%= url_for(:controller => 'datasets', :action => 'create', :format=>:json) %>',
           data: 'dataset[identifier]=' + layerName +
-                '&dataset[server_url]=' + server +
+                '&dataset[server_url]=' + serverUrl +
                 '&dataset[dataset_type]=' + dataTypeControl.value +
                 '&cityName=' + $.cookie('city'),
           headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
           success: function(data) {
             // Add layer to the list of registered layers
-            registeredDataLayers[datasetId] = makeRegisteredLayer(data.identifier, data.id, 0);
+            makeRegisteredLayer(serverUrl, data.identifier, data.id, 0);
           }
         });
       }
@@ -475,7 +503,7 @@
     
     this.statusChanged = function() 
     {
-      
+      // Do nothing
     };
 
     this.onGetCapabilitiesSucceeded = function() 

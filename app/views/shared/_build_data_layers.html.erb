@@ -90,8 +90,8 @@
 
 
   // Basic dataset object -- this is what we track for datasets seen on remote server
-  var Dataset = function(server, record, type) {
-    this.server     = server;
+  var Dataset = function(serverUrl, record, type) {
+    this.serverUrl  = serverUrl;
     this.identifier = record.get("name") || record.id;
     this.title      = record.get("title") || record.get("name");
     this.abstract   = record.get("abstract");
@@ -107,29 +107,32 @@
 
   discoveredLayers = {};
 
+  // Gets run on any layer found, registered or not; dataset is an object
   var foundDataset = function(dataset, service)
   {
-    var layerId = registeredDatasets[dataset.server][dataset.identifier];
+    var key = dataset.serverUrl + dataset.identifier;   // Need a single key to make iteration elsewhere easier
 
-    if(layerId in discoveredLayers) {   // Already found this layer, add service to it
+    var layer = discoveredLayers[key];
 
-      if(discoveredLayers[layerId].type.hasObject(service)) {    // Will happen if duplicate names are used on the server
+    if(layer) {   // Already found this layer, add service to it
+
+      if(layer.type.hasObject(service)) {    // Will happen if duplicate names are used on the server
         return;
       }
 
-      discoveredLayers[layerId].type.push(service);
+      layer.type.push(service);
       if(dataset.srs !== null) {
-        discoveredLayers[layerId].srs = dataset.srs;
+        layer.srs = dataset.srs;
       }
       if(dataset.bbox !== null) {
-        discoveredLayers[layerId].bbox = dataset.bbox;
+        layer.bbox = dataset.bbox;
       }
     }
-    else {    // New layer, add it to discoveredLayers
-      discoveredLayers[layerId] = dataset;
+    else {    // It's a new layer, add it to discoveredLayers
+      discoveredLayers[key] = dataset;
     }
 
-    $(".dataset-title-" + registeredDatasets[dataset.server][dataset.identifier]).text(dataset.title);
+    $(".dataset-title-" + registeredDatasets[dataset.serverUrl][dataset.identifier]).text(dataset.title);
   };
 
 

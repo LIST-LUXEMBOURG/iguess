@@ -142,17 +142,17 @@ var updateDatasets = function(serverUrl, dataProxy, records, service)  // servic
 
 
 // Create a popup info display for this dataset 
-var renderInfoTable = function(dataset, railsId) 
+var renderInfoTable = function(dataset, datasetId) 
 {
-  var serverUrlId = serverUrlIdLookup[dataset.server_url];
+  var serverUrlId = registeredDataAndMapServers[dataset.server_url];
 
-  return '<div class="infotable" id="infotable-' + railsId + '">' +
+  return '<div class="infotable" id="infotable-' + datasetId + '">' +
             '<div class="close"></div>' +
-            '<h1><span class="dataset-title-' + railsId + '"></h1>' +
-            '<div class="dataset-descr-' + railsId + '"></div>' +
+            '<h1><span class="dataset-title-' + datasetId + '"></h1>' +
+            '<div class="dataset-descr-' + datasetId + '"></div>' +
             '<div style="overflow:hidden"><dl>' +
               '<dt>Server Name:</dt><dd class="server-name-' + serverUrlId + '"></dd>' +
-               '<dt>Data Services:</dt><dd id="results-' + railsId + '">Waiting for response from server...</dd>' + 
+               '<dt>Data Services:</dt><dd id="results-' + datasetId + '">Waiting for response from server...</dd>' + 
                
             '</dl></div>' +
             '<div style="overflow:hidden" class="technical-details">' +
