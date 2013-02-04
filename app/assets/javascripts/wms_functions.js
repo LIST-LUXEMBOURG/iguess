@@ -343,7 +343,6 @@ WCS.descCovUrl = function(serverUrl) {
 }
 
 
-
 WCS.getCapReq = function(serverUrl) {
   return wrapGeoProxy(WCS.getCapUrl(serverUrl));
 };
