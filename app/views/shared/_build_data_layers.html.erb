@@ -152,6 +152,7 @@
       var record = dataProxy.getAt(i);
       var dataset = new Dataset(serverUrl, record, service);
 
+      // Some services require special handling
       if(service == 'WMS') {
         dataset.setSrs (record.data.srs);
         dataset.setBbox(record.data.bbox);
