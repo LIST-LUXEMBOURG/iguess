@@ -250,12 +250,11 @@ WCS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
 
   fullUrl = WCS.getCapReq(serverUrl);
   store = new GeoExt.data.WCSCapabilitiesStore({ url: fullUrl });
-  COMMON.updateLayerList(getCapsStore, successFunction, failureFunction);
+  COMMON.updateLayerList(store, successFunction, failureFunction);
 
   fullUrl = WCS.descCovReq(serverUrl);
   store = new GeoExt.data.WCSCapabilitiesStore({ url: fullUrl });
-  COMMON.updateLayerList(getCapsStore, successFunction, failureFunction);
-
+  COMMON.updateLayerList(store, successFunction, failureFunction);
 };
 
 
