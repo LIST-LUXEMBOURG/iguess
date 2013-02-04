@@ -244,13 +244,18 @@ WFS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
 };
 
 
-// Probe a WCS and detect which layers are available
+// Probe a WCS and detect which layers are available.  Need two calls to get all the required info.  Lame.
 WCS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
-  var fullUrl = WCS.getCapReq(serverUrl);
+  var fullUrl, store;
 
-  var store = new GeoExt.data.WCSCapabilitiesStore({ url: fullUrl });
+  fullUrl = WCS.getCapReq(serverUrl);
+  store = new GeoExt.data.WCSCapabilitiesStore({ url: fullUrl });
+  COMMON.updateLayerList(getCapsStore, successFunction, failureFunction);
 
-  COMMON.updateLayerList(store, successFunction, failureFunction);
+  fullUrl = WCS.descCovReq(serverUrl);
+  store = new GeoExt.data.WCSCapabilitiesStore({ url: fullUrl });
+  COMMON.updateLayerList(getCapsStore, successFunction, failureFunction);
+
 };
 
 
@@ -298,7 +303,7 @@ WMS.getCapReq = function(serverUrl) {
   return wrapGeoProxy(WMS.getCapUrl(serverUrl));
 };
 
-WMS.stripGetCapReq = function(serverUrl) {
+WMS.stripReq = function(serverUrl) {
   return serverUrl.replace(WMS.getCapStr, '').slice(0, -1);   // slice strips last char
 };
 
@@ -316,7 +321,7 @@ WFS.getCapReq = function(serverUrl) {
   return wrapGeoProxy(WFS.getCapUrl(serverUrl));
 };
 
-WFS.stripGetCapReq = function(serverUrl) {
+WFS.stripReq = function(serverUrl) {
   return serverUrl.replace(WFS.getCapStr, '').slice(0, -1);   // slice strips last char
 };
 
@@ -330,13 +335,27 @@ WCS.getCapUrl = function(serverUrl) {
 }
 
 
+WCS.descCovStr = 'SERVICE=WCS&VERSION=' + WCS.version + '&REQUEST=DescribeCoverage';   
+
+WCS.descCovUrl = function(serverUrl) {
+  var joinchar = getJoinChar(serverUrl);
+  return serverUrl + joinchar + WCS.descCovStr;
+}
+
+
+
 WCS.getCapReq = function(serverUrl) {
   return wrapGeoProxy(WCS.getCapUrl(serverUrl));
 };
 
-WCS.stripGetCapReq = function(serverUrl) {
-  return serverUrl.replace(WCS.getCapStr, '').slice(0, -1);   // slice strips last char
+WCS.stripReq = function(serverUrl) {
+  return serverUrl.replace(WCS.getCapStr, '').replace(WCS.descCovStr, '').slice(0, -1);   // slice strips last char
 };
+
+
+WCS.descCovReq = function(serverUrl) {
+  return wrapGeoProxy(WCS.descCovUrl(serverUrl));
+}
 
 
 // Helper functions for creating and deconstructing urls
@@ -348,7 +367,7 @@ WPS.getCapReq = function(serverUrl) {
   return wrapGeoProxy(serverUrl + joinchar + WPS.getCapStr);
 };
 
-WPS.stripGetCapReq = function(serverUrl) {
+WPS.stripReq = function(serverUrl) {
   return serverUrl.replace(WPS.getCapStr, '').slice(0, -1);  // slice strips last char
 };
 
@@ -363,7 +382,7 @@ WPS.getDescProcUrl = function(serverUrl, layerIdentifier) {
 };
 
 WPS.unwrapServer = function(url) {
-  return WPS.stripGetCapReq(decodeURIComponent(unwrapGeoProxy(url)));
+  return WPS.stripReq(decodeURIComponent(unwrapGeoProxy(url)));
 };
 
 WPS.stripDescProc = function(serverUrl, layerIdentifier) {
@@ -375,15 +394,15 @@ WPS.unwrapProcServer = function(url, layerIdentifier) {
 };
 
 WFS.unwrapServer = function(url) {
-  return WFS.stripGetCapReq(decodeURIComponent(unwrapGeoProxy(url)));
+  return WFS.stripReq(decodeURIComponent(unwrapGeoProxy(url)));
 };
 
 WCS.unwrapServer = function(url) {
-  return WCS.stripGetCapReq(decodeURIComponent(unwrapGeoProxy(url)));
+  return WCS.stripReq(decodeURIComponent(unwrapGeoProxy(url)));
 };
 
 WMS.unwrapServer = function(url) {
-  return WMS.stripGetCapReq(decodeURIComponent(unwrapGeoProxy(url)));
+  return WMS.stripReq(decodeURIComponent(unwrapGeoProxy(url)));
 };
 
 
