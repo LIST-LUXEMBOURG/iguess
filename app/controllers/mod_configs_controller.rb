@@ -122,7 +122,7 @@ class ModConfigsController < ApplicationController
 
                                    inputFields.push(d.dataset_type)
                                    inputValues.push(dataname) 
-                            }
+                              }
 
 
     # Text fields -- both inputs and outputs
