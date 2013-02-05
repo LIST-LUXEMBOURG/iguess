@@ -39,7 +39,7 @@ http://www.themusicproject.eu/
   
 == License
 
-This code is released under the GNU General Public License, version 2, 
+This code is released under the GNU General Public License, version 3, 
 please consult the LICENSE file for details.
 
  
