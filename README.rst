@@ -1,10 +1,12 @@
-== iGUESS - integrated Geospatial Urban Energy Information & Support System
+iGUESS - integrated Geospatial Urban Energy Information & Support System
+========================================================================
 
 Copyright 2010 - 2014 CRP Henri Tudor. All rights reserved. 
 Any use of this software constitutes full acceptance of all terms of the 
 software's license.
 
-== Abstract
+Abstract
+--------
 
 The integrated Geospatial Urban Energy Information & Support System
 (iGUESS) is currently being developed as part of an EU project to reduce
@@ -29,7 +31,8 @@ use of spatial multi-criteria analysis algorithms. Another aspect of iGUESS is
 the incorporation of uncertainties associated with input data and modelling
 results into the decision support.
 
-== Resources
+Resources
+---------
 
 A peer reviewed article describing iGUESS and its components:
 http://www.iemss.org/iemss2012/proceedings/A3_0783_Sousa_et_al.pdf
@@ -37,7 +40,8 @@ http://www.iemss.org/iemss2012/proceedings/A3_0783_Sousa_et_al.pdf
 The MUSIC project website:
 http://www.themusicproject.eu/
   
-== License
+License
+-------
 
 This code is released under the GNU General Public License, version 3, 
 please consult the LICENSE file for details.
