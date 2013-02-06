@@ -94,7 +94,7 @@ Ext.onReady(function() {
   WebGIS.layerTree = new Ext.tree.TreePanel({
     region: "west",
     title: 'Map Layers',
-    width: 273,
+    width: 270,
     collapsible: true,
     autoScroll: true,
     enableDD: true,
@@ -118,7 +118,7 @@ Ext.onReady(function() {
         }
     }
   });
-
+  
   var mainPanel = new Ext.Panel({
     layout:'border',
     bodyBorder: false,
@@ -131,7 +131,21 @@ Ext.onReady(function() {
       autoHide: false,
       useSplitTips: true,
     },
-    items: [mapPanel, WebGIS.layerTree]
+    items: [
+            mapPanel, 
+            WebGIS.layerTree,
+            { // Legend: must be created here to be auto-linked to the map
+        		region: "east",
+        		title: "Legend",
+        		xtype: "gx_legendpanel",
+        		width: 150,
+        		collapsible: true,
+        		autoScroll: true,
+        		enableDD: true,
+        		padding: 5,
+        		rootVisible: false,
+        		lines: false
+          }]
   });
 
   WebGIS.zoomToCity();
