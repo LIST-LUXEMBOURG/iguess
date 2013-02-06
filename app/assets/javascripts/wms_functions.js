@@ -253,7 +253,7 @@ WCS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
   COMMON.updateLayerList(store, successFunction, failureFunction);
 
   fullUrl = WCS.descCovReq(serverUrl);
-  store = new GeoExt.data.WCSCapabilitiesStore({ url: fullUrl });
+  store = new GeoExt.data.WCSDescribeCoverageStore({ url: fullUrl });
   COMMON.updateLayerList(store, successFunction, failureFunction);
 };
 

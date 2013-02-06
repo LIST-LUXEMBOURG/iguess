@@ -6,21 +6,21 @@
 // Callback for WMS get capabilities success
   var onWmsGetCapabilitiesSucceeded = function(dataProxy, records)
   {
-    processIncomingLayers(dataProxy, records.length, 'WMS');
+    processIncomingLayers(dataProxy, records, 'WMS');
   };
 
 
   // Callback for WFS get capabilities success
   var onWfsGetCapabilitiesSucceeded = function(dataProxy, records)
   {
-    processIncomingLayers(dataProxy, records.length, 'WFS');
+    processIncomingLayers(dataProxy, records, 'WFS');
   };
 
 
  // Callback for WCS get capabilities success
   var onWcsGetCapabilitiesSucceeded = function(dataProxy, records)
   {
-    processIncomingLayers(dataProxy, records.length, 'WCS');
+    processIncomingLayers(dataProxy, records, 'WCS');
   };
 
   var onWmsGetCapabilitiesFailed = function() {  
@@ -90,18 +90,16 @@
 
 
   // Basic dataset object -- this is what we track for datasets seen on remote server
-  var Dataset = function(serverUrl, record, type) {
-    this.serverUrl  = serverUrl;
-    this.identifier = record.get("name") || record.id;
-    this.title      = record.get("title") || record.get("name");
-    this.abstract   = record.get("abstract");
-    this.type       = [type];
-    
-    this.srs  = null;
-    this.bbox = null;
+  var Dataset = function(serverUrl, type, record) 
+  {
+    this.serverUrl = serverUrl;
+    this.type      = [type];
 
-    this.setSrs  = function(srs)  { this.srs = srs; }
-    this.setBbox = function(bbox) { this.bbox = bbox; }
+    if(record) {
+      this.identifier  = record.get("name")  || record.id;
+      this.title       = record.get("title") || record.get("name");
+      this["abstract"] = record.get("abstract");    // abstract is a js reserved word!
+    }
   };
 
 
@@ -132,37 +130,84 @@
       discoveredLayers[key] = dataset;
     }
 
+    // alert(registeredDatasets[dataset.serverUrl][dataset.identifier] + "   " + service);
+
     // If this is a registered layer, update its title now (unregistered layers aren't displayed here)
     if(registeredDatasets[dataset.serverUrl] && registeredDatasets[dataset.serverUrl][dataset.identifier])
       $(".dataset-title-" + registeredDatasets[dataset.serverUrl][dataset.identifier]).text(dataset.title);
   };
 
 
+  var wcsReplies = {};
+
   // Handles results from WMS, WFS, and WCS getCapabilities calls
-  var processIncomingLayers = function(dataProxy, count, service)
+  var processIncomingLayers = function(dataProxy, records, service)
   {
     var serverUrl;
 
-    if     (service == 'WFS') { serverUrl = WFS.unwrapServer(dataProxy.url); }
-    else if(service == 'WMS') { serverUrl = WMS.unwrapServer(dataProxy.url); }
-    else if(service == 'WCS') { serverUrl = WCS.unwrapServer(dataProxy.url); }
+    if     (service === 'WFS') { serverUrl = WFS.unwrapServer(dataProxy.url); }
+    else if(service === 'WMS') { serverUrl = WMS.unwrapServer(dataProxy.url); }
+    else if(service === 'WCS') { 
+      // WCS is more complex, because we need two queries to get what we need, and we don't want to proceed until
+      // we have heard back from both
+      serverUrl = WCS.unwrapServer(dataProxy.url);
+
+      if(wcsReplies[serverUrl] === undefined) 
+        wcsReplies[serverUrl] = {};
+    }
     else { alert('Unexpected type ' + service); }
 
-    for(var i = 0; i < count; i++) {
-      var record = dataProxy.getAt(i);
-      var dataset = new Dataset(serverUrl, record, service);
+    var ready = true;
 
-      // Some services require special handling
-      if(service == 'WMS') {
-        dataset.setSrs (record.data.srs);
-        dataset.setBbox(record.data.bbox);
+    for(var i = 0, len = records.length; i < len; i++) {
+      var record = records[i];
+
+      if(service === 'WMS' || service === 'WFS') {
+        var dataset = new Dataset(serverUrl, service, record);
+
+        if(service === 'WMS') {
+          dataset.srs  = record.data.srs;
+          dataset.bbox = record.data.bbox;
+        }
+
+        foundDataset(dataset, service);
       }
 
-      foundDataset(dataset, service);
+      else if(service === 'WCS') {
+        var id = record.id;
+
+        if(!wcsReplies[serverUrl][id])
+        {
+          wcsReplies[serverUrl][id] = new Dataset(serverUrl, service);
+          ready = false;
+        }
+
+        var dataset = wcsReplies[serverUrl][id];
+
+        if(dataProxy.reader.meta.format.name === 'WCSCapabilities') {
+          // GetCapabilities response
+          dataset.identifier  = record.id;
+          dataset.name        = record.get("name");
+          dataset.title       = record.get("title");
+          dataset["abstract"] = record.get("abstract");
+        }
+        else {
+          // DescribeCoverage response
+          dataset.format      = record.get("supportedFormats")[0];
+          dataset.srs         = record.get("nativeCRS");
+          dataset.bbox        = record.get("nativeBoundingBox");
+          dataset.resolution  = record.get("gridOffsets");
+        }
+
+        if(ready)
+          foundDataset(dataset, service);
+      }
     }
 
-    var serviceInfo = (dataProxy.reader && dataProxy.reader.raw && dataProxy.reader.raw.service) || null;
-    doneProcessing(serverUrl, service, serviceInfo, 'OK');
+    if(ready) {
+      var serviceInfo = (dataProxy.reader && dataProxy.reader.raw && dataProxy.reader.raw.service) || null;
+      doneProcessing(serverUrl, service, serviceInfo, 'OK');
+    }
   };
 
 </script>

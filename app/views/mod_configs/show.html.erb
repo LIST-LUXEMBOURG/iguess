@@ -52,7 +52,7 @@
   var onDescribedProcess = function(process) {
 
     $('#based-on').html((process.title || process.name) + ' template');   // "Based on..."
-    $('#mod-descr').html(process.abstract);                               // "Details..."
+    $('#mod-descr').html(process["abstract"]);                             // "Details..."
 
     var serverUrl = process.wps.executeUrlGet;
 
@@ -104,7 +104,7 @@
 
     $('#input-output-form').find(':input').each( function() {
       if($(this).is('input')) {
-        if($(this).val() == "") { 
+        if($(this).val() === '') { 
           stat = 'NEEDS_DATA';   // Found a missing dataset, so update the status to NEEDS_DATA and quit
         }
       }
@@ -115,76 +115,75 @@
 
 
   function updateScreen(statusCode, message) {
-      hideButtons();
+    hideButtons();
 
-      $('#status_display').text(getPrettyStatusName(statusCode));
+    $('#status_display').text(getPrettyStatusName(statusCode));
 
-      if(statusCode == 'NEEDS_DATA') {    // Module just created, needs data
-        $('#explanation').html("Before you can run this module, you need to supply data or values for each of the inputs. " +
-                               "You can do this by selecting a dataset from the list provided for each parameter, or by creating new datasets.");
-        enableEditing();
+    if(statusCode == 'NEEDS_DATA') {    // Module just created, needs data
+      $('#explanation').html("Before you can run this module, you need to supply data or values for each of the inputs. " +
+                             "You can do this by selecting a dataset from the list provided for each parameter, or by creating new datasets.");
+      enableEditing();
 
-      } else if(statusCode == 'READY') {    // Module ready to go... maybe
-        // The thing is, we still don't really know if we're ready, as the server has no knowledge of exactly what params we need.
-        // The server _thinks_ we've got everything, but only we know for sure.  So let's make sure all inputs are in fact specified.
+    } else if(statusCode == 'READY') {    // Module ready to go... maybe
+      // The thing is, we still don't really know if we're ready, as the server has no knowledge of exactly what params we need.
+      // The server _thinks_ we've got everything, but only we know for sure.  So let's make sure all inputs are in fact specified.
 
-        $('#explanation').html("This module has all its data and is ready to run.  Click the Run button to start the process.");
-        enableEditing();
-        showRunButton('Run Module >>>');
+      $('#explanation').html("This module has all its data and is ready to run.  Click the Run button to start the process.");
+      enableEditing();
+      showRunButton('Run Module >>>');
 
-      } else if(statusCode == 'RUNNING') {    // Module is running
-        $('#stop_module_button_container').show();
-        $('#explanation').html("This module is currently running.  You can refresh this page, " +
-                               "or check back later to monitor the module's progress, " +
-                               "but you cannot change dataset information while the module is running.");
+    } else if(statusCode == 'RUNNING') {    // Module is running
+      $('#stop_module_button_container').show();
+      $('#explanation').html("This module is currently running.  You can refresh this page, " +
+                             "or check back later to monitor the module's progress, " +
+                             "but you cannot change dataset information while the module is running.");
 
-          if(message != '') {
-            $('#status_display').append('<br>' + message);
-          }
-        
-          disableEditing();
-          startPolling();
+        if(message !== '') {
+          $('#status_display').append('<br>' + message);
+        }
+      
+        disableEditing();
+        startPolling();
 
-      } else if(statusCode == 'FINISHED') {   // Module run compete
-        $('#explanation').html("This module has been successfully run.  You can now view the outputs in the Data Manager.");
-        enableEditing();
+    } else if(statusCode == 'FINISHED') {   // Module run compete
+      $('#explanation').html("This module has been successfully run.  You can now view the outputs in the Data Manager.");
+      enableEditing();
 
-        showRunButton('Run Module Again >>>');
+      showRunButton('Run Module Again >>>');
 
-      } else if(statusCode == 'ERROR') {    // Module run ended in error
-        $('#explanation').html("We experienced an error running this configuration.  The WPS server replied:<br>" +
-                               "<code><%= escape_javascript @mod_config.status_text %></code>");
-        enableEditing();
-        showRunButton('Try Running Module Again >>>');
-      }
-
-      $("body").css("cursor", "auto");
+    } else if(statusCode == 'ERROR') {    // Module run ended in error
+      $('#explanation').html("We experienced an error running this configuration.  The WPS server replied:<br>" +
+                             "<code><%= escape_javascript @mod_config.status_text %></code>");
+      enableEditing();
+      showRunButton('Try Running Module Again >>>');
     }
 
-    // User has updated an input or output entry slot (called via onChange event)
-    var onInputOutputTextEntryChanged = function() {
-      var status = checkDataStatus();
-      $('#hidden_status_tag').val(status);
+    $("body").css("cursor", "auto");
+  }
 
-      $('#input-output-form').submit();
-    }
+  // User has updated an input or output entry slot (called via onChange event)
+  var onInputOutputTextEntryChanged = function() {
+    var status = checkDataStatus();
+    $('#hidden_status_tag').val(status);
+
+    $('#input-output-form').submit();
+  };
+
+  // Gets triggered when a selected dataset changes
+  function onSelectedDatasetChanged() {
+
+    var status = checkDataStatus();
+    $('#hidden_status_tag').val(status);
+    $('#input-output-form').submit();
+  }
 
 
   getWmsLayers(registeredDataServers);
   getWfsLayers(registeredDataServers);
   getWcsLayers(registeredDataServers);
 
-
-    // Gets triggered when a selected dataset changes
-    function onSelectedDatasetChanged() {
-
-      var status = checkDataStatus();
-      $('#hidden_status_tag').val(status);
-      $('#input-output-form').submit();
-    }
-
-
 </script>
+
 
 <div class="explanation" id="explanation">
   This is the primary module control panel.  You can modify or run the module.
@@ -243,7 +242,7 @@
   <%= link_to 'View Module List', mod_configs_path, :class => 'linkbutton' %>
 
   <span id="run_module_button_container" style="display:none">
-    <%= button_to 'Run Module >>>', { :action => 'run', :controller => 'mod_configs', :id => @mod_config }, 
+    <%= button_to 'Run Module >>>', { :action => 'run', :controller => 'mod_configs', :id => @mod_config}, 
                                    :remote => true, :class => 'linkbutton', :id => 'run-module-button', 
                                    # :confirm =>'Are you sure?',
                                    form: { :id => "run-module-form", 'data-type' => 'json' }  %>
