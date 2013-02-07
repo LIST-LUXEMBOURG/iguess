@@ -97,7 +97,6 @@ class ModConfigsController < ApplicationController
 # SERVICE=WCS&VERSION=1.0.0&REQUEST=GetCoverage&IDENTIFIER=ro_dsm_mini&
 # FORMAT=image/tiff&BBOX=92213,436671.500,92348,436795.000&CRS=EPSG:28992&RESX=1&RESY=1
 
-
     # Drop downs -- always inputs
     @mod_config.datasets.map { |d| 
                                     if(d.service == 'WCS') then
@@ -122,7 +121,7 @@ class ModConfigsController < ApplicationController
 
                                    inputFields.push(d.dataset_type)
                                    inputValues.push(dataname) 
-                            }
+                              }
 
 
     # Text fields -- both inputs and outputs
@@ -133,7 +132,7 @@ class ModConfigsController < ApplicationController
                                                 outputFields.push(d.column_name)
                                                 outputTitles.push(d.value)
                                               end
-                                      }
+                                        }
 
     argUrl       = '--url="'        + @mod_config.wps_server.url + '"'
     argProc      = '--procname="'   + @mod_config.identifier + '"'
