@@ -68,7 +68,7 @@ WPS.probeWPS = function(serverUrl, onReceivedServerInfoFunction, onDescribedProc
   WPS.onDescribedProcessFunction   = onDescribedProcessFunction;
 
   var url = WPS.getCapReq(serverUrl);
-
+  // alert(url);
   // Init the client and run get capabilities.  When a response arrives, we call the function onGotCapabilities
   var wps = new OpenLayers.WPS(url, { onGotCapabilities: WPS.onGotCapabilities,
                                       onSucceeded:   function() { alert('succ');},
@@ -114,7 +114,6 @@ showErrorMessage = function (process, code, text) {
 };
 
 
-
 var onWpsError = function() { };    // Override to do something!
 
 
@@ -124,14 +123,12 @@ probingWPSError = function (request) {
 };
 
 
-
 showPreErrorMessage = function (process, code, text) {
   // newWin = window.open('', 'Service Error Message', 'height=400, width=600, toolbar=no, menubar=no');
   // newWin.document.write("ShowPreErrorMessage");
 
   // newWin.document.write("<pre>" + process.responseText + "</pre>");
 };
-
 
 
 WPS.onGetServerInfo = function()

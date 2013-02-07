@@ -1,21 +1,23 @@
 <script type="text/javascript">
 
   // Create a structure of registered datasets organized by identifier -- this will make retrieval below much more efficient
-  registeredDataLayersById = {};
+  var registeredDataLayersByIdentifier = {};    // Indexed by identifier string
+  var registeredDataLayersById = {};            // Indexed by datasetId
 
   <%= @datasets.reject{ |d| d.finalized == false }
                .map{ |d| d.dataset_type }
                .uniq
-               .map{ |d| "registeredDataLayersById['" + d + "'] = [];\n" }
+               .map{ |d| "registeredDataLayersByIdentifier['" + d + "'] = [];\n" }
                .join(' ') %>
                          
-
   <%= @datasets.reject{ |d| d.finalized == false }.
-                map{ |d| "registeredDataLayersById['" + d.dataset_type + "'].push({" +
+                map{ |d| "registeredDataLayersByIdentifier['" + d.dataset_type + "'].push({" +
                             "identifier:'" + d.identifier + "'," +
                             "datasetId:"   + d.id.to_s() + "," +
                             "serverUrl:'"  + d.server_url.gsub('\\') { '\\\\' } + "'" +
-                          "});\n"
+                          "});\n" +
+                          "registeredDataLayersById[" + d.id.to_s() + "] = " +
+                                "registeredDataLayersByIdentifier['" + d.dataset_type + "'][registeredDataLayersByIdentifier['" + d.dataset_type + "'].length - 1];\n"
                     }.
                 join(' ') %>
 
@@ -23,23 +25,20 @@
   // mode will be "input" or "output"
   // We may get here before discoveredLayers is populated.  In which case, we'll assign a class id, and update the entry
   // as further items arrive.  In other contexts, discoveredLayers may already be fully populated.
-  var createDatasetSelectionControl = function(parameterIdentifier, mode)
+  var createDatasetSelectionControls = function(parameterIdentifier, mode)
   {
-    var ctrl = $(document.createElement('select'));
-    ctrl.attr('name', 'datasets[' + parameterIdentifier + ']');
-    ctrl.attr('id', parameterIdentifier + mode);
+    var ctrl = $(document.createElement('select'))
+            .attr('name', 'datasets[' + parameterIdentifier + ']')
+            .attr('id', parameterIdentifier + mode);
 
-    for(var i = 0, len = registeredDataLayersById[parameterIdentifier].length; i < len; i++) {
-      var datasetId = registeredDataLayersById[parameterIdentifier][i].datasetId;
-
+    for(var i = 0, len = registeredDataLayersByIdentifier[parameterIdentifier].length; i < len; i++) {
       var title = "Unknown Title";  
-      
 
       // Here we create our dropdown of possible datasets.  All datasets presented have already been registered with the server.
       // Note that the value here will be the id of this layer as stored in the database on the server.
-      var serverUrl         = registeredDataLayersById[parameterIdentifier][i].serverUrl;
-      var datasetIdentifier = registeredDataLayersById[parameterIdentifier][i].identifier;
-      var id                = registeredDatasets[serverUrl][datasetIdentifier];
+      var serverUrl         = registeredDataLayersByIdentifier[parameterIdentifier][i].serverUrl;
+      var datasetIdentifier = registeredDataLayersByIdentifier[parameterIdentifier][i].identifier;
+      var datasetId         = registeredDatasets[serverUrl][datasetIdentifier];
 
 
       // If we already know the title of this one, insert it now
@@ -48,11 +47,60 @@
       } 
 
       if(id) {
-        ctrl.append('<option class="dataset-title-' + id + '" value="' + id + '">' + title + '</option>');
+        ctrl.append('<option class="dataset-title-' + datasetId + '" value="' + datasetId + '">' + title + '</option>');
       }
     }
 
-    return ctrl;
+    ctrl.change(function() {
+      if(registeredDataLayersById[+this.value]) {
+        var url = registeredDataLayersById[+this.value].serverUrl;
+        var id  = registeredDataLayersById[+this.value].identifier;
+        var dataset = discoveredLayers[url + id];
+
+        $('#hidden-field-' + parameterIdentifier + '-srs').val(dataset.srs);
+        $('#hidden-field-' + parameterIdentifier + '-dformat').val(dataset.format);
+        $('#hidden-field-' + parameterIdentifier + '-bbox-left').val(dataset.bbox.left);
+        $('#hidden-field-' + parameterIdentifier + '-bbox-right').val(dataset.bbox.right);
+        $('#hidden-field-' + parameterIdentifier + '-bbox-top').val(dataset.bbox.top);
+        $('#hidden-field-' + parameterIdentifier + '-bbox-bottom').val(dataset.bbox.bottom);
+        $('#hidden-field-' + parameterIdentifier + '-res-x').val(dataset.resolution.x);
+        $('#hidden-field-' + parameterIdentifier + '-res-y').val(dataset.resolution.y);
+      }
+    });
+
+    return [ ctrl,
+             $('<input>').attr('type','hidden')
+                        .attr('name', 'srs[' + parameterIdentifier + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + '-srs'),
+
+             $('<input>').attr('type','hidden')
+                        .attr('name', 'dformat[' + parameterIdentifier + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + '-dformat'),
+
+             $('<input>').attr('type','hidden')
+                        .attr('name', 'bbox-left[' + parameterIdentifier + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + '-bbox-left'),
+             $('<input>').attr('type','hidden')
+                        .attr('name', 'bbox-right[' + parameterIdentifier + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + '-bbox-right'),
+             $('<input>').attr('type','hidden')
+                        .attr('name', 'bbox-top[' + parameterIdentifier + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + '-bbox-top'),
+             $('<input>').attr('type','hidden')
+                        .attr('name', 'bbox-bottom[' + parameterIdentifier + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + '-bbox-bottom'),
+
+
+             $('<input>').attr('type','hidden')
+                        .attr('name', 'res-x[' + parameterIdentifier + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + '-res-x'),
+             $('<input>').attr('type','hidden')
+                        .attr('name', 'res-y[' + parameterIdentifier + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + '-res-y')
+           ];                             
+
+
+    return [ctrl, srsField];
   };
 
 
@@ -107,7 +155,9 @@
 
 
         if('<%= mode %>' == 'input' && items[i].type == "complex") {      // Dropdown showing existing datasets of proper type
-          var control = createDatasetSelectionControl(item.identifier, '<%= mode %>');
+          var controls = createDatasetSelectionControls(item.identifier, '<%= mode %>');
+
+          control = controls[0];
           control.attr('class', 'disablable');
 
           if(control.children().length == 0) {
@@ -127,6 +177,11 @@
               control.val(datasetValues[item.identifier]);
             else 
               control.val(-1);
+          }
+
+          // Add any other (hidden) controls returned by createDatasetSelectionControls()
+          for(var j = 1, len = controls.length; j < len; j++) {
+            cell.append(controls[j]);
           }
         }
         else if('<%= mode %>' == 'output' && items[i].type != "complex") {    // No input required, just display of value

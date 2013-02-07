@@ -228,6 +228,7 @@ OpenLayers.WPS = OpenLayers.Class({
         this.describeProcessUrlPost = url;
         this.executeUrlPost = url;
 
+
         OpenLayers.Util.extend(this,options);
 
         /* if (this.getCapabilitiesUrlGet) {
@@ -774,7 +775,7 @@ OpenLayers.WPS = OpenLayers.Class({
         data = data.replace("$DATA_INPUTS$",inputs);
         data = data.replace("$OUTPUT_DEFINITIONS$",outputs);
 
-        console.log(data);
+        console.log("data: ", data);
         this.requestText = data;
         var request = OpenLayers.Request.POST({url:uri,data:data,success:this.parseExecute,failure:this.onException,scope:this});
     },
@@ -789,7 +790,7 @@ OpenLayers.WPS = OpenLayers.Class({
     //NOTE: Problem, In case of ExceptionReport the code just crashes in line 757
     parseExecute: function(resp) {
         var text = resp.responseText;
-        console.log(text);
+        console.log("text: ", text);
 
         this.responseText = text;
         if (OpenLayers.Util.getBrowserName() == "msie") {

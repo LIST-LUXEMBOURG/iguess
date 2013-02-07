@@ -165,17 +165,18 @@
   var onInputOutputTextEntryChanged = function() {
     var status = checkDataStatus();
     $('#hidden_status_tag').val(status);
-
     $('#input-output-form').submit();
   };
 
   // Gets triggered when a selected dataset changes
-  function onSelectedDatasetChanged() {
-
+  var onSelectedDatasetChanged = function() {
     var status = checkDataStatus();
     $('#hidden_status_tag').val(status);
     $('#input-output-form').submit();
-  }
+
+    // If this is a WCS, we have more data to ship
+
+  };
 
 
   getWmsLayers(registeredDataServers);
@@ -282,8 +283,8 @@
     });
 
     $('#input-output-form').bind('ajax:error', function(evnt, jqXHR, ajaxSettings, thrownError) { 
-      alert("There was an error.  Please see the console log for information.");
-      console.log(arguments); 
+      alert("iGUESS: There was an error.  Please see the console log for information.");
+      console.log("error: ", arguments); 
    });
 
     // Response handler for best_in_class fields (Name and Note)

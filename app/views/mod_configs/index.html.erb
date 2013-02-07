@@ -235,7 +235,9 @@
   // For each WPS url in our database, start probing the server
   // We need the results of onReceivedWpsServerInfo to complete the Configured Modules tab
   // We need the results of onDescribedProcess to complete the Module Catalog tab
-  for(var i = 0; i < urls.length; i++) { WPS.probeWPS(urls[i], onReceivedWpsServerInfo, onDescribedProcess);  }
+  for(var i = 0, len = urls.length; i < len; i++) {
+    WPS.probeWPS(urls[i], onReceivedWpsServerInfo, onDescribedProcess);  
+  }
 
 
   var updateConfigModTables = function() 
@@ -357,7 +359,7 @@
 
 
   <div id="module_catalog_tab">
-    <div>
+    <div> 
       <% if @wps_servers.length > 0 %>
         Catalog of modules found on the following servers:
       <% else %>
@@ -369,7 +371,7 @@
           <li>
             <div>
               <!-- wps-title-xxx is a class not an id because we have several items that need the same treatment --> 
-              <span class="wps-title wps-title-<%= s.id %>"></span> <span class="wps-providerName wps-providerName-<%= s.id %>"></span>
+              <span class="wps-title wps-title-<%= s.id %>"><%= s.url %></span> <span class="wps-providerName wps-providerName-<%= s.id %>">Unknown provider</span>
               <img src="/assets/small_question_mark.gif" class="info-icon" alt="More info" title="Click for details" rel="#infotable-<%= s.id %>">
             </div>
             <div class="wps-descr" class="wps-abstr-<%= s.id %>"></div>

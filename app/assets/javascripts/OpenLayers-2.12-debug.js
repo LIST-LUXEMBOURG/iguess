@@ -10996,6 +10996,8 @@ OpenLayers.Request = {
             {proxy: OpenLayers.ProxyHost}
         );
         config = OpenLayers.Util.applyDefaults(config, defaultConfig);
+
+        //delete config.headers["X-Requested-With"];
         
         // Always set the "X-Requested-With" header to signal that this request
         // was issued through the XHR-object. Since header keys are case 

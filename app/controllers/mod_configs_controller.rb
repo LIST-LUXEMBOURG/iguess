@@ -275,8 +275,19 @@ class ModConfigsController < ApplicationController
           if(id != "-1") then
             confds = ConfigDataset.new()
             dataset = Dataset.find(id)
+
             confds.mod_config = @mod_config
             confds.dataset    = dataset
+            confds.format     = params["dformat"][name]
+            confds.crs        = params["srs"][name]
+
+            confds.bbox_left   = params["bbox-left"][name]
+            confds.bbox_right  = params["bbox-right"][name]
+            confds.bbox_top    = params["bbox-top"][name]
+            confds.bbox_bottom = params["bbox-bottom"][name]
+
+            confds.res_x = params["res-x"][name]
+            confds.res_y = params["res-y"][name]
 
             ok &= confds.save()
           end
@@ -302,12 +313,12 @@ class ModConfigsController < ApplicationController
       end
     end
 
+
     @mod_config.status = nil
 
     # @mod_config.status = getStatus(@mod_config)
 
     ok == ok && @mod_config.update_attributes(params[:mod_config])
-
 
     respond_to do |format|
       if ok

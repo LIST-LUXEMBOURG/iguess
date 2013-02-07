@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130201170018) do
+ActiveRecord::Schema.define(:version => 20130207171043) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -29,6 +29,14 @@ ActiveRecord::Schema.define(:version => 20130201170018) do
   create_table "config_datasets", :force => true do |t|
     t.integer "dataset_id",    :null => false
     t.integer "mod_config_id", :null => false
+    t.text    "format"
+    t.float   "bbox_left"
+    t.float   "bbox_right"
+    t.float   "bbox_top"
+    t.float   "bbox_bottom"
+    t.text    "crs"
+    t.float   "res_x"
+    t.float   "res_y"
   end
 
   create_table "config_text_inputs", :force => true do |t|

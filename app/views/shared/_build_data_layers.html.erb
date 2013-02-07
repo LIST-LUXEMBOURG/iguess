@@ -95,6 +95,15 @@
     this.serverUrl = serverUrl;
     this.type      = [type];
 
+    this.identifier  = null;
+    this.name        = null;
+    this.title       = null;
+    this["abstract"] = null;
+    this.format      = null;
+    this.srs         = null;
+    this.bbox        = {left: null, right: null, top: null, bottom: null};
+    this.resolution  = {x: null, y:null};
+
     if(record) {
       this.identifier  = record.get("name")  || record.id;
       this.title       = record.get("title") || record.get("name");
