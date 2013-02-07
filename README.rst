@@ -1,4 +1,4 @@
-   iGUESS - integrated Geospatial Urban Energy Information & Support System
+iGUESS - integrated Geospatial Urban Energy Information & Support System
 ===============================================================================
 
 Copyright 2010 - 2014 CRP Henri Tudor. All rights reserved. 
