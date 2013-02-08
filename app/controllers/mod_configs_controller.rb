@@ -328,7 +328,7 @@ class ModConfigsController < ApplicationController
         format.json { render :json => @mod_config, :status => :ok }   # <== For best_in_place
       else
         format.html { render action: "edit" }   # Need to handle errors here
-        format.js { render json: @mod_config.errors, status: :unprocessable_entity }
+        format.js { render :json => @mod_config.errors, :status => :unprocessable_entity }
       end
     end
   end

@@ -93,21 +93,14 @@
       stat = 'NEEDS_DATA';
     }
 
-
     $('#input-output-form').find(':input').each( function() {
-      if($(this).is('select')) {
-        if($(this).val() == -1) { 
-          stat = 'NEEDS_DATA';   // Found a missing dataset, so update the status to NEEDS_DATA and quit
-        }
-      }
+      if($(this).is('select') && $(this).val() == -1) 
+        stat = 'NEEDS_DATA';   // Found a missing dataset, so update the status to NEEDS_DATA and quit
     });
 
     $('#input-output-form').find(':input').each( function() {
-      if($(this).is('input')) {
-        if($(this).val() === '') { 
-          stat = 'NEEDS_DATA';   // Found a missing dataset, so update the status to NEEDS_DATA and quit
-        }
-      }
+      if($(this).is('input') && $(this).is(':visible') && $(this).val() === '') 
+        stat = 'NEEDS_DATA';   // Found a missing dataset, so update the status to NEEDS_DATA and quit
     });
 
     return stat;
@@ -117,7 +110,7 @@
   function updateScreen(statusCode, message) {
     hideButtons();
 
-    $('#status_display').text(getPrettyStatusName(statusCode));
+    $('#status-display').text(getPrettyStatusName(statusCode));
 
     if(statusCode == 'NEEDS_DATA') {    // Module just created, needs data
       $('#explanation').html("Before you can run this module, you need to supply data or values for each of the inputs. " +
@@ -139,7 +132,7 @@
                              "but you cannot change dataset information while the module is running.");
 
         if(message !== '') {
-          $('#status_display').append('<br>' + message);
+          $('#status-display').append('<br>' + message);
         }
       
         disableEditing();
@@ -191,7 +184,7 @@
 </div>
 
 <div class="module-status-box">
-  MODULE STATUS: <span id="status_display"><img src="/assets/loading_spinner.gif" width=16 height=11> Checking...</span>
+  MODULE STATUS: <span id="status-display"><img src="/assets/loading_spinner.gif" width=16 height=11> Checking...</span>
 </div>
 
 <div class="simple_form">
@@ -269,7 +262,7 @@
 
 
     $('#run-module-form').bind('ajax:success', function(xhr, data, status) { 
-      updateScreen(data.status, data.status_text); 
+            updateScreen(data.status, data.status_text); 
     });
 
 
