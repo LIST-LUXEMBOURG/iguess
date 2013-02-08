@@ -10,13 +10,18 @@ Iguess::Application.routes.draw do
   resources :config_datasets
   
   resources :maps
+
+  match 'about', :to => 'about#index'
+
+  # map.with_options :controller => 'about' do |about|
+  #   about.about 'about', :action => 'about'
+  #   # about.contact 'contact', :action => 'contact'
+  # end
   
   get "home/index"
   get "home/geoproxy"
   
-  # You can have the root of your site routed with "root"
-  # just remember to delete public/index.html.
-  # root :to => 'welcome#index'
+  # Use root as a shorthand to name a route for the root path “/”.
   root :to => "home#index"
 
   # The priority is based upon order of creation:
