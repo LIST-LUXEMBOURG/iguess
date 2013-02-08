@@ -99,20 +99,21 @@ class ModConfigsController < ApplicationController
 
     # Drop downs -- always inputs
     @mod_config.datasets.map { |d| 
-                                    if(d.service == 'WCS') then
-                                          format = "image/tiff"
-                                          bbox = "92213,436671.500,92348,436795.000"
-                                          crs = "EPSG:28992"
-                                          resx = "1"
-                                          resy = "1"
+                                    c = ConfigDataset.find_by_mod_config_id_and_dataset_id(@mod_config.id, d.id)
 
-                                          params = "&FORMAT=" + format +
-                                                   "&BBOX=" + bbox +
-                                                   "&CRS=" + crs +
-                                                   "&RESX=" + resx +
-                                                   "&RESY=" + resy
-                                    else
-                                      params = ""
+                                    params = ""
+
+                                    if(c) then
+                                      if(c.format != "") then params += "&FORMAT=" + c.format end
+                                      if(c.crs    != "") then params += "&CRS="    + c.crs    end
+
+                                      if(c.bbox_left && c.bbox_right && c.bbox_top && c.bbox_bottom) then 
+                                        params += "&BBOX=" + c.bbox_left.to_s()  + "," + c.bbox_bottom.to_s() + "," +
+                                                             c.bbox_right.to_s() + "," + c.bbox_top.to_s()
+                                      end
+
+                                      if(c.res_x) then params += "&RESX=" + c.res_x.to_s() end
+                                      if(c.res_y) then params += "&RESY=" + c.res_y.to_s() end
                                     end
 
                                     dataname = d.server_url + (d.server_url.include?("?") == -1 ? "?" : "&") +
