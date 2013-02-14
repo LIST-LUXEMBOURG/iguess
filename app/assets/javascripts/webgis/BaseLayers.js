@@ -36,23 +36,16 @@ WebGIS.baseGoogleSt = function(menuItem) {
 
 WebGIS.baseGoogleHy = function(menuItem) {
     
-    menuItem.parentMenu.ownerCt.setText("Google Satellite");
+    menuItem.parentMenu.ownerCt.setText("Google Hybrid");
     
-    WebGIS.map.setBaseLayer(WebGIS.gsat);
+    WebGIS.map.setBaseLayer(WebGIS.ghyb);
 };
 
 WebGIS.baseGoogleSat = function(menuItem) {
     
     menuItem.parentMenu.ownerCt.setText("Google Satellite");
     
-    WebGIS.map.setBaseLayer(WebGIS.osm);
-    
-    WebGIS.osm.setVisibility(false);
-    WebGIS.gphy.setVisibility(false);
-    WebGIS.gmap.setVisibility(false);
-    WebGIS.ghyb.setVisibility(true);
-    WebGIS.gsat.setVisibility(false);
-    
+    WebGIS.map.setBaseLayer(WebGIS.gsat);   
 };
 
 WebGIS.getBaseLayers = function(mapProjection) {
