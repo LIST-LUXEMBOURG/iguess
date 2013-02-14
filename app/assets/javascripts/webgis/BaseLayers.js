@@ -17,53 +17,35 @@ WebGIS.baseOSM = function(menuItem) {
     
     menuItem.parentMenu.ownerCt.setText("Open Street Map");
     
-    WebGIS.osm.setVisibility(true);
-    WebGIS.gphy.setVisibility(false);
-    WebGIS.gmap.setVisibility(false);
-    WebGIS.ghyb.setVisibility(false);
-    WebGIS.gsat.setVisibility(false);
-    
+    WebGIS.map.setBaseLayer(WebGIS.osm);    
 };
 
 WebGIS.baseGooglePhy = function(menuItem) {
     
     menuItem.parentMenu.ownerCt.setText("Google Physical");
     
-    WebGIS.osm.setVisibility(false);
-    WebGIS.gphy.setVisibility(true);
-    WebGIS.gmap.setVisibility(false);
-    WebGIS.ghyb.setVisibility(false);
-    WebGIS.gsat.setVisibility(false);
-    
+    WebGIS.map.setBaseLayer(WebGIS.gphy);
 };
 
 WebGIS.baseGoogleSt = function(menuItem) {
     
     menuItem.parentMenu.ownerCt.setText("Google Streets");
     
-    WebGIS.osm.setVisibility(false);
-    WebGIS.gphy.setVisibility(false);
-    WebGIS.gmap.setVisibility(true);
-    WebGIS.ghyb.setVisibility(false);
-    WebGIS.gsat.setVisibility(false);
-    
+    WebGIS.map.setBaseLayer(WebGIS.gmap);
 };
 
 WebGIS.baseGoogleHy = function(menuItem) {
     
     menuItem.parentMenu.ownerCt.setText("Google Satellite");
     
-    WebGIS.osm.setVisibility(false);
-    WebGIS.gphy.setVisibility(false);
-    WebGIS.gmap.setVisibility(false);
-    WebGIS.ghyb.setVisibility(false);
-    WebGIS.gsat.setVisibility(true);
-    
+    WebGIS.map.setBaseLayer(WebGIS.gsat);
 };
 
 WebGIS.baseGoogleSat = function(menuItem) {
     
     menuItem.parentMenu.ownerCt.setText("Google Satellite");
+    
+    WebGIS.map.setBaseLayer(WebGIS.osm);
     
     WebGIS.osm.setVisibility(false);
     WebGIS.gphy.setVisibility(false);
