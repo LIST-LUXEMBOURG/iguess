@@ -138,8 +138,8 @@ class ModConfigsController < ApplicationController
     argUrl       = '--url="'        + @mod_config.wps_server.url + '"'
     argProc      = '--procname="'   + @mod_config.identifier + '"'
 
-    argName      = '--names="[' + inputFields.map  { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
-    argVals      = '--vals="['  + inputValues.map  { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
+    argName      = '--names="[' + inputFields.map { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
+    argVals      = '--vals="['  + inputValues.map { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
 
     argOuts      = '--outnames="['  + outputFields.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
     argOutTitles = '--titles="['    + outputTitles.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
