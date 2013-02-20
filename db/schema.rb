@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130220153309) do
+ActiveRecord::Schema.define(:version => 20130220164759) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -47,7 +47,7 @@ ActiveRecord::Schema.define(:version => 20130220153309) do
   end
 
   create_table "dataset_tags", :force => true do |t|
-    t.integer "datasets_id"
+    t.integer "dataset_id"
     t.text    "tag"
   end
 
