@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130207171043) do
+ActiveRecord::Schema.define(:version => 20130220153309) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -44,6 +44,11 @@ ActiveRecord::Schema.define(:version => 20130207171043) do
     t.text    "column_name",   :null => false
     t.text    "value"
     t.boolean "is_input"
+  end
+
+  create_table "dataset_tags", :force => true do |t|
+    t.integer "datasets_id"
+    t.text    "tag"
   end
 
   create_table "datasets", :force => true do |t|
