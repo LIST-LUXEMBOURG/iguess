@@ -54,7 +54,7 @@ WebGIS.getBaseLayers = function(mapProjection) {
 
 	WebGIS.gphy = new OpenLayers.Layer.Google(
             "Google Physical",
-            {type: google.maps.MapTypeId.TERRAIN, numZoomLevels: 20, animationEnabled: true}
+            {type: google.maps.MapTypeId.TERRAIN, numZoomLevels: 20, animationEnabled: true, transitionEffect: 'resize'}
     );
 	WebGIS.gmap = new OpenLayers.Layer.Google(
             "Google Streets", 
