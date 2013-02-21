@@ -38,7 +38,7 @@
   registeredDataLayers = {};
 
 
-  var makeRegisteredLayer = function(serverUrl, datasetIdentifier, datasetId, configCount) {
+  var makeRegisteredLayer = function(serverUrl, datasetIdentifier, datasetId, tags, configCount) {
 
     if(registeredDataLayers[serverUrl] === undefined)
       registeredDataLayers[serverUrl] = {};
@@ -47,6 +47,7 @@
       serverUrl:   serverUrl,
       identifier:  datasetIdentifier,
       id:          datasetId,
+      tags:        tags,
       configCount: configCount
     };
   };
@@ -57,7 +58,8 @@
                 map{ |d| "makeRegisteredLayer('" + d.server_url.gsub(/\\/, '\\\\\\') + "'," + 
                                              "'" + d.identifier + "'," + 
                                                    d.id.to_s() + "," + 
-                                                   d.mod_configs.count.to_s() + ");"
+                                                   "[" + d.dataset_tags.map{ |m| "'" + m.tag + "'" }.join(",") + "]," +
+                                                   d.mod_configs.count.to_s() + ");\n"
                     }.
                 join(' ') %>  
 
@@ -81,7 +83,7 @@
 			success: function(data) {  }
 	  });
 
-	  makeRegisteredLayer(serverUrl, dataTypeControl.value, registeredDatasets[serverUrl][layerIdentifier], 0);
+	  makeRegisteredLayer(serverUrl, dataTypeControl.value, registeredDatasets[serverUrl][layerIdentifier], [], 0);
   }
 
 
@@ -127,20 +129,20 @@
   };
 
 
-  function getDataTypeControlId(layerName)
+  var getDataTypeControlId = function(layerName)
   {
   	return 'data_type_' + layerName;
-  }
+  };
 
-  function getLayerNameFromCheckboxId(id)
+  var getLayerNameFromCheckboxId = function(id)
   {
   	return id.substring('registered_'.length);	// Remove 'registered_' from the front of the string
-  }
+  };
 
-  function getLayerNameFromDataTypeId(id)
+  var getLayerNameFromDataTypeId = function(id)
   {
   	return id.substring('data_type_'.length);	// Remove 'data_type_' from the front of the string
-  }
+  };
 
 
   // Called when we've gotten whatever response we're going to get from the server in question
@@ -277,8 +279,8 @@
             }
           }
 
-          if(registeredDataLayers[datasetId] != undefined) {
-            dataTypeControl.val(registeredDataLayers[datasetId].identifier);    // Make selected item selected
+          if(registeredDataLayers[layer.serverUrl][layer.identifier]) {
+            dataTypeControl.val(registeredDataLayers[layer.serverUrl][layer.identifier]);    // Make selected item selected
           }
         }
 
@@ -312,8 +314,8 @@
         servicesAvailNode.attr({ class:'dataset_services_available' });
         servicesAvailNode.text("Services: " + layer.type.join(', ') );
 
-        if(registeredDataLayers[datasetId] != undefined) {
-          servicesAvailNode.append('<br>Used in ' + registeredDataLayers[datasetId].configCount + ' configurations');
+        if(registeredDataLayers[layer.serverUrl][layer.identifier]) {  
+          servicesAvailNode.append('<br>Used in ' + registeredDataLayers[layer.serverUrl][layer.identifier].configCount + ' configurations');
         }
 
         var abstractNode = "";
@@ -338,6 +340,9 @@
                  .append(registerControl)
                  .append(servicesAvailNode)
                  .append('<br>')
+                 .append('<div>Tags: <span id="taglist-' + datasetId + '" class="taglist">' +  
+                          (registeredDataLayers[layer.serverUrl][layer.identifier] && registeredDataLayers[layer.serverUrl][layer.identifier].tags !== '' ? registeredDataLayers[layer.serverUrl][layer.identifier].tags : 'None') +
+                      '</span></div>')
                  .append(dataTypeControl);
 
         var sample_map = $(document.createElement('div'));
@@ -477,7 +482,7 @@
           headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
           success: function(data) {
             // Add layer to the list of registered layers
-            makeRegisteredLayer(serverUrl, data.identifier, data.id, 0);
+            makeRegisteredLayer(serverUrl, data.identifier, data.id, [], 0);
           }
         });
       }
