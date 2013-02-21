@@ -27,8 +27,9 @@
       var layer = wms.records[i];
 
       // If the layer is registered, add it to the map
+      // The fourth argument can be used to pass the layer type - see webgis/Styles.js
       if(registeredDatasets[serverUrl][layer.data.name])
-        WebGIS.addNewLayer(layer.data.title, serverUrl, layer.data.name);
+        WebGIS.addNewLayer(layer.data.title, serverUrl, layer.data.name, null);
     }
   };
 
