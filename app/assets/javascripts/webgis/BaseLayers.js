@@ -54,20 +54,22 @@ WebGIS.getBaseLayers = function(mapProjection) {
 
 	WebGIS.gphy = new OpenLayers.Layer.Google(
             "Google Physical",
-            {type: google.maps.MapTypeId.TERRAIN, numZoomLevels: 20}
+            {type: google.maps.MapTypeId.TERRAIN, numZoomLevels: 20, animationEnabled: true}
     );
 	WebGIS.gmap = new OpenLayers.Layer.Google(
             "Google Streets", 
-            {numZoomLevels: 20}
+            {numZoomLevels: 20, animationEnabled: true}
     );
 	WebGIS.ghyb = new OpenLayers.Layer.Google(
             "Google Hybrid",
-            {type: google.maps.MapTypeId.HYBRID, numZoomLevels: 20}
+            {type: google.maps.MapTypeId.HYBRID, numZoomLevels: 20, animationEnabled: true}
     );
 	WebGIS.gsat = new OpenLayers.Layer.Google(
             "Google Satellite",
-            {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22}
+            {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22, animationEnabled: true}
     );
+	
+	WebGIS.osm.animationEnabled = true;
     
 	WebGIS.osm.projection  = WebGIS.mapProjection;
 	WebGIS.gphy.projection = WebGIS.mapProjection;

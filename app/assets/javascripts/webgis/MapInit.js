@@ -75,7 +75,7 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName)
                  };
 
     var options = { isBaseLayer: false,     
-                    visibility:  false,   // By default, layers are off
+                    visibility:  false,   // By default layers are off
                     singleTile:  true,
            		 	transitionEffect: 'resize'
                   };
