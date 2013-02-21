@@ -18,24 +18,24 @@ WebGIS.ramps = new Array();
 WebGIS.vals  = new Array();
 
 // Solar
-WebGIS.ramps[WebGIS.SLD_SOLAR]  = [["#abd9e9"],["#ffffbf"],["#d7191c"]];
-WebGIS.vals[WebGIS.SLD_SOLAR]   = [0, 600, 1200];
+WebGIS.ramps[WebGIS.SLD_SOLAR] = new Array("#abd9e9", "#ffffbf", "#d7191c");
+WebGIS.vals[WebGIS.SLD_SOLAR]  = new Array(0, 600, 1200);
 
 // Geothermal
-WebGIS.ramps[WebGIS.SLD_GEOTH]  = [["#92c5de"],["#f7f7f7"],["#ca0020"]];
-WebGIS.vals[WebGIS.SLD_GEOTH]   = [0, 50, 100];
+WebGIS.ramps[WebGIS.SLD_GEOTH] = new Array("#92c5de", "#f7f7f7", "#ca0020");
+WebGIS.vals[WebGIS.SLD_GEOTH]  = new Array(0, 50, 100);
 
 // Fuel Poverty
-WebGIS.ramps[WebGIS.SLD_POVRT]  = [["#A6D96A"],["#FFFFBF"],["#D7191C"]];
-WebGIS.vals[WebGIS.SLD_POVRT]   = [0, 50, 100];
+WebGIS.ramps[WebGIS.SLD_POVRT] = new Array("#A6D96A", "#FFFFBF", "#D7191C");
+WebGIS.vals[WebGIS.SLD_POVRT]  = new Array(0, 50, 100);
 
 // Building Stock
-WebGIS.ramps[WebGIS.SLD_STOCK]  = [["#b2abd2"],["#f7f7f7"],["#e66101"]];
-WebGIS.vals[WebGIS.SLD_STOCK]   = [0, 50, 100];
+WebGIS.ramps[WebGIS.SLD_STOCK] = new Array("#b2abd2", "#f7f7f7", "#e66101");
+WebGIS.vals[WebGIS.SLD_STOCK]  = new Array(0, 50, 100);
 
 // Wind 
-WebGIS.ramps[WebGIS.SLD_GEOTH]  = [["#f7f7f7"],["#92c5de"],["#0571b0"]];
-WebGIS.vals[WebGIS.SLD_GEOTH]   = [0, 50, 100];
+WebGIS.ramps[WebGIS.SLD_GEOTH] = new Array("#f7f7f7", "#92c5de", "#0571b0");
+WebGIS.vals[WebGIS.SLD_GEOTH]  = new Array(0, 50, 100);
 
 
 WebGIS.getStyle = function(layerName, type) {
@@ -59,7 +59,7 @@ WebGIS.getStyle = function(layerName, type) {
 	sld += "		   <RasterSymbolizer>";
 	sld += "		     <ColorMap>";
 	
-	for (i = 0; i < ramps[type].lenght; i++)
+	for (i = 0; i < ramps[type].length; i++)
 		sld += "		       <ColorMapEntry color=\"" + ramps[type][i] + "\" quantity=\"" + vals[type][i] + "\" />";
 
 	sld += "		     </ColorMap>";
