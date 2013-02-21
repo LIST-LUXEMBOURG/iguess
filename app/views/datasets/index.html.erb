@@ -64,7 +64,7 @@
         '<img src="/assets/small_question_mark.gif" class="info-icon" ' +
                   'alt="More info" title="Click for details" rel="#infotable-' + datasetId + '">' +
       '</td>' +
-      '<td nowrap>' + (dataset.dataset_type === "" ? "Unknown" : dataset.dataset_type) + '</td>' +
+      '<td nowrap>' + (dataset.dataset_tags.length === 0 ? "None" : createTagList(dataset.dataset_tags)) + '</td>' +
       '<td width=145><div class="status-' + registeredDataAndMapServers[dataset.server_url] + 
         ' status2-' + datasetId + '">Probing server...  ' +
         '<img src="/assets/loading_spinner.gif"></div></td>' +
@@ -73,6 +73,20 @@
         'data-remote="true" rel="nofollow">Unregister</a></td> ' + 
       // '<td>SHOW MODULE LIST HERE??</td>' +
     '</tr>';
+  };
+
+
+  var createTagList = function(taglist) 
+  {
+    var list = "";
+
+    for(var i = 0, len = taglist.length; i < len; i++) {
+      if(i > 0) 
+        list += ", ";
+      list += taglist[i].tag;
+    }
+
+    return list; 
   };
 
 
