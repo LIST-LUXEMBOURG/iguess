@@ -76,7 +76,8 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName)
 
     var options = { isBaseLayer: false,     
                     visibility:  false,   // By default, layers are off
-                    singleTile:  true
+                    singleTile:  true,
+           		 	transitionEffect: 'resize'
                   };
 
     var layer = new OpenLayers.Layer.WMS(title, serviceURL, params, options);
