@@ -80,6 +80,8 @@
   {
     var list = "";
 
+    if(!taglist) debugger
+
     for(var i = 0, len = taglist.length; i < len; i++) {
       list += '<span class="tag">' + taglist[i].tag + '</span>';
     }
@@ -89,11 +91,16 @@
 
 
   // We found the layer
-  var updateLayerInfo = function(serverUrl, datasetId, name, descr, services) 
+  var updateLayerInfo = function(serverUrl, datasetId, dataset) 
   {
+    var name     = dataset.title.replace(/ /g,'&nbsp;');
+    var descr    = dataset.descr;
+    var services = dataset.services;
+
     $('.dataset-title-' + datasetId).html(name);    // Appears in the name column, also on infotable popup
     $('.dataset-descr-' + datasetId).html(descr);
     $('#results-'       + datasetId).html('');      // Clear
+
     var url = '';
     // Parse services... provide links for whatever services
     for (var i = 0, len = services.length; i < len; i++) {
@@ -174,7 +181,7 @@
         return;
       }
 
-      updateLayerInfo(serverUrl, datasetId, dataset.title.replace(/ /g,'&nbsp;'), dataset.descr, dataset.services);
+      updateLayerInfo(serverUrl, datasetId, dataset);
     }
   };
 
