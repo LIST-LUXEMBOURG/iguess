@@ -58,14 +58,15 @@
                 map{ |d| "makeRegisteredLayer('" + d.server_url.gsub(/\\/, '\\\\\\') + "'," + 
                                              "'" + d.identifier + "'," + 
                                                    d.id.to_s() + "," + 
-                                                   "[" + d.dataset_tags.map{ |m| "'" + m.tag + "'" }.join(",") + "]," +
+                                                   "[" + d.dataset_tags.reject{ |m| !m.tag }  # Prevent crash from blank tags
+                                                                       .map{ |m| "'" + m.tag + "'" }.join(",") + "]," +
                                                    d.mod_configs.count.to_s() + ");\n"
                     }.
                 join(' ') %>  
 
 
-  // User changes the value of one of the dataType dropdowns
-  function onDataTypeChanged(id)
+  // User adds or removes a tag
+  var onDataTypeChanged = function(id)
   {
     var layerIdentifier = getLayerNameFromDataTypeId(id);
     var serverUrl       = getServerUrl();
@@ -74,36 +75,56 @@
 		var dataTypeControl = document.getElementById(id);
 
 		$.ajax({
-			type: 'PUT',      // PUT combined with url below triggers "update" action on controller
-			url:  '<%= url_for(:controller => 'datasets', :action => 'update_data_type') %>',
-			data: 'dataset[identifier]='    + layerIdentifier +
-			      '&dataset[server_url]='   + serverUrl    +
-			      '&dataset[dataset_type]=' + dataTypeControl.value,
+			type:    'PUT',      // PUT combined with url below triggers "update" action on controller
+			url:     '<%= url_for(:controller => 'datasets', :action => 'add_data_tag') %>',
+			data:    'dataset[identifier]='  + layerIdentifier +
+               '&dataset[server_url]=' + serverUrl +
+               '&dataset_tag='         + dataTypeControl.value,
 			headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
-			success: function(data) {  }
+      success: function(data) { updateTags(tags); }
 	  });
+
+
+
+    // $.ajax({
+    //   type: 'PUT',      // PUT combined with url below triggers "update" action on controller
+    //   url:  '<%= url_for(:controller => 'datasets', :action => 'update_data_type') %>',
+    //   data: 'dataset[identifier]='    + layerIdentifier +
+    //         '&dataset[server_url]='   + serverUrl    +
+    //         '&dataset[dataset_type]=' + dataTypeControl.value,
+    //   headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
+    //   success: function(data) {  }
+    // });
+
+
 
 	  makeRegisteredLayer(serverUrl, dataTypeControl.value, registeredDatasets[serverUrl][layerIdentifier], [], 0);
   }
 
 
-  function confirmChange(id) 
+  var updateTags = function(tags)
   {
-    var layerName = getLayerNameFromDataTypeId(id);
-    var server    = getServerUrl();
-    var dataLayer = registeredDataLayers[server][layerIdentifier];
+debugger
+  }
 
-    if(dataLayer && dataLayer.configCount == 0) { return true; }
+
+  var confirmChange = function(id) 
+  {
+    var layerIdentifier = getLayerNameFromDataTypeId(id);
+    var serverUrl       = getServerUrl();
+    var dataLayer       = registeredDataLayers[serverUrl][layerIdentifier];
+
+    if(!dataLayer || dataLayer && dataLayer.configCount == 0) { return true; }
 
     var ct = dataLayer.configCount;
     var c  = (ct == 1) ? "configuration" : "configurations";
-    var t  = (ct == 1) ? "this" : "these";
-    var th = (ct == 1) ? "it" : "them";
+    var t  = (ct == 1) ? "this"          : "these";
+    var th = (ct == 1) ? "it"            : "them";
 
     return confirm("This dataset is in use by " + ct + " " + c + ". " +
                    "Changing its type will cause it to be removed from " + t + " " + c + ".\n\n" +
                    "Click OK if you are sure you want to change the type of this dataset.");
-  }
+  };
 
 
   // The city dropdown on the UR of the screen has changed
@@ -228,7 +249,8 @@
           visibleLayers += 1;
         }
 
-        var registered = registeredDataLayers[layer.serverUrl] && registeredDataLayers[layer.serverUrl][layer.identifier];  
+        var regLyr = registeredDataLayers[layer.serverUrl][layer.identifier];
+        var registered = registeredDataLayers[layer.serverUrl] && regLyr;  
 
         if((pass == 0 && !registered) || (pass == 1 && registered)) { continue; }
 
@@ -255,10 +277,13 @@
         if(dataDiscoveryComplete) {   // Will typically be the case, though we need to handle the case where this is false
 
           dataTypeControl = $(document.createElement('select'));
-          dataTypeControl.attr({ class:'data-type-dropdown-control', id:getDataTypeControlId(layer.identifier), disabled:!registered });
+          dataTypeControl.attr({ class:    'data-type-dropdown-control', 
+                                 id:       getDataTypeControlId(layer.identifier), 
+                                 disabled: !registered,
+                                 label:    'Add Tag:' 
+                               });
 
           // What to do when the user changes dataType for a layer
-
 
           dataTypeControl.focus(function() {
             prev_val = $(this).val();     // Store original value
@@ -278,33 +303,41 @@
               dataTypeControl.append('<option value="' + dataTypeList[j].id + '">' + dataTypeList[j].id + '</option>');
             }
           }
-
-          if(registeredDataLayers[layer.serverUrl][layer.identifier]) {
-            dataTypeControl.val(registeredDataLayers[layer.serverUrl][layer.identifier]);    // Make selected item selected
-          }
         }
 
         var registerControl = $(document.createElement('input'));
 
-        registerControl.attr({ type:'checkbox', name:'registered_' + layer.identifier, class:'switchbox',
-                               id:'registered_' + layer.identifier, value:"registered", checked:registered });
-
+        registerControl.attr({ type:    'checkbox', 
+                               name:    'registered_' + layer.identifier, 
+                               class:   'switchbox',
+                               id:      'registered_' + layer.identifier, 
+                               value:   'registered', 
+                               checked: registered 
+                             });
 
         var goog = $(document.createElement('img'));
 
-        if(availableInGoogleProjection) {
-          goog.attr({ src:"/assets/available_google_projection_yes.png", alt:"Available in Google projection" });
-        } else {
-          goog.attr({ src:"/assets/available_google_projection_no.png",  alt:"Not available in Google projection" });
-        }
+        if(availableInGoogleProjection)
+          goog.attr({ src: '/assets/available_google_projection_yes.png', 
+                      alt: 'Available in Google projection' 
+                    });
+        else
+          goog.attr({ src: '/assets/available_google_projection_no.png',  
+                      alt: 'Not available in Google projection' 
+                    });
+        
 
         var locl = $(document.createElement('img'));
 
-        if(availableInLocalProjection) {
-          locl.attr({ src:"/assets/available_local_projection_yes.png", alt:"Available in local projection" });
-        } else {
-          locl.attr({ src:"/assets/available_local_projection_no.png",  alt:"Not available in local projection" });
-        }
+        if(availableInLocalProjection)
+          locl.attr({ src: '/assets/available_local_projection_yes.png', 
+                      alt: 'Available in local projection' 
+                    });
+        else
+          locl.attr({ src: '/assets/available_local_projection_no.png',  
+                      alt: 'Not available in local projection' 
+                    });
+
 
         var titleNode = $(document.createElement('div'));
         titleNode.attr({ class:'dataset_title' });
@@ -314,8 +347,8 @@
         servicesAvailNode.attr({ class:'dataset_services_available' });
         servicesAvailNode.text("Services: " + layer.type.join(', ') );
 
-        if(registeredDataLayers[layer.serverUrl][layer.identifier]) {  
-          servicesAvailNode.append('<br>Used in ' + registeredDataLayers[layer.serverUrl][layer.identifier].configCount + ' configurations');
+        if(regLyr) {  
+          servicesAvailNode.append('<br>Used in ' + regLyr.configCount + ' configurations');
         }
 
         var abstractNode = "";
@@ -341,8 +374,9 @@
                  .append(servicesAvailNode)
                  .append('<br>')
                  .append('<div>Tags: <span id="taglist-' + datasetId + '" class="taglist">' +  
-                          (registeredDataLayers[layer.serverUrl][layer.identifier] && registeredDataLayers[layer.serverUrl][layer.identifier].tags !== '' ? registeredDataLayers[layer.serverUrl][layer.identifier].tags : 'None') +
+                          (regLyr && regLyr.tags !== '' ? regLyr.tags : 'None') +
                       '</span></div>')
+                 .append('Add Tag:')
                  .append(dataTypeControl);
 
         var sample_map = $(document.createElement('div'));

@@ -79,25 +79,36 @@ class DatasetsController < ApplicationController
   # PUT /datasets/1.json
   def update
     # If we are changing the dataset type, we need to unlink it from any configurations it is part of
+    tagVal = params[:dataset_tag]    # Tag we are either adding or deleting
 
-    if params[:id] == 'update_data_type' then
-      @dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
-    else
-      @dataset = Dataset.find(params[:id])
+    @dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
+
+    if params[:id] == 'add_data_tag' then
+      if(@dataset and not @dataset.dataset_tags.include? tagVal) then
+        tag = DatasetTag.new
+        tag.dataset_id = @dataset.id
+        tag.tag = tagVal
+        tag.save
+      end
+      
+    elsif(params[:id] == 'del_data_tag') then
+      if(@dataset and @dataset.dataset_tags.include? tagVal) then
+        tag = DatasetTag.find_by_dataset_id_and_tag(@dataset.id, tagVal)
+        if(tag) then 
+          tag.delete
+        end
+      end
     end
 
-    if params[:dataset] && @dataset.dataset_type != params[:dataset][:dataset_type]
-      @dataset.config_datasets.each { |cd| cd.delete }
-    end
+
+    # if params[:dataset] && @dataset.dataset_type != params[:dataset][:dataset_type]
+    #   # Delete any related configurations
+    #   @dataset.config_datasets.each { |cd| cd.delete }
+    # end
 
     respond_to do |format|
-      if @dataset.update_attributes(params[:dataset])
-        format.html { redirect_to @dataset, notice: 'Dataset was successfully updated.' }
-        format.json { head :no_content }
-      else
-        format.html { render action: "edit" }
-        format.json { render json: @dataset.errors, status: :unprocessable_entity }
-      end
+      format.html { head :no_content }
+      format.json { render json @dataset ? DatasetTag.find_by_dataset_id(@dataset.id) : [] }
     end
   end
 
