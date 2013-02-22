@@ -84,20 +84,6 @@
       success: function(data, status, jqXHR) { debugger; updateTags(data); }
 	  });
 
-
-
-    // $.ajax({
-    //   type: 'PUT',      // PUT combined with url below triggers "update" action on controller
-    //   url:  '<%= url_for(:controller => 'datasets', :action => 'update_data_type') %>',
-    //   data: 'dataset[identifier]='    + layerIdentifier +
-    //         '&dataset[server_url]='   + serverUrl    +
-    //         '&dataset[dataset_type]=' + dataTypeControl.value,
-    //   headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
-    //   success: function(data) {  }
-    // });
-
-
-
 	  makeRegisteredLayer(serverUrl, dataTypeControl.value, registeredDatasets[serverUrl][layerIdentifier], [], 0);
   }
 
