@@ -63,7 +63,7 @@ WebGIS.zoomToCity = function () {
 };
 
 // Adds a new layer to the map "on the fly"
-WebGIS.addNewLayer = function (title, serviceURL, layerName)
+WebGIS.addNewLayer = function (title, serviceURL, layerName, type)
 {
     // Call OpenLayers.Layer.WMS.initialize()
 
@@ -71,12 +71,14 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName)
                    format: "image/png",
                    srsName: WebGIS.requestProjection,
                    srs: WebGIS.requestProjection,
-                   transparent: "true"
+                   transparent: "true",
+                   sld_body: WebGIS.getStyle(layerName, type)
                  };
 
     var options = { isBaseLayer: false,     
-                    visibility:  false,   // By default, layers are off
-                    singleTile:  true
+                    visibility:  false,   // By default layers are off
+                    singleTile:  true,
+           		 	transitionEffect: 'resize'
                   };
 
     var layer = new OpenLayers.Layer.WMS(title, serviceURL, params, options);
