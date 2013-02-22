@@ -81,7 +81,7 @@
                '&dataset[server_url]=' + serverUrl +
                '&dataset_tag='         + dataTypeControl.value,
 			headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
-      success: function(data) { updateTags(tags); }
+      success: function(data, status, jqXHR) { debugger; updateTags(data); }
 	  });
 
 

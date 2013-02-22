@@ -84,13 +84,13 @@ class DatasetsController < ApplicationController
     @dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
 
     if params[:id] == 'add_data_tag' then
-      if(@dataset and not @dataset.dataset_tags.include? tagVal) then
+      if(@dataset and not @dataset.dataset_tags.find_by_tag(tagVal)) then
         tag = DatasetTag.new
         tag.dataset_id = @dataset.id
         tag.tag = tagVal
         tag.save
       end
-      
+
     elsif(params[:id] == 'del_data_tag') then
       if(@dataset and @dataset.dataset_tags.include? tagVal) then
         tag = DatasetTag.find_by_dataset_id_and_tag(@dataset.id, tagVal)
