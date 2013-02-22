@@ -106,9 +106,11 @@ class DatasetsController < ApplicationController
     #   @dataset.config_datasets.each { |cd| cd.delete }
     # end
 
+
+# This is wrong -- only want to respond to json
     respond_to do |format|
-      format.html { head :no_content }
-      format.json { render json @dataset ? DatasetTag.find_by_dataset_id(@dataset.id) : [] }
+      format.html { render :json => @dataset ? DatasetTag.find_all_by_dataset_id(@dataset.id).map {|d| d.tag } : [] }
+      format.json { render :json => @dataset ? DatasetTag.find_all_by_dataset_id(@dataset.id).map {|d| d.tag } : [] }
     end
   end
 

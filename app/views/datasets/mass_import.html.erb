@@ -53,6 +53,13 @@
   };
 
 
+
+  var updateTags = function(tags)
+  {
+
+  };
+
+
   // Populate registeredDataLayers with data from the database
   <%= @datasets.reject{ |d| d.finalized == false }.
                 map{ |d| "makeRegisteredLayer('" + d.server_url.gsub(/\\/, '\\\\\\') + "'," + 
@@ -80,17 +87,12 @@
 			data:    'dataset[identifier]='  + layerIdentifier +
                '&dataset[server_url]=' + serverUrl +
                '&dataset_tag='         + dataTypeControl.value,
-			headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
-      success: function(data, status, jqXHR) { debugger; updateTags(data); }
+			headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
+                 'Content-Type': 'application/json' */},
+      success: function(data) { updateTags(eval(data)); }
 	  });
 
 	  makeRegisteredLayer(serverUrl, dataTypeControl.value, registeredDatasets[serverUrl][layerIdentifier], [], 0);
-  }
-
-
-  var updateTags = function(tags)
-  {
-debugger
   }
 
 
