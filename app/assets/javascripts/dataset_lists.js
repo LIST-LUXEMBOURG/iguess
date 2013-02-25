@@ -229,7 +229,7 @@ var createTagList = function(taglist)
     var strings = typeof(taglist[0]) === 'string';
 
     for(var i = 0, len = taglist.length; i < len; i++) 
-      list += '<span class="tag">' + (strings ? taglist[i] : taglist[i].tag) + '</span>';
+      list += '<span class="tag">' + (strings ? taglist[i] : taglist[i].tag) + '</span> ';  // <== space needed
 
    return list; 
 };

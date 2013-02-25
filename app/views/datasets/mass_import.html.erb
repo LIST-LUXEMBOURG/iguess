@@ -359,11 +359,10 @@
         data_info.append(srsNode)
                  .append(registerControl)
                  .append(servicesAvailNode)
-                 .append('<br>')
-                 .append('<div>Tags: <div id="taglist-' + datasetId + '" class="taglist">' +  
+                 .append('<div id="taglist-' + datasetId + '" class="taglist">' +  
                           (regLyr && regLyr.tags !== '' ? createTagList(regLyr.tags) : 'None') +
-                      '</div></div>')
-                 .append('Add Tag:')
+                      '</div>')
+                 .append('Add Tag: ')
                  .append(dataTypeControl);
 
         var sample_map = $(document.createElement('div'));
