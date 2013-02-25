@@ -12,42 +12,42 @@
 }
 
 
-#layer-table {      // ul
+#layer-table {      /* ul */
   margin: 0px;
   padding: 0px;
   list-style-type: none;
 }
 
 
-.map-data-item {    // li
+.map-data-item {    /* li */
   display: inline-block;
   vertical-align: top;
   margin: 6px;
   padding: 2px;
-  outline: 1px solid rgba(0,0,0,0.2);       // Outer line
+  outline: 1px solid rgba(0,0,0,0.2);       /* Outer line */
   height: 100%;
   max-width: 585px;
 }
 
-// Combines with the below, describes container just inside outer border
+/* Combines with the below, describes container just inside outer border */
 .dataset {
   padding: 15px;
   border: 1px solid rgba(0,0,0,0.2);
   min-height: 280px;
 }
 
-// Green tile
+/* Green tile */
 .registered_dataset {
   background: #CFC;
 }
 
-// Red tile
+/* Red tile */
 .unregistered_dataset {
   background: #FCC;
 }
 
 
-// Container to the left of the map-data-item, holding sample-map and map-data-item below
+/* Container to the left of the map-data-item, holding sample-map and map-data-item below */
 .data-info {
   margin-top: 5px;
   width: 250px;
@@ -66,7 +66,7 @@
     vertical-align: middle;
 }
 
-// Sample map embedded in a map-data-item
+/* Sample map embedded in a map-data-item */
 .sample-map {
   width: 300px;
   height: 200px;
@@ -74,12 +74,12 @@
   float: right;
 }
 
-// Style attached to layer available: yes/no indicators (imgs themselves) -- used for vertical centering
+/* Style attached to layer available: yes/no indicators (imgs themselves) -- used for vertical centering */
 .status-indicator {
   margin-bottom: -3px;
 }
 
-// Title at top of tile
+/* Title at top of tile */
 .dataset_title {
   font-weight: bold; 
 }
@@ -88,17 +88,17 @@
   margin-bottom: 8px;
 }
 
-// "Services: WFS, WMS" text
+/* "Services: WFS, WMS" text */
 .dataset_services_available {
   
 }
 
-// Container for "available in..." graphics
+/* Container for "available in..." graphics */
 .dataset_srs {
   
 }
 
-// Refers to divs holding "layer available" icons
+/* Refers to divs holding "layer available" icons */
 .loading-status-icon {
   margin-bottom: -5px; 
 }

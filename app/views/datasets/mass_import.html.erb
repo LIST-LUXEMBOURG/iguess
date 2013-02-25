@@ -360,9 +360,9 @@
                  .append(registerControl)
                  .append(servicesAvailNode)
                  .append('<br>')
-                 .append('<div>Tags: <span id="taglist-' + datasetId + '" class="taglist">' +  
+                 .append('<div>Tags: <div id="taglist-' + datasetId + '" class="taglist">' +  
                           (regLyr && regLyr.tags !== '' ? createTagList(regLyr.tags) : 'None') +
-                      '</span></div>')
+                      '</div></div>')
                  .append('Add Tag:')
                  .append(dataTypeControl);
 
