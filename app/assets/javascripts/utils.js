@@ -31,19 +31,30 @@ populateSelectBox = function(control, options) {
 
 
 // See http://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery
-String.prototype.makeHash = function(){
-    var hash = 0;
-    if (this.length == 0) return hash;
-    for (i = 0; i < this.length; i++) {
-        char = this.charCodeAt(i);
-        hash = ((hash<<5)-hash)+char;
-        hash = hash & hash; // Convert to 32bit integer
-    }
-    return hash;
+if(String.prototype.makeHash) {
+  String.prototype.makeHash = function(){
+      var hash = 0;
+      if (this.length == 0) return hash;
+      for (i = 0; i < this.length; i++) {
+          char = this.charCodeAt(i);
+          hash = ((hash<<5)-hash)+char;
+          hash = hash & hash; // Convert to 32bit integer
+      }
+      return hash;
+  };
 }
 
 
 // From http://stackoverflow.com/questions/1026069/capitalize-the-first-letter-of-string-in-javascript
-String.prototype.capitalize = function() {
-    return this.charAt(0).toUpperCase() + this.slice(1);
+if(!String.prototype.capitalize) {
+  String.prototype.capitalize = function() {
+      return this.charAt(0).toUpperCase() + this.slice(1);
+  };
+}
+
+
+// Remove illegal characters from CSS identifiers
+cssEscape = function(id)
+{
+  return id.replace(/[^a-z,A-Z,_,-,0-9]/g, "X");
 }

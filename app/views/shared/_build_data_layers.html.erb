@@ -117,7 +117,7 @@
   // Gets run on any layer found, registered or not; dataset is an object
   var foundDataset = function(dataset, service)
   {
-    var key = dataset.serverUrl + dataset.identifier;   // Need a single key to make iteration elsewhere easier
+    var key = cssEscape(dataset.serverUrl + dataset.identifier);   // Need a single key to make iteration elsewhere easier
 
     var layer = discoveredLayers[key];
 

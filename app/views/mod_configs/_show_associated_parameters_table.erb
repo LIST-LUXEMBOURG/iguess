@@ -42,8 +42,8 @@
 
 
       // If we already know the title of this one, insert it now
-      if(discoveredLayers[serverUrl + datasetIdentifier]) {
-        title = discoveredLayers[serverUrl + datasetIdentifier].title;
+      if(discoveredLayers[cssEscape(serverUrl + datasetIdentifier)]) {
+        title = discoveredLayers[cssEscape(serverUrl + datasetIdentifier)].title;
       } 
 
       if(id) {
@@ -53,9 +53,9 @@
 
     ctrl.change(function() {
       if(registeredDataLayersById[+this.value]) {
-        var url = registeredDataLayersById[+this.value].serverUrl;
-        var id  = registeredDataLayersById[+this.value].identifier;
-        var dataset = discoveredLayers[url + id];
+        var serverUrl = registeredDataLayersById[+this.value].serverUrl;
+        var id        = registeredDataLayersById[+this.value].identifier;
+        var dataset   = discoveredLayers[cssEscape(serverUrl + id)];
 
         $('#hidden-field-' + parameterIdentifier + '-srs').val(dataset.srs);
         $('#hidden-field-' + parameterIdentifier + '-dformat').val(dataset.format);
@@ -90,7 +90,6 @@
                         .attr('name', 'bbox-bottom[' + parameterIdentifier + ']')
                         .attr('id',   'hidden-field-' + parameterIdentifier + '-bbox-bottom'),
 
-
              $('<input>').attr('type','hidden')
                         .attr('name', 'res-x[' + parameterIdentifier + ']')
                         .attr('id',   'hidden-field-' + parameterIdentifier + '-res-x'),
@@ -98,7 +97,6 @@
                         .attr('name', 'res-y[' + parameterIdentifier + ']')
                         .attr('id',   'hidden-field-' + parameterIdentifier + '-res-y')
            ];                             
-
 
     return [ctrl, srsField];
   };

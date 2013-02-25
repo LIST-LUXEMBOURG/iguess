@@ -53,10 +53,9 @@
   };
 
 
-
-  var updateTags = function(tags)
+  var updateTags = function(datasetId, tags)
   {
-
+    $('#taglist-' + datasetId).html(tags.length > 0 ? createTagList(tags) : 'None');
   };
 
 
@@ -89,7 +88,7 @@
                '&dataset_tag='         + dataTypeControl.value,
 			headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
                  'Content-Type': 'application/json' */},
-      success: function(data) { updateTags(eval(data)); }
+      success: function(data) { updateTags(cssEscape(serverUrl + layerIdentifier), eval(data)); }
 	  });
 
 	  makeRegisteredLayer(serverUrl, dataTypeControl.value, registeredDatasets[serverUrl][layerIdentifier], [], 0);
@@ -485,7 +484,7 @@
         checkbox.checked = true;
         dataTypeControl.disabled = false;
 
-        var layer = discoveredLayers[serverUrl + datasetIdentifier];
+        var layer = discoveredLayers[cssEscape(serverUr + datasetIdentifier)];
 
         var service = '';
         if(     layer.type.hasObject('WFS')) { service = 'WFS'; }
