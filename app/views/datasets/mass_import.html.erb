@@ -55,7 +55,7 @@
 
   var updateTags = function(datasetId, tags)
   {
-    $('#taglist-' + datasetId).html(tags.length > 0 ? createTagList(tags) : 'None');
+    $('#taglist-' + datasetId).html(tags.length > 0 ? createTagList(tags, true) : 'None');
   };
 
 
@@ -360,7 +360,7 @@
                  .append(registerControl)
                  .append(servicesAvailNode)
                  .append('<div id="taglist-' + datasetId + '" class="taglist">' +  
-                          (regLyr && regLyr.tags !== '' ? createTagList(regLyr.tags) : 'None') +
+                          (regLyr && regLyr.tags !== '' ? createTagList(regLyr.tags, true) : 'None') +
                       '</div>')
                  .append('Add Tag: ')
                  .append(dataTypeControl);

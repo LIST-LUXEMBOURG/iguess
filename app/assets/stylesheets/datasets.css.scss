@@ -239,7 +239,7 @@
 }
 
 
-/* Dataset tags */
+/* Dataset tags -- all tags get this style */
 .tag {
   color: #0E3D5E;
   background-color: #E0EAF1;
@@ -251,4 +251,12 @@
   font-size: 90%;
   line-height: 2.0;
   white-space: nowrap;
+}
+
+/* Add this style to make tag have a delete icon on it */
+.tag-delete {
+  background-image: url(/assets/close_small.png);
+  background-repeat: no-repeat;
+  padding-left: 14px;
+  background-position: left center;
 }
