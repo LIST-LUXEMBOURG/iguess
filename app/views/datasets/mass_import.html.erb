@@ -484,7 +484,7 @@
         checkbox.checked = true;
         dataTypeControl.disabled = false;
 
-        var layer = discoveredLayers[cssEscape(serverUr + datasetIdentifier)];
+        var layer = discoveredLayers[cssEscape(serverUrl + datasetIdentifier)];
 
         var service = '';
         if(     layer.type.hasObject('WFS')) { service = 'WFS'; }
