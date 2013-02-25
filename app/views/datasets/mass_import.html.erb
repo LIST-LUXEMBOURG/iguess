@@ -362,7 +362,7 @@
                  .append(servicesAvailNode)
                  .append('<br>')
                  .append('<div>Tags: <span id="taglist-' + datasetId + '" class="taglist">' +  
-                          (regLyr && regLyr.tags !== '' ? regLyr.tags : 'None') +
+                          (regLyr && regLyr.tags !== '' ? createTagList(regLyr.tags) : 'None') +
                       '</span></div>')
                  .append('Add Tag:')
                  .append(dataTypeControl);

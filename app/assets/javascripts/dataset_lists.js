@@ -218,3 +218,19 @@ var getGetCapUrl = function(serverUrl, service)
   else if(service == 'WCS') { return WCS.getCapUrl(serverUrl); }
 };
 
+
+// Take an array or comma-separated list of tags and format them into some presentation quality HTML
+var createTagList = function(taglist) 
+{
+    if(typeof(taglist) === 'string')
+      taglist = taglist.split(',');
+
+    var list = "";
+    var strings = typeof(taglist[0]) === 'string';
+
+    for(var i = 0, len = taglist.length; i < len; i++) 
+      list += '<span class="tag">' + (strings ? taglist[i] : taglist[i].tag) + '</span>';
+
+   return list; 
+};
+

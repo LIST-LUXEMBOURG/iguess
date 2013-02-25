@@ -76,18 +76,6 @@
   };
 
 
-  var createTagList = function(taglist) 
-  {
-    var list = "";
-
-    for(var i = 0, len = taglist.length; i < len; i++) {
-      list += '<span class="tag">' + taglist[i].tag + '</span>';
-    }
-
-    return list; 
-  };
-
-
   // We found the layer
   var updateLayerInfo = function(serverUrl, datasetId, dataset) 
   {
