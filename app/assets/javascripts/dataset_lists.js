@@ -225,13 +225,17 @@ var createTagList = function(taglist, deleteable, serverUrl, datasetIdentifier)
     if(typeof(taglist) === 'string')
       taglist = taglist.split(',');
 
-    var params = deleteable ? 'data-url="' + serverUrl + '" data-identifier="' + datasetIdentifier + '"' : '';
+    var delBtn = '';
+
+    if(deleteable)
+      delBtn = '<span class="tag-deletable" data-url="' + serverUrl + '" ' +
+               'data-identifier="' + datasetIdentifier + '"></span>';
 
     var list = "";
     var strings = typeof(taglist[0]) === 'string';
 
     for(var i = 0, len = taglist.length; i < len; i++) 
-      list += '<span class="tag' + (deleteable ? ' tag-deletable' : '') + '" ' + params + '>' + 
+      list += '<span class="tag">' + delBtn +
                 (strings ? taglist[i] : taglist[i].tag) + '</span> ';  // <== space needed
 
    return list; 

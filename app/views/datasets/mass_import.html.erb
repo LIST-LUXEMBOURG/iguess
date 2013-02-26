@@ -98,6 +98,7 @@
 
   var deleteTag = function(serverUrl, datasetIdentifier, tagValue)
   {
+
     $.ajax({
       type:    'PUT',      // PUT combined with url below triggers "update" action on controller
       url:     '<%= url_for(:controller => 'datasets', :action => 'del_data_tag') %>',
@@ -215,7 +216,7 @@
   var addDeleteTagClickHander = function() {
     // Add a handler to delete tags when clicked on
     $('.tag-deletable').click(function() {
-      deleteTag($(this).data('url'), $(this).data('identifier'), $(this).text());
+      deleteTag($(this).data('url'), $(this).data('identifier'), $(this).parent().text());
     });
   };
 
@@ -598,8 +599,6 @@
     { 
       self.onGetCapabilitiesSucceeded();
       self.WcsSucceeded = true;
-
-      // debugger
 
       onWcsGetCapabilitiesSucceeded(dataProxy, records);
     };

@@ -245,12 +245,13 @@
   background-color: #E0EAF1;
   border-bottom: 1px solid #3E6D8E;
   border-right: 1px solid #7F9FB6;
-  padding: 3px 4px 3px 4px;
+  padding: 0 3px;
+  margin: 0;
   margin-left: -1px;
   text-decoration: none;
   font-size: 90%;
-  line-height: 2.0;
   white-space: nowrap;
+  display: inline-block;
 }
 
 /* Add this style to make tag have a delete icon on it */
@@ -260,4 +261,5 @@
   padding-left: 14px;
   background-position: left center;
   cursor: hand; cursor: pointer;    /* Cover multiple browsers */
+  white-space: nowrap;
 }
