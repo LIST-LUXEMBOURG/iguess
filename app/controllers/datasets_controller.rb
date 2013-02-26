@@ -126,8 +126,8 @@ class DatasetsController < ApplicationController
     @dataset.destroy
 
     respond_to do |format|
-      format.html { redirect_to datasets_url }
-      format.js { render :text => @dataset.id, :status => :ok}
+      format.html { render :text => @dataset.id, :status => :ok }
+      format.js   { render :text => @dataset.id, :status => :ok}
     end
   end
 
