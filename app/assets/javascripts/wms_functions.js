@@ -403,9 +403,10 @@ WMS.unwrapServer = function(url) {
 
 unwrapServer = function(url, format)
 {
-  if(format == 'WFSCapabilities') { return WFS.unwrapServer(url); }
-  if(format == 'WMSCapabilities') { return WMS.unwrapServer(url); }
-  if(format == 'WCSCapabilities') { return WCS.unwrapServer(url); }
+  if(format == 'WFSCapabilities')     { return WFS.unwrapServer(url); }
+  if(format == 'WMSCapabilities')     { return WMS.unwrapServer(url); }
+  if(format == 'WCSCapabilities')     { return WCS.unwrapServer(url); }
+  if(format == 'WCSDescribeCoverage') { return WCS.unwrapServer(url); }
 
   return null;
 };

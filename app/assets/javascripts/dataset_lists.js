@@ -65,10 +65,11 @@ var onGetCapabilitiesSucceeded = function(dataProxy, records, options)
   var serverUrl = unwrapServer(dataProxy.url, format);
   var service   = getService(format);
 
-
 // if(serverUrl==='http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map') debugger
 
+try{
   serverResponseList[serverUrl][service] = new ServerResponse(true, dataProxy, records, service);
+} catch(e) { debugger }
   updateDatasets(serverUrl, dataProxy, records, service);
 
     // if(serverUrl === 'http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map') debugger
