@@ -1,7 +1,7 @@
 /* Styling for a 16pt delete button */
 .del-button-16
  {
-    cursor: pointer;
+    cursor: hand; cursor: pointer;    /* Cover multiple browsers */
     position: relative;
     background: transparent url("/assets/delete.svg") no-repeat;
     top: 0px;
@@ -24,7 +24,7 @@
    margin:0 4px 0 0;
    padding: .4em 1em;
    text-decoration:none !important;
-   cursor:pointer;
+   cursor: hand; cursor: pointer;    /* Cover multiple browsers */
    position: relative;
    text-align: center;
    zoom: 1;

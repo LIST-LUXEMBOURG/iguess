@@ -141,7 +141,7 @@
   position: absolute;
   right: 5px;
   top: 5px;
-  cursor: pointer;
+  cursor: hand; cursor: pointer;    /* Cover multiple browsers */
   height: 24px;
   width: 24px;
 }
@@ -259,5 +259,5 @@
   background-repeat: no-repeat;
   padding-left: 14px;
   background-position: left center;
-  cursor: hand; cursor: pointer;
+  cursor: hand; cursor: pointer;    /* Cover multiple browsers */
 }

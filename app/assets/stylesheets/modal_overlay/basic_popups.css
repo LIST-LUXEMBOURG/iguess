@@ -37,7 +37,7 @@
   position:absolute; 
   top:-15px; 
   right:-16px; 
-  cursor:pointer;
+  cursor: hand; cursor: pointer;    /* Cover multiple browsers */
 }
 
 /* Not sure these are used: */
