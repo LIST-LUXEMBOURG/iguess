@@ -53,9 +53,11 @@
   };
 
 
-  var updateTags = function(datasetId, tags, serverUrl, datasetIdentifier)
+  var updateTags = function(serverUrl, datasetIdentifier, tags)
   {
-    $('#taglist-' + datasetId).html(tags.length > 0 ? createTagList(tags, true, serverUrl, datasetIdentifier) : 'None');
+    var id = cssEscape(serverUrl + datasetIdentifier);
+
+    $('#taglist-' + id).html(tags.length > 0 ? createTagList(tags, true, serverUrl, datasetIdentifier) : 'None');
     addDeleteTagClickHander();    // Need to readd a handler for these new tags
   };
 
@@ -89,7 +91,7 @@
                '&dataset_tag='         + dataTypeControl.value,
 			headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
                  'Content-Type': 'application/json' */},
-      success: function(data) { updateTags(cssEscape(serverUrl + datasetIdentifier), eval(data), serverUrl, datasetIdentifier); }
+      success: function(data) { updateTags(serverUrl, datasetIdentifier, eval(data)); }
 	  });
 
 	  makeRegisteredLayer(serverUrl, dataTypeControl.value, registeredDatasets[serverUrl][datasetIdentifier], [], 0);
@@ -107,7 +109,7 @@
                '&dataset_tag='         + tagValue,
       headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
                  'Content-Type': 'application/json' */},
-      success: function(data) { updateTags(cssEscape(serverUrl + datasetIdentifier), eval(data), serverUrl, datasetIdentifier); }
+      success: function(data) { updateTags(serverUrl, datasetIdentifier, eval(data)); }
     });
   };
 
@@ -516,6 +518,8 @@
         if(     layer.type.hasObject('WFS')) { service = 'WFS'; }
         else if(layer.type.hasObject('WCS')) { service = 'WCS'; }
 
+        var taglist = extractTagList(serverUrl, datasetIdentifier);
+
         // Let the server know this layer is now registered -- to do this we must create a new record in
         // our datasets table.
         $.ajax({
@@ -525,10 +529,12 @@
                 '&dataset[service]='      + service   +
                 '&dataset[server_url]='   + serverUrl +
                 '&dataset[dataset_type]=' + dataTypeControl.value +
+                '&tags='                  + taglist +
                 '&cityName=' + $.cookie('city'),
           headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
           success: function(data) {
             // Add layer to the list of registered layers
+            debugger
             makeRegisteredLayer(serverUrl, data.identifier, data.id, [], 0);
           }
         });
@@ -545,6 +551,15 @@
 
     equalizeTileHeight();
   }
+
+
+  var extractTagList = function(serverUrl, datasetIdentifier) 
+  {
+    var id = cssEscape(serverUrl + datasetIdentifier);
+    var tags = $('#taglist-' + id).text();
+
+    return tags;
+  };
 
 
   // Class declaration

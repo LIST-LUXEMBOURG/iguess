@@ -59,6 +59,7 @@ class DatasetsController < ApplicationController
     @dataset = Dataset.find(params[:id])
   end
 
+
   # Called when user registers a dataset by clicking on the "Registerd" button;
   #    always called via ajax with json response type
   def create
@@ -67,11 +68,24 @@ class DatasetsController < ApplicationController
 
     @dataset.city = @current_city
 
-    if @dataset.save
-      flash[:notice] = "New dataset created."
+    @dataset.save
+
+    if(params[:tags]) then
+      tags = params[:tags].split(/ /)
+      tags.each { |t| makeTag(@dataset, t) }
     end
 
     respond_with(@dataset)
+
+# This is wrong -- only want to respond to json
+    respond_to do |format|
+      format.html { render :json => { :tags => DatasetTag.find_all_by_dataset_id(@dataset.id).map {|d| d.tag } },
+                                      :dataset => @dataset
+                  }
+      format.json { render :json => { :tags => DatasetTag.find_all_by_dataset_id(@dataset.id).map {|d| d.tag } },
+                                      :dataset => @dataset
+                  }
+    end
   end
 
 
@@ -84,16 +98,11 @@ class DatasetsController < ApplicationController
     @dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
 
     if params[:id] == 'add_data_tag' then
-      if(@dataset and not @dataset.dataset_tags.find_by_tag(tagVal)) then
-        tag = DatasetTag.new
-        tag.dataset_id = @dataset.id
-        tag.tag = tagVal
-        tag.save
-      end
+        makeTag(@dataset, tagVal)
 
     elsif(params[:id] == 'del_data_tag') then
       if(@dataset and @dataset.dataset_tags.find_by_tag(tagVal)) then
-        tag = DatasetTag.find_by_dataset_id_and_tag(@dataset.id, tagVal)
+        tag = DatasetTag.find_by_dataset_id_and_tag(@dataset, tagVal)
         if(tag) then 
           tag.delete
         end
@@ -113,6 +122,17 @@ class DatasetsController < ApplicationController
       format.json { render :json => @dataset ? DatasetTag.find_all_by_dataset_id(@dataset.id).map {|d| d.tag } : [] }
     end
   end
+
+
+  def makeTag(dataset, tagVal)
+    # Prevent duplicate tags
+    if(dataset and not dataset.dataset_tags.find_by_tag(tagVal)) then
+      tag = DatasetTag.new
+      tag.dataset_id = dataset.id
+      tag.tag = tagVal
+      tag.save
+    end
+  end 
 
   # DELETE /datasets/1
   # DELETE /datasets/1.json
