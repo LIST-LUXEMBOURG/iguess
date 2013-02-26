@@ -53,9 +53,10 @@
   };
 
 
-  var updateTags = function(datasetId, tags)
+  var updateTags = function(datasetId, tags, serverUrl, datasetIdentifier)
   {
-    $('#taglist-' + datasetId).html(tags.length > 0 ? createTagList(tags, true) : 'None');
+    $('#taglist-' + datasetId).html(tags.length > 0 ? createTagList(tags, true, serverUrl, datasetIdentifier) : 'None');
+    addDeleteTagClickHander();    // Need to readd a handler for these new tags
   };
 
 
@@ -72,9 +73,9 @@
 
 
   // User adds or removes a tag
-  var onDataTypeChanged = function(id)
+  var addTag = function(id)
   {
-    var layerIdentifier = getLayerNameFromDataTypeId(id);
+    var datasetIdentifier = getLayerNameFromDataTypeId(id);
     var serverUrl       = getServerUrl();
 
     // Let the server know the dataType has changed
@@ -83,23 +84,38 @@
 		$.ajax({
 			type:    'PUT',      // PUT combined with url below triggers "update" action on controller
 			url:     '<%= url_for(:controller => 'datasets', :action => 'add_data_tag') %>',
-			data:    'dataset[identifier]='  + layerIdentifier +
+			data:    'dataset[identifier]='  + datasetIdentifier +
                '&dataset[server_url]=' + serverUrl +
                '&dataset_tag='         + dataTypeControl.value,
 			headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
                  'Content-Type': 'application/json' */},
-      success: function(data) { updateTags(cssEscape(serverUrl + layerIdentifier), eval(data)); }
+      success: function(data) { updateTags(cssEscape(serverUrl + datasetIdentifier), eval(data), serverUrl, datasetIdentifier); }
 	  });
 
-	  makeRegisteredLayer(serverUrl, dataTypeControl.value, registeredDatasets[serverUrl][layerIdentifier], [], 0);
+	  makeRegisteredLayer(serverUrl, dataTypeControl.value, registeredDatasets[serverUrl][datasetIdentifier], [], 0);
   }
+
+
+  var deleteTag = function(serverUrl, datasetIdentifier, tagValue)
+  {
+    $.ajax({
+      type:    'PUT',      // PUT combined with url below triggers "update" action on controller
+      url:     '<%= url_for(:controller => 'datasets', :action => 'del_data_tag') %>',
+      data:    'dataset[identifier]='  + datasetIdentifier +
+               '&dataset[server_url]=' + serverUrl +
+               '&dataset_tag='         + tagValue,
+      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
+                 'Content-Type': 'application/json' */},
+      success: function(data) { updateTags(cssEscape(serverUrl + datasetIdentifier), eval(data), serverUrl, datasetIdentifier); }
+    });
+  };
 
 
   var confirmChange = function(id) 
   {
-    var layerIdentifier = getLayerNameFromDataTypeId(id);
-    var serverUrl       = getServerUrl();
-    var dataLayer       = registeredDataLayers[serverUrl][layerIdentifier];
+    var datasetIdentifier = getLayerNameFromDataTypeId(id);
+    var serverUrl         = getServerUrl();
+    var dataLayer         = registeredDataLayers[serverUrl][datasetIdentifier];
 
     if(!dataLayer || dataLayer && dataLayer.configCount == 0) { return true; }
 
@@ -155,7 +171,7 @@
 
   // Called when we've gotten whatever response we're going to get from the server in question
   // i.e. when a WFS response arrives.  More responses might be coming (from WMS, and WCS, for example).
-  function doneProcessing(url, type, serverInfo, status)    // status will be OK or ERROR
+  var doneProcessing = function(url, type, serverInfo, status)    // status will be OK or ERROR
   {
     if(type == 'WFS') {
       $('#probing-wfs').hide();
@@ -179,7 +195,7 @@
 
     $('.progress-container').hide();
     displayLayers();
-  }
+  };
 
 
   // Note that details can be null here
@@ -193,12 +209,18 @@
       $('.server-descr').html(serverDescr);
       $('.server-info').show();
     }
-  }
+  };
 
 
-  var displayLayers = function()
-  {
-    var server = getServerUrl();
+  var addDeleteTagClickHander = function() {
+    // Add a handler to delete tags when clicked on
+    $('.tag-deletable').click(function() {
+      deleteTag($(this).data('url'), $(this).data('identifier'), $(this).text());
+    });
+  };
+
+
+  var displayLayers = function() {
     var mapId = 0;
     var first = true;
 
@@ -277,7 +299,7 @@
           }).change(function() {
                     $(this).blur(); // Firefox fix
                     var reallyChange = confirmChange(this.id);
-                    if(reallyChange) { onDataTypeChanged(this.id); }    // Procede with change handler
+                    if(reallyChange) { addTag(this.id); }    // Procede with change handler
                     else             { $(this).val(prev_val); }         // Restore value
                   });
 
@@ -360,8 +382,9 @@
                  .append(registerControl)
                  .append(servicesAvailNode)
                  .append('<div id="taglist-' + datasetId + '" class="taglist">' +  
-                          (regLyr && regLyr.tags !== '' ? createTagList(regLyr.tags, true) : 'None') +
-                      '</div>')
+                          (regLyr && regLyr.tags !== '' ? createTagList(regLyr.tags, true, 
+                                                                        layer.serverUrl, layer.identifier) : 'None') +
+                         '</div>')
                  .append('Add Tag: ')
                  .append(dataTypeControl);
 
@@ -405,7 +428,7 @@
 
           var lyr = new OpenLayers.Layer.WMS(
                   layer.title,
-                  server,
+                  getServerUrl(),
                   { layers:  layer.identifier,
                     format:  "image/gif"
                   }
@@ -417,6 +440,9 @@
         }
       }  // end for loop
     }  // for pass = 0 to 2
+
+
+    addDeleteTagClickHander();
 
 
     $('#layer-display-count').text(visibleLayers);    // Update layer display

@@ -220,16 +220,19 @@ var getGetCapUrl = function(serverUrl, service)
 
 
 // Take an array or comma-separated list of tags and format them into some presentation quality HTML
-var createTagList = function(taglist, deleteable) 
+var createTagList = function(taglist, deleteable, serverUrl, datasetIdentifier) 
 {
     if(typeof(taglist) === 'string')
       taglist = taglist.split(',');
+
+    var params = deleteable ? 'data-url="' + serverUrl + '" data-identifier="' + datasetIdentifier + '"' : '';
 
     var list = "";
     var strings = typeof(taglist[0]) === 'string';
 
     for(var i = 0, len = taglist.length; i < len; i++) 
-      list += '<span class="tag' + (deleteable ? ' tag-delete' : '') + '">' + (strings ? taglist[i] : taglist[i].tag) + '</span> ';  // <== space needed
+      list += '<span class="tag' + (deleteable ? ' tag-deletable' : '') + '" ' + params + '>' + 
+                (strings ? taglist[i] : taglist[i].tag) + '</span> ';  // <== space needed
 
    return list; 
 };
