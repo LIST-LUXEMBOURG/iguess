@@ -19,11 +19,12 @@ class ModConfigsController < ApplicationController
   # GET /mod_configs/1
   # GET /mod_configs/1.json
   def show
-    @mod_config = ModConfig.find(params[:id])
-    @current_city = (City.find_by_name(cookies['city']) or City.first)
-    @datasets = Dataset.find_all_by_city_id(@current_city.id)
-    @dataset_inputs = ConfigDataset.find_all_by_mod_config_id(params[:id])
-    @text_inputs = ConfigTextInput.find_all_by_mod_config_id(@mod_config)
+    @mod_config      = ModConfig.find(params[:id])
+    @current_city    = (City.find_by_name(cookies['city']) or City.first)
+    @datasets        = Dataset.find_all_by_city_id(@current_city.id)
+    @dataset_tags    = DatasetTag.all
+    @dataset_inputs  = ConfigDataset.find_all_by_mod_config_id(params[:id])
+    @text_inputs     = ConfigTextInput.find_all_by_mod_config_id(@mod_config)
     @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
 
     respond_to do |format|

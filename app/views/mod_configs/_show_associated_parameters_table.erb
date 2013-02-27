@@ -1,25 +1,26 @@
 <script type="text/javascript">
 
   // Create a structure of registered datasets organized by identifier -- this will make retrieval below much more efficient
-  var registeredDataLayersByIdentifier = {};    // Indexed by identifier string
-  var registeredDataLayersById = {};            // Indexed by datasetId
+  var registeredDataLayersByTag = {};    // Indexed by identifier string
+  var registeredDataLayersById = {};      // Indexed by datasetId
+
+  <%= @dataset_tags.map{ |t| t.tag }
+                   .uniq
+                   .map { |tag| "registeredDataLayersByTag['" + tag + "'] = [];\n" }
+                   .join('') %>
+                         
 
   <%= @datasets.reject{ |d| d.finalized == false }
-               .map{ |d| d.dataset_type }
-               .uniq
-               .map{ |d| "registeredDataLayersByIdentifier['" + d + "'] = [];\n" }
-               .join(' ') %>
-                         
-  <%= @datasets.reject{ |d| d.finalized == false }.
-                map{ |d| "registeredDataLayersByIdentifier['" + d.dataset_type + "'].push({" +
+               .map{ |d| d.dataset_tags.map { |t| 
+                  "registeredDataLayersByTag['" + t.tag + "'].push({" +
                             "identifier:'" + d.identifier + "'," +
                             "datasetId:"   + d.id.to_s() + "," +
                             "serverUrl:'"  + d.server_url.gsub('\\') { '\\\\' } + "'" +
                           "});\n" +
                           "registeredDataLayersById[" + d.id.to_s() + "] = " +
-                                "registeredDataLayersByIdentifier['" + d.dataset_type + "'][registeredDataLayersByIdentifier['" + d.dataset_type + "'].length - 1];\n"
-                    }.
-                join(' ') %>
+                                "registeredDataLayersByTag['" + t.tag + "'][length - 1];\n"
+                    } }
+                .join('') %>
 
 
   // mode will be "input" or "output"
@@ -31,13 +32,13 @@
             .attr('name', 'datasets[' + parameterIdentifier + ']')
             .attr('id', parameterIdentifier + mode);
 
-    for(var i = 0, len = registeredDataLayersByIdentifier[parameterIdentifier].length; i < len; i++) {
+    for(var i = 0, len = registeredDataLayersByTag[parameterIdentifier].length; i < len; i++) {
       var title = "Unknown Title";  
 
       // Here we create our dropdown of possible datasets.  All datasets presented have already been registered with the server.
       // Note that the value here will be the id of this layer as stored in the database on the server.
-      var serverUrl         = registeredDataLayersByIdentifier[parameterIdentifier][i].serverUrl;
-      var datasetIdentifier = registeredDataLayersByIdentifier[parameterIdentifier][i].identifier;
+      var serverUrl         = registeredDataLayersByTag[parameterIdentifier][i].serverUrl;
+      var datasetIdentifier = registeredDataLayersByTag[parameterIdentifier][i].identifier;
       var datasetId         = registeredDatasets[serverUrl][datasetIdentifier];
 
 
