@@ -75,15 +75,15 @@ class DatasetsController < ApplicationController
       tags.each { |t| makeTag(@dataset, t) }
     end
 
-    respond_with(@dataset)
-
 # This is wrong -- only want to respond to json
     respond_to do |format|
-      format.html { render :json => { :tags => DatasetTag.find_all_by_dataset_id(@dataset.id).map {|d| d.tag } },
+      format.html { render :json => { :tags => DatasetTag.find_all_by_dataset_id(@dataset.id).map {|d| d.tag },
                                       :dataset => @dataset
+                                    }
                   }
-      format.json { render :json => { :tags => DatasetTag.find_all_by_dataset_id(@dataset.id).map {|d| d.tag } },
+      format.json { render :json => { :tags => DatasetTag.find_all_by_dataset_id(@dataset.id).map {|d| d.tag },
                                       :dataset => @dataset
+                                    }
                   }
     end
   end

@@ -40,6 +40,7 @@
 
   var makeRegisteredLayer = function(serverUrl, datasetIdentifier, datasetId, tags, configCount) {
 
+if(datasetId == 367) debugger
     if(registeredDataLayers[serverUrl] === undefined)
       registeredDataLayers[serverUrl] = {};
 
@@ -94,7 +95,7 @@
       success: function(data) { updateTags(serverUrl, datasetIdentifier, eval(data)); }
 	  });
 
-	  makeRegisteredLayer(serverUrl, dataTypeControl.value, registeredDatasets[serverUrl][datasetIdentifier], [], 0);
+	  // makeRegisteredLayer(serverUrl, dataTypeControl.value, registeredDatasets[serverUrl][datasetIdentifier], [], 0);
   }
 
 
@@ -534,8 +535,8 @@
           headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
           success: function(data) {
             // Add layer to the list of registered layers
-            debugger
-            makeRegisteredLayer(serverUrl, data.identifier, data.id, [], 0);
+            makeRegisteredLayer(serverUrl, data.dataset.identifier, data.dataset.id, data.tags, 0);
+            updateTags(serverUrl, data.dataset.identifier, data.tags);
           }
         });
       }
