@@ -2,17 +2,19 @@
 // Usage:
 //    dataTypes.hasObject(id) returns true if id is already in the dataTypes array
 //
-Array.prototype.hasObject = (
-  !Array.indexOf ? function (o) {
-    var l = this.length + 1;
-    while (l -= 1) {
-        if (this[l - 1] === o)  { return true; }
+if(!Array.prototype.hasObject) {
+  Array.prototype.hasObject = (
+    !Array.indexOf ? function (o) {
+      var l = this.length + 1;
+      while (l -= 1) {
+          if (this[l - 1] === o)  { return true; }
+      }
+      return false;
+    } : function (o) {
+      return (this.indexOf(o) !== -1);
     }
-    return false;
-  } : function (o) {
-    return (this.indexOf(o) !== -1);
-  }
-);
+  );
+}
 
 
 // Populate a select box control from a specified list of options
@@ -32,7 +34,7 @@ populateSelectBox = function(control, options) {
 
 // See http://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery
 if(!String.prototype.makeHash) {
-  String.prototype.makeHash = function(){
+  String.prototype.makeHash = function() {
       var hash = 0;
       if (this.length == 0) return hash;
       for (i = 0; i < this.length; i++) {
