@@ -58,5 +58,5 @@ if(!String.prototype.capitalize) {
 // Remove illegal characters from CSS identifiers
 cssEscape = function(id)
 {
-  return id.replace(/[^a-z,A-Z,_,-,0-9]/g, "X");
+  return id.replace(/[^a-z,A-Z,_,-,0-9]/g, 'X');
 }
