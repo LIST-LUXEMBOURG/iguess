@@ -31,7 +31,7 @@ populateSelectBox = function(control, options) {
 
 
 // See http://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery
-if(String.prototype.makeHash) {
+if(!String.prototype.makeHash) {
   String.prototype.makeHash = function(){
       var hash = 0;
       if (this.length == 0) return hash;

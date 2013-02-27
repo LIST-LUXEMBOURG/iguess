@@ -3,7 +3,7 @@
 
 <script type="text/javascript">
 
-// Callback for WMS get capabilities success
+  // Callback for WMS get capabilities success
   var onWmsGetCapabilitiesSucceeded = function(dataProxy, records)
   {
     processIncomingLayers(dataProxy, records, 'WMS');
@@ -172,6 +172,7 @@
       var record = records[i];
 
       if(service === 'WMS' || service === 'WFS') {
+
         var dataset = new Dataset(serverUrl, service, record);
 
         if(service === 'WMS') {
