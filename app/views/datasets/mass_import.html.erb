@@ -535,7 +535,6 @@
           data: 'dataset[identifier]='    + datasetIdentifier +
                 '&dataset[service]='      + service   +
                 '&dataset[server_url]='   + serverUrl +
-                '&dataset[dataset_type]=' + dataTypeControl.value +
                 '&tags='                  + taglist +
                 '&cityName=' + $.cookie('city'),
           headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
