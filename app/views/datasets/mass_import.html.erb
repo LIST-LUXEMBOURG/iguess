@@ -40,7 +40,6 @@
 
   var makeRegisteredLayer = function(serverUrl, datasetIdentifier, datasetId, tags, configCount) {
 
-if(datasetId == 367) debugger
     if(registeredDataLayers[serverUrl] === undefined)
       registeredDataLayers[serverUrl] = {};
 
@@ -292,8 +291,7 @@ if(datasetId == 367) debugger
           dataTypeControl = $(document.createElement('select'));
           dataTypeControl.attr({ class:    'data-type-dropdown-control', 
                                  id:       getDataTypeControlId(layer.identifier), 
-                                 disabled: !registered,
-                                 label:    'Add Tag:' 
+                                 disabled: !registered 
                                });
 
           // What to do when the user changes dataType for a layer
@@ -302,10 +300,19 @@ if(datasetId == 367) debugger
             prev_val = $(this).val();     // Store original value
           }).change(function() {
                     $(this).blur(); // Firefox fix
+
+                    if($(this).val() == 'Ignore This')
+                      return;
+
                     var reallyChange = confirmChange(this.id);
-                    if(reallyChange) { addTag(this.id); }    // Procede with change handler
-                    else             { $(this).val(prev_val); }         // Restore value
+
+                    if(reallyChange)
+                      addTag(this.id);        // Procede with change handler
+                    else
+                      $(this).val(prev_val);  // Restore value
                   });
+
+          dataTypeControl.append('<option value = "Ignore This">Add Tag:</option>');
 
           if(layer.type.hasObject('WMS')) {
             dataTypeControl.append('<option>Mapping</option>');
@@ -389,7 +396,6 @@ if(datasetId == 367) debugger
                           (regLyr && regLyr.tags !== '' ? createTagList(regLyr.tags, true, 
                                                                         layer.serverUrl, layer.identifier) : 'None') +
                          '</div>')
-                 .append('Add Tag: ')
                  .append(dataTypeControl);
 
         var sample_map = $(document.createElement('div'));
