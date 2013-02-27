@@ -25,7 +25,7 @@
     registeredDatasets['<%= url.gsub(/\\/, '\\\\\\') %>'] = {};
 
     <%= @datasets.reject { |d| d.server_url != url }
-          .map{ |d| "registeredDatasets['" + url.gsub(/\\/, '\\\\\\') + "']['" + d.identifier + "'] = " + d.id.to_s() + ";" }
+          .map{ |d| "registeredDatasets['" + url.gsub(/\\/, '\\\\\\') + "']['" + d.identifier + "'] = " + d.id.to_s() + ";\n" }
           .join(' ') %>
   <% end %>   
                                        
