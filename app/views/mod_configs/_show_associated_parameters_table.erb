@@ -33,9 +33,10 @@
             .attr('id', parameterIdentifier + mode);
 
 
+    // Make sure we have at least an empty list for this identifier
     if(!registeredDataLayersByTag[parameterIdentifier])
       registeredDataLayersByTag[parameterIdentifier] = [];
-    
+
     for(var i = 0, len = registeredDataLayersByTag[parameterIdentifier].length; i < len; i++) {
       var title = "Unknown Title";  
 
