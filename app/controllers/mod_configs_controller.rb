@@ -100,29 +100,29 @@ class ModConfigsController < ApplicationController
 
     # Drop downs -- always inputs
     @mod_config.datasets.map { |d| 
-                                    c = ConfigDataset.find_by_mod_config_id_and_dataset_id(@mod_config.id, d.id)
+                                c = ConfigDataset.find_by_mod_config_id_and_dataset_id(@mod_config.id, d.id)
 
-                                    params = ""
+                                params = ""
 
-                                    if(c) then
-                                      if(c.format != "") then params += "&FORMAT=" + c.format end
-                                      if(c.crs    != "") then params += "&CRS="    + c.crs    end
+                                if(c) then
+                                  if(c.format != "") then params += "&FORMAT=" + c.format end
+                                  if(c.crs    != "") then params += "&CRS="    + c.crs    end
 
-                                      if(c.bbox_left && c.bbox_right && c.bbox_top && c.bbox_bottom) then 
-                                        params += "&BBOX=" + c.bbox_left.to_s()  + "," + c.bbox_bottom.to_s() + "," +
-                                                             c.bbox_right.to_s() + "," + c.bbox_top.to_s()
-                                      end
+                                  if(c.bbox_left && c.bbox_right && c.bbox_top && c.bbox_bottom) then 
+                                    params += "&BBOX=" + c.bbox_left.to_s()  + "," + c.bbox_bottom.to_s() + "," +
+                                                         c.bbox_right.to_s() + "," + c.bbox_top.to_s()
+                                  end
 
-                                      if(c.res_x) then params += "&RESX=" + c.res_x.to_s() end
-                                      if(c.res_y) then params += "&RESY=" + c.res_y.to_s() end
-                                    end
+                                  if(c.res_x) then params += "&RESX=" + c.res_x.to_s() end
+                                  if(c.res_y) then params += "&RESY=" + c.res_y.to_s() end
+                                end
 
-                                    dataname = d.server_url + (d.server_url.include?("?") == -1 ? "?" : "&") +
-                                    'SERVICE=' + d.service + params +
-                                    URI.escape('&VERSION=1.0.0&REQUEST=getFeature&TYPENAME=' + d.identifier)
+                                dataname = d.server_url + (d.server_url.include?("?") == -1 ? "?" : "&") +
+                                'SERVICE=' + d.service + params +
+                                URI.escape('&VERSION=1.0.0&REQUEST=getFeature&TYPENAME=' + d.identifier)
 
-                                   inputFields.push(d.dataset_type)
-                                   inputValues.push(dataname) 
+                               inputFields.push(d.dataset_type)
+                               inputValues.push(dataname) 
                               }
 
 
