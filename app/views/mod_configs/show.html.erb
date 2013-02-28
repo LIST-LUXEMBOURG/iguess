@@ -59,12 +59,13 @@
     var inputs  = fillContainer(process.inputs);
     var outputs = fillContainer(process.outputs);
 
-    <%# Dictionary of values for each input on this form %>
+    // Dictionary of values for each input on this form
     <% formValues = @text_inputs.map{|text| text.column_name + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"'}.join(',') %>
     var formValues    = { <%= raw formValues %> };
 
-    <%# Dictionary of selected datasets used for selecting items in selected dataset dropdowns %>
-    <% datasetValues = @dataset_inputs.map{|d| d.dataset.dataset_type + ': "' + d.dataset.id.to_s + '"'}.join(',') %>
+    // Dictionary of selected datasets used for selecting items in selected dataset dropdowns
+    // @dataset_inputs  = ConfigDataset.find_all_by_mod_config_id(params[:id])
+    <% datasetValues = @dataset_inputs.map{|d| d.input_identifier + ': "' + d.dataset.id.to_s + '"'}.join(',') %>
     var datasetValues = { <%= raw datasetValues %> };
 
     populateInputTable (inputs, formValues, datasetValues);
