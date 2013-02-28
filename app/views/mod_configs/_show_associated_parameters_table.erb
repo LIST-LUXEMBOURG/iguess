@@ -32,6 +32,10 @@
             .attr('name', 'datasets[' + parameterIdentifier + ']')
             .attr('id', parameterIdentifier + mode);
 
+
+    if(!registeredDataLayersByTag[parameterIdentifier])
+      registeredDataLayersByTag[parameterIdentifier] = [];
+    
     for(var i = 0, len = registeredDataLayersByTag[parameterIdentifier].length; i < len; i++) {
       var title = "Unknown Title";  
 
