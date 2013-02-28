@@ -121,7 +121,7 @@ class ModConfigsController < ApplicationController
                                 'SERVICE=' + d.service + params +
                                 URI.escape('&VERSION=1.0.0&REQUEST=getFeature&TYPENAME=' + d.identifier)
 
-                               inputFields.push(d.dataset_type)
+                               inputFields.push(c.input_identifier)
                                inputValues.push(dataname) 
                               }
 
