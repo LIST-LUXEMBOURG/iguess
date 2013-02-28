@@ -43,7 +43,7 @@
   };
 
 
-    // User has selected a different process from the drop down box... need to rebuild inputs/outputs sections
+  // User has selected a different process from the drop down box... need to rebuild inputs/outputs sections
   var onProcessChanged = function()
   {
     // These functions are defined in _show_assocated_parameters_table.erb
@@ -57,7 +57,9 @@
 
     $("#wps_server_url").val(unwrappedUrl);
     $("#identifier").val(identifier);
-    $("#proc-descr").val(Procs[$('#processControl').val()].descr);
+
+    // Set the description field
+    $("#proc-descr").text(Procs[$('#processControl').val()].descr || '&nbsp');
   };
 
 
