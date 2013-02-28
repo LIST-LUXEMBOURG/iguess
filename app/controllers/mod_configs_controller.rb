@@ -269,27 +269,30 @@ class ModConfigsController < ApplicationController
         ok == ok && cd.delete()
       }
     
-
+      # params[:datasets] is a list of pairs of identifiers and dataset_ids, like this:
+      # {"roof_training_area"=>"235", "building_footprints"=>"222", "dsm"=>"301"}
       params[:datasets].each do |d|
-        name = d[0]
+        identifier = d[0]
         id = d[1]
-        if(not name.empty?) then
+
+        if(not identifier.empty?) then
           if(id != "-1") then
             confds = ConfigDataset.new()
             dataset = Dataset.find(id)
 
             confds.mod_config = @mod_config
             confds.dataset    = dataset
-            confds.format     = params["dformat"][name]
-            confds.crs        = params["srs"][name]
+            confds.input_identifier = identifier
+            confds.format     = params["dformat"][identifier]
+            confds.crs        = params["srs"]    [identifier]
 
-            confds.bbox_left   = params["bbox-left"][name]
-            confds.bbox_right  = params["bbox-right"][name]
-            confds.bbox_top    = params["bbox-top"][name]
-            confds.bbox_bottom = params["bbox-bottom"][name]
+            confds.bbox_left   = params["bbox-left"]  [identifier]
+            confds.bbox_right  = params["bbox-right"] [identifier]
+            confds.bbox_top    = params["bbox-top"]   [identifier]
+            confds.bbox_bottom = params["bbox-bottom"][identifier]
 
-            confds.res_x = params["res-x"][name]
-            confds.res_y = params["res-y"][name]
+            confds.res_x = params["res-x"][identifier]
+            confds.res_y = params["res-y"][identifier]
 
             ok &= confds.save()
           end
