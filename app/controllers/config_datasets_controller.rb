@@ -4,6 +4,8 @@ class ConfigDatasetsController < ApplicationController
   def update
     @mod_config = ModConfig.find(params[:id])   # This is the mod_config we're working with
 
+
+binding.pry
     # Find the ConfigDataset that we need to update
     ids = ConfigDataset.all(:joins      => "left join datasets on datasets.id = config_datasets.dataset_id",
                             :conditions => "config_datasets.mod_config_id = " + @mod_config.id.to_s + " " +

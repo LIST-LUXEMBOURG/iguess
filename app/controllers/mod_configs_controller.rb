@@ -39,6 +39,7 @@ class ModConfigsController < ApplicationController
     @mod_config = ModConfig.new
     @wps_servers = WpsServer.all
     @datasets = Dataset.all
+    @dataset_tags    = DatasetTag.all
     @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
     @textinputs = [ ]
 
