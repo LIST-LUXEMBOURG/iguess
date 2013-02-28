@@ -1,23 +1,5 @@
 class MapsController < ApplicationController
 
-
-# 
-  # def self.inherited(child)
-    # child.instance_eval do
-      # def index
-        # @datasets = Dataset.all
-# 
-        # respond_to do |format|
-          # format.html # index.html.erb
-          # format.json { render json: @datasets }
-        # end
-      # end
-    # end
-    # super
-  # end
-
-
-
   def index
     @cities = City.all
 
@@ -36,5 +18,6 @@ class MapsController < ApplicationController
       format.html # index.html.erb
     end
   end
+  
 end
 
