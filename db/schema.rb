@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130228112302) do
+ActiveRecord::Schema.define(:version => 20130301153834) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -53,14 +53,15 @@ ActiveRecord::Schema.define(:version => 20130228112302) do
   end
 
   create_table "datasets", :force => true do |t|
-    t.string   "server_url",                     :null => false
-    t.string   "identifier",                     :null => false
+    t.string   "server_url",                      :null => false
+    t.string   "identifier",                      :null => false
     t.string   "dataset_type"
     t.integer  "city_id"
-    t.boolean  "finalized",    :default => true, :null => false
-    t.datetime "created_at",                     :null => false
-    t.datetime "updated_at",                     :null => false
+    t.boolean  "finalized",    :default => true,  :null => false
+    t.datetime "created_at",                      :null => false
+    t.datetime "updated_at",                      :null => false
     t.text     "service"
+    t.boolean  "published",    :default => false
   end
 
   create_table "geometry_columns", :id => false, :force => true do |t|
