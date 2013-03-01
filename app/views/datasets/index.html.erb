@@ -67,9 +67,13 @@
       '<td nowrap>' + 
         (dataset.dataset_tags.length === 0 ? "None" : createTagList(dataset.dataset_tags, false)) + 
       '</td>' +
+      '<td>' + 
+        '<label><input id="publish-' + datasetId + '" type="checkbox" />Publish</label>' +
+      '</td>' +
       '<td width=145><div class="status-' + registeredDataAndMapServers[dataset.server_url] + 
         ' status2-' + datasetId + '">Probing server...  ' +
-        '<img src="/assets/loading_spinner.gif"></div></td>' +
+        '<img src="/assets/loading_spinner.gif"></div>' +
+      '</td>' +
       '<td class="invisible-cell"><a href="/datasets/' + dataset.id + '" ' + 
         'data-confirm="Are you sure you want to unregister this dataset?" data-method="delete" ' +
         'data-remote="true" rel="nofollow">Unregister</a></td> ' + 
@@ -212,7 +216,7 @@
 
   <table id="sortable_table" class="zebra sortable">
     <thead>
-      <tr><th>Name</th><th>Tags</th><th class="center">Status</th><!-- <th>Configured Modules Using Dataset</th> --></tr>
+      <tr><th>Name</th><th>Tags</th><th>Published?</th><th class="center">Status</th><!-- <th>Configured Modules Using Dataset</th> --></tr>
     </thead>
 
     <tbody id="dataset-list"></tbody>  <!-- Will be populated later -->
