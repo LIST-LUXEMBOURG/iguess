@@ -95,20 +95,25 @@ class DatasetsController < ApplicationController
     # If we are changing the dataset type, we need to unlink it from any configurations it is part of
     tagVal = params[:dataset_tag]    # Tag we are either adding or deleting
 
-    @dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
-
     if params[:id] == 'add_data_tag' then
-        makeTag(@dataset, tagVal)
+      @dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
+      makeTag(@dataset, tagVal)
 
     elsif(params[:id] == 'del_data_tag') then
+      @dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
       if(@dataset and @dataset.dataset_tags.find_by_tag(tagVal)) then
         tag = DatasetTag.find_by_dataset_id_and_tag(@dataset, tagVal)
         if(tag) then 
           tag.delete
         end
       end
-    end
 
+    # User checked or unchecked publish checkbox
+    elsif(params[:id] == 'publish') then
+      @dataset = Dataset.find_by_id(params[:dataset][:id])
+      @dataset.published = params[:checked]
+      @dataset.save
+    end
 
     # if params[:dataset] && @dataset.dataset_type != params[:dataset][:dataset_type]
     #   # Delete any related configurations

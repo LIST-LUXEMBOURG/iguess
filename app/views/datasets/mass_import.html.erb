@@ -100,7 +100,6 @@
 
   var deleteTag = function(serverUrl, datasetIdentifier, tagValue)
   {
-
     $.ajax({
       type:    'PUT',      // PUT combined with url below triggers "update" action on controller
       url:     '<%= url_for(:controller => 'datasets', :action => 'del_data_tag') %>',

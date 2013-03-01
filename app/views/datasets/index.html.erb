@@ -14,6 +14,24 @@
 
 <script type="text/javascript">
 
+
+  var publishDataset = function(ctrl) {
+    var datasetId = ctrl.getAttribute('data-datasetid');
+    var checked   = ctrl.checked;
+
+    // Notify the server
+    $.ajax({
+      type:    'PUT',      // PUT combined with url below triggers "update" action on controller
+      url:     '<%= url_for(:controller => 'datasets', :action => 'publish') %>',
+      data:    'dataset[id]=' + datasetId +
+               '&checked='    + checked,
+      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
+                 'Content-Type': 'application/json' */},
+      success: function(data) {  }
+    });
+
+  };
+
   // We've got a new batch of datasets to display!
   // Note that for the status div, all rows from the same server share a common class.  Each has a unique id.
   var renderTable = function(datasets) 
@@ -35,7 +53,9 @@
     $('img[rel]').overlay();                             // Set up the layer info overlays
     $('img[rel]').click(function(){ hideDetails(); });   // Close details panel on open
 
-    $('.show-details').click(function(){ showDetails(); });
+    $('.show-details').click(function() { showDetails(); });
+    $('.publish-checkbox').click(function() { publishDataset(this); });
+
 
 
           // Make sure table is sorted
@@ -68,7 +88,7 @@
         (dataset.dataset_tags.length === 0 ? "None" : createTagList(dataset.dataset_tags, false)) + 
       '</td>' +
       '<td>' + 
-        '<label><input id="publish-' + datasetId + '" type="checkbox" />Publish</label>' +
+        '<label><input class="publish-checkbox" id="publish-' + datasetId + '" data-datasetid="' + datasetId + '" type="checkbox" />Publish</label>' +
       '</td>' +
       '<td width=145><div class="status-' + registeredDataAndMapServers[dataset.server_url] + 
         ' status2-' + datasetId + '">Probing server...  ' +
