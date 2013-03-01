@@ -88,7 +88,8 @@
         (dataset.dataset_tags.length === 0 ? "None" : createTagList(dataset.dataset_tags, false)) + 
       '</td>' +
       '<td>' + 
-        '<label><input class="publish-checkbox" id="publish-' + datasetId + '" data-datasetid="' + datasetId + '" type="checkbox" />Publish</label>' +
+        '<label><input class="publish-checkbox" id="publish-' + datasetId + '" ' +
+                        'data-datasetid="' + datasetId + '" type="checkbox" ' + (dataset.published ? 'checked' : '') + '/>Publish</label>' +
       '</td>' +
       '<td width=145><div class="status-' + registeredDataAndMapServers[dataset.server_url] + 
         ' status2-' + datasetId + '">Probing server...  ' +
