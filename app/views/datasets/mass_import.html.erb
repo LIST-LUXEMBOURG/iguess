@@ -27,10 +27,27 @@
 </script>
 
 
+
+
 <%= render :partial => '/shared/build_registered_layers.html.erb' %>
 <%= render :partial => '/shared/build_data_layers.html.erb' %>
 
 <script type="text/javascript">
+
+  // TODO: This should really be computed server-side, and should only consider config datasets that we control
+  TagIsInUse = {};
+  <%= raw @datasets.map{ |d| 
+          d.config_datasets.map{ |c| 'if(!TagIsInUse["' + c.input_identifier + '"])' +
+                                     '  TagIsInUse["' + c.input_identifier + '"] = {};' + 
+                                     'if(!TagIsInUse["' + c.input_identifier + '"]' +
+                                               '[cssEscape("' + d.server_url.gsub(/\\/, '\\\\\\') + d.identifier + '")]) ' +
+                                     '  TagIsInUse["' + c.input_identifier + '"]' +
+                                               '[cssEscape("' + d.server_url.gsub(/\\/, '\\\\\\') + d.identifier + '")] = 0;' +
+                                     'TagIsInUse["' + c.input_identifier + '"]' +
+                                               '[cssEscape("' + d.server_url.gsub(/\\/, '\\\\\\') + d.identifier + '")]++;'
+                              }
+                      }.join(' ');
+  %>                      
 
   function getServerUrl() { return $('#dataset_url').val().trim(); }
 
@@ -110,25 +127,6 @@
                  'Content-Type': 'application/json' */},
       success: function(data) { updateTags(serverUrl, datasetIdentifier, eval(data)); }
     });
-  };
-
-
-  var confirmChange = function(id) 
-  {
-    var datasetIdentifier = getLayerNameFromDataTypeId(id);
-    var serverUrl         = getServerUrl();
-    var dataLayer         = registeredDataLayers[serverUrl][datasetIdentifier];
-
-    if(!dataLayer || dataLayer && dataLayer.configCount == 0) { return true; }
-
-    var ct = dataLayer.configCount;
-    var c  = (ct == 1) ? "configuration" : "configurations";
-    var t  = (ct == 1) ? "this"          : "these";
-    var th = (ct == 1) ? "it"            : "them";
-
-    return confirm("This dataset is in use by " + ct + " " + c + ". " +
-                   "Changing its type will cause it to be removed from " + t + " " + c + ".\n\n" +
-                   "Click OK if you are sure you want to change the type of this dataset.");
   };
 
 
@@ -217,9 +215,32 @@
   var addDeleteTagClickHander = function() {
     // Add a handler to delete tags when clicked on
     $('.tag-deletable').click(function() {
-      deleteTag($(this).data('url'), $(this).data('identifier'), $(this).parent().text());
+      var serverUrl         = $(this).data('url');
+      var datasetIdentifier = $(this).data('identifier');
+      var tagVal            = $(this).parent().text();
+
+      if(confirmChange(serverUrl, datasetIdentifier, tagVal))
+        deleteTag(serverUrl, datasetIdentifier, tagVal);
     });
   };
+
+
+  var confirmChange = function(serverUrl, datasetIdentifier, tagVal) 
+  {
+    if(TagIsInUse[tagVal] && TagIsInUse[tagVal][cssEscape(serverUrl + datasetIdentifier)] > 0) {
+      var ct = TagIsInUse[tagVal][cssEscape(serverUrl + datasetIdentifier)];
+      var c  = (ct == 1) ? "configuration" : "configurations";
+      var t  = (ct == 1) ? "this"          : "these";
+      var th = (ct == 1) ? "it"            : "them";
+
+      return confirm("This dataset is in use by " + ct + " " + c + ". " +
+                     "Changing its type will cause it to be removed from " + t + " " + c + ".\n\n" +
+                     "Click OK if you are sure you want to change the type of this dataset.");
+    }
+    // else...
+    return true;
+  };
+
 
 
   var displayLayers = function() {
@@ -293,22 +314,17 @@
                                  disabled: !registered 
                                });
 
-          // What to do when the user changes dataType for a layer
+          // What to do when the user adds a tag to a layer by changing the value of the tags dropdown
 
           dataTypeControl.focus(function() {
             prev_val = $(this).val();     // Store original value
           }).change(function() {
                     $(this).blur(); // Firefox fix
 
-                    if($(this).val() == 'Ignore This')
+                    if($(this).val() == 'Ignore This')    // This is the Add Tag: entry
                       return;
 
-                    var reallyChange = confirmChange(this.id);
-
-                    if(reallyChange)
-                      addTag(this.id);        // Procede with change handler
-                    else
-                      $(this).val(prev_val);  // Restore value
+                    addTag(this.id);        // Procede with change handler
                   });
 
           dataTypeControl.append('<option value = "Ignore This">Add Tag:</option>');
@@ -515,7 +531,6 @@
         // Remove layer from the list of registered layers
         delete registeredDataLayers[serverUrl][datasetIdentifier];
 
-        //$('.tag-deletable', '#taglist-' + key).attr('xxxx', 'abc');
         $('#taglist-' + key + ' .tag')          .attr('disabled', true);
         $('#taglist-' + key + ' .tag-deletable').attr('disabled', true);
         $('#taglist-' + key + ' .tag-deletable').off('click');   // Disable clicking
