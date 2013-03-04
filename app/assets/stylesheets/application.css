@@ -59,29 +59,6 @@ a:active {
 }
 
 
-.dataset_body, .front_page_col_body {
-  padding: 8px;
-  margin-bottom: 10px;
-}
-
-/* Differentiate mod and dataset pages by making the bodies a slightly different color */
-.dataset_body {
-  background-color: #F7EDF7;
-  padding-left: .5em;
-}
-
-.datset_name {
-  font-weight: bold;
-  padding-left: 1em;
-}
-
-.dataset_descr {
-  padding-top: .25em;
-  padding-bottom: .5em;
-  padding-left: .5em;
-}
-
-
 /* Make a link look like a button... or, hell, make a button look like a button! */
 .linkbutton {
 
@@ -131,22 +108,6 @@ a:active {
 
 .button_to div {
   display: inline;
-}
-
-.front_page_col_header {
-/*  background-color: #BBF;*/
-  font-size: 200%;
-  text-align: center;
-  padding-bottom: .25em;
-  padding-top: .5em;
-/*    color: white;*/
-/*    font-weight: bold;*/
-/*    text-shadow: 1px 1px 2px #555;*/
-}
-
-.front_page_col_body {
-/*  background-color: #EFF;*/
-/*border-bottom: 1px gray solid;*/
 }
 
 
@@ -212,40 +173,6 @@ a:active {
   background: #c9c;
   padding:15px;
 }
-
-.dataset_type_def dt {
-  font-weight: bold;
-  width: 173px;
-  text-align: right;
-  white-space: nowrap;
-  color: green;
-}
-
-.dataset_type_def dd {
-  margin: -18px 0 2px 0;
-  padding-left: 180px;
-  min-height: 25px;
-}
-
-
-.dataset_type_def .title dt {
-  font-weight: bold;
-  width: 173px;
-  text-align: right;
-  white-space: nowrap;
-  color: green;
-  font-size: 25px;
-  background-color: #cccccc;
-}
-
-.dataset_type_def .title dd {
-  margin: -42px 0 2px 0;
-  padding-left: 180px;
-  min-height: 25px;
-  font-size: 30px;
-  background-color: #cccccc;
-}
-
 
 .click_to_edit {
   padding-left: 10px;
