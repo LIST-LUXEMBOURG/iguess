@@ -493,6 +493,8 @@
         }
       }
 
+      var key = cssEscape(serverUrl + datasetIdentifier);
+
       if(checkbox.checked) {
          // ===== Unregistering dataset =====
          checkbox.checked = false;
@@ -513,18 +515,24 @@
         // Remove layer from the list of registered layers
         delete registeredDataLayers[serverUrl][datasetIdentifier];
 
+        //$('.tag-deletable', '#taglist-' + key).attr('xxxx', 'abc');
+        $('#taglist-' + key + ' .tag')          .attr('disabled', true);
+        $('#taglist-' + key + ' .tag-deletable').attr('disabled', true);
+        $('#taglist-' + key + ' .tag-deletable').off('click');   // Disable clicking
+
       } else {
         // ===== Registering dataset =====
         checkbox.checked = true;
         dataTypeControl.disabled = false;
 
-        var layer = discoveredLayers[cssEscape(serverUrl + datasetIdentifier)];
+        var layer = discoveredLayers[key];
 
         var service = '';
         if(     layer.type.hasObject('WFS')) { service = 'WFS'; }
         else if(layer.type.hasObject('WCS')) { service = 'WCS'; }
 
         var taglist = extractTagList(serverUrl, datasetIdentifier);
+
 
         // Let the server know this layer is now registered -- to do this we must create a new record in
         // our datasets table.
