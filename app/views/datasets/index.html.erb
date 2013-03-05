@@ -42,10 +42,9 @@
     for(var i = 0, len = datasets.length; i < len; i++) {
       var dataset = datasets[i];
 
-      var datasetId = registeredDatasets[dataset.server_url][dataset.identifier];
-      $('#dataset-list').append(renderTableRow(dataset, datasetId));
+      $('#dataset-list').append(renderTableRow(dataset));
 
-      $('#infotables').append(renderInfoTable(dataset, datasetId));
+      $('#infotables').append(renderInfoTable(dataset));
 
       probeDataServer(dataset.server_url, 'ALL');
     }
@@ -81,27 +80,27 @@
   // Generate html for Registered Datasets table row
   // Note: status-xxx below are classes that are common to all datasets on a server
   //       status2-xxx are classes that are common only to server-identifier pairs (i.e. duplicate datasets)
-  var renderTableRow = function(dataset, datasetId) {
+  var renderTableRow = function(dataset) {
     return '<tr id="dataset-id-' + dataset.id + '" onmouseover="$(this).find(\'.invisible-cell\').show();"' +
                                                   'onmouseout ="$(this).find(\'.invisible-cell\').hide();">' +
       '<td class="dataset-name-' + registeredDataAndMapServers[dataset.server_url] + '">' +
-        '<span class="dataset-title-' + datasetId + '">Retrieving...</span>' +
+        '<span class="dataset-title-' + dataset.id + '">Retrieving...</span>' +
         '<img src="/assets/small_question_mark.gif" class="info-icon" ' +
-                  'alt="More info" title="Click for details" rel="#infotable-' + datasetId + '">' +
+                  'alt="More info" title="Click for details" rel="#infotable-' + dataset.id + '">' +
       '</td>' +
-      '<td nowrap>' + 
+      '<td nowrap id="tags-' + dataset.id + '">' + 
         (dataset.dataset_tags.length === 0 ? "None" : createTagList(dataset.dataset_tags, false)) + 
       '</td>' +
       '<td>' + 
-        '<label><input class="publish-checkbox" id="publish-' + datasetId + '" ' +
-                        'data-datasetid="' + datasetId + '" type="checkbox" ' + (dataset.published ? 'checked' : '') + '/>Publish</label>' +
+        '<label><input class="publish-checkbox" id="publish-' + dataset.id + '" ' +
+                        'data-datasetid="' + dataset.id + '" type="checkbox" ' + (dataset.published ? 'checked' : '') + '/>Publish</label>' +
       '</td>' +
       '<td width=145><div class="status-' + registeredDataAndMapServers[dataset.server_url] + 
-        ' status2-' + datasetId + '">Probing server...  ' +
+        ' status2-' + dataset.id + '">Probing server...  ' +
         '<img src="/assets/loading_spinner.gif"></div>' +
       '</td>' +
-      '<td class="invisible-cell"><a onclick="tagLinkClicked(' +  dataset.id + ');" 
-                 href="javascript:void(0);">Tags</a>&nbsp|&nbsp<a href="/datasets/' + dataset.id + '" ' + 
+      '<td class="invisible-cell"><a onclick="tagLinkClicked(' +  dataset.id + ');"' +
+                 'href="javascript:void(0);">Tags</a>&nbsp|&nbsp<a href="/datasets/' + dataset.id + '" ' + 
         'data-confirm="Are you sure you want to unregister this dataset?" data-method="delete" ' +
         'data-remote="true" rel="nofollow">Unregister</a></td> ' + 
       // '<td>SHOW MODULE LIST HERE??</td>' +
