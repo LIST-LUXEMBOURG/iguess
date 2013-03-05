@@ -49,6 +49,7 @@
       probeDataServer(dataset.server_url, 'ALL');
     }
 
+    $('a.popup[rel]').overlay();                         // Activate popups for managing dataset tags 
     $('img[rel]').overlay();                             // Set up the layer info overlays
     $('img[rel]').click(function(){ hideDetails(); });   // Close details panel on open
 
@@ -74,7 +75,15 @@
 
   // Gets run when user clicks on the Links tag to the right of the main table
   var tagLinkClicked = function(datasetId) {
-    
+    // var tags = $('#taglist-' + datasetId).text();
+
+    var tags = [];
+
+    $('#taglist-' + datasetId).children().each(function() {
+        tags.push($(this).text());
+    });
+
+        
   };
 
   // Generate html for Registered Datasets table row
@@ -88,7 +97,7 @@
         '<img src="/assets/small_question_mark.gif" class="info-icon" ' +
                   'alt="More info" title="Click for details" rel="#infotable-' + dataset.id + '">' +
       '</td>' +
-      '<td nowrap id="tags-' + dataset.id + '">' + 
+      '<td nowrap id="taglist-' + dataset.id + '">' + 
         (dataset.dataset_tags.length === 0 ? "None" : createTagList(dataset.dataset_tags, false)) + 
       '</td>' +
       '<td>' + 
@@ -99,7 +108,8 @@
         ' status2-' + dataset.id + '">Probing server...  ' +
         '<img src="/assets/loading_spinner.gif"></div>' +
       '</td>' +
-      '<td class="invisible-cell"><a onclick="tagLinkClicked(' +  dataset.id + ');"' +
+      '<td class="invisible-cell">' +
+         '<a class="popup" rel="#tagpopup-' + dataset.id + '" onclick="tagLinkClicked(' + dataset.id + ');"' +
                  'href="javascript:void(0);">Tags</a>&nbsp|&nbsp<a href="/datasets/' + dataset.id + '" ' + 
         'data-confirm="Are you sure you want to unregister this dataset?" data-method="delete" ' +
         'data-remote="true" rel="nofollow">Unregister</a></td> ' + 
