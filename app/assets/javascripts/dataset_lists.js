@@ -163,7 +163,7 @@ var renderInfoTable = function(dataset)
               '<dt>Bounding Box:</dt><dd>' + '' + '</dd>' + 
               '<dt>Attribute Columns:</dt><dd>' + '' + '</dd>' + 
             '</dl></div>' +
-            '<div><a href="#" class="show-details"></a></div>' +
+            '<div><a href="javascript:void(0);" class="show-details"></a></div>' +
          '</div>';
 };
 
