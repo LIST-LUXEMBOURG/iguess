@@ -584,9 +584,14 @@
   var extractTagList = function(serverUrl, datasetIdentifier) 
   {
     var id = cssEscape(serverUrl + datasetIdentifier);
-    var tags = $('#taglist-' + id).text();
 
-    return tags;
+    var tags = [];
+
+    $('#taglist-' + datasetId).children().each(function() {
+        tags.push($(this).text());
+    });
+
+    return tags.join()
   };
 
 

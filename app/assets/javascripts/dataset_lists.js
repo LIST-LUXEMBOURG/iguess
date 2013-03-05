@@ -137,7 +137,7 @@ var updateDatasets = function(serverUrl, dataProxy, records, service)  // servic
 
 
 // Create a popup info display for this dataset 
-var renderInfoTable = function(dataset) 
+var renderInfoPopup = function(dataset) 
 {
   var serverUrlId = registeredDataAndMapServers[dataset.server_url];
 
@@ -167,6 +167,13 @@ var renderInfoTable = function(dataset)
          '</div>';
 };
 
+
+var renderTagPopup = function(dataset)
+{
+  return '<div class="infotable" id="tagpopup-' + dataset.id + '">' +
+            '<div class="taglist-' + dataset.id + '"></div>';
+         '</div>';
+};
 
 
 // Class that describes response from server, either success or failure
