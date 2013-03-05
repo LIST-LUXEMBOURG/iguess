@@ -73,6 +73,11 @@
   };
 
 
+  // Gets run when user clicks on the Links tag to the right of the main table
+  var tagLinkClicked = function(datasetId) {
+    
+  };
+
   // Generate html for Registered Datasets table row
   // Note: status-xxx below are classes that are common to all datasets on a server
   //       status2-xxx are classes that are common only to server-identifier pairs (i.e. duplicate datasets)
@@ -95,7 +100,8 @@
         ' status2-' + datasetId + '">Probing server...  ' +
         '<img src="/assets/loading_spinner.gif"></div>' +
       '</td>' +
-      '<td class="invisible-cell"><a href="/datasets/' + dataset.id + '" ' + 
+      '<td class="invisible-cell"><a onclick="tagLinkClicked(' +  dataset.id + ');" 
+                 href="javascript:void(0);">Tags</a>&nbsp|&nbsp<a href="/datasets/' + dataset.id + '" ' + 
         'data-confirm="Are you sure you want to unregister this dataset?" data-method="delete" ' +
         'data-remote="true" rel="nofollow">Unregister</a></td> ' + 
       // '<td>SHOW MODULE LIST HERE??</td>' +
