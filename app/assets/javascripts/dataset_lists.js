@@ -148,7 +148,7 @@ var renderInfoPopup = function(dataset)
             '<div style="overflow:hidden"><dl>' +
               '<dt>Server Name:</dt><dd class="server-name-' + serverUrlId + '"></dd>' +
                '<dt>Data Services:</dt><dd id="results-' + dataset.id + '">Waiting for response from server...</dd>' + 
-               
+               '<dt>Tags:</dt><dd class="taglist-' + dataset.id + '"></dd>' +
             '</dl></div>' +
             '<div style="overflow:hidden" class="technical-details">' +
               '<div class="technical-details-header">Technical Details</div><dl>' +
@@ -164,14 +164,6 @@ var renderInfoPopup = function(dataset)
               '<dt>Attribute Columns:</dt><dd>' + '' + '</dd>' + 
             '</dl></div>' +
             '<div><a href="javascript:void(0);" class="show-details"></a></div>' +
-         '</div>';
-};
-
-
-var renderTagPopup = function(dataset)
-{
-  return '<div class="infotable" id="tagpopup-' + dataset.id + '">' +
-            '<div class="taglist-' + dataset.id + '"></div>';
          '</div>';
 };
 

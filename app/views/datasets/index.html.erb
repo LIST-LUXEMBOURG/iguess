@@ -45,18 +45,19 @@
       $('#dataset-list').append(renderTableRow(dataset));
 
       $('#infotables').append(renderInfoPopup(dataset));
-      $('#infotables').append(renderTagPopup(dataset));
+      // $('#infotables').append(renderTagPopup(dataset));
 
 
       // By populating the tag list here, we can populate both the list in the main table, and in the tag manager popup, which,
-      // by now, have both been created (see renderTableRow() and renderTagPopup() ).
+      // by now, have both been created (see renderTableRow() and renderInfoPopup() ).
       // That is why we assigned a "unique" id using a class rather than an id.
-      $('.taglist-' + dataset.id).html(dataset.dataset_tags.length === 0 ? "None" : createTagList(dataset.dataset_tags, false)); 
+      $('.taglist-' + dataset.id).html(dataset.dataset_tags.length === 0 ? "None" : 
+                                                      createTagList(dataset.dataset_tags, false)); 
 
       probeDataServer(dataset.server_url, 'ALL');
     }
 
-    $('a.popup[rel]').overlay();                         // Activate popups for managing dataset tags 
+    // $('a.popup[rel]').overlay();                         // Activate popups for managing dataset tags 
     $('img[rel]').overlay();                             // Set up the layer info overlays
     $('img[rel]').click(function(){ hideDetails(); });   // Close details panel on open
 
@@ -114,8 +115,7 @@
         '<img src="/assets/loading_spinner.gif"></div>' +
       '</td>' +
       '<td class="invisible-cell">' +
-         '<a class="popup" rel="#tagpopup-' + dataset.id + '" onclick="tagLinkClicked(' + dataset.id + ');"' +
-                 'href="javascript:void(0);">Tags</a>&nbsp|&nbsp<a href="/datasets/' + dataset.id + '" ' + 
+         '<a href="/datasets/' + dataset.id + '" ' + 
         'data-confirm="Are you sure you want to unregister this dataset?" data-method="delete" ' +
         'data-remote="true" rel="nofollow">Unregister</a></td> ' + 
       // '<td>SHOW MODULE LIST HERE??</td>' +
