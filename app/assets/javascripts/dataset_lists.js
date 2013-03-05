@@ -136,6 +136,47 @@ var updateDatasets = function(serverUrl, dataProxy, records, service)  // servic
 };
 
 
+var getTagPickerControlId = function(datasetIdentifier)
+{
+  return 'data_type_' + datasetIdentifier;
+};
+
+
+var tagPickerChanged = function(ctrl)
+{
+  ctrl.blur();    // For firefox?
+
+  if(ctrl.val() === 'Ignore This') 
+    return; 
+
+  addTag(ctrl.attr('id'));
+};
+
+
+// If readyToPoulate is false, we can pass in anything for layer as long as it has an identifier property
+var makeTagPickerControl = function(layer, controlId, enabled)
+{
+  return '<select class="add-tag-dropdown-control" id="' + controlId + '" ' + (!enabled ? 'disabled="true" ' : '') +
+            'onchange="tagPickerChanged($(this));"' +
+            '>' +
+           '<option value = "Ignore This">Add Tag:</option>' + 
+         '</select>';
+};
+
+
+// Helper function for makeTagPickerControl()
+var addWmsOptionToDropdown = function(controlId) {
+  $('#' + controlId).find(">:first-child").after('<option>Mapping</option>');   // We want this to be the second choice
+};
+
+
+// Helper function for makeTagPickerControl()
+var addWfsWcsOptionsToDropdown = function(controlId) {
+  for(var j = 0, jlen = dataTypeList.length; j < jlen; j++) 
+    $('#' + controlId).append('<option value="' + dataTypeList[j].id + '">' + dataTypeList[j].id + '</option>');
+};
+
+
 // Create a popup info display for this dataset 
 var renderInfoPopup = function(dataset) 
 {
@@ -148,7 +189,8 @@ var renderInfoPopup = function(dataset)
             '<div style="overflow:hidden"><dl>' +
               '<dt>Server Name:</dt><dd class="server-name-' + serverUrlId + '"></dd>' +
                '<dt>Data Services:</dt><dd id="results-' + dataset.id + '">Waiting for response from server...</dd>' + 
-               '<dt>Tags:</dt><dd class="taglist-' + dataset.id + '"></dd>' +
+               '<dt>Tags:</dt><dd><span class="taglist-' + dataset.id + '"></span>' +
+                '<span>' + makeTagPickerControl(dataset, true, true) + '</span></dd>' +
             '</dl></div>' +
             '<div style="overflow:hidden" class="technical-details">' +
               '<div class="technical-details-header">Technical Details</div><dl>' +

@@ -19,7 +19,7 @@
   var onDataTypeDiscoveryCompleted = function(dataTypes)
   {
     $('data-type-dropdown').show();
-    // populateSelectBox(document.getElementById("data-type-dropdown-control"), dataTypes);
+    // populateSelectBox(document.getElementById("add-tag-dropdown-control"), dataTypes);
     dataTypeList = dataTypes.sort();
     dataDiscoveryComplete = true;
   }
@@ -150,12 +150,6 @@
   var onWpsError = function(url)
   {
     alert("Connection to process server " + wpsServerList[url] + " failed!");
-  };
-
-
-  var getDataTypeControlId = function(layerName)
-  {
-  	return 'data_type_' + layerName;
   };
 
   var getLayerNameFromCheckboxId = function(id)
@@ -304,42 +298,7 @@
           srsList = Object.keys(layer.srs);
         }
 
-        var dataTypeControl = "Couldn't load data types!";
-
-        if(dataDiscoveryComplete) {   // Will typically be the case, though we need to handle the case where this is false
-
-          dataTypeControl = $(document.createElement('select'));
-          dataTypeControl.attr({ class:    'data-type-dropdown-control', 
-                                 id:       getDataTypeControlId(layer.identifier), 
-                                 disabled: !registered 
-                               });
-
-          // What to do when the user adds a tag to a layer by changing the value of the tags dropdown
-
-          dataTypeControl.focus(function() {
-            prev_val = $(this).val();     // Store original value
-          }).change(function() {
-                    $(this).blur(); // Firefox fix
-
-                    if($(this).val() == 'Ignore This')    // This is the Add Tag: entry
-                      return;
-
-                    addTag(this.id);        // Procede with change handler
-                  });
-
-          dataTypeControl.append('<option value = "Ignore This">Add Tag:</option>');
-
-          if(layer.type.hasObject('WMS')) {
-            dataTypeControl.append('<option>Mapping</option>');
-          }
-
-          if(layer.type.hasObject('WFS') || layer.type.hasObject('WCS')) {
-            for(var j = 0, jlen = dataTypeList.length; j < jlen; j++) {
-              dataTypeControl.append('<option value="' + dataTypeList[j].id + '">' + dataTypeList[j].id + '</option>');
-            }
-          }
-        }
-
+        var tagPickerControlId = getTagPickerControlId(layer.identifier);
         var registerControl = $(document.createElement('input'));
 
         registerControl.attr({ type:    'checkbox', 
@@ -411,7 +370,7 @@
                           (regLyr && regLyr.tags !== '' ? createTagList(regLyr.tags, true, 
                                                                         layer.serverUrl, layer.identifier) : 'None') +
                          '</div>')
-                 .append(dataTypeControl);
+                 .append(makeTagPickerControl(layer, tagPickerControlId, registered));
 
         var sample_map = $(document.createElement('div'));
         sample_map.attr({ id:mapDivId, class:'sample-map' });   // Map will be rendered based on div's id
@@ -427,6 +386,7 @@
         //    container (registered_dataset or unregistered_dataset)
         //       data_info
         //       sample_map
+
 
         var tr_element = $(document.createElement('li'));
         tr_element.attr({ class:'map-data-item' });
@@ -463,6 +423,20 @@
           miniMap.zoomToMaxExtent();
           miniMap.render(mapDivId);    // Renders to <div id="map#">
         }
+
+        // Now that the tag picker has finally been added to the dom, we can populate it
+        if(dataDiscoveryComplete) {
+          if(layer.type.hasObject('WMS'))
+            addWmsOptionToDropdown(tagPickerControlId);
+
+          if(layer.type.hasObject('WFS') || layer.type.hasObject('WCS'))
+            addWfsWcsOptionsToDropdown(tagPickerControlId);
+        }
+        else
+          alert("Things did not proceed in expected order!");   // TODO: Get rid of this, add handler elsewhere
+
+
+
       }  // end for loop
     }  // for pass = 0 to 2
 
@@ -490,7 +464,7 @@
       var checkbox = document.getElementById(checkboxID);
       var datasetIdentifier = getLayerNameFromCheckboxId(checkboxID);
 
-      var dataTypeControl = document.getElementById(getDataTypeControlId(datasetIdentifier));
+      var tagPickerControl = document.getElementById(getTagPickerControlId(datasetIdentifier));
       var serverUrl = getServerUrl();
 
       var dataLayer = registeredDataLayers[serverUrl][datasetIdentifier];
@@ -514,7 +488,7 @@
       if(checkbox.checked) {
          // ===== Unregistering dataset =====
          checkbox.checked = false;
-         dataTypeControl.disabled = true;
+         tagPickerControl.disabled = true;
 
         // Let the server know this layer is no longer registered -- to do this we delete the corresponding
         // record in the datasets table.
@@ -538,7 +512,7 @@
       } else {
         // ===== Registering dataset =====
         checkbox.checked = true;
-        dataTypeControl.disabled = false;
+        tagPickerControl.disabled = false;
 
         var layer = discoveredLayers[key];
 

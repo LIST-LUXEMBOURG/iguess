@@ -54,6 +54,9 @@
       $('.taglist-' + dataset.id).html(dataset.dataset_tags.length === 0 ? "None" : 
                                                       createTagList(dataset.dataset_tags, false)); 
 
+      // Make tags on the popup be deletable -- tags on the main page are not in a span
+      $('span.taglist-' + dataset.id).children().addClass('tag-deletable');
+
       probeDataServer(dataset.server_url, 'ALL');
     }
 
