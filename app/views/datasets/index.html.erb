@@ -100,7 +100,8 @@
   // Generate html for Registered Datasets table row
   // Note: status-xxx below are classes that are common to all datasets on a server
   //       status2-xxx are classes that are common only to server-identifier pairs (i.e. duplicate datasets)
-  var renderTableRow = function(dataset) {
+  var renderTableRow = function(dataset) 
+  {
     return '<tr id="dataset-id-' + dataset.id + '" onmouseover="$(this).find(\'.invisible-cell\').show();"' +
                                                   'onmouseout ="$(this).find(\'.invisible-cell\').hide();">' +
       '<td class="dataset-name-' + registeredDataAndMapServers[dataset.server_url] + '">' +
