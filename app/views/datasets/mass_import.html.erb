@@ -35,8 +35,6 @@
                       }.join(' ');
   %>                      
 
-  function getServerUrl() { return $('#dataset_url').val().trim(); }
-
 
   registeredDataLayers = {};
 
@@ -56,15 +54,6 @@
   };
 
 
-  var updateTags = function(serverUrl, datasetIdentifier, tags)
-  {
-    var id = cssEscape(serverUrl + datasetIdentifier);
-
-    $('#taglist-' + id).html(tags.length > 0 ? createTagList(tags, true, serverUrl, datasetIdentifier) : 'None');
-    addDeleteTagClickHander();    // Need to readd a handler for these new tags
-  };
-
-
   // Populate registeredDataLayers with data from the database
   <%= @datasets.reject{ |d| d.finalized == false }.
                 map{ |d| "makeRegisteredLayer('" + d.server_url.gsub(/\\/, '\\\\\\') + "'," + 
@@ -77,49 +66,10 @@
                 join(' ') %>  
 
 
-  // User adds or removes a tag
-  var addTag = function(id)
-  {
-    var datasetIdentifier = getLayerNameFromDataTypeId(id);
-    var serverUrl       = getServerUrl();
-
-    // Let the server know the dataType has changed
-		var dataTypeControl = document.getElementById(id);
-
-		$.ajax({
-			type:    'PUT',      // PUT combined with url below triggers "update" action on controller
-			url:     '<%= url_for(:controller => 'datasets', :action => 'add_data_tag') %>',
-			data:    'dataset[identifier]='  + datasetIdentifier +
-               '&dataset[server_url]=' + serverUrl +
-               '&dataset_tag='         + dataTypeControl.value,
-			headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
-                 'Content-Type': 'application/json' */},
-      success: function(data) { updateTags(serverUrl, datasetIdentifier, eval(data)); }
-	  });
-
-	  // makeRegisteredLayer(serverUrl, dataTypeControl.value, registeredDatasets[serverUrl][datasetIdentifier], [], 0);
-  }
-
-
-  var deleteTag = function(serverUrl, datasetIdentifier, tagValue)
-  {
-    $.ajax({
-      type:    'PUT',      // PUT combined with url below triggers "update" action on controller
-      url:     '<%= url_for(:controller => 'datasets', :action => 'del_data_tag') %>',
-      data:    'dataset[identifier]='  + datasetIdentifier +
-               '&dataset[server_url]=' + serverUrl +
-               '&dataset_tag='         + tagValue,
-      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
-                 'Content-Type': 'application/json' */},
-      success: function(data) { updateTags(serverUrl, datasetIdentifier, eval(data)); }
-    });
-  };
-
-
   // The city dropdown on the UR of the screen has changed
   var onLocationChanged = function(cityName) {
     // Update to default city URL -- use gsub to fix those @#$%^ backslashes in the URL...
-    $('#dataset_url').val(
+    $('#server_url').val(
             { <% @cities.each do |city| %>'<%= city.name %>':'<%= city.url.gsub(/\\/, '\\\\\\') %>',<% end %>}[cityName]
     );
     LOCAL_SRS = { <% @cities.each do |city| %>'<%= city.name %>':'<%= city.srs %>',<% end %>}[cityName];
@@ -141,11 +91,6 @@
   var getLayerNameFromCheckboxId = function(id)
   {
   	return id.substring('registered_'.length);	// Remove 'registered_' from the front of the string
-  };
-
-  var getLayerNameFromDataTypeId = function(id)
-  {
-  	return id.substring('data_type_'.length);	// Remove 'data_type_' from the front of the string
   };
 
 
@@ -190,37 +135,6 @@
       $('.server-info').show();
     }
   };
-
-
-  var addDeleteTagClickHander = function() {
-    // Add a handler to delete tags when clicked on
-    $('.tag-deletable').click(function() {
-      var serverUrl         = $(this).data('url');
-      var datasetIdentifier = $(this).data('identifier');
-      var tagVal            = $(this).parent().text();
-
-      if(confirmChange(serverUrl, datasetIdentifier, tagVal))
-        deleteTag(serverUrl, datasetIdentifier, tagVal);
-    });
-  };
-
-
-  var confirmChange = function(serverUrl, datasetIdentifier, tagVal) 
-  {
-    if(TagIsInUse[tagVal] && TagIsInUse[tagVal][cssEscape(serverUrl + datasetIdentifier)] > 0) {
-      var ct = TagIsInUse[tagVal][cssEscape(serverUrl + datasetIdentifier)];
-      var c  = (ct == 1) ? "configuration" : "configurations";
-      var t  = (ct == 1) ? "this"          : "these";
-      var th = (ct == 1) ? "it"            : "them";
-
-      return confirm("This dataset is in use by " + ct + " " + c + ". " +
-                     "Changing its type will cause it to be removed from " + t + " " + c + ".\n\n" +
-                     "Click OK if you are sure you want to change the type of this dataset.");
-    }
-    // else...
-    return true;
-  };
-
 
 
   var displayLayers = function() {
@@ -352,7 +266,7 @@
         data_info.append(srsNode)
                  .append(registerControl)
                  .append(servicesAvailNode)
-                 .append('<div id="taglist-' + datasetId + '" class="taglist">' +  
+                 .append('<div class="taglist-' + datasetId + ' taglist">' +  
                           (regLyr && regLyr.tags !== '' ? createTagList(regLyr.tags, true, 
                                                                         layer.serverUrl, layer.identifier) : 'None') +
                          '</div>')
@@ -469,7 +383,7 @@
         }
       }
 
-      var key = cssEscape(serverUrl + datasetIdentifier);
+      var urlId = cssEscape(serverUrl + datasetIdentifier);
 
       if(checkbox.checked) {
          // ===== Unregistering dataset =====
@@ -491,16 +405,16 @@
         // Remove layer from the list of registered layers
         delete registeredDataLayers[serverUrl][datasetIdentifier];
 
-        $('#taglist-' + key + ' .tag')          .attr('disabled', true);
-        $('#taglist-' + key + ' .tag-deletable').attr('disabled', true);
-        $('#taglist-' + key + ' .tag-deletable').off('click');   // Disable clicking
+        $('.taglist-' + urlId + ' .tag')          .attr('disabled', true);
+        $('.taglist-' + urlId + ' .tag-deletable').attr('disabled', true);
+        $('.taglist-' + urlId + ' .tag-deletable').off('click');   // Disable clicking
 
       } else {
         // ===== Registering dataset =====
         checkbox.checked = true;
         tagPickerControl.disabled = false;
 
-        var layer = discoveredLayers[key];
+        var layer = discoveredLayers[urlId];
 
         var service = '';
         if(     layer.type.hasObject('WFS')) { service = 'WFS'; }
@@ -543,11 +457,11 @@
 
   var extractTagList = function(serverUrl, datasetIdentifier) 
   {
-    var id = cssEscape(serverUrl + datasetIdentifier);
+    var urlId = cssEscape(serverUrl + datasetIdentifier);
 
     var tags = [];
 
-    $('#taglist-' + datasetId).children().each(function() {
+    $('#taglist-' + urlId).children().each(function() {
         tags.push($(this).text());
     });
 
@@ -728,15 +642,67 @@
   };
 
 
+
+  var getServerUrl = function() 
+  { 
+    return $('#server_url').val().trim(); 
+  };
+
+
+  ////////////////////////////////////// This block duplicated because it needs to be parsed by Rails!
+  // TODO: Find a better way
+
+      // User adds or removes a tag
+      var addTag = function(ctrl)
+      {
+        var datasetIdentifier = ctrl.data('datasetidentifier');
+        var serverUrl         = ctrl.data('serverurl');
+
+        // Let the server know the dataType has changed
+        var tag = ctrl.val();
+
+        $.ajax({
+          type:    'PUT',      // PUT combined with url below triggers "update" action on controller
+          url:     '<%= url_for(:controller => 'datasets', :action => 'add_data_tag') %>',
+          data:    'dataset[identifier]='  + datasetIdentifier +
+                   '&dataset[server_url]=' + serverUrl +
+                   '&dataset_tag='         + tag,
+          headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
+                     'Content-Type': 'application/json' */},
+          success: function(data) { updateTags(serverUrl, datasetIdentifier, eval(data)); }
+        });
+
+        // makeRegisteredLayer(serverUrl, tag, registeredDatasets[serverUrl][datasetIdentifier], [], 0);
+      }
+
+
+
+      var deleteTag = function(serverUrl, datasetIdentifier, tagValue)
+      {
+        $.ajax({
+          type:    'PUT',      // PUT combined with url below triggers "update" action on controller
+          url:     '<%= url_for(:controller => 'datasets', :action => 'del_data_tag') %>',
+          data:    'dataset[identifier]='  + datasetIdentifier +
+                   '&dataset[server_url]=' + serverUrl +
+                   '&dataset_tag='         + tagValue,
+          headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
+                     'Content-Type': 'application/json' */},
+          success: function(data) { updateTags(serverUrl, datasetIdentifier, eval(data)); }
+        });
+      };
+
+
+
+
   $(document).ready(function ()
   {
     hideProbingIndicators();
     onLocationChanged('<%= @current_city.name %>');   // Update SRS and set default URL
 
     // Event handlers for various controls
-    $('#dataset_url').change(update);
+    $('#server_url').change(update);
     $('#refresh_layers_button').click(update);
-    $('#dataset_url').focus(function() { $('#refresh_layers_button').html('Load'); });
+    $('#server_url').focus(function() { $('#refresh_layers_button').html('Load'); });
 
     // Event handlers for our radio buttons
     $("#radio-show-wfs") .click(function() { displayLayers(); });
@@ -771,7 +737,7 @@
 
 <div class="field">
   Remote Data Server URL:<br>
-  <input id="dataset_url" type="text" size="90"/>
+  <input id="server_url" type="text" size="90"/>
   <button type="button" id="refresh_layers_button" style="padding-left: 20px; padding-right:20px;">Load</button>
 </div>
 </form>

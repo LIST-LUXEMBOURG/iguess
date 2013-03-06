@@ -152,16 +152,24 @@ var tagPickerChanged = function(ctrl)
   if(ctrl.val() === 'Ignore This') 
     return; 
 
-  addTag(ctrl.attr('id'));
+  addTag(ctrl);
+};
+
+
+var getLayerNameFromDataTypeId = function(ctrl)
+{
+  return ctrl.attr('id').substring('data_type_'.length); // Remove 'data_type_' from the front of the string
 };
 
 
 // If readyToPoulate is false, we can pass in anything for layer as long as it has an identifier property
 var makeTagPickerControl = function(layer, controlId, enabled)
 {
-  return '<span class="loading-indicator tag-list-loading-indicator">Loading tags...</span>' +
+  return '<span class="loading-indicator tag-list-loading-indicator">Loading&nbsp;tags...</span>' +
             '<select style="float:right" class="add-tag-dropdown-control hidden" ' + 
-              'id="' + controlId + '" ' + (!enabled ? 'disabled="true" ' : '') +
+              'data-serverurl="' + layer.serverUrl + '" ' +   // These keys seem to get lowercased anyway... so no upper case letter pls!
+              'data-datasetidentifier="' + layer.identifier + '" ' +
+              'id="' + controlId + '" ' + (enabled ? '' : 'disabled="true" ') +
               'onchange="tagPickerChanged($(this));">' +
            '<option value = "Ignore This">Add Tag:</option>' + 
          '</select>';
@@ -185,6 +193,8 @@ var renderInfoPopup = function(dataset)
 {
   var serverUrlId = registeredDataAndMapServers[dataset.server_url];
 
+  var urlId = cssEscape(dataset.serverUrl + dataset.identifier);
+
   return '<div class="infotable" id="infotable-' + dataset.id + '">' +
             '<div class="close"></div>' +
             '<h1><span class="dataset-title-' + dataset.id + '"></h1>' +
@@ -192,7 +202,7 @@ var renderInfoPopup = function(dataset)
             '<div style="overflow:hidden"><dl>' +
               '<dt>Server Name:</dt><dd class="server-name-' + serverUrlId + '"></dd>' +
                '<dt>Data Services:</dt><dd id="results-' + dataset.id + '">Waiting for response from server...</dd>' + 
-               '<dt>Tags:</dt><dd><span class="taglist-' + dataset.id + '"></span>' +
+               '<dt>Tags:</dt><dd><span class="taglist-' + urlId + '"></span>' +
                 '<span>' + makeTagPickerControl(dataset, getTagPickerControlId(dataset.id), true) + '</span></dd>' +
             '</dl></div>' +
             '<div style="overflow:hidden" class="technical-details">' +
@@ -290,4 +300,46 @@ var createTagList = function(taglist, deleteable, serverUrl, datasetIdentifier)
 
    return list; 
 };
+
+
+var updateTags = function(serverUrl, datasetIdentifier, tags)
+{
+  var id = cssEscape(serverUrl + datasetIdentifier);
+
+  $('.taglist-' + id).html(tags.length > 0 ? createTagList(tags, true, serverUrl, datasetIdentifier) : 'None');
+  addDeleteTagClickHander();    // Need to readd a handler for these new tags
+};
+
+
+var addDeleteTagClickHander = function() 
+{
+  // Add a handler to delete tags when clicked on
+  $('.tag-deletable').click(function() {
+    var serverUrl         = $(this).data('url');
+    var datasetIdentifier = $(this).data('identifier');
+    var tagVal            = $(this).parent().text();
+
+    if(confirmDeleteTag(serverUrl, datasetIdentifier, tagVal))
+      deleteTag(serverUrl, datasetIdentifier, tagVal);
+  });
+};
+
+
+var confirmDeleteTag = function(serverUrl, datasetIdentifier, tagVal) 
+{
+  if(TagIsInUse[tagVal] && TagIsInUse[tagVal][cssEscape(serverUrl + datasetIdentifier)] > 0) {
+    var ct = TagIsInUse[tagVal][cssEscape(serverUrl + datasetIdentifier)];
+    var c  = (ct == 1) ? "configuration" : "configurations";
+    var t  = (ct == 1) ? "this"          : "these";
+    var th = (ct == 1) ? "it"            : "them";
+
+    return confirm("This dataset is in use by " + ct + " " + c + ". " +
+                   "Changing its type will cause it to be removed from " + t + " " + c + ".\n\n" +
+                   "Click OK if you are sure you want to change the type of this dataset.");
+  }
+  // else...
+  return true;
+};
+
+
 

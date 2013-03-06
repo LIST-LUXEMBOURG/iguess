@@ -42,20 +42,26 @@
     for(var i = 0, len = datasets.length; i < len; i++) {
       var dataset = datasets[i];
 
+      // Depending on where the dataset is coming from, the server url might need to be fixed up.  TODO: Can we bypass this somehow?
+      if(dataset.server_url && !dataset.serverUrl)
+        dataset.serverUrl = dataset.server_url;
+
       $('#dataset-list').append(renderTableRow(dataset));
 
       $('#infotables').append(renderInfoPopup(dataset));
       // $('#infotables').append(renderTagPopup(dataset));
 
 
+      var urlId = cssEscape(dataset.serverUrl + dataset.identifier);
+
       // By populating the tag list here, we can populate both the list in the main table, and in the tag manager popup, which,
       // by now, have both been created (see renderTableRow() and renderInfoPopup() ).
       // That is why we assigned a "unique" id using a class rather than an id.
-      $('.taglist-' + dataset.id).html(dataset.dataset_tags.length === 0 ? "None" : 
+      $('.taglist-' + urlId).html(dataset.dataset_tags.length === 0 ? "None" : 
                                                       createTagList(dataset.dataset_tags, false)); 
 
       // Make tags on the popup be deletable -- tags on the main page are not in a span
-      $('span.taglist-' + dataset.id).children().addClass('tag-deletable');
+      $('span.taglist-' + urlId).children().addClass('tag-deletable');
 
       probeDataServer(dataset.server_url, 'ALL');
     }
@@ -79,18 +85,17 @@
 
 
   var onLocationChanged = function(cityName) {
-    MapUtils.retrieveDatasetsForCity(cityName, function(data) { renderTable(data);
-                                                                hideUnregisterAndFriends(); });
+    MapUtils.retrieveDatasetsForCity(cityName, function(dataset) { renderTable(dataset);
+                                                                   hideUnregisterAndFriends(); });
   };
 
 
   // Gets run when user clicks on the Links tag to the right of the main table
-  var tagLinkClicked = function(datasetId) {
-    // var tags = $('#taglist-' + datasetId).text();
-
+  // Never used?
+  var tagLinkClicked = function(urlId) {
     var tags = [];
 
-    $('#taglist-' + datasetId).children().each(function() {
+    $('#taglist-' + urlId).children().each(function() {
         tags.push($(this).text());
     });
 
@@ -102,6 +107,8 @@
   //       status2-xxx are classes that are common only to server-identifier pairs (i.e. duplicate datasets)
   var renderTableRow = function(dataset) 
   {
+    var urlId = cssEscape(dataset.serverUrl + dataset.identifier);
+
     return '<tr id="dataset-id-' + dataset.id + '" onmouseover="$(this).find(\'.invisible-cell\').show();"' +
                                                   'onmouseout ="$(this).find(\'.invisible-cell\').hide();">' +
       '<td class="dataset-name-' + registeredDataAndMapServers[dataset.server_url] + '">' +
@@ -109,7 +116,7 @@
         '<img src="/assets/small_question_mark.gif" class="info-icon" ' +
                   'alt="More info" title="Click for details" rel="#infotable-' + dataset.id + '">' +
       '</td>' +
-      '<td nowrap class="taglist-' + dataset.id + '" id="taglist-' + dataset.id + '"></td>' +
+      '<td nowrap class="taglist-' + urlId + '" id="taglist-' + urlId + '"></td>' +
       '<td>' + 
         '<label><input class="publish-checkbox" id="publish-' + dataset.id + '" ' +
                         'data-datasetid="' + dataset.id + '" type="checkbox" ' + (dataset.published ? 'checked' : '') + '/>Publish</label>' +
@@ -277,6 +284,51 @@
     $('#dataset-id-' + data).hide();
   });
 
+
+
+
+  ////////////////////////////////////// This block duplicated because it needs to be parsed by Rails!
+  // TODO: Find a better way
+
+      // User adds or removes a tag
+      var addTag = function(ctrl)
+      {
+        var datasetIdentifier = ctrl.data('datasetidentifier');
+        var serverUrl         = ctrl.data('serverurl');
+
+        // Let the server know the dataType has changed
+        var tag = ctrl.val();
+
+        $.ajax({
+          type:    'PUT',      // PUT combined with url below triggers "update" action on controller
+          url:     '<%= url_for(:controller => 'datasets', :action => 'add_data_tag') %>',
+          data:    'dataset[identifier]='  + datasetIdentifier +
+                   '&dataset[server_url]=' + serverUrl +
+                   '&dataset_tag='         + tag,
+          headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
+                     'Content-Type': 'application/json' */},
+          success: function(data) { updateTags(serverUrl, datasetIdentifier, eval(data)); }
+        });
+
+        // makeRegisteredLayer(serverUrl, tag, registeredDatasets[serverUrl][datasetIdentifier], [], 0);
+      }
+
+
+      var deleteTag = function(serverUrl, datasetIdentifier, tagValue)
+      {
+        $.ajax({
+          type:    'PUT',      // PUT combined with url below triggers "update" action on controller
+          url:     '<%= url_for(:controller => 'datasets', :action => 'del_data_tag') %>',
+          data:    'dataset[identifier]='  + datasetIdentifier +
+                   '&dataset[server_url]=' + serverUrl +
+                   '&dataset_tag='         + tagValue,
+          headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
+                     'Content-Type': 'application/json' */},
+          success: function(data) { updateTags(serverUrl, datasetIdentifier, eval(data)); }
+        });
+      };
+
+
 </script>
 
 
@@ -324,5 +376,9 @@
 
   <br />
 </div>
+
+
+
+
 
 
