@@ -7,25 +7,11 @@
 
   GOOGLE_SRS = 'EPSG:3857';
 
-  var urls = [<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>];
-
-   // For each url in our database, start probing the server
-  for(var i = 0; i < urls.length; i++) {  WPS.probeWPS_getDataTypes(urls[i]);  }
-
-
-  var dataDiscoveryComplete = false;
-  var dataTypeList = [];
-
-  var onDataTypeDiscoveryCompleted = function(dataTypes)
-  {
-    $('data-type-dropdown').show();
-    // populateSelectBox(document.getElementById("add-tag-dropdown-control"), dataTypes);
-    dataTypeList = dataTypes.sort();
-    dataDiscoveryComplete = true;
-  }
+  // Initiate collection of data tags -- visit each WPS server to see what tags are in use
+  // This will ultimately populate the DataTagList[] array
+  collectTags([<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>]);
 
 </script>
-
 
 
 
@@ -649,8 +635,6 @@
 
     this.onWcsGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) 
     { 
-      // debugger
-      // alert("Error with WCS request");
       self.onGetCapabilitiesFailed();
       self.WcsSucceeded = false;
       doneProcessing(self.serverUrl, 'WCS', null, 'ERROR');

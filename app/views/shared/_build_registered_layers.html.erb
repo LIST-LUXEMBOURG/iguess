@@ -9,12 +9,13 @@
                                         .map   {|d| "'" + d.server_url.gsub('\\') { '\\\\' } + "'"}
                                         .join(',') %>];
 
+  registeredDataAndMapServers = {};
 
-  registeredDataAndMapServers = [<%= @datasets.uniq  {|d| d.server_url}
-                                              .map   {|d| "'" + d.server_url.gsub('\\') { '\\\\' } + "'"}
-                                              .join(',') %>];                                        
+      <%= raw @datasets.uniq  {|d| d.server_url}
+                   .map   {|d| 'registeredDataAndMapServers["' + d.server_url.gsub('\\') { '\\\\' } + '"] = ' + d.id.to_s() + ';' }
+                   .join(' ') %>                                      
 
-  var registeredDatasets  = { };
+  var registeredDatasets  = {};
 
   // registeredDatasets[url][identifier] = database id of the dataset as that unique number,
   // so we can use it for talking with the server.

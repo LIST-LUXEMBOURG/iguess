@@ -182,36 +182,50 @@ function findDatasetById(datasets, id)
     return false;
 };
 
+
 // This function is called when the describeProcesses response arrives
 // It will be called repeatedly as responses arrive
 function onDescribedProcess_getDataTypesProbe(process)
 {
-  var len = process.inputs.length;
-  for(var i = 0; i < len; i++) {
-    var id   = process.inputs[i].identifier;
-    var type = process.inputs[i].type;
-    var title = process.inputs[i].title || id;
+
+  // We run this when we have all the expected replies from the WPS servers we sent out earlier
+  var dataTypeDiscoveryCompleted = function(dataTypes)
+  {
+    $('data-type-dropdown').show();
+    // populateSelectBox(document.getElementById("add-tag-dropdown-control"), dataTypes);
+    DataTagList = dataTypes.sort();
+    dataDiscoveryComplete = true;
+
+    // Call external event handler, if it exists
+    if(typeof onDataTypeDiscoveryCompleted != 'undefined') {
+      onDataTypeDiscoveryCompleted(DataTagList);
+    }
+  }
+
+
+  for(var i = 0, len = process.inputs.length; i < len; i++) {
+    var identifier = process.inputs[i].identifier;
+    var type       = process.inputs[i].type;
+    var title      = process.inputs[i].title || identifier;
 
     // For the moment, skip all "simple" datatypes.  This may need to be changed in the future.
     if(type != undefined) { continue; }
 
-    if(!findDatasetById(WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes, id)) {
-      var dataType = { id: id, title: title };
-      WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes.push(dataType);
+    if(!findDatasetById(WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes, identifier)) {
+      var tag = { id: identifier, title: title };
+      WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes.push(tag);
     }
   }
 
   WPS.responsesReceived++;
 
-  // Call callbacks, if they are defined
-  if(typeof onDataTypesDiscovered != 'undefined') {
-    onDataTypesDiscovered(WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes);
-  }
+  // // Call callbacks, if they are defined
+  // if(typeof onDataTypesDiscovered != 'undefined') {
+  //   onDataTypesDiscovered(WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes);
+  // }
 
   if(WPS.responsesReceived == WPS.responsesExpected) {
-    if(typeof onDataTypeDiscoveryCompleted != 'undefined') {
-      onDataTypeDiscoveryCompleted(WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes);
-    }
+    dataTypeDiscoveryCompleted(WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes);
   }
 }
 
@@ -403,21 +417,28 @@ WMS.unwrapServer = function(url) {
 
 unwrapServer = function(url, format)
 {
-  if(format == 'WFSCapabilities')     { return WFS.unwrapServer(url); }
-  if(format == 'WMSCapabilities')     { return WMS.unwrapServer(url); }
-  if(format == 'WCSCapabilities')     { return WCS.unwrapServer(url); }
-  if(format == 'WCSDescribeCoverage') { return WCS.unwrapServer(url); }
+  if(format === 'WFSCapabilities')     { return WFS.unwrapServer(url); }
+  if(format === 'WMSCapabilities')     { return WMS.unwrapServer(url); }
+  if(format === 'WCSCapabilities')     { return WCS.unwrapServer(url); }
+  if(format === 'WCSDescribeCoverage') { return WCS.unwrapServer(url); }
 
-  return null;
+  return "Unknown Format!!";
 };
 
 
 getService = function(format)
 {
-  if(format == 'WFSCapabilities') { return "WFS"; }
-  if(format == 'WMSCapabilities') { return "WMS"; }
-  if(format == 'WCSCapabilities') { return "WCS"; }
+  if(format === 'WFSCapabilities')     { return "WFS"; }
+  if(format === 'WMSCapabilities')     { return "WMS"; }
+  if(format === 'WCSCapabilities')     { return "WCS"; }
+  if(format === 'WCSDescribeCoverage') { return "WCSdc"; }
 
-  return null;
+  return "Unknown Service!!";
+};
+
+
+isPrimaryService = function(service)
+{
+  return (service === 'WMS' || service === 'WFS' || service === 'WCS');
 };
 

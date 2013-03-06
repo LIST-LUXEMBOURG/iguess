@@ -19,7 +19,7 @@ var hideDetails = function() {
 
 var layerRecords       = {};
 var layerStores        = {};
-var serverResponseList = {} ;
+var serverResponseList = {};
 
 
 var processedUrls   = {};
@@ -31,19 +31,101 @@ var resetProbe = function()
   processedUrls = {};
 };
 
+
+
+var Datasets = {};
+
 // This function will be called for every dataset registered with the current city.  Many will have the same
 // server.  Avoid processing the same server twice.
 // Called from renderTable(), which is called from onCityChange() event handler
 // For service, specify WFS, WMS, WCS, or ALL.  ALL is the default if this paremeter is not supplied.
 var probeDataServer = function(url, service)
 {
+
+  var updateDatasets = function(serverUrl, dataProxy, records, service)  // service will be WMS, WFS, or WCS
+  {
+    
+    for(var i = 0, count = records.length; i < count; i++) {
+      var record = records[i];
+
+      var identifier = record.data.name;
+      var serverUrl  = serverUrl;
+      var title      = record.data.title;
+      var descr      = record.data["abstract"] || title;   
+      var datasetId  = registeredDatasets[serverUrl][identifier];
+
+
+      if(!Datasets[datasetId]) {
+        Datasets[datasetId] = { 
+          identifier:      identifier,
+          serverUrl:       serverUrl,
+          key:             datasetId,
+          title:           "",
+          descr:           "",
+          nameCameFromWms: false,
+          services:        []
+        };
+      }
+
+      var dataset = Datasets[datasetId];
+
+      dataset[service] = {};
+      dataset.services.push(service);
+
+      // Treat WMS as definitive -- if we have that, don't overwrite dataset attributes
+      if(!dataset.nameCameFromWms) {
+        dataset.title   = title;
+        dataset.descr   = descr;
+        nameCameFromWms = (service == 'WMS');
+      }
+    }
+  };
+
+  // Server has responded to our query and seems happy (from updateLayerList)
+  // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-load
+  var onGetCapabilitiesSucceeded = function(dataProxy, records, options)
+  {
+    var format    = dataProxy.format.name;
+    var serverUrl = unwrapServer(dataProxy.url, format);
+    var service   = getService(format);
+
+    serverResponseList[serverUrl][service] = new ServerResponse(true, dataProxy, records, service);
+    updateDatasets(serverUrl, dataProxy, records, service);
+
+    gotServerResponse(serverUrl, serverResponseList[serverUrl]);
+  };
+
+
+  // We pepper each server with WMS, WFS, and WCS requests.  One of these has failed, 
+  // which might be bad, or it might be perfectly fine.  It might mean that the server 
+  // is down, or that it has not been configured to respond to a particular service.
+
+  // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-exception
+  var onGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) 
+  {
+    // status.responseText has response from data server?
+    // We might get here if server the server does not support service WxS
+
+    var format    = options.reader.meta.format.name;
+    var serverUrl = unwrapServer(dataProxy.url, format);
+    var service   = getService(format);
+
+    serverResponseList[serverUrl][service] = new ServerResponse(false, null, [], service, 
+                                                             response.status, response.responseText);
+    gotServerResponse(serverUrl, serverResponseList[serverUrl]);
+  };
+
+
+
   var s = service || "ALL";
 
-  if(processedUrls[url]) {  return;  }
+  // Protect against pinging the same server mulitple times
+  if(processedUrls[url]) 
+    return;
 
   processedUrls[url] = true;
 
-  serverResponseList[url] = { };    
+  serverResponseList[url] = {};    
 
   if(s === 'ALL' || s === 'WMS')
     WMS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
@@ -52,93 +134,14 @@ var probeDataServer = function(url, service)
     WFS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
 
   if(s === 'ALL' || s === 'WCS')
-    WCS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);
+    WCS.updateLayerList(url, onGetCapabilitiesSucceeded, onGetCapabilitiesFailed);  // Note this will generate TWO responses!
 };
 
-
-
-// Server has responded to our query and seems happy (from updateLayerList)
-// Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-load
-var onGetCapabilitiesSucceeded = function(dataProxy, records, options)
-{
-  var format    = dataProxy.format.name;
-  var serverUrl = unwrapServer(dataProxy.url, format);
-  var service   = getService(format);
-
-  serverResponseList[serverUrl][service] = new ServerResponse(true, dataProxy, records, service);
-  updateDatasets(serverUrl, dataProxy, records, service);
-
-  gotServerResponse(serverUrl, serverResponseList[serverUrl]);
-};
-
-
-// We pepper each server with WMS, WFS, and WCS requests.  One of these has failed, 
-// which might be bad, or it might be perfectly fine.  It might mean that the server 
-// is down, or that it has not been configured to respond to a particular service.
-
-// Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-exception
-var onGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) 
-{
-  // status.responseText has response from data server?
-  // We might get here if server the server does not support service WxS
-
-  var format    = options.reader.meta.format.name;
-  var serverUrl = unwrapServer(dataProxy.url, format);
-  var service   = getService(format);
-
-  // alert("server " + dataProxy.url + " had no " + service + " service");
-
-  serverResponseList[serverUrl][service] = new ServerResponse(false, null, [], service, 
-                                                           response.status, response.responseText);
-  gotServerResponse(serverUrl, serverResponseList[serverUrl]);
-};
-
-
-var Datasets = {};
-
-var updateDatasets = function(serverUrl, dataProxy, records, service)  // service will be WMS, WFS, or WCS
-{
-  
-  for(var i = 0, count = records.length; i < count; i++) {
-    var record = records[i];
-
-    var identifier = record.data.name;
-    var serverUrl  = serverUrl;
-    var title      = record.data.title;
-    var descr      = record.data["abstract"] || title;   
-    var datasetId  = registeredDatasets[serverUrl][identifier];
-
-
-    if(!Datasets[datasetId]) {
-      Datasets[datasetId] = { 
-        identifier:      identifier,
-        serverUrl:       serverUrl,
-        key:             datasetId,
-        title:           "",
-        descr:           "",
-        nameCameFromWms: false,
-        services:        []
-      };
-    }
-
-    var dataset = Datasets[datasetId];
-
-    dataset[service] = {};
-    dataset.services.push(service);
-
-    // Treat WMS as definitive -- if we have that, don't overwrite dataset attributes
-    if(!dataset.nameCameFromWms) {
-      dataset.title   = title;
-      dataset.descr   = descr;
-      nameCameFromWms = (service == 'WMS');
-    }
-  }
-};
 
 
 var getTagPickerControlId = function(datasetIdentifier)
 {
-  return 'data_type_' + datasetIdentifier;
+  return 'data-type-' + datasetIdentifier;
 };
 
 
@@ -172,8 +175,8 @@ var addWmsOptionToDropdown = function(controlId) {
 
 // Helper function for makeTagPickerControl()
 var addWfsWcsOptionsToDropdown = function(controlId) {
-  for(var j = 0, jlen = dataTypeList.length; j < jlen; j++) 
-    $('#' + controlId).append('<option value="' + dataTypeList[j].id + '">' + dataTypeList[j].id + '</option>');
+  for(var j = 0, jlen = DataTagList.length; j < jlen; j++) 
+    $('#' + controlId).append('<option value="' + DataTagList[j].id + '">' + DataTagList[j].id + '</option>');
 };
 
 
@@ -190,7 +193,7 @@ var renderInfoPopup = function(dataset)
               '<dt>Server Name:</dt><dd class="server-name-' + serverUrlId + '"></dd>' +
                '<dt>Data Services:</dt><dd id="results-' + dataset.id + '">Waiting for response from server...</dd>' + 
                '<dt>Tags:</dt><dd><span class="taglist-' + dataset.id + '"></span>' +
-                '<span>' + makeTagPickerControl(dataset, true, true) + '</span></dd>' +
+                '<span>' + makeTagPickerControl(dataset, getTagPickerControlId(dataset.id), true) + '</span></dd>' +
             '</dl></div>' +
             '<div style="overflow:hidden" class="technical-details">' +
               '<div class="technical-details-header">Technical Details</div><dl>' +
@@ -207,6 +210,17 @@ var renderInfoPopup = function(dataset)
             '</dl></div>' +
             '<div><a href="javascript:void(0);" class="show-details"></a></div>' +
          '</div>';
+};
+
+
+var dataDiscoveryComplete = false;
+var DataTagList = [];
+
+// For each url in our database, start probing the server
+var collectTags = function (wpsServerUrlList) 
+{
+  for(var i = 0, len = wpsServerUrlList.length; i < len; i++)
+    WPS.probeWPS_getDataTypes(wpsServerUrlList[i]);
 };
 
 

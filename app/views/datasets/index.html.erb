@@ -141,8 +141,10 @@
     var url = '';
     // Parse services... provide links for whatever services
     for (var i = 0, len = services.length; i < len; i++) {
-      url = getGetCapUrl(serverUrl, services[i]);
-      $('#results-' + datasetId).append('<a href="' + url + '" target="_blank">' + services[i] + '</a>&nbsp;');
+      if(isPrimaryService(services[i])) {
+        url = getGetCapUrl(serverUrl, services[i]);
+        $('#results-' + datasetId).append('<a href="' + url + '" target="_blank">' + services[i] + '</a>&nbsp;');
+      }
     }
     if(url !== '') {
       $('#results-' + datasetId).append('&nbsp;(Right-click, Copy Link Location)');
@@ -175,6 +177,38 @@
   <% end %>
 
 
+  // Initiate collection of data tags -- visit each WPS server to see what tags are in use
+  // This will ultimately populate the DataTagList[] array
+  collectTags([<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>]);
+
+
+
+  var onDataTypeDiscoveryCompleted = function(tagList)
+  {
+    addTagsToDropdown();
+  };
+
+
+  // Because we might not have the taglist when we are building the tag dropdowns, 
+  // we may need to cache the ids until the taglist has arrived.  This function gets 
+  // called both by the tag collection system as well as the WFS/WCS response handler.
+  var addTagsCache = [];
+  var addTagsToDropdown = function(datasetId) 
+  {
+    if(datasetId)
+      addTagsCache.push(datasetId);
+
+    // Check to see if we have the tags yet
+    if(!dataDiscoveryComplete) 
+      return;
+
+    for(var i = 0, len = addTagsCache.length; i < len; i++) 
+      addWfsWcsOptionsToDropdown(getTagPickerControlId(addTagsCache[i]));
+
+    addTagsCache = [];    // Clear cache
+  };
+
+
   // This will be called for every server response, whether successful or a failure.  If we are probing multiple services, this will
   // be called once for each service.  The serverResponse object for a particular service will remain undefined until the request to that
   // service has returned.
@@ -185,14 +219,17 @@
   {
     var serverId = registeredDataAndMapServers[serverUrl]; 
 
-    // Wait until we've heard back from all servers: wfs, wms, and wcs
-    if(!!!serverResponses["WMS"] || !!!serverResponses["WFS"] || !!!serverResponses["WCS"]) { return; } 
+    // Wait until we've heard back from all servers: wfs, wms, and wcs (twice!)
+    if(!!!serverResponses["WMS"] || !!!serverResponses["WFS"] || !!!serverResponses["WCS"] || !!!serverResponses["WCSdc"]) 
+      return;
+
 
 
     // Prioritize WMS response, if any
     var serverName  = serverResponses["WMS"].serverName  || serverResponses["WFS"].serverName  || serverResponses["WCS"].serverName;
     var serverDescr = serverResponses["WMS"].serverDescr || serverResponses["WFS"].serverDescr || serverResponses["WCS"].serverDescr;
 
+    // Should only get here once for each server... right?
     if(serverName) {
       $('.server-name-'  + serverId).html(serverName);
       $('.server-descr-' + serverId).html(serverDescr || serverName);
@@ -205,12 +242,22 @@
       return;
     }
 
+
     // At least one server succeeded, vist each dataset one-by-one
 
     var ids = registeredDatasetLists[serverUrl];   // List of registered datasets available on this server
+    var datasetId;
 
-    for(var i = 0, recs = ids.length; i < recs; i++) {
-      var datasetId = registeredDatasets[serverUrl][ids[i]];
+    for(var i = 0, len = ids.length; i < len; i++) {
+      datasetId = registeredDatasets[serverUrl][ids[i]];
+
+
+    if(serverResponses["WMS"].success) 
+      addWmsOptionToDropdown(getTagPickerControlId(datasetId));
+
+    if(serverResponses["WFS"].success || serverResponses["WCS"].success) 
+      addTagsToDropdown(datasetId);
+
 
       var dataset = Datasets[datasetId];
       if(!!!dataset) {
