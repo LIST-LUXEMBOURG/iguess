@@ -159,13 +159,13 @@ var tagPickerChanged = function(ctrl)
 // If readyToPoulate is false, we can pass in anything for layer as long as it has an identifier property
 var makeTagPickerControl = function(layer, controlId, enabled)
 {
-  return '<select class="add-tag-dropdown-control" id="' + controlId + '" ' + (!enabled ? 'disabled="true" ' : '') +
-            'onchange="tagPickerChanged($(this));"' +
-            '>' +
+  return '<span class="loading-indicator tag-list-loading-indicator">Loading tags...</span>' +
+            '<select style="float:right" class="add-tag-dropdown-control hidden" ' + 
+              'id="' + controlId + '" ' + (!enabled ? 'disabled="true" ' : '') +
+              'onchange="tagPickerChanged($(this));">' +
            '<option value = "Ignore This">Add Tag:</option>' + 
          '</select>';
 };
-
 
 // Helper function for makeTagPickerControl()
 var addWmsOptionToDropdown = function(controlId) {

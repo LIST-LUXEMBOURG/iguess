@@ -128,7 +128,7 @@ a:active {
 
 .loading_indicator {
   padding: 8px 8px;
-  background-image: url(images/loading_spinner.gif);
+  background-image: url(assets/loading_spinner.gif);
   background-repeat: no-repeat;
   background-position:center center;
 }

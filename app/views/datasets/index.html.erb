@@ -185,6 +185,9 @@
 
   var onDataTypeDiscoveryCompleted = function(tagList)
   {
+    $('.tag-list-loading-indicator').remove();    // Remove this so it does not interfere with layout.  We won't need it again.
+    $('.add-tag-dropdown-control')  .css('visibility', 'visible');
+
     addTagsToDropdown();
   };
 

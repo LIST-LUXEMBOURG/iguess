@@ -271,16 +271,15 @@
 } */
 
 
-.tag[disabled]
-{
+.tag[disabled] {
   background-color:#E0E0E0;
   color: #888888;
   border-bottom: 1px solid #999999;
   border-right:  1px solid #AAAAAA;
 } 
 
-.tag-deletable[disabled]
-{
+.tag-deletable[disabled] {
   background-image: url(/assets/close_small-disabled.png);
   cursor: default;
 } 
+
