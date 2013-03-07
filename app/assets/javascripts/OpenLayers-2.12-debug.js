@@ -23096,8 +23096,8 @@ OpenLayers.Map = OpenLayers.Class({
         
         this.paddingForPopups = new OpenLayers.Bounds(15, 15, 15, 15);
 
-        this.theme = OpenLayers._getScriptLocation() + 
-                             'theme/default/style.css'; 
+        // this.theme = OpenLayers._getScriptLocation() + 
+        //                      'theme/default/style.css'; 
 
         // backup original options
         this.options = OpenLayers.Util.extend({}, options);
