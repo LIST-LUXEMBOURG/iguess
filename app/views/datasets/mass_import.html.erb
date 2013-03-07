@@ -6,35 +6,14 @@
   $('body').attr("class",$('body').attr("class") + " js");
 
   GOOGLE_SRS = 'EPSG:3857';
-
-  // Initiate collection of data tags -- visit each WPS server to see what tags are in use
-  // This will ultimately populate the DataTagList[] array
-  collectTags([<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>]);
-
 </script>
 
 
-
+<%= render :partial => 'shared_code.html.erb' %>
 <%= render :partial => '/shared/build_registered_layers.html.erb' %>
 <%= render :partial => '/shared/build_data_layers.html.erb' %>
 
 <script type="text/javascript">
-
-  // TODO: This should really be computed server-side, and should only consider config datasets that we control
-  TagIsInUse = {};
-  <%= raw @datasets.map{ |d| 
-          d.config_datasets.map{ |c| 'if(!TagIsInUse["' + c.input_identifier + '"])' +
-                                     '  TagIsInUse["' + c.input_identifier + '"] = {};' + 
-                                     'if(!TagIsInUse["' + c.input_identifier + '"]' +
-                                               '[cssEscape("' + d.server_url.gsub(/\\/, '\\\\\\') + d.identifier + '")]) ' +
-                                     '  TagIsInUse["' + c.input_identifier + '"]' +
-                                               '[cssEscape("' + d.server_url.gsub(/\\/, '\\\\\\') + d.identifier + '")] = 0;' +
-                                     'TagIsInUse["' + c.input_identifier + '"]' +
-                                               '[cssEscape("' + d.server_url.gsub(/\\/, '\\\\\\') + d.identifier + '")]++;'
-                              }
-                      }.join(' ');
-  %>                      
-
 
   registeredDataLayers = {};
 
@@ -161,9 +140,9 @@
     // This puts registered items at the top of the screen.
     for(var pass = 0; pass < 2; pass++)
     {
-      for(var datasetId in discoveredLayers)
+      for(var urlId in discoveredLayers)
       {
-        var layer = discoveredLayers[datasetId];
+        var layer = discoveredLayers[urlId];
 
         // Skip layers that the user has filtered out with the service radio buttons
         if(!showWfs() && !layer.type.hasObject('WMS')) { continue; }
@@ -266,7 +245,7 @@
         data_info.append(srsNode)
                  .append(registerControl)
                  .append(servicesAvailNode)
-                 .append('<div class="tag-control"><span class="taglist-' + datasetId + ' taglist">' +  
+                 .append('<div class="tag-control"><span class="taglist-deletable-' + urlId + ' taglist">' +  
                           (regLyr && regLyr.tags !== '' ? createTagList(regLyr.tags, true, 
                                                                         layer.serverUrl, layer.identifier) : 'None') +
                          '</span>' + 
@@ -649,51 +628,6 @@
   };
 
 
-  ////////////////////////////////////// This block duplicated because it needs to be parsed by Rails!
-  // TODO: Find a better way
-
-      // User adds or removes a tag
-      var addTag = function(ctrl)
-      {
-        var datasetIdentifier = ctrl.data('datasetidentifier');
-        var serverUrl         = ctrl.data('serverurl');
-
-        // Let the server know the dataType has changed
-        var tag = ctrl.val();
-
-        $.ajax({
-          type:    'PUT',      // PUT combined with url below triggers "update" action on controller
-          url:     '<%= url_for(:controller => 'datasets', :action => 'add_data_tag') %>',
-          data:    'dataset[identifier]='  + datasetIdentifier +
-                   '&dataset[server_url]=' + serverUrl +
-                   '&dataset_tag='         + tag,
-          headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
-                     'Content-Type': 'application/json' */},
-          success: function(data) { updateTags(serverUrl, datasetIdentifier, eval(data)); }
-        });
-
-        // makeRegisteredLayer(serverUrl, tag, registeredDatasets[serverUrl][datasetIdentifier], [], 0);
-      }
-
-
-
-      var deleteTag = function(serverUrl, datasetIdentifier, tagValue)
-      {
-        $.ajax({
-          type:    'PUT',      // PUT combined with url below triggers "update" action on controller
-          url:     '<%= url_for(:controller => 'datasets', :action => 'del_data_tag') %>',
-          data:    'dataset[identifier]='  + datasetIdentifier +
-                   '&dataset[server_url]=' + serverUrl +
-                   '&dataset_tag='         + tagValue,
-          headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
-                     'Content-Type': 'application/json' */},
-          success: function(data) { updateTags(serverUrl, datasetIdentifier, eval(data)); }
-        });
-      };
-
-
-
-
   $(document).ready(function ()
   {
     hideProbingIndicators();
@@ -709,8 +643,6 @@
     $("#radio-show-wms") .click(function() { displayLayers(); });
     $("#radio-show-both").click(function() { displayLayers(); });
   });
-
-
 
 </script>
  

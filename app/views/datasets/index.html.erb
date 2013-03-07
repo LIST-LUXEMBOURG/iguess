@@ -10,6 +10,7 @@
 
 <%# Include some map related utility functions; these need to be processed by Rails so they have to be in a partial %>
 <%= render :partial => '/shared/map_utils.html.erb' %>
+<%= render :partial => 'shared_code.html.erb' %>
 
 
 <script type="text/javascript">
@@ -58,7 +59,9 @@
       // by now, have both been created (see renderTableRow() and renderInfoPopup() ).
       // That is why we assigned a "unique" id using a class rather than an id.
       $('.taglist-' + urlId).html(dataset.dataset_tags.length === 0 ? "None" : 
-                                                      createTagList(dataset.dataset_tags, false)); 
+                                                      createTagList(dataset.dataset_tags, false, dataset.serverUrl, dataset.identifier));
+       $('.taglist-deletable-' + urlId).html(dataset.dataset_tags.length === 0 ? "None" : 
+                                                      createTagList(dataset.dataset_tags, true, dataset.serverUrl, dataset.identifier));
 
       // Make tags on the popup be deletable -- tags on the main page are not in a span
       $('span.taglist-' + urlId).children().addClass('tag-deletable');
@@ -184,31 +187,6 @@
   <% end %>
 
 
-  // Initiate collection of data tags -- visit each WPS server to see what tags are in use
-  // This will ultimately populate the DataTagList[] array
-  collectTags([<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>]);
-
-
-  // Because we might not have the taglist when we are building the tag dropdowns, 
-  // we may need to cache the ids until the taglist has arrived.  This function gets 
-  // called both by the tag collection system as well as the WFS/WCS response handler.
-  var addTagsCache = [];
-  var addTagsToDropdown = function(datasetId) 
-  {
-    if(datasetId)
-      addTagsCache.push(datasetId);
-
-    // Check to see if we have the tags yet
-    if(!dataDiscoveryComplete) 
-      return;
-
-    for(var i = 0, len = addTagsCache.length; i < len; i++) 
-      addWfsWcsOptionsToDropdown(getTagPickerControlId(addTagsCache[i]));
-
-    addTagsCache = [];    // Clear cache
-  };
-
-
   // This will be called for every server response, whether successful or a failure.  If we are probing multiple services, this will
   // be called once for each service.  The serverResponse object for a particular service will remain undefined until the request to that
   // service has returned.
@@ -273,51 +251,6 @@
   $(document).bind('ajax:success', function(xhr, data, status) { 
     $('#dataset-id-' + data).hide();
   });
-
-
-
-
-  ////////////////////////////////////// This block duplicated because it needs to be parsed by Rails!
-  // TODO: Find a better way
-
-      // User adds or removes a tag
-      var addTag = function(ctrl)
-      {
-        var datasetIdentifier = ctrl.data('datasetidentifier');
-        var serverUrl         = ctrl.data('serverurl');
-
-        // Let the server know the dataType has changed
-        var tag = ctrl.val();
-
-        $.ajax({
-          type:    'PUT',      // PUT combined with url below triggers "update" action on controller
-          url:     '<%= url_for(:controller => 'datasets', :action => 'add_data_tag') %>',
-          data:    'dataset[identifier]='  + datasetIdentifier +
-                   '&dataset[server_url]=' + serverUrl +
-                   '&dataset_tag='         + tag,
-          headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
-                     'Content-Type': 'application/json' */},
-          success: function(data) { updateTags(serverUrl, datasetIdentifier, eval(data)); }
-        });
-
-        // makeRegisteredLayer(serverUrl, tag, registeredDatasets[serverUrl][datasetIdentifier], [], 0);
-      }
-
-
-      var deleteTag = function(serverUrl, datasetIdentifier, tagValue)
-      {
-        $.ajax({
-          type:    'PUT',      // PUT combined with url below triggers "update" action on controller
-          url:     '<%= url_for(:controller => 'datasets', :action => 'del_data_tag') %>',
-          data:    'dataset[identifier]='  + datasetIdentifier +
-                   '&dataset[server_url]=' + serverUrl +
-                   '&dataset_tag='         + tagValue,
-          headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
-                     'Content-Type': 'application/json' */},
-          success: function(data) { updateTags(serverUrl, datasetIdentifier, eval(data)); }
-        });
-      };
-
 
 </script>
 
