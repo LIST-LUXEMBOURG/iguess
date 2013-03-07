@@ -266,11 +266,11 @@
         data_info.append(srsNode)
                  .append(registerControl)
                  .append(servicesAvailNode)
-                 .append('<div class="taglist-' + datasetId + ' taglist">' +  
+                 .append('<div class="tag-control"><span class="taglist-' + datasetId + ' taglist">' +  
                           (regLyr && regLyr.tags !== '' ? createTagList(regLyr.tags, true, 
                                                                         layer.serverUrl, layer.identifier) : 'None') +
-                         '</div>')
-                 .append(makeTagPickerControl(layer, tagPickerControlId, registered));
+                         '</span>' + 
+                         makeTagPickerControl(layer, tagPickerControlId, registered) + '</div>');
 
         var sample_map = $(document.createElement('div'));
         sample_map.attr({ id:mapDivId, class:'sample-map' });   // Map will be rendered based on div's id

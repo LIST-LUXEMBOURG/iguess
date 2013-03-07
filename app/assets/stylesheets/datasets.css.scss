@@ -265,11 +265,10 @@
 }
 
 
-/*.tag:not([DISABLED])
-{
-  background-color:#333333;
-} */
-
+/* Div containing the list of tags and tag picker on mass_import screen */
+.tag-control {
+  padding-right: 5px;
+}
 
 .tag[disabled] {
   background-color:#E0E0E0;

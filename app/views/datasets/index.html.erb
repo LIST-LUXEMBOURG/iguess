@@ -189,16 +189,6 @@
   collectTags([<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>]);
 
 
-
-  var onDataTypeDiscoveryCompleted = function(tagList)
-  {
-    $('.tag-list-loading-indicator').remove();    // Remove this so it does not interfere with layout.  We won't need it again.
-    $('.add-tag-dropdown-control')  .css('visibility', 'visible');
-
-    addTagsToDropdown();
-  };
-
-
   // Because we might not have the taglist when we are building the tag dropdowns, 
   // we may need to cache the ids until the taglist has arrived.  This function gets 
   // called both by the tag collection system as well as the WFS/WCS response handler.

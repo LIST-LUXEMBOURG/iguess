@@ -156,6 +156,15 @@ var tagPickerChanged = function(ctrl)
 };
 
 
+var onDataTypeDiscoveryCompleted = function(tagList)
+{
+  $('.tag-list-loading-indicator').remove();    // Remove this so it does not interfere with layout.  We won't need it again.
+  $('.add-tag-dropdown-control').css('visibility', 'visible');
+
+  addTagsToDropdown();
+};
+
+
 var getLayerNameFromDataTypeId = function(ctrl)
 {
   return ctrl.attr('id').substring('data_type_'.length); // Remove 'data_type_' from the front of the string
@@ -165,8 +174,21 @@ var getLayerNameFromDataTypeId = function(ctrl)
 // If readyToPoulate is false, we can pass in anything for layer as long as it has an identifier property
 var makeTagPickerControl = function(layer, controlId, enabled)
 {
-  return '<span class="loading-indicator tag-list-loading-indicator">Loading&nbsp;tags...</span>' +
-            '<select style="float:right" class="add-tag-dropdown-control hidden" ' + 
+
+  var loadingIndicator, hidden;
+
+  if(dataDiscoveryComplete) {
+    loadingIndicator = '';
+    hidden = '';
+  } 
+  else {
+    loadingIndicator = '<span class="loading-indicator tag-list-loading-indicator">Loading&nbsp;tags...</span>';
+    hidden = 'hidden';
+  }
+
+
+  return loadingIndicator +
+            '<select style="float:right" class="add-tag-dropdown-control ' + hidden + '" ' + 
               'data-serverurl="' + layer.serverUrl + '" ' +   // These keys seem to get lowercased anyway... so no upper case letter pls!
               'data-datasetidentifier="' + layer.identifier + '" ' +
               'id="' + controlId + '" ' + (enabled ? '' : 'disabled="true" ') +
