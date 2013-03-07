@@ -384,9 +384,9 @@
         // Remove layer from the list of registered layers
         delete registeredDataLayers[serverUrl][datasetIdentifier];
 
-        $('.taglist-' + urlId + ' .tag')          .attr('disabled', true);
-        $('.taglist-' + urlId + ' .tag-deletable').attr('disabled', true);
-        $('.taglist-' + urlId + ' .tag-deletable').off('click');   // Disable clicking
+        $('.taglist-' + urlId + ' .tag')              .attr('disabled', true);
+        $('.taglist-' + urlId + ' .tag-delete-button').attr('disabled', true);
+        $('.taglist-' + urlId + ' .tag-delete-button').off('click');   // Disable clicking
 
       } else {
         // ===== Registering dataset =====
