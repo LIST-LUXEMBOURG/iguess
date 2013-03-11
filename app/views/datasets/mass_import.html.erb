@@ -8,7 +8,7 @@
   GOOGLE_SRS = 'EPSG:3857';
 </script>
 
-<%= binding.pry %>
+
 <%= render :partial => 'shared_code.html.erb' %>
 <%= render :partial => '/shared/build_registered_layers.html.erb' %>
 <%= render :partial => '/shared/build_data_layers.html.erb' %>
@@ -48,9 +48,7 @@
   // The city dropdown on the UR of the screen has changed
   var onLocationChanged = function(cityName) {
     // Update to default city URL -- use gsub to fix those @#$%^ backslashes in the URL...
-    $('#server_url').val(
-            { <% @cities.each do |city| %>'<%= city.name %>':'<%= city.url.gsub(/\\/, '\\\\\\') %>',<% end %>}[cityName]
-    );
+    
     LOCAL_SRS = { <% @cities.each do |city| %>'<%= city.name %>':'<%= city.srs %>',<% end %>}[cityName];
   }
 
@@ -693,10 +691,8 @@
 
 <div class='select-editable' id='url_form'>
   <select onchange='this.nextElementSibling.value=this.value'>
-    <option value=""></option>
-    <option value="115x175 mm">115x175 mm</option>
-    <option value="120x160 mm">120x160 mm</option>
-    <option value="120x287 mm">120x287 mm</option>
+    <option></option>
+    <%= raw @current_city.dataserver_url.map { |m| '<option>' + m.url + '</option>' }.join(" ") %>
   </select>
   <input id="server_url" type="text" name="format" value="" placeholder="Enter URL or select from list"/>
   <button type="button" id="refresh_layers_button" style="padding-left: 20px; padding-right:20px;">Load</button>
