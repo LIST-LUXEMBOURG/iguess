@@ -155,7 +155,6 @@ class DatasetsController < ApplicationController
   def mass_import
     @datasets = Dataset.all
 
-    binding.pry
     @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
     @current_city = (City.find_by_name(cookies['city']) or City.first)
 
