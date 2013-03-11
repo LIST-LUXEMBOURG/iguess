@@ -52,6 +52,7 @@ WPS.getResponsesExpected = function() { return WPS.responsesExpected; };
 
 
 WPS.probing = [];       // List of servers already being probed
+WPS.getCapResponsesReceived = 0;
 
 ////////////////////////////////////////
 // Send an initial request to a WPS server to see what services it offers
@@ -75,10 +76,7 @@ WPS.probeWPS = function(serverUrl, onReceivedServerInfoFunction, onDescribedProc
                                       onStarted:     function() { alert('start');},
                                       onFailed:      function() { alert('fail');},
                                       onAccepted:    function() { alert('acc');},
-                                      onException:   probingWPSError  });
-
-    // http://localhost:3000/home/geoproxy?url=http%3A%2F%2Figuess.tudor.lu%2Fcgi-bin%2Fpywps.cgi%3FVERSION%3D1.0.0%26REQUEST%3DGetCapabilities%26SERVICE%3DWPS
-    // http://iguess.tudor.lu/cgi-bin/pywps.cgi?VERSION=1.0.0&REQUEST=GetCapabilities&SERVICE=WP
+                                      onException:   WPS.getCapabilitiesError });
 
   wps.getCapabilities(url);
 };
@@ -86,6 +84,8 @@ WPS.probeWPS = function(serverUrl, onReceivedServerInfoFunction, onDescribedProc
 // This function is called when the getCapabilities response arrives
 WPS.onGotCapabilities = function()
 {
+  WPS.getCapResponsesReceived++;
+
   // Trigger callback with name and abstract of server
   if(WPS.onReceivedServerInfoFunction != null && WPS.onReceivedServerInfoFunction != undefined) {
     WPS.onReceivedServerInfoFunction(this.getCapabilitiesUrlPost, this.title, this.abstract, this.processes, this.serviceProvider);
@@ -117,9 +117,15 @@ showErrorMessage = function (process, code, text) {
 var onWpsError = function() { };    // Override to do something!
 
 
-// This will get called if the wps url points to a server that doesn't much exist, or is not answering the phone, or something..
-probingWPSError = function (request) {
+// This will get called if the wps url points to a server that doesn't much exist, or is not answering the phone, or something...
+WPS.getCapabilitiesError = function (request) {
   onWpsError(WPS.unwrapServer(this.describeProcessUrlGet));
+  WPS.getCapResponsesReceived++;
+
+  if(WPS.getCapResponsesReceived === WPS.probing.length && 
+     WPS.responsesExpected       === WPS.responsesReceived) {
+    WPS.dataTypeDiscoveryCompleted();
+  }
 };
 
 
@@ -187,22 +193,6 @@ function findDatasetById(datasets, id)
 // It will be called repeatedly as responses arrive
 function onDescribedProcess_getDataTypesProbe(process)
 {
-
-  // We run this when we have all the expected replies from the WPS servers we sent out earlier
-  var dataTypeDiscoveryCompleted = function(dataTypes)
-  {
-    $('data-type-dropdown').show();
-    // populateSelectBox(document.getElementById("add-tag-dropdown-control"), dataTypes);
-    DataTagList = dataTypes.sort();
-    dataDiscoveryComplete = true;
-
-    // Call external event handler, if it exists
-    if(typeof onDataTypeDiscoveryCompleted != 'undefined') {
-      onDataTypeDiscoveryCompleted(DataTagList);
-    }
-  }
-
-
   for(var i = 0, len = process.inputs.length; i < len; i++) {
     var identifier = process.inputs[i].identifier;
     var type       = process.inputs[i].type;
@@ -217,6 +207,13 @@ function onDescribedProcess_getDataTypesProbe(process)
     }
   }
 
+  WPS.gotResponse();
+}
+
+
+WPS.gotResponse = function()
+{
+
   WPS.responsesReceived++;
 
   // // Call callbacks, if they are defined
@@ -225,7 +222,23 @@ function onDescribedProcess_getDataTypesProbe(process)
   // }
 
   if(WPS.responsesReceived == WPS.responsesExpected) {
-    dataTypeDiscoveryCompleted(WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes);
+    WPS.dataTypeDiscoveryCompleted(WPS.onDescribedProcess_getDataTypesProbe_complexDataTypes);
+  }
+}
+
+
+// We run this when we have all the expected replies from the WPS servers we sent out earlier
+WPS.dataTypeDiscoveryCompleted = function(dataTypes)
+{
+  $('data-type-dropdown').show();
+  // populateSelectBox(document.getElementById("add-tag-dropdown-control"), dataTypes);
+  DataTagList = dataTypes ? dataTypes.sort() : [];
+  dataDiscoveryComplete = true;
+
+
+  // Call external event handler, if it exists
+  if(typeof onDataTypeDiscoveryCompleted === 'function') {
+    onDataTypeDiscoveryCompleted(DataTagList);
   }
 }
 

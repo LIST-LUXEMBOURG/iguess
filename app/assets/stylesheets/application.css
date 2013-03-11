@@ -134,6 +134,7 @@ a:active {
 }
 
 
+/* Light blue explanation box */
 .explanation {
   display: block;
   padding: 12px 1em 18px 50px;
@@ -152,6 +153,17 @@ a:active {
 }
 
 
+/* Usually hidden error box */
+.error-box {
+  display: none;
+  padding: 12px 1em 18px 50px;
+  margin: 0.25em 0 1.5em 0;
+  background: #F6B9A5 url(images/error_icon.png) no-repeat left center;
+  background-size: 32px 32px;
+  background-position: 10px 40%;    /* Distance from the left */
+}
+
+
 .center {
   text-align: center;
 }
@@ -166,7 +178,7 @@ a:active {
 
 .two_col_table_left {
   padding: 15px;
-  background: #9c9;
+  background: #9c9;cd ../
 }
 
 .two_col_table_right {
@@ -179,8 +191,14 @@ a:active {
   color: #999;
 }
 
+/* Hidden, occupies space */
 .hidden {
   visibility: hidden;
+}
+
+/* Hidden, occupies no space */
+.nodisplay {
+  display: none;
 }
 
 /* Those little question mark icons that provide more info about something */

@@ -55,16 +55,37 @@
   }
 
 
-  var wpsServerList = { };
+  var wpsServerList = {};
+  var deletionUrl = {};
+
   <% @wps_servers.each do |srv| %>
     wpsServerList['<%= srv.url%>'] = '<%= srv.descr %>';
+    deletionUrl['<%= srv.url%>'] = '<%= link_to "Permanently Delete This Server", srv, confirm: "Are you sure?", method: :delete %>';
   <% end %>
   
+
+  var wpsServerStatus = {};
 
   // TODO: Put this message in a div or someting... won't be able to see a proper list of datatypes if this error occurs
   var onWpsError = function(url)
   {
-    alert("Connection to process server " + wpsServerList[url] + " failed!");
+    // alert("Connection to process server " + wpsServerList[url] + " failed!");
+    var err = 'Warning: The following process server(s) were unreachable.  This means that we are unable to assemble a ' +
+              'complete list of tags, and tag related information may be incorrect.<br>To correct this problem, either ' +
+              'wait for the unreachable server(s) to come back online, or, if they are permanently defunct, remove them from ' +
+              'your server list.<ul>';
+    wpsServerStatus[url] = false;
+
+    for(var url in wpsServerList) {
+      if(wpsServerStatus[url] === false) {
+        err += '<li>' + url + '&nbsp;&nbsp;[' + wpsServerList[url] + ']&nbsp;&nbsp;' + deletionUrl[url] + '</li>';
+      }
+    }
+
+    err += '</ul>';
+
+    $('#error-list').html(err).show();
+
   };
 
   var getLayerNameFromCheckboxId = function(id)
@@ -312,9 +333,7 @@
             addWfsWcsOptionsToDropdown(tagPickerControlId);
         }
         else
-          alert("Things did not proceed in expected order!");   // TODO: Get rid of this, add handler elsewhere
-
-
+          alert("Expected data discovery to be complete by now!");   // TODO: Get rid of this, add handler elsewhere
 
       }  // end for loop
     }  // for pass = 0 to 2
@@ -645,11 +664,16 @@
   });
 
 </script>
+
+
+
  
 
 <h1>Register Datasets</h1>
 
-<div class="explanation">
+<div id='error-list' class='error-box'></div>
+
+<div class='explanation'>
   iGUESS uses datasets stored on remote servers.  To register datasets with the system, enter a server URL in the box below.
   iGUESS will probe the remote server and present you a list of datasets you can register.  In order to use a dataset with
   a module, you will need to choose a data type from the drop down box.  If you only want to use the dataset for mapping
@@ -665,13 +689,23 @@
 </div>
 
 
-<form id="url_form">
 
-<div class="field">
-  Remote Data Server URL:<br>
-  <input id="server_url" type="text" size="90"/>
+
+<div class='select-editable' id='url_form'>
+  <select onchange='this.nextElementSibling.value=this.value'>
+    <option value=""></option>
+    <option value="115x175 mm">115x175 mm</option>
+    <option value="120x160 mm">120x160 mm</option>
+    <option value="120x287 mm">120x287 mm</option>
+  </select>
+  <input id="server_url" type="text" name="format" value="" placeholder="Enter URL or select from list"/>
   <button type="button" id="refresh_layers_button" style="padding-left: 20px; padding-right:20px;">Load</button>
 </div>
+
+
+<br>
+
+
 </form>
 
 <div style="height:100%; background-color:#eeeeee;">
