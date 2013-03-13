@@ -726,7 +726,6 @@
     <td><input id='server_url' style='width: 100%' type='text' name='format' value='' placeholder='Enter URL or select a preset'/></td>
     <td>
       <button type='button' id='refresh_layers_button' style='padding-left: 20px; padding-right:20px;'>Load</button>
-      <button type='button' id='save-preset' style='padding-left: 20px; padding-right:20px;' disabled='disabled'>Save As Preset</button>
     </td>
   </tr><tr>
     <td>
@@ -735,6 +734,9 @@
         <%= raw @current_city.dataserver_url.map { |m| '<option>' + m.url + '</option>' }.join(" ") %>
       </select>
     </td>
+  </tr><tr>
+  <td><button type='button' id='save-preset' style='padding-left: 20px; padding-right:20px;' 
+              disabled='disabled'>Save Current Site As Preset</button></td>
   </tr></table>
   
   
