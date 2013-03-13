@@ -29,13 +29,20 @@ body.popup {
   width: 100%;
 }
 
-/* get rid of those system borders being generated for A tags */
+/* Get rid of those system borders being generated for A tags */
 a:active {
   outline:none;
 }
 
 :focus {
   -moz-outline-style:none;
+}
+
+/* See http://stackoverflow.com/questions/895904/select-inputs-and-text-inputs-in-html-best-way-to-make-equal-width */
+input, select, textarea {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
 }
 
 

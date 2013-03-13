@@ -659,6 +659,8 @@
     $("#radio-show-wfs") .click(function() { displayLayers(); });
     $("#radio-show-wms") .click(function() { displayLayers(); });
     $("#radio-show-both").click(function() { displayLayers(); });
+
+    // $('#server_url').width($('#url-preset-select').width());
   });
 
 </script>
@@ -689,13 +691,20 @@
 
 
 
-<div class='select-editable' id='url_form'>
-  <select onchange='this.nextElementSibling.value=this.value'>
-    <option></option>
-    <%= raw @current_city.dataserver_url.map { |m| '<option>' + m.url + '</option>' }.join(" ") %>
-  </select>
-  <input id="server_url" type="text" name="format" value="" placeholder="Enter URL or select from list"/>
-  <button type="button" id="refresh_layers_button" style="padding-left: 20px; padding-right:20px;">Load</button>
+<div id='url_form'>
+  <table><tr>
+    <td><input id='server_url' style='width: 100%' type='text' name='format' value='' placeholder='Enter URL or select a preset'/></td>
+    <td><button type='button' id='refresh_layers_button' style='padding-left: 20px; padding-right:20px;'>Load</button></td>
+  </tr><tr>
+    <td>
+      <select id='url-preset-select'  style='width: 100%' onchange='$("#server_url").val($(this).val());'>
+        <option value=''>Select a preset</option>
+        <%= raw @current_city.dataserver_url.map { |m| '<option>' + m.url + '</option>' }.join(" ") %>
+      </select>
+    </td>
+  </tr></table>
+  
+  
 </div>
 
 

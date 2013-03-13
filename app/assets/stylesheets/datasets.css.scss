@@ -285,44 +285,15 @@
 
 /* URL combobox */
 
-.select-editable { 
-  position:relative;
-  background-color:white; 
-  border:solid grey 1px; 
-  width:620px; 
-  height:18px; 
-  font-size:14px;
+#url-preset-select { 
 }
 
-.select-editable select { 
-  position:absolute;
-  top:0px; 
-  left:0px; 
-  font-size:12px; 
-  border:none; 
-  width:620px; 
-  margin:0; 
-  background-color: white; 
+#server_url { 
 
 }
-.select-editable input  { 
-  position:absolute;
-  top:0px; 
-  left:0px; 
-  width:600px; 
-  padding:1px; 
-  font-size:12px; 
-  border:none; 
-}
 
-.select-editable button  { 
-  position:absolute;
-  top:-3px; 
-  left:625px; 
-  vertical-align:middle
-}
 
-.select-editable select:focus, .select-editable input:focus { 
+#server_url select:focus, #server_url input:focus { 
   outline:none;
 }
 
