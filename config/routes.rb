@@ -6,6 +6,8 @@ Iguess::Application.routes.draw do
   resources :wps_servers
 
   resources :datasets
+
+  resources :dataserver_urls
   
   resources :config_datasets
   
