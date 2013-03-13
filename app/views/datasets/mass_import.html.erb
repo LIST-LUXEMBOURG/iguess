@@ -559,14 +559,46 @@
   }
 
 
-  // This gets called when the Remote Data Server URL is changed
-  var update = function()
+  var updateButtonVisibility = function()
   {
     var serverUrl = getServerUrl();
 
-    if(serverUrl == "") {
-      return;   // Do nothing if URL is blank
+    if(serverUrl === "") {
+      $('#save-preset').hide();
+      $('#delete-preset').hide();
+    } 
+    else {
+      var found = false;
+
+      // Check if url is already on the preset list.  If not, add a save preset button.
+      $("#url-preset-select > option").each(function() {
+        if(this.value === serverUrl) 
+          found = true;
+      });
+
+
+      if(found) {    
+        $('#save-preset').hide();
+        $('#delete-preset').show();
+      }
+      else {
+        $('#save-preset').show();
+        $('#delete-preset').hide();
+      }
     }
+  };
+
+
+  // This gets called when the Remote Data Server URL is changed
+  var loadDataLayers = function()
+  {
+    var serverUrl = getServerUrl();
+
+    updateButtonVisibility();
+
+    if(serverUrl === "") 
+      return;   
+  
 
     showProbingIndicators();
 
@@ -580,34 +612,44 @@
 
     var probe = new ServiceProbe(serverUrl);
     probe.startProbing();
-
-    var found = false;
-
-    // Check if url is already on the preset list.  If not, add a save preset button.
-    $("#url-preset-select > option").each(function() {
-      if(this.value === serverUrl) 
-        found = true;
-    });
-
-
-    if(found)     
-      $('#save-preset').attr('disabled', 'disabled');
-    else
-      $('#save-preset').removeAttr('disabled');
   };
 
 
   // Save current value of text box to database
   var savePreset = function()
   {
+    var url = $("#server_url").val();
     $.ajax({
       type: 'POST',      // POST combined with url below triggers "create" action on controller
       url: '<%= url_for(:controller => 'dataserver_url', :action => 'create', :format=>:json) %>',
       data: 'city[id]=' + <%= @current_city.id %> +
-            '&url=' + $("#server_url").val(),
+            '&url=' + url,
       headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
                  'Content-Type': 'application/json' */},
-      success: function(data) { }
+      success: function(data) { 
+        $('#url-preset-select').append('<option value="' + url + '">' + url + '</option>');
+        updateButtonVisibility();
+      }
+    });
+  };
+
+
+  // Delete current value of text box to database
+  var deletePreset = function()
+  {
+    var url = $("#server_url").val();
+    $.ajax({
+      type: 'DELETE',      // DELETE combined with url below triggers "destroy" action on controller
+      url: '<%= url_for(:controller => 'dataserver_url', :action => 'destroy', :format=>:json) %>',
+      data: 'city[id]=' + <%= @current_city.id %> +
+            '&url=' + url,
+      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
+                 'Content-Type': 'application/json' */},
+      success: function(data) { 
+        $('#url-preset-select option[value="' + url + '"]').remove();
+        $('#server_url').val('');
+        updateButtonVisibility();
+      }
     });
   };
 
@@ -680,9 +722,12 @@
     onLocationChanged('<%= @current_city.name %>');   // Update SRS and set default URL
 
     // Event handlers for various controls
-    $('#server_url').change(update);
-    $('#refresh_layers_button').click(update);
+    // $('#server_url').change(loadDataLayers);
+    $('#server_url').keyup(updateButtonVisibility);
+    $('#refresh_layers_button').click(loadDataLayers);
     $('#save-preset').click(savePreset);
+    $('#delete-preset').click(deletePreset);
+
     $('#server_url').focus(function() { $('#refresh_layers_button').html('Load'); });
 
     // Event handlers for our radio buttons
@@ -690,12 +735,15 @@
     $("#radio-show-wms") .click(function() { displayLayers(); });
     $("#radio-show-both").click(function() { displayLayers(); });
 
-    // $('#server_url').width($('#url-preset-select').width());
+    $('#url-preset-select').change(function() { $("#server_url").val($(this).val()); 
+                                                $(this).val(""); 
+                                                updateButtonVisibility();
+                                              });
+    $('#save-preset').hide();
+    $('#delete-preset').hide();
   });
 
 </script>
-
-
 
  
 
@@ -729,17 +777,15 @@
     </td>
   </tr><tr>
     <td>
-      <select id='url-preset-select'  style='width: 100%' onchange='$("#server_url").val($(this).val()); $(this).val("");'>
+      <select id='url-preset-select'  style='width: 100%'>
         <option value=''>Select a preset</option>
-        <%= raw @current_city.dataserver_url.map { |m| '<option>' + m.url + '</option>' }.join(" ") %>
+        <%= raw @current_city.dataserver_url.map { |m| '<option value="' + m.url + '">' + m.url + '</option>' }.join(" ") %>
       </select>
     </td>
   </tr><tr>
   <td colspan=2>
-    <button type='button' id='save-preset' style='padding-left: 20px; padding-right:20px;' 
-              disabled='disabled'>Save Current Site As Preset</button>
-    <button type='button' id='delete-preset' style='padding-left: 20px; padding-right:20px;' 
-              disabled='disabled'>Delete URL From Presets</button>
+    <button type='button' id='save-preset' style='padding-left: 20px; padding-right:20px;'>Save As Preset</button>
+    <button type='button' id='delete-preset' style='padding-left: 20px; padding-right:20px;'>Delete From Presets</button>
   </td>
   </tr></table>
   

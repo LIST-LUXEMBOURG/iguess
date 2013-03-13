@@ -9,8 +9,6 @@ class DataserverUrlController < ApplicationController
    url    = params[:url]
    cityId = params[:city][:id]
 
-   binding.pry
-
    @dataserver_url = DataserverUrl.new
    @dataserver_url.city_id = cityId
    @dataserver_url.url     = url
@@ -21,6 +19,20 @@ class DataserverUrlController < ApplicationController
     respond_to do |format|
       format.html # new.html.erb
       format.json { render json: @dataserver_url }
+    end
+  end
+
+
+  def destroy
+    url    = params[:url]
+    cityId = params[:city][:id]
+
+    @dataserver_url = DataserverUrl.find_by_city_id_and_url(cityId, url)
+    @dataserver_url.destroy
+
+    respond_to do |format|
+      format.html 
+      format.json { head :no_content }
     end
   end
 
