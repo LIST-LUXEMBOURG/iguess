@@ -561,9 +561,9 @@
 
   var updateButtonVisibility = function()
   {
-    var serverUrl = getServerUrl();
+    var serverUrl = getServerUrl().trim();
 
-    if(serverUrl.trim() === "") {
+    if(serverUrl === "") {
       $('#save-preset').hide();
       $('#delete-preset').hide();
     } 
@@ -572,7 +572,7 @@
 
       // Check if url is already on the preset list.  If not, add a save preset button.
       $("#url-preset-select > option").each(function() {
-        if(this.value.trim() === serverUrl.trim()) 
+        if(this.value.trim() === serverUrl) 
           found = true;
       });
 
@@ -586,13 +586,21 @@
         $('#delete-preset').hide();
       }
     }
+
+    if(serverUrl === currentlyLoadedUrl)
+      $('#refresh_layers_button').html('Reload');
+    else
+      $('#refresh_layers_button').html('Load');
   };
 
+
+  var currentlyLoadedUrl = "";
 
   // This gets called when the Remote Data Server URL is changed
   var loadDataLayers = function()
   {
-    var serverUrl = getServerUrl();
+    var serverUrl = getServerUrl().trim();
+    currentlyLoadedUrl = serverUrl;
 
     updateButtonVisibility();
 
@@ -607,8 +615,6 @@
     wfsProcessingComplete = false;
     wmsProcessingComplete = false;
     wcsProcessingComplete = true;   // for now
-
-    $('#refresh_layers_button').html('Reload');
 
     var probe = new ServiceProbe(serverUrl);
     probe.startProbing();
