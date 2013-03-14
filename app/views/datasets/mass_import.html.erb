@@ -563,7 +563,7 @@
   {
     var serverUrl = getServerUrl();
 
-    if(serverUrl === "") {
+    if(serverUrl.trim() === "") {
       $('#save-preset').hide();
       $('#delete-preset').hide();
     } 
@@ -572,7 +572,7 @@
 
       // Check if url is already on the preset list.  If not, add a save preset button.
       $("#url-preset-select > option").each(function() {
-        if(this.value === serverUrl) 
+        if(this.value.trim() === serverUrl.trim()) 
           found = true;
       });
 
@@ -649,8 +649,8 @@
       headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
                  'Content-Type': 'application/json' */},
       success: function(data) { 
-        $('#url-preset-select option[value="' + url + '"]').remove();
-        $('#server_url').val('');
+        $('#url-preset-select option[value="' + url + '"]').remove();   // Delete the option
+        $('#server_url').val('');                                       // Clear the input box
         updateButtonVisibility();
       }
     });
