@@ -300,7 +300,10 @@
         var activeSRS = null;
 
         if(layer.bbox !== null && layer.bbox.left !== null) {
-          for (e in layer.bbox) { activeSRS = e; break; }
+          for (e in layer.bbox) { 
+            activeSRS = e; 
+            break; 
+          }
         }
 
         if(activeSRS !== null)
@@ -326,6 +329,10 @@
           miniMap.addLayer(lyr);
           miniMap.zoomToMaxExtent();
           miniMap.render(mapDivId);    // Renders to <div id="map#">
+        }
+        else
+        {
+          $('#' + mapDivId).html('<div class="center"><br>Map unavailable</div>');
         }
 
         // Now that the tag picker has finally been added to the dom, we can populate it
