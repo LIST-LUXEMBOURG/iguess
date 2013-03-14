@@ -618,7 +618,7 @@
   // Save current value of text box to database
   var savePreset = function()
   {
-    var url = $("#server_url").val();
+    var url = getServerUrl();
     $.ajax({
       type: 'POST',      // POST combined with url below triggers "create" action on controller
       url: '<%= url_for(:controller => 'dataserver_url', :action => 'create', :format=>:json) %>',
@@ -637,7 +637,10 @@
   // Delete current value of text box to database
   var deletePreset = function()
   {
-    var url = $("#server_url").val();
+    if(!confirm('Do really want to permanently delete this preset?'))
+      return;
+
+    var url = getServerUrl();
     $.ajax({
       type: 'DELETE',      // DELETE combined with url below triggers "destroy" action on controller
       url: '<%= url_for(:controller => 'dataserver_url', :action => 'destroy', :format=>:json) %>',
@@ -783,6 +786,7 @@
   </tr></table>
   
   
+
 </div>
 
 
