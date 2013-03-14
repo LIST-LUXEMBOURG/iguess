@@ -298,7 +298,8 @@
         $('#layer-table').append(tr_element);
 
         var activeSRS = null;
-        if(layer.bbox !== null) {
+
+        if(layer.bbox !== null && layer.bbox.left !== null) {
           for (e in layer.bbox) { activeSRS = e; break; }
         }
 
