@@ -173,6 +173,11 @@
           visibleLayers += 1;
         }
 
+        if(registeredDataLayers[layer.serverUrl] == undefined) {
+          // No registered layers for this url.. Put something here so the following lines won't crash.
+          registeredDataLayers[layer.serverUrl] = {};
+        }
+
         var regLyr = registeredDataLayers[layer.serverUrl][layer.identifier];
         var registered = registeredDataLayers[layer.serverUrl] && regLyr;  
 
