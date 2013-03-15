@@ -694,17 +694,17 @@
 
   function showWfs() 
   {
-    return $('#radio-show-wfs').prop('checked') || $('#radio-show-both').prop('checked');
+    return true;    //return $('#radio-show-wfs').prop('checked') || $('#radio-show-both').prop('checked');
   };
 
   function showWms() 
   {
-    return $('#radio-show-wms').prop('checked') || $('#radio-show-both').prop('checked');
+    return true;    //return $('#radio-show-wms').prop('checked') || $('#radio-show-both').prop('checked');
   };
 
   function showWcs() 
   {
-    return $('#radio-show-wfs').prop('checked') || $('#radio-show-both').prop('checked');
+    return true;    //return $('#radio-show-wfs').prop('checked') || $('#radio-show-both').prop('checked');
   };
 
   function showProbingIndicators() 
@@ -832,7 +832,7 @@
 
 <div style="height:100%; background-color:#eeeeee;">
 
-  <label class="label_radio" for="radio-show-wfs">
+<!--   <label class="label_radio" for="radio-show-wfs">
     <input name="rx" id="radio-show-wfs" value="1" type="radio" />
     WFS -- Only show datasets suitable for using as module inputs
   </label>
@@ -850,13 +850,11 @@
   </label>
   <br>
 
-
-
   <label class="label_radio" for="radio-show-both">
     <input name="rx" id="radio-show-both" value="3" type="radio" checked/>
     Both -- Show all datasets on server
   </label>
-</div>
+</div> -->
 
 <div class="progress-container">
   <span style="padding-left: 5px;" id="probing-wms">Probing map server... <img src="/assets/loading_spinner.gif"></span>
