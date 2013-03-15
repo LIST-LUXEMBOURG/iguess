@@ -126,7 +126,8 @@
 
 
   // Note that details can be null here
-  var displayServerDetails = function(serverInfo, service) {
+  var displayServerDetails = function(serverInfo, service) 
+  {
     if(serverInfo && $('.server-name').html() == '')
     {
       var serverName  = serverInfo.title    || serverInfo.name || "Data Server";
