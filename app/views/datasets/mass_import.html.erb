@@ -49,10 +49,8 @@
                 join(' ') %>  
 
 
-  // The city dropdown on the UR of the screen has changed
+  // The city dropdown on the UR of the screen has changed -- we don't do much here anymore!
   var onLocationChanged = function(cityName) {
-    // Update to default city URL -- use gsub to fix those @#$%^ backslashes in the URL...
-    
     LOCAL_SRS = { <% @cities.each do |city| %>'<%= city.name %>':'<%= city.srs %>',<% end %>}[cityName];
   }
 
@@ -618,10 +616,15 @@
       }
     }
 
-    if(serverUrl === currentlyLoadedUrl)
-      $('#refresh_layers_button').html('Reload');
+    if(serverUrl === "") 
+      $('#refresh_layers_button').attr('disabled', true);
+
+    else if(serverUrl === currentlyLoadedUrl)
+      $('#refresh_layers_button').html('Reload')
+                                 .attr('disabled', false);
     else
-      $('#refresh_layers_button').html('Load');
+      $('#refresh_layers_button').html('Load')
+                                 .attr('disabled', false);
   };
 
 
@@ -637,6 +640,8 @@
 
     if(serverUrl === "") 
       return;   
+
+    $('.server-name').html('');   // Clear any existing title display
   
 
     showProbingIndicators();
@@ -764,7 +769,8 @@
     // Event handlers for various controls
     // $('#server_url').change(loadDataLayers);
     $('#server_url').keyup(updateButtonVisibility);
-    $('#refresh_layers_button').click(loadDataLayers);
+    $('#refresh_layers_button').click(loadDataLayers)
+                               .attr('disabled', true);
     $('#save-preset').click(savePreset);
     $('#delete-preset').click(deletePreset);
 
