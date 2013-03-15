@@ -217,8 +217,8 @@
     }
 
     if(ready) {
-      var serviceInfo = (dataProxy.reader && dataProxy.reader.raw && dataProxy.reader.raw.service) || null;
-      doneProcessing(serverUrl, service, serviceInfo, 'OK');
+      var serverInfo = (dataProxy.reader && dataProxy.reader.raw && dataProxy.reader.raw.service) || null;
+      doneProcessing(serverUrl, service, serverInfo, 'OK');
     }
   };
 

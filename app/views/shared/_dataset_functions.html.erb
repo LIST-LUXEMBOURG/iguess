@@ -326,7 +326,7 @@
     var serverUrl         = ctrl.data('url');
     var datasetIdentifier = ctrl.data('identifier');
     var tagVal            = ctrl.parent().text();
-
+    
     if(confirmDeleteTag(serverUrl, datasetIdentifier, tagVal))
       deleteTag(serverUrl, datasetIdentifier, tagVal);
   };
