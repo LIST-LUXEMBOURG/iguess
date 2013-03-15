@@ -380,7 +380,9 @@
 
 
     //  When the toggle switch is clicked, check off / de-select the associated checkbox
-    $('.toggle').click(function(e) {
+    // Want to find this when we search for "registered_"
+    $('.toggle').click(function(e) 
+    {
       var checkboxID = $(this).attr("ref");
 
       var checkbox = document.getElementById(checkboxID);
@@ -427,9 +429,9 @@
         // Remove layer from the list of registered layers
         delete registeredDataLayers[serverUrl][datasetIdentifier];
 
-        $('.taglist-' + urlId + ' .tag')              .attr('disabled', true);
-        $('.taglist-' + urlId + ' .tag-delete-button').attr('disabled', true);
-        $('.taglist-' + urlId + ' .tag-delete-button').off('click');   // Disable clicking
+        $('.taglist-deletable-' + urlId + ' .tag')              .attr('disabled', true);
+        $('.taglist-deletable-' + urlId + ' .tag-delete-button').attr('disabled', true);
+        $('.taglist-deletable-' + urlId + ' .tag-delete-button').off('click');   // Disable clicking
 
       } else {
         // ===== Registering dataset =====
@@ -483,11 +485,12 @@
 
     var tags = [];
 
-    $('#taglist-' + urlId).children().each(function() {
+
+    $('.taglist-deletable-' + urlId).children().each(function() {
         tags.push($(this).text());
     });
 
-    return tags.join()
+    return tags;
   };
 
 
@@ -734,13 +737,13 @@
   // Make sure all the data tiles are the same height
   function equalizeTileHeight() 
   {
-    var tallestElement = 0;
-    $('.dataset').each(function(i, el) {
-        if( $(this).outerHeight() > tallestElement ) {
-            tallestElement = $(this).outerHeight();
-        }     
-    });
-    $('.dataset').css('min-height', tallestElement);
+    // var tallestElement = 0;
+    // $('.dataset').each(function(i, el) {
+    //     if( $(this).outerHeight() > tallestElement ) {
+    //         tallestElement = $(this).outerHeight();
+    //     }     
+    // });
+    // $('.dataset').css('min-height', tallestElement);
   };
 
 

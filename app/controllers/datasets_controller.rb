@@ -71,7 +71,7 @@ class DatasetsController < ApplicationController
     @dataset.save
 
     if(params[:tags]) then
-      tags = params[:tags].split(/ /)
+      tags = params[:tags].split(/,/)
       tags.each { |t| makeTag(@dataset, t) }
     end
 
