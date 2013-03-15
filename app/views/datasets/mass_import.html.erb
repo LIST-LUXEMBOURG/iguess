@@ -313,6 +313,7 @@
         }
 
         if(activeSRS == null) {
+          debugger
           $('#' + mapDivId).html('<div class="center"><br><u>Map unavailable</u></div>');
 
           if(!alreadyShownWmsError) {
@@ -639,8 +640,11 @@
     if(serverUrl === "") 
       return;   
 
-    $('.server-name').html('');   // Clear any existing title display
-  
+    // Reset various displays
+    $('.server-name').html('');   
+    $('#layer-display').html('');
+    alreadyShownWmsError = false;
+
 
     showProbingIndicators();
 

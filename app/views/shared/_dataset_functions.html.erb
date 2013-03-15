@@ -343,8 +343,7 @@
       if(deletable) 
         delBtn = '<span class="tag-delete-button" ' +
                  'data-url="' + serverUrl + '" ' +
-                 'data-identifier="' + datasetIdentifier + '" ' +
-                 'onclick="deleteTagClickHandler($(this));"></span>';
+                 'data-identifier="' + datasetIdentifier + '"></span>';
 
 
       var list = "";
@@ -364,13 +363,15 @@
 
     $('.taglist-deletable-' + urlId).html(tags.length > 0 ? createTagList(tags, true, serverUrl, datasetIdentifier) : 'None');
     $('.taglist-' + urlId).html(tags.length > 0 ? createTagList(tags, false, serverUrl, datasetIdentifier) : 'None');
+
+    addDeleteTagClickHander();
   };
 
 
   var addDeleteTagClickHander = function() 
   {
     // Add a handler to delete tags when clicked on
-
+    $('.tag-delete-button').on('click', function(event){ deleteTagClickHandler($(this)) });
   };
 
 
