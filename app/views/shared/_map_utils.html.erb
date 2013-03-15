@@ -11,7 +11,8 @@
          url: serverUrl,
          data: 'cityName=' + $.cookie('city'),
          headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
-         success: successFunction
+         success: successFunction,
+         error: function() { alert('Error retrieving datasets for city.'); }
        });
     }
  </script>

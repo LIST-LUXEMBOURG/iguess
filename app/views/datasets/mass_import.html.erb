@@ -9,13 +9,17 @@
 </script>
 
 
-<%= render :partial => 'shared_code.html.erb' %>
+<%= render :partial => '/shared/dataset_functions.html.erb' %>
 <%= render :partial => '/shared/build_registered_layers.html.erb' %>
 <%= render :partial => '/shared/build_data_layers.html.erb' %>
 
 <script type="text/javascript">
 
   registeredDataLayers = {};
+
+  // Initiate collection of data tags -- visit each WPS server to see what tags are in use
+  // This will ultimately populate the DataTagList[] array
+  collectTags([<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>]);
 
 
   var makeRegisteredLayer = function(serverUrl, datasetIdentifier, datasetId, tags, configCount) {
@@ -316,7 +320,7 @@
 
             $('#error-list').append(err).show();
 
-            alreadyShownWmsError = true;
+            alreadyShownWmsError = true;    // Only show error message once, to avoid flooding the error display
             }
         }
         else {

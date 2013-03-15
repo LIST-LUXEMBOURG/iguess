@@ -3,11 +3,10 @@
 
 <%# Include some map related utility functions; these need to be processed by Rails so they have to be in a partial %>
 <%= render :partial => '/shared/map_utils.html.erb' %>
-
+<%= render :partial => '/shared/dataset_functions.html.erb' %>
 
 <script type="text/javascript">
 
-//= require webgis/MapInit
 
   $(document).ready(function() {
   // $('#sortable_table').tablesorter();               // Initialize sorter
@@ -32,6 +31,7 @@
         WebGIS.addNewLayer(layer.data.title, serverUrl, layer.data.name, null);
     }
   };
+
 
   // We've got a new batch of datasets to display!
   // Note that for the status div, all rows from the same server share the same class.  Each has a unique id.

@@ -10,10 +10,14 @@
 
 <%# Include some map related utility functions; these need to be processed by Rails so they have to be in a partial %>
 <%= render :partial => '/shared/map_utils.html.erb' %>
-<%= render :partial => 'shared_code.html.erb' %>
+<%= render :partial => '/shared/dataset_functions.html.erb' %>
 
 
 <script type="text/javascript">
+
+  // Initiate collection of data tags -- visit each WPS server to see what tags are in use
+  // This will ultimately populate the DataTagList[] array
+  collectTags([<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>]);
 
 
   var publishDataset = function(ctrl) {
