@@ -101,8 +101,8 @@
     this["abstract"] = null;
     this.format      = null;
     this.srs         = null;
-    this.bbox        = {left: null, right: null, top: null, bottom: null};
-    this.resolution  = {x: null, y:null};
+    this.bbox        = { left: null, right: null, top: null, bottom: null };
+    this.resolution  = { x: null, y: null };
 
     if(record) {
       this.identifier  = record.get("name")  || record.id;
@@ -131,6 +131,7 @@
       if(dataset.srs !== null) {
         layer.srs = dataset.srs;
       }
+
       if(dataset.bbox !== null) {
         layer.bbox = dataset.bbox;
       }
@@ -164,7 +165,8 @@
       if(wcsReplies[serverUrl] === undefined) 
         wcsReplies[serverUrl] = {};
     }
-    else { alert('Unexpected type ' + service); }
+    else alert('Unexpected type ' + service);
+
 
     var ready = true;
 

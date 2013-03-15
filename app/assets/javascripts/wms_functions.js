@@ -313,6 +313,8 @@ WFS.version = '1.0.0';    // Still having problems with 1.1.0; use 1.0.0 for now
 WCS.version = '1.1.0';
 WPS.version = '1.0.0';
 
+//http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/LB_localOWS_test.map&SERVICE=WFS&VERSION=1.0.0&REQUEST=GetCapabilities
+//http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map&SERVICE=WFS&VERSION=1.0.0&REQUEST=GetCapabilities
 
 // WMS functions
 WMS.getCapStr = 'SERVICE=WMS&VERSION=' + WMS.version + '&REQUEST=GetCapabilities';
