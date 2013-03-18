@@ -46,7 +46,7 @@
       if(processIdLookup[key].serverUrl == server) {
         if(!processIdLookup[key].found) {
           var classId = processIdLookup[key].classId;
-          $('.name-'   + classId).html('<span class="error-msg">Process not found on server -- It is either offline or has been deleted</span> ' +
+          $('.name-'   + classId).html('<span class="error-msg">Process not found on server -- It is either offline or has been deleted or renamed</span> ' +
                                         processIdLookup[key].deleteUrl);
           // $('.status-' + classId).html('Server not available');
         }
