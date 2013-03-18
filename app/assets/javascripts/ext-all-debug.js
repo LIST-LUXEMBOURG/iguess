@@ -307,6 +307,9 @@ EXTUTIL.Event.prototype = {
             var args = Array.prototype.slice.call(arguments, 0);
             for (; i < len; i++) {
                 l = listeners[i];
+                // if(l && !l.fireFn)
+                //     debugger;
+
                 if(l && l.fireFn.apply(l.scope || me.obj || window, args) === FALSE) {
                     return (me.firing = FALSE);
                 }
@@ -11579,6 +11582,7 @@ Ext.extend(Ext.Component, Ext.util.Observable, {
         if(this.el){
             this.el = Ext.get(this.el);
             if(this.allowDomMove !== false){
+                // if(!ct) debugger;
                 ct.dom.insertBefore(this.el.dom, position);
                 if (div) {
                     Ext.removeNode(div);

@@ -169,6 +169,16 @@
     if(!dataDiscoveryComplete) 
       return;
 
+
+    // if(layer.type.hasObject('WMS'))
+    //   addWmsOptionToDropdown(tagPickerControlId);
+
+    // if(layer.type.hasObject('WFS') || layer.type.hasObject('WCS'))
+    //   addWfsWcsOptionsToDropdown(tagPickerControlId);
+
+
+
+
     for(var i = 0, len = addTagsCache.length; i < len; i++) 
       addWfsWcsOptionsToDropdown(getTagPickerControlId(addTagsCache[i]));
 

@@ -13,6 +13,10 @@ WebGIS.layerTree;
 
 Ext.onReady(function() {
 
+  // Skip this stuff if the BroadMap div does not exist
+  if($('#BroadMap').length == 0)
+    return;
+
   Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
 
   WebGIS.initMap();

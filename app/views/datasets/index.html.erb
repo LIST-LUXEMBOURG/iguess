@@ -205,8 +205,6 @@
     if(!!!serverResponses["WMS"] || !!!serverResponses["WFS"] || !!!serverResponses["WCS"] || !!!serverResponses["WCSdc"]) 
       return;
 
-
-
     // Prioritize WMS response, if any
     var serverName  = serverResponses["WMS"].serverName  || serverResponses["WFS"].serverName  || serverResponses["WCS"].serverName;
     var serverDescr = serverResponses["WMS"].serverDescr || serverResponses["WFS"].serverDescr || serverResponses["WCS"].serverDescr;
