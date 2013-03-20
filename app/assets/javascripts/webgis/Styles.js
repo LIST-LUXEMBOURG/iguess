@@ -18,24 +18,24 @@ WebGIS.ramps = new Array();
 WebGIS.vals  = new Array();
 
 // Solar
-WebGIS.ramps[WebGIS.SLD_SOLAR] = new Array("#abd9e9", "#ffffbf", "#d7191c");
-WebGIS.vals[WebGIS.SLD_SOLAR]  = new Array(0, 600, 1200);
+WebGIS.ramps[WebGIS.SLD_SOLAR] = new Array("#abd9e9", "#d5ecd4", "#ffffbf", "#eb8c6e", "#d7191c");
+WebGIS.vals[WebGIS.SLD_SOLAR]  = new Array(0, 300, 600, 900, 1200);
 
 // Geothermal
-WebGIS.ramps[WebGIS.SLD_GEOTH] = new Array("#92c5de", "#f7f7f7", "#ca0020");
-WebGIS.vals[WebGIS.SLD_GEOTH]  = new Array(0, 50, 100);
+WebGIS.ramps[WebGIS.SLD_GEOTH] = new Array("#92c5de", "#c5de87", "#f7f7f7", "#e17c8c", "#ca0020");
+WebGIS.vals[WebGIS.SLD_GEOTH]  = new Array(0, 25, 50, 75, 100);
 
 // Fuel Poverty
-WebGIS.ramps[WebGIS.SLD_POVRT] = new Array("#A6D96A", "#FFFFBF", "#D7191C");
-WebGIS.vals[WebGIS.SLD_POVRT]  = new Array(0, 50, 100);
+WebGIS.ramps[WebGIS.SLD_POVRT] = new Array("#A6D96A", "#d3ec95", "#FFFFBF", "#d7191c", "#D7191C");
+WebGIS.vals[WebGIS.SLD_POVRT]  = new Array(0, 25, 50, 75, 100);
 
 // Building Stock
-WebGIS.ramps[WebGIS.SLD_STOCK] = new Array("#b2abd2", "#f7f7f7", "#e66101");
-WebGIS.vals[WebGIS.SLD_STOCK]  = new Array(0, 50, 100);
+WebGIS.ramps[WebGIS.SLD_STOCK] = new Array("#b2abd2", "#d5d1e5", "#f7f7f7", "#e66101", "#e66101");
+WebGIS.vals[WebGIS.SLD_STOCK]  = new Array(0, 25, 50, 75, 100);
 
 // Wind 
-WebGIS.ramps[WebGIS.SLD_GEOTH] = new Array("#f7f7f7", "#92c5de", "#0571b0");
-WebGIS.vals[WebGIS.SLD_GEOTH]  = new Array(0, 50, 100);
+WebGIS.ramps[WebGIS.SLD_GEOTH] = new Array("#f7f7f7", "#c5deeb", "#92c5de", "#0571b0", "#0571b0");
+WebGIS.vals[WebGIS.SLD_GEOTH]  = new Array(0, 25, 50, 75, 100);
 
 
 WebGIS.getStyle = function(layerName, type) {
