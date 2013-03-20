@@ -121,7 +121,20 @@ WebGIS.addDebugLayersRO = function() {
 	    {isBaseLayer: false,  
 	 	 visibility: false}
 	);
+	
+	var dsmIGUESS =  new OpenLayers.Layer.WMS(
+		"DSM iGUESS",
+		"http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
+	    {layers: "ro_dsm", 
+	     format: "image/png",
+	     srsName: WebGIS.requestProjection,
+	 	 transparent: "true",
+	 	 projection: new OpenLayers.Projection(WebGIS.requestProjection),
+         sld_body: WebGIS.getStyle(layerName, type)},
+	    {isBaseLayer: false,  
+	 	 visibility: false}
+	);
 
-	WebGIS.map.addLayer(buildsIGUESS);
+	WebGIS.map.addLayer(buildsIGUESS, dsmIGUESS);
 	
 };
