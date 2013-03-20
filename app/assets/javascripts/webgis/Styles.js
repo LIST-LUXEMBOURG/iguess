@@ -40,35 +40,36 @@ WebGIS.vals[WebGIS.SLD_GEOTH]  = new Array(0, 50, 100);
 
 WebGIS.getStyle = function(layerName, type) {
 	
-	if ((type == null) || isNaN(type) || (type < 0) || (type > 4)) return ""; 
+	if ((type == null) || isNaN(type) || (type < 0) || (type > 4)) return "\n"; 
 	
-	sld =  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
-	sld += "<StyledLayerDescriptor version=\"1.0.0\"";
-	sld += "  xmlns=\"http://www.opengis.net/sld\"";
-	sld += "  xmlns:ogc=\"http://www.opengis.net/ogc\"";
-	sld += "  xmlns:xlink=\"http://www.w3.org/1999/xlink\"";
-	sld += "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"";
-	sld += "  xsi:schemaLocation=\"http://www.opengis.net/sld";
-	sld += "  http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd\">";
-	sld += "  <NamedLayer>";
-	sld += "    <Name>" + layerName + "</Name>";
-	sld += "     <UserStyle>";
-	sld += "      <Title>GeoServer SLD Cook Book: Simple point</Title>";
-	sld += "		<FeatureTypeStyle>";
-	sld += "		 <Rule>";
-	sld += "		   <RasterSymbolizer>";
-	sld += "		     <ColorMap>";
+	sld =  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+	sld += "<StyledLayerDescriptor version=\"1.0.0\"\n";
+	sld += "  xmlns=\"http://www.opengis.net/sld\"\n";
+	sld += "  xmlns:ogc=\"http://www.opengis.net/ogc\"\n";
+	sld += "  xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n";
+	sld += "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n";
+	sld += "  xsi:schemaLocation=\"http://www.opengis.net/sld\n";
+	sld += "  http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd\">\n";
+	sld += "  <NamedLayer>\n";
+	sld += "    <Name>" + layerName + "</Name>\n";
+	sld += "     <UserStyle>\n";
+	sld += "      <Title>GeoServer SLD Cook Book: Simple point</Title>\n";
+	sld += "		<FeatureTypeStyle>\n";
+	sld += "		 <Rule>\n";
+	sld += "		   <RasterSymbolizer>\n";
+	sld += "		     <ColorMap>\n";
 	
-	for (i = 0; i < ramps[type].length; i++)
-		sld += "		       <ColorMapEntry color=\"" + ramps[type][i] + "\" quantity=\"" + vals[type][i] + "\" />";
+	for (i = 0; i < WebGIS.ramps[type].length; i++)
+		sld += "		       <ColorMapEntry color=\"" + WebGIS.ramps[type][i] + 
+			   "\" quantity=\"" + WebGIS.vals[type][i] + "\" />\n";
 
-	sld += "		     </ColorMap>";
-	sld += "		   </RasterSymbolizer>";
-	sld += "		 </Rule>";
-	sld += "	   </FeatureTypeStyle>";
-	sld += "    </UserStyle>";
-	sld += "  </NamedLayer>";
-	sld += "</StyledLayerDescriptor>"; 
+	sld += "		     </ColorMap>\n";
+	sld += "		   </RasterSymbolizer>\n";
+	sld += "		 </Rule>\n";
+	sld += "	   </FeatureTypeStyle>\n";
+	sld += "    </UserStyle>\n";
+	sld += "  </NamedLayer>\n";
+	sld += "</StyledLayerDescriptor>\n"; 
 	
 	return sld;
 }

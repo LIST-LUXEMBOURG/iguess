@@ -102,7 +102,6 @@ WebGIS.clearLayers = function(alsoClearBaseLayers)
   for(var i = 0, len = layersToRemove.length; i < len; i++) {
     WebGIS.map.removeLayer(layersToRemove[i]);
   }
-
 };
 
 

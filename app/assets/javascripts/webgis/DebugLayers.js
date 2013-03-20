@@ -130,11 +130,12 @@ WebGIS.addDebugLayersRO = function() {
 	     srsName: WebGIS.requestProjection,
 	 	 transparent: "true",
 	 	 projection: new OpenLayers.Projection(WebGIS.requestProjection),
-         sld_body: WebGIS.getStyle(layerName, type)},
+         sld_body: WebGIS.getStyle("ro_dsm", WebGIS.SLD_GEOTH)},
 	    {isBaseLayer: false,  
 	 	 visibility: false}
 	);
 
-	WebGIS.map.addLayer(buildsIGUESS, dsmIGUESS);
+	WebGIS.map.addLayer(buildsIGUESS);
+	WebGIS.map.addLayer(dsmIGUESS);
 	
 };
