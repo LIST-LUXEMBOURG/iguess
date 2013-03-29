@@ -12,7 +12,7 @@ class HomeController < ApplicationController
     content_type = 'text/html'
 
     
-    timeout_duration = 5      # Give 5 second timeout...  long enough?
+    timeout_duration = 15      # Give 5 second timeout...  long enough?
 
     begin
       Timeout::timeout(timeout_duration) {
