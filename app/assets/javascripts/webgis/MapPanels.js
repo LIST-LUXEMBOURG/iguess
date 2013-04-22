@@ -23,7 +23,19 @@ Ext.onReady(function() {
   
   WebGIS.initWinIdentify();
 
-  var zoomSlider = new GeoExt.ZoomSlider({
+  var leftZoomSlider = new GeoExt.ZoomSlider({
+    xtype: "gx_zoomslider",
+    aggressive: true,
+    vertical: true,
+    height: 100,
+    x: 10,
+    y: 20,
+    plugins: new GeoExt.ZoomSliderTip({
+      template: "Scale: 1 : {scale}<br>Resolution: {resolution}"
+    })
+  });
+  
+  var rightZoomSlider = new GeoExt.ZoomSlider({
     xtype: "gx_zoomslider",
     aggressive: true,
     vertical: true,
@@ -39,19 +51,21 @@ Ext.onReady(function() {
     region: "center",
     collapsible: false,
     floatable: false,
+    width: '50%',
     xtype: "gx_mappanel",
     map: WebGIS.leftMap,
-    items: [zoomSlider]
+    items: [leftZoomSlider]
   });
 
-  /*var rightPanel = new GeoExt.MapPanel({
-	    region: "center",
-	    collapsible: false,
-	    floatable: false,
-	    xtype: "gx_mappanel",
-	    map: WebGIS.rightMap,
-	    items: [zoomSlider]
-  });*/
+  var rightPanel = new GeoExt.MapPanel({
+		region:'east',
+		collapsible: false,
+		floatable: false,
+		width: '50%',
+		xtype: "gx_mappanel",
+		map: WebGIS.rightMap,
+	    items: [rightZoomSlider]
+  });
 
   var LayerNodeUI = Ext.extend(
           GeoExt.tree.LayerNodeUI,
@@ -92,12 +106,16 @@ Ext.onReady(function() {
     }
   });
   
-  var rightTree = new Ext.Panel({
+  //var rightTree = new Ext.Panel({
+  var rightTree = new GeoExt.MapPanel({
 		title: 'Navigation',
 		region:'east',
-		collapsible: true,
-		width: 100,
-		html: 'Helloooooo'
+		collapsible: false,
+		floatable: false,
+		width: '50%',
+		xtype: "gx_mappanel",
+		map: WebGIS.rightMap/*,
+		html: 'Helloooooo'*/
 	});
   
   var centralPanel = new Ext.Panel({
@@ -106,7 +124,7 @@ Ext.onReady(function() {
 		region:'center',
 		width: 500,
 		collapsible: false,
-		items: [leftPanel, rightTree],
+		items: [leftPanel, rightPanel],
 		tbar: {
 	        height: 100,
 	        items:[
