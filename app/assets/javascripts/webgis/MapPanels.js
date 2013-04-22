@@ -106,18 +106,6 @@ Ext.onReady(function() {
     }
   });
   
-  //var rightTree = new Ext.Panel({
-  var rightTree = new GeoExt.MapPanel({
-		title: 'Navigation',
-		region:'east',
-		collapsible: false,
-		floatable: false,
-		width: '50%',
-		xtype: "gx_mappanel",
-		map: WebGIS.rightMap/*,
-		html: 'Helloooooo'*/
-	});
-  
   var centralPanel = new Ext.Panel({
 		layout:'border',
 		bodyBorder: false,
