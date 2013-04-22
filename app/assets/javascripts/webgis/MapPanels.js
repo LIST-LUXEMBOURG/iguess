@@ -35,15 +35,23 @@ Ext.onReady(function() {
     })
   });
 
-  var mapPanel = new GeoExt.MapPanel({
+  var leftPanel = new GeoExt.MapPanel({
     region: "center",
     collapsible: false,
     floatable: false,
     xtype: "gx_mappanel",
-    map: WebGIS.map,
+    map: WebGIS.leftMap,
     items: [zoomSlider]
   });
 
+  /*var rightPanel = new GeoExt.MapPanel({
+	    region: "center",
+	    collapsible: false,
+	    floatable: false,
+	    xtype: "gx_mappanel",
+	    map: WebGIS.rightMap,
+	    items: [zoomSlider]
+  });*/
 
   var LayerNodeUI = Ext.extend(
           GeoExt.tree.LayerNodeUI,
@@ -98,12 +106,12 @@ Ext.onReady(function() {
 		region:'center',
 		width: 500,
 		collapsible: false,
-		items: [mapPanel, rightTree],
+		items: [leftPanel, rightTree],
 		tbar: {
 	        height: 100,
 	        items:[
 	            '-',
-	            WebGIS.createTbarItems(WebGIS.map),
+	            WebGIS.createTbarItems(WebGIS.leftMap),
 	            '-',
 	            '->',
 	            '-',

@@ -62,10 +62,10 @@
                 (<%= city.minx %> + <%= city.maxx %>) / 2,
                 (<%= city.miny %> + <%= city.maxy %>) / 2);
         
-        if(WebGIS.map != null)
-        	point.transform(proj, WebGIS.map.getProjectionObject());
+        if(WebGIS.leftMap != null)
+        	point.transform(proj, WebGIS.leftMap.getProjectionObject());
 
-        WebGIS.map.setCenter(point, <%= city.zoom %>);
+        WebGIS.leftMap.setCenter(point, <%= city.zoom %>);
         
         $('.all-layers').hide();
         

@@ -17,35 +17,35 @@ WebGIS.baseOSM = function(menuItem) {
     
     menuItem.parentMenu.ownerCt.setText("Open Street Map");
     
-    WebGIS.map.setBaseLayer(WebGIS.osm);    
+    WebGIS.leftMap.setBaseLayer(WebGIS.osm);    
 };
 
 WebGIS.baseGooglePhy = function(menuItem) {
     
     menuItem.parentMenu.ownerCt.setText("Google Physical");
     
-    WebGIS.map.setBaseLayer(WebGIS.gphy);
+    WebGIS.leftMap.setBaseLayer(WebGIS.gphy);
 };
 
 WebGIS.baseGoogleSt = function(menuItem) {
     
     menuItem.parentMenu.ownerCt.setText("Google Streets");
     
-    WebGIS.map.setBaseLayer(WebGIS.gmap);
+    WebGIS.leftMap.setBaseLayer(WebGIS.gmap);
 };
 
 WebGIS.baseGoogleHy = function(menuItem) {
     
     menuItem.parentMenu.ownerCt.setText("Google Hybrid");
     
-    WebGIS.map.setBaseLayer(WebGIS.ghyb);
+    WebGIS.leftMap.setBaseLayer(WebGIS.ghyb);
 };
 
 WebGIS.baseGoogleSat = function(menuItem) {
     
     menuItem.parentMenu.ownerCt.setText("Google Satellite");
     
-    WebGIS.map.setBaseLayer(WebGIS.gsat);   
+    WebGIS.leftMap.setBaseLayer(WebGIS.gsat);   
 };
 
 WebGIS.getBaseLayers = function(mapProjection) {

@@ -7,64 +7,64 @@
 
 var WebGIS = WebGIS || { };
 
-var WebGIS.chSize = new OpenLayers.Size(17,17);
-var WebGIS.chOffset = new OpenLayers.Pixel(-(WebGIS.chSize.w/2), -(WebGIS.chSize.h/2));
-var WebGIS.chIcon = new OpenLayers.Icon('images/crosshairSimple.png', WebGIS.chSize, WebGIS.chOffset);
+WebGIS.chSize = new OpenLayers.Size(17,17);
+WebGIS.chOffset = new OpenLayers.Pixel(-(WebGIS.chSize.w/2), -(WebGIS.chSize.h/2));
+WebGIS.chIcon = new OpenLayers.Icon('images/crosshairSimple.png', WebGIS.chSize, WebGIS.chOffset);
 
-var WebGIS.rightMarkers = new OpenLayers.Layer.Markers( "Markers" );
-var WebGIS.leftMarkers = new OpenLayers.Layer.Markers( "Markers" );
-var WebGIS.rightPointer;
-var WebGIS.leftPointer;
+WebGIS.rightMarkers = new OpenLayers.Layer.Markers( "Markers" );
+WebGIS.leftMarkers = new OpenLayers.Layer.Markers( "Markers" );
+WebGIS.rightPointer;
+WebGIS.leftPointer;
     
 
-function WebGIS.leftMapMove()
+WebGIS.leftMapMove = function()
 {
 	rightMap.setCenter(WebGIS.leftMap.getCenter(), WebGIS.leftMap.getZoom());
 }
 
-function WebGIS.leftMapMouseOver(e)
+WebGIS.leftMapMouseOver = function(e)
 {
 	WebGIS.rightPointer = new OpenLayers.Marker(WebGIS.leftMap.getLonLatFromPixel(e.xy), WebGIS.chIcon);
 	rightMarkers.addMarker(WebGIS.rightPointer);
 }
 
-function WebGIS.leftMapMouseOut()
+WebGIS.leftMapMouseOut = function()
 {
 	WebGIS.rightMarkers.clearMarkers();
 }
 
-function WebGIS.leftMapMouseMove(e)
+WebGIS.leftMapMouseMove = function(e)
 {
 	WebGIS.rightMarkers.clearMarkers();
 	WebGIS.rightPointer = new OpenLayers.Marker(WebGIS.leftMap.getLonLatFromPixel(e.xy), WebGIS.chIcon);
 	WebGIS.rightMarkers.addMarker(WebGIS.rightPointer);
 }
 
-function WebGIS.rightMapMouseOver(e)
+WebGIS.rightMapMouseOver = function(e)
 {
 	WebGIS.leftPointer = new OpenLayers.Marker(WebGIS.rightMap.getLonLatFromPixel(e.xy), WebGIS.chIcon);
 	WebGIS.leftMarkers.addMarker(WebGIS.leftPointer);
 }
 
-function WebGIS.rightMapMouseOut()
+WebGIS.rightMapMouseOut = function()
 {
 	WebGIS.leftMarkers.clearMarkers();
 }
 
-function rightMapMouseMove(e)
+rightMapMouseMove = function(e)
 {
 	WebGIS.leftMarkers.clearMarkers();
 	WebGIS.leftPointer = new OpenLayers.Marker(WebGIS.rightMap.getLonLatFromPixel(e.xy), WebGIS.chIcon);
 	WebGIS.leftMarkers.addMarker(WebGIS.leftPointer);
 }
 
-function WebGIS.rightMapMove()
+WebGIS.rightMapMove = function()
 {
 	WebGIS.leftMap.setCenter(WebGIS.rightMap.getCenter(), WebGIS.rightMap.getZoom());
 }
 
-function initMapOSM() {
-	
+WebGIS.initMapOSM = function() 
+{	
 	WebGIS.leftMap = new OpenLayers.Map(); 
 	WebGIS.leftMap.addLayer(new OpenLayers.Layer.OSM());
 	WebGIS.leftMap.addControl(new OpenLayers.Control.MousePosition());
