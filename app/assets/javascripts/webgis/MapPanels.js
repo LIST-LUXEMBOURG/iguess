@@ -41,46 +41,7 @@ Ext.onReady(function() {
     floatable: false,
     xtype: "gx_mappanel",
     map: WebGIS.map,
-    items: [zoomSlider],
-    tbar: {
-        height: 100,
-        items:[
-            '-',
-            WebGIS.createTbarItems(WebGIS.map),
-            '-',
-            '->',
-            '-',
-           {
-               xtype:'splitbutton',
-               text: 'Open Street Map',
-               menu: [{
-            	   text: 'Open Street Map',
-            	   checked: true,
-            	   handler  : WebGIS.baseOSM,
-            	   group: 'baseLayer'
-               },{
-            	   text: 'Google Satellite',
-            	   checked: false,
-            	   handler  : WebGIS.baseGoogleSat,
-            	   group: 'baseLayer'
-               },{
-            	   text: 'Google Streets',
-            	   checked: false,
-            	   handler  : WebGIS.baseGoogleSt,
-            	   group: 'baseLayer'
-               },{
-            	   text: 'Google Physical',
-            	   checked: false,
-            	   handler  : WebGIS.baseGooglePhy,
-            	   group: 'baseLayer'
-               },{
-            	   text: 'Google Hybrid',
-            	   checked: false,
-            	   handler  : WebGIS.baseGoogleHy,
-            	   group: 'baseLayer'
-               }]
-       		}]
-    }
+    items: [zoomSlider]
   });
 
 
@@ -123,6 +84,63 @@ Ext.onReady(function() {
     }
   });
   
+  var rightTree = new Ext.Panel({
+		title: 'Navigation',
+		region:'east',
+		collapsible: true,
+		width: 100,
+		html: 'Helloooooo'
+	});
+  
+  var centralPanel = new Ext.Panel({
+		layout:'border',
+		bodyBorder: false,
+		region:'center',
+		width: 500,
+		collapsible: false,
+		items: [mapPanel, rightTree],
+		tbar: {
+	        height: 100,
+	        items:[
+	            '-',
+	            WebGIS.createTbarItems(WebGIS.map),
+	            '-',
+	            '->',
+	            '-',
+	           {
+	               xtype:'splitbutton',
+	               text: 'Open Street Map',
+	               menu: [{
+	            	   text: 'Open Street Map',
+	            	   checked: true,
+	            	   handler  : WebGIS.baseOSM,
+	            	   group: 'baseLayer'
+	               },{
+	            	   text: 'Google Satellite',
+	            	   checked: false,
+	            	   handler  : WebGIS.baseGoogleSat,
+	            	   group: 'baseLayer'
+	               },{
+	            	   text: 'Google Streets',
+	            	   checked: false,
+	            	   handler  : WebGIS.baseGoogleSt,
+	            	   group: 'baseLayer'
+	               },{
+	            	   text: 'Google Physical',
+	            	   checked: false,
+	            	   handler  : WebGIS.baseGooglePhy,
+	            	   group: 'baseLayer'
+	               },{
+	            	   text: 'Google Hybrid',
+	            	   checked: false,
+	            	   handler  : WebGIS.baseGoogleHy,
+	            	   group: 'baseLayer'
+	               }]
+	       		}]
+	    }
+	});
+	
+  
   var mainPanel = new Ext.Panel({
     layout:'border',
     bodyBorder: false,
@@ -136,7 +154,8 @@ Ext.onReady(function() {
       useSplitTips: true,
     },
     items: [
-            mapPanel, 
+            //mapPanel,
+            centralPanel,
             WebGIS.layerTree,
             { // Legend: must be created here to be auto-linked to the map
         		region: "east",
