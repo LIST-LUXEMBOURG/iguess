@@ -66,6 +66,7 @@
         	point.transform(proj, WebGIS.leftMap.getProjectionObject());
 
         WebGIS.leftMap.setCenter(point, <%= city.zoom %>);
+        WebGIS.rightMap.setCenter(point, <%= city.zoom %>);
         
         $('.all-layers').hide();
         
