@@ -7,6 +7,9 @@
 # Ignore bundler config
 /.bundle
 
+#Ignore passwords for harvester.py
+harvester_pwd.py
+
 # Ignore the default SQLite database.
 /db/*.sqlite3
 

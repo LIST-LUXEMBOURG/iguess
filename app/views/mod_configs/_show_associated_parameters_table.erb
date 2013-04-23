@@ -1,4 +1,7 @@
-<script type="text/javascript">
+<!-- Our HTML -->
+<!-- Print a table of parameters for the module specified in mod -->
+
+<script>
 
   // Create a structure of registered datasets organized by identifier -- this will make retrieval below much more efficient
   var registeredDataLayersByTag = {};    // Indexed by tag
@@ -22,46 +25,43 @@
                     } }
                 .join('') %>
 
+  var datasets = {};
+  <%= raw @datasets.reject{ |d| d.finalized == false && d.alive == false }
+               .map{ |d| 'datasets[' + d.id.to_s() + '] = ' + d.to_json + ";\n" }
+               .join('') %>     
 
-  // mode will be "input" or "output"
-  // We may get here before discoveredLayers is populated.  In which case, we'll assign a class id, and update the entry
-  // as further items arrive.  In other contexts, discoveredLayers may already be fully populated.
-  var createDatasetSelectionControls = function(parameterIdentifier, mode)
+
+  // modeName will be "input" or "output"
+  var createDatasetSelectionControls = function(parameterIdentifier, modeName)
   {
     var ctrl = $(document.createElement('select'))
             .attr('name', 'datasets[' + parameterIdentifier + ']')
-            .attr('id', parameterIdentifier + mode);
-
+            .attr('id', parameterIdentifier + modeName);
 
     // Make sure we have at least an empty list for this identifier
     if(!registeredDataLayersByTag[parameterIdentifier])
       registeredDataLayersByTag[parameterIdentifier] = [];
 
     for(var i = 0, len = registeredDataLayersByTag[parameterIdentifier].length; i < len; i++) {
-      var title = "Unknown Title";  
+      var title = 'Unknown Title';  
 
       // Here we create our dropdown of possible datasets.  All datasets presented have already been registered with the server.
       // Note that the value here will be the id of this layer as stored in the database on the server.
-      var serverUrl         = registeredDataLayersByTag[parameterIdentifier][i].serverUrl;
-      var datasetIdentifier = registeredDataLayersByTag[parameterIdentifier][i].identifier;
-      var datasetId         = registeredDatasets[serverUrl][datasetIdentifier];
+      var datasetId = registeredDataLayersByTag[parameterIdentifier][i].datasetId;
 
 
       // If we already know the title of this one, insert it now
-      if(discoveredLayers[cssEscape(serverUrl + datasetIdentifier)]) {
-        title = discoveredLayers[cssEscape(serverUrl + datasetIdentifier)].title;
-      } 
+      if(datasets[datasetId]) 
+        title = datasets[datasetId].title || datasets[datasetId].identifier;
 
-      if(id) {
+      if(id) 
         ctrl.append('<option class="dataset-title-' + datasetId + '" value="' + datasetId + '">' + title + '</option>');
-      }
     }
 
     ctrl.change(function() {
       if(registeredDataLayersById[+this.value]) {
-        var serverUrl = registeredDataLayersById[+this.value].serverUrl;
         var id        = registeredDataLayersById[+this.value].identifier;
-        var dataset   = discoveredLayers[cssEscape(serverUrl + id)];
+        var dataset   = datasets[datasetId];
 
         $('#hidden-field-' + parameterIdentifier + '-srs')        .val(dataset.srs);
         $('#hidden-field-' + parameterIdentifier + '-dformat')    .val(dataset.format);
@@ -110,59 +110,72 @@
 
   var anyDatasetsMissing = false;
 
-  <%# Creates fn called populateInputTable or populateOutputTable %>
   // formValues & datasetValues will only be defined when calling from the main Module Configuration page
   // When mode is output, datasetValues will be undefined
   // items is a list of input/output requirements the module has
-  function populate<%= mode.slice(0,1).capitalize + mode.slice(1..-1) %>Table(items, formValues, datasetValues)
+  // isInput will be true for input table, false for output table
+  var populateTable = function(items, isInput, formValues, datasetValues)
   {
     var itemCount = items.length;
+    var modeName = isInput ? 'input' : 'output';
 
-    var table = $('#<%= mode %>-table');    // Find the exsiting table called input-table or output-table
+    // Find the exsiting table called input-table or output-table
+    var table = $('#' + modeName + '-table');
 
     if(itemCount == 0) {
-      if('<%= mode %>' == 'input') {
+      if(isInput) 
         table.html("<span class='no-inputs-ouputs'>This module configuration requires no inputs.</span>");
-      }
-      else {
+      else 
         table.html("<span class='no-inputs-ouputs'>This module configuration produces no outputs.</span>");
-      }
     }
     else {
 
       table.empty();
 
-      var headerRow = '<tr><th>Parameter Name</th>' +
-                      '<% if mode == :input %><th>Selected Dataset or Value</th><% else %><th>Output Dataset Identifier</th><% end %></tr>';
-
-      table.append(headerRow);
+      var text = isInput ? 'Selected Dataset or Value' : 'Output Dataset Identifier';-
+      table.append('<tr><th>Parameter Name</th><th>' + text + '</th></tr>');
 
 
       for(var i = 0; i < itemCount; i++)
       {
-        var row  = $(document.createElement('tr'));
-        var cell = $(document.createElement('td'));   // Param name
+        var row = $(document.createElement('tr'));
 
-        item = items[i];
+        item = items[i];   
 
-        cell.html(item.title);
+        // Item looks like this:
+        // "abstract":"Field of type INTEGER specifying a time delay in miliseconds.",
+        // "alive":true,
+        // "datatype":"float",
+        // "id":123,
+        // "identifier":"delay",
+        // "is_input":true,
+        // "last_seen":"2013-04-08T15:12:04Z",
+        // "title":"Time delay in miliseconds.",
+        // "wps_process_id":4
 
-        if(item.descr != null) {
+
+        // Parameter Name column
+        var cell = $(document.createElement('td'));
+
+        cell.append(item.title ? item.title : item.identifier);
+
+        if(item.abstract != undefined && item.abstract != '') {
           cell.append('<img src="/assets/small_question_mark.gif" class="info-icon" ' +
-                  'alt="More info" title="' + item.descr + '">');
+                      'alt="More info" title="' + item.abstract + '">');
         }
 
         row.append(cell);
 
+        // Parameter Value column
         cell = $(document.createElement('td'));   // Dataset
         cell.attr("nowrap", true);
 
-
-        if('<%= mode %>' == 'input' && items[i].type == "complex") {      // Dropdown showing existing datasets of proper type
-          var controls = createDatasetSelectionControls(item.identifier, '<%= mode %>');
+        // Complex input
+        if(isInput && item.datatype == 'ComplexData') {      // Dropdown showing existing datasets of proper type
+          var controls = createDatasetSelectionControls(item.identifier, modeName);
 
           control = controls[0];
-          control.attr('class', 'disablable');
+          control.attr('class', 'disableable');
 
           if(control.children().length == 0) {
               cell.text('No registered datasets of type "' + item.identifier + '"');
@@ -173,7 +186,7 @@
           else {
             control.prepend("<option value=-1>No dataset selected</option>");
             control.change(onSelectedDatasetChanged);
-            control.attr('class', 'req-select disablable');
+            control.attr('class', 'req-select disableable');
 
             cell.html(control);
 
@@ -184,44 +197,34 @@
           }
 
           // Add any other (hidden) controls returned by createDatasetSelectionControls()
-          for(var j = 1, len = controls.length; j < len; j++) {
+          for(var j = 1, len = controls.length; j < len; j++) 
             cell.append(controls[j]);
-          }
         }
-        else if('<%= mode %>' == 'output' && items[i].type != "complex") {    // No input required, just display of value
 
-          var value = (formValues == undefined) ? "" : formValues[item.identifier + '<%= mode %>'];
+        // Simple output
+        else if(!isInput && item.datatype != "ComplexData") {    // No input required, just display of value
 
-          // cell.html('<input type="hidden" name="<%= mode %>[' + item.identifier + ']" value ="">');    // Make sure something gets put in the database for this field
+          var value = (formValues == undefined) ? "" : formValues[item.identifier + modeName];
 
-          if(value == undefined || value == "") {
-            cell.append('<i>Will be computed</i>');
-          } else {
+          if(value) 
             cell.append('<b>' + value + '</b>');
-          }
+          else 
+            cell.append('<i>Will be computed</i>');
         }
-        else {    // Data is a simple type like integer or string -- use a textfield
-          var value = (formValues == undefined) ? "" : formValues[item.identifier + '<%= mode %>'];
-          var placeholder = ('<%= mode %>' == 'output') ? "Output dataset name" : items[i].type.capitalize() + " value";
 
-          cell.html('<input type="text" name="<%= mode %>[' + item.identifier + ']" placeholder="' + placeholder + '" ' +
-                           'value="' + value + '" class="req-textentry disablable" onchange="onInputOutputTextEntryChanged()">');
+        // Simple input or complex output -- we'll need to show a text field here
+        else {    
+          var value = (formValues == undefined) ? "" : formValues[item.identifier + modeName];
+          var placeholder = isInput ? item.datatype.capitalize() + " value" : "Output dataset name";
+
+          cell.html('<input type="text" name="' + modeName + '[' + item.identifier + ']" placeholder="' + placeholder + '" ' +
+                           'value="' + value + '" class="req-textentry disableable" onchange="onInputOutputTextEntryChanged()">');
         }
 
         row.append(cell);
         table.append(row);
       }
     }
-  }
+  };
 
  </script>
-
-<!-- Our HTML -->
-<!-- Print a table of parameters for the module specified in mod -->
-
-<!--<% newConfig = newConfig || false %>  <%# True if we're creating a new configuration, false if editing an existing one %>-->
-
-<label class="simple_form label"><%= mode.slice(0,1).capitalize + mode.slice(1..-1) %>s</label>
-<table class="zebra" id="<%= mode %>-table">
-  <!-- Will be populated below -->
-</table>

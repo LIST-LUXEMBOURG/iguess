@@ -86,6 +86,11 @@ WPS.onGotCapabilities = function()
 {
   WPS.getCapResponsesReceived++;
 
+  // Call onGotCapabilities if it is defined
+  if(typeof onGotCapabilities === 'function')
+    onGotCapabilities(this);
+
+
   // Trigger callback with name and abstract of server
   if(WPS.onReceivedServerInfoFunction != null && WPS.onReceivedServerInfoFunction != undefined) {
     WPS.onReceivedServerInfoFunction(this.getCapabilitiesUrlPost, this.title, this.abstract, this.processes, this.serviceProvider);
@@ -158,6 +163,7 @@ WPS.probeWPS_getDataTypes = function(url)
 var got = function() { alert(3); };
 
 
+// Unused
 WPS.describeProcess = function(url, identifier, onDescribedCallback)
 {
   var fullUrl = WPS.getDescProcUrl(url, identifier);
@@ -167,7 +173,6 @@ WPS.describeProcess = function(url, identifier, onDescribedCallback)
                                           onException:        showErrorMessage });
   wps.describeProcess(url + ' - ' + identifier);    // This string appears to do nothing at all!
 };
-
 
 
 // sample wps error handling function
@@ -402,6 +407,7 @@ WPS.getDescrProcString = function (layerIdentifier) {
 
 WPS.getDescProcUrl = function(serverUrl, layerIdentifier) {
 	var joinchar = getJoinChar(serverUrl);
+  // alert(wrapGeoProxy(serverUrl + joinchar + WPS.getDescrProcString(layerIdentifier)));
   return wrapGeoProxy(serverUrl + joinchar + WPS.getDescrProcString(layerIdentifier));
 };
 
@@ -413,6 +419,7 @@ WPS.stripDescProc = function(serverUrl, layerIdentifier) {
   return serverUrl.replace(WPS.getDescrProcString(layerIdentifier), '').slice(0, -1);  // slice strips last char
 };
 
+// Unused:
 WPS.unwrapProcServer = function(url, layerIdentifier) {
   return WPS.stripDescProc(decodeURIComponent(unwrapGeoProxy(url)), layerIdentifier);
 };

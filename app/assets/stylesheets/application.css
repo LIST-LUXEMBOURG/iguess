@@ -133,6 +133,17 @@ input, select, textarea {
 }
 
 
+.module-not-found {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.link-icon {
+  vertical-align: middle;
+  padding-right: 4px;
+}
+
+
 .loading_indicator {
   padding: 8px 8px;
   background-image: url(assets/loading_spinner.gif);

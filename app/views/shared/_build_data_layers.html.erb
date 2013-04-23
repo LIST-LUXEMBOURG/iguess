@@ -59,34 +59,34 @@
   };
 
 
-  var getWmsLayers = function(registeredDataServers)
-  {
-    var serverCount = registeredDataServers.length;
+  // var getWmsLayers = function(registeredDataServers)
+  // {
+  //   var serverCount = registeredDataServers.length;
 
-    for(var i = 0; i < serverCount; i++) {
-      WFS.updateLayerList(registeredDataServers[i], onWmsGetCapabilitiesSucceeded, onWmsGetCapabilitiesFailed);
-    }
-  };
-
-
-  var getWfsLayers = function(registeredDataServers)
-  {
-    var serverCount = registeredDataServers.length;
-
-    for(var i = 0; i < serverCount; i++) {
-      WFS.updateLayerList(registeredDataServers[i], onWfsGetCapabilitiesSucceeded, onWfsGetCapabilitiesFailed);
-    }
-  };
+  //   for(var i = 0; i < serverCount; i++) {
+  //     WFS.updateLayerList(registeredDataServers[i], onWmsGetCapabilitiesSucceeded, onWmsGetCapabilitiesFailed);
+  //   }
+  // };
 
 
-  var getWcsLayers = function(registeredDataServers)
-  {
-    var serverCount = registeredDataServers.length;
+  // var getWfsLayers = function(registeredDataServers)
+  // {
+  //   var serverCount = registeredDataServers.length;
 
-    for(var i = 0; i < serverCount; i++) {
-      WCS.updateLayerList(registeredDataServers[i], onWcsGetCapabilitiesSucceeded, onWcsGetCapabilitiesFailed);
-    }
-  };
+  //   for(var i = 0; i < serverCount; i++) {
+  //     WFS.updateLayerList(registeredDataServers[i], onWfsGetCapabilitiesSucceeded, onWfsGetCapabilitiesFailed);
+  //   }
+  // };
+
+
+  // var getWcsLayers = function(registeredDataServers)
+  // {
+  //   var serverCount = registeredDataServers.length;
+
+  //   for(var i = 0; i < serverCount; i++) {
+  //     WCS.updateLayerList(registeredDataServers[i], onWcsGetCapabilitiesSucceeded, onWcsGetCapabilitiesFailed);
+  //   }
+  // };
 
 
   // Basic dataset object -- this is what we track for datasets seen on remote server

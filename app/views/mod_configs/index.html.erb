@@ -1,308 +1,3 @@
-
-<script type="text/javascript">
-
-  // Create a lookup to pair each URL with a unique numeric id -- this will make it easier to use URLs as part of ids
-  var ServerId = {};
-  <% @wps_servers.each do |s| %>
-    ServerId["<%= s.url %>"] = <%= s.id %>;
-  <% end %>
-
-  var serverResponsesExpected = <%= @wps_servers.size %>;
-  var serverResponsesReceived = 0;
-
-
-  // This will be called when the GetCapabilities call to the WPS returns.  Should happen once per WPS server.
-  var onReceivedWpsServerInfo = function(url, title, abstract, processes, serviceProvider)
-  {
-    var id = ServerId[url];
-
-    $('.wps-title-' + id).text(title);          // This is the title of the server at the top of the Module Catalog
-    $('.wps-abstr-' + id).text(abstract);
-    $('.wps-providerName-' + id).text(serviceProvider.providerName);
-    $('.wps-contactName-' + id).text(serviceProvider.serviceContact.individualName);
-    $('.wps-position-' + id).text(serviceProvider.serviceContact.positionName);
-
-    var email = serviceProvider.serviceContact.contactInfo.address.electronicMailAddress;
-    $('.wps-email-' + id).html('(<a href="mailto:' + email + '">' + email + '</a>)');
-
-    // Now see if there are any servers we were expecting, but are no longer listed on the server
-
-    // Populate the "Based on" and status columns of the Configured Modules tab
-    for(var i = 0, len = processes.length; i < len; i++) {
-      var wrappedServer = processes[i].wps.getCapabilitiesUrlGet;
-      var server = WPS.unwrapProcServer(wrappedServer, processes[i].identifier);
-      var obj = processIdLookup[server + processes[i].identifier];
-
-      if(obj != undefined) {
-        $("." + obj.classId).html(processes[i].title || processes[i].identifier);
-        $(".status-" + obj.classId).html("Server available");
-        obj.found = true;
-      }
-    }
-
-
-    // Now check if we have any configurations based on modules that are not on the WPS server that we expect
-    for(var key in processIdLookup) {
-      if(processIdLookup[key].serverUrl == server) {
-        if(!processIdLookup[key].found) {
-          var classId = processIdLookup[key].classId;
-          $('.name-'   + classId).html('<span class="error-msg">Process not found on server -- It is either offline or has been deleted or renamed</span> ' +
-                                        processIdLookup[key].deleteUrl);
-          // $('.status-' + classId).html('Server not available');
-        }
-      }
-    }
-
-    serverResponsesReceived++;
-  };
-
-
-  // Formatting helper -- used by Module Catalog tab
-  var getDescrRow = function(record)
-  {
-    var title    = record.title    ? record.title + ' [' + record.identifier + ']' : record.identifier;
-    var abstract = record.abstract ? record.abstract : "<div class='center'>-</div>";
-
-    return '<tr><td class="param-name">'  + title    + '</td>' +
-               '<td class="param-descr">' + abstract + '</td></tr>';
-  };
-
-
-
-  var ctr = 0;    // Just something to help us create unique section classes
-
-  // Add an item to the catalog
-  var addItemToCatalog = function(process, serverName, serverUrl)
-  {
-    // var infoLink = 
-    var description = '<h2 class="process-title">' + process.title + '</h2>' +
-        '<div class="catalog-item item-' + ctr + '">' +
-        '<div class="process-descr">' + process.abstract + '</div>' +
-        '<div class="process-server-name"><span class="hosted-by">Hosted by:</span> <span class="server-name">' + serverName + '</span>' +
-        '<img src="/assets/small_question_mark.gif" class="info-icon" ' +
-                  'alt="More info" title="Click for details" rel="#infotable-' + ServerId[serverUrl] + '"></div>' +
-
-        '<table class="model-descr-table">' +
-        '<tbody class="inputs">';
-
-    description += '<tr><th colspan=3 class="group-header" scope="rowgroup"><div class="outdent">' + 
-                    ((process.inputs.length == 0) ? 'No Inputs' : 'Model Inputs') + 
-                   '</div></th></tr>';
-
-    if(process.inputs.length > 0) {
-      description += '<tr><th>Parameter Name</th><th>Description</th></tr>';
-
-      for(var i = 0; i < process.inputs.length; i++) {
-        description += getDescrRow(process.inputs[i]);
-      }
-    }
-
-
-    description += '</tbody><tbody class="outputs">';
-
-    description += '<tr><th colspan=3 class="group-header" scope="rowgroup"><div class="outdent">' + 
-                    ((process.outputs.length == 0) ? 'No Outputs' : 'Model Outputs') + 
-                   '</div></th></tr>';
-
-    if(process.outputs.length > 0) {
-      description += '<tr><th>Name</th><th>Description</th></tr>';
-
-      for(var i = 0; i < process.outputs.length; i++) {
-        description += getDescrRow(process.outputs[i]);
-      }
-    }
-
-    description += '</tbody></table><a href="/mod_configs/new?template=' + 
-                          (process.title + 'Q' + process.wps.getCapabilitiesUrlGet).makeHash() + '">Create new configuration for this service</a>' + 
-                   '</div>';    // End of "catalog-item" div
-
-    $('#module-catalog').append(description);
-
-
-    $('.item-' + ctr + ' img[rel]').overlay();    // Activate layer info overlays
-
-
-    // Custom accordion initialization code -- allows user to reclose accordion item by clicking on header
-    // This init code will be called repeatedly as we add a new item to the catalog.  This will let users expand items
-    // before everything is fully loaded, making the UI feel much more responsive.  But we have to be careful not to add
-    // multiple click events to any item; to prevent this, we unbind everything before rebinding.
-
-    $("#module-catalog > h2").unbind("click");  // Clear out previously added click handlers
-
-    $("#module-catalog > h2").bind("click", function() {
-
-      var animTime = 200;
-
-      $(".catalog-item").slideUp(animTime);     // Close any open panes
-
-      if($(this).hasClass("current")) {
-        $(this).removeClass("current");
-      } else {
-        $(".current").removeClass("current");
-        $(this).addClass("current");
-        $(this).next().slideDown(animTime);     // Open selected pane
-      }
-    });
-
-    ctr++;
-  };
-
-
-  // This function is called when the describeProcesses response arrives
-  // It will be called repeatedly as responses arrive
-  var onDescribedProcess = function(process, serverName, serverUrl)
-  {
-    addItemToCatalog(process, serverName, serverUrl);
-    
-
-    // Update modules structure with module title, now that one is available 
-    var modcount = modules.length;
-    for(i = 0; i < modcount; i++) {
-      if(modules[i].server == serverUrl && modules[i].identifier == process.identifier) {
-        modules[i].title = process.title;
-      }
-    }
-
-    // Finally, update any modconfigs displayed in the Configured Modules tab 
-
-    var pidLookup = processIdLookup[serverUrl + process.identifier];
-
-    // If pidLookup is undefined, it means we have no configured modules using this server/process
-    if(pidLookup != undefined) {
-      // Any elements with this class will be updated with the process title
-      $(".name-" + pidLookup.classId).text(process.title);
-    }
-
-
-    responses++;
-    // We know how many WPS describeProcess calls we made, so whenever one returns we should know if we are still
-    // waiting for any others
-    if(responses == WPS.getResponsesExpected()) {
-      $('#wps-probing-indicator').hide();           // This indicator is on the Module Catalog tab
-    }
-  };
-
-
-  <%= render :partial => '/shared/include_get_pretty_name_function.html.erb' %>
-
-  //  Create a big array of the modules the system knows about
-  var modules = [
-    <%= raw @mod_configs.map{ |m| "{ name: '" + link_to(m.name, m) + "', " + 
-                                  "  identifier: '" + m.identifier + "', " +
-                                  "  title: '', " +  
-                                  "  server: '" + m.wps_server.url + "', " +
-                                  "  status: " + (m.status.blank? ? "'Needs Data'" : "getPrettyStatusName('" + m.status + "')") + ", " +
-                                  "  descr: '" + m.descr + "', " +
-                                  "  city: '" + m.city.name + "' }," }.join(" ") %>
-  ];
-
-  processIdLookup = { };
-  var o;
-  <%
-    ctr = 0;
-    processIdLookup = Hash.new    # List of processes available to the Ruby script
-    lines = "";                   # Code to create a JS representation of the same thing
-
-    @mod_configs.map { |c|
-      id = c.identifier.blank? ? "" : c.identifier;
-
-      # The following produces a line that looks like this:
-      # o = new Object;o.classId = 'x0';o.serverUrl = 'http://iguess.tudor.lu/cgi-bin/pywps.cgi';   \
-      # o.identifier = 'solar_potential';processIdLookup['http://iguess.tudor.lu/cgi-bin/pywps.cgisolar_potential'] = o;
-      lines += "o = new Object;"   +
-               "o.classId = 'x"    + ctr.to_s         + "';" +
-               "o.serverUrl = '"   + c.wps_server.url + "';" +
-               "o.identifier = '"  + id               + "';" +
-               "o.found = false; " +
-
-               "o.deleteUrl = '"   + link_to('Delete This Module', c, confirm: "Deleting this module is a permanent action.\\n\\n" +
-                                                                               "Click OK if you are sure you want to delete this module.",
-                                                                    method: :delete) + "';" +
-               "processIdLookup['" + c.wps_server.url + id + "'] = o;\n";
-
-      processIdLookup[c.wps_server.url + id] = 'x' + ctr.to_s;
-      ctr += 1;
-    }
-  %>
-
-  // Insert JS code generated above -- use raw to prevent premature interpretation of things like \n
-  <%= raw lines %>
-
-
-  var urls = [<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>];
-  var responses = 0;
-
-  // For each WPS url in our database, start probing the server
-  // We need the results of onReceivedWpsServerInfo to complete the Configured Modules tab
-  // We need the results of onDescribedProcess to complete the Module Catalog tab
-  for(var i = 0, len = urls.length; i < len; i++) {
-    WPS.probeWPS(urls[i], onReceivedWpsServerInfo, onDescribedProcess);  
-  }
-
-
-  var updateConfigModTables = function() 
-  {
-    $('#tableContainer').html("");
-
-    var city = document.getElementById("city-dropdown").value;
-    var rowCount = modules.length;
-    var foundAny = false;
-
-    for(i = 0; i < rowCount; i++) {
-      if(modules[i].city != city) { continue; }    // Only show modules for this city
-      foundAny = true;
-
-      var titleCellContent = modules[i].title == "" ? "Probing server... <img src='/assets/loading_spinner.gif'>" : modules[i].title;
-      var pid = processIdLookup[modules[i].server + modules[i].identifier].classId;
-      // Create a new table row; note we assign the 2nd item to a class that lets us easily update when we get the proper title.
-      row = "<td>" + modules[i].name   + "</td>" +
-            "<td class='name-"    + pid + "'>"  + titleCellContent  + "</td>" +
-            "<td class='status-'" + pid + "''>" + modules[i].status + "</td>" + 
-            "<td class='descr-'"  + pid + "''>" + modules[i].descr  + "</td>";
-
-      $('#tableContainer').append("<tr>" + row + "</tr>");
-    }
-
-    if(foundAny) {
-      $('#mod-list').show();
-      $('#mod-list-none').hide();
-    } else {
-      // Provide empty row to prevent sorting from failing
-      $('#tableContainer').append("<tr> <td></td> <td></td> <td></td> <td></td> </tr>");
-      $('#mod-list').hide();
-      $('.city-name').text(city);
-      $('#mod-list-none').show();
-    }
-  };
-
-
-  // Gets fired when city dropdown changes
-  var onLocationChanged = function(city) {
-    updateConfigModTables();
-  };
-
-
-  // Dynamically generate placeholders for the list of servers; these will be populated after we hear from our servers
-  $(document).ready(function() {
-
-    // Activate our jquery tabs 
-    if($('ul.tabs').length != 0) {
-      $(function() {
-        // setup ul.tabs to work as tabs for each div directly under div.panes
-        $("ul.tabs").tabs("#tab-panes > div", { history: true });
-      });
-    }
-
-
-    $('img[rel]').overlay();    // Activate layer info overlays we added in the static HTML at the bottom of this file
-
-    updateConfigModTables();
-  });
-  
-
-</script>
-
-
 <h1 class="page_header">Modules</h1>
 
 
@@ -329,31 +24,49 @@
   <div id="configured_modules_tab">
     <% if @wps_servers.empty? %>
       No module servers have been configured.  You can add one by clicking on the link below.<br>
-      <a href="#">Add new server</a>
+      <a href="#"><%= image_tag("document_add_24.png", :class => "link-icon") %>Add new server</a>
     <% else %>
-      <div id='mod-list-none'>  <!-- Div will be shown when there are no configurations -->
-        No modules have been configured yet for <span class='city-name'></span>.  
-        <%= link_to 'Click here to create one.', new_mod_config_path %>
-      </div>   
+      <% if @mod_configs.empty? %>
+        <div id="mod-list-none">  
+          No modules have been configured yet for <span class="city-name"></span>.  
+          <%= link_to "Click here to create one.", new_mod_config_path %>
+        </div>   
+      <% else %>
+        <div id='mod-list'>      
+          These are the calculation modules that have been configured.
 
-      <div id='mod-list'>       <!-- Div will be hidden when there are no configurations for current city -->
-        These are the calculation modules that have been configured.
+          <%= render :partial => "/shared/sortable_table_code.html.erb",
+                     :locals => { :initialSortlist => "[[0,0]], headers: { 3: {sorter: false}}" } %>
 
-        <%= render :partial => '/shared/sortable_table_code.html.erb',
-                   :locals => { :initialSortlist => "[[0,0]], headers: { 3: {sorter: false}}" } %>
-
-        <table id="sortable_table" class="zebra sortable">
-          <thead><tr><th>Name</th><th>Based on</th><th>Status</th><th>Notes</th></tr></thead>
-          <tbody id="tableContainer">
-             <!-- rows will be generated programatically -->
-             <tr> <td></td> <td></td> <td></td> <td></td> </tr>
-          </tbody>
-        </table>
-      </div>
-
+          <table id="sortable_table" class="zebra sortable">
+            <thead><tr><th>Name</th><th>Based on</th><th>Status</th><th>Notes</th></tr></thead>
+            <tbody id="tableContainer">
+              <% @mod_configs.each do |m| %> 
+                <% ok = (m.wps_process && m.wps_process.alive) %>
+                <tr> 
+                  <td><%= link_to(m.name, m) %>
+                    <% if not ok %>
+                      <div class="error-msg module-not-found">Process not found on server -- It is either offline or has been deleted or renamed</div>
+                      <%= link_to m, 
+                                  confirm: "Deleting this module is a permanent action.\n\n" +
+                                           "Click OK if you are sure you want to delete this module." do %>
+                        <%= image_tag("document_delete_16.png", :class => "link-icon") %>Delete Module
+                      <% end %>
+                    <% end %>
+                  </td>
+                  <td><%= m.wps_process && (m.wps_process.title || m.wps_process.identifier) || "Unknown process" %></td>
+                  <td><%= getPrettyStatusName(m.status) %></td>
+                  <td><%= m.descr %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
       <br />
-
-      <%= link_to 'New Module Configuration', new_mod_config_path %>
+      <%= link_to new_mod_config_path do %>
+        <%= image_tag("document_add_24.png", :class => "link-icon") %>New Module Configuration
+      <% end %>
     <% end %>
   </div>
 
@@ -363,51 +76,155 @@
       <% if @wps_servers.length > 0 %>
         Catalog of modules found on the following servers:
       <% else %>
-        No module servers have been configured.  You can add one by clicking on the link below.
+        No process servers have been configured.  You can add one by clicking on the link below.
       <% end %>
 
       <ul id="wps-server-list">
         <% @wps_servers.each do |s| %>
           <li>
             <div>
-              <!-- wps-title-xxx is a class not an id because we have several items that need the same treatment --> 
-              <span class="wps-title wps-title-<%= s.id %>"><%= s.url %></span> <span class="wps-providerName wps-providerName-<%= s.id %>">Unknown provider</span>
-              <img src="/assets/small_question_mark.gif" class="info-icon" alt="More info" title="Click for details" rel="#infotable-<%= s.id %>">
+              <span class="wps-title"><%= s.title %></span> <span class="wps-providerName"><%= s.provider_name %></span>
+              <img src="/assets/small_question_mark.gif" class="info-icon" alt="More info" title="Click for details" rel="#server-infotable-<%= s.id %>">
             </div>
-            <div class="wps-descr" class="wps-abstr-<%= s.id %>"></div>
+            <div class="wps-descr" class="wps-abstr"><%= s.abstract %></div>
           </li>
         <% end %>
       </ul>
-      <div id="catalog-add-new-server-link"><a href="#" onclick='alert("Not implemented yet!")'>Add new server</a></div>
+      <div id="catalog-add-new-server-link"><a href='#' onclick="alert('Not implemented yet!')">
+        <%= image_tag("document_add_24.png", :class => "link-icon") %>Add new server</a>
+      </div>
     </div>
 
     <% if @wps_servers.length > 0 %>
-      <div id="wps-probing-indicator">Loading Catalog from remote servers... <img src="/assets/loading_spinner.gif"></div>
-      <div id="module-catalog"></div>
-    <% end %>
+      <div id="module-catalog">
 
-    <%#= render :partial => '/mods/mods_catalog', :locals => { :all_mods => @mods } %>
+        <% @wps_processes.each do |p| %>
+          <h2 class="process-title"><%= p.title %></h2>
+          <div class="catalog-item">
+            <div class="process-descr"><%= p.abstract %></div>
+            <div class="process-server-name">
+              <span class="hosted-by">Hosted by:</span><span class="server-name"><%= p.wps_server.title %></span>
+              <img src="/assets/small_question_mark.gif" class="info-icon" alt="More info" 
+                   title="Click for details" rel="#server-infotable-<%= p.wps_server.id %>">
+            </div>
+
+            <table class="model-descr-table">
+              <% inputs  = ProcessParam.find_all_by_wps_process_id_and_is_input_and_alive(p.id, true,  true) %>
+              <% outputs = ProcessParam.find_all_by_wps_process_id_and_is_input_and_alive(p.id, false, true) %>
+
+              <tbody class="inputs">
+                <tr><th colspan=3 class="group-header" scope="rowgroup"><div class="outdent">
+                  <% if inputs.size == 0 %>
+                      No Inputs
+                  <% else %>
+                    Model Inputs
+                  <% end %>
+                </div></th></tr>
+                
+                <% if inputs.size > 0 %>
+                  <tr><th>Parameter Name</th><th>Description</th></tr>
+
+                  <% inputs.each do |i| %>
+                    <tr><td class="param-name"><%= i.title %></td><td class="param-descr"><%= i.abstract %></td></tr>
+                  <% end %>
+                <% end %>
+
+                <tr><th colspan=3 class="group-header" scope="rowgroup"><div class="outdent">
+                  <% if outputs.size == 0 %>
+                      No Outputs
+                  <% else %>
+                    Model Outputs
+                  <% end %>
+                </div></th></tr>
+
+                <% if outputs.size > 0 %>
+                  <tr><th>Parameter Name</th><th>Description</th></tr>
+
+                  <% outputs.each do |o| %>
+                    <tr><td class="param-name"><%= o.title %></td><td class="param-descr"><%= o.abstract %></td></tr>
+                  <% end %>
+                <% end %>
+              </tbody>
+            </table>
+            <a href="/mod_configs/new?template=<%= p.id %>">
+                <%= image_tag("document_add_24.png", :class => "link-icon") %>Create new configuration for this service</a>
+          </div>  <!-- End of "catalog-item" div -->
+        <% end %>
+      </div>
+    <% end %>
   </div>
 </div>
 
 <!-- The following will start life hidden, and will only be revealed when the user clicks an info button -->
 <!-- Details (name, descr, etc.) will be populated as we get info from the servers -->
 <% @wps_servers.each do |s| %>
-  <div id="infotables">
-      <div class="infotable" id="infotable-<%= s.id %>">
+  <div id="server-infotables">
+      <div class="infotable" id="server-infotable-<%= s.id %>">
         <div class="close"></div>
-        <h1  class="wps-title-<%= s.id %>">Retrieving info...</h1>
-        <div class="wps-abstr-<%= s.id %>">Retrieving info...</div>
+        <h1  class="wps-title"><%= s.title %></h1>
+        <div class="wps-abstr"><%= s.abstract %></div>
         <div style="overflow:hidden">
           <dl>
-            <dt>Provider:</dt><dd class="wps-providerName-<%= s.id %>">Retrieving info...</dd>
+            <dt>Provider:</dt><dd class="wps-providerName"><%= s.provider_name %></dd>
             <dt>Contact:</dt><dd>
-              <span class="wps-contactName-<%= s.id %>">Retrieving info...</span>
-              <span class="wps-email-<%= s.id %>"></span>
+              <span class="wps-email"><%= mail_to(s.contact_email, s.contact_name, :encode => :javascript) %></span>
             </dd>
             <dt>Server URL:</dt><dd><%= s.url %></dd>
+            <dt>GetCapabilities URL:</dt><dd class="wps-describeProcessLink">
+              <%= link_to("WPS", s.url + "?SERVICE=WPS&VERSION=1.1.0&REQUEST=GetCapabilities", :target => "_blank") %>
+            </dd>
           </dl>
         </div>
       </div>
   </div>
 <% end %>
+
+
+<script>
+  // Gets fired when city dropdown changes
+  var onLocationChanged = function(city) {
+    updateConfigModTables();
+  };
+
+
+  // Gets run when page is fully loaded
+  $(document).ready(function() {
+
+    // Activate our jquery tabs 
+    if($("ul.tabs").length != 0) {
+      $(function() {
+        // setup ul.tabs to work as tabs for each div directly under div.panes
+        $('ul.tabs').tabs('#tab-panes > div', { history: true });
+      });
+    }
+
+    // Activate layer info overlay popups and such
+    $('img[rel]').overlay();    
+
+    for(var i = 0; i < <%= @wps_processes.size %>; i++)
+      $('.item-' + i + ' img[rel]').overlay();    // Activate layer info overlays
+
+
+    // Accordion initialization code -- allows user to reclose accordion item by clicking on header
+    // This init code will be called repeatedly as we add a new item to the catalog.  This will let users expand items
+    // before everything is fully loaded, making the UI feel much more responsive.  But we have to be careful not to add
+    // multiple click events to any item; to prevent this, we unbind everything before rebinding.
+
+    $('#module-catalog > h2').unbind('click');  // Clear out previously added click handlers
+
+    $('#module-catalog > h2').bind('click', function() {
+
+      var animTime = 200;
+
+      $('.catalog-item').slideUp(animTime);     // Close any open panes
+
+      if($(this).hasClass('current')) {
+        $(this).removeClass('current');
+      } else {
+        $('.current').removeClass('current');
+        $(this).addClass('current');
+        $(this).next().slideDown(animTime);     // Open selected pane
+      }
+    });
+  });
+</script>

@@ -8,7 +8,7 @@ class DatasetsController < ApplicationController
 
     @current_city = (City.find_by_name(cookies['city']) or City.first)
 
-    @datasets = Dataset.all()
+    @datasets = Dataset.find_all_by_city_id(@current_city.id)
     @wps_servers = WpsServer.all
 
     # Find all unique server urls in @datasets, ignoring any blank entries

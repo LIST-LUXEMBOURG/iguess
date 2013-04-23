@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130311161523) do
+ActiveRecord::Schema.define(:version => 20130419121510) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -53,21 +53,37 @@ ActiveRecord::Schema.define(:version => 20130311161523) do
     t.text    "descr"
   end
 
+  create_table "dataservers", :force => true do |t|
+    t.text     "url"
+    t.text     "title"
+    t.text     "abstract"
+    t.datetime "last_seen"
+    t.boolean  "alive"
+    t.boolean  "wms"
+    t.boolean  "wfs"
+    t.boolean  "wcs"
+  end
+
   create_table "dataset_tags", :force => true do |t|
     t.integer "dataset_id"
     t.text    "tag"
   end
 
   create_table "datasets", :force => true do |t|
-    t.string   "server_url",                      :null => false
-    t.string   "identifier",                      :null => false
+    t.string   "server_url",                       :null => false
+    t.string   "identifier",                       :null => false
     t.string   "dataset_type"
     t.integer  "city_id"
-    t.boolean  "finalized",    :default => true,  :null => false
-    t.datetime "created_at",                      :null => false
-    t.datetime "updated_at",                      :null => false
+    t.boolean  "finalized",     :default => true,  :null => false
+    t.datetime "created_at",                       :null => false
+    t.datetime "updated_at",                       :null => false
     t.text     "service"
-    t.boolean  "published",    :default => false
+    t.boolean  "published",     :default => false
+    t.text     "title"
+    t.text     "abstract"
+    t.datetime "last_seen"
+    t.boolean  "alive"
+    t.integer  "dataserver_id"
   end
 
   create_table "geometry_columns", :id => false, :force => true do |t|
@@ -85,14 +101,26 @@ ActiveRecord::Schema.define(:version => 20130311161523) do
     t.text     "identifier"
     t.text     "name"
     t.text     "descr"
-    t.datetime "created_at",                    :null => false
-    t.datetime "updated_at",                    :null => false
+    t.datetime "created_at",                     :null => false
+    t.datetime "updated_at",                     :null => false
     t.text     "status"
     t.datetime "run_started"
     t.datetime "run_ended"
     t.text     "pid"
     t.integer  "city_id"
-    t.text     "status_text",   :default => ""
+    t.text     "status_text",    :default => ""
+    t.integer  "wps_process_id"
+  end
+
+  create_table "process_params", :force => true do |t|
+    t.integer  "wps_process_id"
+    t.text     "identifier"
+    t.text     "title"
+    t.text     "abstract"
+    t.text     "datatype"
+    t.boolean  "is_input"
+    t.boolean  "alive"
+    t.datetime "last_seen"
   end
 
   create_table "spatial_ref_sys", :id => false, :force => true do |t|
@@ -103,11 +131,27 @@ ActiveRecord::Schema.define(:version => 20130311161523) do
     t.string  "proj4text", :limit => 2048
   end
 
+  create_table "wps_processes", :force => true do |t|
+    t.integer  "wps_server_id"
+    t.text     "identifier"
+    t.text     "title"
+    t.text     "abstract"
+    t.datetime "last_seen"
+    t.boolean  "alive"
+  end
+
   create_table "wps_servers", :force => true do |t|
     t.string   "url"
     t.text     "descr"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
+    t.text     "title"
+    t.text     "abstract"
+    t.datetime "last_seen"
+    t.boolean  "alive"
+    t.text     "provider_name"
+    t.text     "contact_name"
+    t.text     "contact_email"
   end
 
 end
