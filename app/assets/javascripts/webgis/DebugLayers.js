@@ -58,10 +58,10 @@ WebGIS.addDebugLayersML = function() {
      	 visibility: false}
     );
 
-    WebGIS.map.addLayer(oroML);
-    WebGIS.map.addLayer(buildsRemML);
-    WebGIS.map.addLayer(buildsInduML);
-    WebGIS.map.addLayer(buildsIndiffML);
+    WebGIS.leftMap.addLayer(oroML);
+    WebGIS.leftMap.addLayer(buildsRemML);
+    WebGIS.leftMap.addLayer(buildsInduML);
+    WebGIS.leftMap.addLayer(buildsIndiffML);
 
 };
 
@@ -103,9 +103,9 @@ WebGIS.addDebugLayersLB = function() {
      	 visibility: false}
     );
    
-     WebGIS.map.addLayer(busLB);
-     WebGIS.map.addLayer(buildsLB);
-     WebGIS.map.addLayer(streetsLB);
+     WebGIS.leftMap.addLayer(busLB);
+     WebGIS.leftMap.addLayer(buildsLB);
+     WebGIS.leftMap.addLayer(streetsLB);
 };
 
 WebGIS.addDebugLayersRO = function() {
@@ -135,7 +135,7 @@ WebGIS.addDebugLayersRO = function() {
 	 	 visibility: false}
 	);
 
-	WebGIS.map.addLayer(buildsIGUESS);
-	WebGIS.map.addLayer(dsmIGUESS);
+	WebGIS.leftMap.addLayer(buildsIGUESS);
+	WebGIS.leftMap.addLayer(dsmIGUESS);
 	
 };

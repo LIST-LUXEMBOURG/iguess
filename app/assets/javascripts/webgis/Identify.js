@@ -40,7 +40,7 @@ WebGIS.registerIdentify = function(map, ref) {
 	});
 
 	WebGIS.ctrlIdentify.events.register("getfeatureinfo", ref, WebGIS.showInfo);
-	WebGIS.map.addControl(WebGIS.ctrlIdentify);
+	WebGIS.leftMap.addControl(WebGIS.ctrlIdentify);
 };
 
 WebGIS.treeClickListener = function(node,event) {

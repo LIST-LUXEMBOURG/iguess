@@ -10,7 +10,8 @@
 
 var WebGIS = WebGIS || { };
 
-WebGIS.map = null;
+WebGIS.leftMap = null;
+WebGIS.rightMap = null;
 /**
  * All layers will always use the base layer projection for the request.
  * Since we are using Google and OSM anything other than EPSG:900913 will be ignored.
@@ -36,7 +37,7 @@ WebGIS.initMap = function () {
     // Nothing will be displayed outside these bounds (Poland - Ireland)
     var boundsMap  = new OpenLayers.Bounds(-1015000, 5845000, 1100000, 8000000);  
     
-    WebGIS.map = new OpenLayers.Map("BroadMap",{
+    WebGIS.leftMap = new OpenLayers.Map("BroadMap",{
       projection: 			mapProjection,
       displayProjection: 	new OpenLayers.Projection(WebGIS.displayProjection),
       units: 				"m",
@@ -51,11 +52,11 @@ WebGIS.initMap = function () {
         return markup;
       }
     });
-    WebGIS.map.addControl(mp);
+    WebGIS.leftMap.addControl(mp);
     
-    WebGIS.registerIdentify(WebGIS.map, this);
+    WebGIS.registerIdentify(WebGIS.leftMap, this);
 
-    WebGIS.map.addLayers(WebGIS.getBaseLayers());   
+    WebGIS.leftMap.addLayers(WebGIS.getBaseLayers());   
 };
 
 WebGIS.zoomToCity = function () {  
@@ -83,14 +84,14 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type)
 
     var layer = new OpenLayers.Layer.WMS(title, serviceURL, params, options);
 
-    WebGIS.map.addLayer(layer);
+    WebGIS.leftMap.addLayer(layer);
 };
 
 // Remove all layers from the current map
 WebGIS.clearLayers = function(alsoClearBaseLayers)
 {
   alsoClearBaseLayers = alsoClearBaseLayers || false;
-  var layers = WebGIS.map.layers;
+  var layers = WebGIS.leftMap.layers;
   var layersToRemove = [];
 
   for(var i = 0, len = layers.length; i < len; i++) {
@@ -100,7 +101,7 @@ WebGIS.clearLayers = function(alsoClearBaseLayers)
   }
 
   for(var i = 0, len = layersToRemove.length; i < len; i++) {
-    WebGIS.map.removeLayer(layersToRemove[i]);
+    WebGIS.leftMap.removeLayer(layersToRemove[i]);
   }
 };
 
