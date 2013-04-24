@@ -49,8 +49,7 @@ WebGIS.initMap = function () {
     	projection: 		mapProjection,
     	displayProjection: 	new OpenLayers.Projection(WebGIS.displayProjection),
     	units: 				"m",
-    	maxExtent: 			boundsMap/*,
-    	controls: 			[]*/
+    	maxExtent: 			boundsMap
     });
 
     var mp = new OpenLayers.Control.MousePosition({
@@ -60,10 +59,19 @@ WebGIS.initMap = function () {
         return markup;
       }
     });
-    //WebGIS.leftMap.addControl(mp);
-    //WebGIS.rightMap.addControl(mp);
-    WebGIS.leftMap.addControl(new OpenLayers.Control.MousePosition());
-    WebGIS.rightMap.addControl(new OpenLayers.Control.MousePosition());
+    WebGIS.leftMap.addControl(mp);
+    
+    var mp2 = new OpenLayers.Control.MousePosition({
+        formatOutput: function(lonLat) {
+          var markup = WebGIS.convertDMS(lonLat.lon, "LON") + "  ";
+          markup += WebGIS.convertDMS(lonLat.lat, "LAT");
+          return markup;
+        }
+      });
+    WebGIS.rightMap.addControl(mp2);
+    
+    //WebGIS.leftMap.addControl(new OpenLayers.Control.MousePosition());
+    //WebGIS.rightMap.addControl(new OpenLayers.Control.MousePosition());
     
     WebGIS.registerIdentify(WebGIS.leftMap, this);
     WebGIS.registerIdentify(WebGIS.rightMap, this);
