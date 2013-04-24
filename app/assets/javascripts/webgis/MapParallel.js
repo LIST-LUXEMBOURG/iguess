@@ -42,6 +42,8 @@ WebGIS.leftMapMouseMove = function(e)
 
 WebGIS.rightMapMouseOver = function(e)
 {
+	// Markers must be re-added to the leftMap, otherwise thepointer won't show up
+	WebGIS.leftMap.addLayer(WebGIS.leftMarkers);
 	WebGIS.leftPointer = new OpenLayers.Marker(WebGIS.rightMap.getLonLatFromPixel(e.xy), WebGIS.chIcon);
 	WebGIS.leftMarkers.addMarker(WebGIS.leftPointer);
 }
@@ -51,8 +53,9 @@ WebGIS.rightMapMouseOut = function()
 	WebGIS.leftMarkers.clearMarkers();
 }
 
-rightMapMouseMove = function(e)
+WebGIS.rightMapMouseMove = function(e)
 {
+	
 	WebGIS.leftMarkers.clearMarkers();
 	WebGIS.leftPointer = new OpenLayers.Marker(WebGIS.rightMap.getLonLatFromPixel(e.xy), WebGIS.chIcon);
 	WebGIS.leftMarkers.addMarker(WebGIS.leftPointer);
@@ -65,22 +68,12 @@ WebGIS.rightMapMove = function()
 
 WebGIS.initParallelEvents = function() 
 {	
-	/*WebGIS.leftMap = new OpenLayers.Map(); 
-	WebGIS.leftMap.addLayer(new OpenLayers.Layer.OSM());
-	WebGIS.leftMap.addControl(new OpenLayers.Control.MousePosition());
-	WebGIS.leftMap.setCenter(new OpenLayers.LonLat(-233307, 7790000), 11);*/
-	
 	WebGIS.leftMap.addLayer(WebGIS.leftMarkers);
 	
 	WebGIS.leftMap.events.register("moveend", 	null, WebGIS.leftMapMove);
 	WebGIS.leftMap.events.register("mousemove", null, WebGIS.leftMapMouseMove);
 	WebGIS.leftMap.events.register("mouseout",  null, WebGIS.leftMapMouseOut);
 	WebGIS.leftMap.events.register("mouseover", null, WebGIS.leftMapMouseOver);
-	
-	/*WebGIS.rightMap = new OpenLayers.Map(); 
-	WebGIS.rightMap.addLayer(new OpenLayers.Layer.OSM());
-	WebGIS.rightMap.addControl(new OpenLayers.Control.MousePosition());
-	WebGIS.rightMap.setCenter(new OpenLayers.LonLat(-233307, 7790000), 11);*/
 	
 	WebGIS.rightMap.addLayer(WebGIS.rightMarkers);
 	
