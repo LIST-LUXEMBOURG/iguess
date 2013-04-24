@@ -4,17 +4,30 @@ class ModConfigsController < ApplicationController
 
   respond_to :html, :js
 
+  def findAllTags()
+    tags = []
+    allInputs = ProcessParam.find_all_by_alive_and_is_input(:true, :true)
+    allInputs.each { |i| tags.push(i.identifier) }
+
+    return tags.sort.uniq
+  end
+
 
   def index
     @current_city = (City.find_by_name(cookies['city']) or City.first)
-    @mod_configs = ModConfig.all
-    @wps_servers = WpsServer.all
+    @mod_configs = ModConfig.find_all_by_city_id(@current_city.id)
+    @wps_servers = WpsServer.find_all_by_alive(:true)
+    # @tags = findAllTags()
+    @wps_processes = WpsProcess.find_all_by_alive(:true)
+    # @wps_version = '1.0.0'
 
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @mod_configs }
     end
   end
+
+
 
   # GET /mod_configs/1
   # GET /mod_configs/1.json
@@ -23,9 +36,11 @@ class ModConfigsController < ApplicationController
     @current_city    = (City.find_by_name(cookies['city']) or City.first)
     @datasets        = Dataset.find_all_by_city_id(@current_city.id)
     @dataset_tags    = DatasetTag.all
-    @dataset_inputs  = ConfigDataset.find_all_by_mod_config_id(params[:id])
-    @text_inputs     = ConfigTextInput.find_all_by_mod_config_id(@mod_config)
-    @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
+    @datasetValues   = ConfigDataset.find_all_by_mod_config_id(params[:id]).map{|d| d.input_identifier + ': "' + d.dataset.id.to_s + '"'}.join(',')
+    @formValues      = ConfigTextInput.find_all_by_mod_config_id(@mod_config).map{|text| text.column_name + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"'}.join(',')
+    # @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
+    @input_params    = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(true,  true)
+    @output_params   = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(true,  false)
 
     respond_to do |format|
       format.html # show.html.erb
@@ -37,10 +52,11 @@ class ModConfigsController < ApplicationController
   # GET /mod_configs/new.json
   def new
     @mod_config = ModConfig.new
-    @wps_servers = WpsServer.all
+    @wps_servers = WpsServer.find_all_by_alive(:true)
+    @wps_processes = WpsProcess.find_all_by_alive(:true)
     @datasets = Dataset.all
     @dataset_tags    = DatasetTag.all
-    @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
+    # @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
     @textinputs = [ ]
 
     respond_to do |format|
@@ -153,10 +169,6 @@ class ModConfigsController < ApplicationController
     require 'open3'
     output, stat = Open3.capture2e(cmd)
 
-#logger.debug("running pyscript...")
-#logger.debug(cmd)
-#logger.debug(output)
-#logger.flush
 
     # Currently, WPSClient spews out lots of garbage.  We only want the last line.
     output =~ /^OK:(.*)$/
@@ -178,6 +190,8 @@ class ModConfigsController < ApplicationController
     end
   end
 
+
+
   # POST /mod_configs
   # POST /mod_configs.json
   def create
@@ -192,9 +206,7 @@ class ModConfigsController < ApplicationController
 
     @mod_config.city = @current_city
 
-    server = WpsServer.find_by_url(params[:wps_server_url])
-    @mod_config.wps_server = server
-    @mod_config.identifier = params[:identifier]
+    @mod_config.wps_process_id = params[:wps_process_id]
 
     success = true
 
@@ -202,20 +214,19 @@ class ModConfigsController < ApplicationController
     # Move on to save all the selected datasets
     if(params[:datasets]) then        # Not every module has input datasets
       params[:datasets].each do |d|
-        name = d[0]
+        identifier = d[0]
         id = d[1]
-        if(not name.empty?) then
-          if(id != "-1") then
-            confds = ConfigDataset.new()
-            dataset = Dataset.find(id)
-            confds.mod_config = @mod_config
-            confds.dataset    = dataset
-
-            success &= confds.save()
-          end
+        if(identifier != "" && id != "-1") then
+          confds = ConfigDataset.new()
+          confds.input_identifier = identifier
+          confds.mod_config = @mod_config
+          confds.dataset = Dataset.find(id)
+          
+          success &= confds.save()
         end
       end
     end
+
 
     # Save any text inputs and outputs the user provided
     if(success) then

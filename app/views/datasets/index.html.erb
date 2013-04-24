@@ -1,3 +1,97 @@
+<div>
+  <h1 class="page_header">Registered Datasets</h1>
+
+  <form id="filter-form">Filter: <input name="filter" id="filter" value="" maxlength="30" size="30" type="text"></form>
+
+  <div class="hint">Hint: Filter table by typing in the box above; sort by clicking on column headers; use Ctrl to sort by multiple columns</div>
+
+  <table id="sortable_table" class="zebra sortable">
+    <thead>
+      <tr><th>Name</th><th>Tags</th><th>Published?</th><th class="center">Status</th></tr>
+      <% @datasets.each do |d| %>
+        <tr>
+          <td>
+            <%= d.title.present? ? d.title : d.identifier %>
+            <img src="/assets/small_question_mark.gif" class="info-icon" 
+                  alt="More info" title="Click for details" rel="#infotable-<%= d.id %>">
+          </td>
+          <td>
+            <% d.dataset_tags.each do |t| %>
+              <span class="tag"><%= t.tag %></span>
+            <% end %>
+          </td>
+          <td>
+            <label>
+              <input class="publish-checkbox" data-datasetid="<%= d.id %>" 
+                     type="checkbox" <%= d.published ? "checked" : "" %> >Publish
+            </label>
+          </td>
+          <td nowrap><%= d.alive ? "Ok"  : "This dataset is no longer on the server" %></td>
+        </tr>
+      <% end%>
+    </thead>
+
+    <tbody id="dataset-list"></tbody>  <!-- Will be populated later -->
+  </table>
+
+  <div id="infotables">
+    <!-- Create the popups that are displayed when the user clicks (?) -->
+    <% @datasets.each do |d| %>
+      <div class="infotable" id="infotable-<%= d.id %>">
+        <div class="close"></div>
+        <h1><span class="dataset-title"><%= d.title.present? ? d.title : d.identifier %></h1>
+        <div class="dataset-descr-<%= d.id %>"></div> 
+        <div style="overflow:hidden"><dl>
+          <dt>Server Name:</dt><dd class="server-name"><%= d.dataserver.title %></dd>
+           <dt>Data Services:</dt><dd id="results-<%= d.id %>">Waiting for response from server...</dd>
+           <dt>Tags:</dt><dd><span class="taglist-deletable-<%= d.id %>"></span>
+             <span><% d.dataset_tags.each do |t| %>
+                <span class="tag">
+                  <span class="tag-delete-button" data-url="<%= d.dataserver.url %>" data-identifier="<%= d.identifier %>"></span>
+                  <%= t.tag %></span>
+              <% end %>
+            </span>
+            
+              <select style="float:right" class="add-tag-dropdown-control" 
+                data-serverurl="<%= d.dataserver.url %>"
+                data-datasetidentifier="<%= d.identifier %>" 
+                onchange="tagPickerChanged($(this));"> 
+
+                <option value = "Ignore This">Add Tag:</option>
+                <% if d.dataserver.wms %>
+                  <option value="Mapping">Mapping</option>
+                <% end %>
+
+                <% d.dataset_tags.each do |t| %>
+                  <option value="<%= t.tag %>"><%= t.tag %></option>
+                <% end %>
+           </select>
+        </dl></div>
+        <div style="overflow:hidden" class="technical-details">
+          <div class="technical-details-header">Technical Details</div><dl>
+          <dt>Server Base URL:</dt><dd><%= d.server_url %></dd>
+          <dt>Dataset Identifier:</dt><dd><%= d.identifier %></dd>
+          <dt>All Get Capabilities Links:</dt><dd>
+              <a href=" + WFS.getCapUrl(dataset.server_url) + " target="_blank">WFS</a>
+              <a href=" + WMS.getCapUrl(dataset.server_url) + " target="_blank">WMS</a> 
+              <a href=" + WCS.getCapUrl(dataset.server_url) + " target="_blank">WCS</a>
+          </dd>
+          <dt>Projections Available:</dt><dd></dd> 
+          <dt>Bounding Box:</dt><dd></dd>
+          <dt>Attribute Columns:</dt><dd></dd>
+        </dl></div>
+        <div><a href="javascript:void(0);" class="show-details"></a></div>
+      </div>
+    <% end %>
+  </div>
+
+  <%= button_to "Register Datasets", :controller => 'datasets', :action => 'mass_import', :id => 1 %>
+
+  <br />
+</div>
+
+
+
 
 <script type="text/javascript">
  $(document).ready(function() {
@@ -34,7 +128,6 @@
                  'Content-Type': 'application/json' */},
       success: function(data) {  }
     });
-
   };
 
   // We've got a new batch of datasets to display!
@@ -275,32 +368,6 @@
     }).focus(); //Give focus to input field
   });
 </script>
-
-
-<!-- The HTML -->
-
-<div>
-  <h1 class="page_header">Registered Datasets</h1>
-
-  <form id="filter-form">Filter: <input name="filter" id="filter" value="" maxlength="30" size="30" type="text"></form>
-
-  <div class="hint">Hint: Filter table by typing in the box above; sort by clicking on column headers; use Ctrl to sort by multiple columns</div>
-
-  <table id="sortable_table" class="zebra sortable">
-    <thead>
-      <tr><th>Name</th><th>Tags</th><th>Published?</th><th class="center">Status</th><!-- <th>Configured Modules Using Dataset</th> --></tr>
-    </thead>
-
-    <tbody id="dataset-list"></tbody>  <!-- Will be populated later -->
-  </table>
-
-  <div id="infotables"><!-- Placeholder for popup infotables --></div>
-
-
-  <%= button_to "Register Datasets", :controller => 'datasets', :action => 'mass_import', :id => 1 %>
-
-  <br />
-</div>
 
 
 

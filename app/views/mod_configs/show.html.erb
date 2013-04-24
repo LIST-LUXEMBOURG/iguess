@@ -1,14 +1,104 @@
+
+
 <p id="notice"><%= notice %></p>
 
 <h1 class="page_header">
   Module Configuration
 </h1>
 
-<%# Include some code we share with the other input page in mod_configs %>
-<%= render :partial => 'shared_code.html.erb' %>
+
+<div class="explanation" id="explanation">
+  This is the primary module control panel.  You can modify or run the module.
+</div>
+
+<div class="module-status-box">
+  MODULE STATUS: <span id="status-display"><img src="/assets/loading_spinner.gif" width=16 height=11> Checking...</span>
+</div>
+
+<div class="simple_form">
+  <label>Name</label>
+  <%= best_in_place @mod_config, :name, :type => :input, :activator => "#click_to_edit_name" %>
+  <span class="click_to_edit" id="click_to_edit_name">[Click to edit]</span>
+</div>
 
 
-<script type="text/javascript">
+<div class="simple_form">
+  <label>Based on</label>
+  <span id="based-on"><%= @mod_config.wps_process.title %></span>
+</div>
+
+
+<div class="simple_form">
+  <label>Details</label>
+  <span id="mod-descr"><%= @mod_config.wps_process.abstract %></span>
+</div>
+
+
+<div class="simple_form">
+  <label>Note</label>
+  <%= best_in_place @mod_config, :descr, :type => :textarea, :activator => "#click_to_edit_notes" %>
+  <span class="click_to_edit" id="click_to_edit_notes">[Click to edit]</span>
+</div>
+
+
+<div class="simple_form">
+  <%= form_for @mod_config, :url => {:action => 'update'}, :html=> {:id=>'input-output-form', 'data-type' => 'json'}, :remote=>true do |f| %>
+    <label class='simple_form label'>Inputs</label>
+    <table class='zebra' id='input-table'> <!-- Will be populated via script --></table>
+    <label class='simple_form label'>Outputs</label>
+    <table class='zebra' id='output-table'><!-- Will be populated via script --></table>
+
+    <%= render :partial => "show_associated_parameters_table",
+               :locals  => { :mode => :input,  :config => @mod_config } %>
+
+    <%= render :partial => "show_associated_parameters_table",
+               :locals  => { :mode => :output, :config => @mod_config } %>
+
+    <input name="mod_config[status]" type="hidden" value="NEEDS_DATA" id="hidden_status_tag" />
+  <% end %>
+
+</div>
+
+<br>
+
+
+<!-- Show special buttons depending on status  -->
+<div class="simple_form">
+
+  <label></label>
+  <%# method => get causes button to act like a normal link, rather than a form post %>
+  <%= link_to 'View Module List', mod_configs_path, :class => 'linkbutton' %>
+
+  <span id="run_module_button_container" style="display:none">
+    <%= button_to 'Run Module >>>', { :action => 'run', :controller => 'mod_configs', :id => @mod_config}, 
+                                   :remote => true, :class => 'linkbutton', :id => 'run-module-button', 
+                                   # :confirm =>'Are you sure?',
+                                   form: { :id => "run-module-form", 'data-type' => 'json' }  %>
+  </span>
+
+
+  <span id="stop_module_button_container" style="display:none">
+    <%= button_to 'Stop Running >>>', { :action => 'stop_running', :controller => 'mod_configs', :id => @mod_config }, 
+                               :remote => true, :class => 'linkbutton', :id => 'stop-module-button', 
+                               :confirm =>'Are you sure you want to stop running the module??',
+                               form: { :id => "stop-module-form", 'data-type' => 'json' }  %>
+  </span>
+
+</div>
+
+
+<!-- Special links off ot the lower right -->
+<div id="status" style="float: right; margin-top: -30px;">
+  <%= link_to 'Delete This Module', @mod_config,
+     confirm: "Deleting this module is a permanent action.\n\n" + 
+              "Click OK if you are sure you want to delete this module.", method: :delete %>
+</div>
+
+<br><br>
+
+
+
+<script>
 
   // // We only care about WFS here, as these are all that can be used with process configurations
   // // Uses functions in build_data_layers partial
@@ -20,12 +110,12 @@
   }
 
   function enableEditing() {
-    $('.disablable').prop('disabled',false);
+    $('.disableable').prop('disabled',false);
     $('.hideable').show();
   }
 
   function disableEditing() {
-    $('.disablable').prop('disabled',true);
+    $('.disableable').prop('disabled',true);
     $('.hideable').hide();
   }
 
@@ -35,55 +125,17 @@
   }
 
 
-  // See https://github.com/jeremyw/jquery-smart-poll
-  // function startPolling() {
-  //   $.poll(function(retry) {
-  //     $.get('get_config_status/<%= @mod_config.id %>', function(response, status) {
-  //       if(response != 3)
-  //         updateScreen(response);
-  //       else
-  //         retry();
-  //     })
-  //   })
-  // }
+
+  // My... this is UGLY!
+  var inputs  = [<% @input_params.each  { |x|%><%= raw x.to_json %>,<% } %>];
+  var outputs = [<% @output_params.each { |x|%><%= raw x.to_json %>,<% } %>];
 
 
-  // When we load the page, we need to get a process description from the hosting WPS server.  Here we handle the server's response.
-  var onDescribedProcess = function(process) {
+  // Dictionary of values for each input on this form
+  var formValues = { <%= raw @formValues %> };
 
-    $('#based-on').html((process.title || process.name) + ' template');   // "Based on..."
-    $('#mod-descr').html(process["abstract"]);                             // "Details..."
-
-    var serverUrl = process.wps.executeUrlGet;
-
-    var inputs  = fillContainer(process.inputs);
-    var outputs = fillContainer(process.outputs);
-
-    // Dictionary of values for each input on this form
-    <% formValues = @text_inputs.map{|text| text.column_name + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"'}.join(',') %>
-    var formValues    = { <%= raw formValues %> };
-
-    // Dictionary of selected datasets used for selecting items in selected dataset dropdowns
-    // @dataset_inputs  = ConfigDataset.find_all_by_mod_config_id(params[:id])
-    <% datasetValues = @dataset_inputs.map{|d| d.input_identifier + ': "' + d.dataset.id.to_s + '"'}.join(',') %>
-    var datasetValues = { <%= raw datasetValues %> };
-
-    populateInputTable (inputs, formValues, datasetValues);
-    populateOutputTable(outputs, formValues);
-
-    updateScreen('<%= @mod_config.status %>', '<%= escape_javascript @mod_config.status_text %>'); 
-  }
-
-  // Initiate the request to the WPS server for info about the process that this modConfig is based on
-  WPS.describeProcess("<%= @mod_config.wps_server.url %>", "<%= @mod_config.identifier %>", onDescribedProcess);
-
-
-  function doneProcessing(url, type, serverDetails, status)  // status will be OK or ERROR
-  {
-      // Do nothing
-  }
-
-  <%= render :partial => '/shared/include_get_pretty_name_function.html.erb' %>
+  // Dictionary of selected datasets used for selecting items in selected dataset dropdowns
+  var datasetValues = { <%= raw @datasetValues %> };
 
 
   function checkDataStatus() {
@@ -107,6 +159,17 @@
     return stat;
   }
 
+
+// TODO: Build this from the database
+ function getPrettyStatusName(statusCode) {
+    if(statusCode == 'NEEDS_DATA') { return 'Needs Data';    }
+    if(statusCode == 'READY')      { return 'Ready';         }
+    if(statusCode == 'RUNNING')    { return 'Running';       }
+    if(statusCode == 'FINISHED')   { return 'Run Completed'; }
+    if(statusCode == 'ERROR')      { return 'Error';         }
+
+    return ('Unknown Status');
+  }
 
   function updateScreen(statusCode, message) {
     hideButtons();
@@ -173,99 +236,22 @@
   };
 
 
-  getWmsLayers(registeredDataServers);
-  getWfsLayers(registeredDataServers);
-  getWcsLayers(registeredDataServers);
+  $(document).ready(function() {
 
-</script>
+    populateTable(inputs,  true,  formValues, datasetValues);
+    populateTable(outputs, false, formValues);
 
-
-<div class="explanation" id="explanation">
-  This is the primary module control panel.  You can modify or run the module.
-</div>
-
-<div class="module-status-box">
-  MODULE STATUS: <span id="status-display"><img src="/assets/loading_spinner.gif" width=16 height=11> Checking...</span>
-</div>
-
-<div class="simple_form">
-  <label>Name</label>
-  <%= best_in_place @mod_config, :name, :type => :input, :activator => "#click_to_edit_name" %>
-  <span class="click_to_edit" id="click_to_edit_name">[Click to edit]</span>
-</div>
+    updateScreen('<%= @mod_config.status %>', '<%= escape_javascript @mod_config.status_text %>'); 
 
 
-<div class="simple_form">
-  <label>Based on</label>
-  <span id="based-on">Retrieving name...</span>
-</div>
-
-<div class="simple_form">
-  <label>Details</label>
-  <span id="mod-descr">Retrieving description...</span>
-</div>
-
-
-<div class="simple_form">
-  <label>Note</label>
-  <%= best_in_place @mod_config, :descr, :type => :textarea, :activator => "#click_to_edit_notes" %>
-  <span class="click_to_edit" id="click_to_edit_notes">[Click to edit]</span>
-</div>
-
-
-<div class="simple_form">
-  <%= form_for @mod_config, :url => {:action => 'update'}, :html=> {:id=>'input-output-form', 'data-type' => 'json'}, :remote=>true do |f| %>
-    <%= render :partial => "show_associated_parameters_table",
-               :locals  => { :mode => :input, :config => @mod_config, :newConfig => false  } %>
-
-    <%= render :partial => "show_associated_parameters_table",
-               :locals  => { :mode => :output, :config => @mod_config, :newConfig => false  } %>
-
-    <input name="mod_config[status]" type="hidden" value="NEEDS_DATA" id="hidden_status_tag" />
-  <% end %>
-
-</div>
-
-<br>
-
-
-<!-- Show special buttons depending on status  -->
-<div class="simple_form">
-
-  <label></label>
-  <%# method => get causes button to act like a normal link, rather than a form post %>
-  <%= link_to 'View Module List', mod_configs_path, :class => 'linkbutton' %>
-
-  <span id="run_module_button_container" style="display:none">
-    <%= button_to 'Run Module >>>', { :action => 'run', :controller => 'mod_configs', :id => @mod_config}, 
-                                   :remote => true, :class => 'linkbutton', :id => 'run-module-button', 
-                                   # :confirm =>'Are you sure?',
-                                   form: { :id => "run-module-form", 'data-type' => 'json' }  %>
-  </span>
-
-
-  <span id="stop_module_button_container" style="display:none">
-    <%= button_to 'Stop Running >>>', { :action => 'stop_running', :controller => 'mod_configs', :id => @mod_config }, 
-                               :remote => true, :class => 'linkbutton', :id => 'stop-module-button', 
-                               :confirm =>'Are you sure you want to stop running the module??',
-                               form: { :id => "stop-module-form", 'data-type' => 'json' }  %>
-  </span>
-
-
-
-  <script type="text/javascript">
-    // User clicked the Run button
-
-
+    // Bind some event handlers
     $('#run-module-form').bind('ajax:before', function(xhr, data, status) { 
       showRunButton('Working...');
     });
 
-
     $('#run-module-form').bind('ajax:success', function(xhr, data, status) { 
             updateScreen(data.status, data.status_text); 
     });
-
 
     $('#stop-module-form').bind('ajax:success', function(xhr, data, status) { 
       updateScreen(data.status, data.status_text); 
@@ -285,17 +271,6 @@
     $('.best_in_place').best_in_place().bind('ajax:success', function(xhr, data, status) { 
       updateScreen(JSON.parse(data).status, JSON.parse(data).status_text); 
     });
-  </script>
+ });
 
-</div>
-
-
-<!-- Special links off ot the lower right -->
-<div id="status" style="float: right; margin-top: -30px;">
-  <%= link_to 'Delete This Module', @mod_config,
-     confirm: "Deleting this module is a permanent action.\n\n" + 
-              "Click OK if you are sure you want to delete this module.", method: :delete %>
-</div>
-
-<br><br>
-
+</script>
