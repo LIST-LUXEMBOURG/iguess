@@ -49,8 +49,8 @@ WebGIS.initMap = function () {
     	projection: 		mapProjection,
     	displayProjection: 	new OpenLayers.Projection(WebGIS.displayProjection),
     	units: 				"m",
-    	maxExtent: 			boundsMap,
-    	controls: 			[]
+    	maxExtent: 			boundsMap/*,
+    	controls: 			[]*/
     });
 
     var mp = new OpenLayers.Control.MousePosition({
@@ -60,14 +60,18 @@ WebGIS.initMap = function () {
         return markup;
       }
     });
-    WebGIS.leftMap.addControl(mp);
-    WebGIS.rightMap.addControl(mp);
+    //WebGIS.leftMap.addControl(mp);
+    //WebGIS.rightMap.addControl(mp);
+    WebGIS.leftMap.addControl(new OpenLayers.Control.MousePosition());
+    WebGIS.rightMap.addControl(new OpenLayers.Control.MousePosition());
     
     WebGIS.registerIdentify(WebGIS.leftMap, this);
     WebGIS.registerIdentify(WebGIS.rightMap, this);
 
     WebGIS.leftMap.addLayers(WebGIS.getBaseLayers());   
     WebGIS.rightMap.addLayers(WebGIS.getBaseLayers());
+    
+    WebGIS.initParallelEvents();
 };
 
 WebGIS.zoomToCity = function () {  

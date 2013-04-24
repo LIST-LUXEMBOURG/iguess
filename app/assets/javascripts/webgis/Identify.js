@@ -30,6 +30,9 @@ WebGIS.initWinIdentify = function() {
 	div.setAttribute('id', 'winDivIdentify');
 };
 
+/******************************************
+ * Why isn't the map being passed as reference?
+ */
 WebGIS.registerIdentify = function(map, ref) {
 
 	WebGIS.ctrlIdentify = new OpenLayers.Control.WMSGetFeatureInfo({
