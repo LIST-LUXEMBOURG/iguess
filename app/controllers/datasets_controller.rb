@@ -66,7 +66,21 @@ class DatasetsController < ApplicationController
     @dataset = Dataset.new(params[:dataset])
     @current_city = City.find_by_name(params[:cityName])
 
+    # Check if the dataset's server url is in our dataservers database... if not, add it
+    dataserver = Dataserver.find_by_url(@dataset.server_url.strip)
+
+    if not dataserver then
+      # Need to create a new server
+      dataserver = Dataserver.new
+      dataserver.url = @dataset.server_url.strip
+      dataserver.save
+
+      # TODO -- launch server probe
+    end
+
+    @dataset.dataserver = dataserver
     @dataset.city = @current_city
+    @dataset.last_seen = DateTime.now
 
     @dataset.save
 

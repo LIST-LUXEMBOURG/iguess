@@ -58,8 +58,13 @@ for row in serverCursor:
     serverUrl = row[0]
     serverId  = row[1]
 
-    # Run a GetCapabilities query on the WPS server
-    wps = WebProcessingService(serverUrl, version = wpsVersion)
+    # Run a GetCapabilities query on the WPS server -- could fail if URL is bogus
+    try:
+        wps = WebProcessingService(serverUrl, version = wpsVersion)
+    except:  
+        print "Could not load WPS data from url " + serverUrl
+        # If URL is bogus, will raise a URLError... but whatever... no errors are reoverable at this point
+        continue
 
     # Update the server title and abstract
     updateCursor.execute("UPDATE " + tables["wpsServers"] + " SET title = %s, abstract = %s, provider_name = %s,"

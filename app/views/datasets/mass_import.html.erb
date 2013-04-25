@@ -184,7 +184,7 @@
           registeredDataLayers[layer.serverUrl] = {};
         }
 
-        var regLyr = registeredDataLayers[layer.serverUrl][layer.identifier];
+        var regLyr     = registeredDataLayers[layer.serverUrl][layer.identifier];
         var registered = registeredDataLayers[layer.serverUrl] && regLyr;  
 
         if((pass == 0 && !registered) || (pass == 1 && registered)) { continue; }
@@ -243,7 +243,7 @@
 
 
         var titleNode = $(document.createElement('div'));
-        titleNode.attr({ class:'dataset_title' });
+        titleNode.attr({ class:'dataset_title', id:'dataset-title-' + layer.identifier });
         titleNode.text(layer.title != "" ? layer.title : layer.identifier);
 
         var servicesAvailNode = $(document.createElement('div'));
@@ -256,11 +256,11 @@
 
         var abstractNode = "";
 
-        if(layer.abstract != "") {
+        // if(layer.abstract != "") {
           abstractNode = $(document.createElement('div'));
-          abstractNode.attr({ class:'dataset_abstract' });
+          abstractNode.attr({ class:'dataset_abstract', id:'dataset-abstract-' + layer.identifier});
           abstractNode.text(layer.abstract);
-        }
+        // }
 
         var srsNode = $(document.createElement('div'));
         srsNode.attr({ class:'dataset_srs' });
@@ -434,7 +434,7 @@
         $('.taglist-deletable-' + urlId + ' .tag-delete-button').off('click');   // Disable clicking
 
       } else {
-        // ===== Registering dataset =====
+        // ===== Register dataset =====
         checkbox.checked = true;
         tagPickerControl.disabled = false;
 
@@ -446,6 +446,9 @@
 
         var taglist = extractTagList(serverUrl, datasetIdentifier);
 
+        var title    = $('#dataset-title-'    + datasetIdentifier).text();
+        var abstract = $('#dataset-abstract-' + datasetIdentifier).text();
+
 
         // Let the server know this layer is now registered -- to do this we must create a new record in
         // our datasets table.
@@ -456,6 +459,9 @@
                 '&dataset[service]='      + service   +
                 '&dataset[server_url]='   + serverUrl +
                 '&tags='                  + taglist +
+                '&dataset[title]='        + encodeURIComponent(title) +
+                '&dataset[abstract]='     + encodeURIComponent(abstract) +
+                '&dataset[alive]=true'    +
                 '&cityName=' + $.cookie('city'),
           headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
           success: function(data) {
