@@ -37,12 +37,19 @@ WebGIS.initMap = function () {
     // Nothing will be displayed outside these bounds (Poland - Ireland)
     var boundsMap  = new OpenLayers.Bounds(-1015000, 5845000, 1100000, 8000000);  
     
-    WebGIS.leftMap = new OpenLayers.Map("BroadMap",{
+    WebGIS.leftMap = new OpenLayers.Map("leftMap",{
       projection: 			mapProjection,
       displayProjection: 	new OpenLayers.Projection(WebGIS.displayProjection),
       units: 				"m",
       maxExtent: 			boundsMap,
       controls: 			[ new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]
+    });
+    
+    WebGIS.rightMap = new OpenLayers.Map("rightMap",{
+    	projection: 		mapProjection,
+    	displayProjection: 	new OpenLayers.Projection(WebGIS.displayProjection),
+    	units: 				"m",
+    	maxExtent: 			boundsMap
     });
 
     var mp = new OpenLayers.Control.MousePosition({
@@ -54,9 +61,25 @@ WebGIS.initMap = function () {
     });
     WebGIS.leftMap.addControl(mp);
     
+    var mp2 = new OpenLayers.Control.MousePosition({
+        formatOutput: function(lonLat) {
+          var markup = WebGIS.convertDMS(lonLat.lon, "LON") + "  ";
+          markup += WebGIS.convertDMS(lonLat.lat, "LAT");
+          return markup;
+        }
+      });
+    WebGIS.rightMap.addControl(mp2);
+    
+    //WebGIS.leftMap.addControl(new OpenLayers.Control.MousePosition());
+    //WebGIS.rightMap.addControl(new OpenLayers.Control.MousePosition());
+    
     WebGIS.registerIdentify(WebGIS.leftMap, this);
+    WebGIS.registerIdentify(WebGIS.rightMap, this);
 
     WebGIS.leftMap.addLayers(WebGIS.getBaseLayers());   
+    WebGIS.rightMap.addLayers(WebGIS.getBaseLayers());
+    
+    WebGIS.initParallelEvents();
 };
 
 WebGIS.zoomToCity = function () {  
