@@ -108,7 +108,7 @@ Ext.onReady(function() {
   
   var centralPanel = new Ext.Panel({
 		layout:'border',
-		bodyBorder: false,
+		bodyBorder: true,
 		region:'center',
 		width: 500,
 		collapsible: false,

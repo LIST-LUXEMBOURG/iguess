@@ -12,6 +12,8 @@ var WebGIS = WebGIS || { };
 
 WebGIS.leftMap = null;
 WebGIS.rightMap = null;
+WebGIS.leftMP = null;
+WebGIS.rightMP = null;
 /**
  * All layers will always use the base layer projection for the request.
  * Since we are using Google and OSM anything other than EPSG:900913 will be ignored.
@@ -52,23 +54,23 @@ WebGIS.initMap = function () {
     	maxExtent: 			boundsMap
     });
 
-    var mp = new OpenLayers.Control.MousePosition({
+    WebGIS.leftMP = new OpenLayers.Control.MousePosition({
       formatOutput: function(lonLat) {
         var markup = WebGIS.convertDMS(lonLat.lon, "LON") + "  ";
         markup += WebGIS.convertDMS(lonLat.lat, "LAT");
         return markup;
       }
     });
-    WebGIS.leftMap.addControl(mp);
+    WebGIS.leftMap.addControl(WebGIS.leftMP);
     
-    var mp2 = new OpenLayers.Control.MousePosition({
+    WebGIS.rightMP = new OpenLayers.Control.MousePosition({
         formatOutput: function(lonLat) {
           var markup = WebGIS.convertDMS(lonLat.lon, "LON") + "  ";
           markup += WebGIS.convertDMS(lonLat.lat, "LAT");
           return markup;
         }
       });
-    WebGIS.rightMap.addControl(mp2);
+    WebGIS.rightMap.addControl(WebGIS.rightMP);
     
     //WebGIS.leftMap.addControl(new OpenLayers.Control.MousePosition());
     //WebGIS.rightMap.addControl(new OpenLayers.Control.MousePosition());
@@ -76,8 +78,8 @@ WebGIS.initMap = function () {
     WebGIS.registerIdentify(WebGIS.leftMap, this);
     WebGIS.registerIdentify(WebGIS.rightMap, this);
 
-    WebGIS.leftMap.addLayers(WebGIS.getBaseLayers());   
-    WebGIS.rightMap.addLayers(WebGIS.getBaseLayers());
+    WebGIS.leftMap.addLayers(WebGIS.getLeftBaseLayers());   
+    WebGIS.rightMap.addLayers(WebGIS.getRightBaseLayers());
     
     WebGIS.initParallelEvents();
 };
