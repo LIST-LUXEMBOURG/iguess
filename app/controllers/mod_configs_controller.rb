@@ -325,6 +325,7 @@ class ModConfigsController < ApplicationController
           val = p[1].strip    # strip off leading and trailing whitespace
 
           @output = ConfigTextInput.find_by_mod_config_id_and_column_name_and_is_input(@mod_config.id, name, paramkey == :input)
+
           @output.value = val;
           ok = ok && @output.save
         }
