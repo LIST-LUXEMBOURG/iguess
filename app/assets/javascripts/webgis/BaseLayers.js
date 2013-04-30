@@ -7,80 +7,118 @@
 
 var WebGIS = WebGIS || { };
 
-WebGIS.osm;
-WebGIS.gphy;
-WebGIS.gmap;
-WebGIS.ghyb;
-WebGIS.gsat;
+WebGIS.osmLeft;
+WebGIS.gphyLeft;
+WebGIS.gmapLeft;
+WebGIS.ghybLeft;
+WebGIS.gsatLeft;
+
+WebGIS.osmRight;
+WebGIS.gphyRight;
+WebGIS.gmapRight;
+WebGIS.ghybRight;
+WebGIS.gsatRight;
 
 WebGIS.baseOSM = function(menuItem) {
     
     menuItem.parentMenu.ownerCt.setText("Open Street Map");
     
-    WebGIS.leftMap.setBaseLayer(WebGIS.osm); 
-    WebGIS.rightMap.setBaseLayer(WebGIS.osm);
+    WebGIS.leftMap.setBaseLayer(WebGIS.osmLeft); 
+    WebGIS.rightMap.setBaseLayer(WebGIS.osmRight);
 };
 
 WebGIS.baseGooglePhy = function(menuItem) {
     
     menuItem.parentMenu.ownerCt.setText("Google Physical");
     
-    WebGIS.leftMap.setBaseLayer(WebGIS.gphy);
-    WebGIS.rightMap.setBaseLayer(WebGIS.gphy);
+    WebGIS.leftMap.setBaseLayer(WebGIS.gphyLeft);
+    WebGIS.rightMap.setBaseLayer(WebGIS.gphyRight);
 };
 
 WebGIS.baseGoogleSt = function(menuItem) {
     
     menuItem.parentMenu.ownerCt.setText("Google Streets");
     
-    WebGIS.leftMap.setBaseLayer(WebGIS.gmap);
-    WebGIS.rightMap.setBaseLayer(WebGIS.gmap);
+    WebGIS.leftMap.setBaseLayer(WebGIS.gmapLeft);
+    WebGIS.rightMap.setBaseLayer(WebGIS.gmapRight);
 };
 
 WebGIS.baseGoogleHy = function(menuItem) {
     
     menuItem.parentMenu.ownerCt.setText("Google Hybrid");
     
-    WebGIS.leftMap.setBaseLayer(WebGIS.ghyb);
-    WebGIS.rightMap.setBaseLayer(WebGIS.ghyb);
+    WebGIS.leftMap.setBaseLayer(WebGIS.ghybLeft);
+    WebGIS.rightMap.setBaseLayer(WebGIS.ghybRight);
 };
 
 WebGIS.baseGoogleSat = function(menuItem) {
     
     menuItem.parentMenu.ownerCt.setText("Google Satellite");
     
-    WebGIS.leftMap.setBaseLayer(WebGIS.gsat);   
-    WebGIS.rightMap.setBaseLayer(WebGIS.gsat);
+    WebGIS.leftMap.setBaseLayer(WebGIS.gsatLeft);   
+    WebGIS.rightMap.setBaseLayer(WebGIS.gsatRight);
 };
 
-WebGIS.getBaseLayers = function(mapProjection) {
+WebGIS.getLeftBaseLayers = function(mapProjection) {
 	
-	WebGIS.osm  = new OpenLayers.Layer.OSM();
+	WebGIS.osmLeft  = new OpenLayers.Layer.OSM();
 
-	WebGIS.gphy = new OpenLayers.Layer.Google(
+	WebGIS.gphyLeft = new OpenLayers.Layer.Google(
             "Google Physical",
             {type: google.maps.MapTypeId.TERRAIN, numZoomLevels: 20, animationEnabled: true, transitionEffect: 'resize'}
     );
-	WebGIS.gmap = new OpenLayers.Layer.Google(
+	WebGIS.gmapLeft = new OpenLayers.Layer.Google(
             "Google Streets", 
             {numZoomLevels: 20, animationEnabled: true}
     );
-	WebGIS.ghyb = new OpenLayers.Layer.Google(
+	WebGIS.ghybLeft = new OpenLayers.Layer.Google(
             "Google Hybrid",
             {type: google.maps.MapTypeId.HYBRID, numZoomLevels: 20, animationEnabled: true}
     );
-	WebGIS.gsat = new OpenLayers.Layer.Google(
+	WebGIS.gsatLeft = new OpenLayers.Layer.Google(
             "Google Satellite",
             {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22, animationEnabled: true}
     );
 	
-	WebGIS.osm.animationEnabled = true;
+	WebGIS.osmLeft.animationEnabled = true;
     
-	WebGIS.osm.projection  = WebGIS.mapProjection;
-	WebGIS.gphy.projection = WebGIS.mapProjection;
-	WebGIS.gmap.projection = WebGIS.mapProjection;
-	WebGIS.ghyb.projection = WebGIS.mapProjection;
-	WebGIS.gsat.projection = WebGIS.mapProjection;
+	WebGIS.osmLeft.projection  = WebGIS.mapProjection;
+	WebGIS.gphyLeft.projection = WebGIS.mapProjection;
+	WebGIS.gmapLeft.projection = WebGIS.mapProjection;
+	WebGIS.ghybLeft.projection = WebGIS.mapProjection;
+	WebGIS.gsatLeft.projection = WebGIS.mapProjection;
 
-    return [WebGIS.osm, WebGIS.ghyb, WebGIS.gphy, WebGIS.gmap, WebGIS.gsat];
+    return [WebGIS.osmLeft, WebGIS.ghybLeft, WebGIS.gphyLeft, WebGIS.gmapLeft, WebGIS.gsatLeft];
+};
+
+WebGIS.getRightBaseLayers = function(mapProjection) {
+	
+	WebGIS.osmRight  = new OpenLayers.Layer.OSM();
+
+	WebGIS.gphyRight = new OpenLayers.Layer.Google(
+            "Google Physical",
+            {type: google.maps.MapTypeId.TERRAIN, numZoomLevels: 20, animationEnabled: true, transitionEffect: 'resize'}
+    );
+	WebGIS.gmapRight = new OpenLayers.Layer.Google(
+            "Google Streets", 
+            {numZoomLevels: 20, animationEnabled: true}
+    );
+	WebGIS.ghybRight = new OpenLayers.Layer.Google(
+            "Google Hybrid",
+            {type: google.maps.MapTypeId.HYBRID, numZoomLevels: 20, animationEnabled: true}
+    );
+	WebGIS.gsatRight = new OpenLayers.Layer.Google(
+            "Google Satellite",
+            {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22, animationEnabled: true}
+    );
+	
+	WebGIS.osmRight.animationEnabled = true;
+    
+	WebGIS.osmRight.projection  = WebGIS.mapProjection;
+	WebGIS.gphyRight.projection = WebGIS.mapProjection;
+	WebGIS.gmapRight.projection = WebGIS.mapProjection;
+	WebGIS.ghybRight.projection = WebGIS.mapProjection;
+	WebGIS.gsatRight.projection = WebGIS.mapProjection;
+
+    return [WebGIS.osmRight, WebGIS.ghybRight, WebGIS.gphyRight, WebGIS.gmapRight, WebGIS.gsatRight];
 };

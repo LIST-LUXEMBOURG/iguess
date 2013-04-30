@@ -38,6 +38,7 @@ WebGIS.leftMapMouseMove = function(e)
 	WebGIS.rightMarkers.clearMarkers();
 	WebGIS.rightPointer = new OpenLayers.Marker(WebGIS.leftMap.getLonLatFromPixel(e.xy), WebGIS.chIcon);
 	WebGIS.rightMarkers.addMarker(WebGIS.rightPointer);
+	WebGIS.rightMP.redraw();
 }
 
 WebGIS.rightMapMouseOver = function(e)
@@ -59,6 +60,7 @@ WebGIS.rightMapMouseMove = function(e)
 	WebGIS.leftMarkers.clearMarkers();
 	WebGIS.leftPointer = new OpenLayers.Marker(WebGIS.rightMap.getLonLatFromPixel(e.xy), WebGIS.chIcon);
 	WebGIS.leftMarkers.addMarker(WebGIS.leftPointer);
+	WebGIS.leftMP.redraw();
 }
 
 WebGIS.rightMapMove = function()
