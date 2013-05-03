@@ -250,7 +250,7 @@
     });
 
     $('#run-module-form').bind('ajax:success', function(xhr, data, status) { 
-            updateScreen(data.status, data.status_text); 
+      updateScreen(data.status, data.status_text); 
     });
 
     $('#stop-module-form').bind('ajax:success', function(xhr, data, status) { 
