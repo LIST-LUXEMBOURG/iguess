@@ -159,40 +159,40 @@
   // Because we might not have the taglist when we are building the tag dropdowns, 
   // we may need to cache the ids until the taglist has arrived.  This function gets 
   // called both by the tag collection system as well as the WFS/WCS response handler.
-  var addTagsCache = [];
-  var addTagsToDropdown = function(datasetId) 
-  {
-    if(datasetId)
-      addTagsCache.push(datasetId);
+  // var addTagsCache = [];
+  // var addTagsToDropdown = function(datasetId) 
+  // {
+  //   if(datasetId)
+  //     addTagsCache.push(datasetId);
 
-    // Check to see if we have the tags yet
-    if(!dataDiscoveryComplete) 
-      return;
-
-
-    // if(layer.type.hasObject('WMS'))
-    //   addWmsOptionToDropdown(tagPickerControlId);
-
-    // if(layer.type.hasObject('WFS') || layer.type.hasObject('WCS'))
-    //   addWfsWcsOptionsToDropdown(tagPickerControlId);
+  //   // Check to see if we have the tags yet
+  //   if(!dataDiscoveryComplete) 
+  //     return;
 
 
+  //   // if(layer.type.hasObject('WMS'))
+  //   //   addWmsOptionToDropdown(tagPickerControlId);
+
+  //   // if(layer.type.hasObject('WFS') || layer.type.hasObject('WCS'))
+  //   //   addWfsWcsOptionsToDropdown(tagPickerControlId);
 
 
-    for(var i = 0, len = addTagsCache.length; i < len; i++) 
-      addWfsWcsOptionsToDropdown(getTagPickerControlId(addTagsCache[i]));
-
-    addTagsCache = [];    // Clear cache
-  };
 
 
-  var onDataTypeDiscoveryCompleted = function(tagList)
-  {
-    $('.tag-list-loading-indicator').remove();    // Remove this so it does not interfere with layout.  We won't need it again.
-    $('.add-tag-dropdown-control').css('visibility', 'visible');
+  //   for(var i = 0, len = addTagsCache.length; i < len; i++) 
+  //     addWfsWcsOptionsToDropdown(getTagPickerControlId(addTagsCache[i]));
 
-    addTagsToDropdown();
-  };
+  //   addTagsCache = [];    // Clear cache
+  // };
+
+
+  // var onDataTypeDiscoveryCompleted = function(tagList)
+  // {
+  //   $('.tag-list-loading-indicator').remove();    // Remove this so it does not interfere with layout.  We won't need it again.
+  //   $('.add-tag-dropdown-control').css('visibility', 'visible');
+
+  //   addTagsToDropdown();
+  // };
 
 
   var getLayerNameFromDataTypeId = function(ctrl)
@@ -205,27 +205,28 @@
   var makeTagPickerControl = function(layer, controlId, enabled)
   {
 
-    var loadingIndicator, hidden;
+    // var loadingIndicator, hidden;
 
-    if(dataDiscoveryComplete) {
-      loadingIndicator = '';
-      hidden = '';
-    } 
-    else {
-      loadingIndicator = '<span class="loading-indicator tag-list-loading-indicator">Loading&nbsp;tags...</span>';
-      hidden = 'hidden';
-    }
+    // if(dataDiscoveryComplete) {
+    //   loadingIndicator = '';
+    //   hidden = '';
+    // } 
+    // else {
+    //   loadingIndicator = '<span class="loading-indicator tag-list-loading-indicator">Loading&nbsp;tags...</span>';
+    //   hidden = 'hidden';
+    // }
 
 
-    return loadingIndicator +
-              '<select style="float:right" class="add-tag-dropdown-control ' + hidden + '" ' + 
-                'data-serverurl="' + layer.serverUrl + '" ' +   // These keys seem to get lowercased anyway... so no upper case letter pls!
-                'data-datasetidentifier="' + layer.identifier + '" ' +
-                'id="' + controlId + '" ' + (enabled ? '' : 'disabled="true" ') +
-                'onchange="tagPickerChanged($(this));">' +
-             '<option value = "Ignore This">Add Tag:</option>' + 
-           '</select>';
+    return 
+      '<select style="float:right" class="add-tag-dropdown-control ' + hidden + '" ' + 
+      'data-serverurl="' + layer.serverUrl + '" ' +   // These keys seem to get lowercased anyway... so no upper case letter pls!
+      'data-datasetidentifier="' + layer.identifier + '" ' +
+      'id="' + controlId + '" ' + (enabled ? '' : 'disabled="true" ') +
+      'onchange="tagPickerChanged($(this));">' +
+        '<option value = "Ignore This">Add Tag:</option>' + 
+      '</select>';
   };
+
 
   // Helper function for makeTagPickerControl()
   var addWmsOptionToDropdown = function(controlId) {
@@ -278,12 +279,12 @@
   var dataDiscoveryComplete = false;
   var DataTagList = [];
 
-  // For each url in our database, start probing the server
-  var collectTags = function(wpsServerUrlList) 
-  {
-    for(var i = 0, len = wpsServerUrlList.length; i < len; i++)
-      WPS.probeWPS_getDataTypes(wpsServerUrlList[i]);
-  };
+  // // For each url in our database, start probing the server
+  // var collectTags = function(wpsServerUrlList) 
+  // {
+  //   for(var i = 0, len = wpsServerUrlList.length; i < len; i++)
+  //     WPS.probeWPS_getDataTypes(wpsServerUrlList[i]);
+  // };
 
 
   // Class that describes response from server, either success or failure

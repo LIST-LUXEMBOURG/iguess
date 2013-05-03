@@ -176,7 +176,6 @@ class DatasetsController < ApplicationController
       @current_city = City.first
     end
 
-    @wps_servers = WpsServer.all
     @cities = City.all
   end
 end

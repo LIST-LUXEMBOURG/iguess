@@ -17,10 +17,6 @@
 
   registeredDataLayers = {};
 
-  // Initiate collection of data tags -- visit each WPS server to see what tags are in use
-  // This will ultimately populate the DataTagList[] array
-  collectTags([<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>]);
-
 
   var makeRegisteredLayer = function(serverUrl, datasetIdentifier, datasetId, tags, configCount) {
 
@@ -55,37 +51,6 @@
   }
 
 
-  var wpsServerList = {};
-  var deletionUrl = {};
-
-  <% @wps_servers.each do |srv| %>
-    wpsServerList['<%= srv.url%>'] = '<%= srv.descr %>';
-    deletionUrl['<%= srv.url%>'] = '<%= link_to "Permanently Delete This Server", srv, confirm: "Are you sure?", method: :delete %>';
-  <% end %>
-  
-
-  var wpsServerStatus = {};
-
-  // TODO: Put this message in a div or someting... won't be able to see a proper list of datatypes if this error occurs
-  var onWpsError = function(url)
-  {
-    // alert("Connection to process server " + wpsServerList[url] + " failed!");
-    var err = 'Warning: The following process server(s) were unreachable.  This means that we are unable to assemble a ' +
-              'complete list of tags, and tag related information may be incorrect.<br>To correct this problem, either ' +
-              'wait for the unreachable server(s) to come back online, or, if they are permanently defunct, remove them from ' +
-              'your server list.<ul>';
-    wpsServerStatus[url] = false;
-
-    for(var url in wpsServerList) {
-      if(wpsServerStatus[url] === false) {
-        err += '<li>' + url + '&nbsp;&nbsp;[' + wpsServerList[url] + ']&nbsp;&nbsp;' + deletionUrl[url] + '</li>';
-      }
-    }
-
-    err += '</ul>';
-
-    $('#error-list').append(err).show();
-  };
 
 
   var getLayerNameFromCheckboxId = function(id)
@@ -349,15 +314,11 @@
         
 
         // Now that the tag picker has finally been added to the dom, we can populate it
-        if(dataDiscoveryComplete) {
-          if(layer.type.hasObject('WMS'))
-            addWmsOptionToDropdown(tagPickerControlId);
+        if(layer.type.hasObject('WMS'))
+          addWmsOptionToDropdown(tagPickerControlId);
 
-          if(layer.type.hasObject('WFS') || layer.type.hasObject('WCS'))
-            addWfsWcsOptionsToDropdown(tagPickerControlId);
-        }
-        else
-          alert("Expected data discovery to be complete by now!");   // TODO: Get rid of this, add handler elsewhere
+        if(layer.type.hasObject('WFS') || layer.type.hasObject('WCS'))
+          addWfsWcsOptionsToDropdown(tagPickerControlId);
 
       }  // end for loop
     }  // for pass = 0 to 2
