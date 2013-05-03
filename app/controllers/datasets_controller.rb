@@ -167,9 +167,10 @@ class DatasetsController < ApplicationController
 
 
   def mass_import
-    @datasets = Dataset.all
-
+    @datasets        = Dataset.all
+    @dataset_tags    = DatasetTag.all   #ProcessParams.all.map{|p| p.identifier}.uniq  
     @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
+
     @current_city = (City.find_by_name(cookies['city']) or City.first)
 
     if @current_city.nil?     # Should never happen, but just in case...

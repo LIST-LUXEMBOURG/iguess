@@ -268,6 +268,10 @@
 
         $('#layer-table').append(tr_element);
 
+
+        debugger;
+        addTagsToDropdown(layer.identifier);
+
         var activeSRS = null;
 
         if(layer.bbox !== null && layer.bbox.left !== null) {
