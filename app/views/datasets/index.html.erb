@@ -99,19 +99,11 @@
 
 
 
-
 <script type="text/javascript">
  $(document).ready(function() {
-    onLocationChanged('<%= @current_city.name %>');   // Build the initial dataset list
     $('#sortable_table').tablesorter();               // Initialize sorter
   });
 </script>
-
-<%= render :partial => '/shared/build_registered_layers.html.erb' %>  <%# Builds registeredDataLayers structure %>
-
-<%# Include some map related utility functions; these need to be processed by Rails so they have to be in a partial %>
-<%= render :partial => '/shared/map_utils.html.erb' %>
-<%= render :partial => '/shared/dataset_functions.html.erb' %>
 
 
 <script type="text/javascript">
@@ -123,9 +115,6 @@
   $('.show-details').click(function() { showDetails(); });
   $('.publish-checkbox').click(function() { publishDataset(this); });
 
-  // Initiate collection of data tags -- visit each WPS server to see what tags are in use
-  // This will ultimately populate the DataTagList[] array
-  collectTags([<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>]);
 
 
   var publishDataset = function(ctrl) {
@@ -158,12 +147,6 @@ var sorting = [[1,0], [0,0]];
 
 $('#sortable_table').trigger("update"); 
 $('#sortable_table').trigger("sorton",[sorting]); 
-
-
-  var onLocationChanged = function(cityName) {
-    MapUtils.retrieveDatasetsForCity(cityName, function(dataset) { renderTable(dataset);
-                                                                   hideUnregisterAndFriends(); });
-  };
 
 
   // Gets run when user clicks on the Links tag to the right of the main table
