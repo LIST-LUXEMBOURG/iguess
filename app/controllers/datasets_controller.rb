@@ -168,7 +168,7 @@ class DatasetsController < ApplicationController
 
   def mass_import
     @datasets        = Dataset.all
-    @dataset_tags    = DatasetTag.all   #ProcessParams.all.map{|p| p.identifier}.uniq  
+    @dataset_tags    = ProcessParam.find_all_by_alive(true).map{|p| p.identifier}.uniq.sort_by! { |x| x.downcase } 
     @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
 
     @current_city = (City.find_by_name(cookies['city']) or City.first)

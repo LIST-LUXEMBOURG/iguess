@@ -172,7 +172,7 @@
           srsList = Object.keys(layer.srs);
         }
 
-        var tagPickerControlId = getTagPickerControlId(layer.identifier);
+      
         var registerControl = $(document.createElement('input'));
 
         registerControl.attr({ type:    'checkbox', 
@@ -235,6 +235,8 @@
 
 
         var data_info = $(document.createElement('div'));
+        var tagPickerControlId = getTagPickerControlId(layer.identifier);
+
         data_info.attr({ class:'data-info' });
 
         data_info.append(srsNode)
@@ -269,7 +271,6 @@
         $('#layer-table').append(tr_element);
 
 
-        // debugger;
         addTagsToDropdown(layer.identifier);
 
         var activeSRS = null;

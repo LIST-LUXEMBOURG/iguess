@@ -210,15 +210,15 @@
     //   hidden = 'hidden';
     // }
 
-    return 
-      '<select style="float:right" class="add-tag-dropdown-control" ' + 
-      'data-serverurl="' + layer.serverUrl + '" ' +   // These keys seem to get lowercased anyway... so no upper case letter pls!
-      'data-datasetidentifier="' + layer.identifier + '" ' +
-      'id="' + controlId + '" ' + (enabled ? '' : 'disabled="true" ') +
-      'onchange="tagPickerChanged($(this));">' +
-        '<option value = "Ignore This">Add Tag:</option>' + 
-      '</select>';
+    return '<select style="float:right" class="add-tag-dropdown-control" ' + 
+           'data-serverurl="' + layer.serverUrl + '" ' +   // These keys seem to get lowercased anyway... so no upper case letter pls!
+           'data-datasetidentifier="' + layer.identifier + '" ' +
+           'id="' + controlId + '" ' + (enabled ? '' : 'disabled="true" ') +
+           'onchange="tagPickerChanged($(this));">' +
+             '<option value = "Ignore This">Add Tag:</option>' + 
+           '</select>';
   };
+
 
 
   // Helper function for makeTagPickerControl()
@@ -227,8 +227,11 @@
   };
 
 
-  // Helper function for makeTagPickerControl()
+  // Helper function for makeTagPickerControl() -- here, controlId is the id of the select control we're adding options to
   var addWfsWcsOptionsToDropdown = function(controlId) {
+
+    console.log($('#' + controlId).html());
+
     for(var j = 0, jlen = DataTagList.length; j < jlen; j++) 
       $('#' + controlId).append('<option value="' + DataTagList[j].id + '">' + DataTagList[j].id + '</option>');
   };
@@ -249,7 +252,7 @@
                 '<dt>Server Name:</dt><dd class="server-name-' + serverUrlId + '"></dd>' +
                  '<dt>Data Services:</dt><dd id="results-' + dataset.id + '">Waiting for response from server...</dd>' + 
                  '<dt>Tags:</dt><dd><span class="taglist-deletable-' + urlId + '"></span>' +
-                  '<span>' + makeTagPickerControl(dataset, getTagPickerControlId(dataset.id), true) + '</span></dd>' +
+                  '<span>' + makeTagPickerControl(dataset, getTagPickerControlId(dataset.identifier), true) + '</span></dd>' +
               '</dl></div>' +
               '<div style="overflow:hidden" class="technical-details">' +
                 '<div class="technical-details-header">Technical Details</div><dl>' +
@@ -272,7 +275,7 @@
   var dataDiscoveryComplete = false;
   var DataTagList = [
     <% @dataset_tags.each do |t| %>
-      <%= raw("{'id': '" + t.id.to_s + "', 'title': '" + t.tag + "' },") %>
+      <%= raw("{'id': '" + t + "', 'title': '" + t + "' },") %>
     <% end %>
   ];
 
