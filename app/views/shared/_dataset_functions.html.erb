@@ -8,14 +8,22 @@
 
   var showDetails = function() {
     $('.technical-details').show(); 
-    $('.show-details').click(function(){ hideDetails(); });
-    $('.show-details').html('<<< Hide details');
+
+    var el = $('.show-details');
+
+    el.unbind("click");
+    el.click(function(){ hideDetails(); });
+    el.html('<<< Hide details');
   };
 
   var hideDetails = function() {
     $('.technical-details').hide();
-    $('.show-details').click(function(){ showDetails(); });
-    $('.show-details').html('Show details >>>');
+
+    var el = $('.show-details');
+
+    el.unbind("click");
+    el.click(function(){ showDetails(); });
+    el.html('Show details >>>');
   };
 
 
