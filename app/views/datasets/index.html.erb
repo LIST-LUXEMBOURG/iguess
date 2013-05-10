@@ -76,8 +76,10 @@
                 <option value="Mapping">Mapping</option>
               <% end %>
 
-              <% d.dataset_tags.each do |t| %>
-                <option value="<%= t.tag %>"><%= t.tag %></option>
+              <% if d.dataserver.wfs or d.dataserver.wcs %>
+                <% @dataset_tags.each do |t| %>
+                  <option value="<%= t %>"><%= t %></option>
+                <% end %>
               <% end %>
             </select>
           </dl>
@@ -98,7 +100,7 @@
     <% end %>
   </div>
 
-  <%= button_to "Register Datasets", { :controller => 'datasets', :action => 'mass_import', :id => 1}, :class => 'register-datasets-button' %>
+  <%= button_to "Register Datasets", { :controller => 'datasets', :action => 'mass_import', :id => 1 }, :class => 'register-datasets-button' %>
 
   <br />
 </div>
