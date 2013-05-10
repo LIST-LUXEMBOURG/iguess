@@ -7,6 +7,12 @@ class Dataset < ActiveRecord::Base
 end
 
 
+# We have the equivalent in javascript as well
+def cssEscape(str)
+  return str.gsub(/[^a-z,A-Z,_,-,0-9]/, 'X');
+end
+
+
 def getJoinChar(serverUrl)
   return serverUrl.index("?") == nil ? "?" : "&"
 end

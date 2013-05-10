@@ -18,9 +18,11 @@
                   alt="More info" title="Click for details" rel="#infotable-<%= d.id %>">
           </td>
           <td>
-            <% d.dataset_tags.each do |t| %>
-              <span class="tag"><%= t.tag %></span>
-            <% end %>
+            <span class="taglist-<%= cssEscape(d.dataserver.url + d.identifier) %>">
+              <% d.dataset_tags.each do |t| %>
+                <span class="tag"><%= t.tag %></span>
+              <% end %>
+            </span>
           </td>
           <td>
             <label>
@@ -56,45 +58,48 @@
               <%= insertGetCapabilitiesLinkBlock(d.dataserver.url, d.dataserver.wms, d.dataserver.wfs, d.dataserver.wcs) %>
             </dd>
             <dt>Tags:</dt>
-            <dd><span class="taglist-deletable-<%= d.id %>"></span>
-            <span>
-              <% d.dataset_tags.each do |t| %>
-                <span class="tag">
-                  <span class="tag-delete-button" data-url="<%= d.dataserver.url %>" data-identifier="<%= d.identifier %>"></span>
-                  <%= t.tag %>
-                </span>
-              <% end %>
-            </span>
-            
-            <select style="float:right" class="add-tag-dropdown-control" 
-              data-serverurl="<%= d.dataserver.url %>"
-              data-datasetidentifier="<%= d.identifier %>" 
-              onchange="tagPickerChanged($(this));"> 
-
-              <option value = "Ignore This">Add Tag:</option>
-              <% if d.dataserver.wms %>
-                <option value="Mapping">Mapping</option>
-              <% end %>
-
-              <% if d.dataserver.wfs or d.dataserver.wcs %>
-                <% @dataset_tags.each do |t| %>
-                  <option value="<%= t %>"><%= t %></option>
+            <dd>
+              <span class="taglist-deletable-<%= cssEscape(d.dataserver.url + d.identifier) %>">
+                <% d.dataset_tags.each do |t| %>
+                  <span class="tag">
+                    <span class="tag-delete-button" data-url="<%= d.dataserver.url %>" data-identifier="<%= d.identifier %>"></span>
+                    <%= t.tag %>
+                  </span>
                 <% end %>
-              <% end %>
-            </select>
+              </span>
+              
+              <select style="float:right" class="add-tag-dropdown-control" 
+                data-serverurl="<%= d.dataserver.url %>"
+                data-datasetidentifier="<%= d.identifier %>" 
+                onchange="tagPickerChanged($(this));"> 
+
+                <option value = "Ignore This">Add Tag:</option>
+                <% if d.dataserver.wms %>
+                  <option value="Mapping">Mapping</option>
+                <% end %>
+
+                <% if d.dataserver.wfs or d.dataserver.wcs %>
+                  <% @dataset_tags.each do |t| %>
+                    <option value="<%= t %>"><%= t %></option>
+                  <% end %>
+                <% end %>
+              </select>
+            </dd>
           </dl>
         </div>
         <div style="overflow:hidden" class="technical-details">
-          <div class="technical-details-header">Technical Details</div><dl>
-          <dt>Server Base URL:</dt><dd><%= d.server_url %></dd>
-          <dt>Dataset Identifier:</dt><dd><%= d.identifier %></dd>
-          <dt>All Get Capabilities Links:</dt><dd>
+          <div class="technical-details-header">Technical Details</div>
+          <dl>
+            <dt>Server Base URL:</dt><dd><%= d.server_url %></dd>
+            <dt>Dataset Identifier:</dt><dd><%= d.identifier %></dd>
+            <dt>All Get Capabilities Links:</dt><dd>
               <%= insertGetCapabilitiesLinkBlock(d.dataserver.url, :true, :true, :true) %>
-          </dd>
-          <dt>Projections Available:</dt><dd></dd> 
-          <dt>Bounding Box:</dt><dd></dd>
-          <dt>Attribute Columns:</dt><dd></dd>
-        </dl></div>
+            </dd>
+            <dt>Projections Available:</dt><dd></dd> 
+            <dt>Bounding Box:</dt><dd></dd>
+            <dt>Attribute Columns:</dt><dd></dd>
+          </dl>
+        </div>
         <div><a href="#" class="show-details">Show details >>></a></div>
       </div>
     <% end %>
