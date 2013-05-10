@@ -29,6 +29,3 @@ def insertGetCapabilitiesLinkBlock(serverUrl, wms, wfs, wcs)
 
   raw(output)
 end
-
-
-#  + WMS.getCapUrl(dataset.server_url) + 
