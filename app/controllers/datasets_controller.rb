@@ -7,7 +7,7 @@ class DatasetsController < ApplicationController
   def index
 
     @current_city = (City.find_by_name(cookies['city']) or City.first)
-
+    @dataset_tags    = ProcessParam.find_all_by_alive(true).map{|p| p.identifier}.uniq.sort_by! { |x| x.downcase } 
     @datasets = Dataset.find_all_by_city_id(@current_city.id)
     @wps_servers = WpsServer.all
 

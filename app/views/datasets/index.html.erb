@@ -48,46 +48,52 @@
         <div class="close"></div>
         <h1><span class="dataset-title"><%= d.title.present? ? d.title : d.identifier %></h1>
         <div class="dataset-descr-<%= d.id %>"></div> 
-        <div style="overflow:hidden"><dl>
-          <dt>Server Name:</dt><dd class="server-name"><%= d.dataserver.title %></dd>
-           <dt>Data Services:</dt><dd id="results-<%= d.id %>">Waiting for response from server...</dd>
-           <dt>Tags:</dt><dd><span class="taglist-deletable-<%= d.id %>"></span>
-             <span><% d.dataset_tags.each do |t| %>
+        <div style="overflow:hidden">
+          <dl>
+            <dt>Server Name:</dt><dd class="server-name"><%= d.dataserver.title %></dd>
+            <dt>Data Services:</dt>
+            <dd id="results-<%= d.id %>">
+              <%= insertGetCapabilitiesLinkBlock(d.dataserver.url, d.dataserver.wms, d.dataserver.wfs, d.dataserver.wcs) %>
+            </dd>
+            <dt>Tags:</dt>
+            <dd><span class="taglist-deletable-<%= d.id %>"></span>
+            <span>
+              <% d.dataset_tags.each do |t| %>
                 <span class="tag">
                   <span class="tag-delete-button" data-url="<%= d.dataserver.url %>" data-identifier="<%= d.identifier %>"></span>
-                  <%= t.tag %></span>
+                  <%= t.tag %>
+                </span>
               <% end %>
             </span>
             
-              <select style="float:right" class="add-tag-dropdown-control" 
-                data-serverurl="<%= d.dataserver.url %>"
-                data-datasetidentifier="<%= d.identifier %>" 
-                onchange="tagPickerChanged($(this));"> 
+            <select style="float:right" class="add-tag-dropdown-control" 
+              data-serverurl="<%= d.dataserver.url %>"
+              data-datasetidentifier="<%= d.identifier %>" 
+              onchange="tagPickerChanged($(this));"> 
 
-                <option value = "Ignore This">Add Tag:</option>
-                <% if d.dataserver.wms %>
-                  <option value="Mapping">Mapping</option>
-                <% end %>
+              <option value = "Ignore This">Add Tag:</option>
+              <% if d.dataserver.wms %>
+                <option value="Mapping">Mapping</option>
+              <% end %>
 
-                <% d.dataset_tags.each do |t| %>
-                  <option value="<%= t.tag %>"><%= t.tag %></option>
-                <% end %>
-           </select>
-        </dl></div>
+              <% d.dataset_tags.each do |t| %>
+                <option value="<%= t.tag %>"><%= t.tag %></option>
+              <% end %>
+            </select>
+          </dl>
+        </div>
         <div style="overflow:hidden" class="technical-details">
           <div class="technical-details-header">Technical Details</div><dl>
           <dt>Server Base URL:</dt><dd><%= d.server_url %></dd>
           <dt>Dataset Identifier:</dt><dd><%= d.identifier %></dd>
           <dt>All Get Capabilities Links:</dt><dd>
-              <a href=" + WFS.getCapUrl(dataset.server_url) + " target="_blank">WFS</a>
-              <a href=" + WMS.getCapUrl(dataset.server_url) + " target="_blank">WMS</a> 
-              <a href=" + WCS.getCapUrl(dataset.server_url) + " target="_blank">WCS</a>
+              <%= insertGetCapabilitiesLinkBlock(d.dataserver.url, :true, :true, :true) %>
           </dd>
           <dt>Projections Available:</dt><dd></dd> 
           <dt>Bounding Box:</dt><dd></dd>
           <dt>Attribute Columns:</dt><dd></dd>
         </dl></div>
-        <div><a href="javascript:void(0);" class="show-details"></a></div>
+        <div><a href="#" class="show-details">Show details >>></a></div>
       </div>
     <% end %>
   </div>
@@ -106,15 +112,15 @@
 </script>
 
 
+<%= render :partial => '/shared/dataset_functions.html.erb' %>    <!-- Needed for showDetails() function -->
+
 <script type="text/javascript">
 
   // $('a.popup[rel]').overlay();                         // Activate popups for managing dataset tags 
   $('img[rel]').overlay();                             // Set up the layer info overlays
   $('img[rel]').click(function(){ hideDetails(); });   // Close details panel on open
 
-  $('.show-details').click(function() { showDetails(); });
   $('.publish-checkbox').click(function() { publishDataset(this); });
-
 
 
   var publishDataset = function(ctrl) {
