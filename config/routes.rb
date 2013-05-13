@@ -12,6 +12,8 @@ Iguess::Application.routes.draw do
   resources :config_datasets
   
   resources :maps
+  
+  resources :dss
 
   match 'about', :to => 'about#index'
 

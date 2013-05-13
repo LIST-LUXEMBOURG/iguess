@@ -54,13 +54,54 @@ Ext.onReady(function() {
     width: '50%',
     xtype: "gx_mappanel",
     map: WebGIS.leftMap,
-    items: [leftZoomSlider]
+    items: [leftZoomSlider],
+    tbar: {
+        height: 100,
+        items:[
+            '-',
+            WebGIS.createTbarItems(WebGIS.leftMap),
+            '-',
+            '->',
+            '-',
+           {
+               xtype:'splitbutton',
+               text: 'Open Street Map',
+               menu: [{
+            	   text: 'Open Street Map',
+            	   checked: true,
+            	   handler  : WebGIS.baseOSM,
+            	   group: 'baseLayer'
+               },{
+            	   text: 'Google Satellite',
+            	   checked: false,
+            	   handler  : WebGIS.baseGoogleSat,
+            	   group: 'baseLayer'
+               },{
+            	   text: 'Google Streets',
+            	   checked: false,
+            	   handler  : WebGIS.baseGoogleSt,
+            	   group: 'baseLayer'
+               },{
+            	   text: 'Google Physical',
+            	   checked: false,
+            	   handler  : WebGIS.baseGooglePhy,
+            	   group: 'baseLayer'
+               },{
+            	   text: 'Google Hybrid',
+            	   checked: false,
+            	   handler  : WebGIS.baseGoogleHy,
+            	   group: 'baseLayer'
+               }]
+       		}]
+    }
   });
 
   var rightPanel = new GeoExt.MapPanel({
 		region:'east',
-		collapsible: false,
+		collapsible: true,
 		floatable: false,
+	    autoScroll: true,
+	    enableDD: true,
 		width: '50%',
 		xtype: "gx_mappanel",
 		map: WebGIS.rightMap,
@@ -76,12 +117,10 @@ Ext.onReady(function() {
     nodeType: "gx_overlaylayercontainer",
     expanded: true
   }];
-
+  
   // Layer list
   WebGIS.layerTree = new Ext.tree.TreePanel({
-    region: "west",
     title: 'Map Layers',
-    width: 270,
     collapsible: true,
     autoScroll: true,
     enableDD: true,
@@ -106,53 +145,39 @@ Ext.onReady(function() {
     }
   });
   
+  WebGIS.legend = new Ext.Panel({ 
+		title: "Legend",
+		xtype: "gx_legendpanel",
+		collapsible: true,
+		autoScroll: true,
+		enableDD: true,
+		padding: 5,
+		rootVisible: false,
+		lines: false
+  });
+  
+  var accordeon = new Ext.Panel({
+		title: 'Data',
+		region:'west',   	
+		collapsible: true,
+		width: 270,
+		layout: 'accordion',
+		items: [WebGIS.layerTree, WebGIS.legend]
+  });
+  
   var centralPanel = new Ext.Panel({
 		layout:'border',
 		bodyBorder: true,
 		region:'center',
-		width: 500,
+		//width: 500,
 		collapsible: false,
-		items: [leftPanel, rightPanel],
-		tbar: {
-	        height: 100,
-	        items:[
-	            '-',
-	            WebGIS.createTbarItems(WebGIS.leftMap),
-	            '-',
-	            '->',
-	            '-',
-	           {
-	               xtype:'splitbutton',
-	               text: 'Open Street Map',
-	               menu: [{
-	            	   text: 'Open Street Map',
-	            	   checked: true,
-	            	   handler  : WebGIS.baseOSM,
-	            	   group: 'baseLayer'
-	               },{
-	            	   text: 'Google Satellite',
-	            	   checked: false,
-	            	   handler  : WebGIS.baseGoogleSat,
-	            	   group: 'baseLayer'
-	               },{
-	            	   text: 'Google Streets',
-	            	   checked: false,
-	            	   handler  : WebGIS.baseGoogleSt,
-	            	   group: 'baseLayer'
-	               },{
-	            	   text: 'Google Physical',
-	            	   checked: false,
-	            	   handler  : WebGIS.baseGooglePhy,
-	            	   group: 'baseLayer'
-	               },{
-	            	   text: 'Google Hybrid',
-	            	   checked: false,
-	            	   handler  : WebGIS.baseGoogleHy,
-	            	   group: 'baseLayer'
-	               }]
-	       		}]
-	    }
-	});
+		defaults: {
+	      split: true,
+	      autoHide: false,
+	      useSplitTips: true,
+	    },
+		items: [leftPanel, rightPanel]
+  });
 	
   
   var mainPanel = new Ext.Panel({
@@ -170,8 +195,9 @@ Ext.onReady(function() {
     items: [
             //mapPanel,
             centralPanel,
-            WebGIS.layerTree,
-            { // Legend: must be created here to be auto-linked to the map
+            //WebGIS.layerTree,
+            accordeon,
+            /*{ // Legend: must be created here to be auto-linked to the map
         		region: "east",
         		title: "Legend",
         		xtype: "gx_legendpanel",
@@ -182,7 +208,7 @@ Ext.onReady(function() {
         		padding: 5,
         		rootVisible: false,
         		lines: false
-          }]
+          }*/]
   });
 
   WebGIS.zoomToCity();
