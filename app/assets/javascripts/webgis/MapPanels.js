@@ -54,12 +54,51 @@ Ext.onReady(function() {
     width: '50%',
     xtype: "gx_mappanel",
     map: WebGIS.leftMap,
-    items: [leftZoomSlider]
+    items: [leftZoomSlider],
+    tbar: {
+        height: 100,
+        items:[
+            '-',
+            WebGIS.createTbarItems(WebGIS.leftMap),
+            '-',
+            '->',
+            '-',
+           {
+               xtype:'splitbutton',
+               text: 'Open Street Map',
+               menu: [{
+            	   text: 'Open Street Map',
+            	   checked: true,
+            	   handler  : WebGIS.baseOSM,
+            	   group: 'baseLayer'
+               },{
+            	   text: 'Google Satellite',
+            	   checked: false,
+            	   handler  : WebGIS.baseGoogleSat,
+            	   group: 'baseLayer'
+               },{
+            	   text: 'Google Streets',
+            	   checked: false,
+            	   handler  : WebGIS.baseGoogleSt,
+            	   group: 'baseLayer'
+               },{
+            	   text: 'Google Physical',
+            	   checked: false,
+            	   handler  : WebGIS.baseGooglePhy,
+            	   group: 'baseLayer'
+               },{
+            	   text: 'Google Hybrid',
+            	   checked: false,
+            	   handler  : WebGIS.baseGoogleHy,
+            	   group: 'baseLayer'
+               }]
+       		}]
+    }
   });
 
   var rightPanel = new GeoExt.MapPanel({
 		region:'east',
-		collapsible: false,
+		collapsible: true,
 		floatable: false,
 	    autoScroll: true,
 	    enableDD: true,
@@ -81,9 +120,7 @@ Ext.onReady(function() {
   
   // Layer list
   WebGIS.layerTree = new Ext.tree.TreePanel({
-    //region: "west",
     title: 'Map Layers',
-    //width: 270,
     collapsible: true,
     autoScroll: true,
     enableDD: true,
@@ -109,10 +146,8 @@ Ext.onReady(function() {
   });
   
   WebGIS.legend = new Ext.Panel({ 
-		//region: "east",
 		title: "Legend",
 		xtype: "gx_legendpanel",
-		//width: 150,
 		collapsible: true,
 		autoScroll: true,
 		enableDD: true,
@@ -121,7 +156,7 @@ Ext.onReady(function() {
 		lines: false
   });
   
-  accordeon = new Ext.Panel({
+  var accordeon = new Ext.Panel({
 		title: 'Data',
 		region:'west',   	
 		collapsible: true,
@@ -136,47 +171,8 @@ Ext.onReady(function() {
 		region:'center',
 		width: 500,
 		collapsible: false,
-		items: [leftPanel, rightPanel],
-		tbar: {
-	        height: 100,
-	        items:[
-	            '-',
-	            WebGIS.createTbarItems(WebGIS.leftMap),
-	            '-',
-	            '->',
-	            '-',
-	           {
-	               xtype:'splitbutton',
-	               text: 'Open Street Map',
-	               menu: [{
-	            	   text: 'Open Street Map',
-	            	   checked: true,
-	            	   handler  : WebGIS.baseOSM,
-	            	   group: 'baseLayer'
-	               },{
-	            	   text: 'Google Satellite',
-	            	   checked: false,
-	            	   handler  : WebGIS.baseGoogleSat,
-	            	   group: 'baseLayer'
-	               },{
-	            	   text: 'Google Streets',
-	            	   checked: false,
-	            	   handler  : WebGIS.baseGoogleSt,
-	            	   group: 'baseLayer'
-	               },{
-	            	   text: 'Google Physical',
-	            	   checked: false,
-	            	   handler  : WebGIS.baseGooglePhy,
-	            	   group: 'baseLayer'
-	               },{
-	            	   text: 'Google Hybrid',
-	            	   checked: false,
-	            	   handler  : WebGIS.baseGoogleHy,
-	            	   group: 'baseLayer'
-	               }]
-	       		}]
-	    }
-	});
+		items: [leftPanel, rightPanel]
+  });
 	
   
   var mainPanel = new Ext.Panel({
