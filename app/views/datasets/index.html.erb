@@ -85,6 +85,14 @@
                 <% end %>
               </select>
             </dd>
+            <dt>Configurations:</td>
+            <dd>
+              <% if d.mod_configs.size > 0 %>
+                <% d.mod_configs.each do |m| %><%= m.name %> <% end %>
+              <% else %>
+                Not used in any configurations
+              <% end %>
+            </dd>
           </dl>
         </div>
         <div style="overflow:hidden" class="technical-details">
@@ -100,7 +108,18 @@
             <dt>Attribute Columns:</dt><dd></dd>
             <dt>Actions:</dt>
             <dd>
-              <%= link_to "Unregister Dataset", d, confirm: "Are you sure you want to unregister this dataset?", 
+              <% if d.mod_configs.size == 0 then 
+                    msg = "Are you sure you want to unregister this dataset?"
+                 else
+                    t = d.mod_configs.size == 1 ? "that" : "those"
+                    c = d.mod_configs.size == 1 ? "configuration" : "configurations"
+
+                    msg = "This dataset is in use by " + d.mod_configs.size.to_s + " " + c + ".\n" +
+                          "Unregistering it will cause it to be removed from " + t + " " + c + ".\n" + 
+                          "Click OK if you are sure you want to unregister this dataset." 
+                 end %>
+
+              <%= link_to "Unregister Dataset", d, confirm: raw(msg), 
                            method: :delete, :remote => true, :class => "dataset-deleted" %>
             </dd>
           </dl>
