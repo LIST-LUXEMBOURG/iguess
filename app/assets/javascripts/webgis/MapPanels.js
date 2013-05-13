@@ -169,8 +169,13 @@ Ext.onReady(function() {
 		layout:'border',
 		bodyBorder: true,
 		region:'center',
-		width: 500,
+		//width: 500,
 		collapsible: false,
+		defaults: {
+	      split: true,
+	      autoHide: false,
+	      useSplitTips: true,
+	    },
 		items: [leftPanel, rightPanel]
   });
 	
