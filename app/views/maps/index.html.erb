@@ -2,10 +2,25 @@
 
 
 <%# Include some map related utility functions; these need to be processed by Rails so they have to be in a partial %>
-<%= render :partial => '/shared/map_utils.html.erb' %>
 <%= render :partial => '/shared/dataset_functions.html.erb' %>
 
-<script type="text/javascript">
+<script>
+
+
+ var MapUtils = MapUtils || { };   // Create namespace
+
+ MapUtils.retrieveDatasetsForCity = function(cityName, successFunction) {
+  var serverUrl = '<%= url_for(:controller => "datasets", :action => "get_for_city", :format => :json) %>';
+   $.ajax({
+       type: 'POST',
+       url: serverUrl,
+       data: 'cityName=' + $.cookie('city'),
+       headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
+       success: successFunction,
+       error: function() { alert('Error retrieving datasets for city.'); }
+     });
+  }
+
 
 
   $(document).ready(function() {

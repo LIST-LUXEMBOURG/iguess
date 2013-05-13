@@ -8,23 +8,29 @@
 
   var showDetails = function() {
     $('.technical-details').show(); 
-    $('.show-details').click(function(){ hideDetails(); });
-    $('.show-details').html('<<< Hide details');
+
+    var el = $('.show-details');
+
+    el.unbind("click");
+    el.click(function(){ hideDetails(); });
+    el.html('<<< Hide details');
   };
 
   var hideDetails = function() {
     $('.technical-details').hide();
-    $('.show-details').click(function(){ showDetails(); });
-    $('.show-details').html('Show details >>>');
+
+    var el = $('.show-details');
+
+    el.unbind("click");
+    el.click(function(){ showDetails(); });
+    el.html('Show details >>>');
   };
 
 
   var layerRecords       = {};
   var layerStores        = {};
   var serverResponseList = {};
-
-
-  var processedUrls   = {};
+  var processedUrls      = {};
 
 
   // Call this before starting a new round of probeDataServer
@@ -32,7 +38,6 @@
   {
     processedUrls = {};
   };
-
 
 
   var Datasets = {};
@@ -156,18 +161,14 @@
   };
 
 
-  // Because we might not have the taglist when we are building the tag dropdowns, 
-  // we may need to cache the ids until the taglist has arrived.  This function gets 
-  // called both by the tag collection system as well as the WFS/WCS response handler.
-  var addTagsCache = [];
   var addTagsToDropdown = function(datasetId) 
   {
-    if(datasetId)
-      addTagsCache.push(datasetId);
+    // if(datasetId)
+    //   addTagsCache.push(datasetId);
 
     // Check to see if we have the tags yet
-    if(!dataDiscoveryComplete) 
-      return;
+    // if(!dataDiscoveryComplete) 
+    //   return;
 
 
     // if(layer.type.hasObject('WMS'))
@@ -178,21 +179,19 @@
 
 
 
+// debugger;
+    // for(var i = 0, len = addTagsCache.length; i < len; i++) 
+      addWfsWcsOptionsToDropdown(getTagPickerControlId(datasetId));
 
-    for(var i = 0, len = addTagsCache.length; i < len; i++) 
-      addWfsWcsOptionsToDropdown(getTagPickerControlId(addTagsCache[i]));
-
-    addTagsCache = [];    // Clear cache
+    // addTagsCache = [];    // Clear cache
   };
 
 
-  var onDataTypeDiscoveryCompleted = function(tagList)
-  {
-    $('.tag-list-loading-indicator').remove();    // Remove this so it does not interfere with layout.  We won't need it again.
-    $('.add-tag-dropdown-control').css('visibility', 'visible');
-
-    addTagsToDropdown();
-  };
+  // var onDataTypeDiscoveryCompleted = function(tagList)
+  // {
+  //   // $('.tag-list-loading-indicator').remove();    // Remove this so it does not interfere with layout.  We won't need it again.
+  //   addTagsToDropdown();
+  // };
 
 
   var getLayerNameFromDataTypeId = function(ctrl)
@@ -205,27 +204,27 @@
   var makeTagPickerControl = function(layer, controlId, enabled)
   {
 
-    var loadingIndicator, hidden;
+    // var loadingIndicator, hidden;
 
-    if(dataDiscoveryComplete) {
-      loadingIndicator = '';
-      hidden = '';
-    } 
-    else {
-      loadingIndicator = '<span class="loading-indicator tag-list-loading-indicator">Loading&nbsp;tags...</span>';
-      hidden = 'hidden';
-    }
+    // if(dataDiscoveryComplete) {
+    //   loadingIndicator = '';
+    //   hidden = '';
+    // } 
+    // else {
+    //   loadingIndicator = '<span class="loading-indicator tag-list-loading-indicator">Loading&nbsp;tags...</span>';
+    //   hidden = 'hidden';
+    // }
 
-
-    return loadingIndicator +
-              '<select style="float:right" class="add-tag-dropdown-control ' + hidden + '" ' + 
-                'data-serverurl="' + layer.serverUrl + '" ' +   // These keys seem to get lowercased anyway... so no upper case letter pls!
-                'data-datasetidentifier="' + layer.identifier + '" ' +
-                'id="' + controlId + '" ' + (enabled ? '' : 'disabled="true" ') +
-                'onchange="tagPickerChanged($(this));">' +
+    return '<select style="float:right" class="add-tag-dropdown-control" ' + 
+           'data-serverurl="' + layer.serverUrl + '" ' +   // These keys seem to get lowercased anyway... so no upper case letter pls!
+           'data-datasetidentifier="' + layer.identifier + '" ' +
+           'id="' + controlId + '" ' + (enabled ? '' : 'disabled="true" ') +
+           'onchange="tagPickerChanged($(this));">' +
              '<option value = "Ignore This">Add Tag:</option>' + 
            '</select>';
   };
+
+
 
   // Helper function for makeTagPickerControl()
   var addWmsOptionToDropdown = function(controlId) {
@@ -233,57 +232,64 @@
   };
 
 
-  // Helper function for makeTagPickerControl()
+  // Helper function for makeTagPickerControl() -- here, controlId is the id of the select control we're adding options to
   var addWfsWcsOptionsToDropdown = function(controlId) {
+
+    console.log($('#' + controlId).html());
+
     for(var j = 0, jlen = DataTagList.length; j < jlen; j++) 
       $('#' + controlId).append('<option value="' + DataTagList[j].id + '">' + DataTagList[j].id + '</option>');
   };
 
 
   // Create a popup info display for this dataset 
-  var renderInfoPopup = function(dataset) 
-  {
-    var serverUrlId = registeredDataAndMapServers[dataset.server_url];
+  // var renderInfoPopup = function(dataset) 
+  // {
+  //   var serverUrlId = registeredDataAndMapServers[dataset.server_url];
 
-    var urlId = cssEscape(dataset.serverUrl + dataset.identifier);
+  //   var urlId = cssEscape(dataset.serverUrl + dataset.identifier);
 
-    return '<div class="infotable" id="infotable-' + dataset.id + '">' +
-              '<div class="close"></div>' +
-              '<h1><span class="dataset-title-' + dataset.id + '"></h1>' +
-              '<div class="dataset-descr-' + dataset.id + '"></div>' +
-              '<div style="overflow:hidden"><dl>' +
-                '<dt>Server Name:</dt><dd class="server-name-' + serverUrlId + '"></dd>' +
-                 '<dt>Data Services:</dt><dd id="results-' + dataset.id + '">Waiting for response from server...</dd>' + 
-                 '<dt>Tags:</dt><dd><span class="taglist-deletable-' + urlId + '"></span>' +
-                  '<span>' + makeTagPickerControl(dataset, getTagPickerControlId(dataset.id), true) + '</span></dd>' +
-              '</dl></div>' +
-              '<div style="overflow:hidden" class="technical-details">' +
-                '<div class="technical-details-header">Technical Details</div><dl>' +
-                '<dt>Server Base URL:</dt><dd>' + dataset.server_url + '</dd>' +
-                '<dt>Dataset Identifier:</dt><dd>' + dataset.identifier + '</dd>' +
-                '<dt>All Get Capabilities Links:</dt><dd>' +
-                    '<a href="' + WFS.getCapUrl(dataset.server_url) + '" target="_blank">WFS</a> ' +
-                    '<a href="' + WMS.getCapUrl(dataset.server_url) + '" target="_blank">WMS</a> ' +
-                    '<a href="' + WCS.getCapUrl(dataset.server_url) + '" target="_blank">WCS</a>' +
-                '</dd>' +
-                '<dt>Projections Available:</dt><dd>' + '' + '</dd>' + 
-                '<dt>Bounding Box:</dt><dd>' + '' + '</dd>' + 
-                '<dt>Attribute Columns:</dt><dd>' + '' + '</dd>' + 
-              '</dl></div>' +
-              '<div><a href="javascript:void(0);" class="show-details"></a></div>' +
-           '</div>';
-  };
+  //   return '<div class="infotable" id="infotable-' + dataset.id + '">' +
+  //             '<div class="close"></div>' +
+  //             '<h1><span class="dataset-title-' + dataset.id + '"></h1>' +
+  //             '<div class="dataset-descr-' + dataset.id + '"></div>' +
+  //             '<div style="overflow:hidden"><dl>' +
+  //               '<dt>Server Name:</dt><dd class="server-name-' + serverUrlId + '"></dd>' +
+  //                '<dt>Data Services:</dt><dd id="results-' + dataset.id + '">Waiting for response from server...</dd>' + 
+  //                '<dt>Tags:</dt><dd><span class="taglist-deletable-' + urlId + '"></span>' +
+  //                 '<span>' + makeTagPickerControl(dataset, getTagPickerControlId(dataset.identifier), true) + '</span></dd>' +
+  //             '</dl></div>' +
+  //             '<div style="overflow:hidden" class="technical-details">' +
+  //               '<div class="technical-details-header">Technical Details</div><dl>' +
+  //               '<dt>Server Base URL:</dt><dd>' + dataset.server_url + '</dd>' +
+  //               '<dt>Dataset Identifier:</dt><dd>' + dataset.identifier + '</dd>' +
+  //               '<dt>All Get Capabilities Links:</dt><dd>' +
+  //                   '<a href="' + WFS.getCapUrl(dataset.server_url) + '" target="_blank">WFS</a> ' +
+  //                   '<a href="' + WMS.getCapUrl(dataset.server_url) + '" target="_blank">WMS</a> ' +
+  //                   '<a href="' + WCS.getCapUrl(dataset.server_url) + '" target="_blank">WCS</a>' +
+  //               '</dd>' +
+  //               '<dt>Projections Available:</dt><dd>' + '' + '</dd>' + 
+  //               '<dt>Bounding Box:</dt><dd>' + '' + '</dd>' + 
+  //               '<dt>Attribute Columns:</dt><dd>' + '' + '</dd>' + 
+  //             '</dl></div>' +
+  //             '<div><a href="javascript:void(0);" class="show-details"></a></div>' +
+  //          '</div>';
+  // };
 
 
   var dataDiscoveryComplete = false;
-  var DataTagList = [];
+  var DataTagList = [
+    <% @dataset_tags.each do |t| %>
+      <%= raw("{'id': '" + t + "', 'title': '" + t + "' },") %>
+    <% end %>
+  ];
 
-  // For each url in our database, start probing the server
-  var collectTags = function(wpsServerUrlList) 
-  {
-    for(var i = 0, len = wpsServerUrlList.length; i < len; i++)
-      WPS.probeWPS_getDataTypes(wpsServerUrlList[i]);
-  };
+  // // For each url in our database, start probing the server
+  // var collectTags = function(wpsServerUrlList) 
+  // {
+  //   for(var i = 0, len = wpsServerUrlList.length; i < len; i++)
+  //     WPS.probeWPS_getDataTypes(wpsServerUrlList[i]);
+  // };
 
 
   // Class that describes response from server, either success or failure

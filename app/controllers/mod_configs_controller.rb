@@ -28,7 +28,6 @@ class ModConfigsController < ApplicationController
   end
 
 
-
   # GET /mod_configs/1
   # GET /mod_configs/1.json
   def show
@@ -40,13 +39,14 @@ class ModConfigsController < ApplicationController
     @formValues      = ConfigTextInput.find_all_by_mod_config_id(@mod_config).map{|text| text.column_name + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"'}.join(',')
     # @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
     @input_params    = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(true,  true)
-    @output_params   = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(true,  false)
+    @output_params   = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(false,  true)
 
     respond_to do |format|
       format.html # show.html.erb
       format.json { render json: @mod_config }
     end
   end
+
 
   # GET /mod_configs/new
   # GET /mod_configs/new.json
@@ -64,6 +64,7 @@ class ModConfigsController < ApplicationController
       format.json { render json: @mod_config }
     end
   end
+
 
   # GET /mod_configs/1/edit
   def edit
@@ -324,6 +325,7 @@ class ModConfigsController < ApplicationController
           val = p[1].strip    # strip off leading and trailing whitespace
 
           @output = ConfigTextInput.find_by_mod_config_id_and_column_name_and_is_input(@mod_config.id, name, paramkey == :input)
+
           @output.value = val;
           ok = ok && @output.save
         }

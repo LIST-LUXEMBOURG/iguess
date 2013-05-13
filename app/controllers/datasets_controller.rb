@@ -7,9 +7,9 @@ class DatasetsController < ApplicationController
   def index
 
     @current_city = (City.find_by_name(cookies['city']) or City.first)
-
-    @datasets = Dataset.find_all_by_city_id(@current_city.id)
-    @wps_servers = WpsServer.all
+    @dataset_tags = ProcessParam.find_all_by_alive(true).map{|p| p.identifier}.uniq.sort_by! { |x| x.downcase } 
+    @datasets     = Dataset.find_all_by_city_id(@current_city.id)
+    @wps_servers  = WpsServer.all
 
     # Find all unique server urls in @datasets, ignoring any blank entries
     @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
@@ -110,13 +110,13 @@ class DatasetsController < ApplicationController
     tagVal = params[:dataset_tag]    # Tag we are either adding or deleting
 
     if params[:id] == 'add_data_tag' then
-      @dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
-      makeTag(@dataset, tagVal)
+      dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
+      makeTag(dataset, tagVal)
 
     elsif params[:id] == 'del_data_tag' then
-      @dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
-      if @dataset and @dataset.dataset_tags.find_by_tag(tagVal) then
-        tag = DatasetTag.find_by_dataset_id_and_tag(@dataset, tagVal)
+      dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
+      if dataset and dataset.dataset_tags.find_by_tag(tagVal) then
+        tag = DatasetTag.find_by_dataset_id_and_tag(dataset, tagVal)
         if tag then 
           tag.delete
         end
@@ -124,16 +124,16 @@ class DatasetsController < ApplicationController
 
     # User checked or unchecked publish checkbox (NOT the register dataset checkbox!!)
     elsif params[:id] == 'publish' then
-      @dataset = Dataset.find_by_id(params[:dataset][:id])
-      @dataset.published = params[:checked]
-      @dataset.save
+      dataset = Dataset.find_by_id(params[:dataset][:id])
+      dataset.published = params[:checked]
+      dataset.save
     end
 
 
 # This is wrong -- only want to respond to json
     respond_to do |format|
-      format.html { render :json => @dataset ? DatasetTag.find_all_by_dataset_id(@dataset.id).map {|d| d.tag } : [] }
-      format.json { render :json => @dataset ? DatasetTag.find_all_by_dataset_id(@dataset.id).map {|d| d.tag } : [] }
+      format.html { render :json => dataset ? DatasetTag.find_all_by_dataset_id(dataset.id).map {|d| d.tag } : [] }
+      format.json { render :json => dataset ? DatasetTag.find_all_by_dataset_id(dataset.id).map {|d| d.tag } : [] }
     end
   end
 
@@ -167,16 +167,16 @@ class DatasetsController < ApplicationController
 
 
   def mass_import
-    @datasets = Dataset.all
-
+    @datasets        = Dataset.all
+    @dataset_tags    = ProcessParam.find_all_by_alive(true).map{|p| p.identifier}.uniq.sort_by! { |x| x.downcase } 
     @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
+
     @current_city = (City.find_by_name(cookies['city']) or City.first)
 
     if @current_city.nil?     # Should never happen, but just in case...
       @current_city = City.first
     end
 
-    @wps_servers = WpsServer.all
     @cities = City.all
   end
 end

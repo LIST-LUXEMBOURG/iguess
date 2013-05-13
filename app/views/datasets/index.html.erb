@@ -8,6 +8,8 @@
   <table id="sortable_table" class="zebra sortable">
     <thead>
       <tr><th>Name</th><th>Tags</th><th>Published?</th><th class="center">Status</th></tr>
+    </thead>
+    <tbody id="dataset-list">
       <% @datasets.each do |d| %>
         <tr>
           <td>
@@ -16,22 +18,29 @@
                   alt="More info" title="Click for details" rel="#infotable-<%= d.id %>">
           </td>
           <td>
-            <% d.dataset_tags.each do |t| %>
-              <span class="tag"><%= t.tag %></span>
-            <% end %>
+            <span class="taglist-<%= cssEscape(d.dataserver.url + d.identifier) %>">
+              <% d.dataset_tags.each do |t| %>
+                <span class="tag"><%= t.tag %></span>
+              <% end %>
+            </span>
           </td>
           <td>
             <label>
-              <input class="publish-checkbox" data-datasetid="<%= d.id %>" 
-                     type="checkbox" <%= d.published ? "checked" : "" %> >Publish
+              <span>
+                <!-- Create a hidden span to allow sorting by checkbox status -->
+                <span class="sortcol hidden" id="cb-<%= d.id %>"><%= d.published ? "1" : "2" %></span>  
+                <input class="publish-checkbox" data-datasetid="<%= d.id %>" id="x-<%= d.id %>"
+                       type="checkbox" <%= d.published ? raw('checked="yes"') : "" %> >Publish
+              </span>
             </label>
           </td>
-          <td nowrap><%= d.alive ? "Ok"  : "This dataset is no longer on the server" %></td>
+          <td nowrap>
+            <span class="hidden"><%= d.alive ? "1" : "2" %></span>      <!-- Hidden span allows sorting by availability -->
+              <%= d.alive ? raw('<img class="status-indicator" src="/assets/layer_available_yes.png" alt="Layer available">') :
+                            raw('<img class="status-indicator" src="/assets/layer_available_no.png"  alt="Layer not available">') %></td>
         </tr>
       <% end%>
-    </thead>
-
-    <tbody id="dataset-list"></tbody>  <!-- Will be populated later -->
+    </tbody>
   </table>
 
   <div id="infotables">
@@ -41,17 +50,24 @@
         <div class="close"></div>
         <h1><span class="dataset-title"><%= d.title.present? ? d.title : d.identifier %></h1>
         <div class="dataset-descr-<%= d.id %>"></div> 
-        <div style="overflow:hidden"><dl>
-          <dt>Server Name:</dt><dd class="server-name"><%= d.dataserver.title %></dd>
-           <dt>Data Services:</dt><dd id="results-<%= d.id %>">Waiting for response from server...</dd>
-           <dt>Tags:</dt><dd><span class="taglist-deletable-<%= d.id %>"></span>
-             <span><% d.dataset_tags.each do |t| %>
-                <span class="tag">
-                  <span class="tag-delete-button" data-url="<%= d.dataserver.url %>" data-identifier="<%= d.identifier %>"></span>
-                  <%= t.tag %></span>
-              <% end %>
-            </span>
-            
+        <div style="overflow:hidden">
+          <dl>
+            <dt>Server Name:</dt><dd class="server-name"><%= d.dataserver.title %></dd>
+            <dt>Data Services:</dt>
+            <dd id="results-<%= d.id %>">
+              <%= insertGetCapabilitiesLinkBlock(d.dataserver.url, d.dataserver.wms, d.dataserver.wfs, d.dataserver.wcs) %>
+            </dd>
+            <dt>Tags:</dt>
+            <dd>
+              <span class="taglist-deletable-<%= cssEscape(d.dataserver.url + d.identifier) %>">
+                <% d.dataset_tags.each do |t| %>
+                  <span class="tag">
+                    <span class="tag-delete-button" data-url="<%= d.dataserver.url %>" data-identifier="<%= d.identifier %>"></span>
+                    <%= t.tag %>
+                  </span>
+                <% end %>
+              </span>
+              
               <select style="float:right" class="add-tag-dropdown-control" 
                 data-serverurl="<%= d.dataserver.url %>"
                 data-datasetidentifier="<%= d.identifier %>" 
@@ -62,61 +78,68 @@
                   <option value="Mapping">Mapping</option>
                 <% end %>
 
-                <% d.dataset_tags.each do |t| %>
-                  <option value="<%= t.tag %>"><%= t.tag %></option>
+                <% if d.dataserver.wfs or d.dataserver.wcs %>
+                  <% @dataset_tags.each do |t| %>
+                    <option value="<%= t %>"><%= t %></option>
+                  <% end %>
                 <% end %>
-           </select>
-        </dl></div>
+              </select>
+            </dd>
+          </dl>
+        </div>
         <div style="overflow:hidden" class="technical-details">
-          <div class="technical-details-header">Technical Details</div><dl>
-          <dt>Server Base URL:</dt><dd><%= d.server_url %></dd>
-          <dt>Dataset Identifier:</dt><dd><%= d.identifier %></dd>
-          <dt>All Get Capabilities Links:</dt><dd>
-              <a href=" + WFS.getCapUrl(dataset.server_url) + " target="_blank">WFS</a>
-              <a href=" + WMS.getCapUrl(dataset.server_url) + " target="_blank">WMS</a> 
-              <a href=" + WCS.getCapUrl(dataset.server_url) + " target="_blank">WCS</a>
-          </dd>
-          <dt>Projections Available:</dt><dd></dd> 
-          <dt>Bounding Box:</dt><dd></dd>
-          <dt>Attribute Columns:</dt><dd></dd>
-        </dl></div>
-        <div><a href="javascript:void(0);" class="show-details"></a></div>
+          <div class="technical-details-header">Technical Details</div>
+          <dl>
+            <dt>Server Base URL:</dt><dd><%= d.server_url %></dd>
+            <dt>Dataset Identifier:</dt><dd><%= d.identifier %></dd>
+            <dt>All Get Capabilities Links:</dt><dd>
+              <%= insertGetCapabilitiesLinkBlock(d.dataserver.url, :true, :true, :true) %>
+            </dd>
+            <dt>Projections Available:</dt><dd></dd> 
+            <dt>Bounding Box:</dt><dd></dd>
+            <dt>Attribute Columns:</dt><dd></dd>
+          </dl>
+        </div>
+        <div><a href="#" class="show-details">Show details >>></a></div>
       </div>
     <% end %>
   </div>
 
-  <%= button_to "Register Datasets", :controller => 'datasets', :action => 'mass_import', :id => 1 %>
+  <%= button_to "Register Datasets", { :controller => 'datasets', :action => 'mass_import', :id => 1 }, :class => 'register-datasets-button' %>
 
   <br />
 </div>
 
 
 
-
 <script type="text/javascript">
  $(document).ready(function() {
-    onLocationChanged('<%= @current_city.name %>');   // Build the initial dataset list
-    // $('#sortable_table').tablesorter();               // Initialize sorter
+    $('#sortable_table').tablesorter();               // Initialize sorter
   });
 </script>
 
-<%= render :partial => '/shared/build_registered_layers.html.erb' %>  <%# Builds registeredDataLayers structure %>
 
-<%# Include some map related utility functions; these need to be processed by Rails so they have to be in a partial %>
-<%= render :partial => '/shared/map_utils.html.erb' %>
-<%= render :partial => '/shared/dataset_functions.html.erb' %>
-
+<%= render :partial => '/shared/dataset_functions.html.erb' %>    <!-- Needed for showDetails() function -->
 
 <script type="text/javascript">
 
-  // Initiate collection of data tags -- visit each WPS server to see what tags are in use
-  // This will ultimately populate the DataTagList[] array
-  collectTags([<%= @wps_servers.map{ |w| "'" + w.url + "'" }.join(',') %>]);
+  // $('a.popup[rel]').overlay();                         // Activate popups for managing dataset tags 
+  $('img[rel]').overlay();                             // Set up the layer info overlays
+  $('img[rel]').click(function(){ hideDetails(); });   // Close details panel on open
+
+  $('.publish-checkbox').click(function() { publishDataset(this); });
 
 
   var publishDataset = function(ctrl) {
     var datasetId = ctrl.getAttribute('data-datasetid');
     var checked   = ctrl.checked;
+
+    // Set sort column contents to checkboxes will sort properly
+    var el = $("#cb-" + datasetId);
+    el.html(checked ? "1" : "2");
+
+    el.parents("table").trigger("update"); 
+
 
     // Notify the server
     $.ajax({
@@ -130,64 +153,13 @@
     });
   };
 
-  // We've got a new batch of datasets to display!
-  // Note that for the status div, all rows from the same server share a common class.  Each has a unique id.
-  var renderTable = function(datasets) 
-  {
-    $('#dataset-list').empty();    // Clear table
-    resetProbe();                  // Clear out old probe results
 
-    for(var i = 0, len = datasets.length; i < len; i++) {
-      var dataset = datasets[i];
+// Make sure table is sorted
+var sorting = [[1,0], [0,0]]; 
+// sort on the first column 
 
-      // Depending on where the dataset is coming from, the server url might need to be fixed up.  TODO: Can we bypass this somehow?
-      if(dataset.server_url && !dataset.serverUrl)
-        dataset.serverUrl = dataset.server_url;
-
-      $('#dataset-list').append(renderTableRow(dataset));
-
-      $('#infotables').append(renderInfoPopup(dataset));
-      // $('#infotables').append(renderTagPopup(dataset));
-
-
-      var urlId = cssEscape(dataset.serverUrl + dataset.identifier);
-
-      // By populating the tag list here, we can populate both the list in the main table, and in the tag manager popup, which,
-      // by now, have both been created (see renderTableRow() and renderInfoPopup() ).
-      // That is why we assigned a "unique" id using a class rather than an id.
-      $('.taglist-' + urlId).html(dataset.dataset_tags.length === 0 ? "None" : 
-                                                      createTagList(dataset.dataset_tags, false, dataset.serverUrl, dataset.identifier));
-       $('.taglist-deletable-' + urlId).html(dataset.dataset_tags.length === 0 ? "None" : 
-                                                      createTagList(dataset.dataset_tags, true, dataset.serverUrl, dataset.identifier));
-
-      // Make tags on the popup be deletable -- tags on the main page are not in a span
-      $('span.taglist-' + urlId).children().addClass('tag-delete-button');
-
-      probeDataServer(dataset.server_url, 'ALL');
-    }
-
-    // $('a.popup[rel]').overlay();                         // Activate popups for managing dataset tags 
-    $('img[rel]').overlay();                             // Set up the layer info overlays
-    $('img[rel]').click(function(){ hideDetails(); });   // Close details panel on open
-
-    $('.show-details').click(function() { showDetails(); });
-    $('.publish-checkbox').click(function() { publishDataset(this); });
-
-
-
-          // Make sure table is sorted
-      // var sorting = [[1,0], [0,0]]; 
-      // // sort on the first column 
-
-      // $('#sortable_table').trigger("update"); 
-      // $('#sortable_table').trigger("sorton",[sorting]); 
-  }; 
-
-
-  var onLocationChanged = function(cityName) {
-    MapUtils.retrieveDatasetsForCity(cityName, function(dataset) { renderTable(dataset);
-                                                                   hideUnregisterAndFriends(); });
-  };
+$('#sortable_table').trigger("update"); 
+$('#sortable_table').trigger("sorton",[sorting]); 
 
 
   // Gets run when user clicks on the Links tag to the right of the main table
@@ -199,147 +171,6 @@
         tags.push($(this).text());
     });
 
-        
-  };
-
-  // Generate html for Registered Datasets table row
-  // Note: status-xxx below are classes that are common to all datasets on a server
-  //       status2-xxx are classes that are common only to server-identifier pairs (i.e. duplicate datasets)
-  var renderTableRow = function(dataset) 
-  {
-    var urlId = cssEscape(dataset.serverUrl + dataset.identifier);
-
-    return '<tr id="dataset-id-' + dataset.id + '" onmouseover="$(this).find(\'.invisible-cell\').show();"' +
-                                                  'onmouseout ="$(this).find(\'.invisible-cell\').hide();">' +
-      '<td class="dataset-name-' + registeredDataAndMapServers[dataset.server_url] + '">' +
-        '<span class="dataset-title-' + dataset.id + '">Retrieving...</span>' +
-        '<img src="/assets/small_question_mark.gif" class="info-icon" ' +
-                  'alt="More info" title="Click for details" rel="#infotable-' + dataset.id + '">' +
-      '</td>' +
-      '<td nowrap class="taglist-' + urlId + '" id="taglist-' + urlId + '"></td>' +
-      '<td>' + 
-        '<label><input class="publish-checkbox" id="publish-' + dataset.id + '" ' +
-                        'data-datasetid="' + dataset.id + '" type="checkbox" ' + (dataset.published ? 'checked' : '') + '/>Publish</label>' +
-      '</td>' +
-      '<td width=145><div class="status-' + registeredDataAndMapServers[dataset.server_url] + 
-        ' status2-' + dataset.id + '">Probing server...  ' +
-        '<img src="/assets/loading_spinner.gif"></div>' +
-      '</td>' +
-      '<td class="invisible-cell">' +
-         '<a href="/datasets/' + dataset.id + '" ' + 
-        'data-confirm="Are you sure you want to unregister this dataset?" data-method="delete" ' +
-        'data-remote="true" rel="nofollow">Unregister</a></td> ' + 
-      // '<td>SHOW MODULE LIST HERE??</td>' +
-    '</tr>';
-  };
-
-
-  // We found the layer
-  var updateLayerInfo = function(serverUrl, datasetId, dataset) 
-  {
-    var name     = dataset.title.replace(/ /g,'&nbsp;');
-    var descr    = dataset.descr;
-    var services = dataset.services;
-
-    $('.dataset-title-' + datasetId).html(name);    // Appears in the name column, also on infotable popup
-    $('.dataset-descr-' + datasetId).html(descr);
-    $('#results-'       + datasetId).html('');      // Clear
-
-    var url = '';
-    // Parse services... provide links for whatever services
-    for (var i = 0, len = services.length; i < len; i++) {
-      if(isPrimaryService(services[i])) {
-        url = getGetCapUrl(serverUrl, services[i]);
-        $('#results-' + datasetId).append('<a href="' + url + '" target="_blank">' + services[i] + '</a>&nbsp;');
-      }
-    }
-    if(url !== '') {
-      $('#results-' + datasetId).append('&nbsp;(Right-click, Copy Link Location)');
-    }
-    $('.status2-' + datasetId).html('<img class="status-indicator" src="/assets/layer_available_yes.png" alt="Layer available">');
-  };
-
-
-  // We did not find a layer we expected to
-  var expectedLayerNotFound = function(datasetId)
-  {
-    $('.dataset-title-' + datasetId).html('Missing');   // Appears in the name column, also on infotable popup
-    $('.dataset-descr-' + datasetId).html('This dataset appears to have been removed from the server');
-    $('#results-'       + datasetId).html('');          // Clear
-    $('.status2-'       + datasetId).html('<img class="status-indicator" src="/assets/layer_available_no.png" alt="Layer not available">');
-  };
-
-
-  var registeredDatasetLists  = { };
-
-  // Create an association between a server and all registered datasets it hosts
-  // Creates a series of lines that look like this:
-  //  registeredDatasetLists['http://montreuil.dynmap.com/carte_pour_iguess/carteWS.php'] = ['_IRIS99_montreuil_cc49', 'Bati_remarquable',
-  //     '_domaine_non_cadastre_2011', 'Cimetiere_line', '_domaine_non_cadastr__2011_CC49', '_IRIS99_montreuil_cc49_line'];
-  //
-  <% @dataserver_urls.each do |url| %>    <%# These could be wms, wfs, or wcs addresses %>
-    registeredDatasetLists['<%= url.gsub(/\\/, '\\\\\\') %>'] = [<%= @datasets.reject {|d| d.server_url != url}
-                                                                    .map{|d| "'" + d.identifier + "'"}
-                                                                    .join(', ') %>];
-  <% end %>
-
-
-  // This will be called for every server response, whether successful or a failure.  If we are probing multiple services, this will
-  // be called once for each service.  The serverResponse object for a particular service will remain undefined until the request to that
-  // service has returned.
-  // 
-  // We have a response of some sort from serverUrl -- update the datasets table to show it.
-  // serverResponses should be an object with a ServerResponse object for WFS, WMS, and WCS.
-  var gotServerResponse = function(serverUrl, serverResponses)
-  {
-    var serverId = registeredDataAndMapServers[serverUrl]; 
-
-    // Wait until we've heard back from all servers: wfs, wms, and wcs (twice!)
-    if(!!!serverResponses["WMS"] || !!!serverResponses["WFS"] || !!!serverResponses["WCS"] || !!!serverResponses["WCSdc"]) 
-      return;
-
-    // Prioritize WMS response, if any
-    var serverName  = serverResponses["WMS"].serverName  || serverResponses["WFS"].serverName  || serverResponses["WCS"].serverName;
-    var serverDescr = serverResponses["WMS"].serverDescr || serverResponses["WFS"].serverDescr || serverResponses["WCS"].serverDescr;
-
-    // Should only get here once for each server... right?
-    if(serverName) {
-      $('.server-name-'  + serverId).html(serverName);
-      $('.server-descr-' + serverId).html(serverDescr || serverName);
-    }
-
-    if(!(serverResponses["WMS"].success || serverResponses["WFS"].success || serverResponses["WCS"].success)) {    
-      // All services failed, all datasets from this server ganz kaput
-      $('.status-' + serverId).html('<img class="status-indicator" src="/assets/server_responding_no.png" alt="WMS server not responding">');
-      $('.dataset-name-' + serverId).text("Unknown");
-      return;
-    }
-
-
-    // At least one server succeeded, vist each dataset one-by-one
-
-    var ids = registeredDatasetLists[serverUrl];   // List of registered datasets available on this server
-    var datasetId;
-
-    for(var i = 0, len = ids.length; i < len; i++) {
-      datasetId = registeredDatasets[serverUrl][ids[i]];
-
-
-    if(serverResponses["WMS"].success) 
-      addWmsOptionToDropdown(getTagPickerControlId(datasetId));
-
-    if(serverResponses["WFS"].success || serverResponses["WCS"].success) 
-      addTagsToDropdown(datasetId);
-
-
-      var dataset = Datasets[datasetId];
-      if(!!!dataset) {
-        expectedLayerNotFound(datasetId);
-        return;
-      }
-
-      updateLayerInfo(serverUrl, datasetId, dataset);
-    }
   };
 
 
@@ -347,10 +178,7 @@
     $('#dataset-id-' + data).hide();
   });
 
-</script>
 
-
-<script type="text/javascript">
   $(function() {
     var theTable = $('#sortable_table')
 

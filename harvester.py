@@ -105,6 +105,7 @@ for row in serverCursor:
             if datatype and datatype.startswith("//www.w3.org/TR/xmlschema-2/#"):
                 datatype = datatype.replace("//www.w3.org/TR/xmlschema-2/#", "")
 
+
             upsert(updateCursor, tables["processParams"], "wps_process_id", procId, input.identifier)
             updateCursor.execute("UPDATE " + tables["processParams"] + " SET title = %s, abstract = %s, datatype = %s, "
                                  "is_input = TRUE, alive = TRUE, last_seen = NOW() "
@@ -116,6 +117,14 @@ for row in serverCursor:
             abstract = ""
             if hasattr(output, 'abstract'):
                 abstract = output.abstract
+
+            datatype = ""
+            if hasattr(output, "dataType"):
+                datatype = output.dataType
+
+            if datatype and datatype.startswith("//www.w3.org/TR/xmlschema-2/#"):
+                datatype = datatype.replace("//www.w3.org/TR/xmlschema-2/#", "")
+
 
             upsert(updateCursor, tables["processParams"], "wps_process_id", procId, output.identifier)
             updateCursor.execute("UPDATE " + tables["processParams"] + " SET title = %s, abstract = %s, datatype = %s, "
