@@ -7,6 +7,22 @@ class Dataset < ActiveRecord::Base
 end
 
 
+def getDatasetTags
+  return ProcessParam.find_all_by_alive(true).map{|p| p.identifier}.uniq.sort_by! { |x| x.downcase }
+end
+
+
+def makeTag(dataset, tagVal)
+  # Prevent duplicate tags
+  if dataset and not dataset.dataset_tags.find_by_tag(tagVal) then
+    tag = DatasetTag.new
+    tag.dataset_id = dataset.id
+    tag.tag = tagVal
+    tag.save
+  end
+end 
+
+
 # We have the equivalent in javascript as well
 def cssEscape(str)
   return str.gsub(/[^a-z,A-Z,_,-,0-9]/, 'X');

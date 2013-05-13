@@ -7,8 +7,8 @@ class DatasetsController < ApplicationController
   def index
 
     @current_city = (City.find_by_name(cookies['city']) or City.first)
-    @dataset_tags = ProcessParam.find_all_by_alive(true).map{|p| p.identifier}.uniq.sort_by! { |x| x.downcase }
-    @datasets     = Dataset.find_all_by_city_id(@current_city.id)
+    @dataset_tags = getDatasetTags()
+    @datasets     = Dataset.find_all_by_city_id(@current_city.id, :select => "*, case when title = '' or title is null then identifier else title end as sortcol", :order => :sortcol )
     @wps_servers  = WpsServer.all
 
     # Find all unique server urls in @datasets, ignoring any blank entries
@@ -138,16 +138,6 @@ class DatasetsController < ApplicationController
   end
 
 
-  def makeTag(dataset, tagVal)
-    # Prevent duplicate tags
-    if dataset and not dataset.dataset_tags.find_by_tag(tagVal) then
-      tag = DatasetTag.new
-      tag.dataset_id = dataset.id
-      tag.tag = tagVal
-      tag.save
-    end
-  end 
-
   # DELETE /datasets/1
   # DELETE /datasets/1.json
   def destroy
@@ -168,7 +158,7 @@ class DatasetsController < ApplicationController
 
   def mass_import
     @datasets        = Dataset.all
-    @dataset_tags    = ProcessParam.find_all_by_alive(true).map{|p| p.identifier}.uniq.sort_by! { |x| x.downcase }
+    @dataset_tags    = getDatasetTags()
     @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
 
     @current_city = (City.find_by_name(cookies['city']) or City.first)
