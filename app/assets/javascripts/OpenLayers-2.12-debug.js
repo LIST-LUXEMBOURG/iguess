@@ -4211,7 +4211,7 @@ OpenLayers.Util.urlAppend = function(url, paramStr) {
  * {String} The fully formatted image location string
  */
 OpenLayers.Util.getImagesLocation = function() {
-    return OpenLayers.ImgPath || (OpenLayers._getScriptLocation() /*+ "img/"*/);
+    return OpenLayers.ImgPath || (OpenLayers._getScriptLocation() + "img/");
 };
 
 /** 

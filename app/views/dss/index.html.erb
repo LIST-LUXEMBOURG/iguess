@@ -60,9 +60,12 @@ function initMap(){
 		projection: new OpenLayers.Projection(mapProjection),
 		units: "m",
 		maxExtent: bounds,
+		controls: []
 	});
 	
 	map.addControl(new OpenLayers.Control.LayerSwitcher());
+	map.addControl(new OpenLayers.Control.Navigation());
+	map.addControl(new OpenLayers.Control.PanZoom());
 	
 	var streets =  new OpenLayers.Layer.WMS(
     	"Streets",
@@ -127,6 +130,9 @@ Ext.onReady(function(){
 	
 	initMap();
 	
+	map.zoomIn();
+	map.zoomIn();
+	
 });
 
 var lock = false;
@@ -177,7 +183,7 @@ function showWindow() {
 </script>
 
  	<a href=# onClick="showWindow();">Show window</a>
- 	<div  style="width:100%; height:800px; min-height:100%; background:white" id="MiniMap">
+ 	<div  style="width:100%; height:800px; min-height:100%; background:grey" id="SliderMap">
  	</div>
  	<br/>
 	
@@ -187,7 +193,7 @@ function showWindow() {
 	<p>Vivamus dignissim diam in ligula semper vestibulum. Aenean luctus nisi in metus ultrices eu congue odio sodales. Aenean volutpat viverra est, at feugiat libero commodo ut. Maecenas at quam eget libero feugiat ullamcorper quis placerat ligula. Aliquam et tortor vitae enim viverra faucibus.</p>
 	<br>
 	<br>
-	<h4 id="percent">Potencial: 0 %</h4>
+	<h4 id="percent">Potential: 0 %</h4>
 	<div id="slider-potential"></div>
 	<br>
 	<br>
