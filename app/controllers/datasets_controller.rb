@@ -140,6 +140,7 @@ class DatasetsController < ApplicationController
 
   # DELETE /datasets/1
   # DELETE /datasets/1.json
+  # Only called with json
   def destroy
     if params[:id] == 'destroy_by_params' then
       @dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
@@ -150,8 +151,8 @@ class DatasetsController < ApplicationController
     @dataset.destroy
 
     respond_to do |format|
-      format.html { render :text => @dataset.id, :status => :ok }
-      format.js   { render :text => @dataset.id, :status => :ok}
+      format.json { render :text => @dataset.id, :status => :ok }
+      format.js { render :text => @dataset.id, :status => :ok }
     end
   end
 

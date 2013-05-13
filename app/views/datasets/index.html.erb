@@ -11,7 +11,7 @@
     </thead>
     <tbody id="dataset-list">
       <% @datasets.each do |d| %>
-        <tr>
+        <tr id="dsid-<%= d.id %>">
           <td>
             <%= d.title.present? ? d.title : d.identifier %>
             <img src="/assets/small_question_mark.gif" class="info-icon" 
@@ -98,14 +98,24 @@
             <dt>Projections Available:</dt><dd></dd> 
             <dt>Bounding Box:</dt><dd></dd>
             <dt>Attribute Columns:</dt><dd></dd>
+            <dt>Actions:</dt>
+            <dd>
+              <%= link_to "Unregister Dataset", d, confirm: "Are you sure you want to unregister this dataset?", 
+                           method: :delete, :remote => true, :class => "dataset-deleted" %>
+            </dd>
           </dl>
         </div>
-        <div><a href="#" class="show-details">Show details >>></a></div>
+        <div>
+          <!-- return false; prevents underlying page from scrolling when -->
+          <a href="#" class="show-details" onclick="return false;">Show details >>></a>
+        </div>    
       </div>
     <% end %>
   </div>
 
-  <%= button_to "Register Datasets", { :controller => 'datasets', :action => 'mass_import', :id => 1 }, :class => 'register-datasets-button' %>
+  <%= button_to "Register Datasets", 
+                { :controller => "datasets", :action => "mass_import", :id => 1 }, 
+                :class => "register-datasets-button" %>
 
   <br />
 </div>
@@ -115,6 +125,18 @@
 <script type="text/javascript">
  $(document).ready(function() {
     $('#sortable_table').tablesorter();               // Initialize sorter
+
+
+    // Handle unregistering a dataset
+    $(".dataset-deleted").bind("ajax:success",
+             function(evt, data, status, xhr) {
+                  // Data contains the dataset_id
+                  $('#dsid-' + data).remove();                              // Remove the table row from main window
+                  $('#infotable-' + data).find(".close").trigger('click');  // Simulate click on the close button to get fade effect
+     }).bind("ajax:error", function(evt, data, status, xhr) {
+              //do something with the error here
+              alert("Could not unregister dataset.");
+     });
   });
 </script>
 
