@@ -7,7 +7,7 @@ class DatasetsController < ApplicationController
   def index
 
     @current_city = (City.find_by_name(cookies['city']) or City.first)
-    @dataset_tags = ProcessParam.find_all_by_alive(true).map{|p| p.identifier}.uniq.sort_by! { |x| x.downcase } 
+    @dataset_tags = ProcessParam.find_all_by_alive(true).map{|p| p.identifier}.uniq.sort_by! { |x| x.downcase }
     @datasets     = Dataset.find_all_by_city_id(@current_city.id)
     @wps_servers  = WpsServer.all
 
@@ -132,8 +132,8 @@ class DatasetsController < ApplicationController
 
 # This is wrong -- only want to respond to json
     respond_to do |format|
-      format.html { render :json => dataset ? DatasetTag.find_all_by_dataset_id(dataset.id).map {|d| d.tag } : [] }
-      format.json { render :json => dataset ? DatasetTag.find_all_by_dataset_id(dataset.id).map {|d| d.tag } : [] }
+      format.html { render :json => dataset ? DatasetTag.find_all_by_dataset_id(dataset.id, :order=>:tag).map {|d| d.tag } : [] }
+      format.json { render :json => dataset ? DatasetTag.find_all_by_dataset_id(dataset.id, :order=>:tag).map {|d| d.tag } : [] }
     end
   end
 
@@ -168,7 +168,7 @@ class DatasetsController < ApplicationController
 
   def mass_import
     @datasets        = Dataset.all
-    @dataset_tags    = ProcessParam.find_all_by_alive(true).map{|p| p.identifier}.uniq.sort_by! { |x| x.downcase } 
+    @dataset_tags    = ProcessParam.find_all_by_alive(true).map{|p| p.identifier}.uniq.sort_by! { |x| x.downcase }
     @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
 
     @current_city = (City.find_by_name(cookies['city']) or City.first)
