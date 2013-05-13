@@ -61,6 +61,8 @@ Ext.onReady(function() {
 		region:'east',
 		collapsible: false,
 		floatable: false,
+	    autoScroll: true,
+	    enableDD: true,
 		width: '50%',
 		xtype: "gx_mappanel",
 		map: WebGIS.rightMap,
@@ -76,12 +78,12 @@ Ext.onReady(function() {
     nodeType: "gx_overlaylayercontainer",
     expanded: true
   }];
-
+  
   // Layer list
   WebGIS.layerTree = new Ext.tree.TreePanel({
-    region: "west",
+    //region: "west",
     title: 'Map Layers',
-    width: 270,
+    //width: 270,
     collapsible: true,
     autoScroll: true,
     enableDD: true,
@@ -104,6 +106,28 @@ Ext.onReady(function() {
             fn:WebGIS.treeClickListener
         }
     }
+  });
+  
+  WebGIS.legend = new Ext.Panel({ 
+		//region: "east",
+		title: "Legend",
+		xtype: "gx_legendpanel",
+		//width: 150,
+		collapsible: true,
+		autoScroll: true,
+		enableDD: true,
+		padding: 5,
+		rootVisible: false,
+		lines: false
+  });
+  
+  accordeon = new Ext.Panel({
+		title: 'Data',
+		region:'west',   	
+		collapsible: true,
+		width: 270,
+		layout: 'accordion',
+		items: [WebGIS.layerTree, WebGIS.legend]
   });
   
   var centralPanel = new Ext.Panel({
@@ -170,8 +194,9 @@ Ext.onReady(function() {
     items: [
             //mapPanel,
             centralPanel,
-            WebGIS.layerTree,
-            { // Legend: must be created here to be auto-linked to the map
+            //WebGIS.layerTree,
+            accordeon,
+            /*{ // Legend: must be created here to be auto-linked to the map
         		region: "east",
         		title: "Legend",
         		xtype: "gx_legendpanel",
@@ -182,7 +207,7 @@ Ext.onReady(function() {
         		padding: 5,
         		rootVisible: false,
         		lines: false
-          }]
+          }*/]
   });
 
   WebGIS.zoomToCity();
