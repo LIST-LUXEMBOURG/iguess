@@ -183,28 +183,16 @@
                                checked: registered 
                              });
 
-        var goog = $(document.createElement('img'));
+        // var locl = $(document.createElement('img'));
 
-        if(availableInGoogleProjection)
-          goog.attr({ src: '/assets/available_google_projection_yes.png', 
-                      alt: 'Available in Google projection' 
-                    });
-        else
-          goog.attr({ src: '/assets/available_google_projection_no.png',  
-                      alt: 'Not available in Google projection' 
-                    });
-        
-
-        var locl = $(document.createElement('img'));
-
-        if(availableInLocalProjection)
-          locl.attr({ src: '/assets/available_local_projection_yes.png', 
-                      alt: 'Available in local projection' 
-                    });
-        else
-          locl.attr({ src: '/assets/available_local_projection_no.png',  
-                      alt: 'Not available in local projection' 
-                    });
+        // if(availableInLocalProjection)
+        //   locl.attr({ src: '/assets/available_local_projection_yes.png', 
+        //               alt: 'Available in local projection' 
+        //             });
+        // else
+        //   locl.attr({ src: '/assets/available_local_projection_no.png',  
+        //               alt: 'Not available in local projection' 
+        //             });
 
 
         var titleNode = $(document.createElement('div'));
@@ -229,9 +217,15 @@
 
         var srsNode = $(document.createElement('div'));
         srsNode.attr({ class:'dataset_srs' });
-        srsNode.append(goog)
-               .append('<br>')
-               .append(locl);
+
+
+        srsNode.append('<div><span class="proj-background">available in global projection</span><span class="' + 
+                              (availableInGoogleProjection ? 'yes-background' : 'no-background') + '">' + 
+                              (availableInGoogleProjection ? 'yes'            : 'no')            + '</span></div>')
+               .append('<div><span class="proj-background">available in local projection</span><span class="' + 
+                              (availableInLocalProjection ? 'yes-background' : 'no-background') + '">' + 
+                              (availableInLocalProjection ? 'yes'            : 'no')            + '</span></div>')
+               .append('<br><br><br>');
 
 
         var data_info = $(document.createElement('div'));

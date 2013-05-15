@@ -281,11 +281,44 @@
 }
 
 .tag[disabled] {
-  background-color:#E0E0E0;
+  background-color: #E0E0E0;
   color: #888888;
   border-bottom: 1px solid #999999;
   border-right:  1px solid #AAAAAA;
 } 
+
+
+.proj-background, .yes-background, .no-background {
+  padding: 0;
+  text-shadow: 1px 1px #333333;
+  color: white;
+  white-space: nowrap;
+  /*border: 1px solid #333333;*/
+  text-align: center;
+  margin-top: 1px; 
+  margin-bottom: 3px;
+}
+
+.proj-background {
+  float: left;
+  width: 180px;
+  background-color: #4e4f4f;
+  margin-right: 0px;
+}
+
+.yes-background, .no-background {
+  width: 30px;
+  float: left;
+  margin-left: 0px;
+}
+
+.yes-background {
+  background-color: #01b002;
+}
+
+.no-background {
+  background-color: #aa0000;
+}
 
 
 
