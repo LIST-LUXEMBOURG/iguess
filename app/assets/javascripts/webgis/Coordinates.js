@@ -8,6 +8,19 @@
  */
 var WebGIS = WebGIS || { };
 
+//WebGIS.degreeSymbol = "&#176;";
+WebGIS.degreeSymbol = "º";
+
+WebGIS.updateCoords = function(lonLat)
+{
+	lonLat4326 = lonLat.transform(
+			WebGIS.leftMap.getProjectionObject(),
+            new OpenLayers.Projection(WebGIS.displayProjection));
+	
+	WebGIS.coordsLongLabel.setText(WebGIS.convertDMS(lonLat4326.lon, "LON")); 
+	WebGIS.coordsLatLabel.setText(WebGIS.convertDMS(lonLat4326.lat, "LAT"));	
+}
+
 /**
  * Decimal to DMS conversion
  */
@@ -37,14 +50,7 @@ WebGIS.convertDMS = function(coordinate, type) {
    * This section had to be changed from the original to look a bit more friendly
    */
 
-  /*coords[0] = coordinatedegrees;
-   coords[1] = coordinateminutes;
-   coords[2] = coordinateseconds;
-   coords[3] = this.getHemi(coordinate, type);
-
-   return coords;*/
-
-  return coordinatedegrees + "&#176; " +
+  return coordinatedegrees + WebGIS.degreeSymbol + " " +
           coordinateminutes + "' " +
           (parseFloat(coordinateseconds).toFixed(parseFloat(2))) + "\" " +
           this.getHemi(coordinate, type);
