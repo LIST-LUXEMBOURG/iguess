@@ -280,9 +280,14 @@
   padding-right: 5px;
 }
 
-.tag[disabled] {
-  background-color: #E0E0E0;
+span[disabled]
+{
   color: #888888;
+}
+
+
+.tag[disabled] {        /* Also affected by span[disabled] style */
+  background-color: #E0E0E0;
   border-bottom: 1px solid #999999;
   border-right:  1px solid #AAAAAA;
 } 

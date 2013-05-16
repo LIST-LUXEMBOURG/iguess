@@ -103,6 +103,31 @@
   };
 
 
+  // Take an array or comma-separated list of tags and format them into some presentation quality HTML
+  var createTagList = function(taglist, deletable, serverUrl, datasetIdentifier) 
+  {
+      if(typeof(taglist) === "string")
+        taglist = taglist.split(",");
+
+      var delBtn = "";
+
+      if(deletable) 
+        delBtn = '<span class="tag-delete-button" ' +
+                 'data-url="' + serverUrl + '" ' +
+                 'data-identifier="' + datasetIdentifier + '"></span>';
+
+
+      var list = "";
+      var strings = typeof(taglist[0]) === "string";
+
+      for(var i = 0, len = taglist.length; i < len; i++) 
+        list += '<span class="tag">' + delBtn +
+                  (strings ? taglist[i] : taglist[i].tag) + "</span> ";  // <== trailing space needed
+
+     return list; 
+  };
+
+
   var alreadyShownWmsError = false;   // Prevent us from being swamped by the same error message over and over
 
   var displayLayers = function() 
@@ -123,7 +148,7 @@
     }
 
 
-    $('#layer-display').html('');   // Clear the decks
+    $("#layer-display").html("");   // Clear the decks
 
 
     // Render found datasets in two passes -- first for registered items, second for unregistered ones.
@@ -135,9 +160,9 @@
         var layer = discoveredLayers[urlId];
 
         // Skip layers that the user has filtered out with the service radio buttons
-        if(!showWfs() && !layer.type.hasObject('WMS')) { continue; }
-        if(!showWms() && !layer.type.hasObject('WFS')) { continue; }
-        if(!showWcs() && !layer.type.hasObject('WCS')) { continue; }
+        if(!showWfs() && !layer.type.hasObject("WMS")) { continue; }
+        if(!showWms() && !layer.type.hasObject("WFS")) { continue; }
+        if(!showWcs() && !layer.type.hasObject("WCS")) { continue; }
 
         // Avoid double-counting: only count layers during first pass
         if(pass == 0) {
@@ -160,7 +185,7 @@
           first = false;
         }
 
-        var mapDivId = 'map' + mapId++;
+        var mapDivId = "map" + mapId++;
 
         var availableInLocalProjection  = false;
         var availableInGoogleProjection = false;
@@ -175,11 +200,11 @@
       
         var registerControl = $(document.createElement('input'));
 
-        registerControl.attr({ type:    'checkbox', 
-                               name:    'registered_' + layer.identifier, 
-                               class:   'switchbox',
-                               id:      'registered_' + layer.identifier, 
-                               value:   'registered', 
+        registerControl.attr({ type:    "checkbox", 
+                               name:    "registered_" + layer.identifier, 
+                               class:   "switchbox",
+                               id:      "registered_" + layer.identifier, 
+                               value:   "registered", 
                                checked: registered 
                              });
 
@@ -223,8 +248,8 @@
                               (availableInGoogleProjection ? 'yes-background' : 'no-background') + '">' + 
                               (availableInGoogleProjection ? 'yes'            : 'no')            + '</span></div>')
                .append('<div><span class="proj-background">available in local projection</span><span class="' + 
-                              (availableInLocalProjection ? 'yes-background' : 'no-background') + '">' + 
-                              (availableInLocalProjection ? 'yes'            : 'no')            + '</span></div>')
+                              (availableInLocalProjection  ? 'yes-background' : 'no-background') + '">' + 
+                              (availableInLocalProjection  ? 'yes'            : 'no')            + '</span></div>')
                .append('<br><br><br>');
 
 
@@ -236,17 +261,17 @@
         data_info.append(srsNode)
                  .append(registerControl)
                  .append(servicesAvailNode)
-                 .append('<div class="tag-control"><span class="taglist-deletable-' + urlId + ' taglist">' +  
-                          (regLyr && regLyr.tags !== '' ? createTagList(regLyr.tags, true, 
-                                                                        layer.serverUrl, layer.identifier) : 'None') +
+                 .append('<div class="tag-control"><span class="taglist-deletable-' + urlId + ' taglist"' + (regLyr ? "" : " disabled='disabled'") + '>' +  
+                          (regLyr && regLyr.tags.length > 0 ?  createTagList(regLyr.tags, true, 
+                                                                        layer.serverUrl, layer.identifier) : "No tags" ) +
                          '</span>' + 
                          makeTagPickerControl(layer, tagPickerControlId, registered) + '</div>');
 
-        var sample_map = $(document.createElement('div'));
-        sample_map.attr({ id:mapDivId, class:'sample-map' });   // Map will be rendered based on div's id
+        var sample_map = $(document.createElement("div"));
+        sample_map.attr({ id:mapDivId, class:"sample-map" });   // Map will be rendered based on div's id
 
-        var container = $(document.createElement('div'));
-        container.attr({ class:'dataset ' + (registered ? 'registered_dataset' : 'unregistered_dataset'), id:'td_' + layer.identifier });
+        var container = $(document.createElement("div"));
+        container.attr({ class:"dataset " + (registered ? "registered_dataset" : "unregistered_dataset"), id:"td_" + layer.identifier });
         container.append(titleNode)
                  .append(abstractNode)
                  .append(data_info)
@@ -389,9 +414,10 @@
         // Remove layer from the list of registered layers
         delete registeredDataLayers[serverUrl][datasetIdentifier];
 
-        $('.taglist-deletable-' + urlId + ' .tag')              .attr('disabled', true);
-        $('.taglist-deletable-' + urlId + ' .tag-delete-button').attr('disabled', true);
-        $('.taglist-deletable-' + urlId + ' .tag-delete-button').off('click');   // Disable clicking
+        $(".taglist-deletable-" + urlId + " .tag")              .attr("disabled", true);
+        $(".taglist-deletable-" + urlId + " .tag-delete-button").attr("disabled", true);
+        $(".taglist-deletable-" + urlId + " .tag-delete-button").off("click");   // Disable clicking
+        $(".taglist-deletable-" + urlId).attr("disabled", true);
 
       } else {
         // ===== Register dataset =====
@@ -401,13 +427,15 @@
         var layer = discoveredLayers[urlId];
 
         var service = '';
-        if(     layer.type.hasObject('WFS')) { service = 'WFS'; }
-        else if(layer.type.hasObject('WCS')) { service = 'WCS'; }
+        if(     layer.type.hasObject("WFS")) { service = "WFS"; }
+        else if(layer.type.hasObject("WCS")) { service = "WCS"; }
 
         var taglist = extractTagList(serverUrl, datasetIdentifier);
 
-        var title    = $('#dataset-title-'    + datasetIdentifier).text();
-        var abstract = $('#dataset-abstract-' + datasetIdentifier).text();
+        var title    = $("#dataset-title-"    + datasetIdentifier).text();
+        var abstract = $("#dataset-abstract-" + datasetIdentifier).text();
+
+        $(".taglist-deletable-" + urlId).attr("disabled", false);
 
 
         // Let the server know this layer is now registered -- to do this we must create a new record in
