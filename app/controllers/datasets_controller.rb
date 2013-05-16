@@ -7,8 +7,8 @@ class DatasetsController < ApplicationController
   def index
 
     @current_city = (City.find_by_name(cookies['city']) or City.first)
-    @dataset_tags = ProcessParam.find_all_by_alive(true).map{|p| p.identifier}.uniq.sort_by! { |x| x.downcase } 
-    @datasets     = Dataset.find_all_by_city_id(@current_city.id)
+    @dataset_tags = getDatasetTags()
+    @datasets     = Dataset.find_all_by_city_id(@current_city.id, :select => "*, case when title = '' or title is null then identifier else title end as sortcol", :order => :sortcol )
     @wps_servers  = WpsServer.all
 
     # Find all unique server urls in @datasets, ignoring any blank entries
@@ -132,24 +132,15 @@ class DatasetsController < ApplicationController
 
 # This is wrong -- only want to respond to json
     respond_to do |format|
-      format.html { render :json => dataset ? DatasetTag.find_all_by_dataset_id(dataset.id).map {|d| d.tag } : [] }
-      format.json { render :json => dataset ? DatasetTag.find_all_by_dataset_id(dataset.id).map {|d| d.tag } : [] }
+      format.html { render :json => dataset ? DatasetTag.find_all_by_dataset_id(dataset.id, :order=>:tag).map {|d| d.tag } : [] }
+      format.json { render :json => dataset ? DatasetTag.find_all_by_dataset_id(dataset.id, :order=>:tag).map {|d| d.tag } : [] }
     end
   end
 
 
-  def makeTag(dataset, tagVal)
-    # Prevent duplicate tags
-    if dataset and not dataset.dataset_tags.find_by_tag(tagVal) then
-      tag = DatasetTag.new
-      tag.dataset_id = dataset.id
-      tag.tag = tagVal
-      tag.save
-    end
-  end 
-
   # DELETE /datasets/1
   # DELETE /datasets/1.json
+  # Only called with json
   def destroy
     if params[:id] == 'destroy_by_params' then
       @dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
@@ -160,15 +151,15 @@ class DatasetsController < ApplicationController
     @dataset.destroy
 
     respond_to do |format|
-      format.html { render :text => @dataset.id, :status => :ok }
-      format.js   { render :text => @dataset.id, :status => :ok}
+      format.json { render :text => @dataset.id, :status => :ok }
+      format.js { render :text => @dataset.id, :status => :ok }
     end
   end
 
 
   def mass_import
     @datasets        = Dataset.all
-    @dataset_tags    = ProcessParam.find_all_by_alive(true).map{|p| p.identifier}.uniq.sort_by! { |x| x.downcase } 
+    @dataset_tags    = getDatasetTags()
     @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
 
     @current_city = (City.find_by_name(cookies['city']) or City.first)

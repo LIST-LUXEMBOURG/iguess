@@ -1,10 +1,26 @@
 class Dataset < ActiveRecord::Base
   has_many :mod_configs, :through => :config_datasets
   has_many :config_datasets, :dependent => :destroy
-  has_many :dataset_tags, :dependent => :destroy
+  has_many :dataset_tags, :dependent => :destroy, :order => :tag
   belongs_to :city
   belongs_to :dataserver
 end
+
+
+def getDatasetTags
+  return ProcessParam.find_all_by_alive(true).map{|p| p.identifier}.uniq.sort_by! { |x| x.downcase }
+end
+
+
+def makeTag(dataset, tagVal)
+  # Prevent duplicate tags
+  if dataset and not dataset.dataset_tags.find_by_tag(tagVal) then
+    tag = DatasetTag.new
+    tag.dataset_id = dataset.id
+    tag.tag = tagVal
+    tag.save
+  end
+end 
 
 
 # We have the equivalent in javascript as well
