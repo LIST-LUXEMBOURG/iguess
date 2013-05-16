@@ -55,6 +55,7 @@ Ext.onReady(function() {
     xtype: "gx_mappanel",
     map: WebGIS.leftMap,
     items: [leftZoomSlider],
+    bbar: WebGIS.createBbar(),
     tbar: {
         height: 100,
         items:[
@@ -294,3 +295,50 @@ WebGIS.createTbarItems = function(map) {
   }));
   return actions;
 };
+
+/**
+ * Method: createBbar
+ * Creates bottom bar
+ *
+ * Returns:
+ * {Ext.Panel} An Ext panel with the bottom objects.
+ */
+WebGIS.createBbar = function() {
+	
+	var scaleLabel = new Ext.form.Label({text: "Scale:    "});
+
+	var scaleStore = new GeoExt.data.ScaleStore({map: WebGIS.leftMap});
+	
+	var zoomSelector = new Ext.form.ComboBox({
+	    store: scaleStore,
+	    emptyText: "Zoom Level",
+	    tpl: '<tpl for="."><div class="x-combo-list-item">1 : {[parseInt(values.scale)]}</div></tpl>',
+	    editable: false,
+	    triggerAction: 'all', // needed so that the combo box doesn't filter by its current content
+	    mode: 'local' // keep the combo box from forcing a lot of unneeded data refreshes
+	});
+	
+	zoomSelector.on('select', 
+	    function(combo, record, index) {
+			WebGIS.leftMap.zoomTo(record.data.level);
+			WebGIS.rightMap.zoomTo(record.data.level);
+	    },
+	    this
+	);     
+	
+	WebGIS.leftMap.events.register('zoomend', this, function() {
+	    var scale = scaleStore.queryBy(function(record){
+	        return WebGIS.leftMap.getZoom() == record.data.level;
+	    });
+	
+	    if (scale.length > 0) {
+	        scale = scale.items[0];
+	        zoomSelector.setValue("1 : " + parseInt(scale.data.scale));
+	    } else {
+	        if (!zoomSelector.rendered) return;
+	        zoomSelector.clearValue();
+	    }
+	});
+	
+	return [scaleLabel, zoomSelector];
+}

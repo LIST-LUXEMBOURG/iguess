@@ -83,5 +83,4 @@ WebGIS.initParallelEvents = function()
 	WebGIS.rightMap.events.register("mousemove", null, WebGIS.rightMapMouseMove);
 	WebGIS.rightMap.events.register("mouseout",  null, WebGIS.rightMapMouseOut);
 	WebGIS.rightMap.events.register("mouseover", null, WebGIS.rightMapMouseOver);
-
 };

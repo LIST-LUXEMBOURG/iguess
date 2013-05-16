@@ -51,13 +51,17 @@ WebGIS.initMap = function () {
     	projection: 		mapProjection,
     	displayProjection: 	new OpenLayers.Projection(WebGIS.displayProjection),
     	units: 				"m",
-    	maxExtent: 			boundsMap
+    	maxExtent: 			boundsMap,
+    	controls: 			[ new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]
     });
 
     WebGIS.leftMP = new OpenLayers.Control.MousePosition({
       formatOutput: function(lonLat) {
         var markup = WebGIS.convertDMS(lonLat.lon, "LON") + "  ";
         markup += WebGIS.convertDMS(lonLat.lat, "LAT");
+        /*WebGIS.rightMP.formatOutput(lonLat);
+        WebGIS.rightMP.draw();
+        WebGIS.rightMP.redraw(null);*/
         return markup;
       }
     });
