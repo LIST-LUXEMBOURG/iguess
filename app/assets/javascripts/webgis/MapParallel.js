@@ -35,18 +35,22 @@ WebGIS.leftMapMouseOut = function()
 
 WebGIS.leftMapMouseMove = function(e)
 {
+	var lonLat = WebGIS.leftMap.getLonLatFromPixel(e.xy);
+	
 	WebGIS.rightMarkers.clearMarkers();
-	WebGIS.rightPointer = new OpenLayers.Marker(WebGIS.leftMap.getLonLatFromPixel(e.xy), WebGIS.chIcon);
+	WebGIS.rightPointer = new OpenLayers.Marker(lonLat, WebGIS.chIcon);
 	WebGIS.rightMarkers.addMarker(WebGIS.rightPointer);
-	WebGIS.rightMP.redraw();
+	
+	WebGIS.updateCoords(lonLat);
 }
 
 WebGIS.rightMapMouseOver = function(e)
 {
-	// Markers must be re-added to the leftMap, otherwise thepointer won't show up
+	// Markers must be re-added to the leftMap, otherwise the pointer won't show up
 	WebGIS.leftMap.addLayer(WebGIS.leftMarkers);
 	WebGIS.leftPointer = new OpenLayers.Marker(WebGIS.rightMap.getLonLatFromPixel(e.xy), WebGIS.chIcon);
 	WebGIS.leftMarkers.addMarker(WebGIS.leftPointer);
+	WebGIS.coords.text = WebGIS.rightMap.getLonLatFromPixel(e.xy);
 }
 
 WebGIS.rightMapMouseOut = function()
@@ -56,11 +60,13 @@ WebGIS.rightMapMouseOut = function()
 
 WebGIS.rightMapMouseMove = function(e)
 {
+	var lonLat = WebGIS.leftMap.getLonLatFromPixel(e.xy);
 	
 	WebGIS.leftMarkers.clearMarkers();
-	WebGIS.leftPointer = new OpenLayers.Marker(WebGIS.rightMap.getLonLatFromPixel(e.xy), WebGIS.chIcon);
+	WebGIS.leftPointer = new OpenLayers.Marker(lonLat, WebGIS.chIcon);
 	WebGIS.leftMarkers.addMarker(WebGIS.leftPointer);
-	WebGIS.leftMP.redraw();
+	
+	WebGIS.updateCoords(lonLat);
 }
 
 WebGIS.rightMapMove = function()

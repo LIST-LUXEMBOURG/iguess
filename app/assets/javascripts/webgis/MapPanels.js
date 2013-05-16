@@ -11,6 +11,9 @@ var WebGIS = WebGIS || { };
 
 WebGIS.layerTree;
 
+WebGIS.coordsLatLabel = null;
+WebGIS.coordsLongLabel = null;
+
 Ext.onReady(function() {
 
   // Skip this stuff if the BroadMap div does not exist
@@ -318,6 +321,9 @@ WebGIS.createTbarItems = function(map) {
  */
 WebGIS.createBbar = function() {
 	
+	WebGIS.coordsLatLabel  = new Ext.form.Label({text: " "});
+	WebGIS.coordsLongLabel = new Ext.form.Label({text: " "});
+	
 	var scaleLabel = new Ext.form.Label({text: "Scale:    "});
 
 	var scaleStore = new GeoExt.data.ScaleStore({map: WebGIS.leftMap});
@@ -355,5 +361,6 @@ WebGIS.createBbar = function() {
 	    }
 	});
 	
-	return ['-', scaleLabel, zoomSelector, '-'];
+	return ['-', scaleLabel, zoomSelector, '-', '->', 
+	         '-', WebGIS.coordsLongLabel, '-', WebGIS.coordsLatLabel, '-'];
 }
