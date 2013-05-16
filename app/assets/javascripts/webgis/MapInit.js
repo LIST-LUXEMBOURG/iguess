@@ -51,8 +51,8 @@ WebGIS.initMap = function () {
     	projection: 		mapProjection,
     	displayProjection: 	new OpenLayers.Projection(WebGIS.displayProjection),
     	units: 				"m",
-    	maxExtent: 			boundsMap,
-    	controls: 			[ new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]
+    	maxExtent: 			boundsMap/*,
+    	controls: 			[ new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]*/
     });
 
     WebGIS.leftMP = new OpenLayers.Control.MousePosition({

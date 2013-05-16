@@ -22,6 +22,17 @@ Ext.onReady(function() {
   WebGIS.initMap();
   
   WebGIS.initWinIdentify();
+  
+  var bBar = new Ext.Toolbar({
+	  region: "south",
+	  height: 24,
+	  border: 0,
+	  collapsible: false,
+	  floatable: false,
+	  autoScroll: false,
+	  enableDD: false,
+	  items: WebGIS.createBbar()
+  });
 
   var leftZoomSlider = new GeoExt.ZoomSlider({
     xtype: "gx_zoomslider",
@@ -55,7 +66,7 @@ Ext.onReady(function() {
     xtype: "gx_mappanel",
     map: WebGIS.leftMap,
     items: [leftZoomSlider],
-    bbar: WebGIS.createBbar(),
+    //bbar: WebGIS.createBbar(),
     tbar: {
         height: 100,
         items:[
@@ -177,7 +188,7 @@ Ext.onReady(function() {
 	      autoHide: false,
 	      useSplitTips: true,
 	    },
-		items: [leftPanel, rightPanel]
+		items: [leftPanel, rightPanel, bBar]
   });
 	
   
@@ -195,9 +206,11 @@ Ext.onReady(function() {
     },
     items: [
             //mapPanel,
+            
             centralPanel,
             //WebGIS.layerTree,
             accordeon,
+            
             /*{ // Legend: must be created here to be auto-linked to the map
         		region: "east",
         		title: "Legend",
@@ -314,6 +327,8 @@ WebGIS.createBbar = function() {
 	    emptyText: "Zoom Level",
 	    tpl: '<tpl for="."><div class="x-combo-list-item">1 : {[parseInt(values.scale)]}</div></tpl>',
 	    editable: false,
+	    width: 120,
+	    //height: 66,
 	    triggerAction: 'all', // needed so that the combo box doesn't filter by its current content
 	    mode: 'local' // keep the combo box from forcing a lot of unneeded data refreshes
 	});
@@ -340,5 +355,5 @@ WebGIS.createBbar = function() {
 	    }
 	});
 	
-	return [scaleLabel, zoomSelector];
+	return ['-', scaleLabel, zoomSelector, '-'];
 }
