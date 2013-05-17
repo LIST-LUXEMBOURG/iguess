@@ -98,7 +98,6 @@ class ModConfigsController < ApplicationController
   # Only called via ajax request... need to fire up WPSClient and tell it to start
   # running the specified module
   def run
-
     @mod_config = ModConfig.find(params[:id])
     # @city = 
 
@@ -333,7 +332,7 @@ class ModConfigsController < ApplicationController
     end
 
 
-    @mod_config.status = nil
+    #@mod_config.status = 'nil'  <== caused status to be reset when editing the description or title
 
     # @mod_config.status = getStatus(@mod_config)
 
