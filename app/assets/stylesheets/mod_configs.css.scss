@@ -193,11 +193,22 @@
 
 /* a title inside pane */
 #module-catalog .catalog-item h3 {
-    font-weight:normal;
+    font-weight: normal;
     margin:0;
     font-size:16px;
     color:#999;
 }
 
+
+.process-identifier {
+  border: 1px solid black;
+  float: right;
+  padding: 3px 8px;
+  margin: 3px 6px;
+}
+
+.process-identifier span {
+  font-style: italic;
+}
 
 

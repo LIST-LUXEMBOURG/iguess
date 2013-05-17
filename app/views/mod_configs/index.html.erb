@@ -101,6 +101,7 @@
         <% @wps_processes.each do |p| %>
           <h2 class="process-title"><%= p.title %></h2>
           <div class="catalog-item">
+            <div class = "process-identifier">Identifier: <span><%= p.identifier %></span></div>
             <div class="process-descr"><%= p.abstract %></div>
             <div class="process-server-name">
               <span class="hosted-by">Hosted by:</span><span class="server-name"><%= p.wps_server.title %></span>
