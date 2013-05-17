@@ -70,7 +70,7 @@
   <%= link_to 'View Module List', mod_configs_path, :class => 'linkbutton' %>
 
   <span id="run_module_button_container" style="display:none">
-    <%= button_to 'Run Module >>>', { :action => 'run', :controller => 'mod_configs', :id => @mod_config}, 
+    <%= link_to 'Run Module >>>', { :action => 'run', :controller => 'mod_configs', :id => @mod_config}, 
                                    :remote => true, :class => 'linkbutton', :id => 'run-module-button', 
                                    # :confirm =>'Are you sure?',
                                    form: { :id => "run-module-form", 'data-type' => 'json' }  %>
@@ -78,7 +78,7 @@
 
 
   <span id="stop_module_button_container" style="display:none">
-    <%= button_to 'Stop Running >>>', { :action => 'stop_running', :controller => 'mod_configs', :id => @mod_config }, 
+    <%= link_to 'Stop Running >>>', { :action => 'stop_running', :controller => 'mod_configs', :id => @mod_config }, 
                                :remote => true, :class => 'linkbutton', :id => 'stop-module-button', 
                                :confirm =>'Are you sure you want to stop running the module??',
                                form: { :id => "stop-module-form", 'data-type' => 'json' }  %>

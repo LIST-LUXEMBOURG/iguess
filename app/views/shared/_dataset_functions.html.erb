@@ -348,37 +348,13 @@
   };
 
 
-  // Take an array or comma-separated list of tags and format them into some presentation quality HTML
-  var createTagList = function(taglist, deletable, serverUrl, datasetIdentifier) 
-  {
-      if(typeof(taglist) === 'string')
-        taglist = taglist.split(',');
-
-      var delBtn = '';
-
-      if(deletable) 
-        delBtn = '<span class="tag-delete-button" ' +
-                 'data-url="' + serverUrl + '" ' +
-                 'data-identifier="' + datasetIdentifier + '"></span>';
-
-
-      var list = "";
-      var strings = typeof(taglist[0]) === 'string';
-
-      for(var i = 0, len = taglist.length; i < len; i++) 
-        list += '<span class="tag">' + delBtn +
-                  (strings ? taglist[i] : taglist[i].tag) + '</span> ';  // <== space needed
-
-     return list; 
-  };
-
 
   var updateTags = function(serverUrl, datasetIdentifier, tags)
   {
     var urlId = cssEscape(serverUrl + datasetIdentifier);
 
-    $('.taglist-deletable-' + urlId).html(tags.length > 0 ? createTagList(tags, true, serverUrl, datasetIdentifier) : 'None');
-    $('.taglist-' + urlId).html(tags.length > 0 ? createTagList(tags, false, serverUrl, datasetIdentifier) : 'None');
+    $('.taglist-deletable-' + urlId).html(tags.length > 0 ? createTagList(tags, true, serverUrl, datasetIdentifier) : 'No tags');
+    $('.taglist-' + urlId).html(tags.length > 0 ? createTagList(tags, false, serverUrl, datasetIdentifier) : 'No tags');
 
     addDeleteTagClickHander();
   };
