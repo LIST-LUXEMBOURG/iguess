@@ -74,6 +74,18 @@ DSS.initMap = function()
         {isBaseLayer: true,  
      	 visibility: true}
     );
+	
+	var buildsWMS =  new OpenLayers.Layer.WMS(
+    	"BuildingsWMS",
+    	"http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
+        {layers: "RO_buildings_gml", 
+         format: "image/png",
+         srsName: DSS.mapProjection,
+	 	 transparent: "true",
+     	 projection: new OpenLayers.Projection(DSS.mapProjection)},
+        {isBaseLayer: false,  
+     	 visibility: true}
+    );
        
     DSS.buildsGML = new OpenLayers.Layer.Vector("BuildingsGML", {
         protocol: new OpenLayers.Protocol.HTTP({
@@ -83,8 +95,31 @@ DSS.initMap = function()
         styleMap: DSS.style,
         strategies: [new OpenLayers.Strategy.Fixed()]
     });
+    
+    //var propertyNames = ["fid", "cat", "DESCRIPTIO", "msGeometry"];
+    
+    buildsWFS = new OpenLayers.Layer.Vector("BuildingsWFS", {
+        strategies: [new OpenLayers.Strategy.Fixed()],
+        projection: new OpenLayers.Projection(DSS.mapProjection),
+        protocol: new OpenLayers.Protocol.WFS({
+            url: "http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
+            //propertyNames: propertyNames,
+            //geometryName: "msGeometry",
+            featureType: "RO_buildings_gml",
+            //"featurePrefix": "ms",
+            //featureNS: "http://services.iguess.tudor.lu/",
+            featureNS: "http://mapserver.gis.umn.edu/mapserver",
+            srsName: DSS.mapProjection
+            //"maxFeatures": 1000,
+            //"version": "1.0.0",
+            //outputFormat: "application/gml",
+            //readFormat: new OpenLayers.Format.GML()
+        })
+    });
+    
 
-	DSS.map.addLayers([streets, DSS.buildsGML]);
+
+	DSS.map.addLayers([streets, buildsWMS, DSS.buildsGML, buildsWFS]);
 	
 	DSS.map.zoomIn();
 	DSS.map.zoomIn();

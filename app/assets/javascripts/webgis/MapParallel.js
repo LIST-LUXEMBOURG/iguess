@@ -8,8 +8,10 @@
 var WebGIS = WebGIS || { };
 
 WebGIS.chSize = new OpenLayers.Size(17,17);
-WebGIS.chOffset = new OpenLayers.Pixel(-(WebGIS.chSize.w/2), -(WebGIS.chSize.h/2));
-WebGIS.chIcon = new OpenLayers.Icon('/assets/crosshairSimple.png', WebGIS.chSize, WebGIS.chOffset);
+WebGIS.chOffsetRight = new OpenLayers.Pixel(-(WebGIS.chSize.w/2) - 0, -(WebGIS.chSize.h/2) - 1);
+WebGIS.chOffsetLeft  = new OpenLayers.Pixel(-(WebGIS.chSize.w/2) - 2, -(WebGIS.chSize.h/2) - 0);
+WebGIS.chIconRight = new OpenLayers.Icon('/assets/crosshairSimple.png', WebGIS.chSize, WebGIS.chOffsetRight);
+WebGIS.chIconLeft  = new OpenLayers.Icon('/assets/crosshairSimple.png', WebGIS.chSize, WebGIS.chOffsetLeft);
 
 WebGIS.rightMarkers = new OpenLayers.Layer.Markers( "Markers" );
 WebGIS.leftMarkers = new OpenLayers.Layer.Markers( "Markers" );
@@ -24,7 +26,7 @@ WebGIS.leftMapMove = function()
 
 WebGIS.leftMapMouseOver = function(e)
 {
-	WebGIS.rightPointer = new OpenLayers.Marker(WebGIS.leftMap.getLonLatFromPixel(e.xy), WebGIS.chIcon);
+	WebGIS.rightPointer = new OpenLayers.Marker(WebGIS.leftMap.getLonLatFromPixel(e.xy), WebGIS.chIconRight);
 	WebGIS.rightMarkers.addMarker(WebGIS.rightPointer);
 }
 
@@ -38,7 +40,7 @@ WebGIS.leftMapMouseMove = function(e)
 	var lonLat = WebGIS.leftMap.getLonLatFromPixel(e.xy);
 	
 	WebGIS.rightMarkers.clearMarkers();
-	WebGIS.rightPointer = new OpenLayers.Marker(lonLat, WebGIS.chIcon);
+	WebGIS.rightPointer = new OpenLayers.Marker(lonLat, WebGIS.chIconRight);
 	WebGIS.rightMarkers.addMarker(WebGIS.rightPointer);
 	
 	WebGIS.updateCoords(lonLat);
@@ -48,9 +50,8 @@ WebGIS.rightMapMouseOver = function(e)
 {
 	// Markers must be re-added to the leftMap, otherwise the pointer won't show up
 	WebGIS.leftMap.addLayer(WebGIS.leftMarkers);
-	WebGIS.leftPointer = new OpenLayers.Marker(WebGIS.rightMap.getLonLatFromPixel(e.xy), WebGIS.chIcon);
+	WebGIS.leftPointer = new OpenLayers.Marker(WebGIS.rightMap.getLonLatFromPixel(e.xy), WebGIS.chIconLeft);
 	WebGIS.leftMarkers.addMarker(WebGIS.leftPointer);
-	WebGIS.coords.text = WebGIS.rightMap.getLonLatFromPixel(e.xy);
 }
 
 WebGIS.rightMapMouseOut = function()
@@ -63,7 +64,7 @@ WebGIS.rightMapMouseMove = function(e)
 	var lonLat = WebGIS.leftMap.getLonLatFromPixel(e.xy);
 	
 	WebGIS.leftMarkers.clearMarkers();
-	WebGIS.leftPointer = new OpenLayers.Marker(lonLat, WebGIS.chIcon);
+	WebGIS.leftPointer = new OpenLayers.Marker(lonLat, WebGIS.chIconLeft);
 	WebGIS.leftMarkers.addMarker(WebGIS.leftPointer);
 	
 	WebGIS.updateCoords(lonLat);
