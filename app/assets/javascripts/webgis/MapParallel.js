@@ -77,6 +77,7 @@ WebGIS.rightMapMove = function()
 
 WebGIS.initParallelEvents = function() 
 {	
+	WebGIS.leftMarkers.displayInLayerSwitcher = false;
 	WebGIS.leftMap.addLayer(WebGIS.leftMarkers);
 	
 	WebGIS.leftMap.events.register("moveend", 	null, WebGIS.leftMapMove);
@@ -84,6 +85,7 @@ WebGIS.initParallelEvents = function()
 	WebGIS.leftMap.events.register("mouseout",  null, WebGIS.leftMapMouseOut);
 	WebGIS.leftMap.events.register("mouseover", null, WebGIS.leftMapMouseOver);
 	
+	WebGIS.rightMarkers.displayInLayerSwitcher = false;
 	WebGIS.rightMap.addLayer(WebGIS.rightMarkers);
 	
 	WebGIS.rightMap.events.register("moveend", 	 null, WebGIS.rightMapMove);
