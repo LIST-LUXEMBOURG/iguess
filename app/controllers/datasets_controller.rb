@@ -116,10 +116,8 @@ class DatasetsController < ApplicationController
     elsif params[:id] == 'del_data_tag' then
       dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
       if dataset and dataset.dataset_tags.find_by_tag(tagVal) then
-        tag = DatasetTag.find_by_dataset_id_and_tag(dataset, tagVal)
-        if tag then 
-          tag.delete
-        end
+        tags = DatasetTag.find_all_by_dataset_id_and_tag(dataset, tagVal)
+        tags.map {|t| t.delete }    # Handles the case where tag is in db more than once as result of bug elsewhere
       end
 
     # User checked or unchecked publish checkbox (NOT the register dataset checkbox!!)
