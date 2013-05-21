@@ -165,6 +165,8 @@ class ModConfigsController < ApplicationController
     cmd = 'cd '+ wpsClientPath +'; /usr/bin/python wpsstart.py ' + argUrl + ' ' +
                                    argProc + ' ' + argName + ' ' + argVals + ' ' + argOuts + ' ' + argOutTitles
 
+
+# binding.pry
     require 'open3'
     output, stat = Open3.capture2e(cmd)
 

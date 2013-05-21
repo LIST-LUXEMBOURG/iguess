@@ -212,7 +212,7 @@
 }
 
 
-/* Status of module run */
+/* Status of module run (these styles are generated, won't be found in code */
 .status-ERROR {
   background: red;
   color: white;
@@ -222,11 +222,20 @@
 }
 
 .status-NEEDS_DATA {
-
+  text-align: center;
+  display: block;
 }
 
-
 .status-READY {
-  
+  text-align: center;
+  display: block;
+}
+
+.status-RUNNING {
+  background: green;
+  color: white;
+  font-weight: bold;
+  display: block;
+  text-align: center
 }
 
