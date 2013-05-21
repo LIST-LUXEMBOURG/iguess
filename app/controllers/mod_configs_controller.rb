@@ -153,8 +153,8 @@ class ModConfigsController < ApplicationController
                                               end
                                         }
 
-    argUrl       = '--url="'        + @mod_config.wps_server.url + '"'
-    argProc      = '--procname="'   + @mod_config.identifier + '"'
+    argUrl       = '--url="'        + @mod_config.wps_process.wps_server.url + '"'
+    argProc      = '--procname="'   + @mod_config.wps_process.identifier + '"'
 
     argName      = '--names="[' + inputFields.map { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
     argVals      = '--vals="['  + inputValues.map { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
@@ -165,7 +165,6 @@ class ModConfigsController < ApplicationController
     cmd = 'cd '+ wpsClientPath +'; /usr/bin/python wpsstart.py ' + argUrl + ' ' +
                                    argProc + ' ' + argName + ' ' + argVals + ' ' + argOuts + ' ' + argOutTitles
 
-   
     require 'open3'
     output, stat = Open3.capture2e(cmd)
 
