@@ -341,12 +341,36 @@
   {
     var serverUrl         = ctrl.data('url');
     var datasetIdentifier = ctrl.data('identifier');
-    var tagVal            = ctrl.parent().text();
+    var tagVal            = ctrl.parent().text().trim();
     
     if(confirmDeleteTag(serverUrl, datasetIdentifier, tagVal))
       deleteTag(serverUrl, datasetIdentifier, tagVal);
   };
 
+
+  // Take an array or comma-separated list of tags and format them into some presentation quality HTML
+  var createTagList = function(taglist, deletable, serverUrl, datasetIdentifier) 
+  {
+      if(typeof(taglist) === "string")
+        taglist = taglist.split(",");
+
+      var delBtn = "";
+
+      if(deletable) 
+        delBtn = '<span class="tag-delete-button" ' +
+                 'data-url="' + serverUrl + '" ' +
+                 'data-identifier="' + datasetIdentifier + '"></span>';
+
+
+      var list = "";
+      var strings = typeof(taglist[0]) === "string";
+
+      for(var i = 0, len = taglist.length; i < len; i++) 
+        list += '<span class="tag">' + delBtn +
+                  (strings ? taglist[i] : taglist[i].tag) + "</span> ";  // <== trailing space needed
+
+     return list; 
+  };
 
 
   var updateTags = function(serverUrl, datasetIdentifier, tags)

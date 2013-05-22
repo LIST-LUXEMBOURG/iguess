@@ -195,24 +195,14 @@
   };
 
 
-// Make sure table is sorted
-var sorting = [[1,0], [0,0]]; 
-// sort on the first column 
+  addDeleteTagClickHander();    // Get ready to delete tags!
 
-$('#sortable_table').trigger("update"); 
-$('#sortable_table').trigger("sorton",[sorting]); 
+  // Make sure table is sorted
+  var sorting = [[1,0], [0,0]]; 
+  // sort on the first column 
 
-
-  // Gets run when user clicks on the Links tag to the right of the main table
-  // Never used?
-  var tagLinkClicked = function(urlId) {
-    var tags = [];
-
-    $('#taglist-' + urlId).children().each(function() {
-        tags.push($(this).text());
-    });
-
-  };
+  $('#sortable_table').trigger("update"); 
+  $('#sortable_table').trigger("sorton",[sorting]); 
 
 
   $(document).bind('ajax:success', function(xhr, data, status) { 

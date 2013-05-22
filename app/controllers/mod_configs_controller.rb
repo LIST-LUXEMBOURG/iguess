@@ -98,7 +98,6 @@ class ModConfigsController < ApplicationController
   # Only called via ajax request... need to fire up WPSClient and tell it to start
   # running the specified module
   def run
-
     @mod_config = ModConfig.find(params[:id])
     # @city = 
 
@@ -154,8 +153,8 @@ class ModConfigsController < ApplicationController
                                               end
                                         }
 
-    argUrl       = '--url="'        + @mod_config.wps_server.url + '"'
-    argProc      = '--procname="'   + @mod_config.identifier + '"'
+    argUrl       = '--url="'        + @mod_config.wps_process.wps_server.url + '"'
+    argProc      = '--procname="'   + @mod_config.wps_process.identifier + '"'
 
     argName      = '--names="[' + inputFields.map { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
     argVals      = '--vals="['  + inputValues.map { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
@@ -166,7 +165,8 @@ class ModConfigsController < ApplicationController
     cmd = 'cd '+ wpsClientPath +'; /usr/bin/python wpsstart.py ' + argUrl + ' ' +
                                    argProc + ' ' + argName + ' ' + argVals + ' ' + argOuts + ' ' + argOutTitles
 
-   
+    output, stat = Open3.capture2e('echo "' + cmd + '" >> /tmp/proclog' )
+
     require 'open3'
     output, stat = Open3.capture2e(cmd)
 
@@ -333,7 +333,7 @@ class ModConfigsController < ApplicationController
     end
 
 
-    @mod_config.status = nil
+    #@mod_config.status = 'nil'  <== caused status to be reset when editing the description or title
 
     # @mod_config.status = getStatus(@mod_config)
 

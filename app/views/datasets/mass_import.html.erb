@@ -77,6 +77,7 @@
     }
     else { alert("Unknown type " + type); }
 
+
     displayServerDetails(serverInfo, type);   // Display this as it comes in
 
     if(!((wfsProcessingComplete || !showWfs()) &&
@@ -103,31 +104,6 @@
   };
 
 
-  // Take an array or comma-separated list of tags and format them into some presentation quality HTML
-  var createTagList = function(taglist, deletable, serverUrl, datasetIdentifier) 
-  {
-      if(typeof(taglist) === "string")
-        taglist = taglist.split(",");
-
-      var delBtn = "";
-
-      if(deletable) 
-        delBtn = '<span class="tag-delete-button" ' +
-                 'data-url="' + serverUrl + '" ' +
-                 'data-identifier="' + datasetIdentifier + '"></span>';
-
-
-      var list = "";
-      var strings = typeof(taglist[0]) === "string";
-
-      for(var i = 0, len = taglist.length; i < len; i++) 
-        list += '<span class="tag">' + delBtn +
-                  (strings ? taglist[i] : taglist[i].tag) + "</span> ";  // <== trailing space needed
-
-     return list; 
-  };
-
-
   var alreadyShownWmsError = false;   // Prevent us from being swamped by the same error message over and over
 
   var displayLayers = function() 
@@ -144,6 +120,9 @@
                                '<div class="error-body">No data layers could be found on the specified server.<br>' +
                                'Either the URL is not that of a WMS/WFS/WCS data server, or the server is not responding. ' +
                                '</div>');
+
+      $('.server-info').show();
+
       return;
     }
 
@@ -635,7 +614,6 @@
 
     // Reset various displays
     $('.server-name').html('');   
-    $('#layer-display').html('');
     alreadyShownWmsError = false;
     discoveredLayers = {};
 
