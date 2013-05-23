@@ -182,17 +182,6 @@
   var makeTagPickerControl = function(layer, controlId, enabled)
   {
 
-    // var loadingIndicator, hidden;
-
-    // if(dataDiscoveryComplete) {
-    //   loadingIndicator = '';
-    //   hidden = '';
-    // } 
-    // else {
-    //   loadingIndicator = '<span class="loading-indicator tag-list-loading-indicator">Loading&nbsp;tags...</span>';
-    //   hidden = 'hidden';
-    // }
-
     return '<select style="float:right" class="add-tag-dropdown-control" ' + 
            'data-serverurl="' + layer.serverUrl + '" ' +   // These keys seem to get lowercased anyway... so no upper case letter pls!
            'data-datasetidentifier="' + layer.identifier + '" ' +
@@ -254,7 +243,6 @@
   // };
 
 
-  var dataDiscoveryComplete = false;
   var DataTagList = [
     <% @dataset_tags.each do |t| %>
       <%= raw("{'id': '" + t + "', 'title': '" + t + "' },") %>
