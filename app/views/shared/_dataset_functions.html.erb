@@ -145,9 +145,18 @@
 
 
   // Make sure to sanitize datasetIdentifier to remove all the crap that MapGuide puts in!
+  var sanitizeId = function(str)
+  {
+    if(typeof(str) === "string")
+      return str.replace(/\//g, "X");
+    else
+      return str;
+  }
+
+
   var getTagPickerControlId = function(datasetIdentifier)
   {
-    return 'data-type-' + datasetIdentifier.replace(/\//g, "X");
+    return 'data-type-' + sanitizeId(datasetIdentifier);
   };
 
 

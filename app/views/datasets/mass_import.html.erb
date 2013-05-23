@@ -280,7 +280,7 @@
 
 
         var titleNode = $(document.createElement('div'));
-        titleNode.attr({ class:'dataset_title', id:'dataset-title-' + layer.identifier });
+        titleNode.attr({ class:'dataset_title', id:'dataset-title-' + sanitizeId(layer.identifier) });
         titleNode.text(layer.title != "" ? layer.title : layer.identifier);
 
         var servicesAvailNode = $(document.createElement('div'));
@@ -295,7 +295,7 @@
 
         // if(layer.abstract != "") {
           abstractNode = $(document.createElement('div'));
-          abstractNode.attr({ class:'dataset_abstract', id:'dataset-abstract-' + layer.identifier});
+          abstractNode.attr({ class:'dataset_abstract', id:'dataset-abstract-' + sanitizeId(layer.identifier)});
           abstractNode.html(linkify(layer.abstract));
         // }
 
@@ -330,7 +330,7 @@
         sample_map.attr({ id:mapDivId, class:"sample-map" });   // Map will be rendered based on div's id
 
         var container = $(document.createElement("div"));
-        container.attr({ class:"dataset", id:"td_" + layer.identifier });
+        container.attr({ class:"dataset" });
         container.append(titleNode)
                  .append(abstractNode)
                  .append(data_info)
@@ -490,8 +490,8 @@
 
         var taglist = extractTagList(serverUrl, datasetIdentifier);
 
-        var title    = $("#dataset-title-"    + datasetIdentifier).text();
-        var abstract = $("#dataset-abstract-" + datasetIdentifier).text();
+        var title    = $("#dataset-title-"    + sanitizeId(datasetIdentifier)).text();
+        var abstract = $("#dataset-abstract-" + sanitizeId(datasetIdentifier)).text();
 
         $(".taglist-deletable-" + urlId).attr("disabled", false);
 

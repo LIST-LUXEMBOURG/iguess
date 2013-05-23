@@ -144,7 +144,7 @@
 
     // If this is a registered layer, update its title now (unregistered layers aren't displayed here)
     if(registeredDatasets[dataset.serverUrl] && registeredDatasets[dataset.serverUrl][dataset.identifier])
-      $(".dataset-title-" + registeredDatasets[dataset.serverUrl][dataset.identifier]).text(dataset.title);
+      $(".dataset-title-" + sanitizeId(registeredDatasets[dataset.serverUrl][dataset.identifier])).text(dataset.title);
   };
 
 
