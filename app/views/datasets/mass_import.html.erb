@@ -366,7 +366,7 @@
           if(!alreadyShownWmsError) {
             var err = '<div>We cannot display sample maps for some datasets on this server.  The most likely cause of this problem is that the server\'s WMS functionality is not properly configured.  You can see how the server responds to WMS queries by clicking here: <a href="'+ WMS.getCapReq(layer.serverUrl) + '" target="_blank">WMS GetCapabilities</a></div>';
 
-            $('#error-list').append(err).show();
+            $('#error-list').append(err).slideDown(500);
 
             alreadyShownWmsError = true;    // Only show error message once, to avoid flooding the error display
             }
@@ -700,7 +700,7 @@
     // Reset various displays
     $(".server-name").html("");   
     $("#error-list").html("");
-    $("#error-list").hide();
+    $("#error-list").slideUp(200);
     alreadyShownWmsError = false;
     discoveredLayers = {};
 
