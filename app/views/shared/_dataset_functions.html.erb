@@ -144,9 +144,10 @@
   };
 
 
+  // Make sure to sanitize datasetIdentifier to remove all the crap that MapGuide puts in!
   var getTagPickerControlId = function(datasetIdentifier)
   {
-    return 'data-type-' + datasetIdentifier;
+    return 'data-type-' + datasetIdentifier.replace(/\//g, "X");
   };
 
 
@@ -181,7 +182,7 @@
 
 // debugger;
     // for(var i = 0, len = addTagsCache.length; i < len; i++) 
-      addWfsWcsOptionsToDropdown(getTagPickerControlId(datasetId));
+      // addWfsWcsOptionsToDropdown(getTagPickerControlId(datasetId));
 
     // addTagsCache = [];    // Clear cache
   };
@@ -196,7 +197,7 @@
 
   var getLayerNameFromDataTypeId = function(ctrl)
   {
-    return ctrl.attr('id').substring('data_type_'.length); // Remove 'data_type_' from the front of the string
+    return ctrl.attr("id").substring("data_type_".length); // Remove 'data_type_' from the front of the string
   };
 
 
@@ -228,17 +229,16 @@
 
   // Helper function for makeTagPickerControl()
   var addWmsOptionToDropdown = function(controlId) {
-    $('#' + controlId).find(">:first-child").after('<option>Mapping</option>');   // We want this to be the second choice
+    $("#" + controlId).find(">:first-child").after("<option>Mapping</option>");   // We want this to be the second choice
   };
 
 
   // Helper function for makeTagPickerControl() -- here, controlId is the id of the select control we're adding options to
   var addWfsWcsOptionsToDropdown = function(controlId) {
 
-    console.log($('#' + controlId).html());
-
+    // console.log($('#' + controlId).html());
     for(var j = 0, jlen = DataTagList.length; j < jlen; j++) 
-      $('#' + controlId).append('<option value="' + DataTagList[j].id + '">' + DataTagList[j].id + '</option>');
+      $('#' + controlId).append("<option value=\"" + DataTagList[j].id + '">' + DataTagList[j].id + "</option>");
   };
 
 
