@@ -171,38 +171,6 @@
   };
 
 
-  var addTagsToDropdown = function(datasetId) 
-  {
-    // if(datasetId)
-    //   addTagsCache.push(datasetId);
-
-    // Check to see if we have the tags yet
-    // if(!dataDiscoveryComplete) 
-    //   return;
-
-
-    // if(layer.type.hasObject('WMS'))
-    //   addWmsOptionToDropdown(tagPickerControlId);
-
-    // if(layer.type.hasObject('WFS') || layer.type.hasObject('WCS'))
-    //   addWfsWcsOptionsToDropdown(tagPickerControlId);
-
-
-
-// debugger;
-    // for(var i = 0, len = addTagsCache.length; i < len; i++) 
-      // addWfsWcsOptionsToDropdown(getTagPickerControlId(datasetId));
-
-    // addTagsCache = [];    // Clear cache
-  };
-
-
-  // var onDataTypeDiscoveryCompleted = function(tagList)
-  // {
-  //   // $('.tag-list-loading-indicator').remove();    // Remove this so it does not interfere with layout.  We won't need it again.
-  //   addTagsToDropdown();
-  // };
-
 
   var getLayerNameFromDataTypeId = function(ctrl)
   {
@@ -292,13 +260,6 @@
       <%= raw("{'id': '" + t + "', 'title': '" + t + "' },") %>
     <% end %>
   ];
-
-  // // For each url in our database, start probing the server
-  // var collectTags = function(wpsServerUrlList) 
-  // {
-  //   for(var i = 0, len = wpsServerUrlList.length; i < len; i++)
-  //     WPS.probeWPS_getDataTypes(wpsServerUrlList[i]);
-  // };
 
 
   // Class that describes response from server, either success or failure
