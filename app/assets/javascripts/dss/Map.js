@@ -90,6 +90,7 @@ DSS.initMap = function()
     DSS.buildsGML = new OpenLayers.Layer.Vector("BuildingsGML", {
         protocol: new OpenLayers.Protocol.HTTP({
             url: "assets/BuildingsFull.gml",
+        	//url: "http://services.iguess.tudor.lu/pywps/sampleData/BuildingsFull.gml",
             format: new OpenLayers.Format.GML()
         }),
         styleMap: DSS.style,
@@ -119,7 +120,7 @@ DSS.initMap = function()
     
 
 
-	DSS.map.addLayers([streets, buildsWMS, DSS.buildsGML, buildsWFS]);
+	DSS.map.addLayers([streets, /*buildsWMS,*/ DSS.buildsGML/*, buildsWFS*/]);
 	
 	DSS.map.zoomIn();
 	DSS.map.zoomIn();
