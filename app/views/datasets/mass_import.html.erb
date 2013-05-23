@@ -698,14 +698,16 @@
       return;   
 
     // Reset various displays
-    $('.server-name').html('');   
+    $(".server-name").html("");   
+    $("#error-list").html("");
+    $("#error-list").hide();
     alreadyShownWmsError = false;
     discoveredLayers = {};
 
 
     showProbingIndicators();
 
-    $('#layer-display').html('');
+    $("#layer-display").html("");
 
     wfsProcessingComplete = false;
     wmsProcessingComplete = false;
