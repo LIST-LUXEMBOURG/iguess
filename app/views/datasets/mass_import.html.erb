@@ -178,7 +178,7 @@
       var serverDescr = serverInfo.abstract || "";
 
       $('.server-name').html('Server: ' + serverName);
-      $('.server-descr').html(serverDescr);
+      $('.server-descr').html(linkify(serverDescr));
       $('.server-info').show();
     }
   };
@@ -296,7 +296,7 @@
         // if(layer.abstract != "") {
           abstractNode = $(document.createElement('div'));
           abstractNode.attr({ class:'dataset_abstract', id:'dataset-abstract-' + layer.identifier});
-          abstractNode.text(layer.abstract);
+          abstractNode.html(linkify(layer.abstract));
         // }
 
         var srsNode = $(document.createElement('div'));
