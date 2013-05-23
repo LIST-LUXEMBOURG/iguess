@@ -22,18 +22,19 @@
 .map-data-item {    /* li */
   display: inline-block;
   vertical-align: top;
-  margin: 6px;
+  margin: 10px;
   padding: 2px;
   outline: 1px solid rgba(0,0,0,0.2);       /* Outer line */
-  height: 100%;
+  outline-offset: 4px;
+  border: 1px solid rgba(0,0,0,0.2);
   max-width: 585px;
 }
 
 /* Combines with the below, describes container just inside outer border */
 .dataset {
-  padding: 15px;
-  border: 1px solid rgba(0,0,0,0.2);
-  min-height: 280px;
+  padding: 10px;
+  padding-top: 5px;
+  overflow: hidden;
 }
 
 /* Green tile */
@@ -51,7 +52,6 @@
 .data-info {
   margin-top: 5px;
   width: 250px;
-  height: 100%;
   float: left;
 }
 

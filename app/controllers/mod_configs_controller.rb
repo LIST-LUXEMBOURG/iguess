@@ -122,8 +122,8 @@ class ModConfigsController < ApplicationController
                                 params = ""
 
                                 if(c) then
-                                  if(c.format != "") then params += "&FORMAT=" + c.format end
-                                  if(c.crs    != "") then params += "&CRS="    + c.crs    end
+                                  if(not c.format.blank?) then params += "&FORMAT=" + c.format end
+                                  if(not c.crs.blank?)    then params += "&CRS="    + c.crs    end
 
                                   if(c.bbox_left && c.bbox_right && c.bbox_top && c.bbox_bottom) then 
                                     params += "&BBOX=" + c.bbox_left.to_s()  + "," + c.bbox_bottom.to_s() + "," +
@@ -164,8 +164,6 @@ class ModConfigsController < ApplicationController
 
     cmd = 'cd '+ wpsClientPath +'; /usr/bin/python wpsstart.py ' + argUrl + ' ' +
                                    argProc + ' ' + argName + ' ' + argVals + ' ' + argOuts + ' ' + argOutTitles
-
-    output, stat = Open3.capture2e('echo "' + cmd + '" >> /tmp/proclog' )
 
     require 'open3'
     output, stat = Open3.capture2e(cmd)

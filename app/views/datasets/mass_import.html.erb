@@ -1,4 +1,84 @@
 
+<h1>Register Datasets</h1>
+
+<div id="error-list" class="error-box"></div>
+
+<div class="explanation">
+  <p>iGUESS uses datasets stored on remote servers.  To register datasets with the system, enter a server URL in the box below.
+  iGUESS will probe the remote server and present you a list of datasets you can register.  In order to use a dataset with
+  a module, you will need to tag it with the appropriate tags.  If you want to use the dataset for mapping
+  purposes, use the Mapping tag.</p>
+
+  <p>iGUESS will probe for WFS, WCS, and WMS servers at the URL provided below.  Layers offered by the WMS will be available for mapping,
+  and layers offered by the WFS/WCS will be available for using as inputs to web processes.</p>
+</div>
+
+
+<div id="url_form">
+  <table><tr>
+    <td><input id="server_url" style="width: 100%" type="text" name="format" value='' placeholder="Enter URL or select a preset"/></td>
+    <td>
+      <button type="button" id="refresh_layers_button" style='padding-left: 20px; padding-right:20px;'>Load</button>
+    </td>
+  </tr><tr>
+    <td>
+      <select id="url-preset-select"  style="width: 100%">
+        <option value="">Select a preset</option>
+        <%= raw @current_city.dataserver_url.map { |m| '<option value="' + m.url + '">' + m.url + '</option>' }.join(" ") %>
+      </select>
+    </td>
+  </tr><tr>
+  <td colspan=2>
+    <a href="#" id="save-preset">Save As Preset</a>
+    <a href="#" id="delete-preset">Delete From Presets</a>
+  </td>
+  </tr></table>
+</div>
+
+<br>
+
+</form>
+
+<div style="height:100%; background-color:#eeeeee;">
+
+<!--   <label class="label_radio" for="radio-show-wfs">
+    <input name="rx" id="radio-show-wfs" value="1" type="radio" />
+    WFS -- Only show datasets suitable for using as module inputs
+  </label>
+  <br>
+
+  <label class="label_radio" for="radio-show-wcs">
+    <input name="rx" id="radio-show-wcs" value="2" type="radio" />
+    WCS -- Only show datasets suitable for mapping
+  </label>
+  <br>
+
+  <label class="label_radio" for="radio-show-wms">
+    <input name="rx" id="radio-show-wms" value="2" type="radio" />
+    WMS -- Only show datasets suitable for mapping
+  </label>
+  <br>
+
+  <label class="label_radio" for="radio-show-both">
+    <input name="rx" id="radio-show-both" value="3" type="radio" checked/>
+    Both -- Show all datasets on server
+  </label>
+</div> -->
+
+<div class="progress-container">
+  <span style="padding-left: 5px;" id="probing-wms">Probing map server... <img src="/assets/loading_spinner.gif"></span>
+  <span style="padding-left: 5px;" id="probing-wfs">Probing feature server... <img src="/assets/loading_spinner.gif"></span>
+  <span style="padding-left: 5px;" id="probing-wcs">Probing coverage server... <img src="/assets/loading_spinner.gif"></span>
+</div>
+
+<div class="server-info">
+  <div class="server-name"></div>
+  <div class="server-descr"></div>
+
+  <div id="layer-display"></div>
+</div>
+
+
 
 <script type="text/javascript">
 
@@ -63,16 +143,16 @@
   // i.e. when a WFS response arrives.  More responses might be coming (from WMS, and WCS, for example).
   var doneProcessing = function(url, type, serverInfo, status)    // status will be OK or ERROR
   {
-    if(type == 'WFS') {
-      $('#probing-wfs').hide();
+    if(type == "WFS") {
+      $("#probing-wfs").hide();
       wfsProcessingComplete = true;
     }
-    else if(type == 'WMS') {
-      $('#probing-wms').hide();
+    else if(type == "WMS") {
+      $("#probing-wms").hide();
       wmsProcessingComplete = true;
     }
-    else if(type == 'WCS') {
-      $('#probing-wcs').hide();
+    else if(type == "WCS") {
+      $("#probing-wcs").hide();
       wcsProcessingComplete = true;
     }
     else { alert("Unknown type " + type); }
@@ -84,7 +164,7 @@
          (wmsProcessingComplete || !showWms()) &&
          (wcsProcessingComplete || !showWcs()) )    ) { return; }   // Still waiting for another service to return
 
-    $('.progress-container').hide();
+    $(".progress-container").hide();
     displayLayers();
   };
 
@@ -250,23 +330,23 @@
         sample_map.attr({ id:mapDivId, class:"sample-map" });   // Map will be rendered based on div's id
 
         var container = $(document.createElement("div"));
-        container.attr({ class:"dataset " + (registered ? "registered_dataset" : "unregistered_dataset"), id:"td_" + layer.identifier });
+        container.attr({ class:"dataset", id:"td_" + layer.identifier });
         container.append(titleNode)
                  .append(abstractNode)
                  .append(data_info)
                  .append(sample_map);
 
-        // tr_element (map-data-item)
+        // li_element (map-data-item)
         //    container (registered_dataset or unregistered_dataset)
         //       data_info
         //       sample_map
 
 
-        var tr_element = $(document.createElement('li'));
-        tr_element.attr({ class:'map-data-item' });
-        tr_element.append(container);
+        var li_element = $(document.createElement("li"));
+        li_element.attr({ class:"map-data-item " + (registered ? "registered_dataset" : "unregistered_dataset") });
+        li_element.append(container);
 
-        $('#layer-table').append(tr_element);
+        $("#layer-table").append(li_element);
 
 
         addTagsToDropdown(layer.identifier);
@@ -330,11 +410,11 @@
     addDeleteTagClickHander();
 
 
-    $('#layer-display-count').text(visibleLayers);    // Update layer display
+    $("#layer-display-count").text(visibleLayers);    // Update layer display
 
 
     // Add toggle switch after each checkbox.  If checked, then toggle the switch.
-    $('.switchbox').after(function() {
+    $(".switchbox").after(function() {
        if($(this).is(":checked")) {
          return "<a href='#' class='toggle checked' ref='"+$(this).attr("id")+"'></a>";
        } else {
@@ -345,7 +425,7 @@
 
     //  When the toggle switch is clicked, check off / de-select the associated checkbox
     // Want to find this when we search for "registered_"
-    $('.toggle').click(function(e) 
+    $(".toggle").click(function(e) 
     {
       var checkboxID = $(this).attr("ref");
 
@@ -446,6 +526,12 @@
       e.preventDefault();
 
     });  // end toggle state change handler
+
+    
+    // Because of our unusual layout, we need to manually adjust things to get equal tile sizes... lame!
+    equalizeRowHeights();
+    $('#layer-table').equalWidths();
+
 
   }
 
@@ -749,90 +835,62 @@
     $('#delete-preset').hide();
   });
 
+
+
+  // Adapted from http://css-tricks.com/equal-height-blocks-in-rows/
+  var currentTallest = 0,
+      currentRowStart = 0,
+      rowDivs = new Array();
+
+  function setConformingHeight(el, newHeight) {
+     // set the height to something new, but remember the original height in case things change
+     el.data("originalHeight", (el.data("originalHeight") == undefined) ? (el.height()) : (el.data("originalHeight")));
+     el.height(newHeight);
+  }
+
+  function getOriginalHeight(el) {
+     // if the height has changed, send the originalHeight
+     return (el.data("originalHeight") == undefined) ? (el.height()) : (el.data("originalHeight"));
+  }
+
+  function equalizeRowHeights() {
+
+     // find the tallest LI in the row, and set the heights of all of the LIs to match it.
+     $('li.map-data-item').each(function() {
+        // "caching"
+        var $el = $(this);
+        
+        var topPosition = $el.position().top;
+
+        if (currentRowStart != topPosition) {
+
+           // we just came to a new row.  Set all the heights on the completed row
+           for(currentDiv = 0 ; currentDiv < rowDivs.length ; currentDiv++) setConformingHeight(rowDivs[currentDiv], currentTallest);
+
+           // set the variables for the new row
+           rowDivs.length = 0; // empty the array
+           currentRowStart = topPosition;
+           currentTallest = getOriginalHeight($el);
+           rowDivs.push($el);
+
+        } else {
+
+           // another div on the current row.  Add it to the list and check if it's taller
+           rowDivs.push($el);
+           currentTallest = (currentTallest < getOriginalHeight($el)) ? (getOriginalHeight($el)) : (currentTallest);
+
+        }
+        // do the last row
+        for (currentDiv = 0 ; currentDiv < rowDivs.length ; currentDiv++) setConformingHeight(rowDivs[currentDiv], currentTallest);
+
+     });
+
+  }
+
+  // Recalc heights if window size changes
+  $(window).resize(function() {
+     equalizeRowHeights();
+  });
+
 </script>
 
- 
-
-<h1>Register Datasets</h1>
-
-<div id='error-list' class='error-box'></div>
-
-<div class='explanation'>
-  <p>iGUESS uses datasets stored on remote servers.  To register datasets with the system, enter a server URL in the box below.
-  iGUESS will probe the remote server and present you a list of datasets you can register.  In order to use a dataset with
-  a module, you will need to tag it with the appropriate tags.  If you want to use the dataset for mapping
-  purposes, use the Mapping tag.</p>
-
-  <p>iGUESS will probe for WFS, WCS, and WMS servers at the URL provided below.  Layers offered by the WMS will be available for mapping,
-  and layers offered by the WFS/WCS will be available for using as inputs to web processes.</p>
-</div>
-
-
-<div id='url_form'>
-  <table><tr>
-    <td><input id='server_url' style='width: 100%' type='text' name='format' value='' placeholder='Enter URL or select a preset'/></td>
-    <td>
-      <button type='button' id='refresh_layers_button' style='padding-left: 20px; padding-right:20px;'>Load</button>
-    </td>
-  </tr><tr>
-    <td>
-      <select id='url-preset-select'  style='width: 100%'>
-        <option value=''>Select a preset</option>
-        <%= raw @current_city.dataserver_url.map { |m| '<option value="' + m.url + '">' + m.url + '</option>' }.join(" ") %>
-      </select>
-    </td>
-  </tr><tr>
-  <td colspan=2>
-    <a href='#' id='save-preset'>Save As Preset</a>
-    <a href='#' id='delete-preset'>Delete From Presets</a>
-  </td>
-  </tr></table>
-  
-  
-
-</div>
-
-
-<br>
-
-
-</form>
-
-<div style="height:100%; background-color:#eeeeee;">
-
-<!--   <label class="label_radio" for="radio-show-wfs">
-    <input name="rx" id="radio-show-wfs" value="1" type="radio" />
-    WFS -- Only show datasets suitable for using as module inputs
-  </label>
-  <br>
-
-  <label class="label_radio" for="radio-show-wcs">
-    <input name="rx" id="radio-show-wcs" value="2" type="radio" />
-    WCS -- Only show datasets suitable for mapping
-  </label>
-  <br>
-
-  <label class="label_radio" for="radio-show-wms">
-    <input name="rx" id="radio-show-wms" value="2" type="radio" />
-    WMS -- Only show datasets suitable for mapping
-  </label>
-  <br>
-
-  <label class="label_radio" for="radio-show-both">
-    <input name="rx" id="radio-show-both" value="3" type="radio" checked/>
-    Both -- Show all datasets on server
-  </label>
-</div> -->
-
-<div class="progress-container">
-  <span style="padding-left: 5px;" id="probing-wms">Probing map server... <img src="/assets/loading_spinner.gif"></span>
-  <span style="padding-left: 5px;" id="probing-wfs">Probing feature server... <img src="/assets/loading_spinner.gif"></span>
-  <span style="padding-left: 5px;" id="probing-wcs">Probing coverage server... <img src="/assets/loading_spinner.gif"></span>
-</div>
-
-<div class="server-info">
-  <div class="server-name"></div>
-  <div class="server-descr"></div>
-
-  <div id="layer-display"></div>
-</div>
