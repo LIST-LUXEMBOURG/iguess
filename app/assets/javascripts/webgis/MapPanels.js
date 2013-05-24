@@ -160,9 +160,15 @@ Ext.onReady(function() {
     }
   });
   
+  WebGIS.layerStore = new GeoExt.data.LayerStore({
+	    map: WebGIS.leftMap,
+	    layers: WebGIS.leftMap.layers
+  });
+  
   WebGIS.legend = new Ext.Panel({ 
 		title: "Legend",
 		xtype: "gx_legendpanel",
+		layerStore: WebGIS.layerStore,
 		collapsible: true,
 		autoScroll: true,
 		enableDD: true,
@@ -177,7 +183,19 @@ Ext.onReady(function() {
 		collapsible: true,
 		width: 270,
 		layout: 'accordion',
-		items: [WebGIS.layerTree, WebGIS.legend]
+		items: [WebGIS.layerTree, /*WebGIS.legend*/
+		{ // Legend: must be created here to be auto-linked to the map
+    		//region: "east",
+    		title: "Legend",
+    		xtype: "gx_legendpanel",
+    		width: 150,
+    		collapsible: true,
+    		autoScroll: true,
+    		enableDD: true,
+    		padding: 5,
+    		rootVisible: false,
+    		lines: false
+      }]
   });
   
   var centralPanel = new Ext.Panel({

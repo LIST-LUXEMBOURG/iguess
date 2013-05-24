@@ -7,6 +7,8 @@
 
 var WebGIS = WebGIS || { };
 
+WebGIS.MARKER_Z_INDEX = 1000;
+
 WebGIS.chSize = new OpenLayers.Size(17,17);
 WebGIS.chOffsetRight = new OpenLayers.Pixel(-(WebGIS.chSize.w/2) - 0, -(WebGIS.chSize.h/2) - 1);
 WebGIS.chOffsetLeft  = new OpenLayers.Pixel(-(WebGIS.chSize.w/2) - 2, -(WebGIS.chSize.h/2) - 0);
@@ -42,6 +44,7 @@ WebGIS.leftMapMouseMove = function(e)
 	WebGIS.rightMarkers.clearMarkers();
 	WebGIS.rightPointer = new OpenLayers.Marker(lonLat, WebGIS.chIconRight);
 	WebGIS.rightMarkers.addMarker(WebGIS.rightPointer);
+	WebGIS.rightMarkers.graphicZIndex = WebGIS.MARKER_Z_INDEX;
 	
 	WebGIS.updateCoords(lonLat);
 }
@@ -66,6 +69,7 @@ WebGIS.rightMapMouseMove = function(e)
 	WebGIS.leftMarkers.clearMarkers();
 	WebGIS.leftPointer = new OpenLayers.Marker(lonLat, WebGIS.chIconLeft);
 	WebGIS.leftMarkers.addMarker(WebGIS.leftPointer);
+	WebGIS.leftMarkers.graphicZIndex = WebGIS.MARKER_Z_INDEX;
 	
 	WebGIS.updateCoords(lonLat);
 }
@@ -79,6 +83,7 @@ WebGIS.initParallelEvents = function()
 {	
 	WebGIS.leftMarkers.displayInLayerSwitcher = false;
 	WebGIS.leftMap.addLayer(WebGIS.leftMarkers);
+	WebGIS.leftMarkers.graphicZIndex = WebGIS.MARKER_Z_INDEX;
 	
 	WebGIS.leftMap.events.register("moveend", 	null, WebGIS.leftMapMove);
 	WebGIS.leftMap.events.register("mousemove", null, WebGIS.leftMapMouseMove);
@@ -87,6 +92,7 @@ WebGIS.initParallelEvents = function()
 	
 	WebGIS.rightMarkers.displayInLayerSwitcher = false;
 	WebGIS.rightMap.addLayer(WebGIS.rightMarkers);
+	WebGIS.rightMarkers.graphicZIndex = WebGIS.MARKER_Z_INDEX;
 	
 	WebGIS.rightMap.events.register("moveend", 	 null, WebGIS.rightMapMove);
 	WebGIS.rightMap.events.register("mousemove", null, WebGIS.rightMapMouseMove);

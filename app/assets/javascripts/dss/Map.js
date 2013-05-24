@@ -70,6 +70,7 @@ DSS.initMap = function()
          format: "image/png",
          srsName: DSS.mapProjection,
 	 	 transparent: "true",
+	 	 untiled: "tre",
      	 projection: new OpenLayers.Projection(DSS.mapProjection)},
         {isBaseLayer: true,  
      	 visibility: true}
