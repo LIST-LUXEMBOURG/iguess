@@ -216,7 +216,7 @@
     {
       for(var urlId in discoveredLayers)
       {
-        var layer = discoveredLayers[urlId];
+        var layer = discoveredLayers[urlId];      
 
         // Skip layers that the user has filtered out with the service radio buttons
         if(!showWfs() && !layer.type.hasObject("WMS")) { continue; }
@@ -348,8 +348,6 @@
 
         $("#layer-table").append(li_element);
 
-
-        // addTagsToDropdown(layer.identifier);
 
         var activeSRS = null;
 
@@ -598,7 +596,7 @@
       onWmsGetCapabilitiesSucceeded(dataProxy, records);
     };
 
-    var onWcsGetCapabilitiesSucceeded = function(dataProxy, records, options) 
+    this.onWcsGetCapabilitiesSucceeded = function(dataProxy, records, options) 
     { 
       self.onGetCapabilitiesSucceeded();
       self.WcsSucceeded = true;
