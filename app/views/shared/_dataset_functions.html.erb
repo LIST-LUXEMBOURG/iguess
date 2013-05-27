@@ -144,9 +144,19 @@
   };
 
 
+  // Make sure to sanitize datasetIdentifier to remove all the crap that MapGuide puts in!
+  var sanitizeId = function(str)
+  {
+    if(typeof(str) === "string")
+      return str.replace(/\//g, "X");
+    else
+      return str;
+  }
+
+
   var getTagPickerControlId = function(datasetIdentifier)
   {
-    return 'data-type-' + datasetIdentifier;
+    return 'data-type-' + sanitizeId(datasetIdentifier);
   };
 
 
@@ -161,59 +171,16 @@
   };
 
 
-  var addTagsToDropdown = function(datasetId) 
-  {
-    // if(datasetId)
-    //   addTagsCache.push(datasetId);
-
-    // Check to see if we have the tags yet
-    // if(!dataDiscoveryComplete) 
-    //   return;
-
-
-    // if(layer.type.hasObject('WMS'))
-    //   addWmsOptionToDropdown(tagPickerControlId);
-
-    // if(layer.type.hasObject('WFS') || layer.type.hasObject('WCS'))
-    //   addWfsWcsOptionsToDropdown(tagPickerControlId);
-
-
-
-// debugger;
-    // for(var i = 0, len = addTagsCache.length; i < len; i++) 
-      addWfsWcsOptionsToDropdown(getTagPickerControlId(datasetId));
-
-    // addTagsCache = [];    // Clear cache
-  };
-
-
-  // var onDataTypeDiscoveryCompleted = function(tagList)
-  // {
-  //   // $('.tag-list-loading-indicator').remove();    // Remove this so it does not interfere with layout.  We won't need it again.
-  //   addTagsToDropdown();
-  // };
-
 
   var getLayerNameFromDataTypeId = function(ctrl)
   {
-    return ctrl.attr('id').substring('data_type_'.length); // Remove 'data_type_' from the front of the string
+    return ctrl.attr("id").substring("data_type_".length); // Remove 'data_type_' from the front of the string
   };
 
 
   // If readyToPoulate is false, we can pass in anything for layer as long as it has an identifier property
   var makeTagPickerControl = function(layer, controlId, enabled)
   {
-
-    // var loadingIndicator, hidden;
-
-    // if(dataDiscoveryComplete) {
-    //   loadingIndicator = '';
-    //   hidden = '';
-    // } 
-    // else {
-    //   loadingIndicator = '<span class="loading-indicator tag-list-loading-indicator">Loading&nbsp;tags...</span>';
-    //   hidden = 'hidden';
-    // }
 
     return '<select style="float:right" class="add-tag-dropdown-control" ' + 
            'data-serverurl="' + layer.serverUrl + '" ' +   // These keys seem to get lowercased anyway... so no upper case letter pls!
@@ -228,17 +195,16 @@
 
   // Helper function for makeTagPickerControl()
   var addWmsOptionToDropdown = function(controlId) {
-    $('#' + controlId).find(">:first-child").after('<option>Mapping</option>');   // We want this to be the second choice
+    $("#" + controlId).find(">:first-child").after("<option>Mapping</option>");   // We want this to be the second choice
   };
 
 
   // Helper function for makeTagPickerControl() -- here, controlId is the id of the select control we're adding options to
   var addWfsWcsOptionsToDropdown = function(controlId) {
 
-    console.log($('#' + controlId).html());
-
+    // console.log($('#' + controlId).html());
     for(var j = 0, jlen = DataTagList.length; j < jlen; j++) 
-      $('#' + controlId).append('<option value="' + DataTagList[j].id + '">' + DataTagList[j].id + '</option>');
+      $('#' + controlId).append("<option value=\"" + DataTagList[j].id + '">' + DataTagList[j].id + "</option>");
   };
 
 
@@ -277,19 +243,11 @@
   // };
 
 
-  var dataDiscoveryComplete = false;
   var DataTagList = [
     <% @dataset_tags.each do |t| %>
       <%= raw("{'id': '" + t + "', 'title': '" + t + "' },") %>
     <% end %>
   ];
-
-  // // For each url in our database, start probing the server
-  // var collectTags = function(wpsServerUrlList) 
-  // {
-  //   for(var i = 0, len = wpsServerUrlList.length; i < len; i++)
-  //     WPS.probeWPS_getDataTypes(wpsServerUrlList[i]);
-  // };
 
 
   // Class that describes response from server, either success or failure
