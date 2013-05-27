@@ -45,22 +45,10 @@ WebGIS.initMap = function () {
       maxExtent: 			boundsMap,
       controls: 			[ new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]
     });
-    
-    WebGIS.rightMap = new OpenLayers.Map("rightMap",{
-    	projection: 		mapProjection,
-    	displayProjection: 	new OpenLayers.Projection(WebGIS.displayProjection),
-    	units: 				"m",
-    	maxExtent: 			boundsMap/*,
-    	controls: 			[ new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]*/
-    });
    
     WebGIS.registerIdentify(WebGIS.leftMap, this);
-    WebGIS.registerIdentify(WebGIS.rightMap, this);
 
     WebGIS.leftMap.addLayers(WebGIS.getLeftBaseLayers());   
-    WebGIS.rightMap.addLayers(WebGIS.getRightBaseLayers());
-    
-    WebGIS.initParallelEvents();
 };
 
 WebGIS.zoomToCity = function () {  

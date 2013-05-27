@@ -1,17 +1,165 @@
+<%= render :partial => '/shared/build_registered_layers.html.erb' %>
+
+
+<%# Include some map related utility functions; these need to be processed by Rails so they have to be in a partial %>
+<%= render :partial => '/shared/dataset_functions.html.erb' %>
+
+<script>
+
+
+ var MapUtils = MapUtils || { };   // Create namespace
+ 
+ debugger;
+
+ MapUtils.retrieveDatasetsForCity = function(cityName, successFunction) {
+  var serverUrl = '<%= url_for(:controller => "datasets", :action => "get_for_city", :format => :json) %>';
+   $.ajax({
+       type: 'POST',
+       url: serverUrl,
+       data: 'cityName=' + $.cookie('city'),
+       headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
+       success: successFunction,
+       error: function() { alert('Error retrieving datasets for city.'); }
+     });
+  }
+
+
+
+  $(document).ready(function() {
+  // $('#sortable_table').tablesorter();               // Initialize sorter
+  });
+
+
+  // We are only expecting a WMS response here, so we can just grab it and go without waiting for
+  // responses from other services.
+  // One server response might contain info about a whole slew of data layers, so we'll need to parse it
+  var gotServerResponse = function(serverUrl, serverResponses)
+  {
+    if(!!!registeredDatasets[serverUrl]) { return; }    // No registered datasets on this server!
+
+    var wms = serverResponses['WMS'];
+
+    for(var i = 0, len = wms.records.length; i < len; i++) {
+      var layer = wms.records[i];
+
+      // If the layer is registered, add it to the map
+      // The fourth argument can be used to pass the layer type - see webgis/Styles.js
+      if(registeredDatasets[serverUrl][layer.data.name])
+        WebGIS.addNewLayer(layer.data.title, serverUrl, layer.data.name, null);
+    }
+  };
+
+
+  // We've got a new batch of datasets to display!
+  // Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
+  var startProbing = function(datasets) 
+  {
+    resetProbe();   // Clear out old probe results
+
+    for(var i = 0, len = datasets.length; i < len; i++) {
+      probeDataServer(datasets[i].server_url, 'WMS');
+    }
+  };
+
+
+  // This gets run when user changes city dropdown
+  var onLocationChanged = function(cityName) 
+  {
+    WebGIS.clearLayers(false);
+
+    // Retrieve all datasets for specified city
+    MapUtils.retrieveDatasetsForCity(cityName, function(data){ startProbing(data); });
+
+    // Notify WebGIS that things have changed
+    <% for city in City.all %>
+      if(cityName == "<%= city.name %>")
+      {
+        var proj = new OpenLayers.Projection("<%= city.srs %>");
+        var point = new OpenLayers.LonLat(
+                (<%= city.minx %> + <%= city.maxx %>) / 2,
+                (<%= city.miny %> + <%= city.maxy %>) / 2);
+        
+        if(WebGIS.leftMap != null)
+        	point.transform(proj, WebGIS.leftMap.getProjectionObject());
+
+        WebGIS.leftMap.setCenter(point, <%= city.zoom %>);
+        WebGIS.rightMap.setCenter(point, <%= city.zoom %>);
+        
+        $('.all-layers').hide();
+        
+        $('.layer-for-city-<%= city.id %>').show();
+
+        return;
+      }
+    <% end %>
+  };
+  
+  Ext.onReady(function() {
+  	//WebGIS.CreatePanelsParallel();
+  	debugger;
+  	WebGIS.CreatePanels();
+  }
+  
+</script>
+
+
 <script type="text/javascript">
+  $(function() {
+    var theTable = $('#sortable_table')
+
+    theTable.find("tbody > tr").find("td:eq(1)").mousedown(function(){
+      $(this).prev().find(":checkbox").click()
+    });
+
+    $("#filter").keyup(function() {
+      $.uiTableFilter( theTable, this.value );
+    })
+
+    $('#filter-form').submit(function(){
+      theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
+      return false;
+    }).focus(); //Give focus to input field
+  });
+</script>
+
+
+
+<script type="text/javascript">
+
+  $(document).bind('ajax:success', function(xhr, data, status) { 
+    $('#dataset-id-' + data).hide();
+  });
 
 </script>
 
-	<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam a vestibulum sem. In a elit ipsum, at cursus enim. Nullam non dui tellus, vitae vestibulum tortor. Aliquam gravida tellus lorem, quis consectetur quam. Donec mollis auctor nunc eget scelerisque.</p>
-	<p>Vivamus dignissim diam in ligula semper vestibulum. Aenean luctus nisi in metus ultrices eu congue odio sodales. Aenean volutpat viverra est, at feugiat libero commodo ut. Maecenas at quam eget libero feugiat ullamcorper quis placerat ligula. Aliquam et tortor vitae enim viverra faucibus.</p>
-	<br>
-	<br>
+
+<script type="text/javascript">
+  $(function() {
+    var theTable = $('#sortable_table')
+
+    theTable.find("tbody > tr").find("td:eq(1)").mousedown(function(){
+      $(this).prev().find(":checkbox").click()
+    });
+
+    $("#filter").keyup(function() {
+      $.uiTableFilter( theTable, this.value );
+    })
+
+    $('#filter-form').submit(function(){
+      theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
+      return false;
+    }).focus(); //Give focus to input field
+  });
+</script>
+
+<div style="float: left; width:100%; min-height:100%; margin:2px;" id="BroadMap">
+	<!-- Map goes here -->
+	<div style="width:100%; margin:0px" id="leftMap"></div>
+  	<div style="width:100%; margin:0px" id="rightMap"></div>
+</div>
+
+<!-- Identify window -->
+<div id="winDivIdentify"></div>
 
 
 
-
-    <br />
-    <br />
-    <br />
-
-  </div>

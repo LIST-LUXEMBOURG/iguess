@@ -9,12 +9,7 @@
 
 var WebGIS = WebGIS || { };
 
-WebGIS.layerTree;
-
-WebGIS.coordsLatLabel = null;
-WebGIS.coordsLongLabel = null;
-
-WebGIS.CreatePanels = function() {
+WebGIS.CreatePanelsParallel = function() {
 
   // Skip this stuff if the BroadMap div does not exist
   if($('#BroadMap').length == 0)
@@ -22,7 +17,7 @@ WebGIS.CreatePanels = function() {
 
   Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
 
-  WebGIS.initMap();
+  WebGIS.initMapParallel();
   
   WebGIS.initWinIdentify();
   
@@ -34,10 +29,22 @@ WebGIS.CreatePanels = function() {
 	  floatable: false,
 	  autoScroll: false,
 	  enableDD: false,
-	  items: WebGIS.createBbar()
+	  items: WebGIS.createBbarParallel()
   });
 
   var leftZoomSlider = new GeoExt.ZoomSlider({
+    xtype: "gx_zoomslider",
+    aggressive: true,
+    vertical: true,
+    height: 100,
+    x: 10,
+    y: 20,
+    plugins: new GeoExt.ZoomSliderTip({
+      template: "Scale: 1 : {scale}<br>Resolution: {resolution}"
+    })
+  });
+  
+  var rightZoomSlider = new GeoExt.ZoomSlider({
     xtype: "gx_zoomslider",
     aggressive: true,
     vertical: true,
@@ -53,10 +60,11 @@ WebGIS.CreatePanels = function() {
     region: "center",
     collapsible: false,
     floatable: false,
+    width: '50%',
     xtype: "gx_mappanel",
     map: WebGIS.leftMap,
     items: [leftZoomSlider],
-    bbar: WebGIS.createBbar(),
+    //bbar: WebGIS.createBbar(),
     tbar: {
         height: 100,
         items:[
@@ -98,6 +106,18 @@ WebGIS.CreatePanels = function() {
     }
   });
 
+  var rightPanel = new GeoExt.MapPanel({
+		region:'east',
+		collapsible: true,
+		floatable: false,
+	    autoScroll: true,
+	    enableDD: true,
+		width: '50%',
+		xtype: "gx_mappanel",
+		map: WebGIS.rightMap,
+	    items: [rightZoomSlider]
+  });
+
   var LayerNodeUI = Ext.extend(
           GeoExt.tree.LayerNodeUI,
           new GeoExt.tree.TreeNodeUIEventMixin()
@@ -111,8 +131,6 @@ WebGIS.CreatePanels = function() {
   // Layer list
   WebGIS.layerTree = new Ext.tree.TreePanel({
     title: 'Map Layers',
-    region: "west",
-    width: 200,
     collapsible: true,
     autoScroll: true,
     enableDD: true,
@@ -135,7 +153,60 @@ WebGIS.CreatePanels = function() {
             fn:WebGIS.treeClickListener
         }
     }
-  });	
+  });
+  
+  WebGIS.layerStore = new GeoExt.data.LayerStore({
+	    map: WebGIS.leftMap,
+	    layers: WebGIS.leftMap.layers
+  });
+  
+  WebGIS.legend = new Ext.Panel({ 
+		title: "Legend",
+		xtype: "gx_legendpanel",
+		layerStore: WebGIS.layerStore,
+		collapsible: true,
+		autoScroll: true,
+		enableDD: true,
+		padding: 5,
+		rootVisible: false,
+		lines: false
+  });
+  
+  var accordeon = new Ext.Panel({
+		title: 'Data',
+		region:'west',   	
+		collapsible: true,
+		width: 270,
+		layout: 'accordion',
+		items: [WebGIS.layerTree, /*WebGIS.legend*/
+		{ // Legend: must be created here to be auto-linked to the map
+    		//region: "east",
+    		title: "Legend",
+    		xtype: "gx_legendpanel",
+    		width: 150,
+    		collapsible: true,
+    		autoScroll: true,
+    		enableDD: true,
+    		padding: 5,
+    		rootVisible: false,
+    		lines: false
+      }]
+  });
+  
+  var centralPanel = new Ext.Panel({
+		layout:'border',
+		bodyBorder: true,
+		region:'center',
+		//width: 500,
+		collapsible: false,
+		defaults: {
+	      split: true,
+	      autoHide: false,
+	      useSplitTips: true,
+	    },
+		items: [leftPanel, rightPanel, bBar]
+  });
+	
   
   var mainPanel = new Ext.Panel({
     layout:'border',
@@ -150,9 +221,13 @@ WebGIS.CreatePanels = function() {
       useSplitTips: true,
     },
     items: [
-            leftPanel,
-            WebGIS.layerTree,
-            { // Legend: must be created here to be auto-linked to the map
+            //mapPanel,
+            
+            centralPanel,
+            //WebGIS.layerTree,
+            accordeon,
+            
+            /*{ // Legend: must be created here to be auto-linked to the map
         		region: "east",
         		title: "Legend",
         		xtype: "gx_legendpanel",
@@ -163,92 +238,10 @@ WebGIS.CreatePanels = function() {
         		padding: 5,
         		rootVisible: false,
         		lines: false
-            }
-        ]
+          }*/]
   });
 
   WebGIS.zoomToCity();
-};
-
-/**
- * Method: createTbarItems
- * Create map toolbar items
- *
- * Returns:
- * {Array({GeoExt.Action})} An array of GeoExt.Action objects.
- */
-WebGIS.createTbarItems = function(map) {
-  var actions = [];
-  actions.push(new GeoExt.Action({
-    iconCls: "pan",
-    map: map,
-    pressed: true,
-    toggleGroup: "tools",
-    allowDepress: false,
-    tooltip: "Navigate",
-    control: new OpenLayers.Control.Navigation()
-  }));
-  actions.push(new GeoExt.Action({
-    iconCls: "maxExtent",
-    map: map,
-    tooltip: "Zoom to max extent",
-    handler: WebGIS.zoomToCity
-  }));
-  actions.push(new GeoExt.Action({
-    iconCls: "zoomin",
-    map: map,
-    toggleGroup: "tools",
-    allowDepress: false,
-    tooltip: "Zoom in",
-    control: new OpenLayers.Control.ZoomBox({
-      out: false
-    })
-  }));
-  actions.push(new GeoExt.Action({
-    iconCls: "zoomout",
-    map: map,
-    toggleGroup: "tools",
-    allowDepress: false,
-    tooltip: "Zoom out",
-    control: new OpenLayers.Control.ZoomBox({
-      out: true
-    })
-  }));
-  var ctrl = new OpenLayers.Control.NavigationHistory();
-  map.addControl(ctrl);
-  actions.push(new GeoExt.Action({
-    control: ctrl.previous,
-    iconCls: "back",
-    tooltip: "back",
-    disabled: true
-  }));
-  actions.push(new GeoExt.Action({
-    control: ctrl.next,
-    iconCls: "next",
-    tooltip: "next",
-    disabled: true
-  }));
-  actions.push("-");
-  actions.push(new GeoExt.Action({
-	    iconCls: "identify",
-	    map: map,
-	    pressed: false,
-	    toggleGroup: "tools",
-	    allowDepress: false,
-	    tooltip: "Identify",
-	    //disabled: true
-	    control: WebGIS.ctrlIdentify,
-	    handler: WebGIS.toggleIdentify
-  }));
-  actions.push(new GeoExt.Action({
-    iconCls: "print",
-    map: map,
-    toggleGroup: "tools",
-    allowDepress: false,
-    tooltip: "Print - still in development",
-    disabled: true
-  }));
-  return actions;
 };
 
 /**
@@ -258,7 +251,7 @@ WebGIS.createTbarItems = function(map) {
  * Returns:
  * {Ext.Panel} An Ext panel with the bottom objects.
  */
-WebGIS.createBbar = function() {
+WebGIS.createBbarParallel = function() {
 	
 	WebGIS.coordsLatLabel  = new Ext.form.Label({text: " "});
 	WebGIS.coordsLongLabel = new Ext.form.Label({text: " "});
@@ -281,12 +274,12 @@ WebGIS.createBbar = function() {
 	zoomSelector.on('select', 
 	    function(combo, record, index) {
 			WebGIS.leftMap.zoomTo(record.data.level);
+			WebGIS.rightMap.zoomTo(record.data.level);
 	    },
 	    this
 	);     
 	
-	WebGIS.leftMap.events.register('zoomend', this, function() 
-	{
+	WebGIS.leftMap.events.register('zoomend', this, function() {
 	    var scale = scaleStore.queryBy(function(record){
 	        return WebGIS.leftMap.getZoom() == record.data.level;
 	    });
