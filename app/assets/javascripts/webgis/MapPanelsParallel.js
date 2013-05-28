@@ -160,7 +160,8 @@ WebGIS.CreatePanelsParallel = function() {
 	    layers: WebGIS.leftMap.layers
   });
   
-  WebGIS.legend = new Ext.Panel({ 
+  //WebGIS.legend = new Ext.Panel({ 
+  WebGIS.legend = new GeoExt.LegendPanel({
 		title: "Legend",
 		xtype: "gx_legendpanel",
 		layerStore: WebGIS.layerStore,
