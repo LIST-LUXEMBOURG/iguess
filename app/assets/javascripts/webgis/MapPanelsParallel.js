@@ -19,8 +19,6 @@ WebGIS.CreatePanelsParallel = function() {
 
   WebGIS.initMapParallel();
   
-  WebGIS.initWinIdentify();
-  
   var bBar = new Ext.Toolbar({
 	  region: "south",
 	  height: 24,
@@ -147,12 +145,7 @@ WebGIS.CreatePanelsParallel = function() {
       children: treeConfig
     },
     rootVisible: false,
-    lines: false,
-	/*listeners: {
-        click: {
-            fn:WebGIS.treeClickListener
-        }
-    }*/
+    lines: false
   });
   
   WebGIS.layerStore = new GeoExt.data.LayerStore({
@@ -160,7 +153,6 @@ WebGIS.CreatePanelsParallel = function() {
 	    layers: WebGIS.leftMap.layers
   });
   
-  //WebGIS.legend = new Ext.Panel({ 
   WebGIS.legend = new GeoExt.LegendPanel({
 		title: "Legend",
 		xtype: "gx_legendpanel",
@@ -179,19 +171,7 @@ WebGIS.CreatePanelsParallel = function() {
 		collapsible: true,
 		width: 270,
 		layout: 'accordion',
-		items: [WebGIS.layerTree, /*WebGIS.legend*/
-		{ // Legend: must be created here to be auto-linked to the map
-    		//region: "east",
-    		title: "Legend",
-    		xtype: "gx_legendpanel",
-    		width: 150,
-    		collapsible: true,
-    		autoScroll: true,
-    		enableDD: true,
-    		padding: 5,
-    		rootVisible: false,
-    		lines: false
-      }]
+		items: [WebGIS.layerTree, WebGIS.legend]
   });
   
   var centralPanel = new Ext.Panel({
@@ -221,25 +201,7 @@ WebGIS.CreatePanelsParallel = function() {
       autoHide: false,
       useSplitTips: true,
     },
-    items: [
-            //mapPanel,
-            
-            centralPanel,
-            //WebGIS.layerTree,
-            accordeon,
-            
-            /*{ // Legend: must be created here to be auto-linked to the map
-        		region: "east",
-        		title: "Legend",
-        		xtype: "gx_legendpanel",
-        		width: 150,
-        		collapsible: true,
-        		autoScroll: true,
-        		enableDD: true,
-        		padding: 5,
-        		rootVisible: false,
-        		lines: false
-          }*/]
+    items: [centralPanel, accordeon]
   });
 
   WebGIS.zoomToCity();

@@ -25,8 +25,6 @@ WebGIS.CreatePanels = function() {
 
   WebGIS.initMap();
   
-  WebGIS.initWinIdentify();
-  
   var bBar = new Ext.Toolbar({
 	  region: "south",
 	  height: 24,
