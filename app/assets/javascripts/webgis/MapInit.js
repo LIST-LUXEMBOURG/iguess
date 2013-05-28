@@ -43,7 +43,8 @@ WebGIS.initMap = function () {
       displayProjection: 	new OpenLayers.Projection(WebGIS.displayProjection),
       units: 				"m",
       maxExtent: 			boundsMap,
-      controls: 			[ new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]
+      //controls: 			[ new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]
+      controls: []
     });
    
     WebGIS.registerIdentify(WebGIS.leftMap, this);
@@ -77,6 +78,8 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type)
     var layer = new OpenLayers.Layer.WMS(title, serviceURL, params, options);
 
     WebGIS.leftMap.addLayer(layer);
+    
+    layer.events.register("visibilitychanged", this, WebGIS.toggleLayer);
 };
 
 // Remove all layers from the current map

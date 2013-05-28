@@ -9,6 +9,7 @@
 
 var WebGIS = WebGIS || { };
 
+WebGIS.leftPanel = null;
 WebGIS.layerTree;
 
 WebGIS.coordsLatLabel = null;
@@ -49,7 +50,7 @@ WebGIS.CreatePanels = function() {
     })
   });
 
-  var leftPanel = new GeoExt.MapPanel({
+  WebGIS.leftPanel = new GeoExt.MapPanel({
     region: "center",
     collapsible: false,
     floatable: false,
@@ -130,11 +131,11 @@ WebGIS.CreatePanels = function() {
     },
     rootVisible: false,
     lines: false,
-	listeners: {
+	/*listeners: {
         click: {
             fn:WebGIS.treeClickListener
         }
-    }
+    }*/
   });	
   
   var mainPanel = new Ext.Panel({
@@ -150,7 +151,7 @@ WebGIS.CreatePanels = function() {
       useSplitTips: true,
     },
     items: [
-            leftPanel,
+            WebGIS.leftPanel,
             WebGIS.layerTree,
             { // Legend: must be created here to be auto-linked to the map
         		region: "east",
@@ -230,15 +231,15 @@ WebGIS.createTbarItems = function(map) {
   }));
   actions.push("-");
   actions.push(new GeoExt.Action({
-	    iconCls: "identify",
-	    map: map,
-	    pressed: false,
-	    toggleGroup: "tools",
-	    allowDepress: false,
-	    tooltip: "Identify",
-	    //disabled: true
-	    control: WebGIS.ctrlIdentify,
-	    handler: WebGIS.toggleIdentify
+    iconCls: "identify",
+    toggleGroup: "tools",
+    tooltip: "Identify",
+    pressed: false,
+    control: WebGIS.ctrlIdentify,
+    map: map,
+    //allowDepress: false,
+    //disabled: true
+    //handler: WebGIS.toggleIdentify
   }));
   actions.push(new GeoExt.Action({
     iconCls: "print",

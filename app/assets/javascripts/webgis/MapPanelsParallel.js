@@ -148,11 +148,11 @@ WebGIS.CreatePanelsParallel = function() {
     },
     rootVisible: false,
     lines: false,
-	listeners: {
+	/*listeners: {
         click: {
             fn:WebGIS.treeClickListener
         }
-    }
+    }*/
   });
   
   WebGIS.layerStore = new GeoExt.data.LayerStore({
