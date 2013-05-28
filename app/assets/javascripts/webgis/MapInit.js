@@ -43,7 +43,6 @@ WebGIS.initMap = function () {
       displayProjection: 	new OpenLayers.Projection(WebGIS.displayProjection),
       units: 				"m",
       maxExtent: 			boundsMap,
-      //controls: 			[ new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]
       controls: []
     });
    

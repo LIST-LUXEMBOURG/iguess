@@ -130,12 +130,7 @@ WebGIS.CreatePanels = function() {
       children: treeConfig
     },
     rootVisible: false,
-    lines: false,
-	/*listeners: {
-        click: {
-            fn:WebGIS.treeClickListener
-        }
-    }*/
+    lines: false
   });	
   
   var mainPanel = new Ext.Panel({
@@ -237,9 +232,6 @@ WebGIS.createTbarItems = function(map) {
     pressed: false,
     control: WebGIS.ctrlIdentify,
     map: map,
-    //allowDepress: false,
-    //disabled: true
-    //handler: WebGIS.toggleIdentify
   }));
   actions.push(new GeoExt.Action({
     iconCls: "print",

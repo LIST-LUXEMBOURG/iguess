@@ -21,7 +21,7 @@ WebGIS.initMapParallel = function () {
       displayProjection: 	new OpenLayers.Projection(WebGIS.displayProjection),
       units: 				"m",
       maxExtent: 			boundsMap,
-      controls: 			[ new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]
+      controls: 			[]
     });
     
     WebGIS.rightMap = new OpenLayers.Map("rightMap",{
