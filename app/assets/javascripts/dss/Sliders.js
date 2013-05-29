@@ -26,12 +26,12 @@ DSS.winPanel = new Ext.Window({
 
 DSS.initSliders = function()
 {
-    DSS.potSlider = new Ext.Slider({
-        renderTo: 'slider-potential',
+    DSS.costSlider = new Ext.Slider({
+        renderTo: 'slider-cost',
         width: 214,
         value: 0,
         minValue: 0,
-        maxValue: 1000,
+        maxValue: 200,
         plugins: new Ext.ux.SliderTip()
     });
     
@@ -40,56 +40,91 @@ DSS.initSliders = function()
         width: 214,
         value: 0,
         minValue: 0,
-        maxValue: 6000,
+        maxValue: 450,
         plugins: new Ext.ux.SliderTip()
     });
     
-    DSS.capSlider = new Ext.Slider({
-        renderTo: 'slider-capacity',
+    DSS.areaSlider = new Ext.Slider({
+        renderTo: 'slider-area',
         width: 214,
         value: 0,
         minValue: 0,
-        maxValue: 10000,
+        maxValue: 3500,
         plugins: new Ext.ux.SliderTip()
     });
     
-	DSS.potSlider.on('change', DSS.potDragged, this);
-	DSS.capSlider.on('change', DSS.capDragged, this);
-	DSS.invSlider.on('change', DSS.newSliderValues, this);	
+	DSS.costSlider.on('change', DSS.costDragged, this);
+	DSS.areaSlider.on('change', DSS.areaDragged, this);
+	DSS.invSlider.on('change', DSS.invDragged, this);	
 }
 
-DSS.potDragged = function(ed, value, oldValue) 
+updateLabels = function(percent)
+{
+	cost = (percent * DSS.costSlider.maxValue / 100 / 1000).toFixed(3);
+	invest = (percent * DSS.invSlider.maxValue / 100).toFixed(3);
+	area = (percent * DSS.areaSlider.maxValue / 100).toFixed(0);
+	
+	document.getElementById("cost").innerHTML   = "Cost: "  	 + cost + " &euro;/kWh";
+	document.getElementById("invest").innerHTML = "Investment: " + invest + " k&euro;";
+	document.getElementById("area").innerHTML   = "Area: "   	 + area + " m2";
+}
+
+DSS.costDragged = function(ed, value, oldValue) 
 {	
-	DSS.newSliderValues(DSS.potSlider.thumbs[0].value / 10);
+	if(!DSS.lock)
+	{
+		DSS.lock = true;
+		
+		percent = parseFloat(value) / DSS.costSlider.maxValue * 100;
+		updateLabels(percent);
+		
+		//DSS.costSlider.setValue(percent * DSS.costSlider.maxValue / 100);
+		DSS.invSlider.setValue(percent * DSS.invSlider.maxValue / 100);
+		DSS.areaSlider.setValue(percent * DSS.areaSlider.maxValue / 100);
+		
+		
+		DSS.rule_highlight.filter.value = value / 1000;
+		DSS.rule_highlight.filter.property = "multi_c_e";
+		DSS.buildsGML.redraw();
+		DSS.lock = false;
+	}
 }
 
 DSS.invDragged = function(ed, value, oldValue) 
 {	
-	DSS.newSliderValues((DSS.invSlider.getValue() + 0.0) / (DSS.invSlider.maxValue + 0.0) * 100);
+	if(!DSS.lock)
+	{
+		DSS.lock = true;
+		
+		percent = parseFloat(value) / DSS.invSlider.maxValue * 100;
+		updateLabels(percent);
+		
+		DSS.costSlider.setValue(percent * DSS.costSlider.maxValue / 100);
+		//DSS.invSlider.setValue(percent * DSS.invSlider.maxValue / 100);
+		DSS.areaSlider.setValue(percent * DSS.areaSlider.maxValue / 100);
+		
+		DSS.rule_highlight.filter.value = value * 1000;
+		DSS.rule_highlight.filter.property = "cum_multi";
+		DSS.buildsGML.redraw();
+		DSS.lock = false;
+	}
 }
 
-DSS.capDragged = function(ed, value, oldValue) 
-{	
-	DSS.newSliderValues((DSS.capSlider.getValue() + 0.0) / (DSS.capSlider.maxValue + 0.0) * 100);
-}
-
-DSS.newSliderValues = function(percent) 
+DSS.areaDragged = function(ed, value, oldValue) 
 {	
 	if(!DSS.lock)
 	{
-		// Since the browser is single threaded this is safe.
 		DSS.lock = true;
-		percent = parseInt(percent);
 		
-		document.getElementById("percent").innerHTML  = "Potential: "  + percent + " %";
-		document.getElementById("invest").innerHTML   = "Investment: " + percent * DSS.invSlider.maxValue / 100 + " k&euro;";
-		document.getElementById("capacity").innerHTML = "Capacity: "   + percent * DSS.capSlider.maxValue / 100 + " kWp";
+		percent = parseFloat(value) / DSS.areaSlider.maxValue * 100;
+		updateLabels(percent);
 		
+		DSS.costSlider.setValue(percent * DSS.costSlider.maxValue / 100);
 		DSS.invSlider.setValue(percent * DSS.invSlider.maxValue / 100);
-		DSS.capSlider.setValue(percent * DSS.capSlider.maxValue / 100);
-		DSS.potSlider.setValue(percent * DSS.potSlider.maxValue / 100);
+		//DSS.areaSlider.setValue(percent * DSS.areaSlider.maxValue / 100);
 		
-		DSS.rule_highlight.filter.value = 1000 - DSS.potSlider.getValue();
+		DSS.rule_highlight.filter.value = value;
+		DSS.rule_highlight.filter.property = "cum_area";
 		DSS.buildsGML.redraw();
 		DSS.lock = false;
 	}
