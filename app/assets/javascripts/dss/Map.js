@@ -77,7 +77,7 @@ DSS.initMap = function()
     );
 	
 	var buildsWMS =  new OpenLayers.Layer.WMS(
-    	"BuildingsWMS",
+    	"Buildings",
     	"http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
         {layers: "RO_buildings_gml", 
          format: "image/png",
@@ -121,7 +121,7 @@ DSS.initMap = function()
     
 
 
-	DSS.map.addLayers([streets, /*buildsWMS,*/ DSS.buildsGML/*, buildsWFS*/]);
+	DSS.map.addLayers([streets, buildsWMS, DSS.buildsGML/*, buildsWFS*/]);
 	
 	DSS.map.zoomIn();
 	DSS.map.zoomIn();
