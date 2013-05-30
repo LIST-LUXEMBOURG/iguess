@@ -30,7 +30,7 @@ DSS.initSliders = function()
         renderTo: 'slider-cost',
         width: 214,
         value: 0,
-        minValue: 0,
+        minValue: 90,
         maxValue: 200,
         plugins: new Ext.ux.SliderTip()
     });
@@ -44,6 +44,15 @@ DSS.initSliders = function()
         plugins: new Ext.ux.SliderTip()
     });
     
+    DSS.genSlider = new Ext.Slider({
+        renderTo: 'slider-generation',
+        width: 214,
+        value: 0,
+        minValue: 0,
+        maxValue: 150,
+        plugins: new Ext.ux.SliderTip()
+    });
+    
     DSS.areaSlider = new Ext.Slider({
         renderTo: 'slider-area',
         width: 214,
@@ -54,18 +63,23 @@ DSS.initSliders = function()
     });
     
 	DSS.costSlider.on('change', DSS.costDragged, this);
+	DSS.invSlider.on ('change', DSS.invDragged, this);
+	DSS.genSlider.on ('change', DSS.genDragged, this);
 	DSS.areaSlider.on('change', DSS.areaDragged, this);
-	DSS.invSlider.on('change', DSS.invDragged, this);	
+		
 }
 
 updateLabels = function(percent)
 {
-	cost = (percent * DSS.costSlider.maxValue / 100 / 1000).toFixed(3);
-	invest = (percent * DSS.invSlider.maxValue / 100).toFixed(3);
-	area = (percent * DSS.areaSlider.maxValue / 100).toFixed(0);
+	costPercent = percent * (DSS.costSlider.maxValue - DSS.costSlider.minValue) / 100;
+	cost =   ((DSS.costSlider.minValue + costPercent) / 1000).toFixed(3);
+	invest = (percent * DSS.invSlider.maxValue  / 100).toFixed(3);
+	gen =    (percent * DSS.genSlider.maxValue  / 100).toFixed(3);
+	area =   (percent * DSS.areaSlider.maxValue / 100).toFixed(0);
 	
 	document.getElementById("cost").innerHTML   = "Cost: "  	 + cost + " &euro;/kWh";
 	document.getElementById("invest").innerHTML = "Investment: " + invest + " k&euro;";
+	document.getElementById("gen").innerHTML    = "Generation: " + gen + " MWh/a";
 	document.getElementById("area").innerHTML   = "Area: "   	 + area + " m2";
 }
 
@@ -75,11 +89,12 @@ DSS.costDragged = function(ed, value, oldValue)
 	{
 		DSS.lock = true;
 		
-		percent = parseFloat(value) / DSS.costSlider.maxValue * 100;
+		percent = (parseFloat(value) - DSS.costSlider.minValue) / (DSS.costSlider.maxValue - DSS.costSlider.minValue) * 100;
 		updateLabels(percent);
 		
 		//DSS.costSlider.setValue(percent * DSS.costSlider.maxValue / 100);
 		DSS.invSlider.setValue(percent * DSS.invSlider.maxValue / 100);
+		DSS.genSlider.setValue(percent * DSS.genSlider.maxValue / 100);
 		DSS.areaSlider.setValue(percent * DSS.areaSlider.maxValue / 100);
 		
 		
@@ -101,6 +116,7 @@ DSS.invDragged = function(ed, value, oldValue)
 		
 		DSS.costSlider.setValue(percent * DSS.costSlider.maxValue / 100);
 		//DSS.invSlider.setValue(percent * DSS.invSlider.maxValue / 100);
+		DSS.genSlider.setValue(percent * DSS.genSlider.maxValue / 100);
 		DSS.areaSlider.setValue(percent * DSS.areaSlider.maxValue / 100);
 		
 		DSS.rule_highlight.filter.value = value * 1000;
@@ -121,10 +137,33 @@ DSS.areaDragged = function(ed, value, oldValue)
 		
 		DSS.costSlider.setValue(percent * DSS.costSlider.maxValue / 100);
 		DSS.invSlider.setValue(percent * DSS.invSlider.maxValue / 100);
+		DSS.genSlider.setValue(percent * DSS.genSlider.maxValue / 100);
 		//DSS.areaSlider.setValue(percent * DSS.areaSlider.maxValue / 100);
 		
 		DSS.rule_highlight.filter.value = value;
 		DSS.rule_highlight.filter.property = "cum_area";
+		DSS.buildsGML.redraw();
+		DSS.lock = false;
+	}
+}
+
+DSS.genDragged = function(ed, value, oldValue) 
+{	
+	if(!DSS.lock)
+	{
+		DSS.lock = true;
+		
+		percent = parseFloat(value) / DSS.genSlider.maxValue * 100;
+		updateLabels(percent);
+		
+		DSS.costSlider.setValue(percent * DSS.costSlider.maxValue / 100);
+		DSS.invSlider.setValue(percent * DSS.invSlider.maxValue / 100);
+		//DSS.genSlider.setValue(percent * DSS.genSlider.maxValue / 100);
+		DSS.areaSlider.setValue(percent * DSS.areaSlider.maxValue / 100);
+		
+		
+		DSS.rule_highlight.filter.value = value * 1000;
+		DSS.rule_highlight.filter.property = "c_e_multi";
 		DSS.buildsGML.redraw();
 		DSS.lock = false;
 	}
