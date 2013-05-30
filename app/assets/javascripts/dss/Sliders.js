@@ -69,10 +69,15 @@ DSS.initSliders = function()
 		
 }
 
-updateLabels = function(percent)
+DSS.calcCostValue = function(percent)
 {
 	costPercent = percent * (DSS.costSlider.maxValue - DSS.costSlider.minValue) / 100;
-	cost =   ((DSS.costSlider.minValue + costPercent) / 1000).toFixed(3);
+	return DSS.costSlider.minValue + costPercent;
+}
+
+DSS.updateLabels = function(percent)
+{
+	cost =   (DSS.calcCostValue(percent) / 1000).toFixed(3);
 	invest = (percent * DSS.invSlider.maxValue  / 100).toFixed(3);
 	gen =    (percent * DSS.genSlider.maxValue  / 100).toFixed(3);
 	area =   (percent * DSS.areaSlider.maxValue / 100).toFixed(0);
@@ -90,9 +95,8 @@ DSS.costDragged = function(ed, value, oldValue)
 		DSS.lock = true;
 		
 		percent = (parseFloat(value) - DSS.costSlider.minValue) / (DSS.costSlider.maxValue - DSS.costSlider.minValue) * 100;
-		updateLabels(percent);
+		DSS.updateLabels(percent);
 		
-		//DSS.costSlider.setValue(percent * DSS.costSlider.maxValue / 100);
 		DSS.invSlider.setValue(percent * DSS.invSlider.maxValue / 100);
 		DSS.genSlider.setValue(percent * DSS.genSlider.maxValue / 100);
 		DSS.areaSlider.setValue(percent * DSS.areaSlider.maxValue / 100);
@@ -112,10 +116,9 @@ DSS.invDragged = function(ed, value, oldValue)
 		DSS.lock = true;
 		
 		percent = parseFloat(value) / DSS.invSlider.maxValue * 100;
-		updateLabels(percent);
+		DSS.updateLabels(percent);
 		
-		DSS.costSlider.setValue(percent * DSS.costSlider.maxValue / 100);
-		//DSS.invSlider.setValue(percent * DSS.invSlider.maxValue / 100);
+		DSS.costSlider.setValue(DSS.calcCostValue(percent));
 		DSS.genSlider.setValue(percent * DSS.genSlider.maxValue / 100);
 		DSS.areaSlider.setValue(percent * DSS.areaSlider.maxValue / 100);
 		
@@ -133,12 +136,11 @@ DSS.areaDragged = function(ed, value, oldValue)
 		DSS.lock = true;
 		
 		percent = parseFloat(value) / DSS.areaSlider.maxValue * 100;
-		updateLabels(percent);
+		DSS.updateLabels(percent);
 		
-		DSS.costSlider.setValue(percent * DSS.costSlider.maxValue / 100);
+		DSS.costSlider.setValue(DSS.calcCostValue(percent));
 		DSS.invSlider.setValue(percent * DSS.invSlider.maxValue / 100);
 		DSS.genSlider.setValue(percent * DSS.genSlider.maxValue / 100);
-		//DSS.areaSlider.setValue(percent * DSS.areaSlider.maxValue / 100);
 		
 		DSS.rule_highlight.filter.value = value;
 		DSS.rule_highlight.filter.property = "cum_area";
@@ -154,11 +156,10 @@ DSS.genDragged = function(ed, value, oldValue)
 		DSS.lock = true;
 		
 		percent = parseFloat(value) / DSS.genSlider.maxValue * 100;
-		updateLabels(percent);
+		DSS.updateLabels(percent);
 		
-		DSS.costSlider.setValue(percent * DSS.costSlider.maxValue / 100);
+		DSS.costSlider.setValue(DSS.calcCostValue(percent));
 		DSS.invSlider.setValue(percent * DSS.invSlider.maxValue / 100);
-		//DSS.genSlider.setValue(percent * DSS.genSlider.maxValue / 100);
 		DSS.areaSlider.setValue(percent * DSS.areaSlider.maxValue / 100);
 		
 		
