@@ -13,6 +13,9 @@ var WebGIS = WebGIS || { };
 WebGIS.leftMap = null;
 WebGIS.rightMap = null;
 
+WebGIS.proxy = "/home/geoproxy?url=";
+OpenLayers.ProxyHost = "/home/geoproxy?url=";
+
 /**
  * All layers will always use the base layer projection for the request.
  * Since we are using Google and OSM anything other than EPSG:900913 will be ignored.
@@ -73,6 +76,8 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type)
                     singleTile:  true,
            		 	transitionEffect: 'resize'
                   };
+    
+    //serviceURL = WebGIS.proxy + encodeURIComponent(serviceURL);
 
     var layer = new OpenLayers.Layer.WMS(title, serviceURL, params, options);
 
