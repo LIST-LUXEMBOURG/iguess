@@ -13,6 +13,9 @@ var WebGIS = WebGIS || { };
 WebGIS.leftMap = null;
 WebGIS.rightMap = null;
 
+WebGIS.proxy = "/home/geoproxy?url=";
+OpenLayers.ProxyHost = "/home/geoproxy?url=";
+
 /**
  * All layers will always use the base layer projection for the request.
  * Since we are using Google and OSM anything other than EPSG:900913 will be ignored.
@@ -43,24 +46,12 @@ WebGIS.initMap = function () {
       displayProjection: 	new OpenLayers.Projection(WebGIS.displayProjection),
       units: 				"m",
       maxExtent: 			boundsMap,
-      controls: 			[ new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]
-    });
-    
-    WebGIS.rightMap = new OpenLayers.Map("rightMap",{
-    	projection: 		mapProjection,
-    	displayProjection: 	new OpenLayers.Projection(WebGIS.displayProjection),
-    	units: 				"m",
-    	maxExtent: 			boundsMap/*,
-    	controls: 			[ new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]*/
+      controls: []
     });
    
     WebGIS.registerIdentify(WebGIS.leftMap, this);
-    WebGIS.registerIdentify(WebGIS.rightMap, this);
 
     WebGIS.leftMap.addLayers(WebGIS.getLeftBaseLayers());   
-    WebGIS.rightMap.addLayers(WebGIS.getRightBaseLayers());
-    
-    WebGIS.initParallelEvents();
 };
 
 WebGIS.zoomToCity = function () {  
@@ -85,10 +76,14 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type)
                     singleTile:  true,
            		 	transitionEffect: 'resize'
                   };
+    
+    //serviceURL = WebGIS.proxy + encodeURIComponent(serviceURL);
 
     var layer = new OpenLayers.Layer.WMS(title, serviceURL, params, options);
 
     WebGIS.leftMap.addLayer(layer);
+    
+    layer.events.register("visibilitychanged", this, WebGIS.toggleLayer);
 };
 
 // Remove all layers from the current map

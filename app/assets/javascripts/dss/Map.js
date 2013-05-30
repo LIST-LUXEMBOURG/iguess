@@ -31,9 +31,9 @@ DSS.rule_fsa = new OpenLayers.Rule({
 
 DSS.rule_highlight = new OpenLayers.Rule({
 	filter: new OpenLayers.Filter.Comparison({
-		type: OpenLayers.Filter.Comparison.GREATER_THAN,
-		property: "cat",
-		value: 1000,
+		type: OpenLayers.Filter.Comparison.LESS_THAN,
+		property: "cum_multi",
+		value: 0,
 	}),
 	symbolizer: {
 		fillColor: "#FF7144",
@@ -70,6 +70,7 @@ DSS.initMap = function()
          format: "image/png",
          srsName: DSS.mapProjection,
 	 	 transparent: "true",
+	 	 untiled: "tre",
      	 projection: new OpenLayers.Projection(DSS.mapProjection)},
         {isBaseLayer: true,  
      	 visibility: true}
@@ -89,7 +90,7 @@ DSS.initMap = function()
        
     DSS.buildsGML = new OpenLayers.Layer.Vector("BuildingsGML", {
         protocol: new OpenLayers.Protocol.HTTP({
-            url: "assets/BuildingsFull.gml",
+            url: "assets/pv_potential_small_ranked.gml",
         	//url: "http://services.iguess.tudor.lu/pywps/sampleData/BuildingsFull.gml",
             format: new OpenLayers.Format.GML()
         }),

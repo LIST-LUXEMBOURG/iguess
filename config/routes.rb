@@ -13,6 +13,8 @@ Iguess::Application.routes.draw do
   
   resources :maps
   
+  resources :compares
+  
   resources :dss
 
   match 'about', :to => 'about#index'

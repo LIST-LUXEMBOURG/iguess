@@ -9,74 +9,48 @@ var WebGIS = WebGIS || { };
 
 WebGIS.ctrlIdentify = null;
 
-WebGIS.closeButton = 
-	"<br><br><br><br><input type=\"button\" value=\"Close\" align=\"left\" valign=\"bottom\" " + 
-	"onClick=\"WebGIS.winIdentify.hide();\"/><br/>";
-
-// window dialog
-WebGIS.winIdentify = new Ext.Window({
-    layout: "fit",
-    hideBorders: true,
-    closeAction: "hide",
-    width: 300,
-    height: 400,
-    title: "Identify",
-    contentEl: "winDivIdentify"
-});
-
-WebGIS.initWinIdentify = function() {
-	
-	var div = document.createElement('div');
-	div.setAttribute('id', 'winDivIdentify');
-};
-
-/******************************************
- * Why isn't the map being passed as reference?
- */
 WebGIS.registerIdentify = function(map, ref) {
 
 	WebGIS.ctrlIdentify = new OpenLayers.Control.WMSGetFeatureInfo({
-		url: 'http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map&', 
-		title: 'Identify features by clicking',
-		layers: [],
-		queryVisible: true
+		drillDown:true,
+		infoFormat:"application/vnd.ogc.gml"
 	});
 
 	WebGIS.ctrlIdentify.events.register("getfeatureinfo", ref, WebGIS.showInfo);
 	WebGIS.leftMap.addControl(WebGIS.ctrlIdentify);
 };
 
-WebGIS.treeClickListener = function(node,event) {
+WebGIS.toggleLayer = function(evt) 
+{
+	WebGIS.ctrlIdentify.layers = [];
 	
-	WebGIS.ctrlIdentify.layers = [node.layer];
-};
-
-WebGIS.toggleIdentify = function() {
-
-	var node = WebGIS.layerTree.getSelectionModel().getSelectedNode();
-
-	if(node == null)
-	{
-    	Ext.MessageBox.show({
-            title: 'Selected Nodes',
-            msg: '<br>To use this function please select a layer in the tree.<br>',
-            icon: Ext.MessageBox.INFO
-        });
-		return
-	}
-
-	WebGIS.ctrlIdentify.layers = [node.layer];
-};
-
-WebGIS.showInfo = function(evt) {
-
-    if (evt.features && evt.features.length) {
-         highlightLayer.destroyFeatures();
-         highlightLayer.addFeatures(evt.features);
-         highlightLayer.redraw();
-    } else {
-        document.getElementById('winDivIdentify').innerHTML = evt.text + WebGIS.closeButton;
-		WebGIS.winIdentify.show();
+	var layers  = WebGIS.leftMap.layers;                              
+    
+    for (var i = 0; i < layers.length; i++) 
+    {
+    	if (layers[i].getVisibility())
+    		WebGIS.ctrlIdentify.layers.push(layers[i]);
     }
 };
 
+WebGIS.showInfo = function(evt) {
+	
+	var items = [];
+    Ext.each(evt.features, function(feature) {
+        items.push({
+            xtype: "propertygrid",
+            title: feature.fid,
+            source: feature.attributes
+        });
+    });
+
+    new GeoExt.Popup({
+        title: "Feature Info",
+        width: 300,
+        height: 450,
+        layout: "accordion",
+        map: WebGIS.leftPanel,
+		location: evt.xy,
+        items: items
+    }).show();
+};
