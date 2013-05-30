@@ -135,10 +135,10 @@ class ModConfigsController < ApplicationController
                                   if(configDataset.res_y) then params += "&RESY=" + configDataset.res_y.to_s() end
                                 end
 
-                                request = dataset.service == 'WCS' ? 'getCoverage' : 'getFeature'
+                                request = config_dataset.service == 'WCS' ? 'getCoverage' : 'getFeature'
 
                                 dataname = config_dataset.server_url + (config_dataset.server_url.include?("?") == -1 ? "?" : "&") +
-                                'SERVICE=' + dataset.service + params +
+                                'SERVICE=' + config_dataset.service + params +
                                 URI.escape('&VERSION=1.0.0&REQUEST=' + request + '&TYPENAME=' + config_dataset.identifier)
 
                                inputFields.push(configDataset.input_identifier)
