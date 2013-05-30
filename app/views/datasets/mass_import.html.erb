@@ -251,9 +251,13 @@
         var srsList = [ ];
 
         if(layer.srs !== null) {
-          availableInLocalProjection  = LOCAL_SRS  in layer.srs;
-          availableInGoogleProjection = GOOGLE_SRS in layer.srs;
-          srsList = Object.keys(layer.srs);
+          availableInLocalProjection  = layer.srs.hasOwnProperty(LOCAL_SRS);
+          availableInGoogleProjection = layer.srs.hasOwnProperty(GOOGLE_SRS);
+          
+          if(typeof(layer.srs) === "string")
+            srsList = layer.srs;
+          else
+            srsList = Object.keys(layer.srs);
         }
 
       
@@ -351,7 +355,7 @@
 
         var activeSRS = null;
 
-        if(layer.bbox !== null && layer.bbox.left !== null) {
+        if(layer.bbox && layer.bbox.left) {
           for (e in layer.bbox) { 
             activeSRS = e; 
             break; 
@@ -371,6 +375,9 @@
         }
         else {
           var bbox = layer.bbox[activeSRS].bbox;
+
+          if(!bbox)
+            bbox = layer.bbox;
 
           var bounds = new OpenLayers.Bounds(bbox[0], bbox[1], bbox[2], bbox[3]);  //minx miny maxx maxy
 
