@@ -116,29 +116,32 @@ class ModConfigsController < ApplicationController
 # FORMAT=image/tiff&BBOX=92213,436671.500,92348,436795.000&CRS=EPSG:28992&RESX=1&RESY=1
 
     # Drop downs -- always inputs
-    @mod_config.datasets.map { |d| 
-                                c = ConfigDataset.find_by_mod_config_id_and_dataset_id(@mod_config.id, d.id)
+    @mod_config.datasets.map { |config_dataset| 
+
+                                configDataset = ConfigDataset.find_by_mod_config_id_and_dataset_id(@mod_config.id, config_dataset.id)
 
                                 params = ""
 
-                                if(c) then
-                                  if(not c.format.blank?) then params += "&FORMAT=" + c.format end
-                                  if(not c.crs.blank?)    then params += "&CRS="    + c.crs    end
+                                if(configDataset) then
+                                  if(not configDataset.format.blank?) then params += "&FORMAT=" + configDataset.format end
+                                  if(not configDataset.crs.blank?)    then params += "&CRS="    + configDataset.crs    end
 
-                                  if(c.bbox_left && c.bbox_right && c.bbox_top && c.bbox_bottom) then 
-                                    params += "&BBOX=" + c.bbox_left.to_s()  + "," + c.bbox_bottom.to_s() + "," +
-                                                         c.bbox_right.to_s() + "," + c.bbox_top.to_s()
+                                  if(configDataset.bbox_left && configDataset.bbox_right && configDataset.bbox_top && configDataset.bbox_bottom) then 
+                                    params += "&BBOX=" + configDataset.bbox_left.to_s()  + "," + configDataset.bbox_bottom.to_s() + "," +
+                                                         configDataset.bbox_right.to_s() + "," + configDataset.bbox_top.to_s()
                                   end
 
-                                  if(c.res_x) then params += "&RESX=" + c.res_x.to_s() end
-                                  if(c.res_y) then params += "&RESY=" + c.res_y.to_s() end
+                                  if(configDataset.res_x) then params += "&RESX=" + configDataset.res_x.to_s() end
+                                  if(configDataset.res_y) then params += "&RESY=" + configDataset.res_y.to_s() end
                                 end
 
-                                dataname = d.server_url + (d.server_url.include?("?") == -1 ? "?" : "&") +
-                                'SERVICE=' + d.service + params +
-                                URI.escape('&VERSION=1.0.0&REQUEST=getFeature&TYPENAME=' + d.identifier)
+                                request = dataset.service == 'WCS' ? 'getCoverage' : 'getFeature'
 
-                               inputFields.push(c.input_identifier)
+                                dataname = config_dataset.server_url + (config_dataset.server_url.include?("?") == -1 ? "?" : "&") +
+                                'SERVICE=' + dataset.service + params +
+                                URI.escape('&VERSION=1.0.0&REQUEST=' + request + '&TYPENAME=' + config_dataset.identifier)
+
+                               inputFields.push(configDataset.input_identifier)
                                inputValues.push(dataname) 
                               }
 
