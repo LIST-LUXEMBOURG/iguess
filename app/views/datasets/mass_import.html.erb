@@ -285,7 +285,8 @@
 
         var titleNode = $(document.createElement('div'));
         titleNode.attr({ class:'dataset_title', id:'dataset-title-' + sanitizeId(layer.identifier) });
-        titleNode.text(layer.title != "" ? layer.title : layer.identifier);
+        titleNode.html((layer.title != "" ? layer.title : layer.identifier) + "<span class='dataset-identifier'>Identifier: <span>" + layer.identifier + "</span>");
+
 
         var servicesAvailNode = $(document.createElement('div'));
         servicesAvailNode.attr({ class:'dataset_services_available' });

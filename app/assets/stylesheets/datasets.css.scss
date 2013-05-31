@@ -94,6 +94,19 @@
   
 }
 
+
+.dataset-identifier {
+  display: block;
+  float: right;
+  color: #777;
+  font-weight: bold;
+}
+
+.dataset-identifier span {
+  font-weight: normal;
+}
+
+
 /* Container for "available in..." graphics */
 .dataset_srs {
   
