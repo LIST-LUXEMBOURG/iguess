@@ -356,18 +356,25 @@
 
         var activeSRS = null;
 
-        if(layer.bbox && layer.bbox.left) {
+        // debugger;
+
+        if(layer.bbox) {
           for (e in layer.bbox) { 
             activeSRS = e; 
             break; 
           }
         }
+      
+        // For some layers we have intialized layer.bbox as { left: null, right: null, top: null, bottom: null }.  This checks for that condition.
+        if(!layer.bbox[activeSRS])
+          activeSRS = null;
+
 
         if(activeSRS == null) {
           $('#' + mapDivId).html('<div class="center"><br><u>Map unavailable</u></div>');
 
           if(!alreadyShownWmsError) {
-            var err = '<div>We cannot display sample maps for some datasets on this server.  The most likely cause of this problem is that the server\'s WMS functionality is not properly configured.  You can see how the server responds to WMS queries by clicking here: <a href="'+ WMS.getCapReq(layer.serverUrl) + '" target="_blank">WMS GetCapabilities</a></div>';
+            var err = '<div>We cannot display sample maps for some datasets on this server.  The most likely cause of this problem is that the server\'s WMS functionality is not properly configured: either a WMS service has not been defined for a particular identifier, or I cannot get a usable bounding box for the layers you have requested.<P><P>You can see how the server responds to WMS queries by clicking here: <a href="'+ WMS.getCapReq(layer.serverUrl) + '" target="_blank">WMS GetCapabilities</a></div>';
 
             $('#error-list').append(err).slideDown(500);
 
