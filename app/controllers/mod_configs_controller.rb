@@ -289,6 +289,8 @@ class ModConfigsController < ApplicationController
         identifier = d[0]
         id = d[1]
 
+        # binding.pry
+
         if(not identifier.empty?) then
           if(id != "-1") then
             confds = ConfigDataset.new()

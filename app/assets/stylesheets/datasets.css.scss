@@ -208,9 +208,14 @@
   font-weight: bold;
 }
 
+
 /* Error box body */
-.error-body {
+.error-body, .dataset-error {
   color: red;
+}
+
+
+div.error-body {
   font-size: 25px;
 }
 

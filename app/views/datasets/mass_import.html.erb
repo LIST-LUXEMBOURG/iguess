@@ -354,23 +354,34 @@
         $("#layer-table").append(li_element);
 
 
+        var bbox = null;
         var activeSRS = null;
 
-        // debugger;
-
+    
         if(layer.bbox) {
           for (e in layer.bbox) { 
-            activeSRS = e; 
+            activeSRS = e;
+            bbox = layer.bbox[e] ;
             break; 
           }
         }
-      
-        // For some layers we have intialized layer.bbox as { left: null, right: null, top: null, bottom: null }.  This checks for that condition.
-        if(!layer.bbox[activeSRS])
-          activeSRS = null;
+
+        // See if we can do this in lat/long -- this is very hacky
+        if(!bbox){
+          if(layer.llbbox) {
+            bbox = layer.llbbox;
+
+            if(layer.srs) {
+              for (e in layer.srs) { 
+                activeSRS = e;
+                break; 
+              }
+            }
+          }
+        }
 
 
-        if(activeSRS == null) {
+        if(!activeSRS || !bbox) {
           $('#' + mapDivId).html('<div class="center"><br><u>Map unavailable</u></div>');
 
           if(!alreadyShownWmsError) {
@@ -382,16 +393,11 @@
             }
         }
         else {
-          var bbox = layer.bbox[activeSRS].bbox;
-
-          if(!bbox)
-            bbox = layer.bbox;
-
           var bounds = new OpenLayers.Bounds(bbox[0], bbox[1], bbox[2], bbox[3]);  //minx miny maxx maxy
 
           var miniMap = new OpenLayers.Map({
                   maxExtent:  bounds,
-                  projection: new OpenLayers.Projection(activeSRS),
+                  //projection: new OpenLayers.Projection(activeSRS),
                   controls: [ new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]
           });
 

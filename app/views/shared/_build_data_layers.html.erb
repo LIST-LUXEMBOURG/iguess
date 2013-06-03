@@ -102,6 +102,7 @@
     this.format      = null;
     this.srs         = null;
     this.bbox        = { left: null, right: null, top: null, bottom: null };
+    this.llbbox      = null;
     this.resolution  = { x: null, y: null };
 
     if(record) {
@@ -180,6 +181,7 @@
         if(service === 'WMS') {
           dataset.srs  = record.data.srs;
           dataset.bbox = record.data.bbox;
+          dataset.llbbox = record.data.llbbox;
         }
 
         foundDataset(dataset, service);

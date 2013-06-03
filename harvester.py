@@ -11,7 +11,7 @@ import re
 wpsVersion = '1.0.0'
 wmsVersion = '1.3.0'
 wfsVersion = '1.0.0'
-wcsVersion = '1.1.0'
+wcsVersion = '1.0.0'
 
 # Get the database connection info
 from harvester_pwd import dbDatabase, dbName, dbUsername, dbPassword, dbSchema
@@ -31,6 +31,7 @@ tables["processes"]     = dbSchema + ".wps_processes"
 tables["processParams"] = dbSchema + ".process_params"
 tables["datasets"]      = dbSchema + ".datasets"
 tables["dataservers"]   = dbSchema + ".dataservers"
+tables["cities"]        = dbSchema + ".cities"
 
 
 # Create a database row if one is needed
@@ -44,12 +45,24 @@ def upsert(cursor, table, idCol, rowId, identifier):
         cursor.execute("INSERT INTO " + table + " (" + idCol + ", identifier) VALUES (%s, %s)",
                        (rowId, identifier))
 
+
+
 # Mark all our records as dead; we'll mark them as alive as we process them.  Note that the database won't
 # actually be udpated until we commit all our transactions at the end, so we'll never see this value
 # for a server/process/input that is in fact alive.
 updateCursor.execute("UPDATE " + tables["wpsServers"]    + " SET alive = false")
 updateCursor.execute("UPDATE " + tables["processes"]     + " SET alive = false")
 updateCursor.execute("UPDATE " + tables["processParams"] + " SET alive = false")
+
+
+# Build a list of native CRS's for the cities
+# Creates:
+# {2: 'urn:ogc:def:crs:EPSG::31370', 3: 'urn:ogc:def:crs:EPSG::31467', 4: 'urn:ogc:def:crs:EPSG::2154', 5: 'urn:ogc:def:crs:EPSG::28992'}
+cityCRS = {}
+serverCursor.execute("SELECT id, srs FROM " + tables["cities"])
+for row in serverCursor:
+    cityCRS[row[0]] = row[1]
+
 
 # Get the server list
 serverCursor.execute("SELECT url, id FROM " + tables["wpsServers"])
@@ -140,6 +153,24 @@ dbConn.commit()
 updateCursor.execute("UPDATE " + tables["datasets"]    + " SET alive = false")
 updateCursor.execute("UPDATE " + tables["dataservers"] + " SET alive = false")
 
+
+# Compare whether two crs's are in fact the same.  We'll consider the following two strings equal
+# urn:ogc:def:crs:EPSG::28992
+# EPSG:28992
+def isEqualCrs(first, second):
+    # Frist, replace the :: with a single :
+    first = first.replace('::', ':')
+    second = second.replace('::', ':')
+
+    # Now split on a ':', lowercasing to remove case considerations, so we can compare the last two tokens
+    firstWords = first.lower().split(':')
+    secondWords = second.lower().split(':')
+    
+    return firstWords[len(firstWords) - 2] == secondWords[len(secondWords) - 2] and firstWords[len(firstWords) - 1] == secondWords[len(secondWords) - 1]
+
+
+
+
 # Get the server list
 serverCursor.execute("SELECT DISTINCT url FROM " + tables["dataservers"])
 for row in serverCursor:
@@ -172,20 +203,30 @@ for row in serverCursor:
     hasWfs = True if wfs else False
     hasWcs = True if wcs else False
 
+    # wms: ['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__getitem__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_buildMetadata', '_capabilities', '_getcapproperty', 'contents', 'exceptions', 'getOperationByName', 'getServiceXML', 'getcapabilities', 'getfeatureinfo', 'getmap', 'identification', 'items', 'operations', 'password', 'provider', 'url', 'username', 'version']
+    # wfs: ['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__getitem__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_buildMetadata', '_capabilities', 'contents', 'exceptions', 'getOperationByName', 'getcapabilities', 'getfeature', 'identification', 'items', 'log', 'operations', 'provider', 'url', 'version']
+    # wfs.contents: ['__class__', '__cmp__', '__contains__', '__delattr__', '__delitem__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__init__', '__iter__', '__le__', '__len__', '__lt__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setitem__', '__sizeof__', '__str__', '__subclasshook__', 'clear', 'copy', 'fromkeys', 'get', 'has_key', 'items', 'iteritems', 'iterkeys', 'itervalues', 'keys', 'pop', 'popitem', 'setdefault', 'update', 'values', 'viewitems', 'viewkeys', 'viewvalues']
+
+    # if(wfs):  
+    #     print dir(wfs.contents)
+
     updateCursor.execute("UPDATE " + tables["dataservers"] + " " +
                  "SET title = %s, abstract = %s, alive = TRUE, last_seen = NOW(), wms = %s, wfs = %s, wcs = %s " +
                  "WHERE url = %s", (dstitle, dsabstr, hasWms, hasWfs, hasWcs, serverUrl))
 
 
     # Trailing comma needed in line below because Python tuples can't have just one element...
-    dsCursor.execute("select distinct(identifier) from " + tables["datasets"] + " where server_url = %s", (serverUrl,))
+    dsCursor.execute("select id, identifier, city_id from " + tables["datasets"] + " where server_url = %s", (serverUrl,))
 
     for dsrow in dsCursor:
-        identifier = unicode(dsrow[0], 'utf8')
+        dsid = dsrow[0]
+        identifier = dsrow[1]
+        cityId = dsrow[2]
 
-        dsid = dstitle = dsabstr = None
+        dstitle = dsabstr = None
 
         found = True
+        hasCityCRS = False
 
         # from lxml import etree
         # if wms:
@@ -193,26 +234,38 @@ for row in serverCursor:
         #     etree.dump(wms._capabilities)
 
         if wms and identifier in wms.contents:
-            dstitle = wms.contents[identifier].title.encode('utf8')    if wms.contents[identifier].title    else ""
+            dstitle = wms.contents[identifier].title.encode('utf8')    if wms.contents[identifier].title    else identifier.encode('utf8')
             dsabstr = wms.contents[identifier].abstract.encode('utf8') if wms.contents[identifier].abstract else ""
 
         elif wfs and identifier in wfs.contents:
-            dstitle = wfs.contents[identifier].title.encode('utf8')    if wfs.contents[identifier].title    else ""
+            dstitle = wfs.contents[identifier].title.encode('utf8')    if wfs.contents[identifier].title    else identifier.encode('utf8')
             dsabstr = wfs.contents[identifier].abstract.encode('utf8') if wfs.contents[identifier].abstract else ""
 
+            # Check if dataset is available in the city's local srs
+            for c in wfs.contents[identifier].crsOptions:
+                if isEqualCrs(c.id, cityCRS[cityId]):
+                    hasCityCRS = True
+                    break
+
         elif wcs and identifier in wcs.contents:
-            dstitle = wcs.contents[identifier].title.encode('utf8')    if wcs.contents[identifier].title    else ""
+            dstitle = wcs.contents[identifier].title.encode('utf8')    if wcs.contents[identifier].title    else identifier.encode('utf8')
             dsabstr = wcs.contents[identifier].abstract.encode('utf8') if wcs.contents[identifier].abstract else ""
 
+            for c in wcs.contents[identifier].supportedCRS:     # crsOptions is available here, but always empty; only exists for OOP
+                if isEqualCrs(c.id, cityCRS[cityId]):
+                    hasCityCRS = True
+                    break
+
         else:
-            print "Not found: " + identifier.encode('utf8') + " (on server " +  serverUrl + ")"
+            print "Not found: " + identifier + " (on server " +  serverUrl + ")"
             found = False
+
 
         if found:
             # Update the database with the layer info
             updateCursor.execute("UPDATE " + tables["datasets"] + " " +
-                                 "SET title = %s, abstract = %s, alive = TRUE, last_seen = NOW() " +
-                                 "WHERE server_url = %s AND identifier = %s", (dstitle, dsabstr, serverUrl, identifier))
+                                 "SET title = %s, abstract = %s, alive = TRUE, last_seen = NOW(), local_srs = %s " +
+                                 "WHERE id = %s", (dstitle, dsabstr, hasCityCRS, dsid))
 
 # Commit dataset transactions
 dbConn.commit() 

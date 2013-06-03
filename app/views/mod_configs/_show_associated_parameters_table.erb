@@ -2,7 +2,6 @@
 <!-- Print a table of parameters for the module specified in mod -->
 
 <script>
-
   // Create a structure of registered datasets organized by identifier -- this will make retrieval below much more efficient
   var registeredDataLayersByTag = {};    // Indexed by tag
   var registeredDataLayersById  = {};    // Indexed by datasetId
@@ -29,6 +28,9 @@
   <%= raw @datasets.reject{ |d| d.finalized == false && d.alive == false }
                .map{ |d| 'datasets[' + d.id.to_s() + '] = ' + d.to_json + ";\n" }
                .join('') %>     
+
+
+  // datasets[684] = {"abstract":"This a demo data set of urban landuse in the Ludwigsburg city","alive":true,"city_id":3,"created_at":"2013-05-22T10:04:56Z","dataserver_id":9,"dataset_type":null,"finalized":true,"id":684,"identifier":"LB_urban_landuse","last_seen":"2013-05-22T10:04:56Z","published":false,"server_url":"http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/LB_localOWS_test.map","service":"WFS","title":"LB urban landuse","updated_at":"2013-05-22T10:04:56Z"};               
 
 
   // modeName will be "input" or "output"
@@ -58,11 +60,12 @@
         ctrl.append('<option class="dataset-title-' + datasetId + '" value="' + datasetId + '">' + title + '</option>');
     }
 
-    ctrl.change(function() {
-      if(registeredDataLayersById[+this.value]) {
-        var id        = registeredDataLayersById[+this.value].identifier;
-        var dataset   = datasets[datasetId];
 
+
+    ctrl.change(function() {
+      if(datasets[+this.value]) {   // The "+" coerces this.value into a number
+        var id        = datasets[+this.value].identifier;
+        var dataset   = datasets[datasetId];
         $('#hidden-field-' + parameterIdentifier + '-srs')        .val(dataset.srs);
         $('#hidden-field-' + parameterIdentifier + '-dformat')    .val(dataset.format);
         $('#hidden-field-' + parameterIdentifier + '-bbox-left')  .val(dataset.bbox.left);
