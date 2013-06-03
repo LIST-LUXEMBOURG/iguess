@@ -197,8 +197,14 @@
 }
 
 
-.register-datasets-button {
-  margin-top: 10px;
+/* When register datasets is on top */
+.register-datasets-button-top {
+  margin-left: 100px;
+}
+
+/* When register datasets is on the bottom */
+.register-datasets-button-bottom {
+  margin-top: 15px;
 }
 
 
