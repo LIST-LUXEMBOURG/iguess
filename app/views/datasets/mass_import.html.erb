@@ -184,6 +184,14 @@
   };
 
 
+  var datasetSort = function(d1, d2)
+  {
+    if(d1.identifier == d2.identifier) return 0;
+    if(d1.identifier < d2.identifier)  return 1;
+    return -1;
+  }
+
+
   var alreadyShownWmsError = false;   // Prevent us from being swamped by the same error message over and over
 
   var displayLayers = function() 
@@ -210,12 +218,17 @@
     $("#layer-display").html("");   // Clear the decks
 
 
+    var discoveredLayerKeys = Object.keys(discoveredLayers).sort();
+    // discoveredLayers.sort(datasetSort);
+
+
     // Render found datasets in two passes -- first for registered items, second for unregistered ones.
     // This puts registered items at the top of the screen.
     for(var pass = 0; pass < 2; pass++)
     {
-      for(var urlId in discoveredLayers)
+      for(var lyrctr = 0, len = discoveredLayerKeys.length; lyrctr < len; lyrctr++)
       {
+        var urlId = discoveredLayerKeys[lyrctr];
         var layer = discoveredLayers[urlId];      
 
         // Skip layers that the user has filtered out with the service radio buttons
