@@ -339,7 +339,8 @@
         container.append(titleNode)
                  .append(abstractNode)
                  .append(data_info)
-                 .append(sample_map);
+                 .append(sample_map)
+                 .append("<div class='proj-list'>Available Projections: <span>" + srsList.join('; ') + "</div>");
 
         // li_element (map-data-item)
         //    container (registered_dataset or unregistered_dataset)
@@ -420,7 +421,6 @@
 
         if(layer.type.hasObject('WFS') || layer.type.hasObject('WCS'))
           addWfsWcsOptionsToDropdown(tagPickerControlId);
-
       }  // end for loop
     }  // for pass = 0 to 2
 

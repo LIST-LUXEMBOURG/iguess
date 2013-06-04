@@ -9,7 +9,7 @@ if len(sys.argv) < 5:
 dbserver = sys.argv[1]
 database = sys.argv[2]
 dbuser   = sys.argv[3]
-dbpass   = sys.argv[4]
+dbpass   = sys.argv[4] 
 
 schema = 'iguess_dev'
 

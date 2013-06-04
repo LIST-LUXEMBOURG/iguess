@@ -95,18 +95,6 @@
 }
 
 
-.dataset-identifier {
-  display: block;
-  float: right;
-  color: #777;
-  font-weight: bold;
-}
-
-.dataset-identifier span {
-  font-weight: normal;
-}
-
-
 /* Container for "available in..." graphics */
 .dataset_srs {
   
@@ -354,6 +342,29 @@ span[disabled]
   margin-bottom: 6px;
 }
 
+/* Projection list on each tile */
+.proj-list {
+  clear: both;
+  padding-top: 8px;
+  font-weight: bold;
+  color: #777;
+}
+
+.proj-list span {
+  font-weight: normal;
+}
+
+
+.dataset-identifier {
+  display: block;
+  float: right;
+  color: #777;
+  font-weight: bold;
+}
+
+.dataset-identifier span {
+  font-weight: normal;
+}
 
 
 /* URL combobox */
