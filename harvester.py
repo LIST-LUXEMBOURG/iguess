@@ -5,13 +5,15 @@ from owslib.wfs import WebFeatureService
 from owslib.wcs import WebCoverageService
 from owslib.wms import WebMapService, ServiceException
 
+from pyproj import transform, Proj
+
 import psycopg2          # For database access
 import re
 
 wpsVersion = '1.0.0'
 wmsVersion = '1.3.0'
 wfsVersion = '1.0.0'
-wcsVersion = '1.0.0'
+wcsVersion = '1.1.0'        # Rotterdam only works when this is set to 1.1.0
 
 # Get the database connection info
 from harvester_pwd import dbDatabase, dbName, dbUsername, dbPassword, dbSchema
@@ -32,6 +34,9 @@ tables["processParams"] = dbSchema + ".process_params"
 tables["datasets"]      = dbSchema + ".datasets"
 tables["dataservers"]   = dbSchema + ".dataservers"
 tables["cities"]        = dbSchema + ".cities"
+
+serverUrl = 'http://ows.gis.rotterdam.nl/cgi-bin/mapserv.exe?map=d:\gwr\webdata\mapserver\map\gwr_basis_pub.map'
+wcs = WebCoverageService(serverUrl, version = wcsVersion)
 
 
 # Create a database row if one is needed
@@ -227,6 +232,13 @@ for row in serverCursor:
 
         found = True
         hasCityCRS = False
+        imgFormat  = ""
+        bboxLeft   = ""
+        bboxRight  = ""
+        bboxTop    = ""
+        bboxBottom = ""
+        resX       = ""
+        resY       = ""
 
         # from lxml import etree
         # if wms:
@@ -256,6 +268,31 @@ for row in serverCursor:
                     hasCityCRS = True
                     break
 
+            dc = wcs.getDescribeCoverage(identifier)
+            gridOffsets = dc.find(".//{http://www.opengis.net/wcs/1.1}GridOffsets") 
+            if gridOffsets is None:
+                dc.find(".//{http://www.opengis.net/wcs}GridOffsets")
+
+            print gridOffsets.text
+            if(gridOffsets is not None):
+                resX, resY = gridOffsets.text.split()
+
+            if(len(wcs.contents[identifier].supportedFormats[0]) > 0):
+                index = 0
+                if 'image/tiff' in wcs.contents[identifier].supportedFormats[index]:
+                    index = wcs.contents[identifier].supportedFormats.index('image/tiff')  # This is our preferred format; use it if available
+                imgFormat = wcs.contents[identifier].supportedFormats[index]
+
+                p1 = Proj(init='EPSG:4326')     # WGS84
+                p2 = Proj(init=cityCRS[cityId])
+
+                bb = wcs.contents[identifier].boundingBoxWGS84
+                xl, yl = p1(bb[0], bb[1])
+                bboxLeft, bboxBottom = transform(p1, p2, xl, yl)
+
+                xh, yh = p1(bb[2], bb[3])
+                bboxRight, bboxTop = transform(p1, p2, xh, yh)
+
         else:
             print "Not found: " + identifier + " (on server " +  serverUrl + ")"
             found = False
@@ -263,9 +300,12 @@ for row in serverCursor:
 
         if found:
             # Update the database with the layer info
-            updateCursor.execute("UPDATE " + tables["datasets"] + " " +
-                                 "SET title = %s, abstract = %s, alive = TRUE, last_seen = NOW(), local_srs = %s " +
-                                 "WHERE id = %s", (dstitle, dsabstr, hasCityCRS, dsid))
+            updateCursor.execute("                                                                                                     \
+                         UPDATE " + tables["datasets"] + "                                                                             \
+                         SET title = %s, abstract = %s, alive = TRUE, last_seen = NOW(), local_srs = %s, format = %s, bbox_left = %s,  \
+                                 bbox_right = %s, bbox_top = %s, bbox_bottom = %s, resolution_x = %s, resolution_y = %s                \
+                         WHERE id = %s                                                                                                 \
+                         ", (dstitle, dsabstr, hasCityCRS, imgFormat, bboxLeft, bboxRight, bboxTop, bboxBottom, resX, resY, dsid))     
 
 # Commit dataset transactions
 dbConn.commit() 
