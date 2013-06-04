@@ -22,7 +22,8 @@ except:
     print "Can't connect to database!"    
     sys.exit(2)
 
-cur = conn.cursor()
+cur  = conn.cursor()
+qcur = conn.cursor()
 
 try:
     query = "SELECT mc.id, pid, c.srs, c.id " \
@@ -109,16 +110,14 @@ for row in rows:
 
 
                 # Insert fresh ones
-                queryTemplate = "INSERT INTO " + schema + ".config_text_inputs "\
-                                "(mod_config_id, column_name, value, is_input)" \
+                queryTemplate = "INSERT INTO " + schema + ".config_text_inputs " \
+                                "(mod_config_id, column_name, value, is_input)"  \
                                 "VALUES(%s, %s, %s, %s)"
                 cur.execute(queryTemplate, (recordId, r.name, r.value, False))
 
 
             for r in client.resultsComplex:
                 print "Processing complex result ", r.name, " with id of ", r.uniqueID
-
-
 
 
                 if srs.startswith("EPSG:"):     # Strip prefix, if it exists
@@ -133,10 +132,30 @@ for row in rows:
                 identifier = r.name
                 dataset_type = 'Mapping Only'        # For now
 
+
+                # Check if data server already exists in the database, otherwise insert it.  We need the record id
+                qcur.execute("SELECT id FROM " + schema + ".dataservers WHERE url = %s", (url,))        # Trailing , needed
+                if qcur.rowcount == 0:
+                    title = "iGUESS results server"
+                    abstract = "Server hosting the results of a module run"
+                    qcur.execute("insert into " + schema + ".dataservers (url, title, abstract, alive, wms, wfs, wcs) values(%s, %s, %s, %s, %s, %s, %s)", 
+                                                    (url, title, abstract, True, True, False, False))
+                    qcur.execute("SELECT id FROM " + schema + ".dataservers WHERE url = %s", (url,)) 
+                
+                if qcur.rowcount == 0:
+                    print "Unable to insert data, quitting..."
+                    sys.exit(2)
+
+                serverId = qcur.fetchone()[0]
+
                 queryTemplate = "INSERT INTO " + schema + ".datasets "\
-                                "(server_url, identifier, dataset_type, city_id, finalized, created_at, updated_at)" \
-                                "VALUES(%s, %s, %s, %s, %s, %s, %s)"
-                cur.execute(queryTemplate, (url, identifier, dataset_type, str(city_id), True, str(datetime.datetime.now()), str(datetime.datetime.now())))
+                                "(server_url, dataserver_id, identifier, title, abstract, city_id, alive, finalized, created_at, updated_at)" \
+                                "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+
+                title = identifier
+                abstract = "Result calculated with module"
+
+                cur.execute(queryTemplate, (url, serverId, identifier, title, abstract, str(city_id), True, True, str(datetime.datetime.now()), str(datetime.datetime.now())))
                 #http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/LB_localOWS_test.map
 
             conn.commit()

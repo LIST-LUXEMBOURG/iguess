@@ -25,6 +25,7 @@
                   alt="More info" title="Click for details" rel="#infotable-<%= d.id %>">
           </td>
           <td>
+            <% if not d.dataserver then binding.pry end %>
             <span class="taglist-<%= cssEscape(d.dataserver.url + d.identifier) %>">
               <% d.dataset_tags.each do |t| %>
                 <span class="tag"><%= t.tag %></span>

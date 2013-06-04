@@ -61,19 +61,18 @@
     }
 
 
-
     ctrl.change(function() {
       if(datasets[+this.value]) {   // The "+" coerces this.value into a number
         var id        = datasets[+this.value].identifier;
         var dataset   = datasets[datasetId];
-        $('#hidden-field-' + parameterIdentifier + '-srs')        .val(dataset.srs);
+        $('#hidden-field-' + parameterIdentifier + '-srs')        .val('<%= @current_city.srs %>');
         $('#hidden-field-' + parameterIdentifier + '-dformat')    .val(dataset.format);
-        $('#hidden-field-' + parameterIdentifier + '-bbox-left')  .val(dataset.bbox.left);
-        $('#hidden-field-' + parameterIdentifier + '-bbox-right') .val(dataset.bbox.right);
-        $('#hidden-field-' + parameterIdentifier + '-bbox-top')   .val(dataset.bbox.top);
-        $('#hidden-field-' + parameterIdentifier + '-bbox-bottom').val(dataset.bbox.bottom);
-        $('#hidden-field-' + parameterIdentifier + '-res-x')      .val(dataset.resolution.x);
-        $('#hidden-field-' + parameterIdentifier + '-res-y')      .val(dataset.resolution.y);
+        $('#hidden-field-' + parameterIdentifier + '-bbox-left')  .val(dataset.bbox_left);
+        $('#hidden-field-' + parameterIdentifier + '-bbox-right') .val(dataset.bbox_right);
+        $('#hidden-field-' + parameterIdentifier + '-bbox-top')   .val(dataset.bbox_top);
+        $('#hidden-field-' + parameterIdentifier + '-bbox-bottom').val(dataset.bbox_bottom);
+        $('#hidden-field-' + parameterIdentifier + '-res-x')      .val(dataset.resolution_x);
+        $('#hidden-field-' + parameterIdentifier + '-res-y')      .val(dataset.resolution_y);
       }
     });
 

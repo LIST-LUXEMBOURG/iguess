@@ -9,6 +9,7 @@ from pyproj import transform, Proj
 
 import psycopg2          # For database access
 import re
+import math
 
 wpsVersion = '1.0.0'
 wmsVersion = '1.3.0'
@@ -35,8 +36,8 @@ tables["datasets"]      = dbSchema + ".datasets"
 tables["dataservers"]   = dbSchema + ".dataservers"
 tables["cities"]        = dbSchema + ".cities"
 
-serverUrl = 'http://ows.gis.rotterdam.nl/cgi-bin/mapserv.exe?map=d:\gwr\webdata\mapserver\map\gwr_basis_pub.map'
-wcs = WebCoverageService(serverUrl, version = wcsVersion)
+# serverUrl = 'http://ows.gis.rotterdam.nl/cgi-bin/mapserv.exe?map=d:\gwr\webdata\mapserver\map\gwr_basis_pub.map'
+# wcs = WebCoverageService(serverUrl, version = wcsVersion)
 
 
 # Create a database row if one is needed
@@ -273,9 +274,12 @@ for row in serverCursor:
             if gridOffsets is None:
                 dc.find(".//{http://www.opengis.net/wcs}GridOffsets")
 
-            print gridOffsets.text
             if(gridOffsets is not None):
                 resX, resY = gridOffsets.text.split()
+                if(resX < 0):
+                    resX = resX * -1
+                if(resY < 0):
+                    resY = resY * -1
 
             if(len(wcs.contents[identifier].supportedFormats[0]) > 0):
                 index = 0
@@ -287,11 +291,8 @@ for row in serverCursor:
                 p2 = Proj(init=cityCRS[cityId])
 
                 bb = wcs.contents[identifier].boundingBoxWGS84
-                xl, yl = p1(bb[0], bb[1])
-                bboxLeft, bboxBottom = transform(p1, p2, xl, yl)
-
-                xh, yh = p1(bb[2], bb[3])
-                bboxRight, bboxTop = transform(p1, p2, xh, yh)
+                bboxLeft, bboxBottom = transform(p1, p2, bb[0], bb[1])
+                bboxRight, bboxTop = transform(p1, p2, bb[2], bb[3])
 
         else:
             print "Not found: " + identifier + " (on server " +  serverUrl + ")"

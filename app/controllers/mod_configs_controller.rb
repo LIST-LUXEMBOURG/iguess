@@ -139,7 +139,7 @@ class ModConfigsController < ApplicationController
 
                                 dataname = config_dataset.server_url + (config_dataset.server_url.include?("?") == -1 ? "?" : "&") +
                                 'SERVICE=' + config_dataset.service + params +
-                                URI.escape('&VERSION=1.0.0&REQUEST=' + request + '&TYPENAME=' + config_dataset.identifier)
+                                URI.escape('&VERSION=1.0.0&REQUEST=' + request + '&COVERAGE=' + config_dataset.identifier)
 
                                inputFields.push(configDataset.input_identifier)
                                inputValues.push(dataname) 
@@ -169,6 +169,9 @@ class ModConfigsController < ApplicationController
                                    argProc + ' ' + argName + ' ' + argVals + ' ' + argOuts + ' ' + argOutTitles
 
     require 'open3'
+
+# binding.pry
+
     output, stat = Open3.capture2e(cmd)
 
 
