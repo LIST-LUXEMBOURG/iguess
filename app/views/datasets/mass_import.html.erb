@@ -264,8 +264,8 @@
         var srsList = "";
 
         if(layer.srs !== null) {
-          availableInLocalProjection  = layer.srs.hasOwnProperty(LOCAL_SRS);
-          availableInGoogleProjection = layer.srs.hasOwnProperty(GOOGLE_SRS);
+          availableInLocalProjection  = hasCrs(layer.srs, LOCAL_SRS);
+          availableInGoogleProjection = hasCrs(layer.srs, GOOGLE_SRS);
           
           if(typeof(layer.srs) === "string")
             srsList = layer.srs;
@@ -562,8 +562,38 @@
     // Because of our unusual layout, we need to manually adjust things to get equal tile sizes... lame!
     equalizeRowHeights();
     $('#layer-table').equalWidths();
+  }
 
 
+  // Compare whether two crs's are in fact the same.  We'll consider the following two strings equal
+  // urn:ogc:def:crs:EPSG::28992
+  // EPSG:28992
+  var isEqualCrs = function(first, second)
+  {
+    // Frist, replace the :: with a single :
+    first  = first .replace('::', ':');
+    second = second.replace('::', ':');
+
+    // Now split on a ':', lowercasing to remove case considerations, so we can compare the last two tokens
+    firstWords = first.toLowerCase().split(':');
+    secondWords = second.toLowerCase().split(':');
+
+    return firstWords[firstWords.length - 2] === secondWords[secondWords.length - 2] && 
+           firstWords[firstWords.length - 1] === secondWords[secondWords.length - 1];
+  }
+
+
+  var hasCrs = function(crsList, crs)
+  {
+    if(typeof(crsList) === "string")
+      return isEqualCrs(crsList, crs);
+    
+    for(var c in crsList) 
+      if(isEqualCrs(c, crs))
+        return true;
+    
+    debugger;
+    return false;
   }
 
 
