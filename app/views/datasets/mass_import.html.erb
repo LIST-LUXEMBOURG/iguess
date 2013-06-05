@@ -587,12 +587,11 @@
   {
     if(typeof(crsList) === "string")
       return isEqualCrs(crsList, crs);
-    
+
     for(var c in crsList) 
       if(isEqualCrs(c, crs))
         return true;
     
-    debugger;
     return false;
   }
 
