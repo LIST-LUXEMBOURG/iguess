@@ -134,7 +134,7 @@ for row in serverCursor:
         for output in procDescr.processOutputs:
 
             abstract = ""
-            if hasattr(output, 'abstract'):
+            if hasattr(output, "abstract"):
                 abstract = output.abstract
 
             datatype = ""
