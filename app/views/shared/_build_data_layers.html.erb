@@ -103,7 +103,8 @@
     this.format      = null;
     this.wmsCrs      = null;
     this.wxsCrs      = null;
-    this.bbox        = { left: null, right: null, top: null, bottom: null };
+    this.wmsbbox     = null;
+    this.wxsbbox     = null;
     this.llbbox      = null;
     this.resolution  = { x: null, y: null };
 
@@ -117,7 +118,8 @@
 
   discoveredLayers = {};
 
-  // Gets run on any layer found, registered or not; dataset is an object
+  // Gets run on any layer found, registered or not; dataset is a Dataset object
+  // Merges dataset into the already created layer record, if it exists
   var foundDataset = function(dataset, service)
   {
     var key = cssEscape(dataset.serverUrl + dataset.identifier);   // Need a single key to make iteration elsewhere easier
@@ -133,26 +135,27 @@
       layer.type.push(service);
 
       if(service === "WFS" || service === "WCS")
+      {
         layer.wxsCrs = dataset.wxsCrs;
+        layer.wxsbbox = dataset.wxsbbox;
+        layer.resolution = dataset.resolution;
+      }
       else if(service === "WMS")
+      {
         layer.wmsCrs = dataset.wmsCrs;
+        layer.wmsbbox = dataset.wmsbbox;
+        layer.llbbox = dataset.llbbox;
+      }
       else
         alert("Unknown service " + service + " encountered!");
-
-
-      if(dataset.bbox !== null) {
-        layer.bbox = dataset.bbox;
-      }
     }
-    else {    // It's a new layer, add it to discoveredLayers
+    else {    // It's a new layer, add it to discoveredLayers wholesale
       discoveredLayers[key] = dataset;
     }
 
-    // alert(registeredDatasets[dataset.serverUrl][dataset.identifier] + "   " + service);
-
     // If this is a registered layer, update its title now (unregistered layers aren't displayed here)
-    if(registeredDatasets[dataset.serverUrl] && registeredDatasets[dataset.serverUrl][dataset.identifier])
-      $(".dataset-title-" + sanitizeId(registeredDatasets[dataset.serverUrl][dataset.identifier])).text(dataset.title);
+    // if(registeredDatasets[dataset.serverUrl] && registeredDatasets[dataset.serverUrl][dataset.identifier])
+    //   $(".dataset-title-" + sanitizeId(registeredDatasets[dataset.serverUrl][dataset.identifier])).text(dataset.title);
   };
 
 
@@ -181,17 +184,22 @@
     for(var i = 0, len = records.length; i < len; i++) {
       var record = records[i];
 
-      if(service === 'WMS' || service === 'WFS') {
-
+      if(service === 'WMS') {
+        debugger;
         var dataset = new Dataset(serverUrl, service, record);
 
-        if(service === 'WMS') {
-          dataset.wmsCrs  = record.data.srs;
-          dataset.bbox    = record.data.bbox;
-          dataset.llbbox  = record.data.llbbox;
-        }
-        else    // WFS
-          dataset.wxsCrs = record.data.srs;    // whew!
+        for(var firstKey in record.data.srs) break;
+        dataset.wmsCrs  = firstKey;
+        dataset.wmsbbox = record.data.bbox[firstKey].bbox;
+        dataset.llbbox  = record.data.llbbox;
+
+        foundDataset(dataset, service);
+      }
+
+      else if(service === 'WFS') {
+        var dataset = new Dataset(serverUrl, service, record);
+
+        dataset.wxsCrs = record.data.srs;  
 
         foundDataset(dataset, service);
       }
@@ -218,7 +226,7 @@
           // DescribeCoverage response
           dataset.format      = record.get("supportedFormats")[0];
           dataset.wxsCrs      = record.get("nativeCRS");
-          dataset.bbox        = record.get("nativeBoundingBox");
+          dataset.wxsbbox     = record.get("nativeBoundingBox");
           dataset.resolution  = record.get("gridOffsets");
         }
 

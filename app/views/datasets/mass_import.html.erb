@@ -375,34 +375,41 @@
         $("#layer-table").append(li_element);
 
 
-        var bbox = null;
+        var bbox_left, bbox_bottom, bbox_right, bbox_top;
         var activeSRS = null;
 
-    
-        if(layer.bbox) {
-          for (e in layer.bbox) { 
-            activeSRS = e;
-            bbox = layer.bbox[e] ;
-            break; 
-          }
-        }
+        debugger;
+        if(layer.wmsCrs && layer.wmsbbox && layer.wmsbbox.left)
+        {
+          debugger;
+          bbox_left   = layer.wmsbbox.left;
+          bbox_bottom = layer.wmsbbox.bottom;
+          bbox_right  = layer.wmsbbox.right;
+          bbox_top    = layer.wmsbbox.top;
 
+          activeSRS   = layer.wmsCrs;
+        }
+        else if(layer.wmsCrs && layer.wmsbbox && layer.wmsbbox.bbox)   
+        {
+          bbox_left   = layer.wmsbbox.bbox[0];
+          bbox_bottom = layer.wmsbbox.bbox[1];
+          bbox_right  = layer.wmsbbox.bbox[2];
+          bbox_top    = layer.wmsbbox.bbox[3];
+
+          activeSRS   = layer.wmsCrs;
+        }
         // See if we can do this in lat/long -- this is very hacky
-        if(!bbox){
-          if(layer.llbbox) {
-            bbox = layer.llbbox;
+        else if(layer.llbbox) 
+        {
+          bbox_left   = layer.llbbox[0];
+          bbox_bottom = layer.llbbox[1];
+          bbox_right  = layer.llbbox[2];
+          bbox_top    = layer.llbbox[3];
 
-            if(layer.wmsCrs) {
-              for (e in layer.wmsCrs) { 
-                activeSRS = e;
-                break; 
-              }
-            }
-          }
+          activeSRS   = 'EPSG:4326';
         }
 
-
-        if(!activeSRS || !bbox) {
+        if(activeSRS == null) {
           $('#' + mapDivId).html('<div class="center"><br><u>Map unavailable</u></div>');
 
           if(!alreadyShownWmsError) {
@@ -414,11 +421,11 @@
             }
         }
         else {
-          var bounds = new OpenLayers.Bounds(bbox[0], bbox[1], bbox[2], bbox[3]);  //minx miny maxx maxy
+          var bounds = new OpenLayers.Bounds(bbox_left, bbox_bottom, bbox_right, bbox_top);  //minx miny maxx maxy
 
           var miniMap = new OpenLayers.Map({
                   maxExtent:  bounds,
-                  //projection: new OpenLayers.Projection(activeSRS),
+                  projection: new OpenLayers.Projection(activeSRS),
                   controls: [ new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]
           });
 
