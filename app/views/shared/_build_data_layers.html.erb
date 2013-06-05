@@ -185,12 +185,16 @@
       var record = records[i];
 
       if(service === 'WMS') {
-        debugger;
         var dataset = new Dataset(serverUrl, service, record);
 
         for(var firstKey in record.data.srs) break;
-        dataset.wmsCrs  = firstKey;
-        dataset.wmsbbox = record.data.bbox[firstKey].bbox;
+        dataset.wmsCrs = firstKey;
+
+        if(firstKey in record.data.bbox)
+          dataset.wmsbbox = record.data.bbox[firstKey].bbox;
+        else
+          dataset.wmsCrs = null;    // Better hope for a good result from lat long!
+
         dataset.llbbox  = record.data.llbbox;
 
         foundDataset(dataset, service);
