@@ -191,10 +191,7 @@
           dataset.llbbox  = record.data.llbbox;
         }
         else    // WFS
-        {
-          // debugger;
-          dataset.wxsCrs = record.data.layer.options.protocol.srsName;    // whew!
-        }
+          dataset.wxsCrs = record.data.srs;    // whew!
 
         foundDataset(dataset, service);
       }

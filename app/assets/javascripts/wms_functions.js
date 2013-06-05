@@ -23,7 +23,7 @@ function keepRaw(data) {
             return data;
         };
     }
-    // Here, this is the WXSGetCapabilitiesReader
+    // Here, "this" is the WXSGetCapabilitiesReader
     this.raw = data;
 }
 
@@ -263,9 +263,13 @@ WMS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
 
 // Probe a WFS and detect which layers are available
 WFS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
-  var fullUrl = WFS.getCapReq(serverUrl);
-
-  var store = new GeoExt.data.WFSCapabilitiesStore({ url: fullUrl });
+  var fullUrl = WFS.getCapReq(serverUrl);                         // These are the fields we want from the WFS... note the addition of srs to the default list!
+  var store = new GeoExt.data.WFSCapabilitiesStore({ url: fullUrl, fields: [ { name: "name",      type: "string" },
+                                                                             { name: "title",     type: "string" },
+                                                                             { name: "namespace", type: "string", mapping: "featureNS" },
+                                                                             { name: "abstract",  type: "string" },
+                                                                             { name: "srs",       type: "string" } 
+                                                                        ] });
   COMMON.updateLayerList(store, successFunction, failureFunction);
 };
 
