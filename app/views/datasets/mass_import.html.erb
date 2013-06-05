@@ -252,8 +252,9 @@
         if((pass == 0 && !registered) || (pass == 1 && registered)) { continue; }
 
         if(first) {
-          $('#layer-display').html('<div>Server has <span id="layer-display-count"></span> layers.  ' +
-                                   'Using local SRS "' + LOCAL_SRS + '".</div><ul id="layer-table"></ul>');
+          $('#layer-display').html("<div>Server has <span id='layer-display-count'></span> layers.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                                   "<span class='proj-list'>SRS required for processing: <span>" + LOCAL_SRS + "</span></span>; " +
+                                   "<span class='proj-list'>SRS required for mapping: <span>" + GOOGLE_SRS + ".</span></span></div><ul id='layer-table'></ul>");
           first = false;
         }
 
@@ -261,16 +262,10 @@
 
         var availableInLocalProjection  = false;
         var availableInGoogleProjection = false;
-        var srsList = "";
 
         if(layer.srs !== null) {
-          availableInLocalProjection  = hasCrs(layer.srs, LOCAL_SRS);
-          availableInGoogleProjection = hasCrs(layer.srs, GOOGLE_SRS);
-          
-          if(typeof(layer.srs) === "string")
-            srsList = layer.srs;
-          else
-            srsList = Object.keys(layer.srs).join('; ');
+          availableInLocalProjection  = hasCrs(layer.wxsCrs, LOCAL_SRS);
+          availableInGoogleProjection = hasCrs(layer.wmsCrs, GOOGLE_SRS);
         }
 
       
@@ -321,10 +316,10 @@
         srsNode.attr({ class:'dataset_srs' });
 
 
-        srsNode.append('<div><span class="proj-background">available in global projection</span><span class="' + 
+        srsNode.append('<div><span class="proj-background">available for mapping</span><span class="' + 
                               (availableInGoogleProjection ? 'yes-background' : 'no-background') + '">' + 
                               (availableInGoogleProjection ? 'yes'            : 'no')            + '</span></div>')
-               .append('<div><span class="proj-background">available in local projection</span><span class="' + 
+               .append('<div><span class="proj-background">available for processing</span><span class="' + 
                               (availableInLocalProjection  ? 'yes-background' : 'no-background') + '">' + 
                               (availableInLocalProjection  ? 'yes'            : 'no')            + '</span></div>')
                .append('<br><br><br>');
@@ -347,13 +342,25 @@
         var sample_map = $(document.createElement("div"));
         sample_map.attr({ id:mapDivId, class:"sample-map" });   // Map will be rendered based on div's id
 
+
         var container = $(document.createElement("div"));
         container.attr({ class:"dataset" });
         container.append(titleNode)
                  .append(abstractNode)
                  .append(data_info)
-                 .append(sample_map)
-                 .append("<div class='proj-list'>Available Projections: <span>" + srsList + "</div>");
+                 .append(sample_map);
+
+
+        var crsInfo = "<div>";
+        if(layer.wmsCrs)
+          crsInfo += "<div class='proj-list'>Mapping Projections: <span>"    + (typeof(layer.wmsCrs) === "string" ? layer.wmsCrs : Object.keys(layer.wmsCrs).join('; ')) + "</div>";
+
+        if(layer.wxsCrs)
+          crsInfo += "<div class='proj-list'>Processing Projections: <span>" + (typeof(layer.wxsCrs) === "string" ? layer.wxsCrs : Object.keys(layer.wxsCrs).join('; ')) + "</div>";
+
+        crsInfo += "</div>";
+
+        container.append(crsInfo);
 
         // li_element (map-data-item)
         //    container (registered_dataset or unregistered_dataset)
@@ -385,8 +392,8 @@
           if(layer.llbbox) {
             bbox = layer.llbbox;
 
-            if(layer.srs) {
-              for (e in layer.srs) { 
+            if(layer.wmsCrs) {
+              for (e in layer.wmsCrs) { 
                 activeSRS = e;
                 break; 
               }

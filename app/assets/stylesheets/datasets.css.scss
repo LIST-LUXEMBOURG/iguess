@@ -345,10 +345,19 @@ span[disabled]
 /* Projection list on each tile */
 .proj-list {
   clear: both;
-  padding-top: 8px;
   font-weight: bold;
   color: #777;
 }
+
+.proj-list {
+  padding-top: 8px;
+}
+
+/* See http://stackoverflow.com/questions/2717480/css-selector-for-first-element-with-class/8539107#8539107 */
+.proj-list ~ .proj-list {
+  padding-top: 0;
+}
+
 
 .proj-list span {
   font-weight: normal;

@@ -90,6 +90,7 @@
 
 
   // Basic dataset object -- this is what we track for datasets seen on remote server
+  // Used for discoveredLayers
   var Dataset = function(serverUrl, type, record) 
   {
     this.serverUrl = serverUrl;
@@ -100,7 +101,8 @@
     this.title       = null;
     this["abstract"] = null;
     this.format      = null;
-    this.srs         = null;
+    this.wmsCrs      = null;
+    this.wxsCrs      = null;
     this.bbox        = { left: null, right: null, top: null, bottom: null };
     this.llbbox      = null;
     this.resolution  = { x: null, y: null };
@@ -129,9 +131,14 @@
       }
 
       layer.type.push(service);
-      if(dataset.srs !== null) {
-        layer.srs = dataset.srs;
-      }
+
+      if(service === "WFS" || service === "WCS")
+        layer.wxsCrs = dataset.wxsCrs;
+      else if(service === "WMS")
+        layer.wmsCrs = dataset.wmsCrs;
+      else
+        alert("Unknown service " + service + " encountered!");
+
 
       if(dataset.bbox !== null) {
         layer.bbox = dataset.bbox;
@@ -179,9 +186,14 @@
         var dataset = new Dataset(serverUrl, service, record);
 
         if(service === 'WMS') {
-          dataset.srs  = record.data.srs;
-          dataset.bbox = record.data.bbox;
-          dataset.llbbox = record.data.llbbox;
+          dataset.wmsCrs  = record.data.srs;
+          dataset.bbox    = record.data.bbox;
+          dataset.llbbox  = record.data.llbbox;
+        }
+        else    // WFS
+        {
+          // debugger;
+          dataset.wxsCrs = record.data.layer.options.protocol.srsName;    // whew!
         }
 
         foundDataset(dataset, service);
@@ -208,7 +220,7 @@
         else {
           // DescribeCoverage response
           dataset.format      = record.get("supportedFormats")[0];
-          dataset.srs         = record.get("nativeCRS");
+          dataset.wxsCrs      = record.get("nativeCRS");
           dataset.bbox        = record.get("nativeBoundingBox");
           dataset.resolution  = record.get("gridOffsets");
         }
