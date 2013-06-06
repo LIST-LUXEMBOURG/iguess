@@ -57,7 +57,7 @@ class ModConfigsController < ApplicationController
     @datasets = Dataset.all
     @dataset_tags    = DatasetTag.all
     @current_city = (City.find_by_name(cookies['city']) or City.first)
-    
+
     # @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
     @textinputs = [ ]
 
@@ -133,15 +133,18 @@ class ModConfigsController < ApplicationController
                                                          configDataset.bbox_right.to_s() + "," + configDataset.bbox_top.to_s()
                                   end
 
-                                  if(configDataset.res_x) then params += "&RESX=" + configDataset.res_x.to_s() end
-                                  if(configDataset.res_y) then params += "&RESY=" + configDataset.res_y.to_s() end
+                                  if(configDataset.res_x and configDataset.res_x > 0 and configDataset.res_y and configDataset.res_y > 0) then 
+                                    params += "&RESX=" + configDataset.res_x.to_s()
+                                    params += "&RESY=" + configDataset.res_y.to_s()
+                                  end
                                 end
 
-                                request = config_dataset.service == 'WCS' ? 'getCoverage' : 'getFeature'
+                                request = (config_dataset.service == 'WCS') ? 'getCoverage' : 'getFeature'
+                                noun    = (config_dataset.service == 'WCS') ? 'COVERAGE'    : 'TYPENAME'
 
                                 dataname = config_dataset.server_url + (config_dataset.server_url.include?("?") == -1 ? "?" : "&") +
                                 'SERVICE=' + config_dataset.service + params +
-                                URI.escape('&VERSION=1.0.0&REQUEST=' + request + '&COVERAGE=' + config_dataset.identifier)
+                                URI.escape('&VERSION=1.0.0&REQUEST=' + request + '&' + noun + '=' + config_dataset.identifier)
 
                                inputFields.push(configDataset.input_identifier)
                                inputValues.push(dataname) 
@@ -172,7 +175,7 @@ class ModConfigsController < ApplicationController
 
     require 'open3'
 
-# binding.pry
+binding.pry
 
     output, stat = Open3.capture2e(cmd)
 

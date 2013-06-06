@@ -66,6 +66,7 @@
       if(datasets[+this.value]) {   // The "+" coerces this.value into a number
         var id        = datasets[+this.value].identifier;
         var dataset   = datasets[datasetId];
+
         $('#hidden-field-' + parameterIdentifier + '-srs')        .val('<%= @current_city.srs %>');
         $('#hidden-field-' + parameterIdentifier + '-dformat')    .val(dataset.format);
         $('#hidden-field-' + parameterIdentifier + '-bbox-left')  .val(dataset.bbox_left);

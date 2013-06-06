@@ -13,7 +13,7 @@ import math
 
 wpsVersion = '1.0.0'
 wmsVersion = '1.3.0'
-wfsVersion = '1.0.0'
+wfsVersion = '1.1.0'
 wcsVersion = '1.1.0'        # Rotterdam only works when this is set to 1.1.0
 
 # Get the database connection info
@@ -176,6 +176,20 @@ def isEqualCrs(first, second):
 
 
 
+def projectWgsToLocal(boundingBox, localProj):
+    print "BB", boundingBox[0], boundingBox[1], boundingBox[2], boundingBox[3]
+
+    p1 = Proj(init='EPSG:4326')     # WGS84
+    p2 = Proj(init=localProj)
+
+    bboxLeft,  bboxBottom = transform(p1, p2, boundingBox[0], boundingBox[1])
+    bboxRight, bboxTop    = transform(p1, p2, boundingBox[2], boundingBox[3])
+
+    print "AB", bboxLeft,  bboxBottom, bboxRight, bboxTop
+
+    return bboxLeft,  bboxBottom, bboxRight, bboxTop
+
+
 
 # Get the server list
 serverCursor.execute("SELECT DISTINCT url FROM " + tables["dataservers"])
@@ -238,13 +252,14 @@ for row in serverCursor:
         bboxRight  = ""
         bboxTop    = ""
         bboxBottom = ""
-        resX       = ""
-        resY       = ""
+        resX       = 0
+        resY       = 0
 
         # from lxml import etree
         # if wms:
         #     print dir(wms)
         #     etree.dump(wms._capabilities)
+        print identifier        #{P{P}}
 
         if wms and identifier in wms.contents:
             dstitle = wms.contents[identifier].title.encode('utf8')    if wms.contents[identifier].title    else identifier.encode('utf8')
@@ -259,6 +274,9 @@ for row in serverCursor:
                 if isEqualCrs(c.id, cityCRS[cityId]):
                     hasCityCRS = True
                     break
+
+            bb = wfs.contents[identifier].boundingBoxWGS84
+            bboxLeft, bboxBottom, bboxRight, bboxTop = projectWgsToLocal(bb, cityCRS[cityId])
 
         elif wcs and identifier in wcs.contents:
             dstitle = wcs.contents[identifier].title.encode('utf8')    if wcs.contents[identifier].title    else identifier.encode('utf8')
@@ -276,10 +294,10 @@ for row in serverCursor:
 
             if(gridOffsets is not None):
                 resX, resY = gridOffsets.text.split()
-                if(resX < 0):
-                    resX = resX * -1
-                if(resY < 0):
-                    resY = resY * -1
+                if(float(resX) < 0):
+                    resX = float(resX) * -1
+                if(float(resY) < 0):
+                    resY = float(resY) * -1
 
             if(len(wcs.contents[identifier].supportedFormats[0]) > 0):
                 index = 0
@@ -287,12 +305,8 @@ for row in serverCursor:
                     index = wcs.contents[identifier].supportedFormats.index('image/img')  # This is our preferred format; use it if available
                 imgFormat = wcs.contents[identifier].supportedFormats[index]
 
-                p1 = Proj(init='EPSG:4326')     # WGS84
-                p2 = Proj(init=cityCRS[cityId])
-
                 bb = wcs.contents[identifier].boundingBoxWGS84
-                bboxLeft, bboxBottom = transform(p1, p2, bb[0], bb[1])
-                bboxRight, bboxTop = transform(p1, p2, bb[2], bb[3])
+                bboxLeft, bboxBottom, bboxRight, bboxTop = projectWgsToLocal(bb, cityCRS[cityId])
 
         else:
             print "Not found: " + identifier + " (on server " +  serverUrl + ")"
