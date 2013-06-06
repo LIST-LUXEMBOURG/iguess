@@ -56,6 +56,8 @@ class ModConfigsController < ApplicationController
     @wps_processes = WpsProcess.find_all_by_alive(:true)
     @datasets = Dataset.all
     @dataset_tags    = DatasetTag.all
+    @current_city = (City.find_by_name(cookies['city']) or City.first)
+    
     # @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
     @textinputs = [ ]
 
