@@ -120,7 +120,7 @@
 
   // Gets run on any layer found, registered or not; dataset is a Dataset object
   // Merges dataset into the already created layer record, if it exists
-  var foundDataset = function(dataset, service)
+  var mergeDatasetIntoLayerList = function(dataset, service)
   {
     var key = cssEscape(dataset.serverUrl + dataset.identifier);   // Need a single key to make iteration elsewhere easier
 
@@ -136,15 +136,15 @@
 
       if(service === "WFS" || service === "WCS")
       {
-        layer.wxsCrs = dataset.wxsCrs;
-        layer.wxsbbox = dataset.wxsbbox;
+        layer.wxsCrs     = dataset.wxsCrs;
+        layer.wxsbbox    = dataset.wxsbbox;
         layer.resolution = dataset.resolution;
       }
       else if(service === "WMS")
       {
-        layer.wmsCrs = dataset.wmsCrs;
+        layer.wmsCrs  = dataset.wmsCrs;
         layer.wmsbbox = dataset.wmsbbox;
-        layer.llbbox = dataset.llbbox;
+        layer.llbbox  = dataset.llbbox;
       }
       else
         alert("Unknown service " + service + " encountered!");
@@ -197,7 +197,7 @@
 
         dataset.llbbox  = record.data.llbbox;
 
-        foundDataset(dataset, service);
+        mergeDatasetIntoLayerList(dataset, service);
       }
 
       else if(service === 'WFS') {
@@ -205,7 +205,7 @@
 
         dataset.wxsCrs = record.data.srs;  
 
-        foundDataset(dataset, service);
+        mergeDatasetIntoLayerList(dataset, service);
       }
 
       else if(service === 'WCS') {
@@ -235,7 +235,7 @@
         }
 
         if(ready)
-          foundDataset(dataset, service);
+          mergeDatasetIntoLayerList(dataset, service);
       }
     }
 
