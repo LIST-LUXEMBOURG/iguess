@@ -12,7 +12,7 @@ import re
 import math
 
 wpsVersion = '1.0.0'
-wmsVersion = '1.3.0'
+wmsVersion = '1.1.0'        # Rotterdam wms doesn't like 1.3.0!
 wfsVersion = '1.1.0'
 wcsVersion = '1.1.0'        # Rotterdam only works when this is set to 1.1.0
 
@@ -185,8 +185,6 @@ def projectWgsToLocal(boundingBox, localProj):
     bboxLeft,  bboxBottom = transform(p1, p2, boundingBox[0], boundingBox[1])
     bboxRight, bboxTop    = transform(p1, p2, boundingBox[2], boundingBox[3])
 
-    print "AB", bboxLeft,  bboxBottom, bboxRight, bboxTop
-
     return bboxLeft,  bboxBottom, bboxRight, bboxTop
 
 
@@ -275,8 +273,9 @@ for row in serverCursor:
                     hasCityCRS = True
                     break
 
-            bb = wfs.contents[identifier].boundingBoxWGS84
-            bboxLeft, bboxBottom, bboxRight, bboxTop = projectWgsToLocal(bb, cityCRS[cityId])
+            # No more bounding box for wfs now that Christian has fixed the mapserver config file
+            # bb = wfs.contents[identifier].boundingBoxWGS84
+            # bboxLeft, bboxBottom, bboxRight, bboxTop = projectWgsToLocal(bb, cityCRS[cityId])
 
         elif wcs and identifier in wcs.contents:
             dstitle = wcs.contents[identifier].title.encode('utf8')    if wcs.contents[identifier].title    else identifier.encode('utf8')
