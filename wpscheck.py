@@ -75,9 +75,9 @@ for row in rows:
 
     status = client.checkStatus()        # Returns true if checkStatus worked, false if it failed
 
-    if not status:
-        print "There was an error checking the status of running modules!"
-        sys.exit(2)
+    #if not status:
+        #print "There was an error checking the status of running modules!"
+        #sys.exit(2)
 
     print "Status = ", client.status
 
