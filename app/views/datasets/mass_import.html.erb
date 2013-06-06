@@ -264,8 +264,8 @@
         var availableInGoogleProjection = false;
 
         if(layer.srs !== null) {
-          availableInLocalProjection  = hasCrs(layer.wxsCrs, LOCAL_SRS);
-          availableInGoogleProjection = hasCrs(layer.wmsCrs, GOOGLE_SRS);
+          availableInLocalProjection  = hasCrs(layer.wxsCrs,     LOCAL_SRS);
+          availableInGoogleProjection = hasCrs(layer.wmsCrsList, GOOGLE_SRS);
         }
 
       
@@ -352,8 +352,8 @@
 
 
         var crsInfo = "<div>";
-        if(layer.wmsCrs)
-          crsInfo += "<div class='proj-list'>Mapping Projections: <span>"    + (typeof(layer.wmsCrs) === "string" ? layer.wmsCrs : Object.keys(layer.wmsCrs).join('; ')) + "</div>";
+        if(layer.wmsCrsList)
+          crsInfo += "<div class='proj-list'>Mapping Projections: <span>"    + (typeof(layer.wmsCrsList) === "string" ? layer.wmsCrsList : Object.keys(layer.wmsCrsList).join('; ')) + "</div>";
 
         if(layer.wxsCrs)
           crsInfo += "<div class='proj-list'>Processing Projections: <span>" + (typeof(layer.wxsCrs) === "string" ? layer.wxsCrs : Object.keys(layer.wxsCrs).join('; ')) + "</div>";

@@ -102,6 +102,7 @@
     this["abstract"] = null;
     this.format      = null;
     this.wmsCrs      = null;
+    this.wmsCrsList  = null;
     this.wxsCrs      = null;
     this.wmsbbox     = null;
     this.wxsbbox     = null;
@@ -142,9 +143,10 @@
       }
       else if(service === "WMS")
       {
-        layer.wmsCrs  = dataset.wmsCrs;
-        layer.wmsbbox = dataset.wmsbbox;
-        layer.llbbox  = dataset.llbbox;
+        layer.wmsCrs     = dataset.wmsCrs;
+        layer.wmsCrsList = dataset.wmsCrsList
+        layer.wmsbbox    = dataset.wmsbbox;
+        layer.llbbox     = dataset.llbbox;
       }
       else
         alert("Unknown service " + service + " encountered!");
@@ -189,6 +191,7 @@
 
         for(var firstKey in record.data.srs) break;
         dataset.wmsCrs = firstKey;
+        dataset.wmsCrsList = record.data.srs;
 
         if(firstKey in record.data.bbox)
           dataset.wmsbbox = record.data.bbox[firstKey].bbox;
