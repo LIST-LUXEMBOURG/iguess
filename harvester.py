@@ -283,8 +283,8 @@ for row in serverCursor:
 
             if(len(wcs.contents[identifier].supportedFormats[0]) > 0):
                 index = 0
-                if 'image/tiff' in wcs.contents[identifier].supportedFormats[index]:
-                    index = wcs.contents[identifier].supportedFormats.index('image/tiff')  # This is our preferred format; use it if available
+                if 'image/img' in wcs.contents[identifier].supportedFormats[index]:
+                    index = wcs.contents[identifier].supportedFormats.index('image/img')  # This is our preferred format; use it if available
                 imgFormat = wcs.contents[identifier].supportedFormats[index]
 
                 p1 = Proj(init='EPSG:4326')     # WGS84
