@@ -1,4 +1,6 @@
 Iguess::Application.routes.draw do
+  devise_for :users
+
   resources :mod_configs
 
   resources :cities
