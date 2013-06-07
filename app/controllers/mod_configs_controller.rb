@@ -105,7 +105,7 @@ class ModConfigsController < ApplicationController
     @mod_config = ModConfig.find(params[:id])
     # @city = 
 
-    wpsClientPath ='/home/iguess/iguess_production';
+    wpsClientPath ='/home/iguess/iguess_test';
 
     require 'uri'
 
@@ -201,7 +201,6 @@ class ModConfigsController < ApplicationController
       format.js { render :json => @mod_config, :status => :ok }
     end
   end
-
 
 
   # POST /mod_configs

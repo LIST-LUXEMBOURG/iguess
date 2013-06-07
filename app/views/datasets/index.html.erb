@@ -156,6 +156,10 @@
             { :controller => "datasets", :action => "mass_import", :id => 1 }, 
             :class => "register-datasets-button-bottom" %>
 
+  &nbsp;&nbsp;
+
+  <a href="#" onclick="return launchHarvester();">Run Metadata Harvester</a>
+
   <br />
 </div>
 
@@ -213,6 +217,21 @@
       success: function(data) {  }
     });
   };
+
+
+  var launchHarvester = function()
+  {
+    // Notify the server
+    $.ajax({
+      type:    'PUT',      // PUT combined with url below triggers "update" action on controller
+      url:     '<%= url_for(:controller => 'datasets', :action => 'run_harvester') %>',
+      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
+                 'Content-Type': 'application/json' */},
+      success: function(data) { alert("Harvester launched!"); }
+    });
+    
+    return false;
+  }
 
 
   addDeleteTagClickHander();    // Get ready to delete tags!

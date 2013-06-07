@@ -169,4 +169,16 @@ class DatasetsController < ApplicationController
 
     @cities = City.all
   end
+
+
+  # Will only be run with ajax
+  def run_harvester
+    harvesterPath ='/home/iguess/iguess_test';
+    cmd = 'cd ' + harvesterPath + '; /usr/bin/python /home/iguess/iguess_test/iguess/harvester.py'
+
+    respond_with do |format|
+      format.js { render :json => "Running", :status => :ok }
+    end
+  end
+
 end
