@@ -174,7 +174,7 @@ class DatasetsController < ApplicationController
   # Will only be run with ajax
   def run_harvester
     harvesterPath ='/home/iguess/iguess_test';
-    cmd = 'cd ' + harvesterPath + '; /usr/bin/python /home/iguess/iguess_test/iguess/harvester.py'
+    cmd = 'cd ' + harvesterPath + '&& /usr/bin/python /home/iguess/iguess_test/iguess/harvester.py'
 
     system(cmd)
 
