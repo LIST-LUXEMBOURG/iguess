@@ -63,7 +63,7 @@
             <dt>Server Name:</dt><dd class="server-name"><%= d.dataserver.title %></dd>
             <dt>Data Services:</dt>
             <dd id="results-<%= d.id %>">
-              <%= insertGetCapabilitiesLinkBlock(d.dataserver.url, d.dataserver.wms, d.dataserver.wfs, d.dataserver.wcs) %>
+              <%= insertGetCapabilitiesLinkBlock(d.dataserver.url, d.dataserver.wms, d.service == "WFS", d.service == "WCS") %>
             </dd>
 
               <% if not d.alive %>
