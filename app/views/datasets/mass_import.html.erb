@@ -126,9 +126,11 @@
 
 
   // The city dropdown on the UR of the screen has changed -- we don't do much here anymore!
-  var onLocationChanged = function(cityName) {
-    LOCAL_SRS = { <% @cities.each do |city| %>'<%= city.name %>':'<%= city.srs %>',<% end %>}[cityName];
-  }
+  // var onLocationChanged = function(cityName) {
+  //   LOCAL_SRS = { <% @cities.each do |city| %>'<%= city.name %>':'<%= city.srs %>',<% end %>}[cityName];
+  // }
+
+  LOCAL_SRS = '<%= @current_city.srs %>';
 
 
 
@@ -884,7 +886,7 @@
   $(document).ready(function ()
   {
     hideProbingIndicators();
-    onLocationChanged('<%= @current_city.name %>');   // Update SRS and set default URL
+    // onLocationChanged('<%= @current_city.name %>');   // Update SRS and set default URL
 
     // Event handlers for various controls
     // $('#server_url').change(loadDataLayers);

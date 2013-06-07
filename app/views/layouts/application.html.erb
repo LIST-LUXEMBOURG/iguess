@@ -94,9 +94,10 @@
 
             $('#city-dropdown').change(function() {
               setCityCookie(this.value);
-              if(typeof onLocationChanged != "undefined") {
+              if(typeof onLocationChanged != "undefined") 
                 onLocationChanged(this.value);        // Implement this function on a page if you want to be alerted to a location change
-              }
+              else
+                location.reload();
             });
           </script>
 
