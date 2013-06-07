@@ -16,6 +16,8 @@ Iguess::Application.routes.draw do
   resources :maps
   
   resources :compares
+
+  # resources :scenarios
   
   resources :dss
 
