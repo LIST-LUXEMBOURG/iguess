@@ -22,3 +22,4 @@ class Tags:
     sufFail = "</wps:ProcessFailed>"
     preSucc = "<wps:ProcessSucceeded>"
     preOut  = "<wps:Output>"
+    prStart = "</wps:ProcessStarted>"

@@ -36,11 +36,19 @@ class DataSet:
 			
 	.. attribute:: spatialReference
 		EPSG code of the coordinate system used by data set 
+		
+	.. attribute:: min
+		Minimum value (for raster datasets)
+		
+	.. attribute:: max
+		Maximum value (for raster datasets)
 	"""
 
 	dataSet=None
 	dataType=None
 	spatialReference=None
+	min=None
+	max=None
 
 	def __init__(self, path):
 
@@ -68,6 +76,13 @@ class DataSet:
 		self.dataSet = gdal.Open(path)
 
 		if self.dataSet:
+			band = self.dataSet.GetRasterBand(1)
+			self.min = band.GetMinimum()
+			self.max = band.GetMaximum()
+			if self.min is None or self.max is None:
+				(self.min,self.max) = band.ComputeRasterMinMax(1)
+			self.min = int(round(self.min)) - 1
+			self.max = int(round(self.max)) + 1
 			return "raster"
 
 		if not self.dataSet:
@@ -146,6 +161,18 @@ class DataSet:
 			if "Polygon" in type:
 				return "Polygon"
 		return None
+	
+	def getMaxValue(self):
+		"""
+		:returns: The maximum value of the data set (if raster type)
+		"""
+		return self.max
+		
+	def getMinValue(self):
+		"""
+		:returns: The minimum value of the data set (if raster type)
+		"""
+		return self.min
 
 
 
