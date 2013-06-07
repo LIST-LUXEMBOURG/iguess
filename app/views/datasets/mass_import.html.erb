@@ -554,7 +554,7 @@
                 '&dataset[title]='        + encodeURIComponent(title) +
                 '&dataset[abstract]='     + encodeURIComponent(abstract) +
                 '&dataset[alive]=true'    +
-                '&cityName=' + $.cookie('city'),
+                '&cityName=' + getCityCookie(),
           headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
           success: function(data) {
             // Add layer to the list of registered layers

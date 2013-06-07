@@ -82,12 +82,16 @@
           <script type="text/javascript">
 
             function setCityCookie(city) {
-              $.cookie('city', city, { expires: 99999 });
+              $.cookie("city", city, { expires: 99999, path :"/" });
+            }
+
+            function getCityCookie() {
+              return $.cookie("city", { path: "/foo"});
             }
 
             // If the city cookie doesn't exist when we load this page, create it
             $(document).ready(function() {
-              if($.cookie('city') == null) {
+              if(getCityCookie() == null) {
                 setCityCookie(document.getElementById("city-dropdown").value);
               }
             });
