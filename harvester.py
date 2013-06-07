@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+# Harvester of Sorrow
+
 from owslib.wps import WebProcessingService
 from owslib.wfs import WebFeatureService
 from owslib.wcs import WebCoverageService
