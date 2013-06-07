@@ -111,7 +111,13 @@
 
     </script> -->
 
-<div>
+   <% if not user_signed_in? %>
+      <div class="center">
+         <div style="font-size: 200%; background: yellow; padding-bottom: 10px;">Partners!  Please create an account with the New User botton in the upper right corner.</div>
+         Once you are logged in, the site will behave as it always has.
+      </div>
+   <% end %>
+
    <div class="headline" id="headline1">
       understand your options...
    </div>
