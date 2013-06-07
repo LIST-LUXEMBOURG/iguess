@@ -176,6 +176,9 @@ class DatasetsController < ApplicationController
     harvesterPath ='/home/iguess/iguess_test';
     cmd = 'cd ' + harvesterPath + '; /usr/bin/python /home/iguess/iguess_test/iguess/harvester.py'
 
+    require 'open3'
+    output, stat = Open3.capture2e(cmd)
+
     respond_with do |format|
       format.js { render :json => "Running", :status => :ok }
     end
