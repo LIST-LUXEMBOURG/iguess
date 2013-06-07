@@ -2,74 +2,81 @@
 
 
 <div class="explanation">
-  <% if @wps_servers.length > 0 %>
-    <ul>
-      <li>Users can create Modules from a Module Template by specifying all inputs and outputs that template requires.</li>
-      <li>A list of Module Templates can be found in the Module Catalog.</li>
-    </ul>
+  <% if user_signed_in? %>
+    <% if @wps_servers.length > 0 %>
+      <ul>
+        <li>Users can create Modules from a Module Template by specifying all inputs and outputs that template requires.</li>
+        <li>A list of Module Templates can be found in the Module Catalog.</li>
+      </ul>
+    <% else %>
+      <ul>
+        <li>Before you can start working with modules, you need to add a WPS server using the link below.</li>
+      </ul>
+    <% end %>
   <% else %>
-    <ul>
-      <li>Before you can start working with modules, you need to add a WPS server using the link below.</li>
-    </ul>
+    Registered users can create Modules based on processes available on various remote web servers.  The Catalog below shows some of the modules that other users of iGUESS are using.
   <% end %>
 </div>
 
 
 <ul class="tabs">
-  <li><a class="l" id="t1" href="#configured_modules_tab">Configured Modules</a></li>
+  <% if user_signed_in? %>
+    <li><a class="l" id="t1" href="#configured_modules_tab">Configured Modules</a></li>
+  <% end %>
   <li><a class="l" id="t2" href="#module_catalog_tab">Module Catalog</a></li>
 </ul>
 
 <div id="tab-panes" class="tab-pane-container">
-  <div id="configured_modules_tab">
-    <% if @wps_servers.empty? %>
-      No module servers have been configured.  You can add one by clicking on the link below.<br>
-      <a href="#"><%= image_tag("document_add_24.png", :class => "link-icon") %>Add new server</a>
-    <% else %>
-      <% if @mod_configs.empty? %>
-        <div id="mod-list-none">  
-          No modules have been configured yet for <span class="city-name"></span>.  
-          <%= link_to "Click here to create one.", new_mod_config_path %>
-        </div>   
+  <% if user_signed_in? %>
+    <div id="configured_modules_tab">
+      <% if @wps_servers.empty? %>
+        No module servers have been configured.  You can add one by clicking on the link below.<br>
+        <a href="#"><%= image_tag("document_add_24.png", :class => "link-icon") %>Add new server</a>
       <% else %>
-        <div id='mod-list'>      
-          These are the calculation modules that have been configured.
+        <% if @mod_configs.empty? %>
+          <div id="mod-list-none">  
+            No modules have been configured yet for <span class="city-name"></span>.  
+            <%= link_to "Click here to create one.", new_mod_config_path %>
+          </div>   
+        <% else %>
+          <div id='mod-list'>      
+            These are the calculation modules that have been configured.
 
-          <%= render :partial => "/shared/sortable_table_code.html.erb",
-                     :locals => { :initialSortlist => "[[0,0]], headers: { 3: {sorter: false}}" } %>
+            <%= render :partial => "/shared/sortable_table_code.html.erb",
+                       :locals => { :initialSortlist => "[[0,0]], headers: { 3: {sorter: false}}" } %>
 
-          <table id="sortable_table" class="zebra sortable">
-            <thead><tr><th>Name</th><th>Based on</th><th>Status</th><th>Notes</th></tr></thead>
-            <tbody id="tableContainer">
-              <% @mod_configs.each do |m| %> 
-                <% ok = (m.wps_process && m.wps_process.alive) %>
-                <tr> 
-                  <td><%= link_to(m.name, m) %>
-                    <% if not ok %>
-                      <div class="error-msg module-not-found">Process not found on server -- It is either offline or has been deleted or renamed</div>
-                      <%= link_to m, 
-                                  confirm: "Deleting this module is a permanent action.\n\n" +
-                                           "Click OK if you are sure you want to delete this module." do %>
-                        <%= image_tag("document_delete_16.png", :class => "link-icon") %>Delete Module
+            <table id="sortable_table" class="zebra sortable">
+              <thead><tr><th>Name</th><th>Based on</th><th>Status</th><th>Notes</th></tr></thead>
+              <tbody id="tableContainer">
+                <% @mod_configs.each do |m| %> 
+                  <% ok = (m.wps_process && m.wps_process.alive) %>
+                  <tr> 
+                    <td><%= link_to(m.name, m) %>
+                      <% if not ok %>
+                        <div class="error-msg module-not-found">Process not found on server -- It is either offline or has been deleted or renamed</div>
+                        <%= link_to m, 
+                                    confirm: "Deleting this module is a permanent action.\n\n" +
+                                             "Click OK if you are sure you want to delete this module." do %>
+                          <%= image_tag("document_delete_16.png", :class => "link-icon") %>Delete Module
+                        <% end %>
                       <% end %>
-                    <% end %>
-                  </td>
-                  <td><%= m.wps_process && (m.wps_process.title || m.wps_process.identifier) || "Unknown process" %></td>
-                  <td><span class="status-<%= m.status %>"><%= getPrettyStatusName(m.status) %></span></td>
-                  <td><%= m.descr %></td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        </div>
+                    </td>
+                    <td><%= m.wps_process && (m.wps_process.title || m.wps_process.identifier) || "Unknown process" %></td>
+                    <td><span class="status-<%= m.status %>"><%= getPrettyStatusName(m.status) %></span></td>
+                    <td><%= m.descr %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% end %>
+        <br />
+        <%= link_to new_mod_config_path do %>
+          <%= image_tag("document_add_24.png", :class => "link-icon") %>New Module Configuration
+        <% end %>
       <% end %>
-      <br />
-      <%= link_to new_mod_config_path do %>
-        <%= image_tag("document_add_24.png", :class => "link-icon") %>New Module Configuration
-      <% end %>
-    <% end %>
-  </div>
-
+    </div>
+  <% end %>
 
   <div id="module_catalog_tab">
     <div> 
@@ -90,9 +97,11 @@
           </li>
         <% end %>
       </ul>
-      <div id="catalog-add-new-server-link"><a href='#' onclick="alert('Not implemented yet!')">
-        <%= image_tag("document_add_24.png", :class => "link-icon") %>Add new server</a>
-      </div>
+      <% if user_signed_in? %>
+        <div id="catalog-add-new-server-link"><a href='#' onclick="alert('Not implemented yet!')">
+          <%= image_tag("document_add_24.png", :class => "link-icon") %>Add new server</a>
+        </div>
+      <% end %>
     </div>
 
     <% if @wps_servers.length > 0 %>

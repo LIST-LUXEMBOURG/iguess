@@ -1,4 +1,6 @@
 class ModConfigsController < ApplicationController
+  before_filter :authenticate_user!, :except => [:index]
+
   # GET /mod_configs
   # GET /mod_configs.json
 

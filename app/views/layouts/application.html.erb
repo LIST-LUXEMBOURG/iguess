@@ -53,8 +53,10 @@
       <ul id="nav">
         <li id="nav-1" title="<u><b>Return to starting screen</b></u>">
             <a href="/">Home</a></li>
-        <li id="nav-2" title="<u><b>Manage data</b></u><br>Upload new data, and view existing datasets">
-            <%= link_to "Data Manager", datasets_path %></li>
+        <% if user_signed_in? %>
+          <li id="nav-2" title="<u><b>Manage data</b></u><br>Upload new data, and view existing datasets">
+              <%= link_to "Data Manager", datasets_path %></li>
+        <% end %>
         <li id="nav-3" title="<u><b>ModConfigure & run modules</b></u><br>Create new datasets by running calculations">
             <%= link_to "Modules", mod_configs_path %></li>
         <li id="nav-4" title="<u><b>Define and run scenarios</b></u><br>Scenarios are complex models of potential future situations">
@@ -101,7 +103,7 @@
 
           <div id="login">
             <% if user_signed_in? %> 
-              Signed in as <%= current_user.email %>. Not you?  
+              Signed in as <%= current_user.first_name %>.  
               <%= link_to "[Logout]", destroy_user_session_path, :method => :delete %>  
             <% else %>  
               <%= link_to "[New User]", new_user_registration_path %> or  

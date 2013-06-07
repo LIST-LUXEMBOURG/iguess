@@ -1,4 +1,5 @@
 class DatasetsController < ApplicationController
+  before_filter :authenticate_user!, :except => [:get_for_city]
 
   respond_to :html, :json, :js   # See http://railscasts.com/episodes/224-controllers-in-rails-3, c. min 7:00
 
