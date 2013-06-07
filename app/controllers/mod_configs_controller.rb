@@ -177,7 +177,7 @@ class ModConfigsController < ApplicationController
 
     require 'open3'
 
-# binding.pry
+binding.pry
 
     output, stat = Open3.capture2e(cmd)
 

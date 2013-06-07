@@ -259,11 +259,10 @@ for row in serverCursor:
         #     etree.dump(wms._capabilities)
         print identifier        #{P{P}}
 
-        if wms and identifier in wms.contents:
-            dstitle = wms.contents[identifier].title.encode('utf8')    if wms.contents[identifier].title    else identifier.encode('utf8')
-            dsabstr = wms.contents[identifier].abstract.encode('utf8') if wms.contents[identifier].abstract else ""
+        found = False;
 
-        elif wfs and identifier in wfs.contents:
+        if wfs and identifier in wfs.contents:
+            found = True;
             dstitle = wfs.contents[identifier].title.encode('utf8')    if wfs.contents[identifier].title    else identifier.encode('utf8')
             dsabstr = wfs.contents[identifier].abstract.encode('utf8') if wfs.contents[identifier].abstract else ""
 
@@ -277,7 +276,8 @@ for row in serverCursor:
             # bb = wfs.contents[identifier].boundingBoxWGS84
             # bboxLeft, bboxBottom, bboxRight, bboxTop = projectWgsToLocal(bb, cityCRS[cityId])
 
-        elif wcs and identifier in wcs.contents:
+        if wcs and identifier in wcs.contents:
+            found = True;
             dstitle = wcs.contents[identifier].title.encode('utf8')    if wcs.contents[identifier].title    else identifier.encode('utf8')
             dsabstr = wcs.contents[identifier].abstract.encode('utf8') if wcs.contents[identifier].abstract else ""
 
@@ -291,25 +291,35 @@ for row in serverCursor:
             if gridOffsets is None:
                 dc.find(".//{http://www.opengis.net/wcs}GridOffsets")
 
-            if(gridOffsets is not None):
+            if(gridOffsets is None):
+                print "Can't find GridOffsets for WCS dataset " + serverUrl + " >>> " + identifier
+                continue
+            else:
                 resX, resY = gridOffsets.text.split()
                 if(float(resX) < 0):
                     resX = float(resX) * -1
                 if(float(resY) < 0):
                     resY = float(resY) * -1
 
-            if(len(wcs.contents[identifier].supportedFormats[0]) > 0):
+
+            if(len(wcs.contents[identifier].supportedFormats[0]) == 0):
+                print "Cannot get a supported format for WCS dataset " + serverUrl + " >>> " + identifier
+                continue
+            else:
                 index = 0
                 if 'image/img' in wcs.contents[identifier].supportedFormats[index].lower():
-                    index = wcs.contents[identifier].supportedFormats.index('image/img')  # This is our preferred format; use it if available
+                    index = wcs.contents[identifier].supportedFormats.index('image/img')    # This is our preferred format; use it if available
+                elif 'image/tiff' in wcs.contents[identifier].supportedFormats[index].lower():
+                    index = wcs.contents[identifier].supportedFormats.index('image/tiff')   # Second choice is tiff
                 imgFormat = wcs.contents[identifier].supportedFormats[index]
 
                 bb = wcs.contents[identifier].boundingBoxWGS84
                 bboxLeft, bboxBottom, bboxRight, bboxTop = projectWgsToLocal(bb, cityCRS[cityId])
 
-        else:
-            print "Not found: " + identifier + " (on server " +  serverUrl + ")"
-            found = False
+        if wms and identifier in wms.contents:
+            found = True;
+            dstitle = wms.contents[identifier].title.encode('utf8')    if wms.contents[identifier].title    else identifier.encode('utf8')
+            dsabstr = wms.contents[identifier].abstract.encode('utf8') if wms.contents[identifier].abstract else ""
 
 
         if found:
@@ -319,7 +329,9 @@ for row in serverCursor:
                          SET title = %s, abstract = %s, alive = TRUE, last_seen = NOW(), local_srs = %s, format = %s, bbox_left = %s,  \
                                  bbox_right = %s, bbox_top = %s, bbox_bottom = %s, resolution_x = %s, resolution_y = %s                \
                          WHERE id = %s                                                                                                 \
-                         ", (dstitle, dsabstr, hasCityCRS, imgFormat, bboxLeft, bboxRight, bboxTop, bboxBottom, resX, resY, dsid))     
+                         ", (dstitle, dsabstr, hasCityCRS, imgFormat, bboxLeft, bboxRight, bboxTop, bboxBottom, resX, resY, dsid))
+        else:
+             print "Not found: " + identifier + " (on server " +  serverUrl + ")"
 
 # Commit dataset transactions
 dbConn.commit() 

@@ -6,39 +6,39 @@
   // Callback for WMS get capabilities success
   var onWmsGetCapabilitiesSucceeded = function(dataProxy, records)
   {
-    processIncomingLayers(dataProxy, records, 'WMS');
+    processIncomingLayers(dataProxy, records, "WMS");
   };
 
 
   // Callback for WFS get capabilities success
   var onWfsGetCapabilitiesSucceeded = function(dataProxy, records)
   {
-    processIncomingLayers(dataProxy, records, 'WFS');
+    processIncomingLayers(dataProxy, records, "WFS");
   };
 
 
  // Callback for WCS get capabilities success
   var onWcsGetCapabilitiesSucceeded = function(dataProxy, records)
   {
-    processIncomingLayers(dataProxy, records, 'WCS');
+    processIncomingLayers(dataProxy, records, "WCS");
   };
 
   var onWmsGetCapabilitiesFailed = function() {  
     console.log("WMS GetCapabilities failed");
     console.log(arguments);
 
-    $('#layer-display').html('<div class="form_error_message">Error: Either this is an invalid address, or the WMS server is not responding.</div>');
+    $("#layer-display").html('<div class="form_error_message">Error: Either this is an invalid address, or the WMS server is not responding.</div>');
 
-    $('#layer_name_error_message').text("Error: Layer could not be retrieved from the server");
-    $('#dataset_layer_name').html('<option>No layer names available</option>');
+    $("#layer_name_error_message").text("Error: Layer could not be retrieved from the server");
+    $("#dataset_layer_name").html('<option>No layer names available</option>');
 
-    $('#submit_error_message').text("Cannot submit form until all errors are corrected");
-    $('#dataset_layer_name').prop('disabled', true);
-    $('#submit_form_button').prop('disabled', true);
+    $("#submit_error_message").text("Cannot submit form until all errors are corrected");
+    $("#dataset_layer_name").prop("disabled", true);
+    $("#submit_form_button").prop("disabled", true);
 
-    $('#layers_loading_indicator').hide();
+    $("#layers_loading_indicator").hide();
     // $('#refresh_layers_button').attr('disabled', false);
-    doneProcessing('???', 'WMS', null, 'ERROR');
+    doneProcessing("???", "WMS", null, "ERROR");
   };
 
 
@@ -47,7 +47,7 @@
     console.log(arguments);
     showPreErrorMessage(i);
 
-    doneProcessing('???', 'WFS', null, 'ERROR');
+    doneProcessing("???", "WFS", null, "ERROR");
   };
 
   var onWcsGetCapabilitiesFailed = function() {   
@@ -55,7 +55,7 @@
     console.log(arguments);
     showPreErrorMessage(i);
 
-    doneProcessing('???', 'WCS', null, 'ERROR');
+    doneProcessing("???", "WCS", null, "ERROR");
   };
 
 
@@ -168,9 +168,9 @@
   {
     var serverUrl;
 
-    if     (service === 'WFS') { serverUrl = WFS.unwrapServer(dataProxy.url); }
-    else if(service === 'WMS') { serverUrl = WMS.unwrapServer(dataProxy.url); }
-    else if(service === 'WCS') { 
+    if     (service === "WFS") { serverUrl = WFS.unwrapServer(dataProxy.url); }
+    else if(service === "WMS") { serverUrl = WMS.unwrapServer(dataProxy.url); }
+    else if(service === "WCS") { 
       // WCS is more complex, because we need two queries to get what we need, and we don't want to proceed until
       // we have heard back from both
       serverUrl = WCS.unwrapServer(dataProxy.url);
@@ -178,7 +178,7 @@
       if(wcsReplies[serverUrl] === undefined) 
         wcsReplies[serverUrl] = {};
     }
-    else alert('Unexpected type ' + service);
+    else alert("Unexpected type " + service);
 
 
     var ready = true;
@@ -186,7 +186,7 @@
     for(var i = 0, len = records.length; i < len; i++) {
       var record = records[i];
 
-      if(service === 'WMS') {
+      if(service === "WMS") {
         var dataset = new Dataset(serverUrl, service, record);
 
         for(var firstKey in record.data.srs) break;
@@ -203,7 +203,7 @@
         mergeDatasetIntoLayerList(dataset, service);
       }
 
-      else if(service === 'WFS') {
+      else if(service === "WFS") {
         var dataset = new Dataset(serverUrl, service, record);
 
         dataset.wxsCrs = record.data.srs;  
@@ -211,7 +211,7 @@
         mergeDatasetIntoLayerList(dataset, service);
       }
 
-      else if(service === 'WCS') {
+      else if(service === "WCS") {
         var id = record.id;
 
         if(!wcsReplies[serverUrl][id])
@@ -222,7 +222,7 @@
 
         var dataset = wcsReplies[serverUrl][id];
 
-        if(dataProxy.reader.meta.format.name === 'WCSCapabilities') {
+        if(dataProxy.reader.meta.format.name === "WCSCapabilities") {
           // GetCapabilities response
           dataset.identifier  = record.id;
           dataset.name        = record.get("name");
@@ -244,7 +244,7 @@
 
     if(ready) {
       var serverInfo = (dataProxy.reader && dataProxy.reader.raw && dataProxy.reader.raw.service) || null;
-      doneProcessing(serverUrl, service, serverInfo, 'OK');
+      doneProcessing(serverUrl, service, serverInfo, "OK");
     }
   };
 
