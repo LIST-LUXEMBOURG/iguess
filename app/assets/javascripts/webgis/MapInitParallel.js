@@ -39,6 +39,8 @@ WebGIS.initMapParallel = function () {
     WebGIS.rightMap.addLayers(WebGIS.getRightBaseLayers());
     
     WebGIS.initParallelEvents();
+    
+    WebGIS.leftMap.addControl(new OpenLayers.Control.ScaleLine());
 };
 
 

@@ -54,6 +54,8 @@ WebGIS.initMap = function ()
     WebGIS.leftMap.addLayers(WebGIS.getLeftBaseLayers()); 
     
     WebGIS.leftMap.events.register("mousemove", null, WebGIS.mapMouseMove);
+    
+    WebGIS.leftMap.addControl(new OpenLayers.Control.ScaleLine());
 };
 
 WebGIS.mapMouseMove = function(e) 
