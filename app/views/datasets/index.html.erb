@@ -158,7 +158,7 @@
 
   &nbsp;&nbsp;
 
-  <a href="#" onclick="return launchHarvester();">Run Metadata Harvester</a>
+  <!-- <a href="#" onclick="return launchHarvester();">Run Metadata Harvester</a> -->
 
   <br />
 </div>
@@ -224,12 +224,12 @@
     // Notify the server
     $.ajax({
       type:    'PUT',      // PUT combined with url below triggers "update" action on controller
-      url:     '<%= url_for(:controller => 'datasets', :action => 'run_harvester') %>',
+      url:     "<%= url_for(:controller => 'datasets', :action => 'run_harvester') %>",
       headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
                  'Content-Type': 'application/json' */},
       success: function(data) { alert("Harvester launched!"); }
     });
-    
+
     return false;
   }
 
