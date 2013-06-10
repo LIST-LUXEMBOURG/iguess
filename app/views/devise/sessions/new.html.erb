@@ -5,6 +5,10 @@
     <%= f.input :login, :required => false, :autofocus => true %>
     <%= f.input :password, :required => false %>
     <%= f.input :remember_me, :as => :boolean if devise_mapping.rememberable? %>
+
+    
+    <%= f.input :first_name, :required => true %>
+    <%= f.input :last_name, :required => true %>
   </div>
 
   <div class="form-actions">
