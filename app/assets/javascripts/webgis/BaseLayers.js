@@ -97,19 +97,19 @@ WebGIS.getRightBaseLayers = function(mapProjection) {
 
 	WebGIS.gphyRight = new OpenLayers.Layer.Google(
             "Google Physical",
-            {type: google.maps.MapTypeId.TERRAIN, numZoomLevels: 20, animationEnabled: true, transitionEffect: 'resize'}
+            {type: google.maps.MapTypeId.TERRAIN, numZoomLevels: 20, animationEnabled: true, transitionEffect: 'resize', displayInLayerSwitcher: false}
     );
 	WebGIS.gmapRight = new OpenLayers.Layer.Google(
             "Google Streets", 
-            {numZoomLevels: 20, animationEnabled: true}
+            {numZoomLevels: 20, animationEnabled: true, displayInLayerSwitcher: false}
     );
 	WebGIS.ghybRight = new OpenLayers.Layer.Google(
             "Google Hybrid",
-            {type: google.maps.MapTypeId.HYBRID, numZoomLevels: 20, animationEnabled: true}
+            {type: google.maps.MapTypeId.HYBRID, numZoomLevels: 20, animationEnabled: true, displayInLayerSwitcher: false}
     );
 	WebGIS.gsatRight = new OpenLayers.Layer.Google(
             "Google Satellite",
-            {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22, animationEnabled: true}
+            {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22, animationEnabled: true, displayInLayerSwitcher: false}
     );
 	
 	WebGIS.osmRight.animationEnabled = true;

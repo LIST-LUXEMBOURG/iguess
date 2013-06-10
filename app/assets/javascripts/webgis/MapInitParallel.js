@@ -28,7 +28,8 @@ WebGIS.initMapParallel = function () {
     	projection: 		mapProjection,
     	displayProjection: 	new OpenLayers.Projection(WebGIS.displayProjection),
     	units: 				"m",
-    	maxExtent: 			boundsMap/*,
+    	maxExtent: 			boundsMap,
+    	controls:			[new OpenLayers.Control.LayerSwitcher()]/*,
     	controls: 			[ new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]*/
     });
    
@@ -41,6 +42,33 @@ WebGIS.initMapParallel = function () {
     WebGIS.initParallelEvents();
     
     WebGIS.leftMap.addControl(new OpenLayers.Control.ScaleLine());
+    
+	var pv_kwh =  new OpenLayers.Layer.WMS(
+		"PV potential (amorph) (kWh/a)",
+		"http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
+	    {layers: "pv_potential_amo_elec", 
+	     format: "image/png",
+	     srsName: WebGIS.requestProjection,
+	 	 transparent: "true",
+	 	 projection: new OpenLayers.Projection(WebGIS.requestProjection)},
+	    {isBaseLayer: false,  
+	 	 visibility: true}
+	);
+	
+	var pv_euro =  new OpenLayers.Layer.WMS(
+		"PV potential (amorph) (€/a)",
+		"http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
+	    {layers: "pv_potential_amo_c_e", 
+	     format: "image/png",
+	     srsName: WebGIS.requestProjection,
+	 	 transparent: "true",
+	 	 projection: new OpenLayers.Projection(WebGIS.requestProjection)},
+	    {isBaseLayer: false,  
+	 	 visibility: true}
+	);
+	
+	WebGIS.rightMap.addLayer(pv_kwh);
+	WebGIS.rightMap.addLayer(pv_euro);
 };
 
 
