@@ -310,7 +310,7 @@ div.olControlSaveFeaturesItemInactive {
     position: absolute;
     top: 25px;
     right: 0;
-    width: 20em;
+    width: 22em;
     font-family: sans-serif;
     font-weight: bold;
     margin-top: 3px;
@@ -348,6 +348,11 @@ div.olControlSaveFeaturesItemInactive {
     top: 5px;
     right: 0;
     cursor: pointer;
+}
+
+/* Expanding LayerSwitcher width */
+div.olControlLayerSwitcher {
+	width: 230px;
 }
 
 .olBingAttribution {
