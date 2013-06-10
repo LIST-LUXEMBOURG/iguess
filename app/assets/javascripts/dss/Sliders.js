@@ -40,7 +40,7 @@ DSS.initSliders = function()
         width: 214,
         value: 0,
         minValue: 0,
-        maxValue: 450,
+        maxValue: 45600,
         plugins: new Ext.ux.SliderTip()
     });
     
@@ -49,7 +49,7 @@ DSS.initSliders = function()
         width: 214,
         value: 0,
         minValue: 0,
-        maxValue: 150,
+        maxValue: 17000,
         plugins: new Ext.ux.SliderTip()
     });
     
@@ -58,7 +58,7 @@ DSS.initSliders = function()
         width: 214,
         value: 0,
         minValue: 0,
-        maxValue: 3500,
+        maxValue: 166000,
         plugins: new Ext.ux.SliderTip()
     });
     
@@ -78,8 +78,8 @@ DSS.calcCostValue = function(percent)
 DSS.updateLabels = function(percent)
 {
 	cost =   (DSS.calcCostValue(percent) / 1000).toFixed(3);
-	invest = (percent * DSS.invSlider.maxValue  / 100).toFixed(3);
-	gen =    (percent * DSS.genSlider.maxValue  / 100).toFixed(3);
+	invest = (percent * DSS.invSlider.maxValue  / 100).toFixed(0);
+	gen =    (percent * DSS.genSlider.maxValue  / 100).toFixed(0);
 	area =   (percent * DSS.areaSlider.maxValue / 100).toFixed(0);
 	
 	document.getElementById("cost").innerHTML   = "Cost: "  	 + cost + " &euro;/kWh";
@@ -123,7 +123,7 @@ DSS.invDragged = function(ed, value, oldValue)
 		DSS.areaSlider.setValue(percent * DSS.areaSlider.maxValue / 100);
 		
 		DSS.rule_highlight.filter.value = value * 1000;
-		DSS.rule_highlight.filter.property = "cum_multi";
+		DSS.rule_highlight.filter.property = "mult_r_i";
 		DSS.buildsGML.redraw();
 		DSS.lock = false;
 	}
@@ -143,7 +143,7 @@ DSS.areaDragged = function(ed, value, oldValue)
 		DSS.genSlider.setValue(percent * DSS.genSlider.maxValue / 100);
 		
 		DSS.rule_highlight.filter.value = value;
-		DSS.rule_highlight.filter.property = "cum_area";
+		DSS.rule_highlight.filter.property = "area_cum";
 		DSS.buildsGML.redraw();
 		DSS.lock = false;
 	}
@@ -164,7 +164,7 @@ DSS.genDragged = function(ed, value, oldValue)
 		
 		
 		DSS.rule_highlight.filter.value = value * 1000;
-		DSS.rule_highlight.filter.property = "c_e_multi";
+		DSS.rule_highlight.filter.property = "mult_r_e";
 		DSS.buildsGML.redraw();
 		DSS.lock = false;
 	}

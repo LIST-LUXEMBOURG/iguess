@@ -90,7 +90,8 @@ DSS.initMap = function()
        
     DSS.buildsGML = new OpenLayers.Layer.Vector("BuildingsGML", {
         protocol: new OpenLayers.Protocol.HTTP({
-            url: "assets/pv_potential_small_ranked.gml",
+        	url: "assets/pv_potential.gml",
+            //url: "assets/pv_potential_small_ranked.gml",
         	//url: "http://services.iguess.tudor.lu/pywps/sampleData/BuildingsFull.gml",
             format: new OpenLayers.Format.GML()
         }),
