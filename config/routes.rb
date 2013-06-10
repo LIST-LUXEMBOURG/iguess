@@ -1,5 +1,4 @@
 Iguess::Application.routes.draw do
-  devise_for :users
 
   resources :mod_configs
 
@@ -20,6 +19,8 @@ Iguess::Application.routes.draw do
   resources :scenarios
   
   resources :dss
+
+  devise_for :users, :controllers => {:registrations => "registrations"}
 
   match 'about', :to => 'about#index'
 
