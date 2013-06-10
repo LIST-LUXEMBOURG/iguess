@@ -545,17 +545,17 @@
         // Let the server know this layer is now registered -- to do this we must create a new record in
         // our datasets table.
         $.ajax({
-          type: 'POST',      // POST combined with url below triggers "create" action on controller
-          url: '<%= url_for(:controller => 'datasets', :action => 'create', :format=>:json) %>',
-          data: 'dataset[identifier]='    + datasetIdentifier +
-                '&dataset[service]='      + service   +
-                '&dataset[server_url]='   + serverUrl +
-                '&tags='                  + taglist +
-                '&dataset[title]='        + encodeURIComponent(title) +
-                '&dataset[abstract]='     + encodeURIComponent(abstract) +
-                '&dataset[alive]=true'    +
-                '&cityName=' + getCityCookie(),
-          headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
+          type: "POST",      // POST combined with url below triggers "create" action on controller
+          url: "<%= url_for(:controller => "datasets", :action => "create", :format=>:json) %>",
+          data: "dataset[identifier]="    + datasetIdentifier +
+                "&dataset[service]="      + service   +
+                "&dataset[server_url]="   + serverUrl +
+                "&tags="                  + taglist +
+                "&dataset[title]="        + encodeURIComponent(title) +
+                "&dataset[abstract]="     + encodeURIComponent(abstract) +
+                "&dataset[alive]=true"    +
+                "&cityName=" + <% if current_user.role_id == 1 %>"<%= raw @current_city.name %>"<% else %>getCityCookie() <% end %> ,
+          headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
           success: function(data) {
             // Add layer to the list of registered layers
             makeRegisteredLayer(serverUrl, data.dataset.identifier, data.dataset.id, data.tags, 0);

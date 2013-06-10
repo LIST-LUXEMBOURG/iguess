@@ -16,7 +16,7 @@ class ModConfigsController < ApplicationController
 
 
   def index
-    @current_city = (City.find_by_name(cookies['city']) or City.first)
+    @current_city = current_user.role_id == 1 ? City.find_by_id(current_user.city_id) : (City.find_by_name(cookies['city']) or City.first)
     @mod_configs = ModConfig.find_all_by_city_id(@current_city.id)
     @wps_servers = WpsServer.find_all_by_alive(:true)
     # @tags = findAllTags()
@@ -34,7 +34,7 @@ class ModConfigsController < ApplicationController
   # GET /mod_configs/1.json
   def show
     @mod_config      = ModConfig.find(params[:id])
-    @current_city    = (City.find_by_name(cookies['city']) or City.first)
+    @current_city    = current_user.role_id == 1 ? City.find_by_id(current_user.city_id) : (City.find_by_name(cookies['city']) or City.first)
     @datasets        = Dataset.find_all_by_city_id(@current_city.id)
     @dataset_tags    = DatasetTag.all
     @datasetValues   = ConfigDataset.find_all_by_mod_config_id(params[:id]).map{|d| d.input_identifier + ': "' + d.dataset.id.to_s + '"'}.join(',')
@@ -58,7 +58,7 @@ class ModConfigsController < ApplicationController
     @wps_processes = WpsProcess.find_all_by_alive(:true, :order => 'title, identifier')
     @datasets = Dataset.all
     @dataset_tags    = DatasetTag.all
-    @current_city = (City.find_by_name(cookies['city']) or City.first)
+    @current_city = current_user.role_id == 1 ? City.find_by_id(current_user.city_id) : (City.find_by_name(cookies['city']) or City.first)
 
     # @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
     @textinputs = [ ]
@@ -206,7 +206,7 @@ class ModConfigsController < ApplicationController
   # POST /mod_configs
   # POST /mod_configs.json
   def create
-    @current_city = (City.find_by_name(cookies['city']) or City.first)
+    @current_city = current_user.role_id == 1 ? City.find_by_id(current_user.city_id) : (City.find_by_name(cookies['city']) or City.first)
     @mod_config = ModConfig.new(params[:mod_config])
 
     @mod_config.name = @mod_config.name.strip
