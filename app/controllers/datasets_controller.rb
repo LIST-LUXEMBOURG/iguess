@@ -35,7 +35,24 @@ class DatasetsController < ApplicationController
   # Get all datasets for the specified city, only used by ajax queries
   def get_for_city
     @current_city = City.find_by_name(params[:cityName])
-    @datasets = Dataset.find_all_by_city_id(@current_city.id)
+
+    showOnlyPublished = false
+    if current_user == nil then 
+      showOnlyPublished = true    # User not logged in
+    elsif current_user.role_id == 2 then
+      showOnlyPublished = false   # User has permissions to see all
+    elsif current_user.city_id == @current_city.id then
+      showOnlyPublished = false   # User is in own city
+    else
+      showOnlyPublished = true    # User is in foreign city
+    end
+
+
+    if showOnlyPublished then  
+      @datasets = Dataset.find_all_by_city_id_and_published(@current_city.id, :true)
+    else
+      @datasets = Dataset.find_all_by_city_id(@current_city.id)
+    end
 
     # I really want this, but it returns HTML... respond_with(@datasets)
     respond_to do |format|

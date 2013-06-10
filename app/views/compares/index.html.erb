@@ -27,35 +27,12 @@
   });
 
 
-  // We are only expecting a WMS response here, so we can just grab it and go without waiting for
-  // responses from other services.
-  // One server response might contain info about a whole slew of data layers, so we'll need to parse it
-  var gotServerResponse = function(serverUrl, serverResponses)
-  {
-    if(!!!registeredDatasets[serverUrl]) { return; }    // No registered datasets on this server!
-
-    var wms = serverResponses['WMS'];
-
-    for(var i = 0, len = wms.records.length; i < len; i++) {
-      var layer = wms.records[i];
-
-      // If the layer is registered, add it to the map
-      // The fourth argument can be used to pass the layer type - see webgis/Styles.js
-      if(registeredDatasets[serverUrl][layer.data.name])
-        WebGIS.addNewLayer(layer.data.title, serverUrl, layer.data.name, null);
-    }
-  };
-
-
   // We've got a new batch of datasets to display!
   // Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
-  var startProbing = function(datasets) 
+  var addLayersToMap = function(datasets) 
   {
-    resetProbe();   // Clear out old probe results
-
-    for(var i = 0, len = datasets.length; i < len; i++) {
-      probeDataServer(datasets[i].server_url, 'WMS');
-    }
+    for (var i = 0, len = datasets.length; i < len; i++) 
+      WebGIS.addNewLayer(datasets[i].title, datasets[i].serverUrl, datasets[i].identifier, null);
   };
 
 
@@ -65,7 +42,7 @@
     WebGIS.clearLayers(false);
 
     // Retrieve all datasets for specified city
-    MapUtils.retrieveDatasetsForCity(cityName, function(data){ startProbing(data); });
+    MapUtils.retrieveDatasetsForCity(cityName, function(data){ addLayersToMap(data); });
 
     // Notify WebGIS that things have changed
     <% for city in City.all %>
