@@ -53,12 +53,14 @@
       <ul id="nav">
         <li id="nav-1" title="<u><b>Return to starting screen</b></u>">
             <a href="/">Home</a></li>
-        <li id="nav-2" title="<u><b>Manage data</b></u><br>Upload new data, and view existing datasets">
-            <%= link_to "Data Manager", datasets_path %></li>
+        <% if user_signed_in? %>
+          <li id="nav-2" title="<u><b>Manage data</b></u><br>Upload new data, and view existing datasets">
+              <%= link_to "Data Manager", datasets_path %></li>
+        <% end %>
         <li id="nav-3" title="<u><b>ModConfigure & run modules</b></u><br>Create new datasets by running calculations">
             <%= link_to "Modules", mod_configs_path %></li>
         <li id="nav-4" title="<u><b>Define and run scenarios</b></u><br>Scenarios are complex models of potential future situations">
-            <a href="/scenarios.htm">Scenarios</a></li>
+            <%= link_to "Scenarios", scenarios_path %></li>
         <li id="nav-5" title="<u><b>Decision support tools</b></u><br>Compare scenario results, and access related tools">
             <%= link_to "Decision Support", dss_path %></li>
         <li id="nav-6" title="<u><b>View maps</b></u><br>Visualize data and model results">
@@ -80,26 +82,39 @@
           <script type="text/javascript">
 
             function setCityCookie(city) {
-              $.cookie('city', city, { expires: 99999 });
+              $.cookie("city", city, { expires: 99999, path :"/" });
+            }
+
+            function getCityCookie() {
+              return $.cookie("city", { path: "/foo"});
             }
 
             // If the city cookie doesn't exist when we load this page, create it
             $(document).ready(function() {
-              if($.cookie('city') == null) {
+              if(getCityCookie() == null) {
                 setCityCookie(document.getElementById("city-dropdown").value);
               }
             });
 
             $('#city-dropdown').change(function() {
               setCityCookie(this.value);
-              if(typeof onLocationChanged != "undefined") {
+              if(typeof onLocationChanged != "undefined") 
                 onLocationChanged(this.value);        // Implement this function on a page if you want to be alerted to a location change
-              }
+              else
+                location.reload();
             });
           </script>
 
 
-          <div id="login"><a href="#" onclick="alert('Logins not implemented yet!!')">[Login]</a></div>
+          <div id="login">
+            <% if user_signed_in? %> 
+              Signed in as <%= current_user.first_name %>.  
+              <%= link_to "[Logout]", destroy_user_session_path, :method => :delete %>  
+            <% else %>  
+              <%= link_to "[New User]", new_user_registration_path %> or  
+              <%= link_to "[Login]", new_user_session_path %>  
+            <% end %>  
+          </div>
         </div>
       </ul>
 

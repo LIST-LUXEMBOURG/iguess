@@ -51,10 +51,16 @@ class Output:
             return;
         
         url = rawString.split("wps:Reference href=\"")[1].split("\"")[0]
-        r = urllib2.urlopen(urllib2.Request(urllib2.unquote(url)))
-        self.value = r.read()
-        r.close()
         
+        try:
+            r = urllib2.urlopen(urllib2.Request(urllib2.unquote(url)))
+            self.value = r.read()
+        except Exception, err:
+            logging.error("Error retrieving %s:\n%s" %(url, err))
+            return
+        finally:
+            if r <> None:
+                r.close()
 
 ###########################################################
 

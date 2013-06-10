@@ -11,6 +11,8 @@ gem 'pg'  # If this line causes problems, you may need to do this: "sudo apt-get
 gem 'sqlite3'
 gem 'simple_form'
 
+gem "devise", "~> 2.2.4"
+
 
 gem 'pry', :group => :development
 gem 'execjs'

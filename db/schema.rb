@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130419121510) do
+ActiveRecord::Schema.define(:version => 20130607084735) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -84,6 +84,14 @@ ActiveRecord::Schema.define(:version => 20130419121510) do
     t.datetime "last_seen"
     t.boolean  "alive"
     t.integer  "dataserver_id"
+    t.text     "format"
+    t.text     "bbox_left"
+    t.text     "bbox_right"
+    t.text     "bbox_top"
+    t.text     "bbox_bottom"
+    t.text     "resolution_x"
+    t.text     "resolution_y"
+    t.boolean  "local_srs"
   end
 
   create_table "geometry_columns", :id => false, :force => true do |t|
@@ -130,6 +138,28 @@ ActiveRecord::Schema.define(:version => 20130419121510) do
     t.string  "srtext",    :limit => 2048
     t.string  "proj4text", :limit => 2048
   end
+
+  create_table "users", :force => true do |t|
+    t.string   "email",                  :default => "", :null => false
+    t.string   "encrypted_password",     :default => "", :null => false
+    t.string   "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.integer  "sign_in_count",          :default => 0
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.string   "current_sign_in_ip"
+    t.string   "last_sign_in_ip"
+    t.integer  "city_id"
+    t.integer  "role_id",                :default => 1
+    t.datetime "created_at",                             :null => false
+    t.datetime "updated_at",                             :null => false
+    t.string   "first_name"
+    t.string   "last_name"
+  end
+
+  add_index "users", ["email"], :name => "index_users_on_email", :unique => true
+  add_index "users", ["reset_password_token"], :name => "index_users_on_reset_password_token", :unique => true
 
   create_table "wps_processes", :force => true do |t|
     t.integer  "wps_server_id"

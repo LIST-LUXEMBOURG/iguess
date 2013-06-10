@@ -53,7 +53,7 @@
     
     /* more */
     
-    ul#more {
+    ul #more {
         clear: left;
         margin-top: 60px;
         }
@@ -63,14 +63,17 @@
     #login {
       float: right;
       margin-right : 0px;
-      
+      color: #666;
+      padding-right: 10px;
+      padding-top: 3px;
     }     
        
     /* Must come after #nav a, because we are overriding some settings there */
     #login a {
-      background: #ccc;   /* Hide slant graphic */
+      background: #ccc;    /* Hide slant graphic */
       font-weight: normal;
-      padding-right: 10px;
+      display: inline;
+      float: none;
     }
     
  </style>

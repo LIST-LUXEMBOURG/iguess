@@ -1,4 +1,6 @@
 class ModConfigsController < ApplicationController
+  before_filter :authenticate_user!, :except => [:index]
+
   # GET /mod_configs
   # GET /mod_configs.json
 
@@ -18,7 +20,7 @@ class ModConfigsController < ApplicationController
     @mod_configs = ModConfig.find_all_by_city_id(@current_city.id)
     @wps_servers = WpsServer.find_all_by_alive(:true)
     # @tags = findAllTags()
-    @wps_processes = WpsProcess.find_all_by_alive(:true)
+    @wps_processes = WpsProcess.find_all_by_alive(:true, :order => 'title, identifier')
     # @wps_version = '1.0.0'
 
     respond_to do |format|
@@ -53,9 +55,11 @@ class ModConfigsController < ApplicationController
   def new
     @mod_config = ModConfig.new
     @wps_servers = WpsServer.find_all_by_alive(:true)
-    @wps_processes = WpsProcess.find_all_by_alive(:true)
+    @wps_processes = WpsProcess.find_all_by_alive(:true, :order => 'title, identifier')
     @datasets = Dataset.all
     @dataset_tags    = DatasetTag.all
+    @current_city = (City.find_by_name(cookies['city']) or City.first)
+
     # @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
     @textinputs = [ ]
 
@@ -101,7 +105,7 @@ class ModConfigsController < ApplicationController
     @mod_config = ModConfig.find(params[:id])
     # @city = 
 
-    wpsClientPath ='/home/iguess/iguess_production';
+    wpsClientPath ='/home/iguess/iguess_test';
 
     require 'uri'
 
@@ -131,15 +135,18 @@ class ModConfigsController < ApplicationController
                                                          configDataset.bbox_right.to_s() + "," + configDataset.bbox_top.to_s()
                                   end
 
-                                  if(configDataset.res_x) then params += "&RESX=" + configDataset.res_x.to_s() end
-                                  if(configDataset.res_y) then params += "&RESY=" + configDataset.res_y.to_s() end
+                                  if(configDataset.res_x and configDataset.res_x > 0 and configDataset.res_y and configDataset.res_y > 0) then 
+                                    params += "&RESX=" + configDataset.res_x.to_s()
+                                    params += "&RESY=" + configDataset.res_y.to_s()
+                                  end
                                 end
 
-                                request = config_dataset.service == 'WCS' ? 'getCoverage' : 'getFeature'
+                                request = (config_dataset.service == 'WCS') ? 'getCoverage' : 'getFeature'
+                                noun    = (config_dataset.service == 'WCS') ? 'COVERAGE'    : 'TYPENAME'
 
                                 dataname = config_dataset.server_url + (config_dataset.server_url.include?("?") == -1 ? "?" : "&") +
                                 'SERVICE=' + config_dataset.service + params +
-                                URI.escape('&VERSION=1.0.0&REQUEST=' + request + '&TYPENAME=' + config_dataset.identifier)
+                                URI.escape('&VERSION=1.0.0&REQUEST=' + request + '&' + noun + '=' + config_dataset.identifier)
 
                                inputFields.push(configDataset.input_identifier)
                                inputValues.push(dataname) 
@@ -169,6 +176,9 @@ class ModConfigsController < ApplicationController
                                    argProc + ' ' + argName + ' ' + argVals + ' ' + argOuts + ' ' + argOutTitles
 
     require 'open3'
+
+# binding.pry
+
     output, stat = Open3.capture2e(cmd)
 
 
@@ -191,7 +201,6 @@ class ModConfigsController < ApplicationController
       format.js { render :json => @mod_config, :status => :ok }
     end
   end
-
 
 
   # POST /mod_configs
@@ -288,6 +297,8 @@ class ModConfigsController < ApplicationController
       params[:datasets].each do |d|
         identifier = d[0]
         id = d[1]
+
+        # binding.pry
 
         if(not identifier.empty?) then
           if(id != "-1") then

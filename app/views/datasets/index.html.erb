@@ -1,9 +1,15 @@
 <div>
   <h1 class="page_header">Registered Datasets</h1>
 
-  <form id="filter-form">Filter: <input name="filter" id="filter" value="" maxlength="30" size="30" type="text"></form>
 
-  <div class="hint">Hint: Filter table by typing in the box above; sort by clicking on column headers; use Ctrl to sort by multiple columns</div>
+
+  <div class="filter-box"><form id="filter-form" style="display: inline">Filter: <input name="filter" id="filter" value="" maxlength="30" size="30" type="text"></form>
+
+  <%= button_to "Register New Datasets", 
+              { :controller => "datasets", :action => "mass_import", :id => 1 }, 
+              :class => "register-datasets-button-top" %>
+
+  </div>
 
   <table id="sortable_table" class="zebra sortable">
     <thead>
@@ -12,12 +18,14 @@
     <tbody id="dataset-list">
       <% @datasets.each do |d| %>
         <tr id="dsid-<%= d.id %>">
-          <td>
+          <% hasError = ! d.alive %>
+          <td <% if hasError %>class="dataset-error"<% end %>>
             <%= d.title.present? ? d.title : d.identifier %>
             <img src="/assets/small_question_mark.gif" class="info-icon" 
                   alt="More info" title="Click for details" rel="#infotable-<%= d.id %>">
           </td>
           <td>
+            <% if not d.dataserver then binding.pry end %>
             <span class="taglist-<%= cssEscape(d.dataserver.url + d.identifier) %>">
               <% d.dataset_tags.each do |t| %>
                 <span class="tag"><%= t.tag %></span>
@@ -55,8 +63,19 @@
             <dt>Server Name:</dt><dd class="server-name"><%= d.dataserver.title %></dd>
             <dt>Data Services:</dt>
             <dd id="results-<%= d.id %>">
-              <%= insertGetCapabilitiesLinkBlock(d.dataserver.url, d.dataserver.wms, d.dataserver.wfs, d.dataserver.wcs) %>
+              <%= insertGetCapabilitiesLinkBlock(d.dataserver.url, d.dataserver.wms, d.service == "WFS", d.service == "WCS") %>
             </dd>
+
+              <% if not d.alive %>
+                <dt class="error-header">Error State:</dt>
+                <dd class="error-body">
+                  This layer is no longer available -- the data owner may have renamed or removed it.  Sorry!
+                  <br><br>
+                  <%= link_to "Unregister Dataset", d, confirm: "Are you sure you want to unregister this dataset?", 
+                           method: :delete, :remote => true, :class => "dataset-deleted" %>
+                </dd>
+              <% end %>
+
             <dt>Tags:</dt>
             <dd>
               <span class="taglist-deletable-<%= cssEscape(d.dataserver.url + d.identifier) %>">
@@ -132,9 +151,14 @@
     <% end %>
   </div>
 
-  <%= button_to "Register Datasets", 
-                { :controller => "datasets", :action => "mass_import", :id => 1 }, 
-                :class => "register-datasets-button" %>
+
+  <%= button_to "Register New Datasets", 
+            { :controller => "datasets", :action => "mass_import", :id => 1 }, 
+            :class => "register-datasets-button-bottom" %>
+
+  &nbsp;&nbsp;
+
+  <a href="#" onclick="return launchHarvester();">Run Metadata Harvester</a>
 
   <br />
 </div>
@@ -193,6 +217,21 @@
       success: function(data) {  }
     });
   };
+
+
+  var launchHarvester = function()
+  {
+    // Notify the server
+    $.ajax({
+      type:    'PUT',      // PUT combined with url below triggers "update" action on controller
+      url:     '<%= url_for(:controller => 'datasets', :action => 'run_harvester') %>',
+      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
+                 'Content-Type': 'application/json' */},
+      success: function(data) { alert("Harvester launched!"); }
+    });
+    
+    return false;
+  }
 
 
   addDeleteTagClickHander();    // Get ready to delete tags!

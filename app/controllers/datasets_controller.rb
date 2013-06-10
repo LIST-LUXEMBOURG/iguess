@@ -1,4 +1,5 @@
 class DatasetsController < ApplicationController
+  before_filter :authenticate_user!, :except => [:get_for_city]
 
   respond_to :html, :json, :js   # See http://railscasts.com/episodes/224-controllers-in-rails-3, c. min 7:00
 
@@ -168,4 +169,18 @@ class DatasetsController < ApplicationController
 
     @cities = City.all
   end
+
+
+  # Will only be run with ajax
+  def run_harvester
+    harvesterPath ='/home/iguess/iguess_test';
+    cmd = 'cd ' + harvesterPath + '&& /usr/bin/python /home/iguess/iguess_test/iguess/harvester.py'
+
+    `cmd`
+
+    respond_with do |format|
+      format.js { render :json => "Running", :status => :ok }
+    end
+  end
+
 end

@@ -1,8 +1,10 @@
 import sys, ast, getopt, types, WPSClient, time, syslog 
 
-f = open("wps.log","a")
+errLog = open("wps.log","a")
 
 argv = sys.argv[1:]
+errLog.write("Processing command:\n" + " ".join(argv) + "\n")
+
 # Code modeled on http://stackoverflow.com/questions/7605631/passing-a-list-to-python-from-command-line
 arg_dict = { } 
 
@@ -20,12 +22,12 @@ for x in switches:
 try:            
     opts, args = getopt.getopt(argv, singles, long_form)
 except getopt.GetoptError, e:          
-    f.write("Bad arg: " + e.msg)
+    errLog.write("Bad arg: " + e.msg)
     sys.exit(2)       
 
 for opt, arg in opts:
-    if opt[1] + ':' in d: 
-        o = d[opt[1] + ':'][2:]
+    if opt[1] + ':' in d:       # opt -> :names
+        o = d[opt[1] + ':'][2:]         # o -> names
     elif opt in d.values(): 
         o = opt[2:]
     else: o = ''
@@ -37,14 +39,16 @@ for opt, arg in opts:
             arg_dict[o] = arg
 
     if not o:
-        f.write("Invalid options!\n")
+        errLog.write("Invalid options!\n")
         sys.exit(2)
+    #Error: bad arg for names... [dem] is not a <type 'list'>!
+
     if not isinstance(arg_dict[o], switches[o]):
-        f.write(str(opt) + " " + str(arg) + "\nError: bad arg... " + str(arg_dict[o]) + " is not a " + str(switches[o]) + "!\n")
+        errLog.write(str(opt) + " " + str(arg) + "\nError: bad arg for " + o + "... " + str(arg_dict[o]) + " is not a " + str(switches[o]) + "!\n")
         sys.exit(2)                 
 
 
-# No that we have our args sorted out, let's try to launch the WPSClient
+# Now that we have our args sorted out, let's try to launch the WPSClient
 
 
 iniCli = WPSClient.WPSClient()
@@ -86,7 +90,7 @@ iniCli.init(
 
 url = iniCli.sendRequest()
 
-f.write("Launching process: " + url + "\n")
+errLog.write("Launching process: " + url + "\n")
 sys.stdout.write("OK:" + url)     # This is the line that our rails code will be looking for!
 
 # iniCli = None
@@ -108,10 +112,6 @@ sys.stdout.write("OK:" + url)     # This is the line that our rails code will be
 #     statCli.epsg = "28992"
     
 #     statCli.generateMapFile()
-    
-    
-    
-    
     
     
     

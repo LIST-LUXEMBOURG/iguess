@@ -126,9 +126,11 @@
 
 
   // The city dropdown on the UR of the screen has changed -- we don't do much here anymore!
-  var onLocationChanged = function(cityName) {
-    LOCAL_SRS = { <% @cities.each do |city| %>'<%= city.name %>':'<%= city.srs %>',<% end %>}[cityName];
-  }
+  // var onLocationChanged = function(cityName) {
+  //   LOCAL_SRS = { <% @cities.each do |city| %>'<%= city.name %>':'<%= city.srs %>',<% end %>}[cityName];
+  // }
+
+  LOCAL_SRS = '<%= @current_city.srs %>';
 
 
 
@@ -184,6 +186,14 @@
   };
 
 
+  var datasetSort = function(d1, d2)
+  {
+    if(d1.identifier == d2.identifier) return 0;
+    if(d1.identifier < d2.identifier)  return 1;
+    return -1;
+  }
+
+
   var alreadyShownWmsError = false;   // Prevent us from being swamped by the same error message over and over
 
   var displayLayers = function() 
@@ -210,12 +220,17 @@
     $("#layer-display").html("");   // Clear the decks
 
 
+    var discoveredLayerKeys = Object.keys(discoveredLayers).sort();
+    // discoveredLayers.sort(datasetSort);
+
+
     // Render found datasets in two passes -- first for registered items, second for unregistered ones.
     // This puts registered items at the top of the screen.
     for(var pass = 0; pass < 2; pass++)
     {
-      for(var urlId in discoveredLayers)
+      for(var lyrctr = 0, len = discoveredLayerKeys.length; lyrctr < len; lyrctr++)
       {
+        var urlId = discoveredLayerKeys[lyrctr];
         var layer = discoveredLayers[urlId];      
 
         // Skip layers that the user has filtered out with the service radio buttons
@@ -239,8 +254,9 @@
         if((pass == 0 && !registered) || (pass == 1 && registered)) { continue; }
 
         if(first) {
-          $('#layer-display').html('<div>Server has <span id="layer-display-count"></span> layers.  ' +
-                                   'Using local SRS "' + LOCAL_SRS + '".</div><ul id="layer-table"></ul>');
+          $('#layer-display').html("<div>Server has <span id='layer-display-count'></span> layers.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+                                   "<span class='proj-list'>SRS required for processing: <span>" + LOCAL_SRS + "</span></span>; " +
+                                   "<span class='proj-list'>SRS required for mapping: <span>" + GOOGLE_SRS + ".</span></span></div><ul id='layer-table'></ul>");
           first = false;
         }
 
@@ -248,16 +264,10 @@
 
         var availableInLocalProjection  = false;
         var availableInGoogleProjection = false;
-        var srsList = [ ];
 
         if(layer.srs !== null) {
-          availableInLocalProjection  = layer.srs.hasOwnProperty(LOCAL_SRS);
-          availableInGoogleProjection = layer.srs.hasOwnProperty(GOOGLE_SRS);
-          
-          if(typeof(layer.srs) === "string")
-            srsList = layer.srs;
-          else
-            srsList = Object.keys(layer.srs);
+          availableInLocalProjection  = hasCrs(layer.wxsCrs,     LOCAL_SRS);
+          availableInGoogleProjection = hasCrs(layer.wmsCrsList, GOOGLE_SRS);
         }
 
       
@@ -284,8 +294,9 @@
 
 
         var titleNode = $(document.createElement('div'));
-        titleNode.attr({ class:'dataset_title', id:'dataset-title-' + sanitizeId(layer.identifier) });
-        titleNode.text(layer.title != "" ? layer.title : layer.identifier);
+        titleNode.html("<span class='dataset_title' id='dataset-title-" + sanitizeId(layer.identifier) + "'>" + (layer.title != "" ? layer.title : layer.identifier) + "</span>" + 
+                       "<span class='dataset-identifier'>Identifier: <span>" + layer.identifier + "</span>");
+
 
         var servicesAvailNode = $(document.createElement('div'));
         servicesAvailNode.attr({ class:'dataset_services_available' });
@@ -307,10 +318,10 @@
         srsNode.attr({ class:'dataset_srs' });
 
 
-        srsNode.append('<div><span class="proj-background">available in global projection</span><span class="' + 
+        srsNode.append('<div><span class="proj-background">available for mapping</span><span class="' + 
                               (availableInGoogleProjection ? 'yes-background' : 'no-background') + '">' + 
                               (availableInGoogleProjection ? 'yes'            : 'no')            + '</span></div>')
-               .append('<div><span class="proj-background">available in local projection</span><span class="' + 
+               .append('<div><span class="proj-background">available for processing</span><span class="' + 
                               (availableInLocalProjection  ? 'yes-background' : 'no-background') + '">' + 
                               (availableInLocalProjection  ? 'yes'            : 'no')            + '</span></div>')
                .append('<br><br><br>');
@@ -333,12 +344,25 @@
         var sample_map = $(document.createElement("div"));
         sample_map.attr({ id:mapDivId, class:"sample-map" });   // Map will be rendered based on div's id
 
+
         var container = $(document.createElement("div"));
         container.attr({ class:"dataset" });
         container.append(titleNode)
                  .append(abstractNode)
                  .append(data_info)
                  .append(sample_map);
+
+
+        var crsInfo = "<div>";
+        if(layer.wmsCrsList)
+          crsInfo += "<div class='proj-list'>Mapping Projections: <span>"    + (typeof(layer.wmsCrsList) === "string" ? layer.wmsCrsList : Object.keys(layer.wmsCrsList).join('; ')) + "</div>";
+
+        if(layer.wxsCrs)
+          crsInfo += "<div class='proj-list'>Processing Projections: <span>" + (typeof(layer.wxsCrs) === "string" ? layer.wxsCrs : Object.keys(layer.wxsCrs).join('; ')) + "</div>";
+
+        crsInfo += "</div>";
+
+        container.append(crsInfo);
 
         // li_element (map-data-item)
         //    container (registered_dataset or unregistered_dataset)
@@ -353,20 +377,43 @@
         $("#layer-table").append(li_element);
 
 
+        var bbox_left, bbox_bottom, bbox_right, bbox_top;
         var activeSRS = null;
 
-        if(layer.bbox && layer.bbox.left) {
-          for (e in layer.bbox) { 
-            activeSRS = e; 
-            break; 
-          }
+        if(layer.wmsCrs && layer.wmsbbox && layer.wmsbbox.left)
+        {
+          bbox_left   = layer.wmsbbox.left;
+          bbox_bottom = layer.wmsbbox.bottom;
+          bbox_right  = layer.wmsbbox.right;
+          bbox_top    = layer.wmsbbox.top;
+
+          activeSRS   = layer.wmsCrs;
+        }
+        else if(layer.wmsCrs && layer.wmsbbox && layer.wmsbbox.bbox)   
+        {
+          bbox_left   = layer.wmsbbox.bbox[0];
+          bbox_bottom = layer.wmsbbox.bbox[1];
+          bbox_right  = layer.wmsbbox.bbox[2];
+          bbox_top    = layer.wmsbbox.bbox[3];
+
+          activeSRS   = layer.wmsCrs;
+        }
+        // See if we can do this in lat/long -- this is very hacky
+        else if(layer.llbbox) 
+        {
+          bbox_left   = layer.llbbox[0];
+          bbox_bottom = layer.llbbox[1];
+          bbox_right  = layer.llbbox[2];
+          bbox_top    = layer.llbbox[3];
+
+          activeSRS   = 'EPSG:4326';
         }
 
         if(activeSRS == null) {
           $('#' + mapDivId).html('<div class="center"><br><u>Map unavailable</u></div>');
 
           if(!alreadyShownWmsError) {
-            var err = '<div>We cannot display sample maps for some datasets on this server.  The most likely cause of this problem is that the server\'s WMS functionality is not properly configured.  You can see how the server responds to WMS queries by clicking here: <a href="'+ WMS.getCapReq(layer.serverUrl) + '" target="_blank">WMS GetCapabilities</a></div>';
+            var err = '<div>We cannot display sample maps for some datasets on this server.  The most likely cause of this problem is that the server\'s WMS functionality is not properly configured: either a WMS service has not been defined for a particular identifier, or I cannot get a usable bounding box for the layers you have requested.<P><P>You can see how the server responds to WMS queries by clicking here: <a href="'+ WMS.getCapReq(layer.serverUrl) + '" target="_blank">WMS GetCapabilities</a></div>';
 
             $('#error-list').append(err).slideDown(500);
 
@@ -374,12 +421,7 @@
             }
         }
         else {
-          var bbox = layer.bbox[activeSRS].bbox;
-
-          if(!bbox)
-            bbox = layer.bbox;
-
-          var bounds = new OpenLayers.Bounds(bbox[0], bbox[1], bbox[2], bbox[3]);  //minx miny maxx maxy
+          var bounds = new OpenLayers.Bounds(bbox_left, bbox_bottom, bbox_right, bbox_top);  //minx miny maxx maxy
 
           var miniMap = new OpenLayers.Map({
                   maxExtent:  bounds,
@@ -406,7 +448,6 @@
 
         if(layer.type.hasObject('WFS') || layer.type.hasObject('WCS'))
           addWfsWcsOptionsToDropdown(tagPickerControlId);
-
       }  // end for loop
     }  // for pass = 0 to 2
 
@@ -513,7 +554,7 @@
                 '&dataset[title]='        + encodeURIComponent(title) +
                 '&dataset[abstract]='     + encodeURIComponent(abstract) +
                 '&dataset[alive]=true'    +
-                '&cityName=' + $.cookie('city'),
+                '&cityName=' + getCityCookie(),
           headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
           success: function(data) {
             // Add layer to the list of registered layers
@@ -535,8 +576,37 @@
     // Because of our unusual layout, we need to manually adjust things to get equal tile sizes... lame!
     equalizeRowHeights();
     $('#layer-table').equalWidths();
+  }
 
 
+  // Compare whether two crs's are in fact the same.  We'll consider the following two strings equal
+  // urn:ogc:def:crs:EPSG::28992
+  // EPSG:28992
+  var isEqualCrs = function(first, second)
+  {
+    // Frist, replace the :: with a single :
+    first  = first .replace('::', ':');
+    second = second.replace('::', ':');
+
+    // Now split on a ':', lowercasing to remove case considerations, so we can compare the last two tokens
+    firstWords = first.toLowerCase().split(':');
+    secondWords = second.toLowerCase().split(':');
+
+    return firstWords[firstWords.length - 2] === secondWords[secondWords.length - 2] && 
+           firstWords[firstWords.length - 1] === secondWords[secondWords.length - 1];
+  }
+
+
+  var hasCrs = function(crsList, crs)
+  {
+    if(typeof(crsList) === "string")
+      return isEqualCrs(crsList, crs);
+
+    for(var c in crsList) 
+      if(isEqualCrs(c, crs))
+        return true;
+    
+    return false;
   }
 
 
@@ -816,7 +886,7 @@
   $(document).ready(function ()
   {
     hideProbingIndicators();
-    onLocationChanged('<%= @current_city.name %>');   // Update SRS and set default URL
+    // onLocationChanged('<%= @current_city.name %>');   // Update SRS and set default URL
 
     // Event handlers for various controls
     // $('#server_url').change(loadDataLayers);
@@ -829,9 +899,9 @@
     $('#server_url').focus(function() { $('#refresh_layers_button').html('Load'); });
 
     // Event handlers for our radio buttons
-    $("#radio-show-wfs") .click(function() { displayLayers(); });
-    $("#radio-show-wms") .click(function() { displayLayers(); });
-    $("#radio-show-both").click(function() { displayLayers(); });
+    // $("#radio-show-wfs") .click(function() { displayLayers(); });
+    // $("#radio-show-wms") .click(function() { displayLayers(); });
+    // $("#radio-show-both").click(function() { displayLayers(); });
 
     $('#url-preset-select').change(function() { $("#server_url").val($(this).val()); 
                                                 $(this).val(""); 
