@@ -74,7 +74,7 @@
         <div>
           <!-- For now, show city dropdown on maps and compares to all users, not on other pages unless user is a super user -->
           <!-- In future, we'll do this more elegantly by placing map chooser in map window itself -->
-          <% if user_signed_in? or params[:controller] == "maps" or params[:controller] == "compares" %>
+          <% if (user_signed_in? and current_user.role_id == 2 ) or params[:controller] == "maps" or params[:controller] == "compares" %>
             <select name="cities" id="city-dropdown">
               <% for city in City.all %>
                 <option value="<%= city.name %>" <% if city.name == cookies['city'] %>selected<% end %>><%= city.name %></option>
