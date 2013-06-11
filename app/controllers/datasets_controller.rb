@@ -7,7 +7,7 @@ class DatasetsController < ApplicationController
   # GET /datasets.json
   def index
 
-    @current_city = (City.find_by_name(cookies['city']) or City.first)
+    @current_city = current_user.role_id == 1 ? City.find_by_id(current_user.city_id) : (City.find_by_name(cookies['city']) or City.first)
     @dataset_tags = getDatasetTags()
     @datasets     = Dataset.find_all_by_city_id(@current_city.id, :select => "*, case when title = '' or title is null then identifier else title end as sortcol", :order => :sortcol )
     @wps_servers  = WpsServer.all
@@ -35,7 +35,24 @@ class DatasetsController < ApplicationController
   # Get all datasets for the specified city, only used by ajax queries
   def get_for_city
     @current_city = City.find_by_name(params[:cityName])
-    @datasets = Dataset.find_all_by_city_id(@current_city.id)
+
+    showOnlyPublished = false
+    if current_user == nil then 
+      showOnlyPublished = true    # User not logged in
+    elsif current_user.role_id == 2 then
+      showOnlyPublished = false   # User has permissions to see all
+    elsif current_user.city_id == @current_city.id then
+      showOnlyPublished = false   # User is in own city
+    else
+      showOnlyPublished = true    # User is in foreign city
+    end
+
+
+    if showOnlyPublished then  
+      @datasets = Dataset.find_all_by_city_id_and_published_and_alive(@current_city.id, :true, :true, :order => 'title desc')
+    else
+      @datasets = Dataset.find_all_by_city_id_and_alive(@current_city.id, :true, :order => 'title desc')
+    end
 
     # I really want this, but it returns HTML... respond_with(@datasets)
     respond_to do |format|
@@ -161,7 +178,7 @@ class DatasetsController < ApplicationController
     @dataset_tags    = getDatasetTags()
     @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
 
-    @current_city = (City.find_by_name(cookies['city']) or City.first)
+    @current_city = current_user.role_id == 1 ? City.find_by_id(current_user.city_id) : (City.find_by_name(cookies['city']) or City.first)
 
     if @current_city.nil?     # Should never happen, but just in case...
       @current_city = City.first

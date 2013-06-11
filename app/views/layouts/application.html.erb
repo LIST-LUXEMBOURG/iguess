@@ -74,7 +74,7 @@
         <div>
           <!-- For now, show city dropdown on maps and compares to all users, not on other pages unless user is a super user -->
           <!-- In future, we'll do this more elegantly by placing map chooser in map window itself -->
-          <% if user_signed_in? or params[:controller] == "maps" or params[:controller] == "compares" %>
+          <% if (user_signed_in? and current_user.role_id == 2 ) or params[:controller] == "maps" or params[:controller] == "compares" %>
             <select name="cities" id="city-dropdown">
               <% for city in City.all %>
                 <option value="<%= city.name %>" <% if city.name == cookies['city'] %>selected<% end %>><%= city.name %></option>
@@ -112,12 +112,12 @@
 
           <div id="login">
             <% if user_signed_in? %> 
-              Signed in as <%= current_user.first_name %>
-              <%= link_to '[Account]', edit_user_registration_path %> 
-              <%= link_to "[Logout]", destroy_user_session_path, :method => :delete %> 
+              Signed in as <%= current_user.first_name %> (<%= City.find_by_id(current_user.city_id).name %>)&nbsp;&nbsp;&nbsp;
+              [<%= link_to 'Account', edit_user_registration_path %> |
+              <%= link_to "Logout", destroy_user_session_path, :method => :delete %>]
             <% else %>  
-              <%= link_to "[New User]", new_user_registration_path %> or  
-              <%= link_to "[Login]", new_user_session_path %>  
+              [<%= link_to "New User", new_user_registration_path %> |
+              <%= link_to "Login", new_user_session_path %>]
             <% end %>  
           </div>
         </div>
