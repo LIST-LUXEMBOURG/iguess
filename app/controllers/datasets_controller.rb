@@ -49,9 +49,9 @@ class DatasetsController < ApplicationController
 
 
     if showOnlyPublished then  
-      @datasets = Dataset.find_all_by_city_id_and_published(@current_city.id, :true)
+      @datasets = Dataset.find_all_by_city_id_and_published_and_alive(@current_city.id, :true, :true, :order => 'title desc')
     else
-      @datasets = Dataset.find_all_by_city_id(@current_city.id)
+      @datasets = Dataset.find_all_by_city_id_and_alive(@current_city.id, :true, :order => 'title desc')
     end
 
     # I really want this, but it returns HTML... respond_with(@datasets)
