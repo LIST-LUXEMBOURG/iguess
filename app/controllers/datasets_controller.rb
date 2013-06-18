@@ -7,6 +7,7 @@ class DatasetsController < ApplicationController
   # GET /datasets.json
   def index
 
+    # current_user should always be set here
     @current_city = current_user.role_id == 1 ? City.find_by_id(current_user.city_id) : (City.find_by_name(cookies['city']) or City.first)
     @dataset_tags = getDatasetTags()
     @datasets     = Dataset.find_all_by_city_id(@current_city.id, :select => "*, case when title = '' or title is null then identifier else title end as sortcol", :order => :sortcol )
@@ -178,6 +179,7 @@ class DatasetsController < ApplicationController
     @dataset_tags    = getDatasetTags()
     @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
 
+    # current_user should always be set here
     @current_city = current_user.role_id == 1 ? City.find_by_id(current_user.city_id) : (City.find_by_name(cookies['city']) or City.first)
 
     if @current_city.nil?     # Should never happen, but just in case...
