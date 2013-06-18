@@ -38,9 +38,7 @@ WebGIS.initMapParallel = function () {
 
     WebGIS.leftMap.addLayers(WebGIS.getLeftBaseLayers());   
     WebGIS.rightMap.addLayers(WebGIS.getRightBaseLayers());
-    
-    WebGIS.initParallelEvents();
-    
+      
     WebGIS.leftMap.addControl(new OpenLayers.Control.ScaleLine());
     
 	var pv_kwh =  new OpenLayers.Layer.WMS(
@@ -69,6 +67,8 @@ WebGIS.initMapParallel = function () {
 	
 	WebGIS.rightMap.addLayer(pv_kwh);
 	WebGIS.rightMap.addLayer(pv_euro);
+	
+	WebGIS.initParallelEvents();
 };
 
 
