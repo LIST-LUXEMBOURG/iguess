@@ -16,7 +16,7 @@ class ModConfigsController < ApplicationController
 
 
   def index
-    @current_city = current_user.role_id == 1 ? City.find_by_id(current_user.city_id) : (City.find_by_name(cookies['city']) or City.first)
+    @current_city = current_user && current_user.role_id == 1 ? City.find_by_id(current_user.city_id) : (City.find_by_name(cookies['city']) or City.first)
     @mod_configs = ModConfig.find_all_by_city_id(@current_city.id)
     @wps_servers = WpsServer.find_all_by_alive(:true)
     # @tags = findAllTags()
