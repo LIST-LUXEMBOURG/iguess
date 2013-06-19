@@ -1,5 +1,23 @@
+<%# This function builds a list of data layers that are registered, and are thus stored in the database.
+    Layers are actually objects with a type and rubyId field.  Display name should come from the data server itself, and will
+      be retrieved separately %>
 
-<script type="text/javascript">  
+<script type="text/javascript">
+
+  var registeredDatasets  = {};
+
+  // registeredDatasets[url][identifier] = database id of the dataset as that unique number,
+  // so we can use it for talking with the server.
+
+  <% @dataserver_urls.each do |url| %>    <%# These could be WMS, WFS, or WCS addresses %>
+
+    registeredDatasets['<%= url.gsub(/\\/, '\\\\\\') %>'] = {};
+
+    <%= @datasets.reject { |d| d.server_url != url }
+          .map{ |d| "registeredDatasets['" + url.gsub(/\\/, '\\\\\\') + "']['" + d.identifier + "'] = " + d.id.to_s() + ";\n" }
+          .join(' ') %>
+  <% end %>   
+                                       
 
   var hideUnregisterAndFriends = function() {
     $('.invisible-cell').hide();
@@ -401,8 +419,6 @@
                  'Content-Type': 'application/json' */},
       success: function(data) { updateTags(serverUrl, datasetIdentifier, eval(data)); }
     });
-
-    // makeRegisteredLayer(serverUrl, tag, registeredDatasets[serverUrl][datasetIdentifier], [], 0);
   }
 
 
