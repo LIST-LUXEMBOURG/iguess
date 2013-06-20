@@ -9,11 +9,14 @@ var WebGIS = WebGIS || { };
 
 WebGIS.MARKER_Z_INDEX = 1000;
 
+//var crosshairs = '/assets/crosshairSimple.png';
+var crosshairs = '/assets/crosshairYellowTransparent.png';
+
 WebGIS.chSize = new OpenLayers.Size(17,17);
 WebGIS.chOffsetRight = new OpenLayers.Pixel(-(WebGIS.chSize.w/2) - 0, -(WebGIS.chSize.h/2) - 1);
 WebGIS.chOffsetLeft  = new OpenLayers.Pixel(-(WebGIS.chSize.w/2) - 2, -(WebGIS.chSize.h/2) - 0);
-WebGIS.chIconRight = new OpenLayers.Icon('/assets/crosshairSimple.png', WebGIS.chSize, WebGIS.chOffsetRight);
-WebGIS.chIconLeft  = new OpenLayers.Icon('/assets/crosshairSimple.png', WebGIS.chSize, WebGIS.chOffsetLeft);
+WebGIS.chIconRight = new OpenLayers.Icon(crosshairs, WebGIS.chSize, WebGIS.chOffsetRight);
+WebGIS.chIconLeft  = new OpenLayers.Icon(crosshairs, WebGIS.chSize, WebGIS.chOffsetLeft);
 
 WebGIS.rightMarkers = new OpenLayers.Layer.Markers( "Markers" );
 WebGIS.leftMarkers = new OpenLayers.Layer.Markers( "Markers" );
