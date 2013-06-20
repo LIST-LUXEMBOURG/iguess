@@ -1,6 +1,5 @@
 <%# Include some map related utility functions; these need to be processed by Rails so they have to be in a partial %>
 
-<%= render :partial => '/shared/build_registered_layers.html.erb' %>
 <%= render :partial => '/shared/dataset_functions.html.erb' %>
 
 <script>
@@ -19,13 +18,6 @@
        error: function() { alert('Error retrieving datasets for city.'); }
      });
   }
-
-
-
-  $(document).ready(function() {
-  // $('#sortable_table').tablesorter();               // Initialize sorter
-  });
-
 
 
   // We've got a new batch of datasets to display!
