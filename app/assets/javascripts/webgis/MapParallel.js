@@ -9,7 +9,6 @@ var WebGIS = WebGIS || { };
 
 WebGIS.MARKER_Z_INDEX = 1000;
 
-//var crosshairs = '/assets/crosshairSimple.png';
 var crosshairs = '/assets/crosshairYellowTransparent.png';
 
 WebGIS.chSize = new OpenLayers.Size(17,17);
