@@ -41,29 +41,6 @@
 
 <div style="height:100%; background-color:#eeeeee;">
 
-<!--   <label class="label_radio" for="radio-show-wfs">
-    <input name="rx" id="radio-show-wfs" value="1" type="radio" />
-    WFS -- Only show datasets suitable for using as module inputs
-  </label>
-  <br>
-
-  <label class="label_radio" for="radio-show-wcs">
-    <input name="rx" id="radio-show-wcs" value="2" type="radio" />
-    WCS -- Only show datasets suitable for mapping
-  </label>
-  <br>
-
-  <label class="label_radio" for="radio-show-wms">
-    <input name="rx" id="radio-show-wms" value="2" type="radio" />
-    WMS -- Only show datasets suitable for mapping
-  </label>
-  <br>
-
-  <label class="label_radio" for="radio-show-both">
-    <input name="rx" id="radio-show-both" value="3" type="radio" checked/>
-    Both -- Show all datasets on server
-  </label>
-</div> -->
 
 <div class="progress-container">
   <span style="padding-left: 5px;" id="probing-wms">Probing map server... <img src="/assets/loading_spinner.gif"></span>
@@ -89,7 +66,7 @@
 </script>
 
 
-<%= render :partial => '/shared/dataset_functions.html.erb' %>
+<%= render :partial => '/shared/tag_functions.html.erb' %>
 
 <script type="text/javascript">
 
@@ -122,11 +99,6 @@
                     }.
                 join(' ') %>  
 
-
-  // The city dropdown on the UR of the screen has changed -- we don't do much here anymore!
-  // var onLocationChanged = function(cityName) {
-  //   LOCAL_SRS = { <% @cities.each do |city| %>'<%= city.name %>':'<%= city.srs %>',<% end %>}[cityName];
-  // }
 
   LOCAL_SRS = '<%= @current_city.srs %>';
 
@@ -189,6 +161,16 @@
     if(d1.identifier == d2.identifier) return 0;
     if(d1.identifier < d2.identifier)  return 1;
     return -1;
+  }
+
+
+  // Make sure to sanitize datasetIdentifier to remove all the crap that MapGuide puts in!
+  var sanitizeId = function(str)
+  {
+    if(typeof(str) === "string")
+      return str.replace(/\//g, "X");
+    else
+      return str;
   }
 
 
@@ -577,6 +559,47 @@
   }
 
 
+  // Helper function for makeTagPickerControl()
+  var addWmsOptionToDropdown = function(controlId) {
+    $("#" + controlId).find(">:first-child").after("<option>Mapping</option>");   // We want this to be the second choice
+  };
+
+
+  var DataTagList = [
+    <% @dataset_tags.each do |t| %>
+      <%= raw("{'id': '" + t + "', 'title': '" + t + "' },") %>
+    <% end %>
+  ];
+
+  // Helper function for makeTagPickerControl() -- here, controlId is the id of the select control we're adding options to
+  var addWfsWcsOptionsToDropdown = function(controlId) {
+
+    // console.log($('#' + controlId).html());
+    for(var j = 0, jlen = DataTagList.length; j < jlen; j++) 
+      $('#' + controlId).append("<option value=\"" + DataTagList[j].id + '">' + DataTagList[j].id + "</option>");
+  };
+
+
+  var getTagPickerControlId = function(datasetIdentifier)
+  {
+    return 'data-type-' + sanitizeId(datasetIdentifier);
+  };
+
+
+   // If readyToPoulate is false, we can pass in anything for layer as long as it has an identifier property
+  var makeTagPickerControl = function(layer, controlId, enabled)
+  {
+
+    return '<select style="float:right" class="add-tag-dropdown-control" ' + 
+           'data-serverurl="' + layer.serverUrl + '" ' +   // These keys seem to get lowercased anyway... so no upper case letter pls!
+           'data-datasetidentifier="' + layer.identifier + '" ' +
+           'id="' + controlId + '" ' + (enabled ? '' : 'disabled="true" ') +
+           'onchange="tagPickerChanged($(this));">' +
+             '<option value = "Ignore This">Add Tag:</option>' + 
+           '</select>';
+  };
+
+
   // Compare whether two crs's are in fact the same.  We'll consider the following two strings equal
   // urn:ogc:def:crs:EPSG::28992
   // EPSG:28992
@@ -895,11 +918,6 @@
     $('#delete-preset').click(deletePreset);
 
     $('#server_url').focus(function() { $('#refresh_layers_button').html('Load'); });
-
-    // Event handlers for our radio buttons
-    // $("#radio-show-wfs") .click(function() { displayLayers(); });
-    // $("#radio-show-wms") .click(function() { displayLayers(); });
-    // $("#radio-show-both").click(function() { displayLayers(); });
 
     $('#url-preset-select').change(function() { $("#server_url").val($(this).val()); 
                                                 $(this).val(""); 
