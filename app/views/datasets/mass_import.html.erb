@@ -43,9 +43,9 @@
 
 
 <div class="progress-container">
-  <span style="padding-left: 5px;" id="probing-wms">Probing map server... <img src="/assets/loading_spinner.gif"></span>
-  <span style="padding-left: 5px;" id="probing-wfs">Probing feature server... <img src="/assets/loading_spinner.gif"></span>
-  <span style="padding-left: 5px;" id="probing-wcs">Probing coverage server... <img src="/assets/loading_spinner.gif"></span>
+  <span style="padding-left: 5px;" id="probing-wms">Probing WMS server... <img src="/assets/loading_spinner.gif"></span>
+  <span style="padding-left: 5px;" id="probing-wfs">Probing WFS server... <img src="/assets/loading_spinner.gif"></span>
+  <span style="padding-left: 5px;" id="probing-wcs">Probing WCS server... <img src="/assets/loading_spinner.gif"></span>
 </div>
 
 <div class="server-info">
@@ -57,18 +57,14 @@
 
 
 
-<script type="text/javascript">
+<%= render :partial => 'tag_functions.html.erb' %>
+
+<script>
 
   // Add "js" style to body -- makes fancy checkboxes work
   $('body').attr("class",$('body').attr("class") + " js");
 
   GOOGLE_SRS = 'EPSG:3857';
-</script>
-
-
-<%= render :partial => 'tag_functions.html.erb' %>
-
-<script type="text/javascript">
 
   registeredDataLayers = {};
 
@@ -103,8 +99,6 @@
   LOCAL_SRS = '<%= @current_city.srs %>';
 
 
-
-
   var getLayerNameFromCheckboxId = function(id)
   {
   	return id.substring('registered_'.length);	// Remove 'registered_' from the front of the string
@@ -115,15 +109,15 @@
   // i.e. when a WFS response arrives.  More responses might be coming (from WMS, and WCS, for example).
   var doneProcessing = function(url, type, serverInfo, status)    // status will be OK or ERROR
   {
-    if(type == "WFS") {
+    if(type === "WFS") {
       $("#probing-wfs").hide();
       wfsProcessingComplete = true;
     }
-    else if(type == "WMS") {
+    else if(type === "WMS") {
       $("#probing-wms").hide();
       wmsProcessingComplete = true;
     }
-    else if(type == "WCS") {
+    else if(type === "WCS") {
       $("#probing-wcs").hide();
       wcsProcessingComplete = true;
     }
@@ -200,6 +194,7 @@
     $("#layer-display").html("");   // Clear the decks
 
 
+    // These refer to the layers that have been discovered on the remote servers
     var discoveredLayerKeys = Object.keys(discoveredLayers).sort();
     // discoveredLayers.sort(datasetSort);
 
