@@ -125,7 +125,10 @@
   }
 
 
-// Fix a jQuery bug by overwriting this function... kind of lame... 
+// Fix a jQuery bug by overwriting this function... kind of lame...   This fixes an negative interaction
+// between jQuery and Best In Place that probably started after upgrading jQuery past 1.9.  This issue
+// is known to jQuery folks, who assert it is not in fact a bug.  Please see http://bugs.jquery.com/ticket/13430
+// for more details.  The issue here is Best In Place is sending undefined to parseJSON, which is... bad.
 // This will only get run for jQuery major version 1, looks like this bug has been fixed in jQuery 2.x
 if($().jquery.split(".")[0] == "1") {
   jQuery.extend({
