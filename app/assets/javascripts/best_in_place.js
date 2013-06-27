@@ -698,7 +698,8 @@ jQuery.fn.best_in_place = function() {
         });
 
         // And this line is to catch the browser paste event
-        $textarea.live('input paste',function(e){ setTimeout( update, 250); });
+        // $textarea.live('input paste',function(e){ setTimeout( update, 250); });
+        $(document).on('input paste', $textarea, function(e){ setTimeout( update, 250); });
 
         // Run update once when elastic is initialized
         update();
