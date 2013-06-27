@@ -18,7 +18,8 @@ gem 'pry', :group => :development
 gem 'execjs'
 gem 'therubyracer'
 
-gem "best_in_place"
+# gem "best_in_place"
+gem 'best_in_place', github: 'bernat/best_in_place'
 
 gem "rubypython"
 

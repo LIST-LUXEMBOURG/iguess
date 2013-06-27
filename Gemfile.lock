@@ -1,3 +1,11 @@
+GIT
+  remote: git://github.com/bernat/best_in_place.git
+  revision: df178520bf9ba405baee9528d5dbb630d6ff760c
+  specs:
+    best_in_place (2.1.0)
+      jquery-rails
+      rails (>= 3.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -31,9 +39,6 @@ GEM
     ansi (1.4.3)
     arel (3.0.2)
     bcrypt-ruby (3.0.1)
-    best_in_place (2.1.0)
-      jquery-rails
-      rails (~> 3.1)
     blankslate (3.1.2)
     builder (3.0.4)
     coderay (1.0.9)
@@ -142,11 +147,11 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  best_in_place
+  best_in_place!
   coffee-rails (~> 3.2.1)
   devise (~> 2.2.4)
   execjs
-  jquery-rails
+  jquery-rails (>= 2.0)
   pg
   pry
   puma
