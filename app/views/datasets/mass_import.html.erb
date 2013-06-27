@@ -85,7 +85,7 @@
 
 
   // Populate registeredDataLayers with data from the database
-  <%= @datasets.reject{ |d| d.finalized == false }.
+  <%= raw @datasets.reject{ |d| d.finalized == false }.
                 map{ |d| "makeRegisteredLayer('" + d.server_url.gsub(/\\/, '\\\\\\') + "'," + 
                                              "'" + d.identifier + "'," + 
                                                    d.id.to_s() + "," + 
