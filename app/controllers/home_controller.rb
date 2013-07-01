@@ -13,6 +13,7 @@ class HomeController < ApplicationController
     content_type = 'text/html'
     #content_type = 'text/xml'
 
+    #binding.pry
     
     timeout_duration = 15      # Give 5 second timeout...  long enough?
 
@@ -32,14 +33,23 @@ class HomeController < ApplicationController
         elsif request.post? then
           
           print "GeoProxy sending POST request to: " + String(fixedurl)
-          binding.pry
           
-          url = URI.parse(String(fixedurl))
-          post = Net::HTTP::Post.new(url.path)
-          post.body = request.body
-          res = Net::HTTP.start(url.host, url.port) {|http| http.request(post)}
+          #uri = URI.parse(String(fixedurl))
+          uri = URI(String(fixedurl))
+          post = Net::HTTP::Post.new(uri.path)
+          post.body = String(request.body)
+          post.content_type = 'text/xml' 
+          
+          #binding.pry
+          
+          res = Net::HTTP.start(uri.host, uri.port) do |http|
+            http.request(post)
+          end
+          
+          
+          #res = Net::HTTP.start(url.host, url.port) {|http| http.request(post)}
                     
-          #res = Net::HTTP.post_form(String(fixedurl), params[:text1])
+          #res = Net::HTTP.post_form(String(fixedurl), request.request_parameters)
           #res.body = request.body 
           #puts res.body
           
