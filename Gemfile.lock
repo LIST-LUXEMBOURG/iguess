@@ -151,7 +151,7 @@ DEPENDENCIES
   coffee-rails (~> 3.2.1)
   devise (~> 2.2.4)
   execjs
-  jquery-rails (>= 2.0)
+  jquery-rails
   pg
   pry
   puma

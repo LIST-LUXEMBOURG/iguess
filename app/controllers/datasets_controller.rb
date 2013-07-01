@@ -128,11 +128,11 @@ class DatasetsController < ApplicationController
     # If we are changing the dataset type, we need to unlink it from any configurations it is part of
     tagVal = params[:dataset_tag]    # Tag we are either adding or deleting
 
-    if params[:id] == 'add_data_tag' then
+    if params[:id] == "add_data_tag" then
       dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
       makeTag(dataset, tagVal)
 
-    elsif params[:id] == 'del_data_tag' then
+    elsif params[:id] == "del_data_tag" then
       dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
       if dataset and dataset.dataset_tags.find_by_tag(tagVal) then
         tags = DatasetTag.find_all_by_dataset_id_and_tag(dataset, tagVal)
@@ -140,12 +140,11 @@ class DatasetsController < ApplicationController
       end
 
     # User checked or unchecked publish checkbox (NOT the register dataset checkbox!!)
-    elsif params[:id] == 'publish' then
+    elsif params[:id] == "publish" then
       dataset = Dataset.find_by_id(params[:dataset][:id])
       dataset.published = params[:checked]
       dataset.save
     end
-
 
 # This is wrong -- only want to respond to json
     respond_to do |format|
@@ -159,7 +158,7 @@ class DatasetsController < ApplicationController
   # DELETE /datasets/1.json
   # Only called with json
   def destroy
-    if params[:id] == 'destroy_by_params' then
+    if params[:id] == "destroy_by_params" then
       @dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
     else
       @dataset = Dataset.find(params[:id])
