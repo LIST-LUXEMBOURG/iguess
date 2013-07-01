@@ -13,7 +13,7 @@ class HomeController < ApplicationController
     content_type = 'text/html'
     #content_type = 'text/xml'
 
-    #binding.pry
+    binding.pry
     
     timeout_duration = 15      # Give 5 second timeout...  long enough?
 
@@ -36,11 +36,16 @@ class HomeController < ApplicationController
           
           #uri = URI.parse(String(fixedurl))
           uri = URI(String(fixedurl))
-          post = Net::HTTP::Post.new(uri.path)
-          post.body = String(request.body)
+          post = Net::HTTP::Post.new(uri.path + '?' + uri.query)
+          post.body = String(request.body.read())
           post.content_type = 'text/xml' 
           
           #binding.pry
+          
+          print "\n uri.host: " + uri.host
+          print "\n uri.path: " + String(uri.path)
+          print "\n post.path: " + uri.path + '?' + uri.query
+          print "\n body: \n" + String(request.body)
           
           res = Net::HTTP.start(uri.host, uri.port) do |http|
             http.request(post)
