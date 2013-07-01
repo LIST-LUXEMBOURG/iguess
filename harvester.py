@@ -12,6 +12,8 @@ from pyproj import transform, Proj
 import psycopg2          # For database access
 import re
 import math
+import time
+import datetime
 
 wpsVersion = '1.0.0'
 wmsVersion = '1.1.0'        # Rotterdam wms doesn't like 1.3.0!
@@ -37,6 +39,9 @@ tables["processParams"] = dbSchema + ".process_params"
 tables["datasets"]      = dbSchema + ".datasets"
 tables["dataservers"]   = dbSchema + ".dataservers"
 tables["cities"]        = dbSchema + ".cities"
+
+
+print "Starting Harvester of Sorrow ", datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
 
 # serverUrl = 'http://ows.gis.rotterdam.nl/cgi-bin/mapserv.exe?map=d:\gwr\webdata\mapserver\map\gwr_basis_pub.map'
 # wcs = WebCoverageService(serverUrl, version = wcsVersion)
