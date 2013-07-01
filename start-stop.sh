@@ -7,12 +7,9 @@
 SERVICE="IGUESS_TEST"
 RAILS_ENV=development
 
-#USERNAME="iguess"
-#HOMEPATH='/home/iguess/iguess_test/iguess'
-#PORT=2000
-USERNAME="eykamp"
-HOMEPATH="/home/eykamp/iguess/iguess"
-PORT=3000
+USERNAME="iguess"
+HOMEPATH='/home/iguess/iguess_test/iguess'
+PORT=2000
 
 INVOCATION="rails s -p$PORT -d"
 PIDFILE="$HOMEPATH/tmp/pids/server.pid"
