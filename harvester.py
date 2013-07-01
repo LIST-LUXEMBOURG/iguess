@@ -251,6 +251,8 @@ try:
             identifier = dsrow[1]
             cityId = dsrow[2]
 
+            print "Processing ", identifier, cityId
+
             dstitle = dsabstr = None
 
             found = True
@@ -272,6 +274,7 @@ try:
             found = False;
 
             if wfs and identifier in wfs.contents:
+                print "Found WFS..."
                 found = True;
                 dstitle = wfs.contents[identifier].title.encode('utf8')    if wfs.contents[identifier].title    else identifier.encode('utf8')
                 dsabstr = wfs.contents[identifier].abstract.encode('utf8') if wfs.contents[identifier].abstract else ""
@@ -287,6 +290,7 @@ try:
                 # bboxLeft, bboxBottom, bboxRight, bboxTop = projectWgsToLocal(bb, cityCRS[cityId])
 
             if wcs and identifier in wcs.contents:
+                print "Found WCS..."
                 found = True;
                 dstitle = wcs.contents[identifier].title.encode('utf8')    if wcs.contents[identifier].title    else identifier.encode('utf8')
                 dsabstr = wcs.contents[identifier].abstract.encode('utf8') if wcs.contents[identifier].abstract else ""
@@ -327,12 +331,14 @@ try:
                     bboxLeft, bboxBottom, bboxRight, bboxTop = projectWgsToLocal(bb, cityCRS[cityId])
 
             if wms and identifier in wms.contents:
+                print "Found WMS..."
                 found = True;
                 dstitle = wms.contents[identifier].title.encode('utf8')    if wms.contents[identifier].title    else identifier.encode('utf8')
                 dsabstr = wms.contents[identifier].abstract.encode('utf8') if wms.contents[identifier].abstract else ""
 
 
             if found:
+                print "Updating datasets..."
                 # Update the database with the layer info
                 updateCursor.execute("                                                                                                     \
                              UPDATE " + tables["datasets"] + "                                                                             \
@@ -342,6 +348,8 @@ try:
                              ", (dstitle, dsabstr, hasCityCRS, imgFormat, bboxLeft, bboxRight, bboxTop, bboxBottom, resX, resY, dsid))
             else:
                  print "Not found: " + identifier + " (on server " +  serverUrl + ")"
+
+            print "Done with row!"
 
     # Commit dataset transactions
     dbConn.commit() 
