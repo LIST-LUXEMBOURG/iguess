@@ -42,8 +42,9 @@
           <div id='mod-list'>      
             These are the calculation modules that have been configured.
 
-            <%= render :partial => "/shared/sortable_table_code.html.erb",
-                       :locals => { :initialSortlist => "[[0,0]], headers: { 3: {sorter: false}}" } %>
+
+<!-- For sorting a table with the id sortable_table -->
+
 
             <table id="sortable_table" class="zebra sortable">
               <thead><tr><th>Name</th><th>Based on</th><th>Status</th><th>Notes</th></tr></thead>
@@ -232,5 +233,10 @@
         $(this).next().slideDown(animTime);     // Open selected pane
       }
     });
+
+
+    $('#sortable_table').tablesorter({ sortList: [[0,0]], headers: { 3: {sorter: false}}, sortMultiSortKey: 'ctrlKey' });   
+    
   });
+
 </script>

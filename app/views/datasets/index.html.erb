@@ -25,7 +25,7 @@
                   alt="More info" title="Click for details" rel="#infotable-<%= d.id %>">
           </td>
           <td>
-            <% if not d.dataserver then binding.pry end %>
+            <#% if not d.dataserver then binding.pry end %>
             <span class="taglist-<%= cssEscape(d.dataserver.url + d.identifier) %>">
               <% d.dataset_tags.each do |t| %>
                 <span class="tag"><%= t.tag %></span>
@@ -184,7 +184,7 @@
 </script>
 
 
-<%= render :partial => '/shared/dataset_functions.html.erb' %>    <!-- Needed for showDetails() function -->
+<%= render :partial => 'tag_functions.html.erb' %> 
 
 <script type="text/javascript">
 
@@ -193,6 +193,28 @@
   $('img[rel]').click(function(){ hideDetails(); });   // Close details panel on open
 
   $('.publish-checkbox').click(function() { publishDataset(this); });
+
+
+  var showDetails = function() {
+    $('.technical-details').show(); 
+
+    var el = $('.show-details');
+
+    el.unbind("click");
+    el.click(function(){ hideDetails(); });
+    el.html('<<< Hide details');
+  };
+
+
+  var hideDetails = function() {
+    $('.technical-details').hide();
+
+    var el = $('.show-details');
+
+    el.unbind("click");
+    el.click(function(){ showDetails(); });
+    el.html('Show details >>>');
+  };
 
 
   var publishDataset = function(ctrl) {

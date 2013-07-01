@@ -6,14 +6,14 @@
   var registeredDataLayersByTag = {};    // Indexed by tag
   var registeredDataLayersById  = {};    // Indexed by datasetId
 
-  <%= @dataset_tags.map{ |t| t.tag }
+  <%= raw @dataset_tags.map{ |t| t.tag }
                    .uniq
                    .map { |tag| "registeredDataLayersByTag['" + tag + "'] = [];\n" }
                    .join('') %>
                          
 
-  <%= @datasets.reject{ |d| d.finalized == false }            # Only show datasets marked as finalized
-               .reject{ |d| d.city_id != @current_city.id }   # Only show datasets for current city
+  <%= raw @datasets.reject{ |d| d.finalized == false }            # Only show datasets marked as finalized
+               .reject{ |d| d.city_id != @current_city.id }       # Only show datasets for current city
                .map{ |d| d.dataset_tags.map { |t| 
                   "registeredDataLayersByTag['" + t.tag + "'].push({" +
                             "identifier:'" + d.identifier + "'," +

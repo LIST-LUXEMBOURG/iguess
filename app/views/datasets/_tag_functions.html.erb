@@ -1,0 +1,142 @@
+<%# This function builds a list of data layers that are registered, and are thus stored in the database.
+    Layers are actually objects with a type and rubyId field.  Display name should come from the data server itself, and will
+      be retrieved separately %>
+
+<script type="text/javascript">
+
+  var deleteTagClickHandler = function(ctrl)
+  {
+    var serverUrl         = ctrl.data('url');
+    var datasetIdentifier = ctrl.data('identifier');
+    var tagVal            = ctrl.parent().text().trim();
+    
+    if(confirmDeleteTag(serverUrl, datasetIdentifier, tagVal))
+      deleteTag(serverUrl, datasetIdentifier, tagVal);
+  };
+
+
+  // Take an array or comma-separated list of tags and format them into some presentation quality HTML
+  var createTagList = function(taglist, deletable, serverUrl, datasetIdentifier) 
+  {
+      if(typeof(taglist) === "string")
+        taglist = taglist.split(",");
+
+      var delBtn = "";
+
+      if(deletable) 
+        delBtn = '<span class="tag-delete-button" ' +
+                 'data-url="' + serverUrl + '" ' +
+                 'data-identifier="' + datasetIdentifier + '"></span>';
+
+
+      var list = "";
+      var strings = typeof(taglist[0]) === "string";
+
+      for(var i = 0, len = taglist.length; i < len; i++) 
+        list += '<span class="tag">' + delBtn +
+                  (strings ? taglist[i] : taglist[i].tag) + "</span> ";  // <== trailing space needed
+
+     return list; 
+  };
+
+
+  var updateTags = function(serverUrl, datasetIdentifier, tags)
+  {
+    var urlId = cssEscape(serverUrl + datasetIdentifier);
+
+    $('.taglist-deletable-' + urlId).html(tags.length > 0 ? createTagList(tags, true, serverUrl, datasetIdentifier) : 'No tags');
+    $('.taglist-' + urlId).html(tags.length > 0 ? createTagList(tags, false, serverUrl, datasetIdentifier) : 'No tags');
+
+    addDeleteTagClickHander();
+  };
+
+
+  var tagPickerChanged = function(ctrl)
+  {
+    ctrl.blur();    // For firefox?
+
+    if(ctrl.val() === 'Ignore This') 
+      return; 
+
+    addTag(ctrl);
+  };
+
+
+  var addDeleteTagClickHander = function() 
+  {
+    // Add a handler to delete tags when clicked on
+    $('.tag-delete-button').on('click', function(event){ deleteTagClickHandler($(this)) });
+  };
+
+
+  // TODO: This should really be computed server-side, and should only consider config datasets that we control
+  TagIsInUse = {};
+  <%= raw @datasets.map{ |d| 
+          d.config_datasets.map{ |c| 'if(!TagIsInUse["' + c.input_identifier + '"])' +
+                                     '  TagIsInUse["' + c.input_identifier + '"] = {};' + 
+                                     'if(!TagIsInUse["' + c.input_identifier + '"]' +
+                                               '[cssEscape("' + d.server_url.gsub(/\\/, '\\\\\\') + d.identifier + '")]) ' +
+                                     '  TagIsInUse["' + c.input_identifier + '"]' +
+                                               '[cssEscape("' + d.server_url.gsub(/\\/, '\\\\\\') + d.identifier + '")] = 0;' +
+                                     'TagIsInUse["' + c.input_identifier + '"]' +
+                                               '[cssEscape("' + d.server_url.gsub(/\\/, '\\\\\\') + d.identifier + '")]++;'
+                              }
+                      }.join(' ');
+  %>   
+
+
+  var confirmDeleteTag = function(serverUrl, datasetIdentifier, tagVal) 
+  {
+    if(TagIsInUse[tagVal] && TagIsInUse[tagVal][cssEscape(serverUrl + datasetIdentifier)] > 0) {
+      var ct = TagIsInUse[tagVal][cssEscape(serverUrl + datasetIdentifier)];
+      var c  = (ct == 1) ? "configuration" : "configurations";
+      var t  = (ct == 1) ? "this"          : "these";
+      var th = (ct == 1) ? "it"            : "them";
+
+      return confirm("This dataset is in use by " + ct + " " + c + ". " +
+                     "Changing its type will cause it to be removed from " + t + " " + c + ".\n\n" +
+                     "Click OK if you are sure you want to change the type of this dataset.");
+    }
+    // else...
+    return true;
+  };
+
+
+  // User adds or removes a tag
+  var addTag = function(ctrl)
+  {
+    var datasetIdentifier = ctrl.data('datasetidentifier');
+    var serverUrl         = ctrl.data('serverurl');
+
+    // Let the server know the dataType has changed
+    var tag = ctrl.val();
+
+    $.ajax({
+      type:    'PUT',      // PUT combined with url below triggers "update" action on controller
+      url:     '<%= url_for(:controller => 'datasets', :action => 'add_data_tag') %>',
+      data:    'dataset[identifier]='  + datasetIdentifier +
+               '&dataset[server_url]=' + serverUrl +
+               '&dataset_tag='         + tag,
+      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
+                 'Content-Type': 'application/json' */},
+      success: function(data) { updateTags(serverUrl, datasetIdentifier, eval(data)); }
+    });
+  }
+
+
+
+  var deleteTag = function(serverUrl, datasetIdentifier, tagValue)
+  {
+    $.ajax({
+      type:    'PUT',      // PUT combined with url below triggers "update" action on controller
+      url:     '<%= url_for(:controller => 'datasets', :action => 'del_data_tag') %>',
+      data:    'dataset[identifier]='  + datasetIdentifier +
+               '&dataset[server_url]=' + serverUrl +
+               '&dataset_tag='         + tagValue,
+      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
+                 'Content-Type': 'application/json' */},
+      success: function(data) { updateTags(serverUrl, datasetIdentifier, eval(data)); }
+    });
+  };
+
+</script>
