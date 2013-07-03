@@ -16,7 +16,6 @@ import re
 import math
 import time
 import datetime
-import os
 
 wpsVersion = '1.0.0'
 wmsVersion = '1.1.0'        # Rotterdam wms doesn't like 1.3.0!
@@ -27,11 +26,17 @@ wcsVersion = '1.1.0'        # Rotterdam only works when this is set to 1.1.0
 from harvester_pwd import dbDatabase, dbName, dbUsername, dbPassword, dbSchema
 
 
+
 # Connect to the database
-dbConn   = psycopg2.connect(host = dbDatabase, database = dbName, user = dbUsername, password = dbPassword)
+dbConn = psycopg2.connect(host = dbDatabase, database = dbName, user = dbUsername, password = dbPassword)
+
+# Turn autocommit on to avoid locking our select statements
+# set_session([isolation_level,] [readonly,] [deferrable,] [autocommit])
+dbConn.set_session(autocommit=True)
+
+
 serverCursor = dbConn.cursor()      # For listing servers
 updateCursor = dbConn.cursor()      # For updating the database
-procCursor   = dbConn.cursor()      # For updating processes
 dsCursor     = dbConn.cursor()      # For iterating over datasets and 
 
 
@@ -62,20 +67,25 @@ def upsert(cursor, table, idCol, rowId, identifier):
                        (rowId, identifier))
 
 
-def doSql(cursor, upsertList, sqlList):
-    for up in upsertList:
-        upsert(cursor, up[0], up[1], up[2], up[3])
+def doSql(conn, cursor, upsertList, sqlList):
 
-    for sql in sqlList:
-        cursor.execute(sql)
+    dbConn.set_session(autocommit=False)
 
+    try:
+        for up in upsertList:
+            upsert(cursor, up[0], up[1], up[2], up[3])
 
-# Mark all our records as dead; we'll mark them as alive as we process them.  Note that the database won't
-# actually be udpated until we commit all our transactions at the end, so we'll never see this value
-# for a server/process/input that is in fact alive.
-updateCursor.execute("UPDATE " + tables["wpsServers"]    + " SET alive = false")
-updateCursor.execute("UPDATE " + tables["processes"]     + " SET alive = false")
-updateCursor.execute("UPDATE " + tables["processParams"] + " SET alive = false")
+        for sql in sqlList:
+            cursor.execute(sql)
+
+        conn.commit()
+
+    except:
+        conn.rollback()
+
+    dbConn.set_session(autocommit=True)
+    
+
 
 
 # Build a list of native CRS's for the cities
@@ -83,6 +93,7 @@ updateCursor.execute("UPDATE " + tables["processParams"] + " SET alive = false")
 # {2: 'urn:ogc:def:crs:EPSG::31370', 3: 'urn:ogc:def:crs:EPSG::31467', 4: 'urn:ogc:def:crs:EPSG::2154', 5: 'urn:ogc:def:crs:EPSG::28992'}
 cityCRS = {}
 serverCursor.execute("SELECT id, srs FROM " + tables["cities"])
+
 for row in serverCursor:
     cityCRS[row[0]] = row[1]
 
@@ -92,6 +103,13 @@ serverCursor.execute("SELECT url, id FROM " + tables["wpsServers"])
 
 upsertList = []
 sqlList = []
+
+# Mark all our records as dead; we'll mark them as alive as we process them.  Note that the database won't
+# actually be udpated until we commit all our transactions at the end, so we'll never see this value
+# for a server/process/input that is in fact alive.
+sqlList.append("UPDATE " + tables["wpsServers"]    + " SET alive = false")
+sqlList.append("UPDATE " + tables["processes"]     + " SET alive = false")
+sqlList.append("UPDATE " + tables["processParams"] + " SET alive = false")
 
 for row in serverCursor:
     serverUrl = row[0]
@@ -191,8 +209,7 @@ for row in serverCursor:
                           )
 
 # Run and commit WPS transactions
-doSql(updateCursor, upsertList, sqlList)
-dbConn.commit() 
+doSql(dbConn, updateCursor, upsertList, sqlList)
 
 
 # Compare whether two crs's are in fact the same.  We'll consider the following two strings equal
@@ -234,6 +251,7 @@ try:
 
     # Get the server list
     serverCursor.execute("SELECT DISTINCT url FROM " + tables["dataservers"])
+
     for row in serverCursor:
         serverUrl = row[0]
 
@@ -403,8 +421,7 @@ try:
             print "Done with row!"
 
     # Run queries and commit dataset transactions
-    doSql(updateCursor, upsertList, sqlList)
-    dbConn.commit() 
+    doSql(dbConn, updateCursor, upsertList, sqlList)
 
 except Exception as e:
     print "-----"
@@ -416,11 +433,25 @@ except Exception as e:
 
     dbConn.rollback()
 
-print "Done!"
-
 # Close all cursors/connections
-procCursor.close()
-serverCursor.close()
-dsCursor.close()
-updateCursor.close()
-dbConn.close()
+try:
+    serverCursor.close()
+except:
+    print "Error closing serverCursor"
+
+try:
+    dsCursor.close()
+except:
+    print "Error closing dsCursor"
+
+try:
+    updateCursor.close()
+except:
+    print "Error closing updateCursor"
+
+try:
+    dbConn.close()
+except:
+    print "Error closing dbConn!"
+
+print "Done!"
