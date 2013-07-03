@@ -7,13 +7,16 @@ from owslib.wfs import WebFeatureService
 from owslib.wcs import WebCoverageService
 from owslib.wms import WebMapService, ServiceException
 
+# Download source from http://code.google.com/p/pyproj/downloads/list, follow instructions in README
 from pyproj import transform, Proj
 
 import psycopg2          # For database access
+from psycopg2.extensions import adapt  # adapt gives us secure qutoing
 import re
 import math
 import time
 import datetime
+import os
 
 wpsVersion = '1.0.0'
 wmsVersion = '1.1.0'        # Rotterdam wms doesn't like 1.3.0!
@@ -59,6 +62,13 @@ def upsert(cursor, table, idCol, rowId, identifier):
                        (rowId, identifier))
 
 
+def doSql(cursor, upsertList, sqlList):
+    for up in upsertList:
+        upsert(cursor, up[0], up[1], up[2], up[3])
+
+    for sql in sqlList:
+        cursor.execute(sql)
+
 
 # Mark all our records as dead; we'll mark them as alive as we process them.  Note that the database won't
 # actually be udpated until we commit all our transactions at the end, so we'll never see this value
@@ -80,6 +90,9 @@ for row in serverCursor:
 # Get the server list
 serverCursor.execute("SELECT url, id FROM " + tables["wpsServers"])
 
+upsertList = []
+sqlList = []
+
 for row in serverCursor:
     serverUrl = row[0]
     serverId  = row[1]
@@ -93,27 +106,39 @@ for row in serverCursor:
         continue
 
     # Update the server title and abstract
-    updateCursor.execute("UPDATE " + tables["wpsServers"] + " SET title = %s, abstract = %s, provider_name = %s,"
-                         "contact_name = %s, contact_email = %s, last_seen = NOW(), alive = TRUE "
-                         "WHERE id = %s", 
-                         (wps.identification.title, wps.identification.abstract, wps.provider.name, 
-                          wps.provider.contact.name, wps.provider.contact.email, serverId))
-
+    sqlList.append(
+                    "UPDATE " + tables["wpsServers"] + " "
+                    "SET title = "         + str(adapt(wps.identification.title))    + ", "
+                        "abstract = "      + str(adapt(wps.identification.abstract)) + ", "
+                        "provider_name = " + str(adapt(wps.provider.name))           + ", "
+                        "contact_name = "  + str(adapt(wps.provider.contact.name))   + ", "
+                        "contact_email = " + str(adapt(wps.provider.contact.email))  + ", "
+                        "last_seen = NOW(), alive = TRUE "
+                    "WHERE id = " + str(adapt(serverId))
+                  )
 
     # Iterate over the processes available on this server
     for proc in wps.processes: 
 
         # Do an upsert to establish the row, so we can update it. Not totally correct, 
         # but this will not be run where race conditions can develop.
-        upsert(updateCursor, tables["processes"], "wps_server_id", serverId, proc.identifier)
+        upsertList.append((tables["processes"], "wps_server_id", serverId, proc.identifier))
 
         # Now we know that our row exists, and we can do a simple update to get the rest of the info in
         # We'll return the record id so that we can use it below.
-        updateCursor.execute("UPDATE " + tables["processes"] + " SET title = %s, abstract = %s, last_seen = NOW(), alive = TRUE "
-                             "WHERE wps_server_id = %s AND identifier = %s RETURNING id",
-                             (proc.title, proc.abstract, serverId, proc.identifier))
 
-        # print dir(updateCursor.fetchone())
+        whereClause = "WHERE wps_server_id = " + str(adapt(serverId)) + " AND identifier = " + str(adapt(proc.identifier))
+
+        sqlList.append(
+                        "UPDATE " + tables["processes"] + " "
+                        "SET title = " + str(adapt(proc.title)) + ", "
+                            "abstract = " + str(adapt(proc.abstract)) + ", "
+                            "last_seen = NOW(), alive = TRUE " +
+                        whereClause
+                      )
+
+        updateCursor.execute("SELECT id FROM " + tables["processes"] + " " + whereClause)
+
         procId = updateCursor.fetchone()[0]
 
         procDescr = wps.describeprocess(proc.identifier)
@@ -131,12 +156,15 @@ for row in serverCursor:
             if datatype and datatype.startswith("//www.w3.org/TR/xmlschema-2/#"):
                 datatype = datatype.replace("//www.w3.org/TR/xmlschema-2/#", "")
 
-
-            upsert(updateCursor, tables["processParams"], "wps_process_id", procId, input.identifier)
-            updateCursor.execute("UPDATE " + tables["processParams"] + " SET title = %s, abstract = %s, datatype = %s, "
-                                 "is_input = TRUE, alive = TRUE, last_seen = NOW() "
-                                 "WHERE wps_process_id = %s AND identifier = %s",
-                                 (input.title, abstract, datatype, procId, input.identifier))
+            upsertList.append((tables["processParams"], "wps_process_id", procId, input.identifier))
+            sqlList.append(
+                            "UPDATE " + tables["processParams"] + " "
+                            "SET title = " + str(adapt(input.title)) + ","
+                                "abstract = " + str(adapt(abstract)) + ", "
+                                "datatype = " + str(adapt(datatype)) + ", "
+                                "is_input = TRUE, alive = TRUE, last_seen = NOW() "
+                            "WHERE wps_process_id = " + str(adapt(procId)) + " AND identifier = " + str(adapt(input.identifier))
+                          )
 
         for output in procDescr.processOutputs:
 
@@ -152,13 +180,18 @@ for row in serverCursor:
                 datatype = datatype.replace("//www.w3.org/TR/xmlschema-2/#", "")
 
 
-            upsert(updateCursor, tables["processParams"], "wps_process_id", procId, output.identifier)
-            updateCursor.execute("UPDATE " + tables["processParams"] + " SET title = %s, abstract = %s, datatype = %s, "
-                                 "is_input = FALSE, alive = TRUE, last_seen = NOW() "
-                                 "WHERE wps_process_id = %s AND identifier = %s",
-                                 (output.title, abstract, datatype, procId, output.identifier))
+            upsertList.append((tables["processParams"], "wps_process_id", procId, output.identifier))
+            sqlList.append(
+                            "UPDATE " + tables["processParams"] + " "
+                            "SET title = " + str(adapt(output.title)) + ", "
+                                "abstract = " + str(adapt(abstract)) + ", "
+                                "datatype = " + str(adapt(datatype)) + ", "
+                                "is_input = FALSE, alive = TRUE, last_seen = NOW() "
+                            "WHERE wps_process_id = " + str(adapt(procId)) + " AND identifier = " + str(adapt(output.identifier))
+                          )
 
-# Commit WPS transactions
+# Run and commit WPS transactions
+doSql(updateCursor, upsertList, sqlList)
 dbConn.commit() 
 
 
@@ -191,12 +224,12 @@ def projectWgsToLocal(boundingBox, localProj):
 
 
 try:
+    upsertList = []
+    sqlList = []
+
     # Now check on the dataservers and datasets, first marking them all as defunct
-    updateCursor.execute("UPDATE " + tables["datasets"]    + " SET alive = false")
-    updateCursor.execute("UPDATE " + tables["dataservers"] + " SET alive = false")
-
-
-
+    sqlList.append("UPDATE " + tables["datasets"] +    " SET alive = false")
+    sqlList.append("UPDATE " + tables["dataservers"] + " SET alive = false")
 
 
     # Get the server list
@@ -238,18 +271,26 @@ try:
         # if(wfs):  
         #     print dir(wfs.contents)
 
-        updateCursor.execute("UPDATE " + tables["dataservers"] + " " +
-                     "SET title = %s, abstract = %s, alive = TRUE, last_seen = NOW(), wms = %s, wfs = %s, wcs = %s " +
-                     "WHERE url = %s", (dstitle, dsabstr, hasWms, hasWfs, hasWcs, serverUrl))
+        sqlList.append(
+                        "UPDATE " + tables["dataservers"] + " " 
+                        "SET title = " + str(adapt(dstitle)) + ", "
+                            "abstract = " + str(adapt(dsabstr)) + ", "
+                            "alive = TRUE, "
+                            "last_seen = NOW(), "
+                            "wms = " + str(adapt(hasWms)) + ", "
+                            "wfs = " + str(adapt(hasWfs)) + ", "
+                            "wcs = " + str(adapt(hasWcs)) + " "
+                        "WHERE url = " + str(adapt(serverUrl))
+                      )
 
 
         # Trailing comma needed in line below because Python tuples can't have just one element...
-        dsCursor.execute("select id, identifier, city_id from " + tables["datasets"] + " where server_url = %s", (serverUrl,))
+        dsCursor.execute("SELECT id, identifier, city_id FROM " + tables["datasets"] + " WHERE server_url = %s", (serverUrl,))
 
         for dsrow in dsCursor:
-            dsid = dsrow[0]
+            dsid       = dsrow[0]
             identifier = dsrow[1]
-            cityId = dsrow[2]
+            cityId     = dsrow[2]
 
             print "Processing ", identifier, cityId
 
@@ -340,18 +381,29 @@ try:
             if found:
                 print "Updating datasets..."
                 # Update the database with the layer info
-                updateCursor.execute("                                                                                                     \
-                             UPDATE " + tables["datasets"] + "                                                                             \
-                             SET title = %s, abstract = %s, alive = TRUE, last_seen = NOW(), local_srs = %s, format = %s, bbox_left = %s,  \
-                                     bbox_right = %s, bbox_top = %s, bbox_bottom = %s, resolution_x = %s, resolution_y = %s                \
-                             WHERE id = %s                                                                                                 \
-                             ", (dstitle, dsabstr, hasCityCRS, imgFormat, bboxLeft, bboxRight, bboxTop, bboxBottom, resX, resY, dsid))
+                sqlList.append(
+                                "UPDATE " + tables["datasets"] + " "
+                                "SET title = "        + str(adapt(dstitle))    + ", "
+                                    "abstract = "     + str(adapt(dsabstr))    + ", "
+                                    "alive = TRUE, "
+                                    "last_seen = NOW(), "
+                                    "local_srs = "    + str(adapt(hasCityCRS)) + ", "
+                                    "format = "       + str(adapt(imgFormat))  + ", "
+                                    "bbox_left = "    + str(adapt(bboxLeft))   + ", "
+                                    "bbox_right = "   + str(adapt(bboxRight))  + ", "
+                                    "bbox_top = "     + str(adapt(bboxTop))    + ", "
+                                    "bbox_bottom = "  + str(adapt(bboxBottom)) + ", "
+                                    "resolution_x = " + str(adapt(resX))       + ", "
+                                    "resolution_y = " + str(adapt(resY))       + " "
+                                "WHERE id = " + str(adapt(dsid)) 
+                              )
             else:
                  print "Not found: " + identifier + " (on server " +  serverUrl + ")"
 
             print "Done with row!"
 
-    # Commit dataset transactions
+    # Run queries and commit dataset transactions
+    doSql(updateCursor, upsertList, sqlList)
     dbConn.commit() 
 
 except Exception as e:
@@ -363,6 +415,8 @@ except Exception as e:
     print "-----"
 
     dbConn.rollback()
+
+print "Done!"
 
 # Close all cursors/connections
 procCursor.close()
