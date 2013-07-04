@@ -162,11 +162,17 @@ class DatasetsController < ApplicationController
       @dataset = Dataset.find(params[:id])
     end
 
-    @dataset.destroy
+    status = :ok
+
+    if user_signed_in? and @dataset.city_id == current_user.city_id
+      @dataset.destroy
+    else
+      status = 403
+    end
 
     respond_to do |format|
-      format.json { render :text => @dataset.id, :status => :ok }
-      format.js { render :text => @dataset.id, :status => :ok }
+      format.json { render :text => @dataset.id, :status => status }
+      format.js   { render :text => @dataset.id, :status => status }
     end
   end
 

@@ -443,6 +443,48 @@
     });
 
 
+    var registerDataset = function(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, item)
+    {
+        checkbox.checked = true;
+        tagPickerControl.disabled = false;
+
+        $(".taglist-deletable-" + urlId).attr("disabled", false);
+
+        // Add layer to the list of registered layers
+        makeRegisteredLayer(serverUrl, data.dataset.identifier, data.dataset.id, data.tags, 0);
+        updateTags(serverUrl, data.dataset.identifier, data.tags);
+
+        onDatasetRegisteredOrUnregistered(item);
+    }
+
+
+    var unregisterDataset = function(serverUrl, datasetIdentifier, checkbox, tagPickerControl, item)
+    {
+      // Remove layer from the list of registered layers
+      delete registeredDataLayers[serverUrl][datasetIdentifier];
+
+      var urlId = cssEscape(serverUrl + datasetIdentifier);
+
+      $(".taglist-deletable-" + urlId + " .tag")              .attr("disabled", true);
+      $(".taglist-deletable-" + urlId + " .tag-delete-button").attr("disabled", true);
+      $(".taglist-deletable-" + urlId + " .tag-delete-button").off("click");   // Disable clicking
+      $(".taglist-deletable-" + urlId).attr("disabled", true);
+
+      checkbox.checked = false;
+      tagPickerControl.disabled = true;
+
+      onDatasetRegisteredOrUnregistered(item);
+    }
+
+
+    var onDatasetRegisteredOrUnregistered = function(item)
+    {
+      item.toggleClass("checked");
+      item.parent().parent().parent().toggleClass("registered_dataset");
+      item.parent().parent().parent().toggleClass("unregistered_dataset");
+    }
+
+
     // When the toggle switch is clicked, check off / de-select the associated checkbox
     // Want to find this when we search for "registered_"
     $(".toggle").click(function(e) 
@@ -457,6 +499,7 @@
 
       var dataLayer = registeredDataLayers[serverUrl][datasetIdentifier];
 
+      // When unregistering a data layer that is used in a configuration, show a warning
       if(dataLayer && dataLayer.configCount > 0) {
         var ct = dataLayer.configCount || 0;
         var c =  (ct == 1) ? "configuration" : "configurations";
@@ -473,49 +516,36 @@
 
       var urlId = cssEscape(serverUrl + datasetIdentifier);
 
+      var thiiis = $(this);
+
       if(checkbox.checked) {
-         // ===== Unregistering dataset =====
-         checkbox.checked = false;
-         tagPickerControl.disabled = true;
+        // ===== Unregistering dataset =====
 
         // Let the server know this layer is no longer registered -- to do this we delete the corresponding
         // record in the datasets table.
         $.ajax({
-          type: 'DELETE',      // DELETE combined with url below triggers "destroy_by_params" action on controller
+          type: "DELETE",      // DELETE combined with url below triggers "destroy_by_params" action on controller
           url: '<%= url_for(:controller => 'datasets', :action => 'destroy_by_params') %>',
-          data: 'dataset[identifier]='  + datasetIdentifier +
-                '&dataset[server_url]=' + serverUrl,
+          data: "dataset[identifier]="  + datasetIdentifier +
+                "&dataset[server_url]=" + serverUrl,
 
-          headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
-          success: function(data) {  }
-          });
-
-        // Remove layer from the list of registered layers
-        delete registeredDataLayers[serverUrl][datasetIdentifier];
-
-        $(".taglist-deletable-" + urlId + " .tag")              .attr("disabled", true);
-        $(".taglist-deletable-" + urlId + " .tag-delete-button").attr("disabled", true);
-        $(".taglist-deletable-" + urlId + " .tag-delete-button").off("click");   // Disable clicking
-        $(".taglist-deletable-" + urlId).attr("disabled", true);
+          headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
+          // http://api.jquery.com/jQuery.ajax/
+          success: function(data, status, jqXHR)  { unregisterDataset(serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); },
+          error:   function(jqXHR, status, error) { alert('Cound not unregister dataset! (server returned status "' + error.trim() + '")'); }
+        });
 
       } else {
         // ===== Register dataset =====
-        checkbox.checked = true;
-        tagPickerControl.disabled = false;
 
-        var layer = discoveredLayers[urlId];
-
-        var service = '';
-        if(     layer.type.hasObject("WFS")) { service = "WFS"; }
-        else if(layer.type.hasObject("WCS")) { service = "WCS"; }
-
-        var taglist = extractTagList(serverUrl, datasetIdentifier);
-
+        var layer    = discoveredLayers[urlId];
+        var taglist  = extractTagList(serverUrl, datasetIdentifier);
         var title    = $("#dataset-title-"    + sanitizeId(datasetIdentifier)).text();
         var abstract = $("#dataset-abstract-" + sanitizeId(datasetIdentifier)).text();
 
-        $(".taglist-deletable-" + urlId).attr("disabled", false);
-
+        var service  = "";
+        if(     layer.type.hasObject("WFS")) { service = "WFS"; }
+        else if(layer.type.hasObject("WCS")) { service = "WCS"; }
 
         // Let the server know this layer is now registered -- to do this we must create a new record in
         // our datasets table.
@@ -531,17 +561,10 @@
                 "&dataset[alive]=true"    +
                 "&cityName=" + <% if current_user.role_id == 1 %>"<%= raw @current_city.name %>"<% else %>getCityCookie() <% end %> ,
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
-          success: function(data) {
-            // Add layer to the list of registered layers
-            makeRegisteredLayer(serverUrl, data.dataset.identifier, data.dataset.id, data.tags, 0);
-            updateTags(serverUrl, data.dataset.identifier, data.tags);
-          }
+          success: function(data, status, jqXHR)  { registerDataset(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); },
+          error:   function(jqXHR, status, error) { alert('Cound not register dataset! (server returned status "' + error.trim() + '")'); }
         });
       }
-
-      $(this).toggleClass("checked");
-      $(this).parent().parent().parent().toggleClass("registered_dataset");
-      $(this).parent().parent().parent().toggleClass("unregistered_dataset");
 
       e.preventDefault();
 
@@ -846,7 +869,8 @@
         $('#url-preset-select option[value="' + url + '"]').remove();   // Delete the option
         $('#server_url').val('');                                       // Clear the input box
         updateButtonVisibility();
-      }
+      },
+      failure: function(data) { alert("Cound not delete preset!" + data); }
     });
   };
 
