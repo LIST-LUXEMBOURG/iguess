@@ -130,7 +130,6 @@ for row in rows:
 
                 url = 'http://services.iguess.tudor.lu/cgi-bin/mapserv?map=' + mapfile
                 identifier = r.name
-                dataset_type = 'Mapping Only'        # For now
 
 
                 # Check if data server already exists in the database, otherwise insert it.  We need the record id

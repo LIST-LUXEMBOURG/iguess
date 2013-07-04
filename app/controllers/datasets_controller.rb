@@ -13,8 +13,6 @@ class DatasetsController < ApplicationController
     @datasets     = Dataset.find_all_by_city_id(@current_city.id, :select => "*, case when title = '' or title is null then identifier else title end as sortcol", :order => :sortcol )
     @wps_servers  = WpsServer.all
 
-    # Find all unique server urls in @datasets, ignoring any blank entries
-    @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
     respond_to do |format|
       format.html # index.html.erb
       format.json { render json: @datasets }
@@ -176,7 +174,6 @@ class DatasetsController < ApplicationController
   def mass_import
     @datasets        = Dataset.all
     @dataset_tags    = getDatasetTags()
-    @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
 
     # current_user should always be set here
     @current_city = current_user.role_id == 1 ? City.find_by_id(current_user.city_id) : (City.find_by_name(cookies['city']) or City.first)

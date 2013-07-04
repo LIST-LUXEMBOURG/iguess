@@ -40,7 +40,6 @@ class ModConfigsController < ApplicationController
     @dataset_tags    = DatasetTag.all
     @datasetValues   = ConfigDataset.find_all_by_mod_config_id(params[:id]).map{|d| d.input_identifier + ': "' + d.dataset.id.to_s + '"'}.join(',')
     @formValues      = ConfigTextInput.find_all_by_mod_config_id(@mod_config).map{|text| text.column_name + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"'}.join(',')
-    # @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
     @input_params    = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(true,  true)
     @output_params   = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(false,  true)
 
@@ -62,7 +61,6 @@ class ModConfigsController < ApplicationController
     # current_user should always be set here
     @current_city = current_user.role_id == 1 ? City.find_by_id(current_user.city_id) : (City.find_by_name(cookies['city']) or City.first)
 
-    # @dataserver_urls = @datasets.map{|d| d.server_url}.uniq
     @textinputs = [ ]
 
     respond_to do |format|
