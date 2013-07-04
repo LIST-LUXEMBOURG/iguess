@@ -36,18 +36,18 @@ class DatasetsController < ApplicationController
     @current_city = City.find_by_name(params[:cityName])
 
     showOnlyPublished = false
-    if current_user == nil then 
+    if current_user == nil  
       showOnlyPublished = true    # User not logged in
-    elsif current_user.role_id == 2 then
+    elsif current_user.role_id == 2 
       showOnlyPublished = false   # User has permissions to see all
-    elsif current_user.city_id == @current_city.id then
+    elsif current_user.city_id == @current_city.id 
       showOnlyPublished = false   # User is in own city
     else
       showOnlyPublished = true    # User is in foreign city
     end
 
 
-    if showOnlyPublished then  
+    if showOnlyPublished   
       @datasets = Dataset.find_all_by_city_id_and_published_and_alive(@current_city.id, :true, :true, :order => 'title desc')
     else
       @datasets = Dataset.find_all_by_city_id_and_alive(@current_city.id, :true, :order => 'title desc')
@@ -86,7 +86,7 @@ class DatasetsController < ApplicationController
     # Check if the dataset's server url is in our dataservers database... if not, add it
     dataserver = Dataserver.find_by_url(@dataset.server_url.strip)
 
-    if not dataserver then
+    if not dataserver 
       # Need to create a new server
       dataserver = Dataserver.new
       dataserver.url = @dataset.server_url.strip
@@ -101,7 +101,7 @@ class DatasetsController < ApplicationController
 
     @dataset.save
 
-    if(params[:tags]) then
+    if(params[:tags]) 
       tags = params[:tags].split(/,/)
       tags.each { |t| makeTag(@dataset, t) }
     end
@@ -123,31 +123,41 @@ class DatasetsController < ApplicationController
   # PUT /datasets/1
   # PUT /datasets/1.json
   def update
-    # If we are changing the dataset type, we need to unlink it from any configurations it is part of
-    tagVal = params[:dataset_tag]    # Tag we are either adding or deleting
+    if user_signed_in? 
+      if params[:id] == "add_data_tag" or params[:id] == "del_data_tag" 
+        @dataset = Dataset.find_by_identifier_and_server_url_and_city_id(params[:dataset][:identifier], params[:dataset][:server_url], current_user.city_id)
 
-    if params[:id] == "add_data_tag" then
-      dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
-      makeTag(dataset, tagVal)
+        if(@dataset.nil?)   # Couldn't find dataset... now what?
+          return
+        end
 
-    elsif params[:id] == "del_data_tag" then
-      dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
-      if dataset and dataset.dataset_tags.find_by_tag(tagVal) then
-        tags = DatasetTag.find_all_by_dataset_id_and_tag(dataset, tagVal)
-        tags.map {|t| t.delete }    # Handles the case where tag is in db more than once as result of bug elsewhere
+        tagVal = params[:dataset_tag]    # Tag we are either adding or deleting
+
+        if params[:id] == "add_data_tag" 
+          makeTag(@dataset, tagVal)
+
+        elsif params[:id] == "del_data_tag" 
+          if @dataset and @dataset.dataset_tags.find_by_tag(tagVal) 
+            tags = DatasetTag.find_all_by_dataset_id_and_tag(@dataset, tagVal)
+            tags.map {|t| t.delete }    # Handles the case where tag is in db more than once as result of bug elsewhere
+          end
+        end
+        
+
+        respond_to do |format|
+          format.json { render :json => @dataset ? DatasetTag.find_all_by_dataset_id(@dataset.id, :order=>:tag).map {|d| d.tag } : [] }
+        end
+
+      # User checked or unchecked publish checkbox (NOT the register dataset checkbox!!)
+      elsif params[:id] == "publish"         # binding.pry
+        dataset = Dataset.find_by_id(params[:dataset][:id])
+        dataset.published = params[:checked]
+        dataset.save
       end
 
-    # User checked or unchecked publish checkbox (NOT the register dataset checkbox!!)
-    elsif params[:id] == "publish" then
-      dataset = Dataset.find_by_id(params[:dataset][:id])
-      dataset.published = params[:checked]
-      dataset.save
-    end
 
-# This is wrong -- only want to respond to json
-    respond_to do |format|
-      format.html { render :json => dataset ? DatasetTag.find_all_by_dataset_id(dataset.id, :order=>:tag).map {|d| d.tag } : [] }
-      format.json { render :json => dataset ? DatasetTag.find_all_by_dataset_id(dataset.id, :order=>:tag).map {|d| d.tag } : [] }
+    else  # Don't have permission... do what?
+      xyzzy = 1   # or something
     end
   end
 
