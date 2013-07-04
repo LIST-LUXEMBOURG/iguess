@@ -142,7 +142,6 @@ class DatasetsController < ApplicationController
             tags.map {|t| t.delete }    # Handles the case where tag is in db more than once as result of bug elsewhere
           end
         end
-        
 
         respond_to do |format|
           format.json { render :json => @dataset ? DatasetTag.find_all_by_dataset_id(@dataset.id, :order=>:tag).map {|d| d.tag } : [] }
@@ -154,7 +153,6 @@ class DatasetsController < ApplicationController
         dataset.published = params[:checked]
         dataset.save
       end
-
 
     else  # Don't have permission... do what?
       xyzzy = 1   # or something
