@@ -19,17 +19,6 @@ class DatasetsController < ApplicationController
     end
   end
 
-  # GET /datasets/1
-  # GET /datasets/1.json
-  def show
-    @dataset = Dataset.find(params[:id])
-
-    respond_to do |format|
-      format.html # show.html.erb
-      format.json { render json: @dataset }
-    end
-  end
-
 
   # Get all datasets for the specified city, only used by ajax queries
   def get_for_city
@@ -60,24 +49,7 @@ class DatasetsController < ApplicationController
   end
 
 
-  # GET /datasets/new
-  # GET /datasets/new.json
-  def new
-    @dataset = Dataset.new
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.json { render json: @dataset }
-    end
-  end
-
-  # GET /datasets/1/edit
-  def edit
-    @dataset = Dataset.find(params[:id])
-  end
-
-
-  # Called when user registers a dataset by clicking on the "Registerd" button;
+  # Called when user registers a dataset by clicking on the "Register" button;
   #    always called via ajax with json response type
   def create
     @dataset = Dataset.new(params[:dataset])
