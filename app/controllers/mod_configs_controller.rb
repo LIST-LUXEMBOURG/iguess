@@ -25,21 +25,26 @@ class ModConfigsController < ApplicationController
 
     respond_to do |format|
       format.html # index.html.erb
-      format.json { render json: @mod_configs }
     end
   end
+
+
+  def showError(msg)
+      flash[:error] = msg
+
+      respond_to do |format|
+        format.html { redirect_to mod_configs_url }
+      end
+    end
 
 
   # GET /mod_configs/1
   # GET /mod_configs/1.json
   def show
-    if not user_signed_in?    # Should always be true
-      return
-    end
-
     @mod_config = ModConfig.find(params[:id])
 
-    if current_user.city_id != @mod_config.city_id
+    if not User.canAccessObject(current_user, @mod_config)
+      showError("Insufficient permissions -- you cannot access this object!")
       return
     end
 
@@ -61,6 +66,12 @@ class ModConfigsController < ApplicationController
   # GET /mod_configs/new
   # GET /mod_configs/new.json
   def new
+
+    if not user_signed_in?    # Should always be true
+      showError("Insufficient permissions -- you are not logged in!")
+      return
+    end
+
     @mod_config = ModConfig.new
     @wps_servers = WpsServer.find_all_by_alive(:true)
     @wps_processes = WpsProcess.find_all_by_alive(:true, :order => 'title, identifier')
@@ -72,8 +83,7 @@ class ModConfigsController < ApplicationController
     @textinputs = [ ]
 
     respond_to do |format|
-      format.html # new.html.erb
-      format.json { render json: @mod_config }
+      format.html
     end
   end
 
@@ -381,19 +391,15 @@ class ModConfigsController < ApplicationController
   # DELETE /mod_configs/1
   # DELETE /mod_configs/1.json
   def destroy
-    if not user_signed_in?    # Should always be true
-      flash[:error] = "Insufficient permissions -- you are not logged in!"
-    else
-      @mod_config = ModConfig.find(params[:id])
-      if User.canAccessObject(current_user, @mod_config)
-        @mod_config.destroy
-      else
-        flash[:error] = "Insufficient permissions -- this item does not belong to you!"
-      end
-    end
+    @mod_config = ModConfig.find(params[:id])
 
-    respond_to do |format|
-      format.html { redirect_to mod_configs_url }
+    if User.canAccessObject(current_user, @mod_config)
+      @mod_config.destroy
+      respond_to do |format|
+        format.html { redirect_to mod_configs_url }
+      end
+    else
+      showError("Insufficient permissions -- you cannot access this object!")
     end
   end
 end
