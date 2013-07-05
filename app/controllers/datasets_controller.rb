@@ -52,8 +52,12 @@ class DatasetsController < ApplicationController
   # Called when user registers a dataset by clicking on the "Register" button;
   #    always called via ajax with json response type
   def create
+    if not user_signed_in?    # Should always be true
+      return
+    end
+
     @dataset = Dataset.new(params[:dataset])
-    @current_city = City.find_by_name(params[:cityName])
+    @current_city_id = current_user.city_id
 
     # Check if the dataset's server url is in our dataservers database... if not, add it
     dataserver = Dataserver.find_by_url(@dataset.server_url.strip)
@@ -68,7 +72,7 @@ class DatasetsController < ApplicationController
     end
 
     @dataset.dataserver = dataserver
-    @dataset.city = @current_city
+    @dataset.city_id = @current_city_id
     @dataset.last_seen = DateTime.now
 
     @dataset.save
