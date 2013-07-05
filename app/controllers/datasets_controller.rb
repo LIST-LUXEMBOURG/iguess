@@ -80,7 +80,6 @@ class DatasetsController < ApplicationController
       tags.each { |t| makeTag(@dataset, t) }
     end
 
-# This is wrong -- only want to respond to json
     respond_to do |format|
       format.json { render :json => { :tags => DatasetTag.find_all_by_dataset_id(@dataset.id).map {|d| d.tag },
                                       :dataset => @dataset
