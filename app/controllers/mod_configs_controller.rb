@@ -33,7 +33,16 @@ class ModConfigsController < ApplicationController
   # GET /mod_configs/1
   # GET /mod_configs/1.json
   def show
-    @mod_config      = ModConfig.find(params[:id])
+    if not user_signed_in?    # Should always be true
+      return
+    end
+
+    @mod_config = ModConfig.find(params[:id])
+
+    if current_user.city_id != @mod_config.city_id
+      return
+    end
+
     # current_user should always be set here
     @current_city    = current_user.role_id == 1 ? City.find_by_id(current_user.city_id) : (City.find_by_name(cookies['city']) or City.first)
     @datasets        = Dataset.find_all_by_city_id(@current_city.id)
@@ -45,7 +54,6 @@ class ModConfigsController < ApplicationController
 
     respond_to do |format|
       format.html # show.html.erb
-      format.json { render json: @mod_config }
     end
   end
 
@@ -67,12 +75,6 @@ class ModConfigsController < ApplicationController
       format.html # new.html.erb
       format.json { render json: @mod_config }
     end
-  end
-
-
-  # GET /mod_configs/1/edit
-  def edit
-    @mod_config = ModConfig.find(params[:id])
   end
 
 
