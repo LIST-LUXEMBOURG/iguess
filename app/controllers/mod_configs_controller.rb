@@ -208,6 +208,10 @@ class ModConfigsController < ApplicationController
   # POST /mod_configs
   # POST /mod_configs.json
   def create
+    if not user_signed_in?    # Should always be true
+      return
+    end
+
     # current_user should always be set here
     @current_city = current_user.role_id == 1 ? City.find_by_id(current_user.city_id) : (City.find_by_name(cookies['city']) or City.first)
     @mod_config = ModConfig.new(params[:mod_config])
@@ -284,7 +288,14 @@ class ModConfigsController < ApplicationController
   # We get here when a module name or description is updated, or when one of the inputs or outputs is changed.
   # Should always be via json, though, not by normal form submit.
   def update
+    if not user_signed_in?    # Should always be true
+      return
+    end
+
     @mod_config = ModConfig.find(params[:id])
+    if current_user.city_id != @mod_config.city_id
+      return
+    end
 
     ok = true
 
@@ -370,12 +381,19 @@ class ModConfigsController < ApplicationController
   # DELETE /mod_configs/1
   # DELETE /mod_configs/1.json
   def destroy
-    @mod_config = ModConfig.find(params[:id])
-    @mod_config.destroy
+    if not user_signed_in?    # Should always be true
+      flash[:error] = "Insufficient permissions -- you are not logged in!"
+    else
+      @mod_config = ModConfig.find(params[:id])
+      if User.canAccessObject(current_user, @mod_config)
+        @mod_config.destroy
+      else
+        flash[:error] = "Insufficient permissions -- this item does not belong to you!"
+      end
+    end
 
     respond_to do |format|
       format.html { redirect_to mod_configs_url }
-      format.json { head :no_content }
     end
   end
 end

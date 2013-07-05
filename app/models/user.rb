@@ -28,4 +28,16 @@ class User < ActiveRecord::Base
     end
   end
 
+  # Returns true if user is logged in, and either has global permissions or belongs to specified city
+  def self.canAccessObject(current_user, object)
+    if current_user.nil?
+      return false
+    elsif current_user.role_id == 2
+      return true
+    elsif city_id == object.city_id
+      return true
+    else
+      return false
+    end
+  end
 end

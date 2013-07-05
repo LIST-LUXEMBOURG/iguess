@@ -1,5 +1,9 @@
 <h1 class="page_header">Modules</h1>
 
+<% if flash[:error] %>
+  <div class="error-msg"><%= flash[:error] %></div>
+<% end %>
+
 
 <div class="explanation">
   <% if user_signed_in? %>
