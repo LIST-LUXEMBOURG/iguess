@@ -123,14 +123,21 @@ class DatasetsController < ApplicationController
   # PUT /datasets/1
   # PUT /datasets/1.json
   def update
+    error = false
+
     if user_signed_in? 
-      if params[:id] == "add_data_tag" or params[:id] == "del_data_tag" 
+      if params[:dataset][:id]
+        @dataset = Dataset.find_by_id(params[:dataset][:id])
+      else
         @dataset = Dataset.find_by_identifier_and_server_url_and_city_id(params[:dataset][:identifier], params[:dataset][:server_url], current_user.city_id)
+      end
 
-        if(@dataset.nil?)   # Couldn't find dataset... now what?
-          return
-        end
+      if(@dataset.nil?)   # Couldn't find dataset... now what?
+        error = true
+        return
+      end
 
+      if params[:id] == "add_data_tag" or params[:id] == "del_data_tag"
         tagVal = params[:dataset_tag]    # Tag we are either adding or deleting
 
         if params[:id] == "add_data_tag" 
@@ -140,22 +147,29 @@ class DatasetsController < ApplicationController
           if @dataset and @dataset.dataset_tags.find_by_tag(tagVal) 
             tags = DatasetTag.find_all_by_dataset_id_and_tag(@dataset, tagVal)
             tags.map {|t| t.delete }    # Handles the case where tag is in db more than once as result of bug elsewhere
+          else
+            error = true
           end
         end
 
-        respond_to do |format|
-          format.json { render :json => @dataset ? DatasetTag.find_all_by_dataset_id(@dataset.id, :order=>:tag).map {|d| d.tag } : [] }
+        if not error
+          respond_to do |format|
+            format.json { render :json => @dataset ? DatasetTag.find_all_by_dataset_id(@dataset.id, :order=>:tag).map {|d| d.tag } : [] }
+          end
         end
 
       # User checked or unchecked publish checkbox (NOT the register dataset checkbox!!)
-      elsif params[:id] == "publish"         # binding.pry
-        dataset = Dataset.find_by_id(params[:dataset][:id])
-        dataset.published = params[:checked]
-        dataset.save
+      elsif params[:id] == "publish"   
+        if @dataset.city_id == current_user.city_id
+          @dataset.published = params[:checked]
+          @dataset.save
+        else
+          error = true
+        end
       end
 
     else  # Don't have permission... do what?
-      xyzzy = 1   # or something
+      error = true
     end
   end
 
