@@ -1,0 +1,32 @@
+/* Styling for a 16pt delete button */
+.del-button-16
+ {
+    cursor: hand; cursor: pointer;    /* Cover multiple browsers */
+    position: relative;
+    background: transparent url("/assets/delete.svg") no-repeat;
+    top: 0px;
+    left: 0px;
+    background-size:16px 16px;
+    width: 16px; 
+    height: 16px;
+    border: none;
+    
+    /* The following center the button in a table cell */
+    margin-left: auto;    
+    margin-right: auto;
+}
+
+
+/* See http://www.filamentgroup.com/lab/styling_buttons_and_toolbars_with_the_jquery_ui_css_framework/ */
+
+.fg-button {
+   outline: 0;
+   margin:0 4px 0 0;
+   padding: .4em 1em;
+   text-decoration:none !important;
+   cursor: hand; cursor: pointer;    /* Cover multiple browsers */
+   position: relative;
+   text-align: center;
+   zoom: 1;
+
+}
