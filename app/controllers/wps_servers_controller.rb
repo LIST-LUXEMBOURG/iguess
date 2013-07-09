@@ -24,6 +24,11 @@ class WpsServersController < ApplicationController
   # GET /wps_servers/new
   # GET /wps_servers/new.json
   def new
+    if not user_signed_in?    # Should always be true
+      showError("Insufficient permissions -- you are not logged in!")
+      return
+    end
+
     @wps_server = WpsServer.new
 
     respond_to do |format|
@@ -34,12 +39,22 @@ class WpsServersController < ApplicationController
 
   # GET /wps_servers/1/edit
   def edit
+    if not user_signed_in?    # Should always be true
+      showError("Insufficient permissions -- you are not logged in!")
+      return
+    end
+
     @wps_server = WpsServer.find(params[:id])
   end
 
   # POST /wps_servers
   # POST /wps_servers.json
   def create
+    if not user_signed_in?    # Should always be true
+      showError("Insufficient permissions -- you are not logged in!")
+      return
+    end
+
     @wps_server = WpsServer.new(params[:wps_server])
 
     respond_to do |format|
@@ -56,6 +71,11 @@ class WpsServersController < ApplicationController
   # PUT /wps_servers/1
   # PUT /wps_servers/1.json
   def update
+    if not user_signed_in?    # Should always be true
+      showError("Insufficient permissions -- you are not logged in!")
+      return
+    end
+
     @wps_server = WpsServer.find(params[:id])
 
     respond_to do |format|
@@ -72,6 +92,11 @@ class WpsServersController < ApplicationController
   # DELETE /wps_servers/1
   # DELETE /wps_servers/1.json
   def destroy
+    if not user_signed_in?    # Should always be true
+      showError("Insufficient permissions -- you are not logged in!")
+      return
+    end
+        
     @wps_server = WpsServer.find(params[:id])
     @wps_server.destroy
 
