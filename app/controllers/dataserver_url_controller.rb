@@ -6,6 +6,11 @@ class DataserverUrlController < ApplicationController
   # GET /datasets/new
   # GET /datasets/new.json
   def create
+
+    if not user_signed_in?
+      return
+    end
+
    url    = params[:url]
    cityId = params[:city][:id]
 
@@ -28,6 +33,13 @@ class DataserverUrlController < ApplicationController
     cityId = params[:city][:id]
 
     @dataserver_url = DataserverUrl.find_by_city_id_and_url(cityId, url)
+
+
+    if not User.canAccessObject(current_user, @dataserver_url)
+      return
+    end
+
+    
     @dataserver_url.destroy
 
     respond_to do |format|
