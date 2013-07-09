@@ -2,15 +2,43 @@
  * This is a manifest file that'll automatically include all the stylesheets available in this directory
  * and any sub-directories. You're free to add application-wide styles to this file and they'll appear at
  * the top of the compiled file, but it's generally better to create a new file per style scope.
- //= require_self
+//= require_self
+ //= require vendor
  //= require_tree .
 */
 
-
 body {
-  font: 62.5% "Trebuchet MS", sans-serif;
+  font: 13px/1.5 /*'Trebuchet MS', */ 'Helvetica Neue', Arial, 'Liberation Sans', FreeSans, sans-serif;
   margin: 0;
 }
+
+pre,
+code {
+  font-family: 'DejaVu Sans Mono', Monaco, Consolas, monospace;
+}
+
+hr {
+  border: 0 #ccc solid;
+  border-top-width: 1px;
+  clear: both;
+  height: 0;
+}
+
+
+h1 { font-size: 25px; }
+h2 { font-size: 23px; }
+h3 { font-size: 21px; }
+h4 { font-size: 19px; }
+h5 { font-size: 17px; }
+h6 { font-size: 15px; }
+
+ol { list-style: decimal; }
+ul { list-style: disc; }
+li { margin-left: 30px; }
+
+p, dl, hr, ol, ul, pre, /*table,*/ address, fieldset, figure { margin-bottom: 20px; }
+
+h1, h2, h3, h4, h5, h6 { margin-bottom: 0px; }
 
 /* Body in "normal" mode */
 body.basic {
