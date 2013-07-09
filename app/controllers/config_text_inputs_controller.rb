@@ -5,6 +5,10 @@ class ConfigTextInputsController < ApplicationController
 
     @mod_config = ModConfig.find(params[:id])   # This is the mod_config we're working with
 
+    if not user_signed_in?
+      return
+    end
+
     # Find the config_text_input that we need to update
     ids = ConfigTextInput.find_all_by_mod_config_id_and_column_name_and_is_input(
                                 @mod_config.id, params[:identifier], (params[:mode] == 'input'))
