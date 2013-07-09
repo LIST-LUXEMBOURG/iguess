@@ -24,6 +24,10 @@ class CitiesController < ApplicationController
   # GET /cities/new
   # GET /cities/new.json
   def new
+    if not user_signed_in?
+      return
+    end
+
     @city = City.new
 
     respond_to do |format|
@@ -34,12 +38,20 @@ class CitiesController < ApplicationController
 
   # GET /cities/1/edit
   def edit
+    if not user_signed_in?
+      return
+    end
+
     @city = City.find(params[:id])
   end
 
   # POST /cities
   # POST /cities.json
   def create
+    if not user_signed_in?
+      return
+    end
+
     @city = City.new(params[:city])
 
     respond_to do |format|
@@ -56,6 +68,10 @@ class CitiesController < ApplicationController
   # PUT /cities/1
   # PUT /cities/1.json
   def update
+    if not user_signed_in?
+      return
+    end
+
     @city = City.find(params[:id])
 
     respond_to do |format|
@@ -72,6 +88,10 @@ class CitiesController < ApplicationController
   # DELETE /cities/1
   # DELETE /cities/1.json
   def destroy
+    if not user_signed_in?
+      return
+    end
+    
     @city = City.find(params[:id])
     @city.destroy
 
