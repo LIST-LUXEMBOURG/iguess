@@ -102,6 +102,11 @@ class ModConfigsController < ApplicationController
   # Only called via ajax request... All we need to do is set status in the database to stop
   def stop_running
     @mod_config = ModConfig.find(params[:id])
+
+    if not User.canAccessObject(current_user, @mod_config)
+      return
+    end
+
     @mod_config.status = 'READY'
     @mod_config.save
 
@@ -115,7 +120,10 @@ class ModConfigsController < ApplicationController
   # running the specified module
   def run
     @mod_config = ModConfig.find(params[:id])
-    # @city = 
+    
+    if not User.canAccessObject(current_user, @mod_config)
+      return
+    end
 
     wpsClientPath ='/home/iguess/iguess_test';
 
@@ -298,12 +306,9 @@ class ModConfigsController < ApplicationController
   # We get here when a module name or description is updated, or when one of the inputs or outputs is changed.
   # Should always be via json, though, not by normal form submit.
   def update
-    if not user_signed_in?    # Should always be true
-      return
-    end
-
     @mod_config = ModConfig.find(params[:id])
-    if current_user.city_id != @mod_config.city_id
+
+    if not User.canAccessObject(current_user, @mod_config)
       return
     end
 
@@ -321,8 +326,6 @@ class ModConfigsController < ApplicationController
       params[:datasets].each do |d|
         identifier = d[0]
         id = d[1]
-
-        # binding.pry
 
         if(not identifier.empty?) then
           if(id != "-1") then
