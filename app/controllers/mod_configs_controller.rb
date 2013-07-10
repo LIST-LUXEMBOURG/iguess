@@ -16,7 +16,7 @@ class ModConfigsController < ApplicationController
 
 
   def index
-    @current_city = User.getCurrentCity()
+    @current_city = User.getCurrentCity(current_user, cookies)
     @mod_configs  = ModConfig.find_all_by_city_id(@current_city.id)
     @wps_servers  = WpsServer.find_all_by_city_id(@current_city.id)
 
@@ -48,7 +48,7 @@ class ModConfigsController < ApplicationController
     end
 
     # current_user should always be set here
-    @current_city    = User.getCurrentCity()
+    @current_city    = User.getCurrentCity(current_user, cookies)
     @datasets        = Dataset.find_all_by_city_id(@current_city.id)
     @dataset_tags    = DatasetTag.all
     @datasetValues   = ConfigDataset.find_all_by_mod_config_id(params[:id]).map{|d| d.input_identifier + ': "' + d.dataset.id.to_s + '"'}.join(',')
@@ -77,7 +77,7 @@ class ModConfigsController < ApplicationController
     @datasets = Dataset.all
     @dataset_tags = DatasetTag.all
     # current_user should always be set here
-    @current_city = User.getCurrentCity()
+    @current_city = User.getCurrentCity(current_user, cookies)
 
     @textinputs = [ ]
 
@@ -230,7 +230,7 @@ class ModConfigsController < ApplicationController
     end
 
     # current_user should always be set here
-    @current_city = User.getCurrentCity()
+    @current_city = User.getCurrentCity(current_user, cookies)
     @mod_config = ModConfig.new(params[:mod_config])
 
     @mod_config.name = @mod_config.name.strip

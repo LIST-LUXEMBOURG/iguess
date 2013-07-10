@@ -42,7 +42,7 @@ class User < ActiveRecord::Base
   end
 
 
-  def self.getCurrentCity()
+  def self.getCurrentCity(current_user, cookies)
     return (current_user and current_user.role_id == 1) ? City.find_by_id(current_user.city_id) : (City.find_by_name(cookies['city']) or City.first)
   end
 end

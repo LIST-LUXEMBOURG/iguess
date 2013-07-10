@@ -2,7 +2,7 @@ class WpsServersController < ApplicationController
   # GET /wps_servers
   # GET /wps_servers.json
   def index
-    @current_city  = User.getCurrentCity()
+    @current_city  = User.getCurrentCity(current_user, cookies)
     @wps_servers   = WpsServer.find_all_by_city_id(@current_city.id)
 
     respond_to do |format|
