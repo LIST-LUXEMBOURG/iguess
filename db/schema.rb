@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130704092537) do
+ActiveRecord::Schema.define(:version => 20130710095902) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -173,8 +173,8 @@ ActiveRecord::Schema.define(:version => 20130704092537) do
   create_table "wps_servers", :force => true do |t|
     t.string   "url"
     t.text     "descr"
-    t.datetime "created_at",    :null => false
-    t.datetime "updated_at",    :null => false
+    t.datetime "created_at",                      :null => false
+    t.datetime "updated_at",                      :null => false
     t.text     "title"
     t.text     "abstract"
     t.datetime "last_seen"
@@ -182,6 +182,8 @@ ActiveRecord::Schema.define(:version => 20130704092537) do
     t.text     "provider_name"
     t.text     "contact_name"
     t.text     "contact_email"
+    t.integer  "city_id",                         :null => false
+    t.boolean  "deleteable",    :default => true, :null => false
   end
 
 end

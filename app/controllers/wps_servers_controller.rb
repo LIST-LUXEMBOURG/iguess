@@ -2,7 +2,8 @@ class WpsServersController < ApplicationController
   # GET /wps_servers
   # GET /wps_servers.json
   def index
-    @wps_servers = WpsServer.all
+    @current_city  = User.getCurrentCity()
+    @wps_servers   = WpsServer.find_all_by_city_id(@current_city.id)
 
     respond_to do |format|
       format.html # index.html.erb
@@ -96,7 +97,7 @@ class WpsServersController < ApplicationController
       showError("Insufficient permissions -- you are not logged in!")
       return
     end
-        
+
     @wps_server = WpsServer.find(params[:id])
     @wps_server.destroy
 
