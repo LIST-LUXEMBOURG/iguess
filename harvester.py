@@ -98,8 +98,8 @@ for row in serverCursor:
     cityCRS[row[0]] = row[1]
 
 
-# Get the server list
-serverCursor.execute("SELECT url, id FROM " + tables["wpsServers"])
+# Get the server list, but ignore servers marked as deleted
+serverCursor.execute("SELECT url, id FROM " + tables["wpsServers"] + " WHERE deleted = false")
 
 upsertList = []
 sqlList = []
@@ -154,6 +154,11 @@ for row in serverCursor:
                             "last_seen = NOW(), alive = TRUE " +
                         whereClause
                       )
+
+        # Need to do this here so that the SELECT below will find a record if the upsert inserts... a little messy
+        doSql(dbConn, updateCursor, upsertList, sqlList)
+        upsertList = []
+        sqlList = []
 
         updateCursor.execute("SELECT id FROM " + tables["processes"] + " " + whereClause)
 
