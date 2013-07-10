@@ -1,5 +1,6 @@
 /**
  * @author Luis de Sousa [luis.desousa@tudor.lu]
+ * @modified by Chris Eykamp [christopher.eykamp@tudor.lu] - 10-Jul-2013
  * Date: 22-04-2013
  *
  * Includes the functions to operationalise the parallel maps.
@@ -11,16 +12,18 @@ WebGIS.MARKER_Z_INDEX = 1000;
 
 var crosshairs = '/assets/crosshairYellowTransparent.png';
 
-WebGIS.chSize = new OpenLayers.Size(17,17);
-WebGIS.chOffsetRight = new OpenLayers.Pixel(-(WebGIS.chSize.w/2) - 0, -(WebGIS.chSize.h/2) - 1);
-WebGIS.chOffsetLeft  = new OpenLayers.Pixel(-(WebGIS.chSize.w/2) - 2, -(WebGIS.chSize.h/2) - 0);
-WebGIS.chIconRight = new OpenLayers.Icon(crosshairs, WebGIS.chSize, WebGIS.chOffsetRight);
-WebGIS.chIconLeft  = new OpenLayers.Icon(crosshairs, WebGIS.chSize, WebGIS.chOffsetLeft);
+$(document).ready(function () {
+	WebGIS.chSize = new OpenLayers.Size(17,17);
+	WebGIS.chOffsetRight = new OpenLayers.Pixel(-(WebGIS.chSize.w/2) - 0, -(WebGIS.chSize.h/2) - 1);
+	WebGIS.chOffsetLeft  = new OpenLayers.Pixel(-(WebGIS.chSize.w/2) - 2, -(WebGIS.chSize.h/2) - 0);
+	WebGIS.chIconRight = new OpenLayers.Icon(crosshairs, WebGIS.chSize, WebGIS.chOffsetRight);
+	WebGIS.chIconLeft  = new OpenLayers.Icon(crosshairs, WebGIS.chSize, WebGIS.chOffsetLeft);
 
-WebGIS.rightMarkers = new OpenLayers.Layer.Markers( "Markers" );
-WebGIS.leftMarkers = new OpenLayers.Layer.Markers( "Markers" );
-WebGIS.rightPointer;
-WebGIS.leftPointer;
+	WebGIS.rightMarkers = new OpenLayers.Layer.Markers( "Markers" );
+	WebGIS.leftMarkers = new OpenLayers.Layer.Markers( "Markers" );
+	WebGIS.rightPointer;
+	WebGIS.leftPointer;
+});
     
 
 WebGIS.leftMapMove = function()
