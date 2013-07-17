@@ -12,19 +12,17 @@ class HomeController < ApplicationController
     status = 200
     content_type = 'text/html'
     
-    timeout_duration = 15      # Give 5 second timeout...  long enough?
-
     begin
-      Timeout::timeout(timeout_duration) {
+      Timeout::timeout(15) {        # Time, in seconds
         
         if request.get? then
         
           print "GeoProxy sending GET request to: " + String(fixedurl)
           
           res = Net::HTTP.get_response(URI.parse(fixedurl))
-  
+
           status = res.code    # If there was an  error, pass that code back to our caller
-          @page = res.body
+          @page = res.body.force_encoding('ISO-8859-1').encode('UTF-8')
           content_type = res['content-type']
         
         elsif request.post? then
