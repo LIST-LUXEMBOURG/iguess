@@ -18,8 +18,8 @@ import time
 import datetime
 
 wpsVersion = '1.0.0'
-wmsVersion = '1.1.0'        # Rotterdam wms doesn't like 1.3.0!
-wfsVersion = '1.1.0'
+wmsVersion = '1.1.1'        # Rotterdam wms doesn't like 1.3.0!
+wfsVersion = '1.0.0'        # Montreuil only works with 1.0.0
 wcsVersion = '1.1.0'        # Rotterdam only works when this is set to 1.1.0
 
 # Get the database connection info
@@ -29,6 +29,8 @@ from harvester_pwd import dbDatabase, dbName, dbUsername, dbPassword, dbSchema
 
 # Connect to the database
 dbConn = psycopg2.connect(host = dbDatabase, database = dbName, user = dbUsername, password = dbPassword)
+
+dbConn.set_client_encoding('UTF-8')
 
 # Turn autocommit on to avoid locking our select statements
 # set_session([isolation_level,] [readonly,] [deferrable,] [autocommit])
@@ -69,21 +71,29 @@ def upsert(cursor, table, idCol, rowId, identifier):
 
 def doSql(conn, cursor, upsertList, sqlList):
 
-    dbConn.set_session(autocommit=False)
+    conn.set_session(autocommit=False)
 
     try:
         for up in upsertList:
             upsert(cursor, up[0], up[1], up[2], up[3])
 
         for sql in sqlList:
-            cursor.execute(sql)
+            cursor.execute(sql)     # .encode("UTF-8")
 
         conn.commit()
 
-    except:
+    except Exception as e:
+        print "-----"
+        print "Error running SQL:"
+        print sqlList
+        print "-----"
+        print type(e)
+        print e.args
+        print e
+        print "-----"
         conn.rollback()
 
-    dbConn.set_session(autocommit=True)
+    conn.set_session(autocommit=True)
     
 
 
@@ -249,16 +259,21 @@ try:
     upsertList = []
     sqlList = []
 
-    # Now check on the dataservers and datasets, first marking them all as defunct
-    sqlList.append("UPDATE " + tables["datasets"] +    " SET alive = false")
-    sqlList.append("UPDATE " + tables["dataservers"] + " SET alive = false")
-
-
     # Get the server list
     serverCursor.execute("SELECT DISTINCT url FROM " + tables["dataservers"])
 
     for row in serverCursor:
         serverUrl = row[0]
+
+        # Now check on the dataservers and datasets, first marking them all as defunct
+        sqlList.append("UPDATE " + tables["datasets"] + " SET alive = false " 
+                          "WHERE EXISTS ( "
+                            "SELECT * FROM " + tables["dataservers"] + " "
+                             "WHERE dataservers.id = datasets.dataserver_id "
+                             "AND dataservers.url = '" + serverUrl + "'"
+                           ")"
+              );
+        sqlList.append("UPDATE " + tables["dataservers"] + " SET alive = false WHERE url = " + serverUrl)
 
         try:        
             wms = WebMapService(serverUrl, version = wmsVersion)
@@ -308,7 +323,10 @@ try:
 
 
         # Trailing comma needed in line below because Python tuples can't have just one element...
-        dsCursor.execute("SELECT id, identifier, city_id FROM " + tables["datasets"] + " WHERE server_url = %s", (serverUrl,))
+        dsCursor.execute("SELECT d.id, d.identifier, d.city_id FROM " + tables["datasets"] + " AS d "
+                         "LEFT JOIN " + tables["dataservers"] + " AS ds ON d.dataserver_id = ds.id "
+                         "WHERE ds.url = %s", (serverUrl,))
+
 
         for dsrow in dsCursor:
             dsid       = dsrow[0]
@@ -333,15 +351,13 @@ try:
             # if wms:
             #     print dir(wms)
             #     etree.dump(wms._capabilities)
-            print identifier        #{P{P}}
-
             found = False;
 
             if wfs and identifier in wfs.contents:
                 print "Found WFS..."
                 found = True;
-                dstitle = wfs.contents[identifier].title.encode('utf8')    if wfs.contents[identifier].title    else identifier.encode('utf8')
-                dsabstr = wfs.contents[identifier].abstract.encode('utf8') if wfs.contents[identifier].abstract else ""
+                dstitle = wfs.contents[identifier].title    if wfs.contents[identifier].title    else identifier
+                dsabstr = wfs.contents[identifier].abstract if wfs.contents[identifier].abstract else ""
 
                 # Check if dataset is available in the city's local srs
                 for c in wfs.contents[identifier].crsOptions:
@@ -356,8 +372,8 @@ try:
             if wcs and identifier in wcs.contents:
                 print "Found WCS..."
                 found = True;
-                dstitle = wcs.contents[identifier].title.encode('utf8')    if wcs.contents[identifier].title    else identifier.encode('utf8')
-                dsabstr = wcs.contents[identifier].abstract.encode('utf8') if wcs.contents[identifier].abstract else ""
+                dstitle = wcs.contents[identifier].title    if wcs.contents[identifier].title    else identifier
+                dsabstr = wcs.contents[identifier].abstract if wcs.contents[identifier].abstract else ""
 
                 for c in wcs.contents[identifier].supportedCRS:     # crsOptions is available here, but always empty; only exists for OOP
                     if isEqualCrs(c.id, cityCRS[cityId]):
@@ -397,8 +413,8 @@ try:
             if wms and identifier in wms.contents:
                 print "Found WMS..."
                 found = True;
-                dstitle = wms.contents[identifier].title.encode('utf8')    if wms.contents[identifier].title    else identifier.encode('utf8')
-                dsabstr = wms.contents[identifier].abstract.encode('utf8') if wms.contents[identifier].abstract else ""
+                dstitle = wms.contents[identifier].title    if wms.contents[identifier].title    else identifier
+                dsabstr = wms.contents[identifier].abstract if wms.contents[identifier].abstract else ""
 
 
             if found:

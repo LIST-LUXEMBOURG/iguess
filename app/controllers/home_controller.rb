@@ -22,8 +22,13 @@ class HomeController < ApplicationController
           res = Net::HTTP.get_response(URI.parse(fixedurl))
 
           status = res.code    # If there was an  error, pass that code back to our caller
-          @page = res.body.force_encoding('ISO-8859-1').encode('UTF-8')
           content_type = res['content-type']
+
+          # if content_type.include? 'charset=' then
+            @page = res.body
+          else
+            @page = res.body.force_encoding('ISO-8859-1').encode('UTF-8')   # Force the encoding to be UTF-8
+          end
         
         elsif request.post? then
           
