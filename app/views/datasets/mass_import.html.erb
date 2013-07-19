@@ -56,6 +56,16 @@
 </div>
 
 
+<div class="infotable" id="infotable-unavailable-for-mapping">
+  <h1><span class="dataset-title">Available For Mapping</span></h1>
+    <div>We do all our mapping using <%= @google_projection %>, which is compatible with Google Maps and OpenStreetMap, 
+    used as a background in the map window.  If a dataset is available in this projection, we can display it on our maps.</div>
+    <br>
+  <h1><span class="dataset-title">Available For Processing</span></h1>
+  <div>Each city defines a projection that will be used for all calculations.  For <%= @current_city.name %>, that is <%= @current_city.srs %>.
+    If a dataset is available in this projection, we can use it in the computation modules.</div>
+</div>
+
 
 <%= render :partial => 'tag_functions.html.erb' %>
 
@@ -64,7 +74,7 @@
   // Add "js" style to body -- makes fancy checkboxes work
   $('body').attr("class",$('body').attr("class") + " js");
 
-  GOOGLE_SRS = 'EPSG:3857';
+  GOOGLE_SRS = '<%= @google_projection %>';
 
   registeredDataLayers = {};
 
@@ -292,14 +302,20 @@
         var srsNode = $(document.createElement('div'));
         srsNode.attr({ class:'dataset_srs' });
 
-
-        srsNode.append('<div><span class="proj-background">available for mapping</span><span class="' + 
+        var code = '<div style="cursor:pointer" rel="#infotable-unavailable-for-mapping">' +
+                   '<span class="proj-background">available for mapping</span><span class="' + 
                               (availableInGoogleProjection ? 'yes-background' : 'no-background') + '">' + 
-                              (availableInGoogleProjection ? 'yes'            : 'no')            + '</span></div>')
-               .append('<div><span class="proj-background">available for processing</span><span class="' + 
+                              (availableInGoogleProjection ? 'yes'            : 'no')            + '</span>' +
+                    '</div>' +
+
+                    '<div style="cursor:pointer" rel="#infotable-unavailable-for-mapping">' +
+                    '<span class="proj-background">available for processing</span><span class="' + 
                               (availableInLocalProjection  ? 'yes-background' : 'no-background') + '">' + 
-                              (availableInLocalProjection  ? 'yes'            : 'no')            + '</span></div>')
-               .append('<br><br><br>');
+                              (availableInLocalProjection  ? 'yes'            : 'no')            + '</span>' +
+                    '</div>' +
+                    '<br><br><br>';
+
+        srsNode.append(code);
 
 
         var data_info = $(document.createElement('div'));
@@ -428,6 +444,8 @@
 
 
     addDeleteTagClickHander();
+    $('div[rel]').overlay();  // Activate availability status overlays
+
 
 
     $("#layer-display-count").text(visibleLayers);    // Update layer display
@@ -1214,6 +1232,5 @@
       doneProcessing(serverUrl, service, serverInfo, "OK");
     }
   };
-
 
 </script>

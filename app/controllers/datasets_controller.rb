@@ -171,6 +171,7 @@ class DatasetsController < ApplicationController
   def mass_import
     @datasets        = Dataset.all
     @dataset_tags    = getDatasetTags()
+    @google_projection = 'EPSG:3857'
 
     # current_user should always be set here
     @current_city = current_user.role_id == 1 ? City.find_by_id(current_user.city_id) : (City.find_by_name(cookies['city']) or City.first)

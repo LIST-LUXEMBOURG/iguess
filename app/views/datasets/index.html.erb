@@ -55,7 +55,7 @@
     <% @datasets.each do |d| %>
       <div class="infotable" id="infotable-<%= d.id %>">
         <div class="close"></div>
-        <h1><span class="dataset-title"><%= d.title.present? ? d.title : d.identifier %></h1>
+        <h1><span class="dataset-title"><%= d.title.present? ? d.title : d.identifier %></span></h1>
         <div class="dataset-descr-<%= d.id %>"></div> 
         <div style="overflow:hidden">
           <dl>
