@@ -43,8 +43,14 @@
           </td>
           <td nowrap>
             <span class="hidden"><%= d.alive ? "1" : "2" %></span>      <!-- Hidden span allows sorting by availability -->
-              <%= d.alive ? raw('<img class="status-indicator" src="/assets/layer_available_yes.png" alt="Layer available">') :
-                            raw('<img class="status-indicator" src="/assets/layer_available_no.png"  alt="Layer not available">') %></td>
+              <%= d.alive ? raw('<div style="cursor:pointer; display:inline;" rel="#infotable-layer-unavailable">' +
+                                  '<img class="status-indicator" src="/assets/layer_available_yes.png" alt="Layer available">' +
+                                '</div>') :
+                            raw('<div style="cursor:pointer; display:inline;" rel="#infotable-layer-unavailable">' +
+                                  '<img class="status-indicator" src="/assets/layer_available_no.png"  alt="Layer not available">' +
+                                '</div>') 
+              %>
+          </td>
         </tr>
       <% end%>
     </tbody>
@@ -162,6 +168,16 @@
   <br />
 </div>
 
+<div class="infotable" id="infotable-layer-unavailable">
+  <h1><span class="dataset-title">Layer Avaialilty</span></h1>
+  <div>
+    Data layers are generally hosted on remote servers.  From time to time, the remote server might be unavailable, the owners might change 
+    the name of a data layer, or they could remove it altogether.  We periodically check these servers to see if data is still available.  
+    If it is not, we report the layer as being unavaialable.  It may be that the data will return in the future, or it may be permanently
+    gone.  Since we have no connection with the owners of these remote servers, we have no way to know why data has become unavailable. 
+  </div>
+</div>
+
 
 
 <script type="text/javascript">
@@ -179,6 +195,9 @@
               //do something with the error here
               alert("Could not unregister dataset.");
      });
+
+    $('div[rel]').overlay();  // Activate availability status overlays
+
   });
 </script>
 
