@@ -129,7 +129,7 @@ class DatasetsController < ApplicationController
 
       # User checked or unchecked publish checkbox (NOT the register dataset checkbox!!)
       elsif params[:id] == "publish"   
-        if canAccessObject(current_user, @dataset)
+        if User.canAccessObject(current_user, @dataset)
           @dataset.published = params[:checked]
           @dataset.save
         else
@@ -155,7 +155,7 @@ class DatasetsController < ApplicationController
 
     status = :ok
 
-    if canAccessObject(current_user, @dataset)
+    if @dataset and User.canAccessObject(current_user, @dataset)
       @dataset.destroy
     else
       status = 403

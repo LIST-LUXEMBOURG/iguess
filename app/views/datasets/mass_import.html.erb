@@ -471,7 +471,7 @@
         makeRegisteredLayer(serverUrl, data.dataset.identifier, data.dataset.id, data.tags, 0);
         updateTags(serverUrl, data.dataset.identifier, data.tags);
 
-        onDatasetRegisteredOrUnregistered(item, true);
+        onDatasetRegisteredOrUnregistered(item, checkbox, tagPickerControl, true);
     }
 
 
@@ -487,12 +487,12 @@
       $(".taglist-deletable-" + urlId + " .tag-delete-button").off("click");   // Disable clicking
       $(".taglist-deletable-" + urlId).attr("disabled", true);
 
-      onDatasetRegisteredOrUnregistered(item, false);
+      onDatasetRegisteredOrUnregistered(item, checkbox, tagPickerControl, false);
     }
 
 
     // Common code to run when we regiester or unregister a dataset
-    var onDatasetRegisteredOrUnregistered = function(item, registering)
+    var onDatasetRegisteredOrUnregistered = function(item, checkbox, tagPickerControl, registering)
     {
       item.toggleClass("checked");
       item.parent().parent().parent().toggleClass("registered_dataset");
@@ -555,6 +555,9 @@
 
       } else {
         // ===== Register dataset =====
+
+
+// debugger;
 
         var layer    = discoveredLayers[urlId];
         var taglist  = extractTagList(serverUrl, datasetIdentifier);
