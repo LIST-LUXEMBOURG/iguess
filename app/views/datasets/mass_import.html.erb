@@ -79,7 +79,8 @@
   registeredDataLayers = {};
 
 
-  var makeRegisteredLayer = function(serverUrl, datasetIdentifier, datasetId, tags, configCount) {
+  var makeRegisteredLayer = function(serverUrl, datasetIdentifier, datasetId, tags, configCount) 
+  {
 
     if(registeredDataLayers[serverUrl] === undefined)
       registeredDataLayers[serverUrl] = {};
@@ -463,16 +464,13 @@
 
     var registerDataset = function(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, item)
     {
-        checkbox.checked = true;
-        tagPickerControl.disabled = false;
-
         $(".taglist-deletable-" + urlId).attr("disabled", false);
 
         // Add layer to the list of registered layers
         makeRegisteredLayer(serverUrl, data.dataset.identifier, data.dataset.id, data.tags, 0);
         updateTags(serverUrl, data.dataset.identifier, data.tags);
 
-        onDatasetRegisteredOrUnregistered(item);
+        onDatasetRegisteredOrUnregistered(item, true);
     }
 
 
@@ -488,18 +486,18 @@
       $(".taglist-deletable-" + urlId + " .tag-delete-button").off("click");   // Disable clicking
       $(".taglist-deletable-" + urlId).attr("disabled", true);
 
-      checkbox.checked = false;
-      tagPickerControl.disabled = true;
-
-      onDatasetRegisteredOrUnregistered(item);
+      onDatasetRegisteredOrUnregistered(item, false);
     }
 
 
-    var onDatasetRegisteredOrUnregistered = function(item)
+    var onDatasetRegisteredOrUnregistered = function(item, registering)
     {
       item.toggleClass("checked");
       item.parent().parent().parent().toggleClass("registered_dataset");
       item.parent().parent().parent().toggleClass("unregistered_dataset");
+
+      checkbox.checked = registering;
+      tagPickerControl.disabled = !registering;
     }
 
 
