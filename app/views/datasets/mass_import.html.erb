@@ -390,8 +390,17 @@
 
           activeSRS   = layer.wmsCrs;
         }
+        else if(layer.wmsCrs && layer.wmsbbox && layer.wmsbbox.length == 4)
+        {
+          bbox_left   = layer.wmsbbox[0];
+          bbox_bottom = layer.wmsbbox[1];
+          bbox_right  = layer.wmsbbox[2];
+          bbox_top    = layer.wmsbbox[3];
+
+          activeSRS   = layer.wmsCrs;
+        }
         // See if we can do this in lat/long -- this is very hacky
-        else if(layer.llbbox) 
+        else if(layer.llbbox && layer.llbbox.length == 4) 
         {
           bbox_left   = layer.llbbox[0];
           bbox_bottom = layer.llbbox[1];
@@ -565,6 +574,7 @@
         var service  = "";
         if(     layer.type.hasObject("WFS")) { service = "WFS"; }
         else if(layer.type.hasObject("WCS")) { service = "WCS"; }
+        else if(layer.type.hasObject("WMS")) { service = "WMS"; }
 
         // debugger;
 
@@ -574,15 +584,15 @@
           type: "POST",      // POST combined with url below triggers "create" action on controller
           url: "<%= url_for(:controller => "datasets", :action => "create", :format=>:json) %>",
           data: "dataset[identifier]="    + datasetIdentifier +
-                "&dataset[service]="      + service   +
+                "&dataset[service]="      + service +
                 "&dataset[server_url]="   + serverUrl +
                 "&tags="                  + taglist +
                 "&dataset[title]="        + encodeURIComponent(title) +
                 "&dataset[abstract]="     + encodeURIComponent(abstract) +
-                "&dataset[bbox_left]="    + (layer.wxsbbox ? layer.wxsbbox.left   : "") +
-                "&dataset[bbox_right]="   + (layer.wxsbbox ? layer.wxsbbox.right  : "") +
-                "&dataset[bbox_top]="     + (layer.wxsbbox ? layer.wxsbbox.top    : "") +
-                "&dataset[bbox_bottom]="  + (layer.wxsbbox ? layer.wxsbbox.bottom : "") +
+                "&dataset[bbox_left]="    + getCoord(layer, "left") +
+                "&dataset[bbox_right]="   + getCoord(layer, "right") +
+                "&dataset[bbox_top]="     + getCoord(layer, "top") +
+                "&dataset[bbox_bottom]="  + getCoord(layer, "bottom") +
                 "&dataset[resolution_x]=" + Math.abs(layer.resolution.x) +
                 "&dataset[resolution_y]=" + Math.abs(layer.resolution.y) +
                 "&dataset[format]="       + (layer.format ? layer.format : "")+
@@ -603,6 +613,30 @@
     // Because of our unusual layout, we need to manually adjust things to get equal tile sizes... lame!
     equalizeRowHeights();
     $('#layer-table').equalWidths();
+  }
+
+
+  var getCoord = function(layer, which)
+  {
+    if(layer.wxsbbox && layer.wxsbbox[which])
+      return layer.wxsbbox[which];
+
+    if(layer.wmsbbox && layer.wmsbbox[which])
+      return layer.wmsbbox[which];
+
+    if(layer.wmsbbox && layer.wmsbbox && layer.wmsbbox.length == 4)
+    {
+      if(which === 'left')
+        return layer.wmsbbox[0];
+      if(which === 'right')
+        return layer.wmsbbox[2];
+      if(which === 'top')
+        return layer.wmsbbox[3];
+      if(which === 'bottom')
+        return layer.wmsbbox[1];
+    }
+
+    return "";
   }
 
 
@@ -1136,6 +1170,8 @@
       }
 
       layer.type.push(service);
+
+      // debugger;
 
       if(service === "WFS" || service === "WCS")
       {
