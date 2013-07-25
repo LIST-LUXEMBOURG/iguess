@@ -105,6 +105,7 @@ DSS.initMap = function()
         strategies: [new OpenLayers.Strategy.Fixed()],
         projection: new OpenLayers.Projection(DSS.mapProjection),
         protocol: new OpenLayers.Protocol.WFS({
+        	version: "1.1.0",
             url: "http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
             //propertyNames: propertyNames,
             //geometryName: "msGeometry",
@@ -120,9 +121,23 @@ DSS.initMap = function()
         })
     });
     
+    var localBuildsWFS = new OpenLayers.Layer.Vector("LocalBuildingsWFS", {
+		strategies: [new OpenLayers.Strategy.Fixed()],
+		projection: new OpenLayers.Projection(DSS.mapProjection),
+		protocol: new OpenLayers.Protocol.WFS({
+			version: "1.1.0",
+			url: "http://localhost/cgi-bin/mapserv?map=/var/www/MapServ/RotterdamSample.map",
+			featureNS: "http://mapserver.gis.umn.edu/mapserver",
+			featureType: "Buildings",
+			srsName: DSS.mapProjection
+		})},
+        {isBaseLayer: false,  
+     	 visibility: false}
+	);
+    
 
 
-	DSS.map.addLayers([streets, buildsWMS, DSS.buildsGML/*, buildsWFS*/]);
+	DSS.map.addLayers([streets, buildsWMS, DSS.buildsGML, buildsWFS, localBuildsWFS]);
 	
 	DSS.map.zoomIn();
 	DSS.map.zoomIn();

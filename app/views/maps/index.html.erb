@@ -40,19 +40,10 @@
     <% for city in City.all %>
       if(cityName == "<%= city.name %>")
       {
-        var proj = new OpenLayers.Projection("<%= city.srs %>");
-        var point = new OpenLayers.LonLat(
-                (<%= city.minx %> + <%= city.maxx %>) / 2,
-                (<%= city.miny %> + <%= city.maxy %>) / 2);
-        
-        if(WebGIS.leftMap != null)
-        	point.transform(proj, WebGIS.leftMap.getProjectionObject());
-
+		var point = new OpenLayers.LonLat(<%= city.minx %>, <%= city.miny %>);
         WebGIS.leftMap.setCenter(point, <%= city.zoom %>);
-        //WebGIS.rightMap.setCenter(point, <%= city.zoom %>);
         
         $('.all-layers').hide();
-        
         $('.layer-for-city-<%= city.id %>').show();
 
         return;
