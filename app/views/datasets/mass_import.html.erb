@@ -556,17 +556,17 @@
       } else {
         // ===== Register dataset =====
 
-
-// debugger;
-
         var layer    = discoveredLayers[urlId];
         var taglist  = extractTagList(serverUrl, datasetIdentifier);
         var title    = $("#dataset-title-"    + sanitizeId(datasetIdentifier)).text();
         var abstract = $("#dataset-abstract-" + sanitizeId(datasetIdentifier)).text();
 
+
         var service  = "";
         if(     layer.type.hasObject("WFS")) { service = "WFS"; }
         else if(layer.type.hasObject("WCS")) { service = "WCS"; }
+
+        // debugger;
 
         // Let the server know this layer is now registered -- to do this we must create a new record in
         // our datasets table.
@@ -579,6 +579,13 @@
                 "&tags="                  + taglist +
                 "&dataset[title]="        + encodeURIComponent(title) +
                 "&dataset[abstract]="     + encodeURIComponent(abstract) +
+                "&dataset[bbox_left]="    + layer.wxsbbox.left +
+                "&dataset[bbox_right]="   + layer.wxsbbox.right +
+                "&dataset[bbox_top]="     + layer.wxsbbox.top +
+                "&dataset[bbox_bottom]="  + layer.wxsbbox.bottom +
+                "&dataset[resolution_x]=" + Math.abs(layer.resolution.x) +
+                "&dataset[resolution_y]=" + Math.abs(layer.resolution.y) +
+                "&dataset[format]="       + layer.format +
                 "&dataset[alive]=true"    +
                 "&cityName=" + <% if current_user.role_id == 1 %>"<%= raw @current_city.name %>"<% else %>getCityCookie() <% end %> ,
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
@@ -1119,6 +1126,8 @@
 
     var layer = discoveredLayers[key];
 
+    console.log(service);
+
     if(layer) {   // Already found this layer, add service to it
 
       if(layer.type.hasObject(service)) {    // Will happen if duplicate names are used on the server
@@ -1132,6 +1141,9 @@
         layer.wxsCrs     = dataset.wxsCrs;
         layer.wxsbbox    = dataset.wxsbbox;
         layer.resolution = dataset.resolution;
+
+        if(service === "WCS")
+          layer.format = dataset.format;
       }
       else if(service === "WMS")
       {
