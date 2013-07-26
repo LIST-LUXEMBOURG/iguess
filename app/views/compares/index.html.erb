@@ -43,7 +43,7 @@
     <% for city in City.all %>
       if(cityName == "<%= city.name %>")
       {
-        var point = new OpenLayers.LonLat(<%= city.minx %>, <%= city.miny %>);
+        var point = new OpenLayers.LonLat(<%= city.mapx %>, <%= city.mapy %>);
         WebGIS.leftMap.setCenter(point, <%= city.zoom %>);
         WebGIS.rightMap.setCenter(point, <%= city.zoom %>);
         
