@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <% @site_name = Site.find_by_base_url(request.host).title %>
-  
-  <title><%= @site_name %></title>
+  <% @site = Site.find_by_base_url(request.host) %>
+  <% @details = SiteDetail.find_by_id(@site.site_details_id) %>
+
+  <title><%= @site.title %></title>
   <%= stylesheet_link_tag    :application %>
   <%= javascript_include_tag :application %>
   <%= csrf_meta_tags %>
@@ -38,13 +39,13 @@
     </div>
 
     <div style="float:right; margin-top:.6em; margin-right: .7em;">
-      <%= link_to image_tag("music_logo.png", :border => 1, :alt => "MUSIC Project"), "http://themusicproject.eu" %>&nbsp;
+      <%= link_to image_tag(@details.logo_img, :border => 1, :alt => @details.logo_alt_text), @details.logo_link_url %>&nbsp;
       <%= link_to image_tag("interreg_logo.png", :border => 0, :alt => "INTERREG IVB"), 'http://www.nweurope.eu/' %>
     </div>
 
     <div style="text-align:center;">
-      <div style="font-size: 300%; margin-bottom:-.35em"><%= @site_name %></div>
-      <div style="padding-bottom: .5em">integrated Geospatial Urban Energy information and Support System</div>
+      <div style="font-size: 300%; margin-bottom:-.35em"><%= @site.title %></div>
+      <div style="padding-bottom: .5em"><%= @details.subtitle %></div>
     </div>
 
     <div id="navbar" style="z-index:10;">
@@ -74,7 +75,7 @@
           <!-- In future, we'll do this more elegantly by placing map chooser in map window itself -->
           <% if (user_signed_in? and current_user.role_id == 2 ) or params[:controller] == "maps" or params[:controller] == "compares" %>
             <select name="cities" id="city-dropdown">
-              <% for city in City.all %>
+              <% for city in City.find_all_by_site_details_id(@details.id) %>
                 <option value="<%= city.name %>" <% if city.name == cookies['city'] %>selected<% end %>><%= city.name %></option>
               <% end %>
             </select>
