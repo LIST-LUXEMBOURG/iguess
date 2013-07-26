@@ -11,17 +11,15 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130712143520) do
+ActiveRecord::Schema.define(:version => 20130726070621) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
     t.string   "url"
     t.integer  "zoom"
     t.string   "srs"
-    t.float    "minx"
-    t.float    "miny"
-    t.float    "maxx"
-    t.float    "maxy"
+    t.float    "mapx"
+    t.float    "mapy"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
