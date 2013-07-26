@@ -256,24 +256,24 @@ def projectWgsToLocal(boundingBox, localProj):
 
 
 try:
-    upsertList = []
-    sqlList = []
-
     # Get the server list
     serverCursor.execute("SELECT DISTINCT url FROM " + tables["dataservers"])
 
     for row in serverCursor:
+        upsertList = []
+        sqlList = []
+        
         serverUrl = row[0]
 
         # Now check on the dataservers and datasets, first marking them all as defunct
-        sqlList.append("UPDATE " + tables["datasets"] + " SET alive = false " 
+        sqlList.append("UPDATE " + tables["datasets"] + " SET alive = false "
                           "WHERE EXISTS ( "
                             "SELECT * FROM " + tables["dataservers"] + " "
                              "WHERE dataservers.id = datasets.dataserver_id "
                              "AND dataservers.url = '" + serverUrl + "'"
                            ")"
               );
-        sqlList.append("UPDATE " + tables["dataservers"] + " SET alive = false WHERE url = " + serverUrl)
+        sqlList.append("UPDATE " + tables["dataservers"] + " SET alive = false WHERE url = '" + serverUrl + "'")
 
         try:        
             wms = WebMapService(serverUrl, version = wmsVersion)
@@ -441,8 +441,8 @@ try:
 
             print "Done with row!"
 
-    # Run queries and commit dataset transactions
-    doSql(dbConn, updateCursor, upsertList, sqlList)
+        # Run queries and commit dataset transactions
+        doSql(dbConn, updateCursor, upsertList, sqlList)
 
 except Exception as e:
     print "-----"
