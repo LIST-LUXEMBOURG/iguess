@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <% @site_name = Site.find_by_base_url(request.host).title %>
+  
   <title><%= @site_name %></title>
   <%= stylesheet_link_tag    :application %>
   <%= javascript_include_tag :application %>
   <%= csrf_meta_tags %>
-
-  <% @site_name = Site.find_by_base_url(request.host).title %>
-
 
 <script type="text/javascript">
   /* Script to enable JQuery UI / Themeroller buttons */
