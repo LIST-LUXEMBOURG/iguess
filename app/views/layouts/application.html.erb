@@ -93,8 +93,9 @@
             }
 
             // If the city cookie doesn't exist when we load this page, create it
+            // Note that the city-dropdown element will not be there for all users, so we need to check if the element is defined
             $(document).ready(function() {
-              if(getCityCookie() == null) {
+              if(getCityCookie() == null && document.getElementById("city-dropdown")) {
                 setCityCookie(document.getElementById("city-dropdown").value);
               }
             });
