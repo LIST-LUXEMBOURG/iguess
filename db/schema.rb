@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130726144934) do
+ActiveRecord::Schema.define(:version => 20130726150751) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -20,8 +20,9 @@ ActiveRecord::Schema.define(:version => 20130726144934) do
     t.string   "srs"
     t.float    "mapx"
     t.float    "mapy"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+    t.integer  "site_details_id", :null => false
   end
 
   create_table "config_datasets", :force => true do |t|
