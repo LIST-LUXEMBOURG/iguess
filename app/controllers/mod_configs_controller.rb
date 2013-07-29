@@ -20,7 +20,6 @@ class ModConfigsController < ApplicationController
     @mod_configs  = ModConfig.find_all_by_city_id(@current_city.id)
     @wps_servers  = WpsServer.find_all_by_city_id(@current_city.id)
 
-    # @wps_processes = WpsProcess.find_all_by_alive(:true, :order => 'title, identifier')   # For catalog
     @wps_processes = WpsProcess.joins(:wps_server).where('wps_servers.city_id' => @current_city.id, :alive => :true).order('title, identifier')   # For catalog
 
     respond_to do |format|
@@ -72,13 +71,17 @@ class ModConfigsController < ApplicationController
       return
     end
 
-    @mod_config = ModConfig.new
-    @wps_servers = WpsServer.find_all_by_alive(:true)
-    @wps_processes = WpsProcess.find_all_by_alive(:true, :order => 'title, identifier')
-    @datasets = Dataset.all
-    @dataset_tags = DatasetTag.all
     # current_user should always be set here
     @current_city = User.getCurrentCity(current_user, cookies)
+
+    @mod_config = ModConfig.new
+    @wps_servers = WpsServer.find_all_by_alive(:true)
+
+    @wps_processes = WpsProcess.joins(:wps_server).where('wps_servers.city_id' => @current_city.id, :alive => :true).order('title, identifier')   # For catalog
+
+    @datasets = Dataset.all
+    @dataset_tags = DatasetTag.all
+
 
     @textinputs = [ ]
 
