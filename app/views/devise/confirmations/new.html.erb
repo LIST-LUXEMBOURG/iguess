@@ -9,8 +9,10 @@
   </div>
 
   <div class="form-actions">
-    <%= f.button :submit, "Resend confirmation instructions" %>
+    <label></label><%= f.button :submit, "Resend confirmation instructions" %>
+  </div>
+
+  <div class="shared_links">
+    <label></label><%= render "devise/shared/links" %>
   </div>
 <% end %>
-
-<%= render "devise/shared/links" %>

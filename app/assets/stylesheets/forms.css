@@ -58,3 +58,13 @@
  padding: 0 3px; 
 }
 
+/* Special for checkbox on login screen */
+#user_remember_me {
+  vertical-align:-0.25em;
+  margin-right: 3px;
+}
+
+
+.shared_links {
+  margin-top: 15px;
+}

@@ -1,17 +1,24 @@
 class RegistrationsController < Devise::RegistrationsController
 
   def edit
-    @cities = City.all
+    @site = Site.find_by_base_url(request.host)
+    @details = SiteDetail.find_by_id(@site.site_details_id) 
+    @cities = City.find_all_by_site_details_id(@details.id)
+
     super
   end
 
   def new
-    @cities = City.all
+    @site = Site.find_by_base_url(request.host)
+    @details = SiteDetail.find_by_id(@site.site_details_id) 
+    @cities = City.find_all_by_site_details_id(@details.id)
     super
   end
 
   def update
-    @cities = City.all
+    @site = Site.find_by_base_url(request.host)
+    @details = SiteDetail.find_by_id(@site.site_details_id) 
+    @cities = City.find_all_by_site_details_id(@details.id)
     # super
 
     @user = User.find(current_user.id)
