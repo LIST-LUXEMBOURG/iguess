@@ -136,13 +136,15 @@
 
       table.empty();
 
-      var text = isInput ? 'Selected Dataset or Value' : 'Output Dataset Identifier';-
-      table.append('<tr><th>Parameter Name</th><th>' + text + '</th></tr>');
+      var text       = isInput ? "Selected Dataset or Value" : "Output Dataset Identifier";
+      var extraField = isInput ? "<th>Parameter Tag</th>"    : "";
+
+      table.append("<tr><th>Parameter Name</th>" + extraField + "<th>" + text + "</th></tr>");
 
 
       for(var i = 0; i < itemCount; i++)
       {
-        var row = $(document.createElement('tr'));
+        var row = $(document.createElement("tr"));
 
         item = items[i];   
 
@@ -169,6 +171,10 @@
         }
 
         row.append(cell);
+
+        if(isInput) {
+          row.append("<td align='center'>[" + item.identifier + "]</td>");
+        }
 
         // Parameter Value column
         cell = $(document.createElement('td'));   // Dataset
