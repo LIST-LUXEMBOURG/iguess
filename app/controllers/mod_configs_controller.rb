@@ -125,7 +125,7 @@ class ModConfigsController < ApplicationController
       return
     end
 
-    wpsClientPath ='/home/iguess/iguess_test';
+    wpsClientPath ='/home/iguess/iguess_test/iguess';
 
     require 'uri'
 
@@ -197,9 +197,10 @@ class ModConfigsController < ApplicationController
 
     require 'open3'
 
-# binding.pry
+ # binding.pry
 
     output, stat = Open3.capture2e(cmd)
+
 
 
     # Currently, WPSClient spews out lots of garbage.  We only want the last line.
