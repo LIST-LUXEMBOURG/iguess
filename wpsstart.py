@@ -90,8 +90,14 @@ iniCli.init(
 
 url = iniCli.sendRequest()
 
-errLog.write("Launching process: " + url + "\n")
-sys.stdout.write("OK:" + url)     # This is the line that our rails code will be looking for!
+
+if(url == None):        # iniCli encountered an error
+    sys.stdout.write("ERR:" + iniCli.lastLogMessage)
+else:                   # iniCli is happy!
+    errLog.write("Launching process: " + url + "\n")
+    sys.stdout.write("OK:" + url)     # This is the line that our rails code will be looking for!
+
+
 
 # iniCli = None
 

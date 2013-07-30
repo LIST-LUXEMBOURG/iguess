@@ -61,6 +61,9 @@ class WPSClient:
         Object of the type XMLPost containing the request coded as XML sent 
         to the WPS server as an HTTP Post 
     
+    .. attribute:: xmlResponse
+        String with the raw XML response to the WPS request. 
+            
     .. attribute:: statusURL
         URL of the remote XML file where the process updates its status and 
         writes its results after completion
@@ -74,7 +77,10 @@ class WPSClient:
         
     .. attribute:: statusMessage
         Last status message returned during asynchronous execution
-    
+        
+    .. attribute:: lastLogMessage
+        Last message written to the log.
+            
     .. attribute:: resultsComplex
         Vector of ComplexOutput objects harbouring the complex results produced
         by the remote process
@@ -127,10 +133,12 @@ class WPSClient:
     outputNames = None
     outputTitles = {}
     xmlPost = None
+    xmlResponse = None
     statusURL = None
     processId = None
     percentCompleted = 0
     statusMessage = None
+    lastLogMessage = None
     resultsComplex = []
     resultsLiteral = []
     map  = None
@@ -150,6 +158,18 @@ class WPSClient:
     RUNNING = 1
     FINISHED = 2
     ERROR = 3
+    
+    #Messages
+    WARN_01 = "Output titles missing or incomplete, using names."
+    WARN_02 = "Warning: couldn't determine the type of Complex output "
+    ERR_01  = "Different number of input names and values."
+    ERR_02  = "It wasn't possible to build a request with the given arguments."
+    ERR_03  = "It wasn't possible to process the server address."
+    ERR_04  = "No status location URL found in response."
+    ERR_05  = "Incomplete request -- missing URL"
+    ERR_06  = "The process failed with the following message:\n"
+    SUCC_01 = "The process has finished successfully.\nProcessing the results..."
+    SUCC_02 = "Wrote map file to disk:\n"
     
     def __init__(self):
          
@@ -232,7 +252,8 @@ class WPSClient:
         """
         
         if(len(outputNames) <> len(outputTitles)):
-            logging.warning("Output titles missing or incomplete, using names.")
+            logging.warning(self.WARN_01)
+            self.lastLogMessage = self.WARN_01
             for i in range(0, len(outputNames)):
                 self.outputTitles[outputNames[i]] = outputNames[i]
                 
@@ -259,7 +280,8 @@ class WPSClient:
         """
         
         if len(self.inputNames) <> len(self.inputValues):
-            logging.error("Different number of input names and values.")
+            logging.error(self.ERR_01)
+            self.lastLogMessage = self.ERR_01
             return
         
         self.xmlPost = XMLPost(self.processName)
@@ -285,19 +307,22 @@ class WPSClient:
         self.buildRequest()
         
         if(self.xmlPost == None):
-            logging.error("It wasn't possible to build a request with the given arguments.")
+            logging.error(self.ERR_02)
+            self.lastLogMessage = self.ERR_02
             return None
         
         request = self.xmlPost.getString()
         if(request == None):
-            logging.error("It wasn't possible to build a request with the given arguments.")
+            logging.error(self.ERR_02)
+            self.lastLogMessage = self.ERR_02
             return None
-        
+
         rest = self.serverAddress.replace("http://", "")     
         split = rest.split("/")
         
         if(len(split) < 2):
-            logging.error("It wasn't possible to process the server address.")
+            logging.error(self.ERR_03 + " (" + self.serverAddress + ")")
+            self.lastLogMessage = self.ERR_03 + " (" + self.serverAddress + ")"
             return None
         
         host = split[0]
@@ -327,7 +352,8 @@ class WPSClient:
         try:
             self.statusURL = self.xmlResponse.split("statusLocation=\"")[1].split("\"")[0]
         except Exception, err:
-            logging.error("No status location URL found in response.")
+            logging.error(self.ERR_04)
+            self.lastLogMessage = self.ERR_04
             return None
         
         self.processId = self.decodeId(self.statusURL)
@@ -351,7 +377,8 @@ class WPSClient:
         self.status = None                     
 
         if (self.statusURL == None):
-            logging.error("Incomplete request -- missing URL")
+            logging.error(self.ERR_05)
+            self.lastLogMessage = self.ERR_05
             return False
         
         r = urllib2.urlopen(urllib2.Request(self.statusURL))
@@ -372,7 +399,8 @@ class WPSClient:
                 self.processErrorCode = "Unknown"
                 self.processErrorText = "Unknown"
 
-            logging.error("The process failed with the following message:" + self.processErrorText)
+            logging.error(self.ERR_06 + self.processErrorText)
+            self.lastLogMessage = self.ERR_06 + self.processErrorText
 
             return True
            
@@ -388,7 +416,8 @@ class WPSClient:
                 logging.info(str(self.percentCompleted) + " % of the execution complete.")
             return False
         
-        logging.debug("The process has finished successfully.\nProcessing the results...")
+        logging.debug(self.SUCC_01)
+        self.lastLogMessage = self.SUCC_01
         
         # Process the results
         outVector = self.xmlResponse.split(Tags.preOut)
@@ -464,12 +493,14 @@ class WPSClient:
                     self.map.addLayer(layer)
                     
                 else:
-                    logging.warning("Warning: couldn't determine the type of Complex output " + c.name)
+                    logging.warning(self.WARN_02 + c.name)
+                    self.lastLogMessage = self.WARN_02
 
         
         self.map.writeToDisk()
         
-        logging.info("Wrote map file to disk:\n" + self.map.filePath())
+        logging.info(self.SUCC_02 + self.map.filePath())
+        self.lastLogMessage = self.SUCC_02
             
         return self.map.filePath()
         

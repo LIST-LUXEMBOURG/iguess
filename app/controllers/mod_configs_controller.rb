@@ -128,8 +128,6 @@ class ModConfigsController < ApplicationController
       return
     end
 
-    wpsClientPath ='/home/iguess/iguess_test/iguess';
-
     require 'uri'
 
     inputFields  = []
@@ -195,32 +193,44 @@ class ModConfigsController < ApplicationController
     argOuts      = '--outnames="['  + outputFields.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
     argOutTitles = '--titles="['    + outputTitles.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
 
-    cmd = 'cd '+ wpsClientPath +'; /usr/bin/python wpsstart.py ' + argUrl + ' ' +
+    cmd = '/usr/bin/python wpsstart.py ' + argUrl + ' ' +
                                    argProc + ' ' + argName + ' ' + argVals + ' ' + argOuts + ' ' + argOutTitles
 
     require 'open3'
 
- # binding.pry
 
     output, stat = Open3.capture2e(cmd)
-
 
 
     # Currently, WPSClient spews out lots of garbage.  We only want the last line.
     output =~ /^OK:(.*)$/
     pid = $1
 
-    print "PID = " ,pid
+    if pid == nil then
+      output =~ /^ERR:(.*)$/
+      error = $1
 
-    # Need some error checking here...
-    @mod_config.status = 'RUNNING'
-    @mod_config.pid = pid
+      if error == nil then    # We could not run wpsstart... output IS the error message
+        error = "wpsclient configuration error: " + output
+      end
+
+      # Show error to client
+      @mod_config.status = 'ERROR'
+      @mod_config.pid = ''
+      @mod_config.status_text = error
+
+    else
+      #success! change status to running and all that
+
+      @mod_config.status = 'RUNNING'
+      @mod_config.pid = pid
+      
+      @mod_config.status_text = ''
+    end
+
     @mod_config.run_started = Time.now
-    @mod_config.status_text = ''
     @mod_config.save
 
-
-    @mod_config = ModConfig.find(params[:id])
     respond_with do |format|
       format.js { render :json => @mod_config, :status => :ok }
     end
@@ -302,6 +312,25 @@ class ModConfigsController < ApplicationController
         format.json { render json: @mod_config.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+
+  def clearerror
+    @mod_config = ModConfig.find(params[:id])
+
+    if not User.canAccessObject(current_user, @mod_config)
+      return
+    end
+
+    if @mod_config.status == "ERROR" then
+      @mod_config.status = "READY"
+      @mod_config.save
+    end
+
+    respond_with do |format|
+      format.js { render :json => @mod_config, :status => :ok }
+    end
+
   end
 
 
