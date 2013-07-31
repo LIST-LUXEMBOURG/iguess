@@ -225,9 +225,13 @@ if($().jquery.split(".")[0] == "1") {
   }
 
 
+  var isRunning = false;
+
   var updateScreen = function(statusCode, message) 
   {
     hideButtons();
+
+    isRunning = false;
 
     $('#status-display').text(getPrettyStatusName(statusCode));
 
@@ -255,7 +259,7 @@ if($().jquery.split(".")[0] == "1") {
         }
       
         disableEditing();
-        // startPolling();
+        isRunning = true;
 
     } else if(statusCode == 'FINISHED') {   // Module run compete
       $('#explanation').html("This module has been successfully run.  You can now view the outputs in the Data Manager.");
@@ -276,6 +280,7 @@ if($().jquery.split(".")[0] == "1") {
     $("body").css("cursor", "auto");
   }
 
+
   // User has updated an input or output entry slot (called via onChange event)
   var onInputOutputTextEntryChanged = function() 
   {
@@ -291,8 +296,24 @@ if($().jquery.split(".")[0] == "1") {
     $('#input-output-form').submit();
 
     // If this is a WCS, we have more data to ship
-
   };
+
+
+  var poll = function()
+  {
+    setTimeout(reloadData, 10000);
+  }
+
+
+  var reloadData = function()
+  {
+    if(isRunning)
+      $.getJSON("<%= url_for(:action => 'getupdate', :format=>:json) %>", function(data){
+        updateScreen(data.status, data.status_text);
+      });
+
+    poll();
+  }
 
 
   $(document).ready(function() {
@@ -336,6 +357,9 @@ if($().jquery.split(".")[0] == "1") {
       .bind("ajax:success", function(xhr, data, status) { 
         updateScreen(JSON.parse(data).status, JSON.parse(data).status_text); 
     });
+
+    poll();
+
  });
 
 </script>

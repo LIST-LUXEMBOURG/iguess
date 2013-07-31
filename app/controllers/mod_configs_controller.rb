@@ -315,6 +315,19 @@ class ModConfigsController < ApplicationController
   end
 
 
+  # Simply return the current modconfig, in json format
+  def getupdate
+    @mod_config = ModConfig.find(params[:id])
+
+    if not User.canAccessObject(current_user, @mod_config)
+      return
+    end
+
+    render :json => @mod_config, :status => :ok
+    
+  end
+
+
   def clearerror
     @mod_config = ModConfig.find(params[:id])
 
