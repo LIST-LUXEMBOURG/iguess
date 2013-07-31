@@ -64,7 +64,7 @@ class MapFile:
     imageURL        = "/MapServ/map_images/"
     mapServerURL    = "http://localhost/cgi-bin/mapserv?map="
     mapFilesPath    = "/var/www/MapServ/"
-    otherProjs      = "EPSG:3035 EPSG:4326 EPSG:3785 EPSG:900913"
+    otherProjs      = "EPSG:3857 EPSG:3035 EPSG:4326 EPSG:900913"
     layers          = []
 
     def __init__(self, nameInit = "TestMapFile"):
@@ -115,19 +115,20 @@ class MapFile:
         text += "  NAME        \"" + self.name + "\"\n"
         text += "  EXTENT      " + str(self.bBox[0]) + " " + str(self.bBox[1]) + " " + str(self.bBox[2]) + " " + str(self.bBox[3]) + "\n"
         text += "  SIZE        400 300 \n"
+        text += "  MAXSIZE     4096 \n" # Making sure it renders on large screens.
         text += "  SHAPEPATH   \"" + self.shapePath + "\"\n"
         text += "  IMAGECOLOR  255 255 255 \n"
         text += "  PROJECTION \n"
         text += "   \"init=epsg:" + self.epsgCode + "\"\n"
         text += "  END \n\n"
         
-        text += "  IMAGETYPE      GTiff \n\n"
+        #text += "  IMAGETYPE      GTiff \n\n"
 
         text += "  OUTPUTFORMAT \n"
-        text += "    NAME GTiff \n"
+        text += "    NAME GTiff-RGB \n"
         text += "    DRIVER \"GDAL/GTiff\" \n"
         text += "    MIMETYPE \"image/tiff\" \n"
-        # This tag is creating exceptions in MapServer 6 - not clear why. 
+        # This tag is generating exceptions in MapServer 6.2 - not clear why. 
         #text += "    IMAGEMODE FLOAT32 \n"
         text += "    EXTENSION \"tif\" \n"
         text += "    FORMATOPTION \"FILENAME=WCSoutput.tif\" \n"
