@@ -104,7 +104,7 @@ DSS.costDragged = function(ed, value, oldValue)
 		
 		DSS.rule_highlight.filter.value = value / 1000;
 		DSS.rule_highlight.filter.property = "multi_c_e";
-		DSS.buildsGML.redraw();
+		DSS.buildsWFS.redraw();
 		DSS.lock = false;
 	}
 }
@@ -124,7 +124,7 @@ DSS.invDragged = function(ed, value, oldValue)
 		
 		DSS.rule_highlight.filter.value = value * 1000;
 		DSS.rule_highlight.filter.property = "mult_r_i";
-		DSS.buildsGML.redraw();
+		DSS.buildsWFS.redraw();
 		DSS.lock = false;
 	}
 }
@@ -144,7 +144,7 @@ DSS.areaDragged = function(ed, value, oldValue)
 		
 		DSS.rule_highlight.filter.value = value;
 		DSS.rule_highlight.filter.property = "area_cum";
-		DSS.buildsGML.redraw();
+		DSS.buildsWFS.redraw();
 		DSS.lock = false;
 	}
 }
@@ -165,7 +165,7 @@ DSS.genDragged = function(ed, value, oldValue)
 		
 		DSS.rule_highlight.filter.value = value * 1000;
 		DSS.rule_highlight.filter.property = "mult_r_e";
-		DSS.buildsGML.redraw();
+		DSS.buildsWFS.redraw();
 		DSS.lock = false;
 	}
 }
