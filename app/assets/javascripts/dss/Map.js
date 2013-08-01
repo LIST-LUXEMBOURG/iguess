@@ -9,13 +9,14 @@ var DSS = DSS || { };
 
 DSS.map = null;
  
+Proj4js.defs["EPSG:28992"] = "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +units=m +no_defs"; 
 DSS.mapProjection = "EPSG:28992";
  
 // Avoid pink error tiles
 OpenLayers.IMAGE_RELOAD_ATTEMPTS = 3;
 OpenLayers.Util.onImageLoadErrorColor = "transparent";
  
-DSS.buildsGML = null;
+DSS.buildsWFS = null;
  
 //create a style object
 DSS.style = new OpenLayers.Style();
@@ -87,57 +88,23 @@ DSS.initMap = function()
         {isBaseLayer: false,  
      	 visibility: true}
     );
-       
-    DSS.buildsGML = new OpenLayers.Layer.Vector("BuildingsGML", {
-        protocol: new OpenLayers.Protocol.HTTP({
-        	url: "assets/pv_potential.gml",
-            //url: "assets/pv_potential_small_ranked.gml",
-        	//url: "http://services.iguess.tudor.lu/pywps/sampleData/BuildingsFull.gml",
-            format: new OpenLayers.Format.GML()
-        }),
-        styleMap: DSS.style,
-        strategies: [new OpenLayers.Strategy.Fixed()]
-    });
-    
-    //var propertyNames = ["fid", "cat", "DESCRIPTIO", "msGeometry"];
-    
-    buildsWFS = new OpenLayers.Layer.Vector("BuildingsWFS", {
-        strategies: [new OpenLayers.Strategy.Fixed()],
-        projection: new OpenLayers.Projection(DSS.mapProjection),
-        protocol: new OpenLayers.Protocol.WFS({
-        	version: "1.1.0",
-            url: "http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
-            //propertyNames: propertyNames,
-            //geometryName: "msGeometry",
-            featureType: "RO_buildings_gml",
-            //"featurePrefix": "ms",
-            //featureNS: "http://services.iguess.tudor.lu/",
-            featureNS: "http://mapserver.gis.umn.edu/mapserver",
-            srsName: DSS.mapProjection
-            //"maxFeatures": 1000,
-            //"version": "1.0.0",
-            //outputFormat: "application/gml",
-            //readFormat: new OpenLayers.Format.GML()
-        })
-    });
-    
-    var localBuildsWFS = new OpenLayers.Layer.Vector("LocalBuildingsWFS", {
+	
+	DSS.buildsWFS = new OpenLayers.Layer.Vector("pv_potential", {
 		strategies: [new OpenLayers.Strategy.Fixed()],
+		styleMap: DSS.style,
 		projection: new OpenLayers.Projection(DSS.mapProjection),
 		protocol: new OpenLayers.Protocol.WFS({
 			version: "1.1.0",
-			url: "http://localhost/cgi-bin/mapserv?map=/var/www/MapServ/RotterdamSample.map",
+			url: "http://iguess-mapserv.kirchberg.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/MapFiles/RO_localOWS_test.map",
 			featureNS: "http://mapserver.gis.umn.edu/mapserver",
-			featureType: "Buildings",
+			featureType: "pv_potential",
 			srsName: DSS.mapProjection
 		})},
         {isBaseLayer: false,  
      	 visibility: false}
 	);
-    
 
-
-	DSS.map.addLayers([streets, buildsWMS, DSS.buildsGML, buildsWFS, localBuildsWFS]);
+	DSS.map.addLayers([streets, buildsWMS, DSS.buildsWFS]);
 	
 	DSS.map.zoomIn();
 	DSS.map.zoomIn();
