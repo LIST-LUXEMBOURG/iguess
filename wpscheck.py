@@ -148,13 +148,13 @@ for row in rows:
                 serverId = qcur.fetchone()[0]
 
                 queryTemplate = "INSERT INTO " + schema + ".datasets "\
-                                "(server_url, dataserver_id, identifier, title, abstract, city_id, alive, finalized, created_at, updated_at)" \
-                                "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                                "(title, server_url, dataserver_id, identifier, abstract, city_id, alive, finalized, created_at, updated_at)" \
+                                "VALUES((SELECT value FROM " + schema + ".config_text_inputs " \
+                                    "WHERE mod_config_id = %s AND column_name = %s AND is_input = FALSE), %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
-                title = identifier
                 abstract = "Result calculated with module"
 
-                cur.execute(queryTemplate, (url, serverId, identifier, title, abstract, str(city_id), True, True, str(datetime.datetime.now()), str(datetime.datetime.now())))
+                cur.execute(queryTemplate, (recordId, identifier, url, serverId, identifier, abstract, str(city_id), True, True, str(datetime.datetime.now()), str(datetime.datetime.now())))
                 #http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/LB_localOWS_test.map
 
             conn.commit()

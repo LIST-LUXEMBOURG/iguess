@@ -20,7 +20,6 @@ class ModConfigsController < ApplicationController
     @mod_configs  = ModConfig.find_all_by_city_id(@current_city.id)
     @wps_servers  = WpsServer.find_all_by_city_id(@current_city.id)
 
-    # @wps_processes = WpsProcess.find_all_by_alive(:true, :order => 'title, identifier')   # For catalog
     @wps_processes = WpsProcess.joins(:wps_server).where('wps_servers.city_id' => @current_city.id, :alive => :true).order('title, identifier')   # For catalog
 
     respond_to do |format|
@@ -72,13 +71,17 @@ class ModConfigsController < ApplicationController
       return
     end
 
-    @mod_config = ModConfig.new
-    @wps_servers = WpsServer.find_all_by_alive(:true)
-    @wps_processes = WpsProcess.find_all_by_alive(:true, :order => 'title, identifier')
-    @datasets = Dataset.all
-    @dataset_tags = DatasetTag.all
     # current_user should always be set here
     @current_city = User.getCurrentCity(current_user, cookies)
+
+    @mod_config = ModConfig.new
+    @wps_servers = WpsServer.find_all_by_alive(:true)
+
+    @wps_processes = WpsProcess.joins(:wps_server).where('wps_servers.city_id' => @current_city.id, :alive => :true).order('title, identifier')   # For catalog
+
+    @datasets = Dataset.all
+    @dataset_tags = DatasetTag.all
+
 
     @textinputs = [ ]
 
@@ -124,8 +127,6 @@ class ModConfigsController < ApplicationController
     if not User.canAccessObject(current_user, @mod_config)
       return
     end
-
-    wpsClientPath ='/home/iguess/iguess_test';
 
     require 'uri'
 
@@ -192,12 +193,11 @@ class ModConfigsController < ApplicationController
     argOuts      = '--outnames="['  + outputFields.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
     argOutTitles = '--titles="['    + outputTitles.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
 
-    cmd = 'cd '+ wpsClientPath +'; /usr/bin/python wpsstart.py ' + argUrl + ' ' +
+    cmd = '/usr/bin/python wpsstart.py ' + argUrl + ' ' +
                                    argProc + ' ' + argName + ' ' + argVals + ' ' + argOuts + ' ' + argOutTitles
 
     require 'open3'
 
-# binding.pry
 
     output, stat = Open3.capture2e(cmd)
 
@@ -206,17 +206,31 @@ class ModConfigsController < ApplicationController
     output =~ /^OK:(.*)$/
     pid = $1
 
-    print "PID = " ,pid
+    if pid == nil then
+      output =~ /^ERR:(.*)$/
+      error = $1
 
-    # Need some error checking here...
-    @mod_config.status = 'RUNNING'
-    @mod_config.pid = pid
+      if error == nil then    # We could not run wpsstart... output IS the error message
+        error = "wpsclient configuration error: " + output
+      end
+
+      # Show error to client
+      @mod_config.status = 'ERROR'
+      @mod_config.pid = ''
+      @mod_config.status_text = error
+
+    else
+      #success! change status to running and all that
+
+      @mod_config.status = 'RUNNING'
+      @mod_config.pid = pid
+      
+      @mod_config.status_text = ''
+    end
+
     @mod_config.run_started = Time.now
-    @mod_config.status_text = ''
     @mod_config.save
 
-
-    @mod_config = ModConfig.find(params[:id])
     respond_with do |format|
       format.js { render :json => @mod_config, :status => :ok }
     end
@@ -298,6 +312,38 @@ class ModConfigsController < ApplicationController
         format.json { render json: @mod_config.errors, status: :unprocessable_entity }
       end
     end
+  end
+
+
+  # Simply return the current modconfig, in json format
+  def getupdate
+    @mod_config = ModConfig.find(params[:id])
+
+    if not User.canAccessObject(current_user, @mod_config)
+      return
+    end
+
+    render :json => @mod_config, :status => :ok
+    
+  end
+
+
+  def clearerror
+    @mod_config = ModConfig.find(params[:id])
+
+    if not User.canAccessObject(current_user, @mod_config)
+      return
+    end
+
+    if @mod_config.status == "ERROR" then
+      @mod_config.status = "READY"
+      @mod_config.save
+    end
+
+    respond_with do |format|
+      format.js { render :json => @mod_config, :status => :ok }
+    end
+
   end
 
 

@@ -134,6 +134,16 @@ class MapFile:
         text += "    FORMATOPTION \"FILENAME=WCSoutput.tif\" \n"
         text += "  END \n\n"
 
+        text += "  OUTPUTFORMAT \n"
+        text += "    NAME img \n"
+        text += "    DRIVER \"GDAL/HFA\" \n"
+        text += "    MIMETYPE \"image/img\" \n"
+        text += "    IMAGEMODE FLOAT32 \n"
+        text += "    EXTENSION \"img\" \n"
+        text += "    FORMATOPTION \"COMPRESSED=YES\" \n"
+        text += "    FORMATOPTION \"FILENAME=WCSoutput.tif\" \n"
+        text += "  END \n\n"
+
         text += "WEB \n"
         text += "  TEMPLATE  \"" + self.mapTemplate + "\"\n"
         text += "  IMAGEPATH \"" + self.imagePath + "\"\n"
@@ -318,7 +328,7 @@ class RasterLayer(Layer):
         text += "      \"wcs_label\"           \"" + self.name + "\"   ### required \n"
         text += "      \"wcs_rangeset_name\"   \"Range 1\"  ### required to support DescribeCoverage request \n"
         text += "      \"wcs_rangeset_label\"  \"My Label\" ### required to support DescribeCoverage request \n"
-        text += "      \"gml_include_items\" \"all\" \n"
+        #text += "      \"gml_include_items\" \"all\" \n"
         text += "      \"wms_include_items\" \"all\"\n"
         text += "    END \n\n"
         

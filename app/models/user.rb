@@ -34,7 +34,7 @@ class User < ActiveRecord::Base
       return false
     elsif current_user.role_id == 2
       return true
-    elsif city_id == object.city_id
+    elsif current_user.city_id == object.city_id
       return true
     else
       return false
