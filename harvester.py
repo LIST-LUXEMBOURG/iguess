@@ -401,10 +401,13 @@ try:
                     continue
                 else:
                     index = 0
+
+                    # If any of our preferred formats are available, set index appropriately
                     if 'image/img' in wcs.contents[identifier].supportedFormats[index].lower():
                         index = wcs.contents[identifier].supportedFormats.index('image/img')    # This is our preferred format; use it if available
                     elif 'image/tiff' in wcs.contents[identifier].supportedFormats[index].lower():
                         index = wcs.contents[identifier].supportedFormats.index('image/tiff')   # Second choice is tiff
+                        
                     imgFormat = wcs.contents[identifier].supportedFormats[index]
 
                     bb = wcs.contents[identifier].boundingBoxWGS84
@@ -420,6 +423,7 @@ try:
             if found:
                 print "Updating datasets..."
                 # Update the database with the layer info
+
                 sqlList.append(
                                 "UPDATE " + tables["datasets"] + " "
                                 "SET title = "        + str(adapt(dstitle))    + ", "
