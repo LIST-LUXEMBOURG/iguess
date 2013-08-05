@@ -9,6 +9,7 @@ from owslib.wms import WebMapService, ServiceException
 
 # Download source from http://code.google.com/p/pyproj/downloads/list, follow instructions in README
 from pyproj import transform, Proj
+from lxml import etree
 
 import psycopg2          # For database access
 from psycopg2.extensions import adapt  # adapt gives us secure qutoing
@@ -16,6 +17,7 @@ import re
 import math
 import time
 import datetime
+import string
 
 wpsVersion = '1.0.0'
 wmsVersion = '1.1.1'        # Rotterdam wms doesn't like 1.3.0!
@@ -174,7 +176,10 @@ for row in serverCursor:
 
         procId = updateCursor.fetchone()[0]
 
-        procDescr = wps.describeprocess(proc.identifier)
+        try:
+            procDescr = wps.describeprocess(proc.identifier)
+        except:
+            print "Could not describe process ", proc.identifier, " on server ", serverUrl
 
         for input in procDescr.dataInputs:
 
@@ -244,13 +249,15 @@ def isEqualCrs(first, second):
 
 
 def projectWgsToLocal(boundingBox, localProj):
-    print "BB", boundingBox[0], boundingBox[1], boundingBox[2], boundingBox[3]
-
     p1 = Proj(init='EPSG:4326')     # WGS84
     p2 = Proj(init=localProj)
 
     bboxLeft,  bboxBottom = transform(p1, p2, boundingBox[0], boundingBox[1])
     bboxRight, bboxTop    = transform(p1, p2, boundingBox[2], boundingBox[3])
+
+    print "Transforming:"
+    print localProj, bboxLeft,  bboxBottom ,"= transform(p1, p2, ",boundingBox[0],",", boundingBox[1],")"
+    print localProj, bboxRight, bboxTop ,"= transform(p1, p2, ",boundingBox[2], ",", boundingBox[3],")"
 
     return bboxLeft,  bboxBottom, bboxRight, bboxTop
 
@@ -264,6 +271,7 @@ try:
         sqlList = []
         
         serverUrl = row[0]
+        print "Processing server ", serverUrl
 
         # Now check on the dataservers and datasets, first marking them all as defunct
         sqlList.append("UPDATE " + tables["datasets"] + " SET alive = false "
@@ -372,18 +380,18 @@ try:
             if wcs and identifier in wcs.contents:
                 print "Found WCS..."
                 found = True;
+                crs = None
                 dstitle = wcs.contents[identifier].title    if wcs.contents[identifier].title    else identifier
                 dsabstr = wcs.contents[identifier].abstract if wcs.contents[identifier].abstract else ""
 
                 for c in wcs.contents[identifier].supportedCRS:     # crsOptions is available here, but always empty; only exists for OOP
                     if isEqualCrs(c.id, cityCRS[cityId]):
                         hasCityCRS = True
+                        crs = c.id
                         break
 
                 dc = wcs.getDescribeCoverage(identifier)
-                gridOffsets = dc.find(".//{http://www.opengis.net/wcs/1.1}GridOffsets") 
-                if gridOffsets is None:
-                    dc.find(".//{http://www.opengis.net/wcs}GridOffsets")
+                gridOffsets = dc.find(".//{*}GridOffsets") 
 
                 if(gridOffsets is None):
                     print "Can't find GridOffsets for WCS dataset " + serverUrl + " >>> " + identifier
@@ -394,6 +402,24 @@ try:
                         resX = float(resX) * -1
                     if(float(resY) < 0):
                         resY = float(resY) * -1
+
+
+                # Try to get the native bounding box, if we can find it.  If we can't we'll try projecting the WGS84 bounding box, but this
+                # is less accurate
+                if(hasCityCRS):
+                    bb = dc.find(".//{*}BoundingBox[@crs='" + crs + "']")
+
+                    if len(bb) > 0:
+                        corners = bb.find("{*}LowerCorner").text + " " + bb.find("{*}UpperCorner").text
+
+                        if len(corners) > 1:
+                            bboxLeft, bboxBottom, bboxRight, bboxTop = string.split(corners)
+
+                # Try projecting the WGS84 bounding box
+                if bboxTop == "None":
+                    bb = wcs.contents[identifier].boundingBoxWGS84
+                    bboxLeft, bboxBottom, bboxRight, bboxTop = projectWgsToLocal(bb, cityCRS[cityId])
+                         
 
 
                 if(len(wcs.contents[identifier].supportedFormats[0]) == 0):
@@ -410,8 +436,6 @@ try:
                         
                     imgFormat = wcs.contents[identifier].supportedFormats[index]
 
-                    bb = wcs.contents[identifier].boundingBoxWGS84
-                    bboxLeft, bboxBottom, bboxRight, bboxTop = projectWgsToLocal(bb, cityCRS[cityId])
 
             if wms and identifier in wms.contents:
                 print "Found WMS..."
