@@ -6,14 +6,6 @@ class ModConfigsController < ApplicationController
 
   respond_to :html, :js
 
-  def findAllTags()
-    tags = []
-    allInputs = ProcessParam.find_all_by_alive_and_is_input(:true, :true)
-    allInputs.each { |i| tags.push(i.identifier) }
-
-    return tags.sort.uniq
-  end
-
 
   def index
     @current_city = User.getCurrentCity(current_user, cookies)
