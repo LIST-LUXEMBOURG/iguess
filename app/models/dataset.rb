@@ -8,7 +8,12 @@ end
 
 
 def getDatasetTags
-  return ProcessParam.find_all_by_alive(true).map{|p| p.identifier}.uniq.sort_by! { |x| x.downcase }
+  tags = []
+
+  tags = ProcessParam.find_all_by_datatype_and_alive('ComplexData', :true).map{ |p| p.identifier }
+  tags.push('Mapping')    # Mapping is always a valid tag
+
+  return tags.sort_by! { |x| x.downcase }.uniq
 end
 
 

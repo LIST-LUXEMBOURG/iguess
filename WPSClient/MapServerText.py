@@ -141,7 +141,7 @@ class MapFile:
         text += "    IMAGEMODE FLOAT32 \n"
         text += "    EXTENSION \"img\" \n"
         text += "    FORMATOPTION \"COMPRESSED=YES\" \n"
-        text += "    FORMATOPTION \"FILENAME=WCSoutput.tif\" \n"
+        text += "    FORMATOPTION \"FILENAME=WCSoutput.img\" \n"
         text += "  END \n\n"
 
         text += "WEB \n"
@@ -153,7 +153,10 @@ class MapFile:
         text += "    \"ows_onlineresource\" \"" + self.mapServerURL + self.filePath() + "&\"\n"
         text += "    \"ows_srs\"             \"EPSG:" + self.epsgCode + " " + self.otherProjs + "\"\n"
         text += "    \"ows_bbox_extended\" \"true\"\n"
-        text += "    \"ows_enable_request\" \"*\"\n\n" 
+        text += "    \"ows_enable_request\" \"*\"\n" 
+        text += "    \"ows_encoding\" \"UTF-8\"\n"
+        text += "    \"gml_include_items\" \"all\"\n\n"
+
 
         text += "  END  # Metadata\n\n"
         text += "END  # Web\n\n"
@@ -248,20 +251,24 @@ class Layer:
         Path to the spatial data set in the disk
     """
     
-    name        = None
-    title       = None
+    name        = "TestLayer"
+    title       = "Test layer"
     abstract    = "A layer generated automatically"
     bBox        = None
     epsgCode    = None
     path        = None
     
-    def __init__(self, path, bounds, epsg, nameInit = "TestLayer", title = "Test layer"):
+    def __init__(self, path, bounds, epsg, nameInit = None, title = None, abstract = None):
         
-        self.name = nameInit
-        self.title = title
+        if nameInit != None:
+            self.name = nameInit
+        if title != None:
+            self.title = title
         self.bBox = bounds
         self.epsgCode = epsg 
         self.path = path
+        if abstract != None:
+            self.abstract = abstract
 
 ###############################################################################
 
@@ -281,21 +288,24 @@ class RasterLayer(Layer):
     .. attribute:: minVal
         Minimum value of this layer
             
-    .. attribute:: maxCol
-        RGB colour used to portrait the maximum value of this layer
-            
-    .. attribute:: minCol
-        RGB colour used to portrait the minimum value of this layer
+    .. attribute:: rainbowRamp
+        RGB colour ramp used to portrait the layer by default
     """
     
     maxVal = None
     minVal = None 
-    maxCol = "255 255 96"
-    minCol = "128 0 0"
     
-    def __init__(self, path, bounds, epsg, nameInit = "TestLayer", title = "Test layer"):
+    rainbowRamp = ["255   0   0", #Red
+                   "255 127   0", #Orange
+                   "255 255   0", #Yellow
+                   "  0 255   0", #Green
+                   "  0   0 255", #Blue 
+                   " 75   0 130", #Indigo
+                   "143   0 255"] #Violet
+    
+    def __init__(self, path, bounds, epsg, nameInit = None, title = None, abstract = None):
         
-        Layer.__init__(self, path, bounds, epsg, nameInit, title) 
+        Layer.__init__(self, path, bounds, epsg, nameInit, title, abstract) 
         
     def setBounds(self, boundMax, boundMin):
         """
@@ -328,20 +338,29 @@ class RasterLayer(Layer):
         text += "      \"wcs_label\"           \"" + self.name + "\"   ### required \n"
         text += "      \"wcs_rangeset_name\"   \"Range 1\"  ### required to support DescribeCoverage request \n"
         text += "      \"wcs_rangeset_label\"  \"My Label\" ### required to support DescribeCoverage request \n"
+        text += "      \"wcs_formats\" \"img\" ### required for IMG output format \n"
         #text += "      \"gml_include_items\" \"all\" \n"
         text += "      \"wms_include_items\" \"all\"\n"
         text += "    END \n\n"
         
         if ((self.minVal <> None) and (self.maxVal <> None)):
-            text += "    CLASS \n"
-            text += "        NAME \"ColourRamp\" \n"
-            text += "        EXPRESSION ([pixel] >= " + str(self.minVal) + " and [pixel] <= " + str(self.maxVal) + ") \n"
-            text += "        STYLE \n"
-            text += "            COLORRANGE " + self.minCol + " " + self.maxCol + "\n"
-            text += "            DATARANGE " + str(self.minVal) + " " + str(self.maxVal) + "\n"
-            text += "        END \n"
-            text += "    END \n\n"
-        
+            
+            interval = (self.maxVal - self.minVal) / 6
+            
+            for i in range(0, len(self.rainbowRamp) - 1):
+                
+                thisMin = self.minVal + interval * i
+                thisMax = thisMin + interval
+                
+                text += "    CLASS \n"
+                text += "        NAME \"RampClass" + str(i) + "\"\n"
+                text += "        EXPRESSION ([pixel] >= " + str(thisMin) + " and [pixel] <= " + str(thisMax) + ") \n"
+                text += "        STYLE \n"
+                text += "            COLORRANGE " + self.rainbowRamp[i] + " " + self.rainbowRamp[i + 1] + "\n"
+                text += "            DATARANGE " + str(thisMin) + " " + str(thisMax) + "\n"
+                text += "        END \n"
+                text += "    END \n\n"
+
         text += "  END \n"
         
         return text 
@@ -368,9 +387,9 @@ class VectorLayer(Layer):
     layerType   = None
     styles       = []
 
-    def __init__(self, path, bounds, epsg, nameInit = "TestLayer", title = "Test layer"):
+    def __init__(self, path, bounds, epsg, nameInit = None, title = None, abstract = None):
         
-        Layer.__init__(self, path, bounds, epsg, nameInit, title) 
+        Layer.__init__(self, path, bounds, epsg, nameInit, title, abstract) 
         # self.LayerHeader()
 
     def layerHeader(self):
@@ -391,12 +410,13 @@ class VectorLayer(Layer):
         text += "  METADATA \n"
         text += "    \"DESCRIPTION\" \"" + self.name + "\"\n"
         text += "    \"ows_title\"   \"" + self.title + "\"\n"
+        text += "    \"ows_abstract\" \"" + self.abstract + "\"\n\n"
         text += "    \"gml_include_items\" \"all\" \n"
         text += "    \"wms_include_items\" \"all\"\n"
         text += "  END  # Metadata \n\n"
 
         text += "    CLASS \n"
-        text += "      NAME       \"" + self.abstract + "\"\n"
+        text += "      NAME       \"" + self.title + "\"\n"
 
         return text
 

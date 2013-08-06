@@ -179,12 +179,22 @@ input, select, textarea {
 }
 
 
-/* Light blue explanation box */
-.explanation {
+.explanation, .explanation-problem {
   display: block;
   padding: 12px 1em 18px 50px;
   margin: 0.25em 0 1.5em 0;
+}
+
+/* Light blue explanation box */
+.explanation {
   background: #D5E9F6 url(images/info_icon.svg) no-repeat left center;
+  background-size: 32px 32px;
+  background-position: 10px 40%;    /* Distance from the left */
+
+}
+
+.explanation-problem {
+  background: #F6B9A5 url(images/error_icon.png) no-repeat left center;
   background-size: 32px 32px;
   background-position: 10px 40%;    /* Distance from the left */
 }
@@ -195,17 +205,6 @@ input, select, textarea {
 
 .explanation li {
   margin-left: 20px;
-}
-
-
-/* Usually hidden error box */
-.error-box {
-  display: none;
-  padding: 12px 1em 18px 50px;
-  margin: 0.25em 0 1.5em 0;
-  background: #F6B9A5 url(images/error_icon.png) no-repeat left center;
-  background-size: 32px 32px;
-  background-position: 10px 40%;    /* Distance from the left */
 }
 
 

@@ -1,7 +1,7 @@
 
 <h1>Register Datasets</h1>
 
-<div id="error-list" class="error-box"></div>
+<div id="error-list" class="explanation-problem" style="display: none"></div>
 
 <div class="explanation">
   <p>iGUESS uses datasets stored on remote servers.  To register datasets with the system, enter a server URL in the box below.
@@ -372,6 +372,10 @@
         var bbox_left, bbox_bottom, bbox_right, bbox_top;
         var activeSRS = null;
 
+
+        // if(layer.identifier == 'ro_dsm_mini') debugger;
+
+
         if(layer.wmsCrs && layer.wmsbbox && layer.wmsbbox.left)
         {
           bbox_left   = layer.wmsbbox.left;
@@ -576,10 +580,9 @@
         else if(layer.type.hasObject("WCS")) { service = "WCS"; }
         else if(layer.type.hasObject("WMS")) { service = "WMS"; }
 
-        // debugger;
-
         // Let the server know this layer is now registered -- to do this we must create a new record in
         // our datasets table.
+
         $.ajax({
           type: "POST",      // POST combined with url below triggers "create" action on controller
           url: "<%= url_for(:controller => "datasets", :action => "create", :format=>:json) %>",
@@ -1171,7 +1174,6 @@
 
       layer.type.push(service);
 
-      // debugger;
 
       if(service === "WFS" || service === "WCS")
       {

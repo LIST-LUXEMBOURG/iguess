@@ -122,8 +122,12 @@ class DatasetsController < ApplicationController
         end
 
         if not error
+          @dataset_tags = getDatasetTags()
           respond_to do |format|
-            format.json { render :json => @dataset ? DatasetTag.find_all_by_dataset_id(@dataset.id, :order=>:tag).map {|d| d.tag } : [] }
+            # Filter out any dead tags
+            format.json { render :json => @dataset ? DatasetTag.find_all_by_dataset_id(@dataset.id, :order=>:tag)
+                                                               .select {|d| @dataset_tags.include? d.tag }
+                                                               .map {|d| d.tag } : [] }
           end
         end
 

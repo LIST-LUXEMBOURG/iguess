@@ -234,6 +234,7 @@ if($().jquery.split(".")[0] == "1") {
     isRunning = false;
 
     $('#status-display').text(getPrettyStatusName(statusCode));
+    var explanationclass = "explanation";
 
     if(statusCode == 'NEEDS_DATA') {    // Module just created, needs data
       $('#explanation').html("Before you can run this module, you need to supply data or values for each of the inputs. " +
@@ -274,9 +275,13 @@ if($().jquery.split(".")[0] == "1") {
       showRunButton('Try Running Module Again >>>');
 
       showClearButton();
+
+      explanationclass = "explanation-problem";
       
     }
 
+    $("#explanation").removeClass("explanation explanation-problem");
+    $("#explanation").addClass(explanationclass);
     $("body").css("cursor", "auto");
   }
 
