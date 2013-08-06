@@ -164,7 +164,7 @@ class WPSClient:
     WARN_02 = "Warning: couldn't determine the type of Complex output "
     ERR_01  = "Different number of input names and values."
     ERR_02  = "It wasn't possible to build a request with the given arguments."
-    ERR_03  = "It wasn't possible to process the server address."
+    ERR_03  = "It wasn't possible to process the server address:\n"
     ERR_04  = "No status location URL found in response."
     ERR_05  = "Incomplete request -- missing URL"
     ERR_06  = "The process failed with the following message:\n"
@@ -316,13 +316,13 @@ class WPSClient:
             logging.error(self.ERR_02)
             self.lastLogMessage = self.ERR_02
             return None
-
+        
         rest = self.serverAddress.replace("http://", "")     
         split = rest.split("/")
         
         if(len(split) < 2):
-            logging.error(self.ERR_03 + " (" + self.serverAddress + ")")
-            self.lastLogMessage = self.ERR_03 + " (" + self.serverAddress + ")"
+            logging.error(self.ERR_03 + self.serverAddress)
+            self.lastLogMessage = self.ERR_03 + self.serverAddress
             return None
         
         host = split[0]
