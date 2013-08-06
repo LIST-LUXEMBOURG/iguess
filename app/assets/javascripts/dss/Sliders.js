@@ -24,6 +24,8 @@ DSS.winPanel = new Ext.Window({
 	contentEl: 'divWindowId' //ID of the respective 'div'
 	});
 
+
+
 DSS.initSliders = function()
 {
     DSS.costSlider = new Ext.Slider({
@@ -173,5 +175,84 @@ DSS.genDragged = function(ed, value, oldValue)
 DSS.showWindow = function() {
 	
 	DSS.winPanel.show();
+	
+}
+
+DSS.showTestWindow = function() {
+	
+	DSS.winTest = new Ext.Window({
+		title: 'Test window', //Title of the Window 
+		id: 'testWindowId', //ID of the Window Panel
+		//autoHeight: true, //Height of the Window will be auto
+		height:100,
+		width:300, //Width of the Window
+		resizable: false, //Resize of the Window, if false - it cannot be resized
+		closable: true, //Hide close button of the Window
+		modal: false, //When modal:true it make the window modal and mask everything behind it when displayed
+		//contentEl: 'divWindowId' //ID of the respective 'div'
+		items: [
+			    {
+			        fieldLabel: 'ComboBox',
+			        xtype: 'combo',
+			        store: ['Foo', 'Bar']
+			    }
+			],
+			buttons: [
+			 	      {
+			 	          text   :'Toggle Enabled',
+			 	          handler: function() {
+			 	              this.up('form').items.each(function(item) {
+			 	                  item.setDisabled(!item.disabled);
+			 	              });
+			 	          }
+			 	      },
+			 	      {
+			 	          text   : 'Reset Form',
+			 	          /*handler: function() {
+			 	              Ext.getCmp('form-widgets').getForm().reset();
+			 	          }*/
+			 	      },
+			 	      {
+			 	          text   : 'Validate',
+			 	          /*handler: function() {
+			 	              Ext.getCmp('form-widgets').getForm().isValid();
+			 	          }*/
+			 	      }
+			 	  ]
+			
+	});
+
+	/*DSS.winTest.items = [
+	    {
+	        fieldLabel: 'ComboBox',
+	        xtype: 'combo',
+	        store: ['Foo', 'Bar']
+	    }
+	]
+
+	DSS.winTest.buttons = [
+	      {
+	          text   :'Toggle Enabled',
+	          handler: function() {
+	              this.up('form').items.each(function(item) {
+	                  item.setDisabled(!item.disabled);
+	              });
+	          }
+	      },
+	      {
+	          text   : 'Reset Form',
+	          handler: function() {
+	              Ext.getCmp('form-widgets').getForm().reset();
+	          }
+	      },
+	      {
+	          text   : 'Validate',
+	          handler: function() {
+	              Ext.getCmp('form-widgets').getForm().isValid();
+	          }
+	      }
+	  ]*/
+	
+	DSS.winTest.show();
 	
 }

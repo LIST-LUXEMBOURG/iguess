@@ -38,8 +38,8 @@ WebGIS.ramps[WebGIS.SLD_GEOTH] = new Array("#f7f7f7", "#c5deeb", "#92c5de", "#05
 WebGIS.vals[WebGIS.SLD_GEOTH]  = new Array(0, 25, 50, 75, 100);
 
 
-WebGIS.getStyle = function(layerName, type) {
-	
+WebGIS.getStyle = function(layerName, type) 
+{	
 	if ((type == null) || isNaN(type) || (type < 0) || (type > 4)) return "\n"; 
 	
 	sld =  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
