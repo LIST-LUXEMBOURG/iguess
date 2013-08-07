@@ -1,25 +1,18 @@
 #!/usr/bin/python
 
-import sys, psycopg2, WPSClient, datetime
+import sys
+import psycopg2
+import WPSClient
+import datetime
 
-if len(sys.argv) < 5:
-    print "Usage: wpscheck <dbserver> <database> <user> <password>\n"
-    sys.exit(2)
+from iguess_db_credentials import dbServer, dbName, dbUsername, dbPassword, dbSchema
 
-dbserver = sys.argv[1]
-database = sys.argv[2]
-dbuser   = sys.argv[3]
-dbpass   = sys.argv[4] 
-
-schema = 'iguess_dev'
-
-connstr = "dbname='" + database + "' user='" + dbuser +"' host='" + dbserver + "' password='" + dbpass + "'"
-
+connstr = "dbname='" + dbName + "' user='" + dbUsername +"' host='" + dbServer + "' password='" + dbPassword + "'"
 
 try:
     conn = psycopg2.connect(connstr)
 except:
-    print "Can't connect to database!"    
+    print "Can't connect to database " + dbName + "!"    
     sys.exit(2)
 
 cur  = conn.cursor()
@@ -27,8 +20,8 @@ qcur = conn.cursor()
 
 try:
     query = "SELECT mc.id, pid, c.srs, c.id " \
-            "FROM " + schema + ".mod_configs AS mc " \
-            "LEFT JOIN " + schema + ".cities AS c ON c.id = mc.city_id " \
+            "FROM " + dbSchema + ".mod_configs AS mc " \
+            "LEFT JOIN " + dbSchema + ".cities AS c ON c.id = mc.city_id " \
             "WHERE status = 'RUNNING'"
 
     cur.execute(query)
@@ -60,7 +53,7 @@ for row in rows:
 
 
     try:
-        query = "select column_name, value from " + schema + ".config_text_inputs where mod_config_id = " + str(recordId) + " and is_input = FALSE"
+        query = "select column_name, value from " + dbSchema + ".config_text_inputs where mod_config_id = " + str(recordId) + " and is_input = FALSE"
         cur.execute(query)
     except:
         print "Can't get params for config id " + str(recordId)
@@ -82,7 +75,7 @@ for row in rows:
     print "Status = ", client.status
 
     if client.status == client.RUNNING:      # 1
-        queryTemplate = "UPDATE " + schema + ".mod_configs " \
+        queryTemplate = "UPDATE " + dbSchema + ".mod_configs " \
                         "SET status = 'RUNNING', status_text = %s " \
                         "WHERE id = %s"
         cur.execute(queryTemplate, (str(client.percentCompleted) + '% complete', recordId))
@@ -93,7 +86,7 @@ for row in rows:
         # try:
 
             # Update status in the database
-            queryTemplate = "UPDATE " + schema + ".mod_configs " \
+            queryTemplate = "UPDATE " + dbSchema + ".mod_configs " \
                             "SET status = 'FINISHED', status_text = %s, run_ended = %s " \
                             "WHERE id = %s" 
 
@@ -104,13 +97,13 @@ for row in rows:
                 print "Processing literal result ", r.name, " = ", r.value, "..."
 
                 # Clean out any old results
-                queryTemplate = "DELETE FROM " + schema + ".config_text_inputs " \
+                queryTemplate = "DELETE FROM " + dbSchema + ".config_text_inputs " \
                                 "WHERE mod_config_id = %s AND column_name = %s AND is_input = %s"
                 cur.execute(queryTemplate, (recordId, r.name, False))      
 
 
                 # Insert fresh ones
-                queryTemplate = "INSERT INTO " + schema + ".config_text_inputs " \
+                queryTemplate = "INSERT INTO " + dbSchema + ".config_text_inputs " \
                                 "(mod_config_id, column_name, value, is_input)"  \
                                 "VALUES(%s, %s, %s, %s)"
                 cur.execute(queryTemplate, (recordId, r.name, r.value, False))
@@ -133,28 +126,39 @@ for row in rows:
 
 
                 # Check if data server already exists in the database, otherwise insert it.  We need the record id
-                qcur.execute("SELECT id FROM " + schema + ".dataservers WHERE url = %s", (url,))        # Trailing , needed
+                qcur.execute("SELECT id FROM " + dbSchema + ".dataservers WHERE url = %s", (url,))        # Trailing , needed
                 if qcur.rowcount == 0:
                     title = "iGUESS results server"
                     abstract = "Server hosting the results of a module run"
-                    qcur.execute("insert into " + schema + ".dataservers (url, title, abstract, alive, wms, wfs, wcs) values(%s, %s, %s, %s, %s, %s, %s)", 
+                    qcur.execute("INSERT INTO " + dbSchema + ".dataservers (url, title, abstract, alive, wms, wfs, wcs) "\
+                                 "VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING id", 
                                                     (url, title, abstract, True, True, False, False))
-                    qcur.execute("SELECT id FROM " + schema + ".dataservers WHERE url = %s", (url,)) 
-                
+
                 if qcur.rowcount == 0:
                     print "Unable to insert data, quitting..."
                     sys.exit(2)
 
                 serverId = qcur.fetchone()[0]
 
-                queryTemplate = "INSERT INTO " + schema + ".datasets "\
+                queryTemplate = "INSERT INTO " + dbSchema + ".datasets "\
                                 "(title, server_url, dataserver_id, identifier, abstract, city_id, alive, finalized, created_at, updated_at)" \
-                                "VALUES((SELECT value FROM " + schema + ".config_text_inputs " \
-                                    "WHERE mod_config_id = %s AND column_name = %s AND is_input = FALSE), %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                                "VALUES((SELECT value FROM " + dbSchema + ".config_text_inputs " \
+                                    "WHERE mod_config_id = %s AND column_name = %s AND is_input = FALSE), %s, %s, %s, %s, %s, %s, %s, %s, %s) "\
+                                "RETURNING id"
 
                 abstract = "Result calculated with module"
 
                 cur.execute(queryTemplate, (recordId, identifier, url, serverId, identifier, abstract, str(city_id), True, True, str(datetime.datetime.now()), str(datetime.datetime.now())))
+
+                if qcur.rowcount == 0:
+                    print "Unable to insert data II, quitting..."
+                    sys.exit(2)
+
+                recordId = qcur.fetchone()[0]
+
+                # Insert mapping tag
+                queryTemplate = "insert into " + dbSchema + ".dataset_tags(dataset_id, tag) values(" + str(recordId) + ", 'Mapping')"
+
                 #http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/LB_localOWS_test.map
 
             conn.commit()
@@ -169,7 +173,7 @@ for row in rows:
         # print client.processErrorText
 
         try:
-            queryTemplate = "UPDATE " + schema + ".mod_configs " \
+            queryTemplate = "UPDATE " + dbSchema + ".mod_configs " \
                             "SET status = 'ERROR', status_text = %s, run_ended = %s " \
                             "WHERE id = %s" 
 
