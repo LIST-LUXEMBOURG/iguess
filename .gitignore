@@ -53,5 +53,6 @@ _$*
 config/database.yml
 config/database.yml.old
 config/database.yml
+iguess_db_credentials.py
 Merges.txt
 .pydevproject
