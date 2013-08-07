@@ -26,7 +26,7 @@
           </td>
           <td>
             <span class="taglist-<%= cssEscape(d.dataserver.url + d.identifier) %>">
-              <% d.dataset_tags.each do |t| %>
+              <% d.dataset_tags.select {|d| @dataset_tags.include? d.tag }.each do |t| %>
                 <span class="tag"><%= t.tag %></span>
               <% end %>
             </span>
@@ -84,7 +84,7 @@
             <dt>Tags:</dt>
             <dd>
               <span class="taglist-deletable-<%= cssEscape(d.dataserver.url + d.identifier) %>">
-                <% d.dataset_tags.each do |t| %>
+                <% d.dataset_tags.select {|d| @dataset_tags.include? d.tag }.each do |t| %>
                   <span class="tag">
                     <span class="tag-delete-button" data-url="<%= d.dataserver.url %>" data-identifier="<%= d.identifier %>"></span>
                     <%= t.tag %>

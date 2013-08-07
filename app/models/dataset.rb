@@ -7,12 +7,12 @@ class Dataset < ActiveRecord::Base
 end
 
 
+# Creates a list of valid tags -- i.e. those that are referenced by inputs to known processes that are flagged as alive, plus "Mapping"
 def getDatasetTags
   tags = []
 
   tags = ProcessParam.find_all_by_datatype_and_alive('ComplexData', :true).map{ |p| p.identifier }
   tags.push('Mapping')    # Mapping is always a valid tag
-
   return tags.sort_by! { |x| x.downcase }.uniq
 end
 
