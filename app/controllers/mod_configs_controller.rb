@@ -190,7 +190,6 @@ class ModConfigsController < ApplicationController
 
     require 'open3'
 
-
     output, stat = Open3.capture2e(cmd)
 
 
