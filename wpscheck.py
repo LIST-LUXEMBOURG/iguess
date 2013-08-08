@@ -148,7 +148,7 @@ for row in rows:
 
                 abstract = "Result calculated with module"
 
-                cur.execute(queryTemplate, (recordId, identifier, url, serverId, identifier, abstract, str(city_id), True, True, str(datetime.datetime.now()), str(datetime.datetime.now())))
+                qcur.execute(queryTemplate, (recordId, identifier, url, serverId, identifier, abstract, str(city_id), True, True, str(datetime.datetime.now()), str(datetime.datetime.now())))
 
                 if qcur.rowcount == 0:
                     print "Unable to insert data II, quitting..."
