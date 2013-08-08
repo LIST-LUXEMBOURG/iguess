@@ -185,7 +185,7 @@ class ModConfigsController < ApplicationController
     argOuts      = '--outnames="['  + outputFields.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
     argOutTitles = '--titles="['    + outputTitles.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
 
-    cmd = '/usr/bin/python wpsstart.py ' + argUrl + ' ' +
+    cmd = 'cd ~/iguess; /usr/bin/python wpsstart.py ' + argUrl + ' ' +
                                    argProc + ' ' + argName + ' ' + argVals + ' ' + argOuts + ' ' + argOutTitles
 
     require 'open3'
