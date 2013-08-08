@@ -83,7 +83,7 @@ for row in rows:
 
 
     elif client.status == client.FINISHED:   # 2
-        # try:
+        try:
 
             # Update status in the database
             queryTemplate = "UPDATE " + dbSchema + ".mod_configs " \
@@ -157,21 +157,15 @@ for row in rows:
                 recordId = qcur.fetchone()[0]
 
                 # Insert mapping tag
-                queryTemplate = "insert into " + dbSchema + ".dataset_tags(dataset_id, tag) values(" + str(recordId) + ", 'Mapping')"
-
-                qcur.execute(queryTemplate)
-                #http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/LB_localOWS_test.map
+                qcur.execute("insert into " + dbSchema + ".dataset_tags(dataset_id, tag) values(" + str(recordId) + ", 'Mapping')")
 
             conn.commit()
 
-        # except:
-        #     print "Can't update process status!"
-        #     sys.exit(2)    
+        except:
+            print "Can't update process status!"
+            sys.exit(2)    
 
     elif client.status == client.ERROR:    
-
-        # print client.processErrorCode
-        # print client.processErrorText
 
         try:
             queryTemplate = "UPDATE " + dbSchema + ".mod_configs " \
