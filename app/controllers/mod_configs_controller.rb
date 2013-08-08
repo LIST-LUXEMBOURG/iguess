@@ -185,8 +185,12 @@ class ModConfigsController < ApplicationController
     argOuts      = '--outnames="['  + outputFields.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
     argOutTitles = '--titles="['    + outputTitles.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
 
-    cmd = 'cd ~/iguess; /usr/bin/python wpsstart.py ' + argUrl + ' ' +
+ binding.pry
+    # ROOT_PATH is defined in config/local_env.yml
+    cmd = 'cd ' + ENV["ROOT_PATH"] + '; /usr/bin/python wpsstart.py ' + argUrl + ' ' +
                                    argProc + ' ' + argName + ' ' + argVals + ' ' + argOuts + ' ' + argOutTitles
+
+
 
     require 'open3'
 

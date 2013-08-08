@@ -15,6 +15,7 @@ harvester_pwd.py
 
 .project
 ./config/database.yml
+/config/local_env.yml
 
 # Ignore all logfiles and tempfiles.
 /log/*.log
