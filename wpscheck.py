@@ -159,6 +159,7 @@ for row in rows:
                 # Insert mapping tag
                 queryTemplate = "insert into " + dbSchema + ".dataset_tags(dataset_id, tag) values(" + str(recordId) + ", 'Mapping')"
 
+                qcur.execute(queryTemplate)
                 #http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/LB_localOWS_test.map
 
             conn.commit()
