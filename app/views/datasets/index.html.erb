@@ -62,7 +62,7 @@
       <div class="infotable" id="infotable-<%= d.id %>">
         <div class="close"></div>
         <h1><span class="dataset-title"><%= d.title.present? ? d.title : d.identifier %></span></h1>
-        <div class="dataset-descr-<%= d.id %>"></div> 
+        <div class = "dataset-abstract"><%= d.abstract %></div> 
         <div style="overflow:hidden">
           <dl>
             <dt>Server Name:</dt><dd class="server-name"><%= d.dataserver.title %></dd>
