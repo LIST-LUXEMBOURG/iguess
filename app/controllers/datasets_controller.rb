@@ -57,7 +57,6 @@ class DatasetsController < ApplicationController
     end
 
     @dataset = Dataset.new(params[:dataset])
-    @current_city_id = User.getCurrentCity(current_user, cookies)
 
     # Check if the dataset's server url is in our dataservers database... if not, add it
     dataserver = Dataserver.find_by_url(@dataset.server_url.strip)
@@ -70,7 +69,6 @@ class DatasetsController < ApplicationController
     end
 
     @dataset.dataserver = dataserver
-    # @dataset.city_id = @current_city_id
     @dataset.last_seen = DateTime.now
 
     @dataset.save
@@ -98,8 +96,10 @@ class DatasetsController < ApplicationController
       if params[:dataset][:id]
         @dataset = Dataset.find_by_id(params[:dataset][:id])
       else
-        @dataset = Dataset.find_by_identifier_and_server_url_and_city_id(params[:dataset][:identifier], params[:dataset][:server_url], current_user.city_id)
+        @current_city = User.getCurrentCity(current_user, cookies)
+        @dataset = Dataset.find_by_identifier_and_server_url_and_city_id(params[:dataset][:identifier], params[:dataset][:server_url], @current_city.id)
       end
+
 
       if(@dataset.nil?)   # Couldn't find dataset... now what?
         error = true
