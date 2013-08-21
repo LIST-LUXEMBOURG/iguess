@@ -13,7 +13,7 @@
 
   <table id="sortable_table" class="zebra sortable">
     <thead>
-      <tr><th>Name</th><th>Tags</th><th>Published?</th><th class="center">Status</th></tr>
+      <tr><th>Name</th><th>Tags</th><th>Published?</th><th class="center">Status</th><th class="center">Server</th></tr>
     </thead>
     <tbody id="dataset-list">
       <% @datasets.each do |d| %>
@@ -50,6 +50,9 @@
                                   '<img class="status-indicator" src="/assets/layer_available_no.png"  alt="Layer not available">' +
                                 '</div>') 
               %>
+          </td>
+          <td nowrap>
+            <%= d.dataserver.title %>
           </td>
         </tr>
       <% end%>
