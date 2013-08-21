@@ -70,7 +70,7 @@ class DatasetsController < ApplicationController
     end
 
     @dataset.dataserver = dataserver
-    @dataset.city_id = @current_city_id
+    # @dataset.city_id = @current_city_id
     @dataset.last_seen = DateTime.now
 
     @dataset.save

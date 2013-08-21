@@ -600,8 +600,9 @@
                 "&dataset[resolution_y]=" + Math.abs(layer.resolution.y) +
                 "&dataset[format]="       + (layer.format ? layer.format : "")+
                 "&dataset[local_srs]="    + (hasCrs(layer.wxsCrs, LOCAL_SRS) ? "true" : "false") +
+                "&dataset[city_id]=<%= raw @current_city.id %>" +
                 "&dataset[alive]=true"    +
-                "&cityName=" + <% if current_user.role_id == 1 %>"<%= raw @current_city.name %>"<% else %>getCityCookie() <% end %> ,
+                "&cityName=<%= raw @current_city.id %>",
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
           success: function(data, status, jqXHR)  { registerDataset(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); },
           error:   function(jqXHR, status, error) { alert('Cound not register dataset! (server returned status "' + error.trim() + '")'); }
