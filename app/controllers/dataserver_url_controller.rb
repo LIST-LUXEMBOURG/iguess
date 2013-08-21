@@ -38,13 +38,16 @@ class DataserverUrlController < ApplicationController
 
     @dataserver_url = DataserverUrl.find_by_city_id_and_url(cityId, url)
 
-
-    if not User.canAccessObject(current_user, @dataserver_url)
-      return
-    end
+    # Just in case someone deletes a preset from under us... this will make things seem nicer
+    u = DataserverUrl.find_by_city_id_and_url(cityId, url)
+    if u
+      if not User.canAccessObject(current_user, @dataserver_url)
+        return
+      end
 
     
-    @dataserver_url.destroy
+      @dataserver_url.destroy
+    end
 
     respond_to do |format|
       format.html 
