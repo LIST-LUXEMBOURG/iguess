@@ -34,16 +34,16 @@
   // datasets[684] = {"abstract":"This a demo data set of urban landuse in the Ludwigsburg city","alive":true,"city_id":3,"created_at":"2013-05-22T10:04:56Z","dataserver_id":9,"dataset_type":null,"finalized":true,"id":684,"identifier":"LB_urban_landuse","last_seen":"2013-05-22T10:04:56Z","published":false,"server_url":"http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/LB_localOWS_test.map","service":"WFS","title":"LB urban landuse","updated_at":"2013-05-22T10:04:56Z"};               
 
 
-  var updateHiddenFields = function(parameterIdentifier, dataset)
+  var updateHiddenFields = function(parameterIdentifier, dataset)  // Note that dataset can be undefined
   {
     $('#hidden-field-' + parameterIdentifier + '-srs')        .val('<%= @current_city.srs %>');
-    $('#hidden-field-' + parameterIdentifier + '-dformat')    .val(dataset.format);
-    $('#hidden-field-' + parameterIdentifier + '-bbox-left')  .val(dataset.bbox_left);
-    $('#hidden-field-' + parameterIdentifier + '-bbox-right') .val(dataset.bbox_right);
-    $('#hidden-field-' + parameterIdentifier + '-bbox-top')   .val(dataset.bbox_top);
-    $('#hidden-field-' + parameterIdentifier + '-bbox-bottom').val(dataset.bbox_bottom);
-    $('#hidden-field-' + parameterIdentifier + '-res-x')      .val(dataset.resolution_x);
-    $('#hidden-field-' + parameterIdentifier + '-res-y')      .val(dataset.resolution_y);
+    $('#hidden-field-' + parameterIdentifier + '-dformat')    .val(dataset ? dataset.format       : "");
+    $('#hidden-field-' + parameterIdentifier + '-bbox-left')  .val(dataset ? dataset.bbox_left    : "");
+    $('#hidden-field-' + parameterIdentifier + '-bbox-right') .val(dataset ? dataset.bbox_right   : "");
+    $('#hidden-field-' + parameterIdentifier + '-bbox-top')   .val(dataset ? dataset.bbox_top     : "");
+    $('#hidden-field-' + parameterIdentifier + '-bbox-bottom').val(dataset ? dataset.bbox_bottom  : "");
+    $('#hidden-field-' + parameterIdentifier + '-res-x')      .val(dataset ? dataset.resolution_x : "");
+    $('#hidden-field-' + parameterIdentifier + '-res-y')      .val(dataset ? dataset.resolution_y : "");
   };
 
 
@@ -91,31 +91,31 @@
              $('<input>').attr('type','hidden')
                         .attr('name', 'dformat['      + parameterIdentifier + ']')
                         .attr('id',   'hidden-field-' + parameterIdentifier + '-dformat')
-                        .val(dataset.format),
+                        .val(dataset ? dataset.format : ""),
              $('<input>').attr('type','hidden')
                         .attr('name', 'bbox-left['    + parameterIdentifier + ']')
                         .attr('id',   'hidden-field-' + parameterIdentifier + '-bbox-left')
-                        .val(dataset.bbox_left),
+                        .val(dataset ? dataset.bbox_left : ""),
              $('<input>').attr('type','hidden')
                         .attr('name', 'bbox-right['   + parameterIdentifier + ']')
                         .attr('id',   'hidden-field-' + parameterIdentifier + '-bbox-right')
-                        .val(dataset.bbox_right),
+                        .val(dataset ? dataset.bbox_right : ""),
              $('<input>').attr('type','hidden')
                         .attr('name', 'bbox-top['     + parameterIdentifier + ']')
                         .attr('id',   'hidden-field-' + parameterIdentifier + '-bbox-top')
-                        .val(dataset.bbox_top),
+                        .val(dataset ? dataset.bbox_top : ""),
              $('<input>').attr('type','hidden')
                         .attr('name', 'bbox-bottom['  + parameterIdentifier + ']')
                         .attr('id',   'hidden-field-' + parameterIdentifier + '-bbox-bottom')
-                        .val(dataset.bbox_bottom),
+                        .val(dataset ? dataset.bbox_bottom : ""),
              $('<input>').attr('type','hidden')
                         .attr('name', 'res-x['        + parameterIdentifier + ']')
                         .attr('id',   'hidden-field-' + parameterIdentifier + '-res-x')
-                        .val(dataset.resolution_x),
+                        .val(dataset ? dataset.resolution_x : ""),
              $('<input>').attr('type','hidden')
                         .attr('name', 'res-y['        + parameterIdentifier + ']')
                         .attr('id',   'hidden-field-' + parameterIdentifier + '-res-y')
-                        .val(dataset.resolution_y),
+                        .val(dataset ? dataset.resolution_y : ""),
            ];                             
   };
 
