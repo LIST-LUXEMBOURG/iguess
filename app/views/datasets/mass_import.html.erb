@@ -1200,7 +1200,8 @@
         layer.wmsCrsList = dataset.wmsCrsList
         layer.wmsbbox    = dataset.wmsbbox;
         layer.llbbox     = dataset.llbbox;
-        layer.title      = dataset.title;
+        layer.title      = dataset.title;         // Title and abstract from WMS supercede those from other services
+        layer["abstract"] = dataset["abstract"];
       }
       else
         alert("Unknown service " + service + " encountered!");
