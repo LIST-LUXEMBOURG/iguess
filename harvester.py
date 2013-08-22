@@ -212,7 +212,11 @@ for row in serverCursor:
 
             datatype = ""
             if hasattr(output, "dataType"):
-                datatype = output.dataType
+                if output.dataType:     # This can sometimes be None... bug in owslib?
+                    datatype = output.dataType
+                else:
+                    print output.identifier, serverUrl
+
 
             if datatype and datatype.startswith("//www.w3.org/TR/xmlschema-2/#"):
                 datatype = datatype.replace("//www.w3.org/TR/xmlschema-2/#", "")
@@ -267,210 +271,220 @@ try:
     serverCursor.execute("SELECT DISTINCT url FROM " + tables["dataservers"])
 
     for row in serverCursor:
-        upsertList = []
-        sqlList = []
+        upsertList = []     # Records to be created if they don't already exist
+        sqlList = []        # Statements to be run once we're sure the relevant records exist
         
         serverUrl = row[0]
         print "Processing server ", serverUrl
 
-        # Now check on the dataservers and datasets, first marking them all as defunct
-        sqlList.append("UPDATE " + tables["datasets"] + " SET alive = false "
-                          "WHERE EXISTS ( "
-                            "SELECT * FROM " + tables["dataservers"] + " "
-                             "WHERE dataservers.id = datasets.dataserver_id "
-                             "AND dataservers.url = '" + serverUrl + "'"
-                           ")"
-              );
-        sqlList.append("UPDATE " + tables["dataservers"] + " SET alive = false WHERE url = '" + serverUrl + "'")
-
-        try:        
-            wms = WebMapService(serverUrl, version = wmsVersion)
-        except:
-            wms = None
-
         try:
-            wfs = WebFeatureService(serverUrl, version = wfsVersion)
-        except:
-            wfs = None
+            # Now check on the dataservers and datasets, first marking them all as defunct
+            sqlList.append("UPDATE " + tables["datasets"] + " SET alive = false "
+                              "WHERE EXISTS ( "
+                                "SELECT * FROM " + tables["dataservers"] + " "
+                                 "WHERE dataservers.id = datasets.dataserver_id "
+                                 "AND dataservers.url = '" + serverUrl + "'"
+                               ")"
+                  );
+            sqlList.append("UPDATE " + tables["dataservers"] + " SET alive = false WHERE url = '" + serverUrl + "'")
 
-        try:
-            wcs = WebCoverageService(serverUrl, version = wcsVersion)
-        except: 
-            wcs = None
+            try:        
+                wms = WebMapService(serverUrl, version = wmsVersion)
+            except:
+                wms = None
 
-        if not (wms or wfs or wcs):
-            continue
+            try:
+                wfs = WebFeatureService(serverUrl, version = wfsVersion)
+            except:
+                wfs = None
 
-        dstitle = dsabstr = None
+            try:
+                wcs = WebCoverageService(serverUrl, version = wcsVersion)
+            except: 
+                wcs = None
 
-        dstitle = wms and wms.identification.title    or wfs and wfs.identification.title    or wcs and wcs.identification.title    or "Unnamed server"
-        dsabstr = wms and wms.identification.abstract or wfs and wfs.identification.abstract or wcs and wcs.identification.abstract or ""
-
-        hasWms = True if wms else False
-        hasWfs = True if wfs else False
-        hasWcs = True if wcs else False
-
-        # wms: ['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__getitem__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_buildMetadata', '_capabilities', '_getcapproperty', 'contents', 'exceptions', 'getOperationByName', 'getServiceXML', 'getcapabilities', 'getfeatureinfo', 'getmap', 'identification', 'items', 'operations', 'password', 'provider', 'url', 'username', 'version']
-        # wfs: ['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__getitem__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_buildMetadata', '_capabilities', 'contents', 'exceptions', 'getOperationByName', 'getcapabilities', 'getfeature', 'identification', 'items', 'log', 'operations', 'provider', 'url', 'version']
-        # wfs.contents: ['__class__', '__cmp__', '__contains__', '__delattr__', '__delitem__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__init__', '__iter__', '__le__', '__len__', '__lt__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setitem__', '__sizeof__', '__str__', '__subclasshook__', 'clear', 'copy', 'fromkeys', 'get', 'has_key', 'items', 'iteritems', 'iterkeys', 'itervalues', 'keys', 'pop', 'popitem', 'setdefault', 'update', 'values', 'viewitems', 'viewkeys', 'viewvalues']
-
-        # if(wfs):  
-        #     print dir(wfs.contents)
-
-        sqlList.append(
-                        "UPDATE " + tables["dataservers"] + " " 
-                        "SET title = " + str(adapt(dstitle)) + ", "
-                            "abstract = " + str(adapt(dsabstr)) + ", "
-                            "alive = TRUE, "
-                            "last_seen = NOW(), "
-                            "wms = " + str(adapt(hasWms)) + ", "
-                            "wfs = " + str(adapt(hasWfs)) + ", "
-                            "wcs = " + str(adapt(hasWcs)) + " "
-                        "WHERE url = " + str(adapt(serverUrl))
-                      )
-
-
-        # Trailing comma needed in line below because Python tuples can't have just one element...
-        dsCursor.execute("SELECT d.id, d.identifier, d.city_id FROM " + tables["datasets"] + " AS d "
-                         "LEFT JOIN " + tables["dataservers"] + " AS ds ON d.dataserver_id = ds.id "
-                         "WHERE ds.url = %s", (serverUrl,))
-
-
-        for dsrow in dsCursor:
-            dsid       = dsrow[0]
-            identifier = dsrow[1]
-            cityId     = dsrow[2]
-
-            print "Processing ", identifier, cityId
+            if not (wms or wfs or wcs):
+                continue
 
             dstitle = dsabstr = None
 
-            found = True
-            hasCityCRS = False
-            imgFormat  = ""
-            bboxLeft   = ""
-            bboxRight  = ""
-            bboxTop    = ""
-            bboxBottom = ""
-            resX       = 0
-            resY       = 0
+            dstitle = wms and wms.identification.title    or wfs and wfs.identification.title    or wcs and wcs.identification.title    or "Unnamed server"
+            dsabstr = wms and wms.identification.abstract or wfs and wfs.identification.abstract or wcs and wcs.identification.abstract or ""
 
-            # from lxml import etree
-            # if wms:
-            #     print dir(wms)
-            #     etree.dump(wms._capabilities)
-            found = False;
+            hasWms = True if wms else False
+            hasWfs = True if wfs else False
+            hasWcs = True if wcs else False
 
-            if wfs and identifier in wfs.contents:
-                print "Found WFS..."
-                found = True;
-                dstitle = wfs.contents[identifier].title    if wfs.contents[identifier].title    else identifier
-                dsabstr = wfs.contents[identifier].abstract if wfs.contents[identifier].abstract else ""
+            # wms: ['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__getitem__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_buildMetadata', '_capabilities', '_getcapproperty', 'contents', 'exceptions', 'getOperationByName', 'getServiceXML', 'getcapabilities', 'getfeatureinfo', 'getmap', 'identification', 'items', 'operations', 'password', 'provider', 'url', 'username', 'version']
+            # wfs: ['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__getitem__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_buildMetadata', '_capabilities', 'contents', 'exceptions', 'getOperationByName', 'getcapabilities', 'getfeature', 'identification', 'items', 'log', 'operations', 'provider', 'url', 'version']
+            # wfs.contents: ['__class__', '__cmp__', '__contains__', '__delattr__', '__delitem__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__init__', '__iter__', '__le__', '__len__', '__lt__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setitem__', '__sizeof__', '__str__', '__subclasshook__', 'clear', 'copy', 'fromkeys', 'get', 'has_key', 'items', 'iteritems', 'iterkeys', 'itervalues', 'keys', 'pop', 'popitem', 'setdefault', 'update', 'values', 'viewitems', 'viewkeys', 'viewvalues']
 
-                # Check if dataset is available in the city's local srs
-                for c in wfs.contents[identifier].crsOptions:
-                    if isEqualCrs(c.id, cityCRS[cityId]):
-                        hasCityCRS = True
-                        break
 
-                # No more bounding box for wfs now that Christian has fixed the mapserver config file
-                # bb = wfs.contents[identifier].boundingBoxWGS84
-                # bboxLeft, bboxBottom, bboxRight, bboxTop = projectWgsToLocal(bb, cityCRS[cityId])
+            print "updating dataservers: ", serverUrl, "+++", dstitle, "+++", dsabstr
 
-            if wcs and identifier in wcs.contents:
-                print "Found WCS..."
-                found = True;
-                crs = None
-                dstitle = wcs.contents[identifier].title    if wcs.contents[identifier].title    else identifier
-                dsabstr = wcs.contents[identifier].abstract if wcs.contents[identifier].abstract else ""
+            sqlList.append(
+                            "UPDATE " + tables["dataservers"] + " " 
+                            "SET title = " + str(adapt(dstitle)) + ", "
+                                "abstract = " + str(adapt(dsabstr)) + ", "
+                                "alive = TRUE, "
+                                "last_seen = NOW(), "
+                                "wms = " + str(adapt(hasWms)) + ", "
+                                "wfs = " + str(adapt(hasWfs)) + ", "
+                                "wcs = " + str(adapt(hasWcs)) + " "
+                            "WHERE url = " + str(adapt(serverUrl))
+                          )
 
-                for c in wcs.contents[identifier].supportedCRS:     # crsOptions is available here, but always empty; only exists for OOP
-                    if isEqualCrs(c.id, cityCRS[cityId]):
-                        hasCityCRS = True
-                        crs = c.id
-                        break
+            # Trailing comma needed in line below because Python tuples can't have just one element...
+            dsCursor.execute("SELECT d.id, d.identifier, d.city_id FROM " + tables["datasets"] + " AS d "
+                             "LEFT JOIN " + tables["dataservers"] + " AS ds ON d.dataserver_id = ds.id "
+                             "WHERE ds.url = %s", (serverUrl,))
 
-                dc = wcs.getDescribeCoverage(identifier)
-                gridOffsets = dc.find(".//{*}GridOffsets") 
 
-                if(gridOffsets is None):
-                    print "Can't find GridOffsets for WCS dataset " + serverUrl + " >>> " + identifier
-                    continue
+            for dsrow in dsCursor:
+                dsid       = dsrow[0]
+                identifier = dsrow[1]
+                cityId     = dsrow[2]
+
+                print "Processing ", identifier, cityId
+
+                dstitle = dsabstr = None
+
+                found = True
+                hasCityCRS = False
+                imgFormat  = ""
+                bboxLeft   = ""
+                bboxRight  = ""
+                bboxTop    = ""
+                bboxBottom = ""
+                resX       = 0
+                resY       = 0
+
+                # from lxml import etree
+                # if wms:
+                #     print dir(wms)
+                #     etree.dump(wms._capabilities)
+                found = False;
+
+                if wfs and identifier in wfs.contents:
+                    print "Found WFS..."
+                    found = True;
+                    dstitle = wfs.contents[identifier].title    if wfs.contents[identifier].title    else identifier
+                    dsabstr = wfs.contents[identifier].abstract if wfs.contents[identifier].abstract else ""
+
+                    # Check if dataset is available in the city's local srs
+                    for c in wfs.contents[identifier].crsOptions:
+                        if isEqualCrs(c.id, cityCRS[cityId]):
+                            hasCityCRS = True
+                            break
+
+                    # No more bounding box for wfs now that Christian has fixed the mapserver config file
+                    # bb = wfs.contents[identifier].boundingBoxWGS84
+                    # bboxLeft, bboxBottom, bboxRight, bboxTop = projectWgsToLocal(bb, cityCRS[cityId])
+
+                if wcs and identifier in wcs.contents:
+                    print "Found WCS..."
+                    found = True;
+                    crs = None
+                    dstitle = wcs.contents[identifier].title    if wcs.contents[identifier].title    else identifier
+                    dsabstr = wcs.contents[identifier].abstract if wcs.contents[identifier].abstract else ""
+
+                    for c in wcs.contents[identifier].supportedCRS:     # crsOptions is available here, but always empty; only exists for OOP
+                        if isEqualCrs(c.id, cityCRS[cityId]):
+                            hasCityCRS = True
+                            crs = c.id
+                            break
+
+                    dc = wcs.getDescribeCoverage(identifier)
+                    gridOffsets = dc.find(".//{*}GridOffsets") 
+
+                    if(gridOffsets is None):
+                        print "Can't find GridOffsets for WCS dataset " + serverUrl + " >>> " + identifier
+                        continue
+                    else:
+                        resX, resY = gridOffsets.text.split()
+                        if(float(resX) < 0):
+                            resX = float(resX) * -1
+                        if(float(resY) < 0):
+                            resY = float(resY) * -1
+
+
+                    # Try to get the native bounding box, if we can find it.  If we can't we'll try projecting the WGS84 bounding box, but this
+                    # is less accurate
+                    if(hasCityCRS):
+                        bb = dc.find(".//{*}BoundingBox[@crs='" + crs + "']")
+
+                        if len(bb) > 0:
+                            corners = bb.find("{*}LowerCorner").text + " " + bb.find("{*}UpperCorner").text
+
+                            if len(corners) > 1:
+                                bboxLeft, bboxBottom, bboxRight, bboxTop = string.split(corners)
+
+                    # Try projecting the WGS84 bounding box
+                    if bboxTop == "None":
+                        bb = wcs.contents[identifier].boundingBoxWGS84
+                        bboxLeft, bboxBottom, bboxRight, bboxTop = projectWgsToLocal(bb, cityCRS[cityId])
+                             
+
+
+                    if(len(wcs.contents[identifier].supportedFormats[0]) == 0):
+                        print "Cannot get a supported format for WCS dataset " + serverUrl + " >>> " + identifier
+                        continue
+                    else:
+                        index = 0
+
+                        # If any of our preferred formats are available, set index appropriately
+                        if 'image/img' in wcs.contents[identifier].supportedFormats[index].lower():
+                            index = wcs.contents[identifier].supportedFormats.index('image/img')    # This is our preferred format; use it if available
+                        elif 'image/tiff' in wcs.contents[identifier].supportedFormats[index].lower():
+                            index = wcs.contents[identifier].supportedFormats.index('image/tiff')   # Second choice is tiff
+                            
+                        imgFormat = wcs.contents[identifier].supportedFormats[index]
+
+
+                if wms and identifier in wms.contents:
+                    print "Found WMS..."
+                    found = True;
+                    dstitle = wms.contents[identifier].title    if wms.contents[identifier].title    else identifier
+                    dsabstr = wms.contents[identifier].abstract if wms.contents[identifier].abstract else ""
+
+
+                if found:
+                    print "Updating datasets..."
+                    # Update the database with the layer info
+
+                    sqlList.append(
+                                    "UPDATE " + tables["datasets"] + " "
+                                    "SET title = "        + str(adapt(dstitle))    + ", "
+                                        "abstract = "     + str(adapt(dsabstr))    + ", "
+                                        "alive = TRUE, "
+                                        "last_seen = NOW(), "
+                                        "local_srs = "    + str(adapt(hasCityCRS)) + ", "
+                                        "format = "       + str(adapt(imgFormat))  + ", "
+                                        "bbox_left = "    + str(adapt(bboxLeft))   + ", "
+                                        "bbox_right = "   + str(adapt(bboxRight))  + ", "
+                                        "bbox_top = "     + str(adapt(bboxTop))    + ", "
+                                        "bbox_bottom = "  + str(adapt(bboxBottom)) + ", "
+                                        "resolution_x = " + str(adapt(resX))       + ", "
+                                        "resolution_y = " + str(adapt(resY))       + " "
+                                    "WHERE id = " + str(adapt(dsid)) 
+                                  )
                 else:
-                    resX, resY = gridOffsets.text.split()
-                    if(float(resX) < 0):
-                        resX = float(resX) * -1
-                    if(float(resY) < 0):
-                        resY = float(resY) * -1
+                     print "Not found: " + identifier + " (on server " +  serverUrl + ")"
 
+                print "Done with row!"
 
-                # Try to get the native bounding box, if we can find it.  If we can't we'll try projecting the WGS84 bounding box, but this
-                # is less accurate
-                if(hasCityCRS):
-                    bb = dc.find(".//{*}BoundingBox[@crs='" + crs + "']")
+        except Exception as e:
+            print "-----"
+            print "Error scanning server " + serverUrl
+            print type(e)
+            print e.args
+            print e
+            print "-----"
 
-                    if len(bb) > 0:
-                        corners = bb.find("{*}LowerCorner").text + " " + bb.find("{*}UpperCorner").text
+        else:
+            # Run queries and commit dataset transactions
+            doSql(dbConn, updateCursor, upsertList, sqlList)
 
-                        if len(corners) > 1:
-                            bboxLeft, bboxBottom, bboxRight, bboxTop = string.split(corners)
-
-                # Try projecting the WGS84 bounding box
-                if bboxTop == "None":
-                    bb = wcs.contents[identifier].boundingBoxWGS84
-                    bboxLeft, bboxBottom, bboxRight, bboxTop = projectWgsToLocal(bb, cityCRS[cityId])
-                         
-
-
-                if(len(wcs.contents[identifier].supportedFormats[0]) == 0):
-                    print "Cannot get a supported format for WCS dataset " + serverUrl + " >>> " + identifier
-                    continue
-                else:
-                    index = 0
-
-                    # If any of our preferred formats are available, set index appropriately
-                    if 'image/img' in wcs.contents[identifier].supportedFormats[index].lower():
-                        index = wcs.contents[identifier].supportedFormats.index('image/img')    # This is our preferred format; use it if available
-                    elif 'image/tiff' in wcs.contents[identifier].supportedFormats[index].lower():
-                        index = wcs.contents[identifier].supportedFormats.index('image/tiff')   # Second choice is tiff
-                        
-                    imgFormat = wcs.contents[identifier].supportedFormats[index]
-
-
-            if wms and identifier in wms.contents:
-                print "Found WMS..."
-                found = True;
-                dstitle = wms.contents[identifier].title    if wms.contents[identifier].title    else identifier
-                dsabstr = wms.contents[identifier].abstract if wms.contents[identifier].abstract else ""
-
-
-            if found:
-                print "Updating datasets..."
-                # Update the database with the layer info
-
-                sqlList.append(
-                                "UPDATE " + tables["datasets"] + " "
-                                "SET title = "        + str(adapt(dstitle))    + ", "
-                                    "abstract = "     + str(adapt(dsabstr))    + ", "
-                                    "alive = TRUE, "
-                                    "last_seen = NOW(), "
-                                    "local_srs = "    + str(adapt(hasCityCRS)) + ", "
-                                    "format = "       + str(adapt(imgFormat))  + ", "
-                                    "bbox_left = "    + str(adapt(bboxLeft))   + ", "
-                                    "bbox_right = "   + str(adapt(bboxRight))  + ", "
-                                    "bbox_top = "     + str(adapt(bboxTop))    + ", "
-                                    "bbox_bottom = "  + str(adapt(bboxBottom)) + ", "
-                                    "resolution_x = " + str(adapt(resX))       + ", "
-                                    "resolution_y = " + str(adapt(resY))       + " "
-                                "WHERE id = " + str(adapt(dsid)) 
-                              )
-            else:
-                 print "Not found: " + identifier + " (on server " +  serverUrl + ")"
-
-            print "Done with row!"
-
-        # Run queries and commit dataset transactions
-        doSql(dbConn, updateCursor, upsertList, sqlList)
 
 except Exception as e:
     print "-----"
