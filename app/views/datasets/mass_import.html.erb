@@ -49,8 +49,8 @@
 </div>
 
 <div class="server-info">
-  <div class="server-name"></div>
-  <div class="server-descr"></div>
+  <div class="server-name" id="server-name"></div>
+  <div class="server-descr" id="server-descr"></div>
 
   <div id="layer-display"></div>
 </div>
@@ -149,14 +149,14 @@
   // Note that details can be null here
   var displayServerDetails = function(serverInfo, service) 
   {
-    if(serverInfo && $('.server-name').html() == '')
+    if(serverInfo && $("#server-name").html() == "")
     {
       var serverName  = serverInfo.title    || serverInfo.name || "Data Server";
       var serverDescr = serverInfo.abstract || "";
 
-      $('.server-name').html('Server: ' + serverName);
-      $('.server-descr').html(linkify(serverDescr));
-      $('.server-info').show();
+      $("#server-name").html("Server: " + serverName);
+      $("#server-descr").html(linkify(serverDescr));
+      $(".server-info").show();
     }
   };
 
@@ -586,22 +586,24 @@
         $.ajax({
           type: "POST",      // POST combined with url below triggers "create" action on controller
           url: "<%= url_for(:controller => "datasets", :action => "create", :format=>:json) %>",
-          data: "dataset[identifier]="    + datasetIdentifier +
-                "&dataset[service]="      + service +
-                "&dataset[server_url]="   + serverUrl +
-                "&tags="                  + taglist +
-                "&dataset[title]="        + encodeURIComponent(title) +
-                "&dataset[abstract]="     + encodeURIComponent(abstract) +
-                "&dataset[bbox_left]="    + getCoord(layer, "left") +
-                "&dataset[bbox_right]="   + getCoord(layer, "right") +
-                "&dataset[bbox_top]="     + getCoord(layer, "top") +
-                "&dataset[bbox_bottom]="  + getCoord(layer, "bottom") +
-                "&dataset[resolution_x]=" + Math.abs(layer.resolution.x) +
-                "&dataset[resolution_y]=" + Math.abs(layer.resolution.y) +
-                "&dataset[format]="       + (layer.format ? layer.format : "")+
-                "&dataset[local_srs]="    + (hasCrs(layer.wxsCrs, LOCAL_SRS) ? "true" : "false") +
+          data: "dataset[identifier]="       + datasetIdentifier +
+                "&dataset[service]="         + service +
+                "&dataset[server_url]="      + serverUrl +
+                "&server_title="             + getServerTitle() +
+                "&server_abstract="          + getServerAbstract() +
+                "&tags="                     + taglist +
+                "&dataset[title]="           + encodeURIComponent(title) +
+                "&dataset[abstract]="        + encodeURIComponent(abstract) +
+                "&dataset[bbox_left]="       + getCoord(layer, "left") +
+                "&dataset[bbox_right]="      + getCoord(layer, "right") +
+                "&dataset[bbox_top]="        + getCoord(layer, "top") +
+                "&dataset[bbox_bottom]="     + getCoord(layer, "bottom") +
+                "&dataset[resolution_x]="    + Math.abs(layer.resolution.x) +
+                "&dataset[resolution_y]="    + Math.abs(layer.resolution.y) +
+                "&dataset[format]="          + (layer.format ? layer.format : "")+
+                "&dataset[local_srs]="       + (hasCrs(layer.wxsCrs, LOCAL_SRS) ? "true" : "false") +
                 "&dataset[city_id]=<%= raw @current_city.id %>" +
-                "&dataset[alive]=true"    +
+                "&dataset[alive]=true"       +
                 "&cityName=<%= raw @current_city.id %>",
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
           success: function(data, status, jqXHR)  { registerDataset(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); },
@@ -827,7 +829,7 @@
 
   var updateButtonVisibility = function()
   {
-    var serverUrl = getServerUrl().trim();
+    var serverUrl = getServerUrl();
 
     if(serverUrl === "") {
       $('#save-preset').hide();
@@ -870,7 +872,7 @@
   // This gets called when the Remote Data Server URL is changed
   var loadDataLayers = function()
   {
-    var serverUrl = getServerUrl().trim();
+    var serverUrl = getServerUrl();
     currentlyLoadedUrl = serverUrl;
 
     updateButtonVisibility();
@@ -879,7 +881,7 @@
       return;   
 
     // Reset various displays
-    $(".server-name").html("");   
+    $("#server-name").html("");   
     $("#error-list").html("");
     $("#error-list").slideUp(200);
     alreadyShownWmsError = false;
@@ -961,33 +963,42 @@
   {
     var anyShown = false;
 
-    if(showWfs()) { $('#probing-wfs').show(); anyShown = true; }
-    if(showWms()) { $('#probing-wms').show(); anyShown = true; }
-    if(showWcs()) { $('#probing-wcs').show(); anyShown = true; }
+    if(showWfs()) { $("#probing-wfs").show(); anyShown = true; }
+    if(showWms()) { $("#probing-wms").show(); anyShown = true; }
+    if(showWcs()) { $("#probing-wcs").show(); anyShown = true; }
 
     if(anyShown)
-    {
-      $('.progress-container').show();
-    }
-    else {
-      $('.progress-container').hide();
-    }
+      $(".progress-container").show();
+    else 
+      $(".progress-container").hide();
   };
 
 
   function hideProbingIndicators() 
   {
-    $('#probing-wms').hide();
-    $('#probing-wfs').hide();
-    $('#probing-wcs').hide();
-    $('.progress-container').hide();
+    $("#probing-wms").hide();
+    $("#probing-wfs").hide();
+    $("#probing-wcs").hide();
+    $(".progress-container").hide();
   };
 
 
   var getServerUrl = function() 
   { 
-    return $('#server_url').val().trim(); 
+    return $("#server_url").val().trim(); 
   };
+
+
+  var getServerTitle = function()
+  {
+    return $("#server-name").text();
+  }
+
+
+  var getServerAbstract = function()
+  {
+    return $("#server-descr").text();
+  }
 
 
   $(document).ready(function ()

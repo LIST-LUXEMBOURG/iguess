@@ -64,7 +64,9 @@ class DatasetsController < ApplicationController
     if not dataserver 
       # Need to create a new server
       dataserver = Dataserver.new
-      dataserver.url = @dataset.server_url.strip
+      dataserver.url      = @dataset.server_url.strip
+      dataserver.title    = params[:server_title]
+      dataserver.abstract = params[:server_abstract]
       dataserver.save
     end
 
