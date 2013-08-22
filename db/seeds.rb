@@ -2,6 +2,9 @@
 # The data can then be loaded with the rake db:seed (or created alongside the db with db:setup).
 
 # I believe we should no longer be storing this data in the seeds file -CE
+
+# If any of these values need to be updated, please do so directly in the Cities table in the database!
+
 # Note that the bounding box data below appear to be incorrect.  Don't rely on them unless they are corrected and this comment removed -CE
 # [['Aberdeen',    '', 13, 'EPSG:27700', -235500, 7790000],
 #  ['Gent',        'http://gentgis2.gent.be/arcgisserver/services/G_WIS/testIvago/MapServer/WFSServer', 12, 'EPSG:31370',  415000,  6632500],
