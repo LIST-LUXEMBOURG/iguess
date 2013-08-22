@@ -94,7 +94,6 @@ DSS.initMap = function()
 	var buildsWMS =  new OpenLayers.Layer.WMS(
     	"Buildings",
     	"http://maps.iguess.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/MapFiles/RO_localOWS_test.map",
-    	//"http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
         {layers: "RO_buildings_gml", 
          format: "image/png",
          srsName: DSS.mapProjection,
@@ -111,8 +110,6 @@ DSS.initMap = function()
 		protocol: new OpenLayers.Protocol.WFS({
 			version: "1.1.0",
 			url: "http://maps.iguess.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/MapFiles/RO_localOWS_test.map",
-			//url: "http://iguess-mapserv.kirchberg.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/MapFiles/RO_localOWS_test.map",
-			//url: "http://maps.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
 			featureNS: "http://mapserver.gis.umn.edu/mapserver",
 			featureType: "pv_potential",
 			srsName: DSS.mapProjection
