@@ -1031,20 +1031,20 @@
       currentRowStart = 0,
       rowDivs = new Array();
 
-  function setConformingHeight(el, newHeight) {
+  var setConformingHeight = function(el, newHeight) {
      // set the height to something new, but remember the original height in case things change
      el.data("originalHeight", (el.data("originalHeight") == undefined) ? (el.height()) : (el.data("originalHeight")));
      el.height(newHeight);
   }
 
-  function getOriginalHeight(el) {
+  var getOriginalHeight = function(el) {
      // if the height has changed, send the originalHeight
      return (el.data("originalHeight") == undefined) ? (el.height()) : (el.data("originalHeight"));
   }
 
-  function equalizeRowHeights() {
+  var equalizeRowHeights = function() {
 
-     // find the tallest LI in the row, and set the heights of all of the LIs to match it.
+     // Find the tallest LI in the row, and set the heights of all of the LIs to match it
      $('li.map-data-item').each(function() {
         // "caching"
         var $el = $(this);
@@ -1053,10 +1053,10 @@
 
         if (currentRowStart != topPosition) {
 
-           // we just came to a new row.  Set all the heights on the completed row
+           // We just came to a new row.  Set all the heights on the completed row.
            for(currentDiv = 0 ; currentDiv < rowDivs.length ; currentDiv++) setConformingHeight(rowDivs[currentDiv], currentTallest);
 
-           // set the variables for the new row
+           // Set the variables for the new row
            rowDivs.length = 0; // empty the array
            currentRowStart = topPosition;
            currentTallest = getOriginalHeight($el);
@@ -1064,12 +1064,12 @@
 
         } else {
 
-           // another div on the current row.  Add it to the list and check if it's taller
+           // Another div on the current row.  Add it to the list and check if it's taller.
            rowDivs.push($el);
            currentTallest = (currentTallest < getOriginalHeight($el)) ? (getOriginalHeight($el)) : (currentTallest);
 
         }
-        // do the last row
+        // Do the last row
         for (currentDiv = 0 ; currentDiv < rowDivs.length ; currentDiv++) setConformingHeight(rowDivs[currentDiv], currentTallest);
 
      });
@@ -1176,8 +1176,6 @@
 
     var layer = discoveredLayers[key];
 
-    console.log(service);
-
     if(layer) {   // Already found this layer, add service to it
 
       if(layer.type.hasObject(service)) {    // Will happen if duplicate names are used on the server
@@ -1202,6 +1200,7 @@
         layer.wmsCrsList = dataset.wmsCrsList
         layer.wmsbbox    = dataset.wmsbbox;
         layer.llbbox     = dataset.llbbox;
+        layer.title      = dataset.title;
       }
       else
         alert("Unknown service " + service + " encountered!");
