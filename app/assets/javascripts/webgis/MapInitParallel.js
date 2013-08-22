@@ -59,7 +59,8 @@ WebGIS.initMapParallel = function () {
     
 	var pv_kwh =  new OpenLayers.Layer.WMS(
 		"PV potential (amorph) (kWh/a)",
-		"http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
+		//"http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
+		"http://maps.iguess.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/MapFiles/RO_localOWS_test.map",
 	    {layers: "pv_potential_amo_elec", 
 	     format: "image/png",
 	     srsName: WebGIS.requestProjection,
@@ -71,7 +72,8 @@ WebGIS.initMapParallel = function () {
 	
 	var pv_euro =  new OpenLayers.Layer.WMS(
 		"PV potential (amorph) (€/a)",
-		"http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
+		//"http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
+		"http://maps.iguess.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/MapFiles/RO_localOWS_test.map",
 	    {layers: "pv_potential_amo_c_e", 
 	     format: "image/png",
 	     srsName: WebGIS.requestProjection,

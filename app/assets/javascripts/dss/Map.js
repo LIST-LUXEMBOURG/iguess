@@ -65,8 +65,6 @@ DSS.style.addRules([DSS.rule_fsa, DSS.rule_highlight]);
 
 DSS.initMap = function()
 {
-	//debugger;
-	
 	var bounds = new OpenLayers.Bounds(91979, 436326, 92617, 437659.5);
 
 	DSS.map = new OpenLayers.Map("SliderMap",{
@@ -95,7 +93,7 @@ DSS.initMap = function()
 	
 	var buildsWMS =  new OpenLayers.Layer.WMS(
     	"Buildings",
-    	"http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
+    	"http://maps.iguess.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/MapFiles/RO_localOWS_test.map",
         {layers: "RO_buildings_gml", 
          format: "image/png",
          srsName: DSS.mapProjection,
@@ -111,8 +109,7 @@ DSS.initMap = function()
 		projection: new OpenLayers.Projection(DSS.mapProjection),
 		protocol: new OpenLayers.Protocol.WFS({
 			version: "1.1.0",
-			//url: "http://iguess-mapserv.kirchberg.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/MapFiles/RO_localOWS_test.map",
-			url: "http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
+			url: "http://maps.iguess.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/MapFiles/RO_localOWS_test.map",
 			featureNS: "http://mapserver.gis.umn.edu/mapserver",
 			featureType: "pv_potential",
 			srsName: DSS.mapProjection
