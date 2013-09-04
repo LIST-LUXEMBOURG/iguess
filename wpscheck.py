@@ -5,7 +5,7 @@ import psycopg2
 import WPSClient
 import datetime
 
-from iguess_db_credentials import dbServer, dbName, dbUsername, dbPassword, dbSchema
+from iguess_db_credentials import dbServer, dbName, dbUsername, dbPassword, dbSchema, baseMapServerUrl
 
 connstr = "dbname='" + dbName + "' user='" + dbUsername +"' host='" + dbServer + "' password='" + dbPassword + "'"
 
@@ -121,7 +121,7 @@ for row in rows:
                 # Retrieve and save the data locally to disk, creating a mapfile in the process
                 mapfile = client.generateMapFile()
 
-                url = 'http://services.iguess.tudor.lu/cgi-bin/mapserv?map=' + mapfile
+                url = baseMapServerUrl + mapfile
                 identifier = r.name
 
 
