@@ -8,7 +8,7 @@ class DatasetsController < ApplicationController
   def index
 
     # current_user should always be set here
-    @current_city = current_user.role_id == 1 ? City.find_by_id(current_user.city_id) : (City.find_by_name(cookies['city']) or City.first)
+    @current_city = User.getCurrentCity(current_user, cookies)
     @dataset_tags = getDatasetTags()
     @datasets     = Dataset.find_all_by_city_id(@current_city.id, :select => "*, case when title = '' or title is null then identifier else title end as sortcol", :order => :sortcol )
     @wps_servers  = WpsServer.all
@@ -57,7 +57,6 @@ class DatasetsController < ApplicationController
     end
 
     @dataset = Dataset.new(params[:dataset])
-    @current_city_id = current_user.city_id
 
     # Check if the dataset's server url is in our dataservers database... if not, add it
     dataserver = Dataserver.find_by_url(@dataset.server_url.strip)
@@ -65,12 +64,13 @@ class DatasetsController < ApplicationController
     if not dataserver 
       # Need to create a new server
       dataserver = Dataserver.new
-      dataserver.url = @dataset.server_url.strip
+      dataserver.url      = @dataset.server_url.strip
+      dataserver.title    = params[:server_title]
+      dataserver.abstract = params[:server_abstract]
       dataserver.save
     end
 
     @dataset.dataserver = dataserver
-    @dataset.city_id = @current_city_id
     @dataset.last_seen = DateTime.now
 
     @dataset.save
@@ -98,8 +98,10 @@ class DatasetsController < ApplicationController
       if params[:dataset][:id]
         @dataset = Dataset.find_by_id(params[:dataset][:id])
       else
-        @dataset = Dataset.find_by_identifier_and_server_url_and_city_id(params[:dataset][:identifier], params[:dataset][:server_url], current_user.city_id)
+        @current_city = User.getCurrentCity(current_user, cookies)
+        @dataset = Dataset.find_by_identifier_and_server_url_and_city_id(params[:dataset][:identifier], params[:dataset][:server_url], @current_city.id)
       end
+
 
       if(@dataset.nil?)   # Couldn't find dataset... now what?
         error = true
@@ -178,7 +180,7 @@ class DatasetsController < ApplicationController
     @google_projection = 'EPSG:3857'
 
     # current_user should always be set here
-    @current_city = current_user.role_id == 1 ? City.find_by_id(current_user.city_id) : (City.find_by_name(cookies['city']) or City.first)
+    @current_city = User.getCurrentCity(current_user, cookies)
 
     if @current_city.nil?     # Should never happen, but just in case...
       @current_city = City.first

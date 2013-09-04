@@ -34,13 +34,19 @@ class ModConfigsController < ApplicationController
   def show
     @mod_config = ModConfig.find(params[:id])
 
+    @current_city    = User.getCurrentCity(current_user, cookies)
+
+    if @mod_config.city_id != @current_city.id 
+      showError("Cannot view that module with the currently selected city.  Sorry!")
+      return
+    end
+
     if not User.canAccessObject(current_user, @mod_config)
       showError("Insufficient permissions -- you cannot access this object!")
       return
     end
 
     # current_user should always be set here
-    @current_city    = User.getCurrentCity(current_user, cookies)
     @datasets        = Dataset.find_all_by_city_id(@current_city.id)
     @dataset_tags    = DatasetTag.all
     @datasetValues   = ConfigDataset.find_all_by_mod_config_id(params[:id]).map{|d| d.input_identifier + ': "' + d.dataset.id.to_s + '"'}.join(',')

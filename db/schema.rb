@@ -11,11 +11,10 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130726160808) do
+ActiveRecord::Schema.define(:version => 20130821161759) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
-    t.string   "url"
     t.integer  "zoom",            :null => false
     t.string   "srs"
     t.float    "mapx"

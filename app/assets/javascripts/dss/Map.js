@@ -1,4 +1,20 @@
 /**
+ * Copyright (C) 2010 - 2014 CRP Henri Tudor
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * 
  * @author Luis de Sousa [luis.desousa@tudor.lu]
  * Date: 13-05-2013
  *
@@ -49,8 +65,6 @@ DSS.style.addRules([DSS.rule_fsa, DSS.rule_highlight]);
 
 DSS.initMap = function()
 {
-	//debugger;
-	
 	var bounds = new OpenLayers.Bounds(91979, 436326, 92617, 437659.5);
 
 	DSS.map = new OpenLayers.Map("SliderMap",{
@@ -79,7 +93,7 @@ DSS.initMap = function()
 	
 	var buildsWMS =  new OpenLayers.Layer.WMS(
     	"Buildings",
-    	"http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
+    	"http://maps.iguess.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/MapFiles/RO_localOWS_test.map",
         {layers: "RO_buildings_gml", 
          format: "image/png",
          srsName: DSS.mapProjection,
@@ -95,8 +109,7 @@ DSS.initMap = function()
 		projection: new OpenLayers.Projection(DSS.mapProjection),
 		protocol: new OpenLayers.Protocol.WFS({
 			version: "1.1.0",
-			//url: "http://iguess-mapserv.kirchberg.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/MapFiles/RO_localOWS_test.map",
-			url: "http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map",
+			url: "http://maps.iguess.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/MapFiles/RO_localOWS_test.map",
 			featureNS: "http://mapserver.gis.umn.edu/mapserver",
 			featureType: "pv_potential",
 			srsName: DSS.mapProjection

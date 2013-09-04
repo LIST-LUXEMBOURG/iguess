@@ -14,11 +14,15 @@ class DataserverUrlController < ApplicationController
    url    = params[:url]
    cityId = params[:city][:id]
 
-   @dataserver_url = DataserverUrl.new
-   @dataserver_url.city_id = cityId
-   @dataserver_url.url     = url
-   @dataserver_url.descr   = ''
-   @dataserver_url.save
+   # Confirm this is not a duplicate...
+   u = DataserverUrl.find_by_city_id_and_url(cityId, url)
+   if not u
+     @dataserver_url = DataserverUrl.new
+     @dataserver_url.city_id = cityId
+     @dataserver_url.url     = url
+     @dataserver_url.descr   = ''
+     @dataserver_url.save
+    end
 
 
     respond_to do |format|
@@ -34,13 +38,16 @@ class DataserverUrlController < ApplicationController
 
     @dataserver_url = DataserverUrl.find_by_city_id_and_url(cityId, url)
 
-
-    if not User.canAccessObject(current_user, @dataserver_url)
-      return
-    end
+    # Just in case someone deletes a preset from under us... this will make things seem nicer
+    u = DataserverUrl.find_by_city_id_and_url(cityId, url)
+    if u
+      if not User.canAccessObject(current_user, @dataserver_url)
+        return
+      end
 
     
-    @dataserver_url.destroy
+      @dataserver_url.destroy
+    end
 
     respond_to do |format|
       format.html 

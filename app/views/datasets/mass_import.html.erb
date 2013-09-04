@@ -49,8 +49,8 @@
 </div>
 
 <div class="server-info">
-  <div class="server-name"></div>
-  <div class="server-descr"></div>
+  <div class="server-name" id="server-name"></div>
+  <div class="server-descr" id="server-descr"></div>
 
   <div id="layer-display"></div>
 </div>
@@ -149,14 +149,14 @@
   // Note that details can be null here
   var displayServerDetails = function(serverInfo, service) 
   {
-    if(serverInfo && $('.server-name').html() == '')
+    if(serverInfo && $("#server-name").html() == "")
     {
       var serverName  = serverInfo.title    || serverInfo.name || "Data Server";
       var serverDescr = serverInfo.abstract || "";
 
-      $('.server-name').html('Server: ' + serverName);
-      $('.server-descr').html(linkify(serverDescr));
-      $('.server-info').show();
+      $("#server-name").html("Server: " + serverName);
+      $("#server-descr").html(linkify(serverDescr));
+      $(".server-info").show();
     }
   };
 
@@ -586,22 +586,25 @@
         $.ajax({
           type: "POST",      // POST combined with url below triggers "create" action on controller
           url: "<%= url_for(:controller => "datasets", :action => "create", :format=>:json) %>",
-          data: "dataset[identifier]="    + datasetIdentifier +
-                "&dataset[service]="      + service +
-                "&dataset[server_url]="   + serverUrl +
-                "&tags="                  + taglist +
-                "&dataset[title]="        + encodeURIComponent(title) +
-                "&dataset[abstract]="     + encodeURIComponent(abstract) +
-                "&dataset[bbox_left]="    + getCoord(layer, "left") +
-                "&dataset[bbox_right]="   + getCoord(layer, "right") +
-                "&dataset[bbox_top]="     + getCoord(layer, "top") +
-                "&dataset[bbox_bottom]="  + getCoord(layer, "bottom") +
-                "&dataset[resolution_x]=" + Math.abs(layer.resolution.x) +
-                "&dataset[resolution_y]=" + Math.abs(layer.resolution.y) +
-                "&dataset[format]="       + (layer.format ? layer.format : "")+
-                "&dataset[local_srs]="    + (hasCrs(layer.wxsCrs, LOCAL_SRS) ? "true" : "false") +
-                "&dataset[alive]=true"    +
-                "&cityName=" + <% if current_user.role_id == 1 %>"<%= raw @current_city.name %>"<% else %>getCityCookie() <% end %> ,
+          data: "dataset[identifier]="       + datasetIdentifier +
+                "&dataset[service]="         + service +
+                "&dataset[server_url]="      + serverUrl +
+                "&server_title="             + getServerTitle() +
+                "&server_abstract="          + getServerAbstract() +
+                "&tags="                     + taglist +
+                "&dataset[title]="           + encodeURIComponent(title) +
+                "&dataset[abstract]="        + encodeURIComponent(abstract) +
+                "&dataset[bbox_left]="       + getCoord(layer, "left") +
+                "&dataset[bbox_right]="      + getCoord(layer, "right") +
+                "&dataset[bbox_top]="        + getCoord(layer, "top") +
+                "&dataset[bbox_bottom]="     + getCoord(layer, "bottom") +
+                "&dataset[resolution_x]="    + Math.abs(layer.resolution.x) +
+                "&dataset[resolution_y]="    + Math.abs(layer.resolution.y) +
+                "&dataset[format]="          + (layer.format ? layer.format : "")+
+                "&dataset[local_srs]="       + (hasCrs(layer.wxsCrs, LOCAL_SRS) ? "true" : "false") +
+                "&dataset[city_id]=<%= raw @current_city.id %>" +
+                "&dataset[alive]=true"       +
+                "&cityName=<%= raw @current_city.id %>",
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
           success: function(data, status, jqXHR)  { registerDataset(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); },
           error:   function(jqXHR, status, error) { alert('Cound not register dataset! (server returned status "' + error.trim() + '")'); }
@@ -826,7 +829,7 @@
 
   var updateButtonVisibility = function()
   {
-    var serverUrl = getServerUrl().trim();
+    var serverUrl = getServerUrl();
 
     if(serverUrl === "") {
       $('#save-preset').hide();
@@ -869,7 +872,7 @@
   // This gets called when the Remote Data Server URL is changed
   var loadDataLayers = function()
   {
-    var serverUrl = getServerUrl().trim();
+    var serverUrl = getServerUrl();
     currentlyLoadedUrl = serverUrl;
 
     updateButtonVisibility();
@@ -878,7 +881,7 @@
       return;   
 
     // Reset various displays
-    $(".server-name").html("");   
+    $("#server-name").html("");   
     $("#error-list").html("");
     $("#error-list").slideUp(200);
     alreadyShownWmsError = false;
@@ -960,33 +963,42 @@
   {
     var anyShown = false;
 
-    if(showWfs()) { $('#probing-wfs').show(); anyShown = true; }
-    if(showWms()) { $('#probing-wms').show(); anyShown = true; }
-    if(showWcs()) { $('#probing-wcs').show(); anyShown = true; }
+    if(showWfs()) { $("#probing-wfs").show(); anyShown = true; }
+    if(showWms()) { $("#probing-wms").show(); anyShown = true; }
+    if(showWcs()) { $("#probing-wcs").show(); anyShown = true; }
 
     if(anyShown)
-    {
-      $('.progress-container').show();
-    }
-    else {
-      $('.progress-container').hide();
-    }
+      $(".progress-container").show();
+    else 
+      $(".progress-container").hide();
   };
 
 
   function hideProbingIndicators() 
   {
-    $('#probing-wms').hide();
-    $('#probing-wfs').hide();
-    $('#probing-wcs').hide();
-    $('.progress-container').hide();
+    $("#probing-wms").hide();
+    $("#probing-wfs").hide();
+    $("#probing-wcs").hide();
+    $(".progress-container").hide();
   };
 
 
   var getServerUrl = function() 
   { 
-    return $('#server_url').val().trim(); 
+    return $("#server_url").val().trim(); 
   };
+
+
+  var getServerTitle = function()
+  {
+    return $("#server-name").text();
+  }
+
+
+  var getServerAbstract = function()
+  {
+    return $("#server-descr").text();
+  }
 
 
   $(document).ready(function ()
@@ -1019,20 +1031,20 @@
       currentRowStart = 0,
       rowDivs = new Array();
 
-  function setConformingHeight(el, newHeight) {
+  var setConformingHeight = function(el, newHeight) {
      // set the height to something new, but remember the original height in case things change
      el.data("originalHeight", (el.data("originalHeight") == undefined) ? (el.height()) : (el.data("originalHeight")));
      el.height(newHeight);
   }
 
-  function getOriginalHeight(el) {
+  var getOriginalHeight = function(el) {
      // if the height has changed, send the originalHeight
      return (el.data("originalHeight") == undefined) ? (el.height()) : (el.data("originalHeight"));
   }
 
-  function equalizeRowHeights() {
+  var equalizeRowHeights = function() {
 
-     // find the tallest LI in the row, and set the heights of all of the LIs to match it.
+     // Find the tallest LI in the row, and set the heights of all of the LIs to match it
      $('li.map-data-item').each(function() {
         // "caching"
         var $el = $(this);
@@ -1041,10 +1053,10 @@
 
         if (currentRowStart != topPosition) {
 
-           // we just came to a new row.  Set all the heights on the completed row
+           // We just came to a new row.  Set all the heights on the completed row.
            for(currentDiv = 0 ; currentDiv < rowDivs.length ; currentDiv++) setConformingHeight(rowDivs[currentDiv], currentTallest);
 
-           // set the variables for the new row
+           // Set the variables for the new row
            rowDivs.length = 0; // empty the array
            currentRowStart = topPosition;
            currentTallest = getOriginalHeight($el);
@@ -1052,12 +1064,12 @@
 
         } else {
 
-           // another div on the current row.  Add it to the list and check if it's taller
+           // Another div on the current row.  Add it to the list and check if it's taller.
            rowDivs.push($el);
            currentTallest = (currentTallest < getOriginalHeight($el)) ? (getOriginalHeight($el)) : (currentTallest);
 
         }
-        // do the last row
+        // Do the last row
         for (currentDiv = 0 ; currentDiv < rowDivs.length ; currentDiv++) setConformingHeight(rowDivs[currentDiv], currentTallest);
 
      });
@@ -1164,8 +1176,6 @@
 
     var layer = discoveredLayers[key];
 
-    console.log(service);
-
     if(layer) {   // Already found this layer, add service to it
 
       if(layer.type.hasObject(service)) {    // Will happen if duplicate names are used on the server
@@ -1190,6 +1200,8 @@
         layer.wmsCrsList = dataset.wmsCrsList
         layer.wmsbbox    = dataset.wmsbbox;
         layer.llbbox     = dataset.llbbox;
+        layer.title      = dataset.title;         // Title and abstract from WMS supercede those from other services
+        layer["abstract"] = dataset["abstract"];
       }
       else
         alert("Unknown service " + service + " encountered!");
