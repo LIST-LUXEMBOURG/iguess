@@ -147,6 +147,8 @@ for row in rows:
                                 "RETURNING id"
 
                 abstract = "Result calculated with module"
+                
+                print "XXXXXXXXXXXXXXXX", recordId, identifier
 
                 qcur.execute(queryTemplate, (recordId, identifier, url, serverId, identifier, abstract, str(city_id), True, True, str(datetime.datetime.now()), str(datetime.datetime.now())))
 
@@ -154,10 +156,10 @@ for row in rows:
                     print "Unable to insert data II, quitting..."
                     sys.exit(2)
 
-                recordId = qcur.fetchone()[0]
+                insertedId = qcur.fetchone()[0]
 
                 # Insert mapping tag
-                qcur.execute("insert into " + dbSchema + ".dataset_tags(dataset_id, tag) values(" + str(recordId) + ", 'Mapping')")
+                qcur.execute("insert into " + dbSchema + ".dataset_tags(dataset_id, tag) values(" + str(insertedId) + ", 'Mapping')")
 
             conn.commit()
 
