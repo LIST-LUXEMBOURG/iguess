@@ -1,0 +1,5 @@
+979c979,980
+<         self._parseLiteralData(outputElement, 'LiteralData')
+---
+>         #self._parseLiteralData(outputElement, 'LiteralData')
+>         self._parseLiteralData(outputElement, 'LiteralOutput') 
