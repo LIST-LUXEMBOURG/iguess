@@ -1,4 +1,19 @@
+# coding: utf-8
 '''
+Copyright 2010 - 2014 CRP Henri Tudor
+
+Licenced under the EUPL, Version 1.1 or – as soon they will be approved by the
+European Commission - subsequent versions of the EUPL (the "Licence");
+You may not use this work except in compliance with the Licence.
+You may obtain a copy of the Licence at:
+
+http://ec.europa.eu/idabc/eupl
+
+Unless required by applicable law or agreed to in writing, software distributed
+under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the Licence for the
+specific language governing permissions and limitations under the Licence.
+
 Created on Aug 9, 2012
 
 @author: Luis de Sousa [luis.desousa@tudor.lu]
@@ -66,6 +81,25 @@ class MapFile:
     mapFilesPath    = "/var/www/MapServ/"
     otherProjs      = "EPSG:3857 EPSG:3035 EPSG:4326 EPSG:900913"
     layers          = []
+    
+    meta_fees = "none"
+    meta_accessconstraints = "none"
+    meta_keywordlist = ""
+    meta_addresstype = ""
+    meta_address = ""
+    meta_city = ""
+    meta_stateorprovince = ""
+    meta_postcode = ""
+    meta_country = ""
+    meta_contactelectronicmailaddress = ""
+    meta_contactperson = ""
+    meta_contactorganization = ""
+    meta_contactposition = ""
+    meta_role = ""
+    meta_contactvoicetelephone = ""
+    meta_contactfacsimiletelephone = ""
+    meta_contactinstructions = ""
+    meta_hoursofservice = ""
 
     def __init__(self, nameInit = "TestMapFile"):
         
@@ -150,13 +184,33 @@ class MapFile:
         text += "  IMAGEURL  \"" + self.imageURL + "\"\n"
         text += "  METADATA \n"
         text += "    \"ows_title\"           \"" + self.serviceTitle + "\"\n"
-        text += "    \"ows_onlineresource\" \"" + self.mapServerURL + self.filePath() + "&\"\n"
+        text += "    \"ows_abstract\"           \"" + self.serviceTitle + "\"\n"
+        #text += "    \"ows_onlineresource\" \"" + self.mapServerURL + self.filePath() + "&\"\n"
+        text += "    \"ows_service_onlineresource\" \"" + self.mapServerURL + self.filePath() + "&\"\n"
         text += "    \"ows_srs\"             \"EPSG:" + self.epsgCode + " " + self.otherProjs + "\"\n"
         text += "    \"ows_bbox_extended\" \"true\"\n"
         text += "    \"ows_enable_request\" \"*\"\n" 
         text += "    \"ows_encoding\" \"UTF-8\"\n"
         text += "    \"gml_include_items\" \"all\"\n\n"
 
+        text += "    \"ows_fees\" \"none\"\n"
+        text += "    \"ows_accessconstraints\" \"none\"\n"
+        text += "    \"ows_keywordlist\" \"" + self.meta_keywordlist + "\"\n"
+        text += "    \"ows_addresstype\" \"" + self.meta_addresstype + "\"\n"
+        text += "    \"ows_address\" \"" + self.meta_address + "\"\n"
+        text += "    \"ows_city\" \"" + self.meta_city + "\"\n"
+        text += "    \"ows_stateorprovince\" \"" + self.meta_stateorprovince + "\"\n"
+        text += "    \"ows_postcode\" \"" + self.meta_postcode + "\"\n"
+        text += "    \"ows_country\" \"" + self.meta_country + "\"\n"
+        text += "    \"ows_contactelectronicmailaddress\" \"" + self.meta_contactelectronicmailaddress + "\"\n"
+        text += "    \"ows_contactperson\" \"" + self.meta_contactperson + "\"\n"
+        text += "    \"ows_contactorganization\" \"" + self.meta_contactorganization + "\"\n"
+        text += "    \"ows_contactposition\" \"" + self.meta_contactposition + "\"\n"
+        text += "    \"ows_role\" \"" + self.meta_role + "\"\n"
+        text += "    \"ows_contactvoicetelephone\" \"" + self.meta_contactvoicetelephone + "\"\n"
+        text += "    \"ows_contactfacsimiletelephone\" \"" + self.meta_contactfacsimiletelephone + "\"\n"
+        text += "    \"ows_contactinstructions\" \"" + self.meta_contactinstructions + "\" \n"
+        text += "    \"ows_hoursofservice\" \"" + self.meta_hoursofservice + "\"\n\n"
 
         text += "  END  # Metadata\n\n"
         text += "END  # Web\n\n"

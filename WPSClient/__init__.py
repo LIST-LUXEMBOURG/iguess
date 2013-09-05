@@ -1,4 +1,19 @@
+# coding: utf-8
 '''
+Copyright 2010 - 2014 CRP Henri Tudor
+
+Licenced under the EUPL, Version 1.1 or – as soon they will be approved by the
+European Commission - subsequent versions of the EUPL (the "Licence");
+You may not use this work except in compliance with the Licence.
+You may obtain a copy of the Licence at:
+
+http://ec.europa.eu/idabc/eupl
+
+Unless required by applicable law or agreed to in writing, software distributed
+under the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the Licence for the
+specific language governing permissions and limitations under the Licence.
+
 Created on Aug 28, 2012
 
 @author: Luis de Sousa [luis.desousa@tudor.lu]
@@ -154,6 +169,25 @@ class WPSClient:
     imagePath    = None
     imageURL     = None
     otherProjs   = None
+    
+    meta_fees = "none"
+    meta_accessconstraints = "none"
+    meta_keywordlist = ""
+    meta_addresstype = ""
+    meta_address = ""
+    meta_city = ""
+    meta_stateorprovince = ""
+    meta_postcode = ""
+    meta_country = ""
+    meta_contactelectronicmailaddress = ""
+    meta_contactperson = ""
+    meta_contactorganization = ""
+    meta_contactposition = ""
+    meta_role = ""
+    meta_contactvoicetelephone = ""
+    meta_contactfacsimiletelephone = ""
+    meta_contactinstructions = ""
+    meta_hoursofservice = ""
 
     RUNNING = 1
     FINISHED = 2
@@ -226,9 +260,27 @@ class WPSClient:
         self.mapFilesPath = parser.get('MapServer', 'mapFilesPath')
         self.mapTemplate  = parser.get('MapServer', 'mapTemplate')
         self.imagePath    = parser.get('MapServer', 'imagePath')
-        self.imageURL     = parser.get('MapServer', 'imgeURL')
+        self.imageURL     = parser.get('MapServer', 'imageURL')
         self.otherProjs   = parser.get('MapServer', 'otherProjs')
         
+        self.meta_fees = parser.get('MapServer', 'meta_fees')
+        self.meta_accessconstraints = parser.get('MapServer', 'meta_accessconstraints')
+        self.meta_keywordlist = parser.get('MapServer', 'meta_keywordlist')
+        self.meta_addresstype = parser.get('MapServer', 'meta_addresstype')
+        self.meta_address = parser.get('MapServer', 'meta_address')
+        self.meta_city = parser.get('MapServer', 'meta_city')
+        self.meta_stateorprovince = parser.get('MapServer', 'meta_stateorprovince')
+        self.meta_postcode = parser.get('MapServer', 'meta_postcode')
+        self.meta_country = parser.get('MapServer', 'meta_country')
+        self.meta_contactelectronicmailaddress = parser.get('MapServer', 'meta_contactelectronicmailaddress')
+        self.meta_contactperson = parser.get('MapServer', 'meta_contactperson')
+        self.meta_contactorganization   = parser.get('MapServer', 'meta_contactorganization')
+        self.meta_contactposition = parser.get('MapServer', 'meta_contactposition')
+        self.meta_role = parser.get('MapServer', 'meta_role')
+        self.meta_contactvoicetelephone = parser.get('MapServer', 'meta_contactvoicetelephone')
+        self.meta_contactfacsimiletelephone = parser.get('MapServer', 'meta_contactfacsimiletelephone')
+        self.meta_contactinstructions = parser.get('MapServer', 'meta_contactinstructions')
+        self.meta_hoursofservice = parser.get('MapServer', 'meta_hoursofservice')
         
     def setupLogging(self):
         """
@@ -461,6 +513,25 @@ class WPSClient:
         self.map.mapFilesPath = self.mapFilesPath
         self.map.otherProjs   = self.otherProjs
         
+        self.map.meta_fees = self.meta_fees
+        self.map.meta_accessconstraints = self.meta_accessconstraints
+        self.map.meta_keywordlist = self.meta_keywordlist
+        self.map.meta_addresstype = self.meta_addresstype
+        self.map.meta_address = self.meta_address
+        self.map.meta_city = self.meta_city
+        self.map.meta_stateorprovince = self.meta_stateorprovince
+        self.map.meta_postcode = self.meta_postcode
+        self.map.meta_country = self.meta_country
+        self.map.meta_contactelectronicmailaddress = self.meta_contactelectronicmailaddress
+        self.map.meta_contactperson = self.meta_contactperson
+        self.map.meta_contactorganization = self.meta_contactorganization
+        self.map.meta_contactposition = self.meta_contactposition
+        self.map.meta_role = self.meta_role
+        self.map.meta_contactvoicetelephone = self.meta_contactvoicetelephone
+        self.map.meta_contactfacsimiletelephone = self.meta_contactfacsimiletelephone
+        self.map.meta_contactinstructions = self.meta_contactinstructions
+        self.map.meta_hoursofservice = self.meta_hoursofservice
+        
         for c in self.resultsComplex:
             
             if c.dataSet <> None:
@@ -481,6 +552,7 @@ class WPSClient:
                     logging.debug("The layer type: " + str(c.dataSet.getGeometryType()))
                     layer.addStyle(style)
                     self.map.addLayer(layer)
+                    logging.debug("Generated layer " + layer.name + " of type " + layer.layerType + ".")
                   
                 elif c.dataSet.dataType == "raster":
                     layer = UMN.RasterLayer(
@@ -491,10 +563,13 @@ class WPSClient:
                                             self.outputTitles[c.name])
                     layer.setBounds(c.dataSet.getMaxValue(), c.dataSet.getMinValue())
                     self.map.addLayer(layer)
+                    logging.debug("Generated layer " + layer.name + " of type raster.")
                     
                 else:
                     logging.warning(self.WARN_02 + c.name)
                     self.lastLogMessage = self.WARN_02
+                    
+                
 
         
         self.map.writeToDisk()
