@@ -31,6 +31,7 @@ This package is released under the GPL-3.0 open source license [4].
 [3] http://wiki.rsg.pml.ac.uk/pywps/Main_Page
 [4] http://opensource.org/licenses/GPL-3.0
 '''
+from argparse import PARSER
 
 __all__ = ["Tags","Output","DataSet","MapServerText"]
 
@@ -263,24 +264,43 @@ class WPSClient:
         self.imageURL     = parser.get('MapServer', 'imageURL')
         self.otherProjs   = parser.get('MapServer', 'otherProjs')
         
-        self.meta_fees = parser.get('MapServer', 'meta_fees')
-        self.meta_accessconstraints = parser.get('MapServer', 'meta_accessconstraints')
-        self.meta_keywordlist = parser.get('MapServer', 'meta_keywordlist')
-        self.meta_addresstype = parser.get('MapServer', 'meta_addresstype')
-        self.meta_address = parser.get('MapServer', 'meta_address')
-        self.meta_city = parser.get('MapServer', 'meta_city')
-        self.meta_stateorprovince = parser.get('MapServer', 'meta_stateorprovince')
-        self.meta_postcode = parser.get('MapServer', 'meta_postcode')
-        self.meta_country = parser.get('MapServer', 'meta_country')
-        self.meta_contactelectronicmailaddress = parser.get('MapServer', 'meta_contactelectronicmailaddress')
-        self.meta_contactperson = parser.get('MapServer', 'meta_contactperson')
-        self.meta_contactorganization   = parser.get('MapServer', 'meta_contactorganization')
-        self.meta_contactposition = parser.get('MapServer', 'meta_contactposition')
-        self.meta_role = parser.get('MapServer', 'meta_role')
-        self.meta_contactvoicetelephone = parser.get('MapServer', 'meta_contactvoicetelephone')
-        self.meta_contactfacsimiletelephone = parser.get('MapServer', 'meta_contactfacsimiletelephone')
-        self.meta_contactinstructions = parser.get('MapServer', 'meta_contactinstructions')
-        self.meta_hoursofservice = parser.get('MapServer', 'meta_hoursofservice')
+        if parser.has_option('MapServer', 'meta_fees'):
+            self.meta_fees = parser.get('MapServer', 'meta_fees')
+        if parser.has_option('MapServer', 'meta_accessconstraints'):
+            self.meta_accessconstraints = parser.get('MapServer', 'meta_accessconstraints')
+        if parser.has_option('MapServer', 'meta_keywordlist'):
+            self.meta_keywordlist = parser.get('MapServer', 'meta_keywordlist')
+        if parser.has_option('MapServer', 'meta_addresstype'):
+            self.meta_addresstype = parser.get('MapServer', 'meta_addresstype')
+        if parser.has_option('MapServer', 'meta_address'):
+            self.meta_address = parser.get('MapServer', 'meta_address')
+        if parser.has_option('MapServer', 'meta_city'):
+            self.meta_city = parser.get('MapServer', 'meta_city')
+        if parser.has_option('MapServer', 'meta_stateorprovince'):
+            self.meta_stateorprovince = parser.get('MapServer', 'meta_stateorprovince')
+        if parser.has_option('MapServer', 'meta_postcode'):
+            self.meta_postcode = parser.get('MapServer', 'meta_postcode')
+        if parser.has_option('MapServer', 'meta_country'):
+            self.meta_country = parser.get('MapServer', 'meta_country')
+        if parser.has_option('MapServer', 'meta_contactelectronicmailaddress'):
+            self.meta_contactelectronicmailaddress = parser.get('MapServer', 'meta_contactelectronicmailaddress')
+        if parser.has_option('MapServer', 'meta_contactperson'):
+            self.meta_contactperson = parser.get('MapServer', 'meta_contactperson')
+        if parser.has_option('MapServer', 'meta_contactorganization'):
+            self.meta_contactorganization   = parser.get('MapServer', 'meta_contactorganization')
+        if parser.has_option('MapServer', 'meta_contactposition'):
+            self.meta_contactposition = parser.get('MapServer', 'meta_contactposition')
+        if parser.has_option('MapServer', 'meta_role'):
+            self.meta_role = parser.get('MapServer', 'meta_role')
+        if parser.has_option('MapServer', 'meta_contactvoicetelephone'):
+            self.meta_contactvoicetelephone = parser.get('MapServer', 'meta_contactvoicetelephone')
+        if parser.has_option('MapServer', 'meta_contactfacsimiletelephone'):
+            self.meta_contactfacsimiletelephone = parser.get('MapServer', 'meta_contactfacsimiletelephone')
+        if parser.has_option('MapServer', 'meta_contactinstructions'):
+            self.meta_contactinstructions = parser.get('MapServer', 'meta_contactinstructions')
+        if parser.has_option('MapServer', 'meta_hoursofservice'):
+            self.meta_hoursofservice = parser.get('MapServer', 'meta_hoursofservice')
+
         
     def setupLogging(self):
         """

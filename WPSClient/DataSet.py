@@ -96,8 +96,6 @@ class DataSet:
 			self.max = band.GetMaximum()
 			if self.min is None or self.max is None:
 				(self.min,self.max) = band.ComputeRasterMinMax(1)
-			self.min = int(round(self.min)) - 1
-			self.max = int(round(self.max)) + 1
 			return "raster"
 
 		if not self.dataSet:
