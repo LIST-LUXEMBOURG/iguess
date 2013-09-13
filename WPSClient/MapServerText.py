@@ -384,7 +384,7 @@ class RasterLayer(Layer):
         text += "    DATA " + self.path + "\n"
         text += "    TEMPLATE \"blank.html\"\n"
         text += "    DUMP TRUE\n"
-        text += "    PROCESSING \"SCALE=AUTO\" \n\n"
+        text += "    #PROCESSING \"SCALE=AUTO\" \n\n"
         
         text += "    METADATA \n"
         text += "      \"ows_title\" \"" + self.title + "\" \n"
