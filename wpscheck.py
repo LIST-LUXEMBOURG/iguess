@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys
+import os
 import psycopg2
 import WPSClient
 import datetime
@@ -96,8 +97,9 @@ for row in rows:
             # Retrieve and save the data locally to disk, creating a mapfile in the process
             mapfile = client.generateMapFile()
             url = baseMapServerUrl + mapfile
+
         except Exception as ex:
-            logErrorMsg("Process Error: generateMapFile call failed - " + str(ex)
+            logErrorMsg("Process Error: generateMapFile() call failed - " + str(ex))
             sys.exit(2)
 
         try:
