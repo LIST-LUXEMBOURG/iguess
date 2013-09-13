@@ -85,6 +85,12 @@ for row in rows:
     elif client.status == client.FINISHED:   # 2
         try:
 
+
+            # Retrieve and save the data locally to disk, creating a mapfile in the process
+            mapfile = client.generateMapFile()
+            url = baseMapServerUrl + mapfile
+
+
             # Update status in the database
             queryTemplate = "UPDATE " + dbSchema + ".mod_configs " \
                             "SET status = 'FINISHED', status_text = %s, run_ended = %s " \
@@ -118,10 +124,6 @@ for row in rows:
 
                 client.epsg = srs   
     
-                # Retrieve and save the data locally to disk, creating a mapfile in the process
-                mapfile = client.generateMapFile()
-
-                url = baseMapServerUrl + mapfile
                 identifier = r.name
 
 
