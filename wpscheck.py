@@ -97,7 +97,7 @@ for row in rows:
             mapfile = client.generateMapFile()
             url = baseMapServerUrl + mapfile
         except Exception as ex:
-            logErrorMsg("Process Error: generateMapFile call failed - " + ex)
+            logErrorMsg("Process Error: generateMapFile call failed - " + str(ex)
             sys.exit(2)
 
         try:
