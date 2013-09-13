@@ -9,6 +9,15 @@ from iguess_db_credentials import dbServer, dbName, dbUsername, dbPassword, dbSc
 
 connstr = "dbname='" + dbName + "' user='" + dbUsername +"' host='" + dbServer + "' password='" + dbPassword + "'"
 
+
+def logErrorMsg(msg):
+    queryTemplate = "UPDATE " + dbSchema + ".mod_configs " \
+        "SET status = 'ERROR', status_text = %s, run_ended = %s " \
+        "WHERE id = %s" 
+
+    cur.execute(queryTemplate, (msg, str(datetime.datetime.now()), recordId))
+    conn.commit()
+
 try:
     conn = psycopg2.connect(connstr)
 except:
@@ -116,7 +125,6 @@ for row in rows:
             for r in client.resultsComplex:
                 print "Processing complex result ", r.name, " with id of ", r.uniqueID
 
-
                 if srs.startswith("EPSG:"):     # Strip prefix, if it exists
                     srs = srs[5:]
 
@@ -148,8 +156,6 @@ for row in rows:
 
                 abstract = "Result calculated with module"
                 
-                print "XXXXXXXXXXXXXXXX", recordId, identifier
-
                 qcur.execute(queryTemplate, (recordId, identifier, url, serverId, identifier, abstract, str(city_id), True, True, str(datetime.datetime.now()), str(datetime.datetime.now())))
 
                 if qcur.rowcount == 0:
@@ -164,18 +170,15 @@ for row in rows:
             conn.commit()
 
         except:
+            logErrorMsg("Process Error: last status was " + str(client.status))
+
             print "Can't update process status!"
             sys.exit(2)    
 
     elif client.status == client.ERROR:    
 
         try:
-            queryTemplate = "UPDATE " + dbSchema + ".mod_configs " \
-                            "SET status = 'ERROR', status_text = %s, run_ended = %s " \
-                            "WHERE id = %s" 
-
-            cur.execute(queryTemplate, (client.processErrorText, str(datetime.datetime.now()), recordId))
-            conn.commit()
+            logErrorMsg(client.processErrorText)
 
         except:
             print "Can't update process status!"
