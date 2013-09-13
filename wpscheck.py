@@ -96,8 +96,8 @@ for row in rows:
             # Retrieve and save the data locally to disk, creating a mapfile in the process
             mapfile = client.generateMapFile()
             url = baseMapServerUrl + mapfile
-        except:
-            logErrorMsg("Process Error: generateMapFile call failed")
+        except Exception as ex:
+            logErrorMsg("Process Error: generateMapFile call failed - " + ex)
             sys.exit(2)
 
         try:
