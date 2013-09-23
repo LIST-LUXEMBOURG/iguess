@@ -100,11 +100,15 @@ class MapFile:
     meta_contactfacsimiletelephone = ""
     meta_contactinstructions = ""
     meta_hoursofservice = ""
+    
+    #Messages
+    ERR_01  = "An EPSG coordinate system code is necessary to generate the map file, but it was set to null."
+    ERR_02  = "A path to the disk location storing the data is necessary to generate the map file, but it was set to null."
+    ERR_03  = "The URL of the target MapServer instance must be provided to generate the map file, but it was set to null."
 
     def __init__(self, nameInit = "TestMapFile"):
         
         self.name = nameInit 
-        # self.mapHeader()
         
     def calculateBBoxFromLayers(self):
         """
@@ -112,11 +116,6 @@ class MapFile:
         this map file (listed in the layers attribute) storing the result in the
         bBox attribute
         """
-        
-#        if len(self.layers) > 0:
-#            self.bBox = self.layers[0].bBox
-#        else:
-#            return
         
         if len(self.layers) <= 0:
             return
@@ -144,12 +143,24 @@ class MapFile:
         """
         
         self.calculateBBoxFromLayers()
+        
+        if self.epsgCode == None:
+            raise Exception(self.ERR_01)
+        
+        if self.shapePath == None:
+            raise Exception(self.ERR_02)
+        
+        if self.mapServerURL == None:
+            raise Exception(self.ERR_03)
+        
+        if self.otherProjs == None:
+            self.otherProjs = ""
 
         text  = "MAP \n"
         text += "  NAME        \"" + self.name + "\"\n"
         text += "  EXTENT      " + str(self.bBox[0]) + " " + str(self.bBox[1]) + " " + str(self.bBox[2]) + " " + str(self.bBox[3]) + "\n"
         text += "  SIZE        400 300 \n"
-        text += "  MAXSIZE     4096 \n" # Making sure it renders on large screens.
+        text += "  MAXSIZE     4096 \n" # Making sure it renders in large screens.
         text += "  SHAPEPATH   \"" + self.shapePath + "\"\n"
         text += "  IMAGECOLOR  255 255 255 \n"
         text += "  PROJECTION \n"
@@ -179,12 +190,12 @@ class MapFile:
         text += "  END \n\n"
 
         text += "WEB \n"
-        text += "  TEMPLATE  \"" + self.mapTemplate + "\"\n"
-        text += "  IMAGEPATH \"" + self.imagePath + "\"\n"
-        text += "  IMAGEURL  \"" + self.imageURL + "\"\n"
+        text += "  TEMPLATE  \"" + str(self.mapTemplate) + "\"\n"
+        text += "  IMAGEPATH \"" + str(self.imagePath) + "\"\n"
+        text += "  IMAGEURL  \"" + str(self.imageURL) + "\"\n"
         text += "  METADATA \n"
-        text += "    \"ows_title\"           \"" + self.serviceTitle + "\"\n"
-        text += "    \"ows_abstract\"           \"" + self.serviceTitle + "\"\n"
+        text += "    \"ows_title\"           \"" + str(self.serviceTitle) + "\"\n"
+        text += "    \"ows_abstract\"           \"" + str(self.serviceTitle) + "\"\n"
         #text += "    \"ows_onlineresource\" \"" + self.mapServerURL + self.filePath() + "&\"\n"
         text += "    \"ows_service_onlineresource\" \"" + self.mapServerURL + self.filePath() + "&\"\n"
         text += "    \"ows_srs\"             \"EPSG:" + self.epsgCode + " " + self.otherProjs + "\"\n"
@@ -195,22 +206,22 @@ class MapFile:
 
         text += "    \"ows_fees\" \"none\"\n"
         text += "    \"ows_accessconstraints\" \"none\"\n"
-        text += "    \"ows_keywordlist\" \"" + self.meta_keywordlist + "\"\n"
-        text += "    \"ows_addresstype\" \"" + self.meta_addresstype + "\"\n"
-        text += "    \"ows_address\" \"" + self.meta_address + "\"\n"
-        text += "    \"ows_city\" \"" + self.meta_city + "\"\n"
-        text += "    \"ows_stateorprovince\" \"" + self.meta_stateorprovince + "\"\n"
-        text += "    \"ows_postcode\" \"" + self.meta_postcode + "\"\n"
-        text += "    \"ows_country\" \"" + self.meta_country + "\"\n"
-        text += "    \"ows_contactelectronicmailaddress\" \"" + self.meta_contactelectronicmailaddress + "\"\n"
-        text += "    \"ows_contactperson\" \"" + self.meta_contactperson + "\"\n"
-        text += "    \"ows_contactorganization\" \"" + self.meta_contactorganization + "\"\n"
-        text += "    \"ows_contactposition\" \"" + self.meta_contactposition + "\"\n"
-        text += "    \"ows_role\" \"" + self.meta_role + "\"\n"
-        text += "    \"ows_contactvoicetelephone\" \"" + self.meta_contactvoicetelephone + "\"\n"
-        text += "    \"ows_contactfacsimiletelephone\" \"" + self.meta_contactfacsimiletelephone + "\"\n"
-        text += "    \"ows_contactinstructions\" \"" + self.meta_contactinstructions + "\" \n"
-        text += "    \"ows_hoursofservice\" \"" + self.meta_hoursofservice + "\"\n\n"
+        text += "    \"ows_keywordlist\" \"" + str(self.meta_keywordlist) + "\"\n"
+        text += "    \"ows_addresstype\" \"" + str(self.meta_addresstype) + "\"\n"
+        text += "    \"ows_address\" \"" + str(self.meta_address) + "\"\n"
+        text += "    \"ows_city\" \"" + str(self.meta_city) + "\"\n"
+        text += "    \"ows_stateorprovince\" \"" + str(self.meta_stateorprovince) + "\"\n"
+        text += "    \"ows_postcode\" \"" + str(self.meta_postcode) + "\"\n"
+        text += "    \"ows_country\" \"" + str(self.meta_country) + "\"\n"
+        text += "    \"ows_contactelectronicmailaddress\" \"" + str(self.meta_contactelectronicmailaddress) + "\"\n"
+        text += "    \"ows_contactperson\" \"" + str(self.meta_contactperson) + "\"\n"
+        text += "    \"ows_contactorganization\" \"" + str(self.meta_contactorganization) + "\"\n"
+        text += "    \"ows_contactposition\" \"" + str(self.meta_contactposition) + "\"\n"
+        text += "    \"ows_role\" \"" + str(self.meta_role) + "\"\n"
+        text += "    \"ows_contactvoicetelephone\" \"" + str(self.meta_contactvoicetelephone) + "\"\n"
+        text += "    \"ows_contactfacsimiletelephone\" \"" + str(self.meta_contactfacsimiletelephone) + "\"\n"
+        text += "    \"ows_contactinstructions\" \"" + str(self.meta_contactinstructions) + "\" \n"
+        text += "    \"ows_hoursofservice\" \"" + str(self.meta_hoursofservice) + "\"\n\n"
 
         text += "  END  # Metadata\n\n"
         text += "END  # Web\n\n"
@@ -384,7 +395,6 @@ class RasterLayer(Layer):
         text += "    DATA " + self.path + "\n"
         text += "    TEMPLATE \"blank.html\"\n"
         text += "    DUMP TRUE\n"
-        text += "    #PROCESSING \"SCALE=AUTO\" \n\n"
         
         text += "    METADATA \n"
         text += "      \"ows_title\" \"" + self.title + "\" \n"
@@ -408,7 +418,7 @@ class RasterLayer(Layer):
                 
                 text += "    CLASS \n"
                 text += "        NAME \"RampClass" + str(i) + "\"\n"
-                text += "        EXPRESSION ([pixel] >= " + str(thisMin) + " and [pixel] < " + str(thisMax) + ") \n"
+                text += "        EXPRESSION ([pixel] >= " + str(thisMin) + " and [pixel] <= " + str(thisMax) + ") \n"
                 text += "        STYLE \n"
                 text += "            COLORRANGE " + self.rainbowRamp[i] + " " + self.rainbowRamp[i + 1] + "\n"
                 text += "            DATARANGE " + str(thisMin) + " " + str(thisMax) + "\n"

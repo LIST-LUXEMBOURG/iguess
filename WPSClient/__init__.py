@@ -203,6 +203,7 @@ class WPSClient:
     ERR_04  = "No status location URL found in response."
     ERR_05  = "Incomplete request -- missing URL"
     ERR_06  = "The process failed with the following message:\n"
+    ERR_07  = "Failed to save map file to disk:\n"
     SUCC_01 = "The process has finished successfully.\nProcessing the results..."
     SUCC_02 = "Wrote map file to disk:\n"
     
@@ -591,8 +592,12 @@ class WPSClient:
                     
                 
 
-        
-        self.map.writeToDisk()
+        try :
+            self.map.writeToDisk()
+        except Exception, e:
+            logging.error(self.ERR_07 + str(e))
+            self.lastLogMessage = self.ERR_07 + str(e)
+            return
         
         logging.info(self.SUCC_02 + self.map.filePath())
         self.lastLogMessage = self.SUCC_02
