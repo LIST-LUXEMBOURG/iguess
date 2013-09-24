@@ -117,7 +117,11 @@ for row in rows:
 
     client.epsg = srs   
 
-    status = client.checkStatus()        # Returns true if checkStatus worked, false if it failed
+    try:
+        status = client.checkStatus()        # Returns true if checkStatus worked, false if it failed
+    except Exception as ex:
+        logErrorMsg(recordId, "Process Error: checkStatus() call failed - " + str(ex))
+        continue
 
     #if not status:
         #print "There was an error checking the status of running modules!"
