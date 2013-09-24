@@ -212,7 +212,7 @@ class ModConfigsController < ApplicationController
       error = $1
 
       if error == nil then    # We could not run wpsstart... output IS the error message
-        error = "wpsclient configuration error: " + output
+        error = "Wpsclient Configuration Error: " + output
       end
 
       # Show error to client
