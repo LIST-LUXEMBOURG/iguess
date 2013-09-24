@@ -92,7 +92,7 @@ try:
     url = iniCli.sendRequest()
 except Exception, e: # iniCli encountered an error
     sys.stdout.write("ERR:" + str(e))
-    return
+    sys.exit()
 
 # iniCli is happy!
 errLog.write("Launching process: " + url + "\n")

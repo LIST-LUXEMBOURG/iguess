@@ -85,13 +85,13 @@ DSS.initSliders = function()
 	DSS.genSlider.on ('change', DSS.genDragged, this);
 	DSS.areaSlider.on('change', DSS.areaDragged, this);
 		
-}
+};
 
 DSS.calcCostValue = function(percent)
 {
 	costPercent = percent * (DSS.costSlider.maxValue - DSS.costSlider.minValue) / 100;
 	return DSS.costSlider.minValue + costPercent;
-}
+};
 
 DSS.updateLabels = function(percent)
 {
@@ -104,7 +104,7 @@ DSS.updateLabels = function(percent)
 	document.getElementById("invest").innerHTML = "Investment: " + invest + " k&euro;";
 	document.getElementById("gen").innerHTML    = "Generation: " + gen + " MWh/a";
 	document.getElementById("area").innerHTML   = "Area: "   	 + area + " m2";
-}
+};
 
 DSS.costDragged = function(ed, value, oldValue) 
 {	
@@ -125,7 +125,7 @@ DSS.costDragged = function(ed, value, oldValue)
 		DSS.buildsWFS.redraw();
 		DSS.lock = false;
 	}
-}
+};
 
 DSS.invDragged = function(ed, value, oldValue) 
 {	
@@ -145,7 +145,7 @@ DSS.invDragged = function(ed, value, oldValue)
 		DSS.buildsWFS.redraw();
 		DSS.lock = false;
 	}
-}
+};
 
 DSS.areaDragged = function(ed, value, oldValue) 
 {	
@@ -165,7 +165,7 @@ DSS.areaDragged = function(ed, value, oldValue)
 		DSS.buildsWFS.redraw();
 		DSS.lock = false;
 	}
-}
+};
 
 DSS.genDragged = function(ed, value, oldValue) 
 {	
@@ -186,21 +186,65 @@ DSS.genDragged = function(ed, value, oldValue)
 		DSS.buildsWFS.redraw();
 		DSS.lock = false;
 	}
-}
+};
 
 DSS.showWindow = function() {
 	
 	DSS.winPanel.show();
 	
-}
+};
 
 DSS.showTestWindow = function() {
+	
+	//creating a form 
+	this.form= new Ext.FormPanel({ 
+		border:false, // <-- removing the border of the form
+		defaults:{xtype:'textfield'},	//component by default of the form
+		items:[ 
+			//name, //assigning the instance we created previously
+			{ 
+				fieldLabel:'Email', // creating a field
+				name:'txt-email', // using a 
+				value:'default@quizzpot.com', //configuration 
+				id:"id-email" 
+			},{ 
+				xtype: 'checkbox', //defining the type of component
+				fieldLabel: 'Active',//assigning a label
+				name: 'chk-active',//and a "name" to retrieve it on the server... 
+				id: 'id-active'// ...when the form is sent 
+			},{
+		        fieldLabel: 'ComboBox',
+		        xtype: 'combo',
+		        store: ['Foo', 'Bar']
+		    }, 
+			//checkboxes, //group of checkboxes 
+			//radios, // group of radios 
+			{ 
+			    	xtype:'hidden',//hidden field(hidden) 
+			    	name:'h-type', //name of the field sent to the server
+			    	value:'developer'//value of the field
+			} 
+		] 
+	}); 
+
+	//creating the window that will contain the form
+	var win = new Ext.Window({ 
+		title: 'New Developer', 
+		width:310, 
+		height:310, 
+		bodyStyle:'background-color:#fff;padding: 10px', 
+		items:this.form, //assigning the form
+		buttonAlign: 'right', //buttons aligned to the right
+		buttons:[{text:'Save'},{text:'Cancel'}] //buttons of the form
+	}); 
+
+	win.show();
 	
 	DSS.winTest = new Ext.Window({
 		title: 'Test window', //Title of the Window 
 		id: 'testWindowId', //ID of the Window Panel
 		//autoHeight: true, //Height of the Window will be auto
-		height:100,
+		height:400,
 		width:300, //Width of the Window
 		resizable: false, //Resize of the Window, if false - it cannot be resized
 		closable: true, //Hide close button of the Window
@@ -210,7 +254,23 @@ DSS.showTestWindow = function() {
 			    {
 			        fieldLabel: 'ComboBox',
 			        xtype: 'combo',
-			        store: ['Foo', 'Bar']
+			        store: ['Foo', 'Bar'],
+			        width: 200,
+			    },
+			    {
+			        fieldLabel: 'Investment',
+			        xtype: 'combo',
+			        store: ['fieldA', 'fieldB']
+			    },
+			    {
+			        fieldLabel: 'Generation',
+			        xtype: 'combo',
+			        store: ['fieldA', 'fieldB']
+			    },
+			    {
+			        fieldLabel: 'Area',
+			        xtype: 'combo',
+			        store: ['fieldA', 'fieldB']
 			    }
 			],
 			buttons: [
@@ -269,6 +329,6 @@ DSS.showTestWindow = function() {
 	      }
 	  ]*/
 	
-	DSS.winTest.show();
+	//DSS.winTest.show();
 	
-}
+};

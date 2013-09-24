@@ -31,8 +31,6 @@ This package is released under the GPL-3.0 open source license [4].
 [3] http://wiki.rsg.pml.ac.uk/pywps/Main_Page
 [4] http://opensource.org/licenses/GPL-3.0
 '''
-from argparse import PARSER
-
 __all__ = ["Tags","Output","DataSet","MapServerText"]
 
 import os
@@ -46,6 +44,7 @@ from Output import LiteralOutput
 from XMLPost import XMLPost
 import MapServerText as UMN
 import re  # For regular expression matching
+from argparse import PARSER
 
 ##########################################################
 
@@ -93,9 +92,6 @@ class WPSClient:
         
     .. attribute:: statusMessage
         Last status message returned during asynchronous execution
-        
-    .. attribute:: lastLogMessage
-        Last message written to the log.
             
     .. attribute:: resultsComplex
         Vector of ComplexOutput objects harbouring the complex results produced
@@ -154,7 +150,6 @@ class WPSClient:
     processId = None
     percentCompleted = 0
     statusMessage = None
-    lastLogMessage = None
     resultsComplex = []
     resultsLiteral = []
     map  = None
@@ -326,7 +321,6 @@ class WPSClient:
         
         if(len(outputNames) <> len(outputTitles)):
             logging.warning(self.WARN_01)
-            self.lastLogMessage = self.WARN_01
             for i in range(0, len(outputNames)):
                 self.outputTitles[outputNames[i]] = outputNames[i]
                 
@@ -354,7 +348,7 @@ class WPSClient:
         
         if len(self.inputNames) <> len(self.inputValues):
             logging.error(self.ERR_01)
-            self.lastLogMessage = self.ERR_01
+            raise Exception(self.ERR_01)
             return
         
         self.xmlPost = XMLPost(self.processName)
@@ -381,13 +375,13 @@ class WPSClient:
         
         if(self.xmlPost == None):
             logging.error(self.ERR_02)
-            self.lastLogMessage = self.ERR_02
+            raise Exception(self.ERR_02)
             return None
         
         request = self.xmlPost.getString()
         if(request == None):
             logging.error(self.ERR_02)
-            self.lastLogMessage = self.ERR_02
+            raise Exception(self.ERR_02)
             return None
         
         rest = self.serverAddress.replace("http://", "")     
@@ -395,7 +389,7 @@ class WPSClient:
         
         if(len(split) < 2):
             logging.error(self.ERR_03 + self.serverAddress)
-            self.lastLogMessage = self.ERR_03 + self.serverAddress
+            raise Exception(self.ERR_03 + self.serverAddress)
             return None
         
         host = split[0]
@@ -426,7 +420,7 @@ class WPSClient:
             self.statusURL = self.xmlResponse.split("statusLocation=\"")[1].split("\"")[0]
         except Exception, err:
             logging.error(self.ERR_04)
-            self.lastLogMessage = self.ERR_04
+            raise Exception(self.ERR_04)
             return None
         
         self.processId = self.decodeId(self.statusURL)
@@ -451,7 +445,7 @@ class WPSClient:
 
         if (self.statusURL == None):
             logging.error(self.ERR_05)
-            self.lastLogMessage = self.ERR_05
+            raise Exception(self.ERR_05)
             return False
         
         r = urllib2.urlopen(urllib2.Request(self.statusURL))
@@ -473,7 +467,7 @@ class WPSClient:
                 self.processErrorText = "Unknown"
 
             logging.error(self.ERR_06 + self.processErrorText)
-            self.lastLogMessage = self.ERR_06 + self.processErrorText
+            raise Exception(self.ERR_06 + self.processErrorText)
 
             return True
            
@@ -490,7 +484,6 @@ class WPSClient:
             return False
         
         logging.debug(self.SUCC_01)
-        self.lastLogMessage = self.SUCC_01
         
         # Process the results
         outVector = self.xmlResponse.split(Tags.preOut)
@@ -588,7 +581,6 @@ class WPSClient:
                     
                 else:
                     logging.warning(self.WARN_02 + c.name)
-                    self.lastLogMessage = self.WARN_02
                     
                 
 
@@ -596,11 +588,10 @@ class WPSClient:
             self.map.writeToDisk()
         except Exception, e:
             logging.error(self.ERR_07 + str(e))
-            self.lastLogMessage = self.ERR_07 + str(e)
+            raise Exception(self.ERR_07 + str(e))
             return
         
         logging.info(self.SUCC_02 + self.map.filePath())
-        self.lastLogMessage = self.SUCC_02
             
         return self.map.filePath()
         
