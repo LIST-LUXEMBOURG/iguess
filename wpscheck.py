@@ -76,6 +76,11 @@ for row in rows:
 
     client.initFromURL(pid, identifiers, titles)
 
+    if srs.startswith("EPSG:"):          # Strip prefix, if there is one
+        srs = srs[5:]
+
+    client.epsg = srs   
+
     status = client.checkStatus()        # Returns true if checkStatus worked, false if it failed
 
     #if not status:
@@ -93,14 +98,21 @@ for row in rows:
 
 
     elif client.status == client.FINISHED:   # 2
+        mapfile = ""
+
         try:
             # Retrieve and save the data locally to disk, creating a mapfile in the process
             mapfile = client.generateMapFile()
-            url = baseMapServerUrl + mapfile
+
+            if mapfile is None:
+                logErrorMsg("Got None back from generateMapFile()")
+                sys.exit(2)
 
         except Exception as ex:
             logErrorMsg("Process Error: generateMapFile() call failed - " + str(ex))
             sys.exit(2)
+
+        url = baseMapServerUrl + mapfile
 
         try:
 
@@ -131,11 +143,6 @@ for row in rows:
             for r in client.resultsComplex:
                 print "Processing complex result ", r.name, " with id of ", r.uniqueID
 
-                if srs.startswith("EPSG:"):     # Strip prefix, if it exists
-                    srs = srs[5:]
-
-                client.epsg = srs   
-    
                 identifier = r.name
 
 
