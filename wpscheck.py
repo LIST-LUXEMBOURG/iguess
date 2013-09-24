@@ -77,7 +77,11 @@ except:
 
 rows = cur.fetchall()
 
-client = WPSClient.WPSClient()
+try:
+    client = WPSClient.WPSClient()
+except Exception as ex:
+    logErrorMsg(recordId, "Process Error: Could not initialize WPSClient module - " + str(ex))
+    continue    
 
 
 for row in rows:
@@ -110,7 +114,11 @@ for row in rows:
         identifiers.append(out[0])
         titles.append(out[1])
 
-    client.initFromURL(pid, identifiers, titles)
+    try:
+        client.initFromURL(pid, identifiers, titles)
+    except Exception as ex:
+        logErrorMsg(recordId, "Process Error: initFromURL() call failed - " + str(ex))
+        continue
 
     if srs.startswith("EPSG:"):          # Strip prefix, if there is one
         srs = srs[5:]
