@@ -81,7 +81,6 @@ try:
     client = WPSClient.WPSClient()
 except Exception as ex:
     logErrorMsg(recordId, "Process Error: Could not initialize WPSClient module - " + str(ex))
-    continue    
 
 
 for row in rows:
