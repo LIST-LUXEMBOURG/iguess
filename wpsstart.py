@@ -1,10 +1,25 @@
 import sys, ast, getopt, types, WPSClient, time, syslog 
-from locale import str
+# from locale import str
+import logging
+from iguess_db_credentials import logFileName
 
-errLog = open("wps.log","a")
+
+def configLogging(logfile, loglevel):
+    '''
+    Set up the logging file
+    '''
+
+    format = "[%(asctime)s] %(levelname)s: %(message)s"
+    logging.basicConfig(filename=logfile, level=loglevel, format=format)
+
+
+
+# Configure logging
+configLogging(logFileName, "INFO")
 
 argv = sys.argv[1:]
-errLog.write("Processing command:\n" + " ".join(argv) + "\n")
+
+logging.info("Processing command: " + " ".join(argv))
 
 # Code modeled on http://stackoverflow.com/questions/7605631/passing-a-list-to-python-from-command-line
 arg_dict = { } 
@@ -23,7 +38,7 @@ for x in switches:
 try:            
     opts, args = getopt.getopt(argv, singles, long_form)
 except getopt.GetoptError, e:          
-    errLog.write("Bad arg: " + e.msg)
+    logging.error("Bad arg: " + e.msg)
     sys.exit(2)       
 
 for opt, arg in opts:
@@ -40,12 +55,12 @@ for opt, arg in opts:
             arg_dict[o] = arg
 
     if not o:
-        errLog.write("Invalid options!\n")
+        logging.error("Invalid options!\n")
         sys.exit(2)
     #Error: bad arg for names... [dem] is not a <type 'list'>!
 
     if not isinstance(arg_dict[o], switches[o]):
-        errLog.write(str(opt) + " " + str(arg) + "\nError: bad arg for " + o + "... " + str(arg_dict[o]) + " is not a " + str(switches[o]) + "!\n")
+        logging.error(str(opt) + " " + str(arg) + "\nError: bad arg for " + o + "... " + str(arg_dict[o]) + " is not a " + str(switches[o]) + "!")
         sys.exit(2)                 
 
 
@@ -95,13 +110,13 @@ except Exception, e: # iniCli encountered an error
     sys.exit()
 
 # iniCli is happy!
-errLog.write("Launching process: " + url + "\n")
+logging.info("Launching process: " + url)
 sys.stdout.write("OK:" + url)  
 
 # if(url == None):        # iniCli encountered an error
 #     sys.stdout.write("ERR:" + iniCli.lastLogMessage)
 # else:                   # iniCli is happy!
-#     errLog.write("Launching process: " + url + "\n")
+#     logging.info("Launching process: " + url + "\n")
 #     sys.stdout.write("OK:" + url)     # This is the line that our rails code will be looking for!
 
 # iniCli = None

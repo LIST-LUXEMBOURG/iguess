@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
-import sys
-import os
+import os, sys
 import psycopg2
 import WPSClient
 import datetime
@@ -38,7 +37,7 @@ def logErrorMsg(recordId, msg):
         cur.execute(queryTemplate, (msg, str(datetime.datetime.now()), recordId))
         conn.commit()
 
-    logger.error(str(recordId) + " " + msg)
+    logging.error(str(recordId) + " " + msg)
     print str(recordId) + " " + msg   # Very helpful when running from cmd line
 
 
