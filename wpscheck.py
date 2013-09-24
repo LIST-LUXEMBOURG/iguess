@@ -52,7 +52,7 @@ def logInfoMsg(msg):
 
 
 
-configLogging(logFile, logLevel)
+configLogging(logFileName, logLevel)
 
 try:
     conn = psycopg2.connect(connstr)
