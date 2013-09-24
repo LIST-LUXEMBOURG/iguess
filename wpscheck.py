@@ -5,24 +5,60 @@ import os
 import psycopg2
 import WPSClient
 import datetime
+import logging
 
-from iguess_db_credentials import dbServer, dbName, dbUsername, dbPassword, dbSchema, baseMapServerUrl
+from iguess_db_credentials import dbServer, dbName, dbUsername, dbPassword, dbSchema, baseMapServerUrl, logFileName
 
 connstr = "dbname='" + dbName + "' user='" + dbUsername +"' host='" + dbServer + "' password='" + dbPassword + "'"
 
+logLevel = "INFO"
 
-def logErrorMsg(msg):
-    queryTemplate = "UPDATE " + dbSchema + ".mod_configs " \
-        "SET status = 'ERROR', status_text = %s, run_ended = %s " \
-        "WHERE id = %s" 
 
-    cur.execute(queryTemplate, (msg, str(datetime.datetime.now()), recordId))
-    conn.commit()
+
+def configLogging(logfile, loglevel):
+    '''
+    Set up the logging file
+    '''
+
+    format = "[%(asctime)s] %(levelname)s: %(message)s"
+    logging.basicConfig(filename=logfile, level=loglevel, format=format)
+
+
+
+def logErrorMsg(recordId, msg):
+    ''' 
+    Write an error message into the databse in a way that will cause it to appear in iGUESS UI 
+    '''
+
+    if(recordId):
+        queryTemplate = "UPDATE " + dbSchema + ".mod_configs " \
+            "SET status = 'ERROR', status_text = %s, run_ended = %s " \
+            "WHERE id = %s" 
+
+        cur.execute(queryTemplate, (msg, str(datetime.datetime.now()), recordId))
+        conn.commit()
+
+    logger.error(str(recordId) + " " + msg)
+    print str(recordId) + " " + msg   # Very helpful when running from cmd line
+
+
+
+def logInfoMsg(msg):
+    '''
+    Print out a warning message, and log it to the logFile
+    '''
+
+    logging.info(msg)
+    print msg
+
+
+
+configLogging(logFile, logLevel)
 
 try:
     conn = psycopg2.connect(connstr)
 except:
-    print "Can't connect to database " + dbName + "!"    
+    logErrorMsg(None, "Database Error: Can't connect to database " + dbName + "!")
     sys.exit(2)
 
 cur  = conn.cursor()
@@ -37,7 +73,7 @@ try:
     cur.execute(query)
 
 except:
-    print "Can't fetch running processes!"
+    logErrorMsg(None, "Database Error: Can't retrieve list of running processes from database!")
     sys.exit(2)
 
 rows = cur.fetchall()
@@ -51,11 +87,12 @@ for row in rows:
     srs = row[2]
     city_id = row[3]
 
-    print "\n\nChecking ", pid, "..."
+    logInfoMsg("Checking pid " + str(pid) + "...")
+
 
     # Check for bad records that will cause crashy-crashy
     if pid == None:
-        print "Found invalid mod_config record with id " + str(recordId)
+        logInfoMsg("Found invalid mod_config record with id " + str(recordId))
         continue
 
     identifiers = [ ]
@@ -66,7 +103,7 @@ for row in rows:
         query = "select column_name, value from " + dbSchema + ".config_text_inputs where mod_config_id = " + str(recordId) + " and is_input = FALSE"
         cur.execute(query)
     except:
-        print "Can't get params for config id " + str(recordId)
+        logging.warning("Can't get params for config id " + str(recordId))
         continue
 
     outs = cur.fetchall()
@@ -87,7 +124,7 @@ for row in rows:
         #print "There was an error checking the status of running modules!"
         #sys.exit(2)
 
-    print "Status = ", client.status
+    logInfoMsg("Status = " + str(client.status))
 
     if client.status == client.RUNNING:      # 1
         queryTemplate = "UPDATE " + dbSchema + ".mod_configs " \
@@ -105,12 +142,12 @@ for row in rows:
             mapfile = client.generateMapFile()
 
             if mapfile is None:
-                logErrorMsg("Got None back from generateMapFile()")
+                logErrorMsg(recordId, "Process Error: Got None back from generateMapFile()")
                 sys.exit(2)
 
         except Exception as ex:
-            logErrorMsg("Process Error: generateMapFile() call failed - " + str(ex))
-            sys.exit(2)
+            logErrorMsg(recordId, "Process Error: generateMapFile() call failed - " + str(ex))
+            continue
 
         url = baseMapServerUrl + mapfile
 
@@ -125,7 +162,7 @@ for row in rows:
                    
             for r in client.resultsLiteral:
 
-                print "Processing literal result ", r.name, " = ", r.value, "..."
+                logInfoMsg("Processing literal result " + r.name +  " = " + str(r.value) +  "...")
 
                 # Clean out any old results
                 queryTemplate = "DELETE FROM " + dbSchema + ".config_text_inputs " \
@@ -141,7 +178,7 @@ for row in rows:
 
 
             for r in client.resultsComplex:
-                print "Processing complex result ", r.name, " with id of ", r.uniqueID
+                logInfoMsg("Processing complex result " + r.name + " with id of " + r.uniqueID)
 
                 identifier = r.name
 
@@ -156,8 +193,8 @@ for row in rows:
                                                     (url, title, abstract, True, True, False, False))
 
                 if qcur.rowcount == 0:
-                    print "Unable to insert data, quitting..."
-                    sys.exit(2)
+                    logErrorMsg(recordId, "Database Error: Unable to insert record into dataservers table!")
+                    continue
 
                 serverId = qcur.fetchone()[0]
 
@@ -172,8 +209,8 @@ for row in rows:
                 qcur.execute(queryTemplate, (recordId, identifier, url, serverId, identifier, abstract, str(city_id), True, True, str(datetime.datetime.now()), str(datetime.datetime.now())))
 
                 if qcur.rowcount == 0:
-                    print "Unable to insert data II, quitting..."
-                    sys.exit(2)
+                    logErrorMsg(recordId, "Database Error: Unable to insert record into datasets table")
+                    continue
 
                 insertedId = qcur.fetchone()[0]
 
@@ -183,25 +220,18 @@ for row in rows:
             conn.commit()
 
         except:
-            logErrorMsg("Process Error: last status was " + str(client.status))
-
-            print "Can't update process status!"
-            sys.exit(2)    
+            logErrorMsg(recordId, "Process Error: Last client status was " + str(client.status))
+            continue    
 
     elif client.status == client.ERROR:    
 
-        try:
-            logErrorMsg(client.processErrorText)
+        logErrorMsg(recordId, "Process Error: " + str(client.processErrorText))
+        continue
 
-        except:
-            print "Can't update process status!"
-            sys.exit(2)    
 
     else:
-        print "Unknown status: ", str(client.status)
-        sys.exit(2)
+        logErrorMsg(recordId, "Process Error: Unknown status " + str(client.status))
+        continue
 
 
-    print client.xmlResponse
-
-
+    logInfoMsg(client.xmlResponse)
