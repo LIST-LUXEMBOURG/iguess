@@ -1,4 +1,5 @@
 import sys, ast, getopt, types, WPSClient, time, syslog 
+from locale import str
 
 errLog = open("wps.log","a")
 
@@ -87,17 +88,21 @@ iniCli.init(
     # Titles for those datasets
     arg_dict['titles'] )
 
+try:
+    url = iniCli.sendRequest()
+except Exception, e: # iniCli encountered an error
+    sys.stdout.write("ERR:" + str(e))
+    return
 
-url = iniCli.sendRequest()
+# iniCli is happy!
+errLog.write("Launching process: " + url + "\n")
+sys.stdout.write("OK:" + url)  
 
-
-if(url == None):        # iniCli encountered an error
-    sys.stdout.write("ERR:" + iniCli.lastLogMessage)
-else:                   # iniCli is happy!
-    errLog.write("Launching process: " + url + "\n")
-    sys.stdout.write("OK:" + url)     # This is the line that our rails code will be looking for!
-
-
+# if(url == None):        # iniCli encountered an error
+#     sys.stdout.write("ERR:" + iniCli.lastLogMessage)
+# else:                   # iniCli is happy!
+#     errLog.write("Launching process: " + url + "\n")
+#     sys.stdout.write("OK:" + url)     # This is the line that our rails code will be looking for!
 
 # iniCli = None
 
