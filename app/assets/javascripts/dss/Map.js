@@ -104,7 +104,7 @@ DSS.initMap = function()
     );
 	
 	DSS.buildsWFS = new OpenLayers.Layer.Vector("pv_potential", {
-		strategies: [new OpenLayers.Strategy.Fixed()],
+		// strategies: [new OpenLayers.Strategy.Fixed()],  //<<<===== Logs users out!!!!!
 		styleMap: DSS.style,
 		projection: new OpenLayers.Projection(DSS.mapProjection),
 		protocol: new OpenLayers.Protocol.WFS({
