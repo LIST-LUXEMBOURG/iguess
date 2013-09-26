@@ -208,8 +208,6 @@ for row in rows:
 
                 serverId = qcur.fetchone()[0]
                 
-                print "TYPE_VECTOR: ", r.dataSet.TYPE_VECTOR, "\nTYPE_RASTER: ", r.dataSet.TYPE_RASTER, "\nType: ", r.dataSet.dataType
-                
                 service = "WMS"
                 
                 if r.dataSet.dataType == r.dataSet.TYPE_VECTOR:
