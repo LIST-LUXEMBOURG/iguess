@@ -550,7 +550,7 @@ class WPSClient:
             
             if c.dataSet <> None:
                        
-                if c.dataSet.dataType == "vector":
+                if c.dataSet.dataType == c.dataSet.TYPE_VECTOR:
                     style = UMN.MapStyle()
                     layer = UMN.VectorLayer(
                                             c.path, 
@@ -568,7 +568,7 @@ class WPSClient:
                     self.map.addLayer(layer)
                     logging.debug("Generated layer " + layer.name + " of type " + layer.layerType + ".")
                   
-                elif c.dataSet.dataType == "raster":
+                elif c.dataSet.dataType == c.dataSet.TYPE_RASTER:
                     layer = UMN.RasterLayer(
                                             c.path, 
                                             c.dataSet.getBBox(), 

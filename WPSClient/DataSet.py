@@ -64,6 +64,9 @@ class DataSet:
 	spatialReference=None
 	min=None
 	max=None
+	
+	TYPE_VECTOR = "vector" 
+	TYPE_RASTER = "raster"
 
 	def __init__(self, path):
 
@@ -96,14 +99,14 @@ class DataSet:
 			self.max = band.GetMaximum()
 			if self.min is None or self.max is None:
 				(self.min,self.max) = band.ComputeRasterMinMax(1)
-			return "raster"
+			return self.TYPE_RASTER
 
 		if not self.dataSet:
 			logging.debug("Trying to import [%s] using ogr" % path)
 			self.dataSet = ogr.Open(path)
 
 		if self.dataSet:
-			return "vector"
+			return self.TYPE_VECTOR
 		else:
 			logging.error("It wasn't possible to import the dataset using gdal or ogr.")
 			return None
@@ -115,12 +118,12 @@ class DataSet:
 		"""
 
 		sr = osr.SpatialReference()
-		if self.dataType == "raster":
+		if self.dataType == self.TYPE_RASTER:
 			wkt = self.dataSet.GetProjection()
 			res = sr.ImportFromWkt(wkt)
 			if res == 0:
 				self.spatialReference = sr
-		elif self.dataType == "vector":
+		elif self.dataType == self.TYPE_VECTOR:
 			layer = self.dataSet.GetLayer()
 			ref = layer.GetSpatialRef()
 			if ref:
@@ -146,7 +149,7 @@ class DataSet:
 		:returns: bounding box of the dataset
 		"""
 
-		if self.dataType == "raster":
+		if self.dataType == self.TYPE_RASTER:
 			geotransform = self.dataSet.GetGeoTransform()
 			#height = self.dataSet.RasterYSize
 			#width = self.dataSet.RasterXSize

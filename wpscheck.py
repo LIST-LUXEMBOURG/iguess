@@ -200,7 +200,8 @@ for row in rows:
                     abstract = "Server hosting the results of a module run"
                     qcur.execute("INSERT INTO " + dbSchema + ".dataservers (url, title, abstract, alive, wms, wfs, wcs) "\
                                  "VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING id", 
-                                                    (url, title, abstract, True, True, False, False))
+                                                    (url, title, abstract, True, True, 
+                                                     (r.dataSet.dataType == r.dataSet.TYPE_VECTOR), (r.dataSet.dataType == r.dataSet.TYPE_RASTER)))
 
                 if qcur.rowcount == 0:
                     logErrorMsg(recordId, "Database Error: Unable to insert record into dataservers table!")
