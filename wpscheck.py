@@ -200,24 +200,33 @@ for row in rows:
                     abstract = "Server hosting the results of a module run"
                     qcur.execute("INSERT INTO " + dbSchema + ".dataservers (url, title, abstract, alive, wms, wfs, wcs) "\
                                  "VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING id", 
-                                                    (url, title, abstract, True, True, 
-                                                     (r.dataSet.dataType == r.dataSet.TYPE_VECTOR), (r.dataSet.dataType == r.dataSet.TYPE_RASTER)))
+                                                    (url, title, abstract, True, True, True, True))
 
                 if qcur.rowcount == 0:
                     logErrorMsg(recordId, "Database Error: Unable to insert record into dataservers table!")
                     continue
 
                 serverId = qcur.fetchone()[0]
+                
+                print "TYPE_VECTOR: ", r.dataSet.TYPE_VECTOR, "\nTYPE_RASTER: ", r.dataSet.TYPE_RASTER, "\nType: ", r.dataSet.dataType
+                
+                service = "WMS"
+                
+                if r.dataSet.dataType == r.dataSet.TYPE_VECTOR:
+                    service = "WFS"
+                elif r.dataSet.dataType == r.dataSet.TYPE_RASTER:
+                    service = "WCS"
 
                 queryTemplate = "INSERT INTO " + dbSchema + ".datasets "\
-                                "(title, server_url, dataserver_id, identifier, abstract, city_id, alive, finalized, created_at, updated_at)" \
+                                "(title, server_url, dataserver_id, identifier, abstract, city_id, alive, finalized, created_at, updated_at, service)" \
                                 "VALUES((SELECT value FROM " + dbSchema + ".config_text_inputs " \
-                                    "WHERE mod_config_id = %s AND column_name = %s AND is_input = FALSE), %s, %s, %s, %s, %s, %s, %s, %s, %s) "\
+                                    "WHERE mod_config_id = %s AND column_name = %s AND is_input = FALSE), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "\
                                 "RETURNING id"
 
                 abstract = "Result calculated with module"
                 
-                qcur.execute(queryTemplate, (recordId, identifier, url, serverId, identifier, abstract, str(city_id), True, True, str(datetime.datetime.now()), str(datetime.datetime.now())))
+                qcur.execute(queryTemplate, (recordId, identifier, url, serverId, identifier, abstract, str(city_id), True, True, 
+                                             str(datetime.datetime.now()), str(datetime.datetime.now()), service) )
 
                 if qcur.rowcount == 0:
                     logErrorMsg(recordId, "Database Error: Unable to insert record into datasets table")
