@@ -194,7 +194,14 @@ DSS.showWindow = function() {
 	
 };
 
-DSS.showTestWindow = function() {
+DSS.showTestWindow = function() 
+{
+	var comboLayer  = new Ext.form.ComboBox({fieldLabel: 'Layer', store: ['this','that']});
+	var comboInvest = new Ext.form.ComboBox({fieldLabel: 'Investment', store: ['this','that']});
+	var comboGen    = new Ext.form.ComboBox({fieldLabel: 'Generation', store: ['this','that']});
+	var comboArea   = new Ext.form.ComboBox({fieldLabel: 'Area', store: ['this','that']});
+	
+	var info = new Ext.form.TextArea({disabled: true, originalValue: 'This is some info.'});
 	
 	//creating a form 
 	this.form= new Ext.FormPanel({ 
@@ -217,6 +224,7 @@ DSS.showTestWindow = function() {
 		        xtype: 'combo',
 		        store: ['Foo', 'Bar']
 		    }, 
+		    comboLayer, comboInvest, comboGen, comboArea, info,
 			//checkboxes, //group of checkboxes 
 			//radios, // group of radios 
 			{ 
@@ -229,8 +237,8 @@ DSS.showTestWindow = function() {
 
 	//creating the window that will contain the form
 	var win = new Ext.Window({ 
-		title: 'New Developer', 
-		width:310, 
+		title: 'Decision Support', 
+		width:334, 
 		height:310, 
 		bodyStyle:'background-color:#fff;padding: 10px', 
 		items:this.form, //assigning the form
