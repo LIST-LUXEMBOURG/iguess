@@ -29,6 +29,9 @@ DSS.potSlider = null;
 DSS.capSlider = null; 
 DSS.invSlider = null;
 
+DSS.comboLayer = null;
+DSS.comboInvest = null;
+
 DSS.winPanel = new Ext.Window({
 	title: 'Potential Application', //Title of the Window 
 	id: 'panelWindowId', //ID of the Window Panel
@@ -194,10 +197,31 @@ DSS.showWindow = function() {
 	
 };
 
+DSS.getOverlays = function()
+{
+	overlays = new Array(); 
+	
+	for(i=0; i < DSS.map.layers.length; i++)
+		if (!DSS.map.layers[i].isBaseLayer)
+			overlays.push(DSS.map.layers[i].name);
+	
+	return overlays;
+};
+
+DSS.comboLayerSelected = function()
+{
+	debugger;
+	
+	layer = getLayersByName(DSS.comboLayer.getValue());
+	
+	DSS.comboInvest.store = layer.features[0].attributes;
+};
+
 DSS.showTestWindow = function() 
 {
-	var comboLayer  = new Ext.form.ComboBox({fieldLabel: 'Layer', store: ['this','that']});
-	var comboInvest = new Ext.form.ComboBox({fieldLabel: 'Investment', store: ['this','that']});
+	//var comboLayer  = new Ext.form.ComboBox({fieldLabel: 'Layer', store: ['this','that']});
+	DSS.comboLayer  = new Ext.form.ComboBox({fieldLabel: 'Layer', store: DSS.getOverlays(), handler: DSS.comboLayerSelected});
+	DSS.comboInvest = new Ext.form.ComboBox({fieldLabel: 'Investment', store: ['this','that']});
 	var comboGen    = new Ext.form.ComboBox({fieldLabel: 'Generation', store: ['this','that']});
 	var comboArea   = new Ext.form.ComboBox({fieldLabel: 'Area', store: ['this','that']});
 	
@@ -209,7 +233,7 @@ DSS.showTestWindow = function()
 		defaults:{xtype:'textfield'},	//component by default of the form
 		items:[ 
 			//name, //assigning the instance we created previously
-			{ 
+			/*{ 
 				fieldLabel:'Email', // creating a field
 				name:'txt-email', // using a 
 				value:'default@quizzpot.com', //configuration 
@@ -223,8 +247,8 @@ DSS.showTestWindow = function()
 		        fieldLabel: 'ComboBox',
 		        xtype: 'combo',
 		        store: ['Foo', 'Bar']
-		    }, 
-		    comboLayer, comboInvest, comboGen, comboArea, info,
+		    },*/ 
+		    DSS.comboLayer, DSS.comboInvest, comboGen, comboArea, info,
 			//checkboxes, //group of checkboxes 
 			//radios, // group of radios 
 			{ 
@@ -248,7 +272,7 @@ DSS.showTestWindow = function()
 
 	win.show();
 	
-	DSS.winTest = new Ext.Window({
+	/*DSS.winTest = new Ext.Window({
 		title: 'Test window', //Title of the Window 
 		id: 'testWindowId', //ID of the Window Panel
 		//autoHeight: true, //Height of the Window will be auto
@@ -292,19 +316,19 @@ DSS.showTestWindow = function()
 			 	      },
 			 	      {
 			 	          text   : 'Reset Form',
-			 	          /*handler: function() {
-			 	              Ext.getCmp('form-widgets').getForm().reset();
-			 	          }*/
+			 	          //handler: function() {
+			 	          //    Ext.getCmp('form-widgets').getForm().reset();
+			 	          //}
 			 	      },
 			 	      {
 			 	          text   : 'Validate',
-			 	          /*handler: function() {
-			 	              Ext.getCmp('form-widgets').getForm().isValid();
-			 	          }*/
+			 	          //handler: function() {
+			 	          //    Ext.getCmp('form-widgets').getForm().isValid();
+			 	          //}
 			 	      }
 			 	  ]
 			
-	});
+	});*/
 
 	/*DSS.winTest.items = [
 	    {
