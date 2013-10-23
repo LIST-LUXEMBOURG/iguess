@@ -25,6 +25,11 @@ var DSS = DSS || { };
 
 DSS.lock = false;
 
+DSS.costField = "multi_c_e";
+DSS.invField = "mult_r_i";
+DSS.areaField = "area_cum";
+DSS.genField = "mult_r_e";
+
 DSS.potSlider = null;
 DSS.capSlider = null; 
 DSS.invSlider = null;
@@ -128,7 +133,7 @@ DSS.costDragged = function(ed, value, oldValue)
 		
 		
 		DSS.rule_highlight.filter.value = value / 1000;
-		DSS.rule_highlight.filter.property = "multi_c_e";
+		DSS.rule_highlight.filter.property = DSS.costField;
 		DSS.buildsWFS.redraw();
 		DSS.lock = false;
 	}
@@ -148,7 +153,7 @@ DSS.invDragged = function(ed, value, oldValue)
 		DSS.areaSlider.setValue(percent * DSS.areaSlider.maxValue / 100);
 		
 		DSS.rule_highlight.filter.value = value * 1000;
-		DSS.rule_highlight.filter.property = "mult_r_i";
+		DSS.rule_highlight.filter.property = DSS.invField;
 		DSS.buildsWFS.redraw();
 		DSS.lock = false;
 	}
@@ -168,7 +173,7 @@ DSS.areaDragged = function(ed, value, oldValue)
 		DSS.genSlider.setValue(percent * DSS.genSlider.maxValue / 100);
 		
 		DSS.rule_highlight.filter.value = value;
-		DSS.rule_highlight.filter.property = "area_cum";
+		DSS.rule_highlight.filter.property = DSS.areaField;
 		DSS.buildsWFS.redraw();
 		DSS.lock = false;
 	}
@@ -189,7 +194,7 @@ DSS.genDragged = function(ed, value, oldValue)
 		
 		
 		DSS.rule_highlight.filter.value = value * 1000;
-		DSS.rule_highlight.filter.property = "mult_r_e";
+		DSS.rule_highlight.filter.property = DSS.genField;
 		DSS.buildsWFS.redraw();
 		DSS.lock = false;
 	}

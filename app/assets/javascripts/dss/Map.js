@@ -133,7 +133,7 @@ DSS.initMap = function()
      	 visibility: false}
 	);
 
-	DSS.map.addLayers([streets, buildsWMS, /*DSS.buildsWFS,*/ DSS.buildsMini]);
+	DSS.map.addLayers([streets, buildsWMS, DSS.buildsWFS, DSS.buildsMini]);
 	
 	DSS.map.zoomIn();
 	DSS.map.zoomIn();
