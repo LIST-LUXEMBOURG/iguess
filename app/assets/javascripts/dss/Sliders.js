@@ -32,6 +32,8 @@ DSS.invSlider = null;
 DSS.comboLayer = null;
 DSS.comboInvest = null;
 
+DSS.winSelect = null;
+
 DSS.winPanel = new Ext.Window({
 	title: 'Potential Application', //Title of the Window 
 	id: 'panelWindowId', //ID of the Window Panel
@@ -210,8 +212,6 @@ DSS.getOverlays = function()
 
 DSS.comboLayerSelected = function()
 {
-	debugger;
-	
 	layers = DSS.map.getLayersByName(DSS.comboLayer.getValue());
 	if(layers.length <= 0) return;
 	
@@ -227,14 +227,18 @@ DSS.comboLayerSelected = function()
 	DSS.comboArea.store = attributes;
 };
 
+DSS.quit = function()
+{
+	DSS.winPanel.close();
+	DSS.winSelect.close();
+}
+
 DSS.showTestWindow = function() 
 {
-	//var comboLayer  = new Ext.form.ComboBox({fieldLabel: 'Layer', store: ['this','that']});
 	DSS.comboLayer  = new Ext.form.ComboBox(
 	{
 		fieldLabel: 'Layer', 
 		store: DSS.getOverlays(), 
-		//handler: DSS.comboLayerSelected
 	    listeners:{
 	         scope: DSS,
 	         'select': DSS.comboLayerSelected
@@ -277,19 +281,34 @@ DSS.showTestWindow = function()
 			} */
 		] 
 	}); 
+	
+	var intro = new Ext.Panel({
+		contentEl: 'divSelectId',
+		border: false
+	});
 
 	//creating the window that will contain the form
-	var win = new Ext.Window({ 
+	DSS.winSelect = new Ext.Window({ 
 		title: 'Decision Support', 
 		width:334, 
 		height:310, 
 		bodyStyle:'background-color:#fff;padding: 10px', 
-		items:this.form, //assigning the form
+		items:[intro, this.form], //assigning the form
 		buttonAlign: 'right', //buttons aligned to the right
-		buttons:[{text:'Save'},{text:'Cancel'}] //buttons of the form
+		buttons:
+		[{
+			text:'Cancel', 
+		    listeners:{
+		    	scope: DSS,
+		    	'click': DSS.quit
+		    }
+		},{
+			text:'Next', 
+	        disabled: true
+	    }] //buttons of the form
 	}); 
 
-	win.show();
+	DSS.winSelect.show();
 	
 	/*DSS.winTest = new Ext.Window({
 		title: 'Test window', //Title of the Window 
