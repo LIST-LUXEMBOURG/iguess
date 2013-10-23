@@ -318,6 +318,7 @@ DSS.showTestWindow = function()
 	this.form= new Ext.FormPanel({ 
 		border:false, // <-- removing the border of the form
 		defaults:{xtype:'textfield'},	//component by default of the form
+		bodyStyle:'background-color:#e8e8e8;',
 		items:[ 
 		    DSS.comboLayer, 
 		    DSS.comboCost, 
@@ -329,6 +330,7 @@ DSS.showTestWindow = function()
 	}); 
 	
 	var intro = new Ext.Panel({
+		bodyStyle:'background-color:#e8e8e8;',
 		contentEl: 'divSelectId',
 		border: false
 	});
@@ -347,7 +349,7 @@ DSS.showTestWindow = function()
 		title: 'Potential Application', 
 		width:334, 
 		height:310, 
-		bodyStyle:'background-color:#fff;padding: 10px', 
+		bodyStyle:'background-color:#e8e8e8;padding: 10px', 
 		items:[intro, this.form], //assigning the form
 		buttonAlign: 'right', //buttons aligned to the right
 		buttons:
