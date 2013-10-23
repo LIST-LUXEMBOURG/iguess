@@ -225,10 +225,12 @@ DSS.comboLayerSelected = function()
 	var attributes = new Array();
 	for (var key in layers[0].features[0].attributes) attributes.push(key);
 	
+	DSS.comboCost.enable();
 	DSS.comboInvest.enable();
 	DSS.comboGen.enable();
 	DSS.comboArea.enable();
-		
+	
+	DSS.comboCost.store = attributes;	
 	DSS.comboInvest.store = attributes;
 	DSS.comboGen.store = attributes;
 	DSS.comboArea.store = attributes;
@@ -236,11 +238,10 @@ DSS.comboLayerSelected = function()
 
 DSS.comboFieldsSelected = function()
 {
-	debugger;
-	
 	if((DSS.comboInvest.getValue() != null) && (DSS.comboInvest.getValue() != "") &&
 	   (DSS.comboGen.getValue()    != null) && (DSS.comboGen.getValue()    != "") &&
-       (DSS.comboArea.getValue()   != null) && (DSS.comboArea.getValue()   != ""))
+       (DSS.comboArea.getValue()   != null) && (DSS.comboArea.getValue()   != "") &&
+       (DSS.comboCost.getValue()   != null) && (DSS.comboCost.getValue()   != ""))
 		DSS.nextSelect.enable();
 };
 
@@ -266,6 +267,17 @@ DSS.showTestWindow = function()
 	         'select': DSS.comboLayerSelected
 	    }
 	});
+	
+	DSS.comboCost = new Ext.form.ComboBox(
+			{	
+				fieldLabel: 'Cost', 	
+				store: [''], 
+				disabled: true, 
+			    listeners:{
+			         scope: DSS,
+			         'select': DSS.comboFieldsSelected
+			    }
+			});
 	
 	DSS.comboInvest = new Ext.form.ComboBox(
 	{	
@@ -307,8 +319,12 @@ DSS.showTestWindow = function()
 		border:false, // <-- removing the border of the form
 		defaults:{xtype:'textfield'},	//component by default of the form
 		items:[ 
-
-		    DSS.comboLayer, DSS.comboInvest, DSS.comboGen, DSS.comboArea, //info,
+		    DSS.comboLayer, 
+		    DSS.comboCost, 
+		    DSS.comboInvest, 
+		    DSS.comboGen, 
+		    DSS.comboArea, 
+		    //info,
 		] 
 	}); 
 	
@@ -328,7 +344,7 @@ DSS.showTestWindow = function()
 
 	//creating the window that will contain the form
 	DSS.winSelect = new Ext.Window({ 
-		title: 'Decision Support', 
+		title: 'Potential Application', 
 		width:334, 
 		height:310, 
 		bodyStyle:'background-color:#fff;padding: 10px', 
