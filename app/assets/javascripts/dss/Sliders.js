@@ -231,7 +231,7 @@ DSS.quit = function()
 {
 	DSS.winPanel.close();
 	DSS.winSelect.close();
-}
+};
 
 DSS.showTestWindow = function() 
 {
@@ -255,30 +255,8 @@ DSS.showTestWindow = function()
 		border:false, // <-- removing the border of the form
 		defaults:{xtype:'textfield'},	//component by default of the form
 		items:[ 
-			//name, //assigning the instance we created previously
-			/*{ 
-				fieldLabel:'Email', // creating a field
-				name:'txt-email', // using a 
-				value:'default@quizzpot.com', //configuration 
-				id:"id-email" 
-			},{ 
-				xtype: 'checkbox', //defining the type of component
-				fieldLabel: 'Active',//assigning a label
-				name: 'chk-active',//and a "name" to retrieve it on the server... 
-				id: 'id-active'// ...when the form is sent 
-			},{
-		        fieldLabel: 'ComboBox',
-		        xtype: 'combo',
-		        store: ['Foo', 'Bar']
-		    }, */
+
 		    DSS.comboLayer, DSS.comboInvest, DSS.comboGen, DSS.comboArea, //info,
-			//checkboxes, //group of checkboxes 
-			//radios, // group of radios 
-			/*{ 
-			    	xtype:'hidden',//hidden field(hidden) 
-			    	name:'h-type', //name of the field sent to the server
-			    	value:'developer'//value of the field
-			} */
 		] 
 	}); 
 	
@@ -310,95 +288,6 @@ DSS.showTestWindow = function()
 
 	DSS.winSelect.show();
 	
-	/*DSS.winTest = new Ext.Window({
-		title: 'Test window', //Title of the Window 
-		id: 'testWindowId', //ID of the Window Panel
-		//autoHeight: true, //Height of the Window will be auto
-		height:400,
-		width:300, //Width of the Window
-		resizable: false, //Resize of the Window, if false - it cannot be resized
-		closable: true, //Hide close button of the Window
-		modal: false, //When modal:true it make the window modal and mask everything behind it when displayed
-		//contentEl: 'divWindowId' //ID of the respective 'div'
-		items: [
-			    {
-			        fieldLabel: 'ComboBox',
-			        xtype: 'combo',
-			        store: ['Foo', 'Bar'],
-			        width: 200,
-			    },
-			    {
-			        fieldLabel: 'Investment',
-			        xtype: 'combo',
-			        store: ['fieldA', 'fieldB']
-			    },
-			    {
-			        fieldLabel: 'Generation',
-			        xtype: 'combo',
-			        store: ['fieldA', 'fieldB']
-			    },
-			    {
-			        fieldLabel: 'Area',
-			        xtype: 'combo',
-			        store: ['fieldA', 'fieldB']
-			    }
-			],
-			buttons: [
-			 	      {
-			 	          text   :'Toggle Enabled',
-			 	          handler: function() {
-			 	              this.up('form').items.each(function(item) {
-			 	                  item.setDisabled(!item.disabled);
-			 	              });
-			 	          }
-			 	      },
-			 	      {
-			 	          text   : 'Reset Form',
-			 	          //handler: function() {
-			 	          //    Ext.getCmp('form-widgets').getForm().reset();
-			 	          //}
-			 	      },
-			 	      {
-			 	          text   : 'Validate',
-			 	          //handler: function() {
-			 	          //    Ext.getCmp('form-widgets').getForm().isValid();
-			 	          //}
-			 	      }
-			 	  ]
-			
-	});*/
-
-	/*DSS.winTest.items = [
-	    {
-	        fieldLabel: 'ComboBox',
-	        xtype: 'combo',
-	        store: ['Foo', 'Bar']
-	    }
-	]
-
-	DSS.winTest.buttons = [
-	      {
-	          text   :'Toggle Enabled',
-	          handler: function() {
-	              this.up('form').items.each(function(item) {
-	                  item.setDisabled(!item.disabled);
-	              });
-	          }
-	      },
-	      {
-	          text   : 'Reset Form',
-	          handler: function() {
-	              Ext.getCmp('form-widgets').getForm().reset();
-	          }
-	      },
-	      {
-	          text   : 'Validate',
-	          handler: function() {
-	              Ext.getCmp('form-widgets').getForm().isValid();
-	          }
-	      }
-	  ]*/
 	
-	//DSS.winTest.show();
 	
 };
