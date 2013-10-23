@@ -34,6 +34,8 @@ DSS.comboInvest = null;
 
 DSS.winSelect = null;
 
+DSS.nextSelect = null;
+
 DSS.winPanel = new Ext.Window({
 	title: 'Potential Application', //Title of the Window 
 	id: 'panelWindowId', //ID of the Window Panel
@@ -227,6 +229,21 @@ DSS.comboLayerSelected = function()
 	DSS.comboArea.store = attributes;
 };
 
+DSS.comboFieldsSelected = function()
+{
+	debugger;
+	
+	if((DSS.comboInvest.getValue() != null) && (DSS.comboInvest.getValue() != "") &&
+	   (DSS.comboGen.getValue()    != null) && (DSS.comboGen.getValue()    != "") &&
+       (DSS.comboArea.getValue()   != null) && (DSS.comboArea.getValue()   != ""))
+		DSS.nextSelect.enable();
+};
+
+DSS.next = function()
+{
+	alert("Next!");
+};
+
 DSS.quit = function()
 {
 	DSS.winPanel.close();
@@ -244,9 +261,39 @@ DSS.showTestWindow = function()
 	         'select': DSS.comboLayerSelected
 	    }
 	});
-	DSS.comboInvest = new Ext.form.ComboBox({fieldLabel: 'Investment', 	store: [''], disabled: true});
-	DSS.comboGen    = new Ext.form.ComboBox({fieldLabel: 'Generation', 	store: [''], disabled: true});
-	DSS.comboArea   = new Ext.form.ComboBox({fieldLabel: 'Area', 		store: [''], disabled: true});
+	
+	DSS.comboInvest = new Ext.form.ComboBox(
+	{	
+		fieldLabel: 'Investment', 	
+		store: [''], 
+		disabled: true, 
+	    listeners:{
+	         scope: DSS,
+	         'select': DSS.comboFieldsSelected
+	    }
+	});
+	
+	DSS.comboGen = new Ext.form.ComboBox(
+	{
+		fieldLabel: 'Generation', 	
+		store: [''], 
+		disabled: true, 
+	    listeners:{
+	         scope: DSS,
+	         'select': DSS.comboFieldsSelected
+	    }
+	});
+	
+	DSS.comboArea = new Ext.form.ComboBox(
+	{
+		fieldLabel: 'Area', 
+		store: [''], 
+		disabled: true, 
+	    listeners:{
+	         scope: DSS,
+	         'select': DSS.comboFieldsSelected
+	    }
+	});
 	
 	var info = new Ext.form.TextArea({disabled: true, originalValue: 'This is some info.'});
 	
@@ -264,6 +311,15 @@ DSS.showTestWindow = function()
 		contentEl: 'divSelectId',
 		border: false
 	});
+	
+	DSS.nextSelect = new Ext.Button({
+		text:'Next', 
+        disabled: true,
+        listeners:{
+	    	scope: DSS,
+	    	'click': DSS.next
+	    }
+    });
 
 	//creating the window that will contain the form
 	DSS.winSelect = new Ext.Window({ 
@@ -280,10 +336,8 @@ DSS.showTestWindow = function()
 		    	scope: DSS,
 		    	'click': DSS.quit
 		    }
-		},{
-			text:'Next', 
-	        disabled: true
-	    }] //buttons of the form
+		},
+		DSS.nextSelect] //buttons of the form
 	}); 
 
 	DSS.winSelect.show();
