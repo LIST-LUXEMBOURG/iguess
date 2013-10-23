@@ -45,7 +45,7 @@ DSS.winPanel = new Ext.Window({
 	title: 'Potential Application', //Title of the Window 
 	id: 'panelWindowId', //ID of the Window Panel
 	autoHeight: true, //Height of the Window will be auto
-	width:300, //Width of the Window
+	width:330, //Width of the Window
 	resizable: false, //Resize of the Window, if false - it cannot be resized
 	closable: false, //Hide close button of the Window
 	modal: false, //When modal:true it make the window modal and mask everything behind it when displayed
@@ -247,13 +247,14 @@ DSS.comboFieldsSelected = function()
 
 DSS.next = function()
 {
-	alert("Next!");
+	DSS.winSelect.hide();
+	DSS.winPanel.show();
 };
 
 DSS.quit = function()
 {
-	DSS.winPanel.close();
-	DSS.winSelect.close();
+	DSS.winPanel.hide();
+	DSS.winSelect.hide();
 };
 
 DSS.showTestWindow = function() 
@@ -347,9 +348,9 @@ DSS.showTestWindow = function()
 	//creating the window that will contain the form
 	DSS.winSelect = new Ext.Window({ 
 		title: 'Potential Application', 
-		width:334, 
+		width:330, 
 		height:310, 
-		bodyStyle:'background-color:#e8e8e8;padding: 10px', 
+		bodyStyle:'background-color:#e8e8e8;padding: 6px', 
 		items:[intro, this.form], //assigning the form
 		buttonAlign: 'right', //buttons aligned to the right
 		buttons:
