@@ -212,18 +212,37 @@ DSS.comboLayerSelected = function()
 {
 	debugger;
 	
-	layer = getLayersByName(DSS.comboLayer.getValue());
+	layers = DSS.map.getLayersByName(DSS.comboLayer.getValue());
+	if(layers.length <= 0) return;
 	
-	DSS.comboInvest.store = layer.features[0].attributes;
+	var attributes = new Array();
+	for (var key in layers[0].features[0].attributes) attributes.push(key);
+	
+	DSS.comboInvest.enable();
+	DSS.comboGen.enable();
+	DSS.comboArea.enable();
+		
+	DSS.comboInvest.store = attributes;
+	DSS.comboGen.store = attributes;
+	DSS.comboArea.store = attributes;
 };
 
 DSS.showTestWindow = function() 
 {
 	//var comboLayer  = new Ext.form.ComboBox({fieldLabel: 'Layer', store: ['this','that']});
-	DSS.comboLayer  = new Ext.form.ComboBox({fieldLabel: 'Layer', store: DSS.getOverlays(), handler: DSS.comboLayerSelected});
-	DSS.comboInvest = new Ext.form.ComboBox({fieldLabel: 'Investment', store: ['this','that']});
-	var comboGen    = new Ext.form.ComboBox({fieldLabel: 'Generation', store: ['this','that']});
-	var comboArea   = new Ext.form.ComboBox({fieldLabel: 'Area', store: ['this','that']});
+	DSS.comboLayer  = new Ext.form.ComboBox(
+	{
+		fieldLabel: 'Layer', 
+		store: DSS.getOverlays(), 
+		//handler: DSS.comboLayerSelected
+	    listeners:{
+	         scope: DSS,
+	         'select': DSS.comboLayerSelected
+	    }
+	});
+	DSS.comboInvest = new Ext.form.ComboBox({fieldLabel: 'Investment', 	store: [''], disabled: true});
+	DSS.comboGen    = new Ext.form.ComboBox({fieldLabel: 'Generation', 	store: [''], disabled: true});
+	DSS.comboArea   = new Ext.form.ComboBox({fieldLabel: 'Area', 		store: [''], disabled: true});
 	
 	var info = new Ext.form.TextArea({disabled: true, originalValue: 'This is some info.'});
 	
@@ -247,15 +266,15 @@ DSS.showTestWindow = function()
 		        fieldLabel: 'ComboBox',
 		        xtype: 'combo',
 		        store: ['Foo', 'Bar']
-		    },*/ 
-		    DSS.comboLayer, DSS.comboInvest, comboGen, comboArea, info,
+		    }, */
+		    DSS.comboLayer, DSS.comboInvest, DSS.comboGen, DSS.comboArea, //info,
 			//checkboxes, //group of checkboxes 
 			//radios, // group of radios 
-			{ 
+			/*{ 
 			    	xtype:'hidden',//hidden field(hidden) 
 			    	name:'h-type', //name of the field sent to the server
 			    	value:'developer'//value of the field
-			} 
+			} */
 		] 
 	}); 
 

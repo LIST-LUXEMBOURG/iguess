@@ -104,7 +104,7 @@ DSS.initMap = function()
     );
 	
 	DSS.buildsWFS = new OpenLayers.Layer.Vector("pv_potential", {
-		// strategies: [new OpenLayers.Strategy.Fixed()],  //<<<===== Logs users out!!!!!
+		strategies: [new OpenLayers.Strategy.Fixed()],  //<<<===== Logs users out!!!!!
 		styleMap: DSS.style,
 		projection: new OpenLayers.Projection(DSS.mapProjection),
 		protocol: new OpenLayers.Protocol.WFS({
@@ -117,9 +117,24 @@ DSS.initMap = function()
         {isBaseLayer: false,  
      	 visibility: false}
 	);
+	
+	DSS.buildsMini = new OpenLayers.Layer.Vector("RO_building_footprints_mini", {
+		strategies: [new OpenLayers.Strategy.Fixed()], 
+		styleMap: DSS.style,
+		projection: new OpenLayers.Projection(DSS.mapProjection),
+		protocol: new OpenLayers.Protocol.WFS({
+			version: "1.1.0",
+			url: "http://maps.iguess.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/MapFiles/RO_localOWS_test.map",
+			featureNS: "http://mapserver.gis.umn.edu/mapserver",
+			featureType: "RO_building_footprints_mini",
+			srsName: DSS.mapProjection
+		})},
+        {isBaseLayer: false,  
+     	 visibility: false}
+	);
 
-	DSS.map.addLayers([streets, buildsWMS/*, DSS.buildsWFS*/]);
+	DSS.map.addLayers([streets, buildsWMS, /*DSS.buildsWFS,*/ DSS.buildsMini]);
 	
 	DSS.map.zoomIn();
 	DSS.map.zoomIn();
-}
+};
