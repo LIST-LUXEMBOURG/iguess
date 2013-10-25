@@ -34,7 +34,7 @@ WebGIS.updateCoords = function(lonLat)
 	
 	WebGIS.coordsLongLabel.setText(WebGIS.convertDMS(lonLat4326.lon, "LON")); 
 	WebGIS.coordsLatLabel.setText(WebGIS.convertDMS(lonLat4326.lat, "LAT"));	
-}
+};
 
 /**
  * Decimal to DMS conversion
@@ -42,7 +42,7 @@ WebGIS.updateCoords = function(lonLat)
 WebGIS.convertDMS = function(coordinate, type) {
   var coords = new Array();
 
-  abscoordinate = Math.abs(coordinate)
+  abscoordinate = Math.abs(coordinate);
   coordinatedegrees = Math.floor(abscoordinate);
 
   coordinateminutes = (abscoordinate - coordinatedegrees)/(1/60);
@@ -69,7 +69,7 @@ WebGIS.convertDMS = function(coordinate, type) {
           coordinateminutes + "' " +
           (parseFloat(coordinateseconds).toFixed(parseFloat(2))) + "\" " +
           this.getHemi(coordinate, type);
-}
+};
 
 /**
  * Return the hemisphere abbreviation for this coordinate.
@@ -93,4 +93,4 @@ WebGIS.getHemi = function(coordinate, type) {
   }
 
   return coordinatehemi;
-}
+};
