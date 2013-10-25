@@ -103,8 +103,20 @@ DSS.initMap = function()
      	 visibility: true}
     );
 	
+	var potential =  new OpenLayers.Layer.WMS(
+	    	"pv_potential_wms",
+	    	"http://maps.iguess.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/MapFiles/RO_localOWS_test.map",
+	        {layers: "pv_potential", 
+	         format: "image/png",
+	         srsName: DSS.mapProjection,
+		 	 transparent: "true",
+	     	 projection: new OpenLayers.Projection(DSS.mapProjection)},
+	        {isBaseLayer: false,  
+	     	 visibility: true}
+	    );
+	
 	DSS.buildsWFS = new OpenLayers.Layer.Vector("pv_potential", {
-		strategies: [new OpenLayers.Strategy.Fixed()],  //<<<===== Logs users out!!!!!
+		strategies: [new OpenLayers.Strategy.Fixed()],
 		styleMap: DSS.style,
 		projection: new OpenLayers.Projection(DSS.mapProjection),
 		protocol: new OpenLayers.Protocol.WFS({
@@ -133,8 +145,31 @@ DSS.initMap = function()
      	 visibility: false}
 	);
 
-	DSS.map.addLayers([streets, buildsWMS, DSS.buildsWFS, DSS.buildsMini]);
+	DSS.map.addLayers([streets, buildsWMS, /*DSS.buildsWFS,*/ potential, DSS.buildsMini]);
 	
 	DSS.map.zoomIn();
 	DSS.map.zoomIn();
+};
+
+DSS.addWFS = function(name, address, style)
+{
+	if (style == null) style = DSS.style;
+	
+	var wfs = new OpenLayers.Layer.Vector(name + "_WFS", {
+		strategies: [new OpenLayers.Strategy.Fixed()], 
+		styleMap: style,
+		projection: new OpenLayers.Projection(DSS.mapProjection),
+		protocol: new OpenLayers.Protocol.WFS({
+			version: "1.1.0",
+			url: address,
+			featureNS: "http://mapserver.gis.umn.edu/mapserver",
+			featureType: name,
+			srsName: DSS.mapProjection
+		})},
+        {isBaseLayer: false,  
+     	 visibility: false}
+	);
+	
+	DSS.map.addLayer(wfs);
+	return wfs;
 };

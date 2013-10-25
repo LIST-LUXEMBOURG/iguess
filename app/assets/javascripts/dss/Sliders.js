@@ -146,7 +146,7 @@ DSS.costDragged = function(ed, value, oldValue)
 		
 		DSS.rule_highlight.filter.value = value / 1000;
 		DSS.rule_highlight.filter.property = DSS.costField;
-		DSS.buildsWFS.redraw();
+		DSS.layerWFS.redraw();
 		DSS.lock = false;
 	}
 };
@@ -166,7 +166,7 @@ DSS.invDragged = function(ed, value, oldValue)
 		
 		DSS.rule_highlight.filter.value = value * 1000;
 		DSS.rule_highlight.filter.property = DSS.invField;
-		DSS.buildsWFS.redraw();
+		DSS.layerWFS.redraw();
 		DSS.lock = false;
 	}
 };
@@ -186,7 +186,7 @@ DSS.areaDragged = function(ed, value, oldValue)
 		
 		DSS.rule_highlight.filter.value = value;
 		DSS.rule_highlight.filter.property = DSS.areaField;
-		DSS.buildsWFS.redraw();
+		DSS.layerWFS.redraw();
 		DSS.lock = false;
 	}
 };
@@ -207,7 +207,7 @@ DSS.genDragged = function(ed, value, oldValue)
 		
 		DSS.rule_highlight.filter.value = value * 1000;
 		DSS.rule_highlight.filter.property = DSS.genField;
-		DSS.buildsWFS.redraw();
+		DSS.layerWFS.redraw();
 		DSS.lock = false;
 	}
 };
@@ -234,8 +234,25 @@ DSS.comboLayerSelected = function()
 	layers = DSS.map.getLayersByName(DSS.comboLayer.getValue());
 	if(layers.length <= 0) return;
 	
+	if(layers[0].CLASS_NAME == "OpenLayers.Layer.Vector")
+	{
+		DSS.layerWFS = layers[0];
+	}
+	else
+	{
+		/* Check if a WFS service is available for the layer */
+		DSS.layerWFS = DSS.addWFS(layers[0].params["LAYERS"], layers[0].url, null);
+		
+		if((DSS.layerWFS.features == null) || (DSS.layerWFS.features.length <= 0))
+		{
+			alert("Sorry, this layer is not available in vector format.\n\n" +
+					"Please select a different layer.");
+			return;
+		}
+	}
+	
 	var attributes = new Array();
-	for (var key in layers[0].features[0].attributes) attributes.push(key);
+	for (var key in DSS.layerWFS.features[0].attributes) attributes.push(key);
 	
 	DSS.comboCost.enable();
 	DSS.comboInvest.enable();
