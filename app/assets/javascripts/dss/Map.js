@@ -153,43 +153,17 @@ DSS.initMap = function()
 	DSS.map.zoomIn();
 };
 
-DSS.addWFS = function(name, address, style)
+DSS.addNewWFS = function(name, address, style)
 {
 	if (style == null) style = DSS.style;
 	
 	var wfs = new OpenLayers.Layer.Vector(name + "_WFS", {
 		strategies: [new OpenLayers.Strategy.Fixed()], 
 		styleMap: style,
-		projection: new OpenLayers.Projection(DSS.mapProjection),
-		protocol: new OpenLayers.Protocol.WFS({
-			version: "1.1.0",
-			url: address,
-			featureNS: "http://mapserver.gis.umn.edu/mapserver",
-			featureType: name,
-			srsName: DSS.mapProjection
-		})},
-        {isBaseLayer: false,  
-     	 visibility: false}
-	);
-	
-	DSS.map.addLayer(wfs);
-	return wfs;
-};
-
-var wfs = null;
-
-DSS.addNewWFS = function(name, address, style)
-{
-	if (style == null) style = DSS.style;
-	
-	wfs = new OpenLayers.Layer.Vector(name + "_WFS", {
-		strategies: [new OpenLayers.Strategy.Fixed()], 
-		styleMap: style,
 		projection: new OpenLayers.Projection(DSS.mapProjection)},
         {isBaseLayer: false,  
      	 visibility: false}
 	);
-	
 	
 	DSS.protocol = new OpenLayers.Protocol.WFS({
 		version: "1.1.0",
@@ -201,7 +175,7 @@ DSS.addNewWFS = function(name, address, style)
 	
 	var response = DSS.protocol.read({
 	    maxFeatures: 100,
-	    callback: _CallBack
+	    callback: DSS.featuresLoaded
 	});
 
 	return wfs;

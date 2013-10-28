@@ -261,7 +261,7 @@ DSS.comboLayerSelected = function()
 	}
 };
 
-function _CallBack (resp) 
+DSS.featuresLoaded = function(resp) 
 {
 	debugger;
 	/* Check if a WFS service is available for the layer */
