@@ -146,7 +146,7 @@ class DataSet:
 
 	def getBBox(self):
 		"""
-		:returns: bounding box of the dataset
+		:returns: dataset bounding box
 		"""
 
 		if self.dataType == self.TYPE_RASTER:
@@ -154,8 +154,8 @@ class DataSet:
 			#height = self.dataSet.RasterYSize
 			#width = self.dataSet.RasterXSize
 			return (geotransform[0],
-				    geotransform[3]+geotransform[5]*self.dataSet.RasterYSize,
 				    geotransform[0]+geotransform[1]*self.dataSet.RasterXSize,
+				    geotransform[3]+geotransform[5]*self.dataSet.RasterYSize,
 				    geotransform[3])
 		else:
 			layer = self.dataSet.GetLayer()
