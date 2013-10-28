@@ -24,6 +24,8 @@
 var DSS = DSS || { };
 
 DSS.map = null;
+
+DSS.protocol = null;
  
 Proj4js.defs["EPSG:28992"] = "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +units=m +no_defs"; 
 DSS.mapProjection = "EPSG:28992";
@@ -145,7 +147,7 @@ DSS.initMap = function()
      	 visibility: false}
 	);
 
-	DSS.map.addLayers([streets, buildsWMS, DSS.buildsWFS, /*potential,*/ DSS.buildsMini]);
+	DSS.map.addLayers([streets, buildsWMS, /*DSS.buildsWFS,*/ potential, DSS.buildsMini]);
 	
 	DSS.map.zoomIn();
 	DSS.map.zoomIn();
@@ -171,5 +173,36 @@ DSS.addWFS = function(name, address, style)
 	);
 	
 	DSS.map.addLayer(wfs);
+	return wfs;
+};
+
+var wfs = null;
+
+DSS.addNewWFS = function(name, address, style)
+{
+	if (style == null) style = DSS.style;
+	
+	wfs = new OpenLayers.Layer.Vector(name + "_WFS", {
+		strategies: [new OpenLayers.Strategy.Fixed()], 
+		styleMap: style,
+		projection: new OpenLayers.Projection(DSS.mapProjection)},
+        {isBaseLayer: false,  
+     	 visibility: false}
+	);
+	
+	
+	DSS.protocol = new OpenLayers.Protocol.WFS({
+		version: "1.1.0",
+		url: address,
+		featureNS: "http://mapserver.gis.umn.edu/mapserver",
+		featureType: name,
+		srsName: DSS.mapProjection
+	});
+	
+	var response = DSS.protocol.read({
+	    maxFeatures: 100,
+	    callback: _CallBack
+	});
+
 	return wfs;
 };

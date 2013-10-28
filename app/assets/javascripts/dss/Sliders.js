@@ -229,28 +229,8 @@ DSS.getOverlays = function()
 	return overlays;
 };
 
-DSS.comboLayerSelected = function()
+DSS.populateAtributes = function()
 {
-	layers = DSS.map.getLayersByName(DSS.comboLayer.getValue());
-	if(layers.length <= 0) return;
-	
-	if(layers[0].CLASS_NAME == "OpenLayers.Layer.Vector")
-	{
-		DSS.layerWFS = layers[0];
-	}
-	else
-	{
-		/* Check if a WFS service is available for the layer */
-		DSS.layerWFS = DSS.addWFS(layers[0].params["LAYERS"], layers[0].url, null);
-		
-		if((DSS.layerWFS.features == null) || (DSS.layerWFS.features.length <= 0))
-		{
-			alert("Sorry, this layer is not available in vector format.\n\n" +
-					"Please select a different layer.");
-			return;
-		}
-	}
-	
 	var attributes = new Array();
 	for (var key in DSS.layerWFS.features[0].attributes) attributes.push(key);
 	
@@ -262,7 +242,41 @@ DSS.comboLayerSelected = function()
 	DSS.comboCost.store = attributes;	
 	DSS.comboInvest.store = attributes;
 	DSS.comboGen.store = attributes;
-	DSS.comboArea.store = attributes;
+	DSS.comboArea.store = attributes;	
+};
+
+DSS.comboLayerSelected = function()
+{
+	layers = DSS.map.getLayersByName(DSS.comboLayer.getValue());
+	if(layers.length <= 0) return;
+	
+	if(layers[0].CLASS_NAME == "OpenLayers.Layer.Vector")
+	{
+		DSS.layerWFS = layers[0];
+		DSS.populateAtributes();
+	}
+	else
+	{
+		DSS.layerWFS = DSS.addNewWFS(layers[0].params["LAYERS"], layers[0].url, null);
+	}
+};
+
+function _CallBack (resp) 
+{
+	debugger;
+	/* Check if a WFS service is available for the layer */
+	if((resp.features == null) || (resp.features.length <= 0))
+	{
+		alert("Sorry, this layer is not available in vector format.\n\n" +
+				"Please select a different layer.");
+		return;
+	}
+	
+	DSS.layerWFS.protocol = DSS.protocol;
+	DSS.layerWFS.addFeatures(resp.features);
+    DSS.map.addLayer(DSS.layerWFS);
+    
+    DSS.populateAtributes();
 };
 
 DSS.comboFieldsSelected = function()
