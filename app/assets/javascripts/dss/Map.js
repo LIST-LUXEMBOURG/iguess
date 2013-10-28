@@ -146,8 +146,20 @@ DSS.initMap = function()
         {isBaseLayer: false,  
      	 visibility: false}
 	);
+	
+	var dsm_mini =  new OpenLayers.Layer.WMS(
+	    	"dsm_mini",
+	    	"http://maps.iguess.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/MapFiles/RO_localOWS_test.map",
+	        {layers: "ro_dsm_mini", 
+	         format: "image/png",
+	         srsName: DSS.mapProjection,
+		 	 transparent: "true",
+	     	 projection: new OpenLayers.Projection(DSS.mapProjection)},
+	        {isBaseLayer: false,  
+	     	 visibility: true}
+	    );
 
-	DSS.map.addLayers([streets, buildsWMS, /*DSS.buildsWFS,*/ potential, DSS.buildsMini]);
+	DSS.map.addLayers([streets, buildsWMS, /*DSS.buildsWFS,*/ potential, DSS.buildsMini, dsm_mini]);
 	
 	DSS.map.zoomIn();
 	DSS.map.zoomIn();
