@@ -255,6 +255,16 @@ WebGIS.createTbarItems = function(map) {
     tooltip: "Print - still in development",
     disabled: true
   }));
+  actions.push("-");
+  actions.push(new GeoExt.Action({
+    iconCls: "dss",
+    map: map,
+    toggleGroup: "tools",
+    allowDepress: false,
+    tooltip: "Decision Support - still in development",
+    disabled: false
+  }));
+ // actions.push("-");
   return actions;
 };
 

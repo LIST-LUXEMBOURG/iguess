@@ -53,6 +53,11 @@
     height:20px !important;
     width:20px !important;
 }
+.dss {
+    background-image:url(images/mapStyles/sliders02.png) !important;
+    height:20px !important;
+    width:20px !important;
+}
 
 /* ----------- Legend ----------- */
 
