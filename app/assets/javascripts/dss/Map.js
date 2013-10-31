@@ -164,31 +164,3 @@ DSS.initMap = function()
 	DSS.map.zoomIn();
 	DSS.map.zoomIn();
 };
-
-DSS.addNewWFS = function(name, address, style)
-{
-	if (style == null) style = DSS.style;
-	
-	var wfs = new OpenLayers.Layer.Vector(name + "_WFS", {
-		strategies: [new OpenLayers.Strategy.Fixed()], 
-		styleMap: style,
-		projection: new OpenLayers.Projection(DSS.mapProjection)},
-        {isBaseLayer: false,  
-     	 visibility: false}
-	);
-	
-	DSS.protocol = new OpenLayers.Protocol.WFS({
-		version: "1.1.0",
-		url: address,
-		featureNS: "http://mapserver.gis.umn.edu/mapserver",
-		featureType: name,
-		srsName: DSS.mapProjection
-	});
-	
-	var response = DSS.protocol.read({
-	    maxFeatures: 100,
-	    callback: DSS.featuresLoaded
-	});
-
-	return wfs;
-};
