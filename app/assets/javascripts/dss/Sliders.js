@@ -21,6 +21,8 @@
  * Methods to control the sliders window.
  */ 
 
+//= require webgis/MapInit
+
 var DSS = DSS || { };
 
 DSS.lock = false;
@@ -40,6 +42,13 @@ DSS.comboInvest = null;
 DSS.winSelect = null;
 
 DSS.nextSelect = null;
+
+DSS.init = function()
+{
+	debugger;
+	DSS.map = WebGIS.leftMap;
+	DSS.showTestWindow();
+};
 
 DSS.quit = function()
 {
@@ -407,7 +416,4 @@ DSS.showTestWindow = function()
 	}); 
 
 	DSS.winSelect.show();
-	
-	
-	
 };

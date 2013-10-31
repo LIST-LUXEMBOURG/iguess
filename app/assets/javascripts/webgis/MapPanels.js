@@ -22,6 +22,7 @@
  */ 
 
 //= require webgis/Identify
+//= require dss/Sliders
 
 var WebGIS = WebGIS || { };
 
@@ -256,10 +257,12 @@ WebGIS.createTbarItems = function(map) {
     disabled: true
   }));
   actions.push("-");
-  actions.push(new GeoExt.Action({
+  actions.push(new Ext.Action({
     iconCls: "dss",
-    map: map,
+    //map: map,
     toggleGroup: "tools",
+    //control: DSS.showTestWindow,
+    handler: DSS.init,
     allowDepress: false,
     tooltip: "Decision Support - still in development",
     disabled: false
@@ -319,4 +322,4 @@ WebGIS.createBbar = function() {
 	
 	return ['-', scaleLabel, zoomSelector, '-', '->', 
 	         '-', WebGIS.coordsLongLabel, '-', WebGIS.coordsLatLabel, '-'];
-}
+};

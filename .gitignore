@@ -57,3 +57,4 @@ config/database.yml
 iguess_db_credentials.py
 Merges.txt
 .pydevproject
+.settings/org.eclipse.core.resources.prefs
