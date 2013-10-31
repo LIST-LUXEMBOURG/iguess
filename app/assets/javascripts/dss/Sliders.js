@@ -32,24 +32,27 @@ DSS.potSlider = null;
 DSS.capSlider = null; 
 DSS.invSlider = null;
 
-DSS.winPanel = new Ext.Window({
-	title: 'Potential Application', //Title of the Window 
-	id: 'panelWindowId', //ID of the Window Panel
-	autoHeight: true, //Height of the Window will be auto
-	width:330, //Width of the Window
-	resizable: false, //Resize of the Window, if false - it cannot be resized
-	closable: true, //Hide close button of the Window
-	modal: false, //When modal:true it make the window modal and mask everything behind it when displayed
-	contentEl: 'divWindowId', //ID of the respective 'div'
-	buttons:
-	[{
-		text:'Close', 
-	    listeners:{
-	    	scope: DSS,
-	    	'click': DSS.quit
-	    }
-	}]
-});
+DSS.initWinPanel = function()
+{
+	DSS.winPanel = new Ext.Window({
+		title: 'Potential Application', //Title of the Window 
+		id: 'panelWindowId', //ID of the Window Panel
+		autoHeight: true, //Height of the Window will be auto
+		width:330, //Width of the Window
+		resizable: false, //Resize of the Window, if false - it cannot be resized
+		closable: true, //Hide close button of the Window
+		modal: false, //When modal:true it make the window modal and mask everything behind it when displayed
+		contentEl: 'divWindowId', //ID of the respective 'div'
+		buttons:
+		[{
+			text:'Close', 
+		    listeners:{
+		    	scope: DSS,
+		    	'click': DSS.quit
+		    }
+		}]
+	});
+};
 
 DSS.initSliders = function()
 {

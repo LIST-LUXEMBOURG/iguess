@@ -43,6 +43,7 @@ DSS.init = function()
 {
 	DSS.map = WebGIS.leftMap;
 	DSS.showSelectWindow();
+	if(DSS.winPanel == null) DSS.initWinPanel();
 };
 
 DSS.quit = function()
@@ -159,6 +160,7 @@ DSS.next = function()
 	DSS.areaField = DSS.comboArea.getValue();
 	DSS.genField  = DSS.comboGen.getValue();
 	DSS.winSelect.hide();
+	if(DSS.winPanel == null) DSS.initWinPanel();
 	DSS.winPanel.show();
 	DSS.initSliders();
 };
