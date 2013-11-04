@@ -35,35 +35,6 @@ OpenLayers.IMAGE_RELOAD_ATTEMPTS = 3;
 OpenLayers.Util.onImageLoadErrorColor = "transparent";
  
 DSS.buildsWFS = null;
- 
-//create a style object
-DSS.style = new OpenLayers.Style();
-//rule used for all polygons
-DSS.rule_fsa = new OpenLayers.Rule({
-	symbolizer: {
-		fillColor: "#DDDD00",
-		fillOpacity: 0.6,
-		strokeColor: "#DDDD00",
-		strokeWidth: 1,
-	}
-});
-
-DSS.rule_highlight = new OpenLayers.Rule({
-	filter: new OpenLayers.Filter.Comparison({
-		type: OpenLayers.Filter.Comparison.LESS_THAN,
-		property: "cum_multi",
-		value: 0,
-	}),
-	symbolizer: {
-		fillColor: "#FF7144",
-		fillOpacity: 0.5,
-		strokeColor: "#FF7144",
-		strokeWidth: 2,
-		strokeDashstyle: "solid",
-	}
-});
-
-DSS.style.addRules([DSS.rule_fsa, DSS.rule_highlight]);
 
 DSS.initMap = function()
 {

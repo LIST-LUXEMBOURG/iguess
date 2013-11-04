@@ -243,7 +243,7 @@ WebGIS.createTbarItems = function(map) {
   actions.push(new GeoExt.Action({
     iconCls: "identify",
     toggleGroup: "tools",
-    tooltip: "Identify",
+    tooltip: "<b>Identify</b>",
     pressed: false,
     control: WebGIS.ctrlIdentify,
     map: map,
@@ -253,7 +253,7 @@ WebGIS.createTbarItems = function(map) {
     map: map,
     toggleGroup: "tools",
     allowDepress: false,
-    tooltip: "Print - still in development",
+    tooltip: "<b>Print</b><br>Still in development",
     disabled: true
   }));
   actions.push("-");
@@ -264,8 +264,15 @@ WebGIS.createTbarItems = function(map) {
     //control: DSS.showTestWindow,
     handler: DSS.init,
     allowDepress: false,
-    tooltip: "Decision Support - still in development",
-    disabled: false
+    tooltip: "<b>Decision Support</b><br>Still in development",
+    pressed: false
+  }));
+  actions.push("-");
+  actions.push(new Ext.Action({
+    iconCls: "identify",
+    toggleGroup: "tools",
+    tooltip: "<b>Identify</b>",
+    pressed: false
   }));
  // actions.push("-");
   return actions;

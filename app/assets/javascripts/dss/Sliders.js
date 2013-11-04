@@ -32,6 +32,47 @@ DSS.potSlider = null;
 DSS.capSlider = null; 
 DSS.invSlider = null;
 
+//create a style object
+DSS.style = new OpenLayers.Style();
+//rule used for all polygons
+DSS.rule_fsa = new OpenLayers.Rule({
+	symbolizer: {
+		fillColor: "#DDDD00",
+		fillOpacity: 0.6,
+		strokeColor: "#DDDD00",
+		strokeWidth: 1,
+	}
+});
+
+DSS.rule_highlight = new OpenLayers.Rule({
+	filter: new OpenLayers.Filter.Comparison({
+		type: OpenLayers.Filter.Comparison.LESS_THAN,
+		property: "cum_multi",
+		value: 0,
+	}),
+	symbolizer: {
+		fillColor: "#FF7144",
+		fillOpacity: 0.5,
+		strokeColor: "#FF7144",
+		strokeWidth: 2,
+		strokeDashstyle: "solid",
+	}
+});
+
+DSS.style.addRules([DSS.rule_fsa, DSS.rule_highlight]);
+
+DSS.showWindow = function() 
+{	
+	DSS.winPanel.show();	
+};
+
+DSS.quit = function()
+{
+	DSS.winPanel.hide();
+	DSS.winSelect.hide();
+	WebGIS.leftMap.removeLayer(DSS.layerWFS);
+};
+
 DSS.initWinPanel = function()
 {
 	DSS.winPanel = new Ext.Window({
@@ -56,41 +97,45 @@ DSS.initWinPanel = function()
 
 DSS.initSliders = function()
 {
-    DSS.costSlider = new Ext.Slider({
-        renderTo: 'slider-cost',
-        width: 214,
-        value: 0,
-        minValue: 90,
-        maxValue: 200,
-        plugins: new Ext.ux.SliderTip()
-    });
+	if(DSS.costSlider == null)
+	    DSS.costSlider = new Ext.Slider({
+	        renderTo: 'slider-cost',
+	        width: 214,
+	        value: 0,
+	        minValue: 90,
+	        maxValue: 200,
+	        plugins: new Ext.ux.SliderTip()
+	    });
     
-    DSS.invSlider = new Ext.Slider({
-        renderTo: 'slider-investment',
-        width: 214,
-        value: 0,
-        minValue: 0,
-        maxValue: 45600,
-        plugins: new Ext.ux.SliderTip()
-    });
+	if(DSS.invSlider == null)
+	    DSS.invSlider = new Ext.Slider({
+	        renderTo: 'slider-investment',
+	        width: 214,
+	        value: 0,
+	        minValue: 0,
+	        maxValue: 45600,
+	        plugins: new Ext.ux.SliderTip()
+	    });
     
-    DSS.genSlider = new Ext.Slider({
-        renderTo: 'slider-generation',
-        width: 214,
-        value: 0,
-        minValue: 0,
-        maxValue: 17000,
-        plugins: new Ext.ux.SliderTip()
-    });
+	if(DSS.genSlider == null)
+	    DSS.genSlider = new Ext.Slider({
+	        renderTo: 'slider-generation',
+	        width: 214,
+	        value: 0,
+	        minValue: 0,
+	        maxValue: 17000,
+	        plugins: new Ext.ux.SliderTip()
+	    });
     
-    DSS.areaSlider = new Ext.Slider({
-        renderTo: 'slider-area',
-        width: 214,
-        value: 0,
-        minValue: 0,
-        maxValue: 166000,
-        plugins: new Ext.ux.SliderTip()
-    });
+	if(DSS.areaSlider == null)
+	    DSS.areaSlider = new Ext.Slider({
+	        renderTo: 'slider-area',
+	        width: 214,
+	        value: 0,
+	        minValue: 0,
+	        maxValue: 166000,
+	        plugins: new Ext.ux.SliderTip()
+	    });
     
 	DSS.costSlider.on('change', DSS.costDragged, this);
 	DSS.invSlider.on ('change', DSS.invDragged, this);
@@ -200,9 +245,5 @@ DSS.genDragged = function(ed, value, oldValue)
 	}
 };
 
-DSS.showWindow = function() {
-	
-	DSS.winPanel.show();
-	
-};
+
 

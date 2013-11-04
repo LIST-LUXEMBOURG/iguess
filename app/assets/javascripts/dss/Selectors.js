@@ -46,11 +46,6 @@ DSS.init = function()
 	if(DSS.winPanel == null) DSS.initWinPanel();
 };
 
-DSS.quit = function()
-{
-	DSS.winPanel.hide();
-	DSS.winSelect.hide();
-};
 
 DSS.getOverlays = function()
 {
@@ -104,7 +99,7 @@ DSS.addNewWFS = function(name, address, style)
 		styleMap: style,
 		projection: new OpenLayers.Projection(DSS.mapProjection)},
         {isBaseLayer: false,  
-     	 visibility: false}
+     	 visibility: true}
 	);
 	
 	DSS.protocol = new OpenLayers.Protocol.WFS({
@@ -139,7 +134,7 @@ DSS.featuresLoaded = function(resp)
 	
 	DSS.populateAtributes();
 	
-    DSS.map.addLayer(DSS.layerWFS);
+   //DSS.map.addLayer(DSS.layerWFS);
     
     //DSS.populateAtributes();
 };
@@ -163,6 +158,17 @@ DSS.next = function()
 	if(DSS.winPanel == null) DSS.initWinPanel();
 	DSS.winPanel.show();
 	DSS.initSliders();
+	try
+	{
+		DSS.map.addLayer(DSS.layerWFS);
+	}
+	catch(e)
+	{
+		//alert("An exception was thrown:\n" + e);
+		//Failed to add the layer, let's try again.
+		DSS.map.removeLayer(DSS.layerWFS);
+		DSS.map.addLayer(DSS.layerWFS);
+	}
 };
 
 DSS.showSelectWindow = function() 
