@@ -264,7 +264,8 @@ DSS.showSelectWindow = function()
 	DSS.winSelect = new Ext.Window({ 
 		title: 'Potential Application', 
 		width:330, 
-		height:310, 
+		height:310,
+		closable: false, 
 		bodyStyle:'background-color:#e8e8e8;padding: 6px', 
 		items:[intro, this.form], //assigning the form
 		buttonAlign: 'right', //buttons aligned to the right

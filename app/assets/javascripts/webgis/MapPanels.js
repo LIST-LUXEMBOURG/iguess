@@ -257,24 +257,12 @@ WebGIS.createTbarItems = function(map) {
     disabled: true
   }));
   actions.push("-");
-  actions.push(new Ext.Action({
+  actions.push(new Ext.Button({
     iconCls: "dss",
-    //map: map,
-    toggleGroup: "tools",
-    //control: DSS.showTestWindow,
     handler: DSS.init,
-    allowDepress: false,
     tooltip: "<b>Decision Support</b><br>Still in development",
     pressed: false
   }));
-  actions.push("-");
-  actions.push(new Ext.Action({
-    iconCls: "identify",
-    toggleGroup: "tools",
-    tooltip: "<b>Identify</b>",
-    pressed: false
-  }));
- // actions.push("-");
   return actions;
 };
 

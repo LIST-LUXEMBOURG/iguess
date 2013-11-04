@@ -70,7 +70,8 @@ DSS.quit = function()
 {
 	DSS.winPanel.hide();
 	DSS.winSelect.hide();
-	WebGIS.leftMap.removeLayer(DSS.layerWFS);
+	//WebGIS.leftMap.removeLayer(DSS.layerWFS);
+	DSS.map.removeLayer(DSS.layerWFS);	
 };
 
 DSS.initWinPanel = function()
@@ -81,7 +82,7 @@ DSS.initWinPanel = function()
 		autoHeight: true, //Height of the Window will be auto
 		width:330, //Width of the Window
 		resizable: false, //Resize of the Window, if false - it cannot be resized
-		closable: true, //Hide close button of the Window
+		closable: false, //Hide close button of the Window
 		modal: false, //When modal:true it make the window modal and mask everything behind it when displayed
 		contentEl: 'divWindowId', //ID of the respective 'div'
 		buttons:
