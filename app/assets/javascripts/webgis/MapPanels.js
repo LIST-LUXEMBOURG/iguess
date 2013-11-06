@@ -210,13 +210,13 @@ WebGIS.createTbarItems = function(map) {
     pressed: true,
     toggleGroup: "tools",
     allowDepress: false,
-    tooltip: "Navigate",
+    tooltip: "<b>Navigate</b><br>Pan and zoom the map with the mouse.",
     control: new OpenLayers.Control.Navigation()
   }));
   actions.push(new GeoExt.Action({
     iconCls: "maxExtent",
     map: map,
-    tooltip: "Zoom to max extent",
+    tooltip: "<b>Zoom to city extent</b>",
     handler: WebGIS.zoomToCity
   }));
   actions.push(new GeoExt.Action({
@@ -224,7 +224,7 @@ WebGIS.createTbarItems = function(map) {
     map: map,
     toggleGroup: "tools",
     allowDepress: false,
-    tooltip: "Zoom in",
+    tooltip: "<b>Zoom in</b>",
     control: new OpenLayers.Control.ZoomBox({
       out: false
     })
@@ -234,7 +234,7 @@ WebGIS.createTbarItems = function(map) {
     map: map,
     toggleGroup: "tools",
     allowDepress: false,
-    tooltip: "Zoom out",
+    tooltip: "<b>Zoom out</b>",
     control: new OpenLayers.Control.ZoomBox({
       out: true
     })
@@ -244,20 +244,20 @@ WebGIS.createTbarItems = function(map) {
   actions.push(new GeoExt.Action({
     control: ctrl.previous,
     iconCls: "back",
-    tooltip: "back",
+    tooltip: "<b>Back</b>",
     disabled: true
   }));
   actions.push(new GeoExt.Action({
     control: ctrl.next,
     iconCls: "next",
-    tooltip: "next",
+    tooltip: "<b>Next</b>",
     disabled: true
   }));
   actions.push("-");
   actions.push(new GeoExt.Action({
     iconCls: "identify",
     toggleGroup: "tools",
-    tooltip: "<b>Identify</b>",
+    tooltip: "<b>Identify</b><br>Click on a feature for details.",
     pressed: false,
     control: WebGIS.ctrlIdentify,
     map: map,
@@ -274,7 +274,7 @@ WebGIS.createTbarItems = function(map) {
   actions.push(new Ext.Button({
     iconCls: "dss",
     handler: DSS.init,
-    tooltip: "<b>Decision Support</b><br>Still in development",
+    tooltip: "<b>Decision Support</b><br>Preview the application of an energy potential.",
     pressed: false
   }));
   return actions;
