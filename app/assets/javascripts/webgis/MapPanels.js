@@ -30,7 +30,7 @@ WebGIS.mainPanel = null;
 WebGIS.leftPanel = null;
 WebGIS.layerTree;
 
-WebGIS.headerHeight = 125;
+WebGIS.headerHeight = 120;
 
 WebGIS.coordsLatLabel = null;
 WebGIS.coordsLongLabel = null;
@@ -46,7 +46,9 @@ WebGIS.CreatePanels = function() {
   Ext.QuickTips.init();
   
   Ext.get('main_body').setStyle('margin', '0');
+  Ext.get('nav').setStyle('margin-bottom', '0');
   
+  WebGIS.headerHeight = Ext.get("nav").getHeight() + Ext.get("top_banner").getHeight();
 
   WebGIS.initMap();
   
@@ -334,22 +336,4 @@ WebGIS.createBbar = function() {
 	
 	return ['-', scaleLabel, zoomSelector, '-', '->', 
 	         '-', WebGIS.coordsLongLabel, '-', WebGIS.coordsLatLabel, '-'];
-};
-
-/**
- * Method: getAvailableHeight
- * Calculates height available in the document body to render the map.
- *
- * Returns:
- * {Number} Available height.
- */
-WebGIS.getAvailableHeight = function()
-{
-	var body = document.body,
-		html = document.documentElement;
-
-	var height = Math.max( body.scrollHeight, body.offsetHeight, 
-                   html.clientHeight, html.scrollHeight, html.offsetHeight );
-                   
-    return height - WebGIS.headerHeight;
 };
