@@ -26,8 +26,11 @@
 
 var WebGIS = WebGIS || { };
 
+WebGIS.mainPanel = null;
 WebGIS.leftPanel = null;
 WebGIS.layerTree;
+
+WebGIS.headerHeight = 125;
 
 WebGIS.coordsLatLabel = null;
 WebGIS.coordsLongLabel = null;
@@ -39,6 +42,8 @@ WebGIS.CreatePanels = function() {
     return;
 
   Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
+  
+  Ext.QuickTips.init();
 
   WebGIS.initMap();
   
@@ -148,13 +153,15 @@ WebGIS.CreatePanels = function() {
     lines: false
   });	
   
-  var mainPanel = new Ext.Panel({
+  WebGIS.mainPanel = new Ext.Panel({
     layout:'border',
     bodyBorder: false,
     renderTo: "BroadMap",
     stateId: "BroadMap",
-    height: 690,
+    //height: 790,
+    height: Ext.getBody().getViewSize().height - WebGIS.headerHeight,
     width: '100%',
+    //autoScroll:true, 
     defaults: {
       split: true,
       autoHide: false,
@@ -176,6 +183,13 @@ WebGIS.CreatePanels = function() {
         		lines: false
             }
         ]
+  });
+  
+  Ext.EventManager.onWindowResize(function () 
+  {
+	var width = Ext.getBody().getViewSize().width;
+	var height = Ext.getBody().getViewSize().height - WebGIS.headerHeight;
+	WebGIS.mainPanel.setSize(width, height);
   });
 
   WebGIS.zoomToCity();
@@ -317,4 +331,22 @@ WebGIS.createBbar = function() {
 	
 	return ['-', scaleLabel, zoomSelector, '-', '->', 
 	         '-', WebGIS.coordsLongLabel, '-', WebGIS.coordsLatLabel, '-'];
+};
+
+/**
+ * Method: getAvailableHeight
+ * Calculates height available in the document body to render the map.
+ *
+ * Returns:
+ * {Number} Available height.
+ */
+WebGIS.getAvailableHeight = function()
+{
+	var body = document.body,
+		html = document.documentElement;
+
+	var height = Math.max( body.scrollHeight, body.offsetHeight, 
+                   html.clientHeight, html.scrollHeight, html.offsetHeight );
+                   
+    return height - WebGIS.headerHeight;
 };
