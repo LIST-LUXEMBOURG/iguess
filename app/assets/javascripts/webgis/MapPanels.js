@@ -44,6 +44,9 @@ WebGIS.CreatePanels = function() {
   Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
   
   Ext.QuickTips.init();
+  
+  Ext.get('main_body').setStyle('margin', '0');
+  
 
   WebGIS.initMap();
   
