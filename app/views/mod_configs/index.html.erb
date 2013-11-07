@@ -124,8 +124,8 @@
             </div>
 
             <table class="model-descr-table">
-              <% inputs  = ProcessParam.find_all_by_wps_process_id_and_is_input_and_alive(p.id, true,  true) %>
-              <% outputs = ProcessParam.find_all_by_wps_process_id_and_is_input_and_alive(p.id, false, true) %>
+              <% inputs  = ProcessParam.find_all_by_wps_process_id_and_is_input_and_alive(p.id, true,  true, :order=>:title) %>
+              <% outputs = ProcessParam.find_all_by_wps_process_id_and_is_input_and_alive(p.id, false, true, :order=>:title) %>
 
               <tbody class="inputs">
                 <tr><th colspan=3 class="group-header" scope="rowgroup"><div class="outdent">
