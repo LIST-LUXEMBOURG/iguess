@@ -88,6 +88,6 @@ WebGIS.getStyle = function(layerName, type)
 	sld += "</StyledLayerDescriptor>\n"; 
 	
 	return sld;
-}
+};
 
 

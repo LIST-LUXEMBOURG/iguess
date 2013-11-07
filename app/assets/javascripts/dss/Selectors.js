@@ -42,7 +42,8 @@ DSS.nextSelect = null;
 DSS.init = function()
 {
 	DSS.map = WebGIS.leftMap;
-	DSS.showSelectWindow();
+	if(DSS.winSelect == null) DSS.showSelectWindow();
+	else DSS.winSelect.show();
 	if(DSS.winPanel == null) DSS.initWinPanel();
 };
 
