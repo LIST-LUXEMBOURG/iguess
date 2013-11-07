@@ -20,6 +20,8 @@
       );
   });
 
+  var isUserLoggedIn = function() { return <%= user_signed_in? ? 'true' : 'false' %>; }
+
 </script>
 
 <%# Include Google Map code -- needs to be loaded on every page to suppress errors in MapInit.js %>
