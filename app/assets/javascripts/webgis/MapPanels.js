@@ -275,13 +275,16 @@ WebGIS.createTbarItems = function(map) {
     tooltip: "<b>Print</b><br>Still in development",
     disabled: true
   }));
-  actions.push("-");
-  actions.push(new Ext.Button({
-    iconCls: "dss",
-    handler: DSS.init,
-    tooltip: "<b>Decision Support</b><br>Preview the application of an energy potential.",
-    pressed: false
+  if(isUserLoggedIn())
+  {
+    actions.push("-");
+    actions.push(new Ext.Button({
+      iconCls: "dss",
+      handler: DSS.init,
+      tooltip: "<b>Decision Support</b><br>Preview the application of an energy potential.",
+     pressed: false
   }));
+  }
   return actions;
 };
 
