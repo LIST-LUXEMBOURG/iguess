@@ -54,6 +54,10 @@ WebGIS.initMapParallel = function () {
 
     WebGIS.leftMap.addLayers(WebGIS.getLeftBaseLayers());   
     WebGIS.rightMap.addLayers(WebGIS.getRightBaseLayers());
+  
+    //Tell GoogleMaps we don't want the 45º view
+    WebGIS.gsatLeft.mapObject.setTilt(0);
+    WebGIS.gsatRight.mapObject.setTilt(0);
       
     WebGIS.leftMap.addControl(new OpenLayers.Control.ScaleLine());
     
