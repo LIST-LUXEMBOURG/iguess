@@ -198,7 +198,7 @@ DSS.showSelectWindow = function()
 	
 	DSS.comboInvest = new Ext.form.ComboBox(
 	{	
-		fieldLabel: 'Investment', 	
+		fieldLabel: 'Cumulative Investment', 	
 		store: [''], 
 		disabled: true, 
 	    listeners:{
@@ -209,7 +209,7 @@ DSS.showSelectWindow = function()
 	
 	DSS.comboGen = new Ext.form.ComboBox(
 	{
-		fieldLabel: 'Generation', 	
+		fieldLabel: 'Cumulative Generation', 	
 		store: [''], 
 		disabled: true, 
 	    listeners:{
@@ -220,7 +220,7 @@ DSS.showSelectWindow = function()
 	
 	DSS.comboArea = new Ext.form.ComboBox(
 	{
-		fieldLabel: 'Area', 
+		fieldLabel: 'Cumulative Area', 
 		store: [''], 
 		disabled: true, 
 	    listeners:{
@@ -265,7 +265,7 @@ DSS.showSelectWindow = function()
 	DSS.winSelect = new Ext.Window({ 
 		title: 'Potential Application', 
 		width:330, 
-		height:310,
+		height:330,
 		closable: false, 
 		bodyStyle:'background-color:#e8e8e8;padding: 6px', 
 		items:[intro, this.form], //assigning the form

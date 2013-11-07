@@ -64,6 +64,8 @@ WebGIS.initMap = function ()
     WebGIS.registerIdentify(WebGIS.leftMap, this);
 
     WebGIS.leftMap.addLayers(WebGIS.getLeftBaseLayers()); 
+    //Tell GoogleMaps we don't want the 45º view
+    WebGIS.gsatLeft.mapObject.setTilt(0);
     
     WebGIS.leftMap.events.register("mousemove", null, WebGIS.mapMouseMove);
     
