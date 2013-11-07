@@ -61,6 +61,10 @@ a:active {
   outline:none;
 }
 
+a {
+  outline: 0;
+}
+
 :focus {
   -moz-outline-style:none;
 }
