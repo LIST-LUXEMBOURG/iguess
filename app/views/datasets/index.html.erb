@@ -13,7 +13,13 @@
 
   <table id="sortable_table" class="zebra sortable">
     <thead>
-      <tr><th>Name</th><th>Tags</th><th>Published?</th><th class="center">Status</th><th class="center">Server</th></tr>
+      <tr>
+        <th title="Dataset name">Name</th>
+        <th title="Tags attached to dataset">Tags</th>
+        <th title="Is dataset visible to non-logged in users?">Published?</th>
+        <th class="center" title="Is dataset currently available?">Status</th>
+        <th class="center" title="Server hosting the dataset">Server</th>
+      </tr>
     </thead>
     <tbody id="dataset-list">
       <% @datasets.each do |d| %>
@@ -21,7 +27,7 @@
           <% hasError = ! d.alive %>
           <td <% if hasError %>class="dataset-error"<% end %>>
             <%= d.title.present? ? d.title : d.identifier %>
-            <img src="/assets/small_question_mark.gif" class="info-icon" 
+            <img src="/assets/small_gear.png" class="info-icon" 
                   alt="More info" title="Click for details" rel="#infotable-<%= d.id %>">
           </td>
           <td>
@@ -120,19 +126,6 @@
                 Not used in any configurations
               <% end %>
             </dd>
-          </dl>
-        </div>
-        <div style="overflow:hidden" class="technical-details">
-          <div class="technical-details-header">Technical Details</div>
-          <dl>
-            <dt>Server Base URL:</dt><dd><%= d.server_url %></dd>
-            <dt>Dataset Identifier:</dt><dd><%= d.identifier %></dd>
-            <dt>All Get Capabilities Links:</dt><dd>
-              <%= insertGetCapabilitiesLinkBlock(d.dataserver.url, :true, :true, :true) %>
-            </dd>
-            <dt>Projections Available:</dt><dd></dd> 
-            <dt>Bounding Box:</dt><dd></dd>
-            <dt>Attribute Columns:</dt><dd></dd>
             <dt>Actions:</dt>
             <dd>
               <% if d.mod_configs.size == 0 then 
@@ -151,9 +144,22 @@
             </dd>
           </dl>
         </div>
+        <div style="overflow:hidden" class="technical-details">
+          <div class="technical-details-header">Technical Details</div>
+          <dl>
+            <dt>Server Base URL:</dt><dd><%= d.server_url %></dd>
+            <dt>Dataset Identifier:</dt><dd><%= d.identifier %></dd>
+            <dt>All Get Capabilities Links:</dt><dd>
+              <%= insertGetCapabilitiesLinkBlock(d.dataserver.url, :true, :true, :true) %>
+            </dd>
+            <dt>Projections Available:</dt><dd></dd> 
+            <dt>Bounding Box:</dt><dd></dd>
+            <dt>Attribute Columns:</dt><dd></dd>
+          </dl>
+        </div>
         <div>
           <!-- return false; prevents underlying page from scrolling when -->
-          <a href="#" class="show-details" onclick="return false;">Show details >>></a>
+          <a href="#" class="show-details" onclick="return false;">Technical details >>></a>
         </div>    
       </div>
     <% end %>
@@ -234,7 +240,7 @@
 
     el.unbind("click");
     el.click(function(){ showDetails(); });
-    el.html('Show details >>>');
+    el.html('Technical details >>>');
   };
 
 

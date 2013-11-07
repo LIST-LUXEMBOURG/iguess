@@ -42,13 +42,58 @@ $panelHeight: 423px;
 }
 
 
+
+/*
+ul.css-tabs li {
+    float:left;
+    padding:0;
+    margin:0;
+    list-style-type:none;
+}
+
+ul.css-tabs a {
+    float:left;
+    font-size:13px;
+    display:block;
+    padding:5px 30px;
+    text-decoration:none;
+    border:1px solid #666;
+    border-bottom:0px;
+    height:18px;
+    background-color:#efefef;
+    color:#777;
+    margin-right:2px;
+    position:relative;
+    top:1px;
+    outline:0;
+    -moz-border-radius:4px 4px 0 0;
+}
+*/
+
 $lineHeight: $panelHeight / 3 - 1px;
 #front-page-tabs li {
    list-style: none;
    margin: 0;
+}
+
+
+#front-page-tabs .panes {
+   float: left;
+   font-size: 40px;
+   margin-left: 0;
+   margin-right: 0;
+}
+
+// Tab links themselves
+#front-page-tabs .tabs a {
+   text-decoration: none;
+   color: #3C77B4;
+   font-size: 23px;
    padding-left: 18px;
 
-   background: whiteSmoke;
+   display:block;
+
+   background: #F5F5F5;
    background: -webkit-linear-gradient(whiteSmoke, #EEE);
    background: -moz-linear-gradient(whiteSmoke, #EEE);
    background: -ms-linear-gradient(whiteSmoke, #EEE);
@@ -66,19 +111,31 @@ $lineHeight: $panelHeight / 3 - 1px;
    line-height: $lineHeight;   // Vertically center text links
 }
 
-#front-page-tabs .panes {
-   float: left;
-   font-size: 40px;
-   margin-left: 0;
-   margin-right: 0;
+
+/* selected tab */
+#front-page-tabs .tabs a.current {
+    border-bottom:1px solid #ddd;
+    color: maroon;
+    cursor:default;
+
+
+   background: #eee;
+   background: -webkit-linear-gradient(whiteSmoke, #CCC);
+   background: -moz-linear-gradient(whiteSmoke, #CCC);
+   background: -ms-linear-gradient(whiteSmoke, #CCC);
+   background: -o-linear-gradient(whiteSmoke, #CCC);
+   background: linear-gradient(whiteSmoke, #CCC);
+
+   border-bottom: 1px solid #DDD;
+   border-left: 1px solid #DDD;
+
+   -webkit-box-shadow: inset 0 1px 0 white;
+   box-shadow: inset 0 1px 0 white;
+   height: $lineHeight;
+   top: auto;
+
 }
 
-// Tab links themselves
-#front-page-tabs .tabs a {
-   text-decoration: none;
-   color: #3C77B4;
-   font-size: 23px;
-}
 
 #front-page-tabs .inner-content {
    margin-left: 220px;

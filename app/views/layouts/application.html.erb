@@ -20,6 +20,8 @@
       );
   });
 
+  var isUserLoggedIn = function() { return <%= user_signed_in? ? 'true' : 'false' %>; }
+
 </script>
 
 <%# Include Google Map code -- needs to be loaded on every page to suppress errors in MapInit.js %>
@@ -64,8 +66,12 @@
             <%= link_to "Decision Support", dss_path %></li>-->
         <li id="nav-6" title="<u><b>View maps</b></u><br>Visualize data and model results">
             <%= link_to "Maps", maps_path %></li>
-        <li id="nav-7" title="<u><b>Compare maps</b></u><br>Compare maps side by side">
-            <%= link_to "Compare", compares_path %></li>
+            
+        <% if user_signed_in? %>            
+          <li id="nav-7" title="<u><b>Compare maps</b></u><br>Compare maps side by side">
+              <%= link_to "Compare", compares_path %></li>
+        <% end %>
+
         <li id="nav-8" title="<u><b>About</b></u><br>About this site and contact details">
             <%= link_to "About", about_path %></li>
 
