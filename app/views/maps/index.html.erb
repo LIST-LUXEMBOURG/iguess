@@ -1,137 +1,133 @@
 <%# Include some map related utility functions; these need to be processed by Rails so they have to be in a partial %>
 
-
 <script>
 
+var MapUtils = MapUtils || { };   // Create namespace
 
- var MapUtils = MapUtils || { };   // Create namespace
+MapUtils.retrieveDatasetsForCity = function(cityName, successFunction) {
+var serverUrl = '<%= url_for(:controller => "datasets", :action => "get_for_city", :format => :json) %>';
+$.ajax({
+type: 'POST',
+url: serverUrl,
+data: 'cityName=' + getCityCookie(),
+headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
+success: successFunction,
+error: function() { alert('Error retrieving datasets for city.'); }
+});
+}
 
- MapUtils.retrieveDatasetsForCity = function(cityName, successFunction) {
-  var serverUrl = '<%= url_for(:controller => "datasets", :action => "get_for_city", :format => :json) %>';
-   $.ajax({
-       type: 'POST',
-       url: serverUrl,
-       data: 'cityName=' + getCityCookie(),
-       headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
-       success: successFunction,
-       error: function() { alert('Error retrieving datasets for city.'); }
-     });
-  }
+// We've got a new batch of datasets to display!
+// Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
+var addLayersToMap = function(datasets)
+{
+for (var i = 0, len = datasets.length; i < len; i++)
+WebGIS.addNewLayer(datasets[i].title || datasets[i].identifier, datasets[i].server_url, datasets[i].identifier, null);
+};
 
+// This gets run when user changes city dropdown
+var onLocationChanged = function(cityName)
+{
+WebGIS.clearLayers(false);
 
-  // We've got a new batch of datasets to display!
-  // Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
-  var addLayersToMap = function(datasets) 
-  {
-    for (var i = 0, len = datasets.length; i < len; i++) 
-      WebGIS.addNewLayer(datasets[i].title || datasets[i].identifier, datasets[i].server_url, datasets[i].identifier, null);
-  };
+// Retrieve all datasets for specified city
+MapUtils.retrieveDatasetsForCity(cityName, function(data){ addLayersToMap(data); });
 
+// Notify WebGIS that things have changed
+<% for city in City.all %>
+if(cityName == "<%= city.name %>")
+{
+var point = new OpenLayers.LonLat(<%= city.mapx %>, <%= city.mapy %>);
+WebGIS.leftMap.setCenter(point, <%= city.zoom %>);
 
-  // This gets run when user changes city dropdown
-  var onLocationChanged = function(cityName) 
-  {
-    WebGIS.clearLayers(false);
+$('.all-layers').hide();
+$('.layer-for-city-<%= city.id %>').show();
 
-    // Retrieve all datasets for specified city
-    MapUtils.retrieveDatasetsForCity(cityName, function(data){ addLayersToMap(data); });
+return;
+}
+<% end %>
+};
 
-    // Notify WebGIS that things have changed
-    <% for city in City.all %>
-      if(cityName == "<%= city.name %>")
-      {
-		var point = new OpenLayers.LonLat(<%= city.mapx %>, <%= city.mapy %>);
-        WebGIS.leftMap.setCenter(point, <%= city.zoom %>);
-        
-        $('.all-layers').hide();
-        $('.layer-for-city-<%= city.id %>').show();
-
-        return;
-      }
-    <% end %>
-  };
-  
-   Ext.onReady(function() {
-        WebGIS.CreatePanels();
-        //WebGIS.CreatePanelsParallel();
-    });
-  
-</script>
-
-
-<script type="text/javascript">
-  $(function() {
-    var theTable = $('#sortable_table')
-
-    theTable.find("tbody > tr").find("td:eq(1)").mousedown(function() {
-      $(this).prev().find(":checkbox").click()
-    });
-
-    $("#filter").keyup(function() {
-      $.uiTableFilter( theTable, this.value );
-    })
-
-    $('#filter-form').submit(function(){
-      theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
-      return false;
-    }).focus(); //Give focus to input field
-  });
-</script>
-
-
-
-<script type="text/javascript">
-
-  $(document).bind('ajax:success', function(xhr, data, status) { 
-    $('#dataset-id-' + data).hide();
-  });
+Ext.onReady(function() {
+WebGIS.CreatePanels();
+//WebGIS.CreatePanelsParallel();
+});
 
 </script>
 
+<script type="text/javascript">
+	$(function() {
+		var theTable = $('#sortable_table')
+
+		theTable.find("tbody > tr").find("td:eq(1)").mousedown(function() {
+			$(this).prev().find(":checkbox").click()
+		});
+
+		$("#filter").keyup(function() {
+			$.uiTableFilter(theTable, this.value);
+		})
+
+		$('#filter-form').submit(function() {
+			theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
+			return false;
+		}).focus();
+		//Give focus to input field
+	}); 
+</script>
 
 <script type="text/javascript">
-  $(function() {
-    var theTable = $('#sortable_table')
+	$(document).bind('ajax:success', function(xhr, data, status) {
+		$('#dataset-id-' + data).hide();
+	});
 
-    theTable.find("tbody > tr").find("td:eq(1)").mousedown(function() {
-      $(this).prev().find(":checkbox").click()
-    });
+</script>
 
-    $("#filter").keyup(function() {
-      $.uiTableFilter( theTable, this.value );
-    })
+<script type="text/javascript">
+	$(function() {
+		var theTable = $('#sortable_table')
 
-    $('#filter-form').submit(function(){
-      theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
-      return false;
-    }).focus(); //Give focus to input field
-  });
+		theTable.find("tbody > tr").find("td:eq(1)").mousedown(function() {
+			$(this).prev().find(":checkbox").click()
+		});
+
+		$("#filter").keyup(function() {
+			$.uiTableFilter(theTable, this.value);
+		})
+
+		$('#filter-form').submit(function() {
+			theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
+			return false;
+		}).focus();
+		//Give focus to input field
+	}); 
 </script>
 
 <div style="float: left; width:100%;" id="BroadMap">
 	<!-- Map goes here -->
 	<div id="leftMap"></div>
-  <div id="rightMap"></div>
+	<div id="rightMap"></div>
 </div>
 
-<!-- Identify window -->
 <div id="winDivIdentify"></div>
 
 <!------------ DSS windows ------------>
 
 <div title="divSelectId" id="divSelectId" class="x-hidden" style="padding:10px">
 	Use the form below to select a layer to apply the Potential Application tool.
-	<br><br>
+	<br>
+	<br>
 	Select an attribute for each of the parameters of the tool: <b>Cost</b>, <b>Inventment</b>, electricity <b>Generation</b> and <b>Area</b>.
-	<br><br>
-	</div>
-	
-	<div title="divWindowId" id="divWindowId" class="x-hidden" style="padding:10px">
+	<br>
+	<br>
+</div>
+
+<div title="divWindowId" id="divWindowId" class="x-hidden" style="padding:10px">
 	<p>
-		Move the sliders to see in the map where the installation is most efficient. 
+		Move the sliders to see in the map where the installation is most efficient.
 		The buildings with lower electricity costs for a 20 years lifetime are ranked first.
 	</p>
-	<p>This is still a prototype.</p>
+	<p>
+		This is still a prototype.
+	</p>
 	<br>
 	<br>
 	<b id="cost">Cost: 0.090 &euro;/kWh</b>
@@ -150,4 +146,4 @@
 	<div id="slider-area"></div>
 	<br>
 	<br>
-	</div>
+</div>
