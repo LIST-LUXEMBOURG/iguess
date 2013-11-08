@@ -21,12 +21,12 @@ class ModConfigsController < ApplicationController
 
 
   def showError(msg)
-      flash[:error] = msg
+    flash[:error] = msg
 
-      respond_to do |format|
-        format.html { redirect_to mod_configs_url }
-      end
+    respond_to do |format|
+      format.html { redirect_to mod_configs_url }
     end
+  end
 
 
   # GET /mod_configs/1
@@ -49,10 +49,14 @@ class ModConfigsController < ApplicationController
     # current_user should always be set here
     @datasets        = Dataset.find_all_by_city_id(@current_city.id)
     @dataset_tags    = DatasetTag.all
-    @datasetValues   = ConfigDataset.find_all_by_mod_config_id(params[:id]).map{|d| d.input_identifier + ': "' + d.dataset.id.to_s + '"'}.join(',')
-    @formValues      = ConfigTextInput.find_all_by_mod_config_id(@mod_config).map{|text| text.column_name + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"'}.join(',')
-    @input_params    = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(true,  true)
-    @output_params   = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(false,  true)
+    @datasetValues   = ConfigDataset.find_all_by_mod_config_id(params[:id])
+                                    .map{|d| d.input_identifier + ': "' + d.dataset.id.to_s + '"'}
+                                    .join(',')
+    @formValues      = ConfigTextInput.find_all_by_mod_config_id(@mod_config)
+                                      .map{|text| text.column_name + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"'}
+                                      .join(',')
+    @input_params    = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(true, true, :order=>:title)
+    @output_params   = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(false, true, :order=>:title)
 
     respond_to do |format|
       format.html # show.html.erb
