@@ -42,8 +42,20 @@ def doSql(conn, cursor, upsertList, sqlList):
         for up in upsertList:
             upsert(cursor, up[0], up[1], up[2], up[3])
 
-        for sql in sqlList:
-            cursor.execute(sql)     # .encode("UTF-8")
+        try:
+            for sql in sqlList:
+                cursor.execute(sql)     # .encode("UTF-8")
+                
+        except Exception as e:
+            print "-----"
+            print "Error running SQL:"
+            print sql
+            print "-----"
+            print type(e)
+            print e.args
+            print e
+            print "-----"
+            conn.rollback()
 
         conn.commit()
 
