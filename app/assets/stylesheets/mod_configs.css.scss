@@ -131,6 +131,18 @@
 
 }
 
+$width: 600px;
+
+#proc-descr {
+  margin-left: 120px;
+  display: block;
+  width: $width;
+}
+
+#mod_config_descr {
+  width: $width;
+}
+
 
 // Left column of inputs/outputs table
 .param-name {
