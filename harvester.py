@@ -9,12 +9,9 @@ from owslib.wms import WebMapService, ServiceException
 
 # Download source from http://code.google.com/p/pyproj/downloads/list, follow instructions in README
 from pyproj import transform, Proj
-from lxml import etree
 
 import psycopg2          # For database access
 from psycopg2.extensions import adapt  # adapt gives us secure qutoing
-import re
-import math
 import time
 import datetime
 import string
@@ -23,40 +20,6 @@ wpsVersion = '1.0.0'
 wmsVersion = '1.1.1'        # Rotterdam wms doesn't like 1.3.0!
 wfsVersion = '1.0.0'        # Montreuil only works with 1.0.0
 wcsVersion = '1.1.0'        # Rotterdam only works when this is set to 1.1.0
-
-# Get the database connection info
-from harvester_pwd import dbDatabase, dbName, dbUsername, dbPassword, dbSchema
-
-
-
-# Connect to the database
-dbConn = psycopg2.connect(host = dbDatabase, database = dbName, user = dbUsername, password = dbPassword)
-
-dbConn.set_client_encoding('UTF-8')
-
-# Turn autocommit on to avoid locking our select statements
-# set_session([isolation_level,] [readonly,] [deferrable,] [autocommit])
-dbConn.set_session(autocommit=True)
-
-
-serverCursor = dbConn.cursor()      # For listing servers
-updateCursor = dbConn.cursor()      # For updating the database
-dsCursor     = dbConn.cursor()      # For iterating over datasets and 
-
-
-tables = { }
-tables["wpsServers"]    = dbSchema + ".wps_servers"
-tables["processes"]     = dbSchema + ".wps_processes"
-tables["processParams"] = dbSchema + ".process_params"
-tables["datasets"]      = dbSchema + ".datasets"
-tables["dataservers"]   = dbSchema + ".dataservers"
-tables["cities"]        = dbSchema + ".cities"
-
-
-print "Starting Harvester of Sorrow ", datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-
-# serverUrl = 'http://ows.gis.rotterdam.nl/cgi-bin/mapserv.exe?map=d:\gwr\webdata\mapserver\map\gwr_basis_pub.map'
-# wcs = WebCoverageService(serverUrl, version = wcsVersion)
 
 
 # Create a database row if one is needed
@@ -99,141 +62,131 @@ def doSql(conn, cursor, upsertList, sqlList):
     
 
 
+def checkWPS(serverCursor):
+    # Get the server list, but ignore servers marked as deleted
+    serverCursor.execute("SELECT url, id FROM " + tables["wpsServers"] + " WHERE deleted = false")
 
-# Build a list of native CRS's for the cities
-# Creates:
-# {2: 'urn:ogc:def:crs:EPSG::31370', 3: 'urn:ogc:def:crs:EPSG::31467', 4: 'urn:ogc:def:crs:EPSG::2154', 5: 'urn:ogc:def:crs:EPSG::28992'}
-cityCRS = {}
-serverCursor.execute("SELECT id, srs FROM " + tables["cities"])
+    upsertList = []
+    sqlList = []
 
-for row in serverCursor:
-    cityCRS[row[0]] = row[1]
+    # Mark all our records as dead; we'll mark them as alive as we process them.  Note that the database won't
+    # actually be udpated until we commit all our transactions at the end, so we'll never see this value
+    # for a server/process/input that is in fact alive.
+    sqlList.append("UPDATE " + tables["wpsServers"]    + " SET alive = false")
+    sqlList.append("UPDATE " + tables["processes"]     + " SET alive = false")
+    sqlList.append("UPDATE " + tables["processParams"] + " SET alive = false")
 
+    for row in serverCursor:
+        serverUrl = row[0]
+        serverId  = row[1]
 
-# Get the server list, but ignore servers marked as deleted
-serverCursor.execute("SELECT url, id FROM " + tables["wpsServers"] + " WHERE deleted = false")
+        # Run a GetCapabilities query on the WPS server -- could fail if URL is bogus
+        try:
+            wps = WebProcessingService(serverUrl, version = wpsVersion)
+        except:  
+            print "Could not load WPS data from url " + serverUrl
+            # If URL is bogus, will raise a URLError... but whatever... no errors are reoverable at this point
+            continue
 
-upsertList = []
-sqlList = []
-
-# Mark all our records as dead; we'll mark them as alive as we process them.  Note that the database won't
-# actually be udpated until we commit all our transactions at the end, so we'll never see this value
-# for a server/process/input that is in fact alive.
-sqlList.append("UPDATE " + tables["wpsServers"]    + " SET alive = false")
-sqlList.append("UPDATE " + tables["processes"]     + " SET alive = false")
-sqlList.append("UPDATE " + tables["processParams"] + " SET alive = false")
-
-for row in serverCursor:
-    serverUrl = row[0]
-    serverId  = row[1]
-
-    # Run a GetCapabilities query on the WPS server -- could fail if URL is bogus
-    try:
-        wps = WebProcessingService(serverUrl, version = wpsVersion)
-    except:  
-        print "Could not load WPS data from url " + serverUrl
-        # If URL is bogus, will raise a URLError... but whatever... no errors are reoverable at this point
-        continue
-
-    # Update the server title and abstract
-    sqlList.append(
-                    "UPDATE " + tables["wpsServers"] + " "
-                    "SET title = "         + str(adapt(wps.identification.title))    + ", "
-                        "abstract = "      + str(adapt(wps.identification.abstract)) + ", "
-                        "provider_name = " + str(adapt(wps.provider.name))           + ", "
-                        "contact_name = "  + str(adapt(wps.provider.contact.name))   + ", "
-                        "contact_email = " + str(adapt(wps.provider.contact.email))  + ", "
-                        "last_seen = NOW(), alive = TRUE "
-                    "WHERE id = " + str(adapt(serverId))
-                  )
-
-    # Iterate over the processes available on this server
-    for proc in wps.processes: 
-
-        # Do an upsert to establish the row, so we can update it. Not totally correct, 
-        # but this will not be run where race conditions can develop.
-        upsertList.append((tables["processes"], "wps_server_id", serverId, proc.identifier))
-
-        # Now we know that our row exists, and we can do a simple update to get the rest of the info in
-        # We'll return the record id so that we can use it below.
-
-        whereClause = "WHERE wps_server_id = " + str(adapt(serverId)) + " AND identifier = " + str(adapt(proc.identifier))
-
+        # Update the server title and abstract
         sqlList.append(
-                        "UPDATE " + tables["processes"] + " "
-                        "SET title = " + str(adapt(proc.title)) + ", "
-                            "abstract = " + str(adapt(proc.abstract)) + ", "
-                            "last_seen = NOW(), alive = TRUE " +
-                        whereClause
+                        "UPDATE " + tables["wpsServers"] + " "
+                        "SET title = "         + str(adapt(wps.identification.title))    + ", "
+                            "abstract = "      + str(adapt(wps.identification.abstract)) + ", "
+                            "provider_name = " + str(adapt(wps.provider.name))           + ", "
+                            "contact_name = "  + str(adapt(wps.provider.contact.name))   + ", "
+                            "contact_email = " + str(adapt(wps.provider.contact.email))  + ", "
+                            "last_seen = NOW(), alive = TRUE "
+                        "WHERE id = " + str(adapt(serverId))
                       )
 
-        # Need to do this here so that the SELECT below will find a record if the upsert inserts... a little messy
-        doSql(dbConn, updateCursor, upsertList, sqlList)
-        upsertList = []
-        sqlList = []
+        # Iterate over the processes available on this server
+        for proc in wps.processes: 
 
-        updateCursor.execute("SELECT id FROM " + tables["processes"] + " " + whereClause)
+            # Do an upsert to establish the row, so we can update it. Not totally correct, 
+            # but this will not be run where race conditions can develop.
+            upsertList.append((tables["processes"], "wps_server_id", serverId, proc.identifier))
 
-        procId = updateCursor.fetchone()[0]
+            # Now we know that our row exists, and we can do a simple update to get the rest of the info in
+            # We'll return the record id so that we can use it below.
 
-        try:
-            procDescr = wps.describeprocess(proc.identifier)
-        except:
-            print "Could not describe process ", proc.identifier, " on server ", serverUrl
+            whereClause = "WHERE wps_server_id = " + str(adapt(serverId)) + " AND identifier = " + str(adapt(proc.identifier))
 
-        for input in procDescr.dataInputs:
-
-            abstract = ""
-            if hasattr(input, "abstract"):
-                abstract = input.abstract
-
-            datatype = ""
-            if hasattr(input, "dataType"):
-                datatype = input.dataType
-
-            if datatype and datatype.startswith("//www.w3.org/TR/xmlschema-2/#"):
-                datatype = datatype.replace("//www.w3.org/TR/xmlschema-2/#", "")
-
-            upsertList.append((tables["processParams"], "wps_process_id", procId, input.identifier))
             sqlList.append(
-                            "UPDATE " + tables["processParams"] + " "
-                            "SET title = " + str(adapt(input.title)) + ","
-                                "abstract = " + str(adapt(abstract)) + ", "
-                                "datatype = " + str(adapt(datatype)) + ", "
-                                "is_input = TRUE, alive = TRUE, last_seen = NOW() "
-                            "WHERE wps_process_id = " + str(adapt(procId)) + " AND identifier = " + str(adapt(input.identifier))
+                            "UPDATE " + tables["processes"] + " "
+                            "SET title = " + str(adapt(proc.title)) + ", "
+                                "abstract = " + str(adapt(proc.abstract)) + ", "
+                                "last_seen = NOW(), alive = TRUE " +
+                            whereClause
                           )
 
-        for output in procDescr.processOutputs:
+            # Need to do this here so that the SELECT below will find a record if the upsert inserts... a little messy
+            doSql(dbConn, updateCursor, upsertList, sqlList)
+            upsertList = []
+            sqlList = []
 
-            abstract = ""
-            if hasattr(output, "abstract"):
-                abstract = output.abstract
+            updateCursor.execute("SELECT id FROM " + tables["processes"] + " " + whereClause)
 
-            datatype = ""
-            if hasattr(output, "dataType"):
-                if output.dataType:     # This can sometimes be None... bug in owslib?
-                    datatype = output.dataType
-                else:
-                    print output.identifier, serverUrl
+            procId = updateCursor.fetchone()[0]
+
+            try:
+                procDescr = wps.describeprocess(proc.identifier)
+            except:
+                print "Could not describe process ", proc.identifier, " on server ", serverUrl
+
+            for input in procDescr.dataInputs:
+
+                abstract = ""
+                if hasattr(input, "abstract"):
+                    abstract = input.abstract
+
+                datatype = ""
+                if hasattr(input, "dataType"):
+                    datatype = input.dataType
+
+                if datatype and datatype.startswith("//www.w3.org/TR/xmlschema-2/#"):
+                    datatype = datatype.replace("//www.w3.org/TR/xmlschema-2/#", "")
+
+                upsertList.append((tables["processParams"], "wps_process_id", procId, input.identifier))
+                sqlList.append(
+                                "UPDATE " + tables["processParams"] + " "
+                                "SET title = " + str(adapt(input.title)) + ","
+                                    "abstract = " + str(adapt(abstract)) + ", "
+                                    "datatype = " + str(adapt(datatype)) + ", "
+                                    "is_input = TRUE, alive = TRUE, last_seen = NOW() "
+                                "WHERE wps_process_id = " + str(adapt(procId)) + " AND identifier = " + str(adapt(input.identifier))
+                              )
+
+            for output in procDescr.processOutputs:
+
+                abstract = ""
+                if hasattr(output, "abstract"):
+                    abstract = output.abstract
+
+                datatype = ""
+                if hasattr(output, "dataType"):
+                    if output.dataType:     # This can sometimes be None... bug in owslib?
+                        datatype = output.dataType
+                    else:
+                        print output.identifier, serverUrl
 
 
-            if datatype and datatype.startswith("//www.w3.org/TR/xmlschema-2/#"):
-                datatype = datatype.replace("//www.w3.org/TR/xmlschema-2/#", "")
+                if datatype and datatype.startswith("//www.w3.org/TR/xmlschema-2/#"):
+                    datatype = datatype.replace("//www.w3.org/TR/xmlschema-2/#", "")
 
 
-            upsertList.append((tables["processParams"], "wps_process_id", procId, output.identifier))
-            sqlList.append(
-                            "UPDATE " + tables["processParams"] + " "
-                            "SET title = " + str(adapt(output.title)) + ", "
-                                "abstract = " + str(adapt(abstract)) + ", "
-                                "datatype = " + str(adapt(datatype)) + ", "
-                                "is_input = FALSE, alive = TRUE, last_seen = NOW() "
-                            "WHERE wps_process_id = " + str(adapt(procId)) + " AND identifier = " + str(adapt(output.identifier))
-                          )
+                upsertList.append((tables["processParams"], "wps_process_id", procId, output.identifier))
+                sqlList.append(
+                                "UPDATE " + tables["processParams"] + " "
+                                "SET title = " + str(adapt(output.title)) + ", "
+                                    "abstract = " + str(adapt(abstract)) + ", "
+                                    "datatype = " + str(adapt(datatype)) + ", "
+                                    "is_input = FALSE, alive = TRUE, last_seen = NOW() "
+                                "WHERE wps_process_id = " + str(adapt(procId)) + " AND identifier = " + str(adapt(output.identifier))
+                              )
 
-# Run and commit WPS transactions
-doSql(dbConn, updateCursor, upsertList, sqlList)
+    # Run and commit WPS transactions
+    doSql(dbConn, updateCursor, upsertList, sqlList)
 
 
 # Compare whether two crs's are in fact the same.  We'll consider the following two strings equal
@@ -266,7 +219,8 @@ def projectWgsToLocal(boundingBox, localProj):
     return bboxLeft,  bboxBottom, bboxRight, bboxTop
 
 
-try:
+
+def checkDataServers(serverCursor):
     # Get the server list
     serverCursor.execute("SELECT DISTINCT url FROM " + tables["dataservers"])
 
@@ -425,7 +379,6 @@ try:
                         bboxLeft, bboxBottom, bboxRight, bboxTop = projectWgsToLocal(bb, cityCRS[cityId])
                              
 
-
                     if(len(wcs.contents[identifier].supportedFormats[0]) == 0):
                         print "Cannot get a supported format for WCS dataset " + serverUrl + " >>> " + identifier
                         continue
@@ -485,6 +438,51 @@ try:
             # Run queries and commit dataset transactions
             doSql(dbConn, updateCursor, upsertList, sqlList)
 
+
+
+
+# Get the database connection info
+print "Starting Harvester of Sorrow ", datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+
+
+from harvester_pwd import dbDatabase, dbName, dbUsername, dbPassword, dbSchema
+
+tables = { }
+tables["wpsServers"]    = dbSchema + ".wps_servers"
+tables["processes"]     = dbSchema + ".wps_processes"
+tables["processParams"] = dbSchema + ".process_params"
+tables["datasets"]      = dbSchema + ".datasets"
+tables["dataservers"]   = dbSchema + ".dataservers"
+tables["cities"]        = dbSchema + ".cities"
+
+
+# Connect to the database
+dbConn = psycopg2.connect(host = dbDatabase, database = dbName, user = dbUsername, password = dbPassword)
+
+dbConn.set_client_encoding('UTF-8')
+
+# Turn autocommit on to avoid locking our select statements
+# set_session([isolation_level,] [readonly,] [deferrable,] [autocommit])
+dbConn.set_session(autocommit=True)
+
+
+serverCursor = dbConn.cursor()      # For listing servers
+updateCursor = dbConn.cursor()      # For updating the database
+dsCursor     = dbConn.cursor()      # For iterating over datasets and 
+
+# Build a list of native CRS's for the cities
+# Creates:
+# {2: 'urn:ogc:def:crs:EPSG::31370', 3: 'urn:ogc:def:crs:EPSG::31467', 4: 'urn:ogc:def:crs:EPSG::2154', 5: 'urn:ogc:def:crs:EPSG::28992'}
+cityCRS = {}
+serverCursor.execute("SELECT id, srs FROM " + tables["cities"])
+
+for row in serverCursor:
+    cityCRS[row[0]] = row[1]
+
+
+try:
+    checkWPS(serverCursor)
+    checkDataServers(serverCursor)
 
 except Exception as e:
     print "-----"
