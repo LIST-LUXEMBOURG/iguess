@@ -90,11 +90,11 @@
       descr:      "<%= escape_javascript(p.abstract) %>",
       serverUrl:  "<%= escape_javascript(p.wps_server.url) %>",
       inputs:     [
-        <% ProcessParam.find_all_by_wps_process_id_and_is_input_and_alive(p.id, true,  true).each { |x| %>
+        <% ProcessParam.find_all_by_wps_process_id_and_is_input_and_alive(p.id, true, true, :order=>:title).each { |x| %>
           <%= raw x.to_json + ',' %><% } 
         %>],
       outputs:    [
-        <% ProcessParam.find_all_by_wps_process_id_and_is_input_and_alive(p.id, false,  true).each { |x| %>
+        <% ProcessParam.find_all_by_wps_process_id_and_is_input_and_alive(p.id, false, true, :order=>:title).each { |x| %>
           <%= raw x.to_json + ',' %><% } 
         %>]
     };

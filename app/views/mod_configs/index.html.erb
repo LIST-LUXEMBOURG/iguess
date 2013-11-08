@@ -124,8 +124,8 @@
             </div>
 
             <table class="model-descr-table">
-              <% inputs  = ProcessParam.find_all_by_wps_process_id_and_is_input_and_alive(p.id, true,  true) %>
-              <% outputs = ProcessParam.find_all_by_wps_process_id_and_is_input_and_alive(p.id, false, true) %>
+              <% inputs  = ProcessParam.find_all_by_wps_process_id_and_is_input_and_alive(p.id, true,  true, :order=>:title) %>
+              <% outputs = ProcessParam.find_all_by_wps_process_id_and_is_input_and_alive(p.id, false, true, :order=>:title) %>
 
               <tbody class="inputs">
                 <tr><th colspan=3 class="group-header" scope="rowgroup"><div class="outdent">
@@ -137,10 +137,14 @@
                 </div></th></tr>
                 
                 <% if inputs.size > 0 %>
-                  <tr><th>Parameter Name</th><th>Description</th></tr>
+                  <tr><th>Parameter Name</th><th>Identifier</th><th>Description</th></tr>
 
                   <% inputs.each do |i| %>
-                    <tr><td class="param-name"><%= i.title %></td><td class="param-descr"><%= i.abstract %></td></tr>
+                    <tr>
+                      <td class="param-name"><%= i.title %></td>
+                      <td class="param-name">[<%= i.identifier %>]</td>
+                      <td class="param-descr"><%= i.abstract %></td>
+                    </tr>
                   <% end %>
                 <% end %>
 
@@ -153,10 +157,14 @@
                 </div></th></tr>
 
                 <% if outputs.size > 0 %>
-                  <tr><th>Parameter Name</th><th>Description</th></tr>
+                  <tr><th>Parameter Name</th><th>Identifier</th><th>Description</th></tr>
 
                   <% outputs.each do |o| %>
-                    <tr><td class="param-name"><%= o.title %></td><td class="param-descr"><%= o.abstract %></td></tr>
+                    <tr>
+                      <td class="param-name"><%= o.title %></td>
+                      <td class="param-name">[<%= o.identifier %>]</td>
+                      <td class="param-descr"><%= o.abstract %></td>
+                    </tr>
                   <% end %>
                 <% end %>
               </tbody>
