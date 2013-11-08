@@ -21,7 +21,9 @@
  * Feature Class.
  */ 
 
-function DSS.Feature (cost, inv, gen, area) 
+var DSS = DSS || { };
+
+DSS.Feature = function (cost, inv, gen, area) 
 {
     this.cost = cost;
     this.inv  = inv;

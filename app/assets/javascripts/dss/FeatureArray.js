@@ -21,7 +21,9 @@
  * FeatureArray Class.
  */ 
 
-function DSS.FeatureArray () 
+var DSS = DSS || { };
+
+DSS.FeatureArray = function() 
 {
     this.array = new Array();
 };
@@ -34,6 +36,11 @@ DSS.FeatureArray.prototype.add = function(feature)
     		this.array.splice(i, 0, feature);
     		return;
     	}
+    
+    if(this.array.length == 0)
+    {
+    	this.array.push(feature);
+    }
 };
 
 DSS.FeatureArray.prototype.getNearestFromCost = function(cost) 

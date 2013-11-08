@@ -22,6 +22,8 @@
  */ 
 
 //= require webgis/MapInit
+//= require dss/Feature
+//= require dss/FeatureArray
 //= require dss/Map
 
 var DSS = DSS || { };

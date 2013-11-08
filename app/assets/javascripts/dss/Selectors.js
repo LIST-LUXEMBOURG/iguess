@@ -22,6 +22,8 @@
  */ 
 
 //= require webgis/MapInit
+//= require dss/Feature
+//= require dss/FeatureArray
 //= require dss/Map
 //= require dss/Sliders
 
@@ -170,6 +172,20 @@ DSS.next = function()
 		DSS.map.removeLayer(DSS.layerWFS);
 		DSS.map.addLayer(DSS.layerWFS);
 	}
+	
+	//----- Testing Feature Array -----//
+	/*debugger;
+	var myArray = new DSS.FeatureArray();
+	for(i = 0; i < DSS.layerWFS.features.length; i++)
+	{
+		var feat = new DSS.Feature(
+			DSS.layerWFS.features[i].attributes[DSS.costField],	
+			DSS.layerWFS.features[i].attributes[DSS.invField],
+			DSS.layerWFS.features[i].attributes[DSS.genField],
+			DSS.layerWFS.features[i].attributes[DSS.areaField]
+		);
+		myArray.add(feat);
+	}*/
 };
 
 DSS.showSelectWindow = function() 
