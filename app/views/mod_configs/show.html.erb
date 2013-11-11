@@ -261,12 +261,17 @@ if($().jquery.split(".")[0] == "1") {
       
         disableEditing();
         isRunning = true;
+        
+        explanationclass = "explanation-running";
 
     } else if(statusCode == 'FINISHED') {   // Module run compete
       $('#explanation').html("This module has been successfully run.  You can now view the outputs in the Data Manager.");
       enableEditing();
 
       showRunButton('Run Module Again >>>');
+      
+      explanationclass = "explanation-success";
+
 
     } else if(statusCode == 'ERROR') {    // Module run ended in error
       $('#explanation').html("We experienced an error running this configuration.  The WPS server replied:<br>" +
@@ -280,7 +285,7 @@ if($().jquery.split(".")[0] == "1") {
       
     }
 
-    $("#explanation").removeClass("explanation explanation-problem");
+    $("#explanation").removeClass("explanation explanation-problem explanation-running explanation-success");
     $("#explanation").addClass(explanationclass);
     $("body").css("cursor", "auto");
   }
