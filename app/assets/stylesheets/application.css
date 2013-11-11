@@ -183,7 +183,7 @@ input, select, textarea {
 }
 
 
-.explanation, .explanation-problem {
+.explanation, .explanation-problem .explanation-running {
   display: block;
   padding: 12px 1em 18px 50px;
   margin: 0.25em 0 1.5em 0;
@@ -195,6 +195,12 @@ input, select, textarea {
   background-size: 32px 32px;
   background-position: 10px 40%;    /* Distance from the left */
 
+}
+
+.explanation-running {
+  background: #FFCC00 url(images/cogs02.gif) no-repeat left center;
+  background-size: 32px 32px;
+  background-position: 10px 40%;    /* Distance from the left */
 }
 
 .explanation-problem {

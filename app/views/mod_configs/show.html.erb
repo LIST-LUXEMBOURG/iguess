@@ -261,6 +261,8 @@ if($().jquery.split(".")[0] == "1") {
       
         disableEditing();
         isRunning = true;
+        
+        explanationclass = "explanation-running";
 
     } else if(statusCode == 'FINISHED') {   // Module run compete
       $('#explanation').html("This module has been successfully run.  You can now view the outputs in the Data Manager.");
@@ -280,7 +282,7 @@ if($().jquery.split(".")[0] == "1") {
       
     }
 
-    $("#explanation").removeClass("explanation explanation-problem");
+    $("#explanation").removeClass("explanation explanation-problem explanation-running");
     $("#explanation").addClass(explanationclass);
     $("body").css("cursor", "auto");
   }
