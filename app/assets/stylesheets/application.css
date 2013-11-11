@@ -185,7 +185,7 @@ input, select, textarea {
 
 .explanation, .explanation-problem, .explanation-running, .explanation-success {
   display: block;
-  padding: 12px 1em 12px 50px;
+  padding: 15px 1em 15px 50px;
   margin: 0.25em 0 1.5em 0;
 }
 
@@ -199,12 +199,12 @@ input, select, textarea {
 
 .explanation-running {
   background: #FFCC00 url(images/cogs02.gif) no-repeat left center;
-  background-size: 32px 32px;
+  background-size: 30px 30px;
   background-position: 10px 40%;    /* Distance from the left */
 }
 
 .explanation-success {
-  background: #99FF66 url(images/success.png) no-repeat left center;
+  background: #4CE44C url(images/success_green.png) no-repeat left center;
   background-size: 30px 30px;
   background-position: 10px 40%;    /* Distance from the left */
 }
