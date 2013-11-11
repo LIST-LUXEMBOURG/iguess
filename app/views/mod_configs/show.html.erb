@@ -269,6 +269,9 @@ if($().jquery.split(".")[0] == "1") {
       enableEditing();
 
       showRunButton('Run Module Again >>>');
+      
+      explanationclass = "explanation-success";
+
 
     } else if(statusCode == 'ERROR') {    // Module run ended in error
       $('#explanation').html("We experienced an error running this configuration.  The WPS server replied:<br>" +
@@ -282,7 +285,7 @@ if($().jquery.split(".")[0] == "1") {
       
     }
 
-    $("#explanation").removeClass("explanation explanation-problem explanation-running");
+    $("#explanation").removeClass("explanation explanation-problem explanation-running explanation-success");
     $("#explanation").addClass(explanationclass);
     $("body").css("cursor", "auto");
   }
