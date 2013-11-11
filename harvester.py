@@ -42,11 +42,11 @@ def convert_encoding(data, new_coding='UTF-8'):
     for coding in codings:
         try:
             data = unicode(data, coding).encode(new_coding)
-        except:
-            continue
-        else:
             ok = True
             break
+        except:
+            continue
+
 
     if not ok:
         print "Could not find a unicode coding for string " + data
@@ -391,20 +391,35 @@ def checkDataServers(serverCursor):
                     dstitle = convert_encoding(wcs.contents[identifier].title    if wcs.contents[identifier].title    else identifier)
                     dsabstr = convert_encoding(wcs.contents[identifier].abstract if wcs.contents[identifier].abstract else "")
 
+
                     for c in wcs.contents[identifier].supportedCRS:     # crsOptions is available here, but always empty; only exists for OOP
                         if isEqualCrs(c.id, cityCRS[cityId]):
                             hasCityCRS = True
                             crs = c.id
                             break
 
-                    dc = wcs.getDescribeCoverage(identifier)
-                    gridOffsets = dc.find(".//{*}GridOffsets") 
 
-                    if(gridOffsets is None):
+                    dc = wcs.getDescribeCoverage(identifier)
+
+                    # Check for error
+                    errors = dc.xpath("//*[local-name() = 'ExceptionReport']")
+                    if len(errors) > 0:
+                        errorText = "No error message"
+                        errorMsgs = dc.xpath("//*[local-name() = 'ExceptionText']")
+                        if len(errorMsgs) > 0:
+                            errorText = errorMsgs[0].text
+                        print "Error with " + identifier + " on " + serverUrl + ": " + errorText
+                        continue
+
+
+                    # gridOffsets = dc.find(".//{*}GridOffsets") 
+                    gridOffsets = dc.xpath("//*[local-name() = 'GridOffsets']")
+
+                    if len(gridOffsets) == 0:
                         print "Can't find GridOffsets for WCS dataset " + serverUrl + " >>> " + identifier
                         continue
                     else:
-                        resX, resY = gridOffsets.text.split()
+                        resX, resY = gridOffsets[0].text.split()
                         if(float(resX) < 0):
                             resX = float(resX) * -1
                         if(float(resY) < 0):
@@ -414,18 +429,32 @@ def checkDataServers(serverCursor):
                     # Try to get the native bounding box, if we can find it.  If we can't we'll try projecting the WGS84 bounding box, but this
                     # is less accurate
                     if(hasCityCRS):
-                        bb = dc.find(".//{*}BoundingBox[@crs='" + crs + "']")
+                        # bb = dc.find(".//{*}BoundingBox[@crs='" + crs + "']")
+                        lc = None
+                        bbs = dc.xpath("//*[local-name() = 'LowerCorner']")
+                        for bb in bbs:
+                            if bb.getparent().get("crs") and isEqualCrs(bb.getparent().get("crs"), crs):
+                                lc = bb.text
+                                break
 
-                        if len(bb) > 0:
-                            corners = bb.find("{*}LowerCorner").text + " " + bb.find("{*}UpperCorner").text
+                        uc = None
+                        bbs = dc.xpath("//*[local-name() = 'UpperCorner']")
+                        for bb in bbs:
+                            if bb.getparent().get("crs") and isEqualCrs(bb.getparent().get("crs"), crs):
+                                uc = bb.text
+                                break
 
-                            if len(corners) > 1:
-                                bboxLeft, bboxBottom, bboxRight, bboxTop = string.split(corners)
+
+                        if lc is not None and uc is not None:
+                            bboxLeft, bboxBottom = string.split(lc)
+                            bboxRight, bboxTop   = string.split(uc)
+
 
                     # Try projecting the WGS84 bounding box
-                    if bboxTop == "None":
+                    if bboxTop == "":
                         bb = wcs.contents[identifier].boundingBoxWGS84
                         bboxLeft, bboxBottom, bboxRight, bboxTop = projectWgsToLocal(bb, cityCRS[cityId])
+
                              
 
                     if(len(wcs.contents[identifier].supportedFormats[0]) == 0):
@@ -449,7 +478,6 @@ def checkDataServers(serverCursor):
                     dstitle = convert_encoding(wms.contents[identifier].title    if wms.contents[identifier].title    else identifier)
                     dsabstr = convert_encoding(wms.contents[identifier].abstract if wms.contents[identifier].abstract else "")
 
-
                 if found:
                     print "Updating datasets..."
                     # Update the database with the layer info
@@ -470,6 +498,7 @@ def checkDataServers(serverCursor):
                                         "resolution_y = " + str(adapt(resY))       + " "
                                     "WHERE id = " + str(adapt(dsid)) 
                                   )
+
                 else:
                      print "Not found: " + identifier + " (on server " +  serverUrl + ")"
 
