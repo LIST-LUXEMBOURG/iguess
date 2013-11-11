@@ -34,6 +34,26 @@ def upsert(cursor, table, idCol, rowId, identifier):
                        (rowId, identifier))
 
 
+def convert_encoding(data, new_coding='UTF-8'):
+    # More here: http://www.postgresql.org/docs/9.1/static/multibyte.html
+    codings = ["UTF-8", "latin1", "latin2", "latin3", "latin4", "latin5", "latin6", "latin7", "latin8", "latin9", "latin10", "ascii"]
+    ok = False
+
+    for coding in codings:
+        try:
+            data = unicode(data, coding).encode(new_coding)
+        except:
+            continue
+        else:
+            ok = True
+            break
+
+    if not ok:
+        print "Could not find a unicode coding for string " + data
+
+    return data
+
+
 def doSql(conn, cursor, upsertList, sqlList):
 
     conn.set_session(autocommit=False)
@@ -42,22 +62,26 @@ def doSql(conn, cursor, upsertList, sqlList):
         for up in upsertList:
             upsert(cursor, up[0], up[1], up[2], up[3])
 
-        try:
-            for sql in sqlList:
-                cursor.execute(sql)     # .encode("UTF-8")
-                
-        except Exception as e:
-            print "-----"
-            print "Error running SQL:"
-            print sql
-            print "-----"
-            print type(e)
-            print e.args
-            print e
-            print "-----"
-            conn.rollback()
+        for sql in sqlList:
+            try:
+                sql = convert_encoding(sql)
+                # sql = unicode(sql, "latin-1")
+                cursor.execute(sql)
+                conn.commit()
+
+            except Exception as e:
+                print "-----"
+                print "Error running SQL:"
+                print sql
+                print "-----"
+                print type(e)
+                print e.args
+                print e
+                print "-----"
+                conn.rollback()
 
         conn.commit()
+
 
     except Exception as e:
         print "-----"
@@ -274,8 +298,21 @@ def checkDataServers(serverCursor):
 
             dstitle = dsabstr = None
 
-            dstitle = wms and wms.identification.title    or wfs and wfs.identification.title    or wcs and wcs.identification.title    or "Unnamed server"
-            dsabstr = wms and wms.identification.abstract or wfs and wfs.identification.abstract or wcs and wcs.identification.abstract or ""
+            dstitle = convert_encoding(wms and wms.identification.title or 
+                                       wfs and wfs.identification.title or 
+                                       wcs and wcs.identification.title or 
+                                       "Unnamed server" )
+
+            dsabstr = convert_encoding(wms and wms.identification.abstract or 
+                                       wfs and wfs.identification.abstract or 
+                                       wcs and wcs.identification.abstract or 
+                                       "")
+        except Exception as e:
+            print "Error reading data from server " + serverUrl
+            print wms, wfs, wcs
+            continue
+
+        try:
 
             hasWms = True if wms else False
             hasWfs = True if wfs else False
@@ -334,8 +371,8 @@ def checkDataServers(serverCursor):
                 if wfs and identifier in wfs.contents:
                     print "Found WFS..."
                     found = True;
-                    dstitle = wfs.contents[identifier].title    if wfs.contents[identifier].title    else identifier
-                    dsabstr = wfs.contents[identifier].abstract if wfs.contents[identifier].abstract else ""
+                    dstitle = convert_encoding(wfs.contents[identifier].title    if wfs.contents[identifier].title    else identifier)
+                    dsabstr = convert_encoding(wfs.contents[identifier].abstract if wfs.contents[identifier].abstract else "")
 
                     # Check if dataset is available in the city's local srs
                     for c in wfs.contents[identifier].crsOptions:
@@ -351,8 +388,8 @@ def checkDataServers(serverCursor):
                     print "Found WCS..."
                     found = True;
                     crs = None
-                    dstitle = wcs.contents[identifier].title    if wcs.contents[identifier].title    else identifier
-                    dsabstr = wcs.contents[identifier].abstract if wcs.contents[identifier].abstract else ""
+                    dstitle = convert_encoding(wcs.contents[identifier].title    if wcs.contents[identifier].title    else identifier)
+                    dsabstr = convert_encoding(wcs.contents[identifier].abstract if wcs.contents[identifier].abstract else "")
 
                     for c in wcs.contents[identifier].supportedCRS:     # crsOptions is available here, but always empty; only exists for OOP
                         if isEqualCrs(c.id, cityCRS[cityId]):
@@ -409,8 +446,8 @@ def checkDataServers(serverCursor):
                 if wms and identifier in wms.contents:
                     print "Found WMS..."
                     found = True;
-                    dstitle = wms.contents[identifier].title    if wms.contents[identifier].title    else identifier
-                    dsabstr = wms.contents[identifier].abstract if wms.contents[identifier].abstract else ""
+                    dstitle = convert_encoding(wms.contents[identifier].title    if wms.contents[identifier].title    else identifier)
+                    dsabstr = convert_encoding(wms.contents[identifier].abstract if wms.contents[identifier].abstract else "")
 
 
                 if found:
@@ -471,7 +508,7 @@ tables["cities"]        = dbSchema + ".cities"
 # Connect to the database
 dbConn = psycopg2.connect(host = dbDatabase, database = dbName, user = dbUsername, password = dbPassword)
 
-dbConn.set_client_encoding('UTF-8')
+dbConn.set_client_encoding("UTF-8")
 
 # Turn autocommit on to avoid locking our select statements
 # set_session([isolation_level,] [readonly,] [deferrable,] [autocommit])
