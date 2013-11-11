@@ -415,19 +415,39 @@ class RasterLayer(Layer):
                 
                 thisMin = self.minVal + interval * i
                 thisMax = thisMin + interval
-                
-                text += "    CLASS \n"
-                text += "        NAME \"RampClass" + str(i) + "\"\n"
-                text += "        EXPRESSION ([pixel] >= " + str(thisMin) + " and [pixel] <= " + str(thisMax) + ") \n"
-                text += "        STYLE \n"
-                text += "            COLORRANGE " + self.rainbowRamp[i] + " " + self.rainbowRamp[i + 1] + "\n"
-                text += "            DATARANGE " + str(thisMin) + " " + str(thisMax) + "\n"
-                text += "        END \n"
-                text += "    END \n\n"
-
+                text += self.getStyleIntervals(thisMin, thisMax, i)
+        
         text += "  END \n"
         
+        return text
+    
+    def getStyleContinuous(self, thisMin, thisMax, i):
+        """
+        :returns: a string with a colour ramp segment for a raster style
+        """
+        
+        text  = "    CLASS \n"
+        text += "        NAME \"[" + str(thisMin) + ", " + str(thisMax) + "]\"\n"
+        text += "        EXPRESSION ([pixel] >= " + str(thisMin) + " and [pixel] <= " + str(thisMax) + ") \n"
+        text += "        STYLE \n"
+        text += "            COLORRANGE " + self.rainbowRamp[i] + " " + self.rainbowRamp[i + 1] + "\n"
+        text += "            DATARANGE " + str(thisMin) + " " + str(thisMax) + "\n"
+        text += "        END \n"
+        text += "    END \n\n"
         return text 
+    
+    def getStyleIntervals(self, thisMin, thisMax, i):
+        """
+        :returns: a string with a colour interval class for a raster style
+        """
+                     
+        text  = "    CLASS \n"
+        text += "        NAME \"[" + str(thisMin) + ", " + str(thisMax) + "]\"\n"
+        text += "        EXPRESSION ([pixel] >= " + str(thisMin) + " and [pixel] <= " + str(thisMax) + ") \n"
+        text += "        COLOR " + self.rainbowRamp[i] + "\n"
+        text += "    END \n\n"
+        return text 
+        
 
 ###########################################################################
 
