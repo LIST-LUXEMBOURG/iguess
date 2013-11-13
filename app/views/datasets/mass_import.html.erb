@@ -667,7 +667,6 @@
    // If readyToPoulate is false, we can pass in anything for layer as long as it has an identifier property
   var makeTagPickerControl = function(layer, controlId, enabled)
   {
-
     return '<select style="float:right" class="add-tag-dropdown-control" ' + 
            'data-serverurl="' + layer.serverUrl + '" ' +   // These keys seem to get lowercased anyway... so no upper case letter pls!
            'data-datasetidentifier="' + layer.identifier + '" ' +
