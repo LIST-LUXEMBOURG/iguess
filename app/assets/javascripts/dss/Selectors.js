@@ -171,12 +171,7 @@ DSS.next = function()
 	}
 	
 	//----- Populate Feature Array -----//
-	//debugger;
-	console.log("Ready to create array.");
 	DSS.featureArray = new DSS.FeatureArray();
-	console.log("Array created.");
-	console.log("Features to process: " + DSS.layerWFS.features.length);
-	//var i = 0
 	for(var i = 0; i < DSS.layerWFS.features.length; i++)
 	{
 		var feat = new DSS.Feature(
@@ -185,13 +180,9 @@ DSS.next = function()
 			DSS.layerWFS.features[i].attributes[DSS.genField],
 			DSS.layerWFS.features[i].attributes[DSS.areaField]
 		);
-		console.log("Adding feature " + i);
 		DSS.featureArray.add(feat);
 	}
-	
-	console.log(DSS.featureArray);
-	
-	//----- Initialise sliders -----//
+
 	DSS.initSliders();
 };
 

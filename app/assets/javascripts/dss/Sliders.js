@@ -226,13 +226,6 @@ DSS.invDragged = function(ed, value, oldValue)
 	{
 		DSS.lock = true;
 		
-		/*percent = parseFloat(value) / DSS.invSlider.maxValue * 100;
-		DSS.updateLabels(percent);
-		
-		DSS.costSlider.setValue(DSS.calcCostValue(percent));
-		DSS.genSlider.setValue(percent * DSS.genSlider.maxValue / 100);
-		DSS.areaSlider.setValue(percent * DSS.areaSlider.maxValue / 100);*/
-		
 		feature = DSS.featureArray.getNearestFromInv(value * DSS.invFactor);
 		DSS.setCost(feature.cost);
 		DSS.setGen(feature.gen);
@@ -252,13 +245,6 @@ DSS.genDragged = function(ed, value, oldValue)
 	{
 		DSS.lock = true;
 		
-		/*percent = parseFloat(value) / DSS.genSlider.maxValue * 100;
-		DSS.updateLabels(percent);
-		
-		DSS.costSlider.setValue(DSS.calcCostValue(percent));
-		DSS.invSlider.setValue(percent * DSS.invSlider.maxValue / 100);
-		DSS.areaSlider.setValue(percent * DSS.areaSlider.maxValue / 100);*/
-		
 		feature = DSS.featureArray.getNearestFromGen(value * DSS.genFactor);
 		DSS.setInv(feature.inv);
 		DSS.setCost(feature.cost);
@@ -277,13 +263,6 @@ DSS.areaDragged = function(ed, value, oldValue)
 	if(!DSS.lock)
 	{
 		DSS.lock = true;
-		
-		/*percent = parseFloat(value) / DSS.areaSlider.maxValue * 100;
-		DSS.updateLabels(percent);
-		
-		DSS.costSlider.setValue(DSS.calcCostValue(percent));
-		DSS.invSlider.setValue(percent * DSS.invSlider.maxValue / 100);
-		DSS.genSlider.setValue(percent * DSS.genSlider.maxValue / 100);*/
 		
 		feature = DSS.featureArray.getNearestFromArea(value);
 		DSS.setInv(feature.inv);
