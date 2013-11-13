@@ -78,7 +78,6 @@ DSS.quit = function()
 {
 	DSS.winPanel.hide();
 	DSS.winSelect.hide();
-	//WebGIS.leftMap.removeLayer(DSS.layerWFS);
 	DSS.map.removeLayer(DSS.layerWFS);	
 };
 
@@ -111,9 +110,7 @@ DSS.initSliders = function()
 	        renderTo: 'slider-cost',
 	        width: 214,
 	        value: 0,
-	        //minValue: 90,
 	        minValue: (DSS.featureArray.get(0).cost * DSS.costFactor).toFixed(0),
-	        //maxValue: 200,
 	        maxValue: (DSS.featureArray.getLast().cost * DSS.costFactor).toFixed(0),
 	        plugins: new Ext.ux.SliderTip()
 	    });
@@ -124,7 +121,6 @@ DSS.initSliders = function()
 	        width: 214,
 	        value: 0,
 	        minValue: 0,
-	        //maxValue: 45600,
 	        maxValue: (DSS.featureArray.getLast().inv / DSS.invFactor).toFixed(0),
 	        plugins: new Ext.ux.SliderTip()
 	    });
@@ -135,7 +131,6 @@ DSS.initSliders = function()
 	        width: 214,
 	        value: 0,
 	        minValue: 0,
-	        //maxValue: 17000,
 	        maxValue: (DSS.featureArray.getLast().gen / DSS.genFactor).toFixed(0),
 	        plugins: new Ext.ux.SliderTip()
 	    });
@@ -146,7 +141,6 @@ DSS.initSliders = function()
 	        width: 214,
 	        value: 0,
 	        minValue: 0,
-	        //maxValue: 166000,
 	        maxValue: parseInt(DSS.featureArray.getLast().area),
 	        plugins: new Ext.ux.SliderTip()
 	    });
@@ -156,25 +150,6 @@ DSS.initSliders = function()
 	DSS.genSlider.on ('change', DSS.genDragged, this);
 	DSS.areaSlider.on('change', DSS.areaDragged, this);
 		
-};
-
-DSS.calcCostValue = function(percent)
-{
-	costPercent = percent * (DSS.costSlider.maxValue - DSS.costSlider.minValue) / 100;
-	return DSS.costSlider.minValue + costPercent;
-};
-
-DSS.updateLabels = function(percent)
-{
-	cost =   (DSS.calcCostValue(percent) / 1000).toFixed(3);
-	invest = (percent * DSS.invSlider.maxValue  / 100).toFixed(0);
-	gen =    (percent * DSS.genSlider.maxValue  / 100).toFixed(0);
-	area =   (percent * DSS.areaSlider.maxValue / 100).toFixed(0);
-	
-	document.getElementById("cost").innerHTML   = "Cost: "  	 + cost + " &euro;/kWh";
-	document.getElementById("invest").innerHTML = "Investment: " + invest + " k&euro;";
-	document.getElementById("gen").innerHTML    = "Generation: " + gen + " MWh/a";
-	document.getElementById("area").innerHTML   = "Area: "   	 + area + " m2";
 };
 
 DSS.setCost = function(value)
