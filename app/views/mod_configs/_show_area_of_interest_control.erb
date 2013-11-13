@@ -1,16 +1,6 @@
 <label class='simple_form label'>Area of Interest</label>
-<table class='zebra' id='output-table'>
-	<tr>
-		<th colspan=2>Area of Interest (optional)</th>
-	</tr>
-	<tr>
-		<td>Restrict your calculation to an area of interest</td>
-		<td>
-			<select>
-				<option value=-1>Do not use an Area of Interest</option>
-				<% getAoiDatasets(@current_city).each do |d| %><option value="<%= d.id %>"><%= d.title %></option><% end %>
-			</select>
-		</td>
-	<tr>
-</table>
+<select>
+	<option value=-1>Do not use an Area of Interest</option>
+	<% getAoiDatasets(@current_city).each do |d| %><option value="<%= d.id %>"><%= d.title %></option><% end %>
+</select>
 
