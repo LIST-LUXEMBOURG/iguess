@@ -39,7 +39,8 @@ WebGIS.baseOSM = function(menuItem) {
     menuItem.parentMenu.ownerCt.setText("Open Street Map");
     
     WebGIS.leftMap.setBaseLayer(WebGIS.osmLeft); 
-    WebGIS.rightMap.setBaseLayer(WebGIS.osmRight);
+    if (WebGIS.rightMap != null) 
+    	WebGIS.rightMap.setBaseLayer(WebGIS.osmRight);
 };
 
 WebGIS.baseGooglePhy = function(menuItem) {
@@ -47,7 +48,8 @@ WebGIS.baseGooglePhy = function(menuItem) {
     menuItem.parentMenu.ownerCt.setText("Google Physical");
     
     WebGIS.leftMap.setBaseLayer(WebGIS.gphyLeft);
-    WebGIS.rightMap.setBaseLayer(WebGIS.gphyRight);
+    if (WebGIS.rightMap != null) 
+    	WebGIS.rightMap.setBaseLayer(WebGIS.gphyRight);
 };
 
 WebGIS.baseGoogleSt = function(menuItem) {
@@ -55,7 +57,8 @@ WebGIS.baseGoogleSt = function(menuItem) {
     menuItem.parentMenu.ownerCt.setText("Google Streets");
     
     WebGIS.leftMap.setBaseLayer(WebGIS.gmapLeft);
-    WebGIS.rightMap.setBaseLayer(WebGIS.gmapRight);
+    if (WebGIS.rightMap != null) 
+    	WebGIS.rightMap.setBaseLayer(WebGIS.gmapRight);
 };
 
 WebGIS.baseGoogleHy = function(menuItem) {
@@ -63,7 +66,8 @@ WebGIS.baseGoogleHy = function(menuItem) {
     menuItem.parentMenu.ownerCt.setText("Google Hybrid");
     
     WebGIS.leftMap.setBaseLayer(WebGIS.ghybLeft);
-    WebGIS.rightMap.setBaseLayer(WebGIS.ghybRight);
+    if (WebGIS.rightMap != null) 
+    	WebGIS.rightMap.setBaseLayer(WebGIS.ghybRight);
 };
 
 WebGIS.baseGoogleSat = function(menuItem) {
@@ -71,7 +75,8 @@ WebGIS.baseGoogleSat = function(menuItem) {
     menuItem.parentMenu.ownerCt.setText("Google Satellite");
     
     WebGIS.leftMap.setBaseLayer(WebGIS.gsatLeft);   
-    WebGIS.rightMap.setBaseLayer(WebGIS.gsatRight);
+    if (WebGIS.rightMap != null) 
+    	WebGIS.rightMap.setBaseLayer(WebGIS.gsatRight);
 };
 
 WebGIS.getLeftBaseLayers = function(mapProjection) {

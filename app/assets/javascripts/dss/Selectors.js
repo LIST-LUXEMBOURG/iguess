@@ -160,26 +160,18 @@ DSS.next = function()
 	DSS.winSelect.hide();
 	if(DSS.winPanel == null) DSS.initWinPanel();
 	DSS.winPanel.show();
-	DSS.initSliders();
 	try
 	{
 		DSS.map.addLayer(DSS.layerWFS);
 	}
 	catch(e)
 	{
-		//alert("An exception was thrown:\n" + e);
-		//Failed to add the layer, let's try again.
 		DSS.map.removeLayer(DSS.layerWFS);
 		DSS.map.addLayer(DSS.layerWFS);
 	}
 	
-	//----- Testing Feature Array -----//
-	//debugger;
-	console.log("Ready to create array.");
-	var myArray = new DSS.FeatureArray();
-	console.log("Array created.");
-	console.log("Features to process: " + DSS.layerWFS.features.length);
-	//var i = 0
+	//----- Populate Feature Array -----//
+	DSS.featureArray = new DSS.FeatureArray();
 	for(var i = 0; i < DSS.layerWFS.features.length; i++)
 	{
 		var feat = new DSS.Feature(
@@ -188,11 +180,10 @@ DSS.next = function()
 			DSS.layerWFS.features[i].attributes[DSS.genField],
 			DSS.layerWFS.features[i].attributes[DSS.areaField]
 		);
-		console.log("Adding feature " + i);
-		myArray.add(feat);
+		DSS.featureArray.add(feat);
 	}
-	
-	console.log(myArray);
+
+	DSS.initSliders();
 };
 
 DSS.showSelectWindow = function() 

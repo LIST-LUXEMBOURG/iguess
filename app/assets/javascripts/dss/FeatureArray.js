@@ -43,11 +43,46 @@ DSS.FeatureArray.prototype.add = function(feature)
 
 };
 
+DSS.FeatureArray.prototype.get = function(pos)
+{
+	if ((pos >= 0) && (pos < this.array.length))
+		return this.array[pos];
+	return null;
+};
+
+DSS.FeatureArray.prototype.getLast = function(pos)
+{
+		return this.array[this.array.length -1];
+};
+
 DSS.FeatureArray.prototype.getNearestFromCost = function(cost) 
 {
     for(var i = this.array.length-1; i >= 0 ; i--)
     	if(this.array[i].cost <= cost)
     		return this.array[i];
-    return null;
+    return this.array[0];
 };
 
+DSS.FeatureArray.prototype.getNearestFromInv = function(inv) 
+{
+    for(var i = this.array.length-1; i >= 0 ; i--)
+    	if(this.array[i].inv <= inv)
+    		return this.array[i];
+    return this.array[0];
+};
+
+DSS.FeatureArray.prototype.getNearestFromGen = function(gen) 
+{
+    for(var i = this.array.length-1; i >= 0 ; i--)
+    	if(this.array[i].gen <= gen)
+    		return this.array[i];
+    return this.array[0];
+};
+
+DSS.FeatureArray.prototype.getNearestFromArea = function(area) 
+{
+    for(var i = this.array.length-1; i >= 0 ; i--)
+    	if(this.array[i].area <= area)
+    		return this.array[i];
+    return this.array[0];
+};
