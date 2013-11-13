@@ -3,7 +3,7 @@
 .zebra td { padding: .25em .5em; }
 .zebra tr:nth-child(even) { background: #CCC }
 .zebra tr:nth-child(odd) { background: #EEE }
-.zebra th { background: #EBE300; padding: .25em .5em; }
+.zebra th { background: #EBE300; padding: .25em .5em; font-weight: bold; }
 
 /* Enable the following for zebra striping 
 /*.x-tree-node-ct li:nth-child(even) { background: #CCC }
@@ -26,3 +26,9 @@ table.sortable th.header {
     background-position: center right; 
     padding-right: 20px;  
 } 
+
+
+/* Align Inputs and Outputs with text in table header */
+#input-output-form label {
+	margin-top: 0.5em;
+}

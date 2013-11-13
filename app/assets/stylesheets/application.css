@@ -24,6 +24,8 @@ hr {
   height: 0;
 }
 
+th { font-weight: bold; }
+
 
 h1 { font-size: 25px; }
 h2 { font-size: 23px; }
