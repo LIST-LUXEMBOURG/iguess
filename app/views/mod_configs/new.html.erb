@@ -26,7 +26,7 @@
   <%= f.input :descr, :as => :text, :label => "Description", :input_html => { :rows => 6, :cols => 80, :maxlength => 5000 },
               :placeholder => "Description of configuration" %>
 
-  <div id="inputsAndOutputs">   <%# NOTE -- We don't have a configuration here when we are creating a new module! %>
+  <div id="input-output-form">   <%# NOTE -- We don't have a configuration here when we are creating a new module! %>
     <label class="simple_form label">Inputs</label>
     <table class="zebra" id="input-table"> <!-- Will be populated via script --></table>
     <label class="simple_form label">Outputs</label>
@@ -39,19 +39,22 @@
                :locals  => { :mode => :output, :config => @mod_config, :form => f } %>
   </div>
 
-  <label class="simple_form label"> </label>
-  <%# Add a cancel link that gets back to the different places we could have come from %>
-  <% came_from = params[:came_from] || "" %>
+  <label class="simple_form label"></label>
 
-  <% if came_from == "catalog" %>
-    <%= link_to "Cancel", mod_configs_path(:anchor => :module_catalog_tab) %>
-  <% else %>
-    <%= link_to "Cancel", mod_configs_path %>
-  <% end %> 
+  <div id="bottom-links">
+    <%# Add a cancel link that gets back to the different places we could have come from %>
+    <% came_from = params[:came_from] || "" %>
 
-  <input type="hidden" name="wps_process_id" id="wps_process_id">
+    <% if came_from == "catalog" %>
+      <%= link_to "Cancel", mod_configs_path(:anchor => :module_catalog_tab) %>
+    <% else %>
+      <%= link_to "Cancel", mod_configs_path %>
+    <% end %> 
 
-  <%= f.submit "Create New Configuration" %>
+    <input type="hidden" name="wps_process_id" id="wps_process_id">
+
+    <%= f.submit "Create New Configuration" %>
+  </div>
 
 <% end %>
 
