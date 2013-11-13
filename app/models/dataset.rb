@@ -4,6 +4,11 @@ class Dataset < ActiveRecord::Base
   has_many :dataset_tags, :dependent => :destroy, :order => :tag
   belongs_to :city
   belongs_to :dataserver
+
+  def hasTag(tag)
+    return :true
+  end
+
 end
 
 
@@ -83,6 +88,21 @@ def getAliveTags(dataset)
 
     return tags
   end
+end
+
+
+
+def getAoiDatasets(city)
+  datasets = Dataset.find_all_by_city_id_and_alive(city.id, :true)
+
+  aois = []
+  datasets.each do |d|
+    if d.hasTag("Area of Interest") then
+      aois.push(d)
+    end
+  end
+
+  return aois.sort_by{ |x| x.title.downcase }
 end
 
 
