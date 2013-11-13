@@ -427,7 +427,7 @@ class RasterLayer(Layer):
         """
         
         text  = "    CLASS \n"
-        text += "        NAME \"[" + str(thisMin) + ", " + str(thisMax) + "]\"\n"
+        text += "        NAME \"" + str(thisMin) + ", " + str(thisMax) + "\"\n"
         text += "        EXPRESSION ([pixel] >= " + str(thisMin) + " and [pixel] <= " + str(thisMax) + ") \n"
         text += "        STYLE \n"
         text += "            COLORRANGE " + self.rainbowRamp[i] + " " + self.rainbowRamp[i + 1] + "\n"
@@ -442,7 +442,7 @@ class RasterLayer(Layer):
         """
                      
         text  = "    CLASS \n"
-        text += "        NAME \"[" + str(thisMin) + ", " + str(thisMax) + "]\"\n"
+        text += "        NAME \"" + str(thisMin) + ", " + str(thisMax) + "\"\n"
         text += "        EXPRESSION ([pixel] >= " + str(thisMin) + " and [pixel] <= " + str(thisMax) + ") \n"
         text += "        COLOR " + self.rainbowRamp[i] + "\n"
         text += "    END \n\n"
