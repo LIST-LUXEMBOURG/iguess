@@ -74,7 +74,7 @@
     $("#wps_process_id").val(Procs[$('#processControl').val()].id);
 
     // Set the description field
-    $("#proc-descr").text(Procs[$('#processControl').val()].descr || '&nbsp');
+    $("#proc-descr").html(Procs[$('#processControl').val()].descr || '&nbsp');
   };
 
 
