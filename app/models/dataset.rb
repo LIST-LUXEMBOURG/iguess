@@ -13,6 +13,7 @@ def getDatasetTags
 
   tags = ProcessParam.find_all_by_datatype_and_alive('ComplexData', :true).map{ |p| p.identifier }
   tags.push('Mapping')    # Mapping is always a valid tag
+
   return tags.sort_by! { |x| x.downcase }.uniq
 end
 
@@ -28,9 +29,10 @@ def makeTag(dataset, tagVal)
 end 
 
 
+# Make str into an name that is safe to use as a css identifier
 # We have the equivalent in javascript as well
 def cssEscape(str)
-  return str.gsub(/[^a-z,A-Z,_,-,0-9]/, 'X');
+  return str.gsub(/[^a-z,A-Z,_,-,0-9]/, 'X')
 end
 
 
