@@ -132,9 +132,10 @@
 }
 
 $width: 600px;
+$leftMargin: 120px;
 
-#proc-descr {
-  margin-left: 120px;
+#proc-descr, #mod-descr {
+  margin-left: $leftMargin;
   display: block;
   width: $width;
 }
@@ -258,4 +259,10 @@ $width: 600px;
 
 #input-table {
   margin-bottom: 13px;
+}
+
+
+#bottom-links {
+  margin-top: 25px;
+  margin-left: $leftMargin;
 }
