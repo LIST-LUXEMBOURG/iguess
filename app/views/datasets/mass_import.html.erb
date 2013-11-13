@@ -658,10 +658,11 @@
     $('#' + controlId).append(tagList);
   }
 
+
   var getTagPickerControlId = function(datasetIdentifier)
   {
     return 'data-type-' + sanitizeId(datasetIdentifier);
-  };
+  }
 
 
    // If readyToPoulate is false, we can pass in anything for layer as long as it has an identifier property
@@ -674,7 +675,7 @@
            'onchange="tagPickerChanged($(this));">' +
              '<option value = "Ignore This">Add Tag:</option>' + 
            '</select>';
-  };
+  }
 
 
   // Compare whether two crs's are in fact the same.  We'll consider the following two strings equal
