@@ -6,7 +6,7 @@ class Dataset < ActiveRecord::Base
   belongs_to :dataserver
 
   def hasTag(tag)
-    return :true
+    return getAliveTags(self).include?(tag)
   end
 
 end
