@@ -30,22 +30,22 @@ DSS.FeatureArray = function()
  
 DSS.FeatureArray.prototype.add = function(feature) 
 {
-    for(i = 0; i < this.array.length; i++)
+    for(var i = 0; i < this.array.length; i++)
     	if(feature.isLowerThan(this.array[i]))
     	{
     		this.array.splice(i, 0, feature);
+    		console.log("Added feature in position " + i +  " total length: " + this.array.length);
     		return;
     	}
     
-    if(this.array.length == 0)
-    {
-    	this.array.push(feature);
-    }
+   	this.array.push(feature);
+   	console.log("Added feature at the end of array, total length: " + this.array.length);
+
 };
 
 DSS.FeatureArray.prototype.getNearestFromCost = function(cost) 
 {
-    for(i = this.array.length-1; i >= 0 ; i--)
+    for(var i = this.array.length-1; i >= 0 ; i--)
     	if(this.array[i].cost <= cost)
     		return this.array[i];
     return null;

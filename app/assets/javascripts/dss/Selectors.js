@@ -174,9 +174,13 @@ DSS.next = function()
 	}
 	
 	//----- Testing Feature Array -----//
-	/*debugger;
+	//debugger;
+	console.log("Ready to create array.");
 	var myArray = new DSS.FeatureArray();
-	for(i = 0; i < DSS.layerWFS.features.length; i++)
+	console.log("Array created.");
+	console.log("Features to process: " + DSS.layerWFS.features.length);
+	//var i = 0
+	for(var i = 0; i < DSS.layerWFS.features.length; i++)
 	{
 		var feat = new DSS.Feature(
 			DSS.layerWFS.features[i].attributes[DSS.costField],	
@@ -184,8 +188,11 @@ DSS.next = function()
 			DSS.layerWFS.features[i].attributes[DSS.genField],
 			DSS.layerWFS.features[i].attributes[DSS.areaField]
 		);
+		console.log("Adding feature " + i);
 		myArray.add(feat);
-	}*/
+	}
+	
+	console.log(myArray);
 };
 
 DSS.showSelectWindow = function() 
@@ -193,6 +200,7 @@ DSS.showSelectWindow = function()
 	DSS.comboLayer  = new Ext.form.ComboBox(
 	{
 		fieldLabel: 'Layer', 
+		labelAlign: 'top',
 		store: DSS.getOverlays(), 
 	    listeners:{
 	         scope: DSS,
@@ -201,20 +209,22 @@ DSS.showSelectWindow = function()
 	});
 	
 	DSS.comboCost = new Ext.form.ComboBox(
-			{	
-				fieldLabel: 'Cost', 	
-				store: [''], 
-				disabled: true, 
-			    listeners:{
-			         scope: DSS,
-			         'select': DSS.comboFieldsSelected
-			         //'select': function() {alert('SELECT!!!!');}
-			    }
-			});
+	{	
+		fieldLabel: 'Cost', 	
+		store: [''], 
+		disabled: true, 
+		labelAlign: 'top',
+	    listeners:{
+	         scope: DSS,
+	         'select': DSS.comboFieldsSelected
+	         //'select': function() {alert('SELECT!!!!');}
+	    }
+	});
 	
 	DSS.comboInvest = new Ext.form.ComboBox(
 	{	
 		fieldLabel: 'Cumulative Investment', 	
+		labelAlign: 'top',
 		store: [''], 
 		disabled: true, 
 	    listeners:{
@@ -226,6 +236,7 @@ DSS.showSelectWindow = function()
 	DSS.comboGen = new Ext.form.ComboBox(
 	{
 		fieldLabel: 'Cumulative Generation', 	
+		labelAlign: 'top',
 		store: [''], 
 		disabled: true, 
 	    listeners:{
@@ -237,6 +248,7 @@ DSS.showSelectWindow = function()
 	DSS.comboArea = new Ext.form.ComboBox(
 	{
 		fieldLabel: 'Cumulative Area', 
+		labelAlign: 'top',
 		store: [''], 
 		disabled: true, 
 	    listeners:{
@@ -280,8 +292,8 @@ DSS.showSelectWindow = function()
 	//creating the window that will contain the form
 	DSS.winSelect = new Ext.Window({ 
 		title: 'Potential Application', 
-		width:330, 
-		height:330,
+		width:340, 
+		height:340,
 		closable: false, 
 		bodyStyle:'background-color:#e8e8e8;padding: 6px', 
 		items:[intro, this.form], //assigning the form
