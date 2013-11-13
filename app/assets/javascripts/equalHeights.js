@@ -47,8 +47,6 @@ $.fn.equalWidths = function(px) {
 };
 
 
-
-
 /*-------------------------------------------------------------------- 
  * jQuery pixel/em conversion plugins: toEm() and toPx()
  * by Scott Jehl (scott@filamentgroup.com), http://www.filamentgroup.com
