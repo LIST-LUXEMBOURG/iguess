@@ -451,7 +451,7 @@
         if(layer.type.hasObject('WCS'))
           makeDropdown(tagPickerControlId, WCSTagList);
 
-        else if(layer.type.hasObject('WFS') 
+        else if(layer.type.hasObject('WFS')) 
           makeDropdown(tagPickerControlId, WFSTagList);
 
         else
@@ -621,7 +621,7 @@
     
     // Because of our unusual layout, we need to manually adjust things to get equal tile sizes... lame!
     equalizeRowHeights();
-    $('#layer-table').equalWidths();
+    // $('#layer-table').equalWidths();
   }
 
 
@@ -649,18 +649,13 @@
   }
 
 
-
-var WMSTagList = '<% @wms_tags.each do |t| %><option value="t">'t'</option><% end %>';
-var WFSTagList = '<% @wfs_tags.each do |t| %><option value="t">'t'</option><% end %>';
-var WCSTagList = '<% @wcs_tags.each do |t| %><option value="t">'t'</option><% end %>';
-
-alert(WMSTagList);
-
+  var WMSTagList = '<% getAliveTags("WMS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>';
+  var WFSTagList = '<% getAliveTags("WFS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>';
+  var WCSTagList = '<% getAliveTags("WCS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>';
 
 
   var makeDropdown = function(controlId, tagList) {
-    for(var j = 0, jlen = tagList.length; j < jlen; j++) 
-      $('#' + controlId).append('<option value="' + tagList[j] + '">' + tagList[j] + '</option>');
+    $('#' + controlId).append(tagList);
   }
 
   var getTagPickerControlId = function(datasetIdentifier)

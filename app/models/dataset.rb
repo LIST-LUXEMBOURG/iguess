@@ -8,15 +8,19 @@ end
 
 
 # Returns any special tags that can be applied to this dataset
+# Note that we can also pass a service here, such as "WFS"
 def getSpecialTags(dataset)
-  tags = []
 
-  if dataset.service.nil? then
-    return []
+  if(dataset.is_a? String) then
+    serviceList = [dataset]     # Put dataset string into a list so we can treat it the same as the split result below
+  else
+    if dataset.service.nil? then
+      return []
+    end
+    serviceList = dataset.service.split(' ')
   end
 
-
-  serviceList = dataset.service.split(' ')
+  tags = []
 
   if serviceList.include?('WFS') then
     tags.push('Area of Interest')
@@ -34,13 +38,18 @@ end
 
 
 # Returns the potential set of base tags for the dataset, with dead tags filtered out
+# Note that we can also pass a service here, such as "WFS"
 def getBaseTags(dataset)
 
-  if dataset.service.nil? then
-    return []
-  end
+  if (dataset.is_a? String) then
+    serviceList = [dataset]    # Put dataset string into a list so we can treat it the same as the split result below
+  else
+    if dataset.service.nil? then
+      return []
+    end
 
-  serviceList = dataset.service.split(' ')
+    serviceList = dataset.service.split(' ')
+  end
 
   if serviceList.include?('WFS') or serviceList.include?('WCS') then
     return ProcessParam.find_all_by_datatype_and_alive('ComplexData', :true).map{ |p| p.identifier }.sort_by{ |x| x.downcase }.uniq
@@ -57,18 +66,23 @@ end
 
 
 # Gets the list of all tags that have been applied to the dataset, excluding any dead ones
+# Note that we can also pass a service here, such as "WFS"
 def getAliveTags(dataset)
-  tags = []
+  if (dataset.is_a? String) then
+    return getSpecialTags(dataset).concat(getBaseTags(dataset))
+  else
+    tags = []
 
-  alivetags = ProcessParam.find_all_by_datatype_and_alive('ComplexData', :true).map{ |p| p.identifier }.concat(getSpecialTags(dataset))
+    alivetags = ProcessParam.find_all_by_datatype_and_alive('ComplexData', :true).map{ |p| p.identifier }.concat(getSpecialTags(dataset))
 
-  dataset.dataset_tags.each do |d| 
-    if alivetags.include? d.tag then 
-      tags.push(d.tag) 
+    dataset.dataset_tags.each do |d| 
+      if alivetags.include? d.tag then 
+        tags.push(d.tag) 
+      end
     end
-  end
 
-  return tags
+    return tags
+  end
 end
 
 
