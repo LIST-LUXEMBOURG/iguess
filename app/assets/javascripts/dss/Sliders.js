@@ -82,7 +82,7 @@ DSS.initWinPanel = function()
 		title: 'Potential Application', //Title of the Window 
 		id: 'panelWindowId', //ID of the Window Panel
 		autoHeight: true, //Height of the Window will be auto
-		width:330, //Width of the Window
+		width:340, //Width of the Window
 		resizable: false, //Resize of the Window, if false - it cannot be resized
 		closable: false, //Hide close button of the Window
 		modal: false, //When modal:true it make the window modal and mask everything behind it when displayed
