@@ -7,14 +7,66 @@ class Dataset < ActiveRecord::Base
 end
 
 
-# Creates a list of valid tags -- i.e. those that are referenced by inputs to known processes that are flagged as alive, plus "Mapping"
-def getDatasetTags
+# Returns any special tags needed by this dataset
+def getSpecialTags(dataset)
   tags = []
 
-  tags = ProcessParam.find_all_by_datatype_and_alive('ComplexData', :true).map{ |p| p.identifier }
-  tags.push('Mapping')    # Mapping is always a valid tag
+  if dataset.service.nil? then
+    return []
+  end
 
-  return tags.sort_by! { |x| x.downcase }.uniq
+
+  serviceList = dataset.service.split(' ')
+
+  if serviceList.include?('WFS') then
+    tags.push('Area of Interest')
+  end
+
+  # if serviceList.include?('WMS') then
+  # TODO: For now we seem to assume that everyting has a WMS service... this will need to chanage
+  # Assumption also made in c. 80 of datasets/index.html .erb
+  if true then
+    tags.push('Mapping')
+  end
+
+  return tags.sort_by{ |x| x.downcase }.uniq
+end
+
+
+# Returns the base tags for the dataset, with dead tags filtered out
+def getBaseTags(dataset)
+
+  if dataset.service.nil? then
+    return []
+  end
+
+  serviceList = dataset.service.split(' ')
+
+  if serviceList.include?('WFS') or serviceList.include?('WCS') then
+    return ProcessParam.find_all_by_datatype_and_alive('ComplexData', :true).map{ |p| p.identifier }.sort_by{ |x| x.downcase }.uniq
+  end
+
+  return []
+end
+
+
+def getAllTags(dataset)
+  return getSpecialTags(dataset).concat(getBaseTags(dataset))
+end
+
+
+def getAliveTags(dataset)
+  tags = []
+
+  alivetags = ProcessParam.find_all_by_datatype_and_alive('ComplexData', :true).map{ |p| p.identifier }.concat(getSpecialTags(dataset))
+
+  dataset.dataset_tags.each do |d| 
+    if alivetags.include? d.tag then 
+      tags.push(d.tag) 
+    end
+  end
+
+  return tags
 end
 
 

@@ -50,7 +50,7 @@ class ModConfigsController < ApplicationController
 
     # current_user should always be set here
     @datasets        = Dataset.find_all_by_city_id(@current_city.id)
-    @dataset_tags    = DatasetTag.all
+    
     @datasetValues   = ConfigDataset.find_all_by_mod_config_id(params[:id])
                                     .map{|d| d.input_identifier + ': "' + d.dataset.id.to_s + '"'}
                                     .join(',')
@@ -84,8 +84,6 @@ class ModConfigsController < ApplicationController
     @wps_processes = WpsProcess.joins(:wps_server).where('wps_servers.city_id' => @current_city.id, :alive => :true).order('title, identifier')   # For catalog
 
     @datasets = Dataset.all
-    @dataset_tags = DatasetTag.all
-
 
     @textinputs = [ ]
 

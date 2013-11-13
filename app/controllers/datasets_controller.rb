@@ -9,7 +9,6 @@ class DatasetsController < ApplicationController
 
     # current_user should always be set here
     @current_city = User.getCurrentCity(current_user, cookies)
-    @dataset_tags = getDatasetTags()
     @datasets     = Dataset.find_all_by_city_id(@current_city.id, :select => "*, case when title = '' or title is null then identifier else title end as sortcol", :order => :sortcol )
     @wps_servers  = WpsServer.all
 
@@ -124,11 +123,11 @@ class DatasetsController < ApplicationController
         end
 
         if not error
-          @dataset_tags = getDatasetTags()
+          alltags = getAllTags(@dataset)
           respond_to do |format|
             # Filter out any dead tags
             format.json { render :json => @dataset ? DatasetTag.find_all_by_dataset_id(@dataset.id, :order=>:tag)
-                                                               .select {|d| @dataset_tags.include? d.tag }
+                                                               .select {|d| alltags.include? d.tag }
                                                                .map {|d| d.tag } : [] }
           end
         end
@@ -176,7 +175,7 @@ class DatasetsController < ApplicationController
 
   def mass_import
     @datasets        = Dataset.all
-    @dataset_tags    = getDatasetTags()
+
     @google_projection = 'EPSG:3857'
 
     # current_user should always be set here
