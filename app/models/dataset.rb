@@ -7,7 +7,7 @@ class Dataset < ActiveRecord::Base
 end
 
 
-# Returns any special tags needed by this dataset
+# Returns any special tags that can be applied to this dataset
 def getSpecialTags(dataset)
   tags = []
 
@@ -33,7 +33,7 @@ def getSpecialTags(dataset)
 end
 
 
-# Returns the base tags for the dataset, with dead tags filtered out
+# Returns the potential set of base tags for the dataset, with dead tags filtered out
 def getBaseTags(dataset)
 
   if dataset.service.nil? then
@@ -50,11 +50,13 @@ def getBaseTags(dataset)
 end
 
 
+# Returns the list of all tags that can be applied to the dataset
 def getAllTags(dataset)
   return getSpecialTags(dataset).concat(getBaseTags(dataset))
 end
 
 
+# Gets the list of all tags that have been applied to the dataset, excluding any dead ones
 def getAliveTags(dataset)
   tags = []
 
