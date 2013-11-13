@@ -51,11 +51,11 @@
 
 
 <div class="simple_form">
-  <%= form_for @mod_config, :url => {:action => 'update'}, :html=> {:id=>'input-output-form', 'data-type' => 'json'}, :remote=>true do |f| %>
-    <label class='simple_form label table-label'>Inputs</label>
-    <table class='zebra' id='input-table'> <!-- Will be populated via script --></table>
-    <label class='simple_form label table-label'>Outputs</label>
-    <table class='zebra' id='output-table'><!-- Will be populated via script --></table>
+  <%= form_for @mod_config, :url => {:action => "update"}, :html=> {:id=>"input-output-form", "data-type" => "json"}, :remote=>true do |f| %>
+    <label class="simple_form label table-label">Inputs</label>
+    <table class="zebra" id="input-table"> <!-- Will be populated via script --></table>
+    <label class="simple_form label table-label">Outputs</label>
+    <table class="zebra" id="output-table"><!-- Will be populated via script --></table>
 
     <%= render :partial => "show_associated_parameters_table",
                :locals  => { :mode => :input,  :config => @mod_config } %>
