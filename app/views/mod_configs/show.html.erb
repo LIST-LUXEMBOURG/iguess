@@ -192,20 +192,24 @@ if($().jquery.split(".")[0] == "1") {
 
   var checkDataStatus = function() {
 
-    stat = 'READY';
+    stat = "READY";
 
     if(anyDatasetsMissing) {
-      stat = 'NEEDS_DATA';
+      stat = "NEEDS_DATA";
     }
 
-    $('#input-output-form').find(':input').each( function() {
-      if($(this).is('select') && $(this).val() == -1) 
-        stat = 'NEEDS_DATA';   // Found a missing dataset, so update the status to NEEDS_DATA and quit
+    // Check to ensure that each select box has a value (except AOI, which we don't care about)
+    $("#input-output-form").find(":input").each( function() {
+      if($(this).is("select") && $(this).attr("id") != "area_of_interest" && $(this).val() == -1) {
+        alert($(this).attr("id"));
+        stat = "NEEDS_DATA";   // Found a missing dataset, so update the status to NEEDS_DATA and quit
+      }
     });
 
-    $('#input-output-form').find(':input').each( function() {
-      if($(this).is('input') && $(this).is(':visible') && $(this).val() === '') 
-        stat = 'NEEDS_DATA';   // Found a missing dataset, so update the status to NEEDS_DATA and quit
+    // Check to ensure that each text input has a value
+    $("#input-output-form").find(":input").each( function() {
+      if($(this).is("input") && $(this).is(":visible") && $(this).val() === "") 
+        stat = "NEEDS_DATA";   // Found a missing dataset, so update the status to NEEDS_DATA and quit
     });
 
     return stat;
