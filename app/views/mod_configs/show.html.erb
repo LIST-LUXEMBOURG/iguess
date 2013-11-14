@@ -50,8 +50,12 @@
 </div>
 
 
+
 <div class="simple_form">
   <%= form_for @mod_config, :url => {:action => "update"}, :html=> {:id=>"input-output-form", "data-type" => "json"}, :remote=>true do |f| %>
+
+    <%= render :partial => "show_area_of_interest_control" %>
+
     <label class="simple_form label table-label">Inputs</label>
     <table class="zebra" id="input-table"> <!-- Will be populated via script --></table>
     <label class="simple_form label table-label">Outputs</label>
@@ -65,7 +69,6 @@
 
     <input name="mod_config[status]" type="hidden" value="NEEDS_DATA" id="hidden_status_tag" />
 
-    <%= render :partial => "show_area_of_interest_control" %>
   <% end %>
 </div>
 
