@@ -93,16 +93,21 @@ end
 
 
 def getAoiDatasets(city)
-  datasets = Dataset.find_all_by_city_id_and_alive(city.id, :true)
-
+  datasets = Dataset.find_all_by_city_id_and_alive(city.id, :true, :order=>'title')
   aois = []
+  
+  dataset = Dataset.new
+  dataset.id = -1
+  dataset.title = "Do not use an Area of Interest"
+  aois.push(dataset)
+
   datasets.each do |d|
     if d.hasTag("Area of Interest") then
       aois.push(d)
     end
   end
 
-  return aois.sort_by{ |x| x.title.downcase }
+  return aois
 end
 
 

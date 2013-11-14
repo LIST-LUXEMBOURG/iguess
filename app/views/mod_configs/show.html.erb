@@ -204,7 +204,6 @@ if($().jquery.split(".")[0] == "1") {
     // Check to ensure that each select box has a value (except AOI, which we don't care about)
     $("#input-output-form").find(":input").each( function() {
       if($(this).is("select") && $(this).attr("id") != "area_of_interest" && $(this).val() == -1) {
-        alert($(this).attr("id"));
         stat = "NEEDS_DATA";   // Found a missing dataset, so update the status to NEEDS_DATA and quit
       }
     });
