@@ -38,6 +38,8 @@ DSS.costFactor = 1000;
 DSS.invFactor = 1000;
 DSS.genFactor = 1000;
 
+DSS.controlWidth = 258;
+
 DSS.featureArray = null;
 
 //create a style object
@@ -87,7 +89,7 @@ DSS.initWinPanel = function()
 		title: 'Potential Application', //Title of the Window 
 		id: 'panelWindowId', //ID of the Window Panel
 		autoHeight: true, //Height of the Window will be auto
-		width:340, //Width of the Window
+		width:300, //Width of the Window
 		resizable: false, //Resize of the Window, if false - it cannot be resized
 		closable: false, //Hide close button of the Window
 		modal: false, //When modal:true it make the window modal and mask everything behind it when displayed
@@ -108,7 +110,7 @@ DSS.initSliders = function()
 	if(DSS.costSlider == null)
 	    DSS.costSlider = new Ext.Slider({
 	        renderTo: 'slider-cost',
-	        width: 214,
+	        width: DSS.controlWidth,
 	        value: 0,
 	        minValue: (DSS.featureArray.get(0).cost * DSS.costFactor).toFixed(0),
 	        maxValue: (DSS.featureArray.getLast().cost * DSS.costFactor).toFixed(0),
@@ -118,7 +120,7 @@ DSS.initSliders = function()
 	if(DSS.invSlider == null)
 	    DSS.invSlider = new Ext.Slider({
 	        renderTo: 'slider-investment',
-	        width: 214,
+	        width: DSS.controlWidth,
 	        value: 0,
 	        minValue: 0,
 	        maxValue: (DSS.featureArray.getLast().inv / DSS.invFactor).toFixed(0),
@@ -128,7 +130,7 @@ DSS.initSliders = function()
 	if(DSS.genSlider == null)
 	    DSS.genSlider = new Ext.Slider({
 	        renderTo: 'slider-generation',
-	        width: 214,
+	        width: DSS.controlWidth,
 	        value: 0,
 	        minValue: 0,
 	        maxValue: (DSS.featureArray.getLast().gen / DSS.genFactor).toFixed(0),
@@ -138,7 +140,7 @@ DSS.initSliders = function()
 	if(DSS.areaSlider == null)
 	    DSS.areaSlider = new Ext.Slider({
 	        renderTo: 'slider-area',
-	        width: 214,
+	        width: DSS.controlWidth,
 	        value: 0,
 	        minValue: 0,
 	        maxValue: parseInt(DSS.featureArray.getLast().area),
