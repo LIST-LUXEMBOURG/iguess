@@ -34,13 +34,10 @@ DSS.FeatureArray.prototype.add = function(feature)
     	if(feature.isLowerThan(this.array[i]))
     	{
     		this.array.splice(i, 0, feature);
-    		console.log("Added feature in position " + i +  " total length: " + this.array.length);
     		return;
     	}
     
    	this.array.push(feature);
-   	console.log("Added feature at the end of array, total length: " + this.array.length);
-
 };
 
 DSS.FeatureArray.prototype.get = function(pos)
