@@ -27,12 +27,14 @@ WebGIS.gphyLeft;
 WebGIS.gmapLeft;
 WebGIS.ghybLeft;
 WebGIS.gsatLeft;
+WebGIS.contriesLeft	;
 
 WebGIS.osmRight;
 WebGIS.gphyRight;
 WebGIS.gmapRight;
 WebGIS.ghybRight;
 WebGIS.gsatRight;
+WebGIS.contriesRight;
 
 WebGIS.baseOSM = function(menuItem) {
     
@@ -79,6 +81,15 @@ WebGIS.baseGoogleSat = function(menuItem) {
     	WebGIS.rightMap.setBaseLayer(WebGIS.gsatRight);
 };
 
+WebGIS.baseCountries = function(menuItem) {
+    
+    menuItem.parentMenu.ownerCt.setText("Country borders");
+    
+    WebGIS.leftMap.setBaseLayer(WebGIS.contriesLeft);   
+    if (WebGIS.rightMap != null) 
+    	WebGIS.rightMap.setBaseLayer(WebGIS.contriesRight);
+};
+
 WebGIS.getLeftBaseLayers = function(mapProjection) {
 	
 	WebGIS.osmLeft  = new OpenLayers.Layer.OSM();
@@ -107,8 +118,21 @@ WebGIS.getLeftBaseLayers = function(mapProjection) {
 	WebGIS.gmapLeft.projection = WebGIS.mapProjection;
 	WebGIS.ghybLeft.projection = WebGIS.mapProjection;
 	WebGIS.gsatLeft.projection = WebGIS.mapProjection;
+	
+	WebGIS.contriesLeft = new OpenLayers.Layer.WMS(
+    	"Coutry borders",
+    	"http://maps.iguess.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/MapFiles/MUSIC.map",
+        {layers: "Countries", 
+         format: "image/png",
+         srsName: WebGIS.mapProjection,
+	 	 transparent: "true",
+	 	 untiled: "tre",
+     	 projection: new OpenLayers.Projection(WebGIS.mapProjection)},
+        {isBaseLayer: true,  
+     	 visibility: true}
+    );
 
-    return [WebGIS.osmLeft, WebGIS.ghybLeft, WebGIS.gphyLeft, WebGIS.gmapLeft, WebGIS.gsatLeft];
+    return [WebGIS.osmLeft, WebGIS.ghybLeft, WebGIS.gphyLeft, WebGIS.gmapLeft, WebGIS.gsatLeft, WebGIS.contriesLeft];
 };
 
 WebGIS.getRightBaseLayers = function(mapProjection) {
@@ -139,6 +163,19 @@ WebGIS.getRightBaseLayers = function(mapProjection) {
 	WebGIS.gmapRight.projection = WebGIS.mapProjection;
 	WebGIS.ghybRight.projection = WebGIS.mapProjection;
 	WebGIS.gsatRight.projection = WebGIS.mapProjection;
-
-    return [WebGIS.osmRight, WebGIS.ghybRight, WebGIS.gphyRight, WebGIS.gmapRight, WebGIS.gsatRight];
+	
+	WebGIS.contriesRight = new OpenLayers.Layer.WMS(
+    	"Coutry borders",
+    	"http://maps.iguess.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/MapFiles/MUSIC.map",
+        {layers: "Countries", 
+         format: "image/png",
+         srsName: WebGIS.mapProjection,
+	 	 transparent: "true",
+	 	 untiled: "tre",
+     	 projection: new OpenLayers.Projection(WebGIS.mapProjection)},
+        {isBaseLayer: true,  
+     	 visibility: true}
+    );
+	
+    return [WebGIS.osmRight, WebGIS.ghybRight, WebGIS.gphyRight, WebGIS.gmapRight, WebGIS.gsatRight, WebGIS.contriesRight];
 };

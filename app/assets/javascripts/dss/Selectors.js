@@ -255,6 +255,7 @@ DSS.showSelectWindow = function()
 		border:false, // <-- removing the border of the form
 		defaults:{xtype:'textfield'},	//component by default of the form
 		bodyStyle:'background-color:#e8e8e8;',
+		fieldDefaults: {labelAlign: 'top'},
 		items:[ 
 		    DSS.comboLayer, 
 		    DSS.comboCost, 
