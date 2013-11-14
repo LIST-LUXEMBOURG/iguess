@@ -119,6 +119,11 @@ WebGIS.CreatePanels = function() {
             	   checked: false,
             	   handler  : WebGIS.baseGoogleHy,
             	   group: 'baseLayer'
+               },{
+            	   text: 'Country borders',
+            	   checked: false,
+            	   handler  : WebGIS.baseCountries,
+            	   group: 'baseLayer'
                }]
        		}]
     }

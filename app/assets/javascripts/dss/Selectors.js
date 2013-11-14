@@ -192,6 +192,7 @@ DSS.showSelectWindow = function()
 	{
 		fieldLabel: 'Layer', 
 		labelAlign: 'top',
+		width: DSS.controlWidth,
 		store: DSS.getOverlays(), 
 	    listeners:{
 	         scope: DSS,
@@ -205,6 +206,7 @@ DSS.showSelectWindow = function()
 		store: [''], 
 		disabled: true, 
 		labelAlign: 'top',
+		width: DSS.controlWidth,
 	    listeners:{
 	         scope: DSS,
 	         'select': DSS.comboFieldsSelected
@@ -216,6 +218,7 @@ DSS.showSelectWindow = function()
 	{	
 		fieldLabel: 'Cumulative Investment', 	
 		labelAlign: 'top',
+		width: DSS.controlWidth,
 		store: [''], 
 		disabled: true, 
 	    listeners:{
@@ -228,6 +231,7 @@ DSS.showSelectWindow = function()
 	{
 		fieldLabel: 'Cumulative Generation', 	
 		labelAlign: 'top',
+		width: DSS.controlWidth,
 		store: [''], 
 		disabled: true, 
 	    listeners:{
@@ -240,6 +244,7 @@ DSS.showSelectWindow = function()
 	{
 		fieldLabel: 'Cumulative Area', 
 		labelAlign: 'top',
+		width: DSS.controlWidth,
 		store: [''], 
 		disabled: true, 
 	    listeners:{
@@ -254,7 +259,8 @@ DSS.showSelectWindow = function()
 	this.form= new Ext.FormPanel({ 
 		border:false, // <-- removing the border of the form
 		defaults:{xtype:'textfield'},	//component by default of the form
-		bodyStyle:'background-color:#e8e8e8;',
+		bodyStyle:'background-color:#e8e8e8; padding:12px',
+		labelAlign: 'top',
 		items:[ 
 		    DSS.comboLayer, 
 		    DSS.comboCost, 
@@ -283,8 +289,8 @@ DSS.showSelectWindow = function()
 	//creating the window that will contain the form
 	DSS.winSelect = new Ext.Window({ 
 		title: 'Potential Application', 
-		width:340, 
-		height:340,
+		width:300, 
+		//height:400,
 		closable: false, 
 		bodyStyle:'background-color:#e8e8e8;padding: 6px', 
 		items:[intro, this.form], //assigning the form
