@@ -1,10 +1,11 @@
-<label class="simple_form label">Area of Interest</label>
+<div id="above-area-of-interest-spacer"></div>
+<label class="simple_form label" id="area-of-interest-label">Area of Interest</label>
 
 <% aois = getAoiDatasets(@current_city) %>
 <% if aois.size == 0 then %>
     There are no datasets tagged with "Area of Interest"
 <% else %>
-    <select>
+    <select id="area_of_interest">
         <option value=-1>Do not use an Area of Interest</option>
         <% aois.each do |d| %><option value="<%= d.id %>"><%= d.title %></option><% end %>
     </select>

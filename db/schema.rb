@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20130821161759) do
+ActiveRecord::Schema.define(:version => 20131114151041) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -115,6 +115,7 @@ ActiveRecord::Schema.define(:version => 20130821161759) do
     t.integer  "city_id"
     t.text     "status_text",    :default => ""
     t.integer  "wps_process_id"
+    t.integer  "aoi",            :default => -1, :null => false
   end
 
   create_table "process_params", :force => true do |t|

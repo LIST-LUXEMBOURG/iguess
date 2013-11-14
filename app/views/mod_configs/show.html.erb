@@ -50,8 +50,12 @@
 </div>
 
 
+
 <div class="simple_form">
   <%= form_for @mod_config, :url => {:action => "update"}, :html=> {:id=>"input-output-form", "data-type" => "json"}, :remote=>true do |f| %>
+
+    <%= render :partial => "show_area_of_interest_control" %>
+
     <label class="simple_form label table-label">Inputs</label>
     <table class="zebra" id="input-table"> <!-- Will be populated via script --></table>
     <label class="simple_form label table-label">Outputs</label>
@@ -65,7 +69,6 @@
 
     <input name="mod_config[status]" type="hidden" value="NEEDS_DATA" id="hidden_status_tag" />
 
-    <%= render :partial => "show_area_of_interest_control" %>
   <% end %>
 </div>
 
@@ -192,20 +195,24 @@ if($().jquery.split(".")[0] == "1") {
 
   var checkDataStatus = function() {
 
-    stat = 'READY';
+    stat = "READY";
 
     if(anyDatasetsMissing) {
-      stat = 'NEEDS_DATA';
+      stat = "NEEDS_DATA";
     }
 
-    $('#input-output-form').find(':input').each( function() {
-      if($(this).is('select') && $(this).val() == -1) 
-        stat = 'NEEDS_DATA';   // Found a missing dataset, so update the status to NEEDS_DATA and quit
+    // Check to ensure that each select box has a value (except AOI, which we don't care about)
+    $("#input-output-form").find(":input").each( function() {
+      if($(this).is("select") && $(this).attr("id") != "area_of_interest" && $(this).val() == -1) {
+        alert($(this).attr("id"));
+        stat = "NEEDS_DATA";   // Found a missing dataset, so update the status to NEEDS_DATA and quit
+      }
     });
 
-    $('#input-output-form').find(':input').each( function() {
-      if($(this).is('input') && $(this).is(':visible') && $(this).val() === '') 
-        stat = 'NEEDS_DATA';   // Found a missing dataset, so update the status to NEEDS_DATA and quit
+    // Check to ensure that each text input has a value
+    $("#input-output-form").find(":input").each( function() {
+      if($(this).is("input") && $(this).is(":visible") && $(this).val() === "") 
+        stat = "NEEDS_DATA";   // Found a missing dataset, so update the status to NEEDS_DATA and quit
     });
 
     return stat;
