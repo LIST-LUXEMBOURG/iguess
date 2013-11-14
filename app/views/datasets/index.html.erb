@@ -32,8 +32,8 @@
           </td>
           <td>
             <span class="taglist-<%= cssEscape(d.dataserver.url + d.identifier) %>">
-              <% d.dataset_tags.select {|d| @dataset_tags.include? d.tag }.each do |t| %>
-                <span class="tag"><%= t.tag %></span>
+              <% getAliveTags(d).each do |t| %>
+                <span class="tag"><%= t %></span>
               <% end %>
             </span>
           </td>
@@ -93,10 +93,10 @@
             <dt>Tags:</dt>
             <dd>
               <span class="taglist-deletable-<%= cssEscape(d.dataserver.url + d.identifier) %>">
-                <% d.dataset_tags.select {|d| @dataset_tags.include? d.tag }.each do |t| %>
+                <% getAliveTags(d).each do |t| %>
                   <span class="tag">
                     <span class="tag-delete-button" data-url="<%= d.dataserver.url %>" data-identifier="<%= d.identifier %>"></span>
-                    <%= t.tag %>
+                    <%= t %>
                   </span>
                 <% end %>
               </span>
@@ -107,15 +107,11 @@
                 onchange="tagPickerChanged($(this));"> 
 
                 <option value = "Ignore This">Add Tag:</option>
-                <% if d.dataserver.wms %>
-                  <option value="Mapping">Mapping</option>
-                <% end %>
 
-                <% if d.dataserver.wfs or d.dataserver.wcs %>
-                  <% @dataset_tags.each do |t| %>
-                    <option value="<%= t %>"><%= t %></option>
-                  <% end %>
+                <% getAllTags(d).each do |t| %>
+                  <option value="<%= t %>"><%= t %></option>
                 <% end %>
+                
               </select>
             </dd>
             <dt>Configurations:</td>

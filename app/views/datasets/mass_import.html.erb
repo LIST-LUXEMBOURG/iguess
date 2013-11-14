@@ -448,11 +448,14 @@
         }
         
         // Now that the tag picker has finally been added to the dom, we can populate it
-        if(layer.type.hasObject('WMS'))
-          addWmsOptionToDropdown(tagPickerControlId);
+        if(layer.type.hasObject('WCS'))
+          makeDropdown(tagPickerControlId, WCSTagList);
 
-        if(layer.type.hasObject('WFS') || layer.type.hasObject('WCS'))
-          addWfsWcsOptionsToDropdown(tagPickerControlId);
+        else if(layer.type.hasObject('WFS')) 
+          makeDropdown(tagPickerControlId, WFSTagList);
+
+        else
+          makeDropdown(tagPickerControlId, WMSTagList);
       }  // end for loop
     }  // for pass = 0 to 2
 
@@ -646,37 +649,25 @@
   }
 
 
-  // Helper function for makeTagPickerControl()
-  var addWmsOptionToDropdown = function(controlId) {
-    $("#" + controlId).find(">:first-child").after("<option>Mapping</option>");   // We want this to be the second choice
-  };
+  var WMSTagList = '<% getAliveTags("WMS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>';
+  var WFSTagList = '<% getAliveTags("WFS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>';
+  var WCSTagList = '<% getAliveTags("WCS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>';
 
 
-  var DataTagList = [
-    <% @dataset_tags.each do |t| %>
-      <%= raw("{'id': '" + t + "', 'title': '" + t + "' },") %>
-    <% end %>
-  ];
-
-  // Helper function for makeTagPickerControl() -- here, controlId is the id of the select control we're adding options to
-  var addWfsWcsOptionsToDropdown = function(controlId) {
-
-    // console.log($('#' + controlId).html());
-    for(var j = 0, jlen = DataTagList.length; j < jlen; j++) 
-      $('#' + controlId).append("<option value=\"" + DataTagList[j].id + '">' + DataTagList[j].id + "</option>");
-  };
+  var makeDropdown = function(controlId, tagList) {
+    $('#' + controlId).append(tagList);
+  }
 
 
   var getTagPickerControlId = function(datasetIdentifier)
   {
     return 'data-type-' + sanitizeId(datasetIdentifier);
-  };
+  }
 
 
    // If readyToPoulate is false, we can pass in anything for layer as long as it has an identifier property
   var makeTagPickerControl = function(layer, controlId, enabled)
   {
-
     return '<select style="float:right" class="add-tag-dropdown-control" ' + 
            'data-serverurl="' + layer.serverUrl + '" ' +   // These keys seem to get lowercased anyway... so no upper case letter pls!
            'data-datasetidentifier="' + layer.identifier + '" ' +
@@ -684,7 +675,7 @@
            'onchange="tagPickerChanged($(this));">' +
              '<option value = "Ignore This">Add Tag:</option>' + 
            '</select>';
-  };
+  }
 
 
   // Compare whether two crs's are in fact the same.  We'll consider the following two strings equal

@@ -27,9 +27,9 @@
               :placeholder => "Description of configuration" %>
 
   <div id="input-output-form">   <%# NOTE -- We don't have a configuration here when we are creating a new module! %>
-    <label class="simple_form label">Inputs</label>
+    <label class="simple_form label table-label">Inputs</label>
     <table class="zebra" id="input-table"> <!-- Will be populated via script --></table>
-    <label class="simple_form label">Outputs</label>
+    <label class="simple_form label table-label">Outputs</label>
     <table class='zebra' id="output-table"><!-- Will be populated via script --></table>
 
     <%= render :partial => "show_associated_parameters_table",
@@ -37,9 +37,10 @@
 
     <%= render :partial => "show_associated_parameters_table",
                :locals  => { :mode => :output, :config => @mod_config, :form => f } %>
+
+    <%= render :partial => "show_area_of_interest_control" %>
   </div>
 
-  <label class="simple_form label"></label>
 
   <div id="bottom-links">
     <%# Add a cancel link that gets back to the different places we could have come from %>

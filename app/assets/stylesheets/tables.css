@@ -29,6 +29,6 @@ table.sortable th.header {
 
 
 /* Align Inputs and Outputs with text in table header */
-#input-output-form label {
+.table-label {
 	margin-top: 0.5em;
 }

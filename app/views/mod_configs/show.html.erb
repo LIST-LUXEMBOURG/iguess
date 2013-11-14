@@ -51,11 +51,11 @@
 
 
 <div class="simple_form">
-  <%= form_for @mod_config, :url => {:action => 'update'}, :html=> {:id=>'input-output-form', 'data-type' => 'json'}, :remote=>true do |f| %>
-    <label class='simple_form label'>Inputs</label>
-    <table class='zebra' id='input-table'> <!-- Will be populated via script --></table>
-    <label class='simple_form label'>Outputs</label>
-    <table class='zebra' id='output-table'><!-- Will be populated via script --></table>
+  <%= form_for @mod_config, :url => {:action => "update"}, :html=> {:id=>"input-output-form", "data-type" => "json"}, :remote=>true do |f| %>
+    <label class="simple_form label table-label">Inputs</label>
+    <table class="zebra" id="input-table"> <!-- Will be populated via script --></table>
+    <label class="simple_form label table-label">Outputs</label>
+    <table class="zebra" id="output-table"><!-- Will be populated via script --></table>
 
     <%= render :partial => "show_associated_parameters_table",
                :locals  => { :mode => :input,  :config => @mod_config } %>
@@ -64,17 +64,17 @@
                :locals  => { :mode => :output, :config => @mod_config } %>
 
     <input name="mod_config[status]" type="hidden" value="NEEDS_DATA" id="hidden_status_tag" />
-  <% end %>
 
+    <%= render :partial => "show_area_of_interest_control" %>
+  <% end %>
 </div>
 
 <br>
 
-
 <!-- Show special buttons depending on status  -->
 <div class="simple_form">
 
-  <label class='simple_form label'>&nbsp;</label>
+  <label class="simple_form label">&nbsp;</label>
   <%# method => get causes button to act like a normal link, rather than a form post %>
   <%= link_to "View Module List", mod_configs_path, :class => "linkbutton" %>
 
