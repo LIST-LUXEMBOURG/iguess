@@ -100,7 +100,7 @@ DSS.addNewWFS = function(name, address, style)
 	var wfs = new OpenLayers.Layer.Vector(name + "_WFS", {
 		strategies: [new OpenLayers.Strategy.Fixed()], 
 		styleMap: style,
-		projection: new OpenLayers.Projection(DSS.mapProjection)},
+		projection: new OpenLayers.Projection(WebGIS.mapProjection)},
         {isBaseLayer: false,  
      	 visibility: true}
 	);
