@@ -91,6 +91,38 @@ DSS.comboLayerSelected = function()
 	{
 		DSS.layerWFS = DSS.addNewWFS(layers[0].params["LAYERS"], layers[0].url, null);
 	}
+	
+    //---------------- Testing WFS ----------------//
+    /*var wfs = new OpenLayers.Layer.Vector("WFS.pv_potential", {
+		strategies: [new OpenLayers.Strategy.Fixed()],
+		projection: new OpenLayers.Projection("EPSG:28992"),
+		protocol: new OpenLayers.Protocol.WFS({
+			version: "1.1.0",
+			url: "http://maps.iguess.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/MapFiles/RO_localOWS_test.map",
+			featureNS: "http://mapserver.gis.umn.edu/mapserver",
+			featureType: "pv_potential_sample",
+			srsName: "EPSG:28992"
+		})},
+        {isBaseLayer: false,  
+     	 visibility: true}
+	);
+    
+	var buildsMini = new OpenLayers.Layer.Vector("WFS.RO_building_footprints_mini", {
+		strategies: [new OpenLayers.Strategy.Fixed()], 
+		styleMap: DSS.style,
+		projection: new OpenLayers.Projection("EPSG:28992"),
+		protocol: new OpenLayers.Protocol.WFS({
+			version: "1.1.0",
+			url: "http://maps.iguess.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/MapFiles/RO_localOWS_test.map",
+			featureNS: "http://mapserver.gis.umn.edu/mapserver",
+			featureType: "RO_building_footprints_mini",
+			srsName: "EPSG:28992"
+		})},
+        {isBaseLayer: false,  
+     	 visibility: true}
+	);
+	
+	WebGIS.leftMap.addLayers([wfs, buildsMini]);*/
 };
 
 DSS.addNewWFS = function(name, address, style)
@@ -100,7 +132,7 @@ DSS.addNewWFS = function(name, address, style)
 	var wfs = new OpenLayers.Layer.Vector(name + "_WFS", {
 		strategies: [new OpenLayers.Strategy.Fixed()], 
 		styleMap: style,
-		projection: new OpenLayers.Projection(WebGIS.mapProjection)},
+		projection: new OpenLayers.Projection(DSS.mapProjection)},
         {isBaseLayer: false,  
      	 visibility: true}
 	);

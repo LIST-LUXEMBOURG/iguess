@@ -157,7 +157,7 @@ DSS.initSliders = function()
 DSS.setCost = function(value)
 {
 	DSS.costSlider.setValue(value * DSS.costFactor);
-	document.getElementById("cost").innerHTML = "Cost: " + value + " &euro;/kWh";
+	document.getElementById("cost").innerHTML = "Cost: " + parseFloat(value).toFixed(3) + " &euro;/kWh";
 };
 
 DSS.setInv = function(value)
