@@ -377,11 +377,11 @@ class ModConfigsController < ApplicationController
       params[:datasets].each do |d|
         identifier = d[0]
         id = d[1]
-
+        
         if(not identifier.empty?) then
           if(id != "-1") then
             confds = ConfigDataset.new()
-            dataset = Dataset.find(id)
+            dataset = Dataset.find_by_id(id)
 
             confds.mod_config = @mod_config
             confds.dataset    = dataset
@@ -403,7 +403,6 @@ class ModConfigsController < ApplicationController
       end
     end
 
-
     # Update any text inputs/outputs.  Since we don't know the ids of the items, we'll need to do a little hunting
 
     paramkeys = [:input, :output]
@@ -416,12 +415,11 @@ class ModConfigsController < ApplicationController
 
           @output = ConfigTextInput.find_by_mod_config_id_and_column_name_and_is_input(@mod_config.id, name, paramkey == :input)
 
-          @output.value = val;
+          @output.value = val
           ok = ok && @output.save
         }
       end
     end
-
 
     #@mod_config.status = 'nil'  <== caused status to be reset when editing the description or title
 
