@@ -164,6 +164,12 @@ class ModConfigsController < ApplicationController
     outputFields = []
     outputTitles = []
 
+    @aoi = nil
+
+    if @mod_config.aoi != -1 then
+      @aoi = Dataset.find_by_id(@mod_config.aoi)
+    end
+
 
 # http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map&
 # SERVICE=WCS&VERSION=1.0.0&REQUEST=GetCoverage&IDENTIFIER=ro_dsm_mini&
@@ -175,15 +181,31 @@ class ModConfigsController < ApplicationController
                                 configDataset = ConfigDataset.find_by_mod_config_id_and_dataset_id(@mod_config.id, config_dataset.id)
 
                                 params = ""
+                                bbox = ""
 
                                 if(configDataset) then
                                   if(not configDataset.format.blank?) then params += "&FORMAT=" + configDataset.format end
                                   if(not configDataset.crs.blank?)    then params += "&CRS="    + configDataset.crs    end
 
-                                  if(configDataset.bbox_left && configDataset.bbox_right && configDataset.bbox_top && configDataset.bbox_bottom) then 
-                                    params += "&BBOX=" + configDataset.bbox_left.to_s()  + "," + configDataset.bbox_bottom.to_s() + "," +
-                                                         configDataset.bbox_right.to_s() + "," + configDataset.bbox_top.to_s()
+                                  # If we have an area of interest defined, insert that bounding box here
+                                  if @aoi != nil then
+                                    if (@aoi.bbox_left && @aoi.bbox_right && @aoi.bbox_top && @aoi.bbox_bottom) then 
+                                      bbox = "&BBOX=" + @aoi.bbox_left.to_s()  + "," + @aoi.bbox_bottom.to_s() + "," +
+                                                        @aoi.bbox_right.to_s() + "," + @aoi.bbox_top.to_s()
+                                    else
+                                      # Log an error -- we expected the aoi to have a valid bounding box, but it didn't!
+                                      # We'll use the dataset's bounding box as a fallback, below
+                                    end
                                   end
+
+                                  # If no aoi is being used, or wasn't properly set, use any dataset bb that we have
+                                  if bbox == "" && (configDataset.bbox_left && configDataset.bbox_right && 
+                                                    configDataset.bbox_top && configDataset.bbox_bottom) then 
+                                    bbox += "&BBOX=" + configDataset.bbox_left.to_s()  + "," + configDataset.bbox_bottom.to_s() + "," +
+                                                       configDataset.bbox_right.to_s() + "," + configDataset.bbox_top.to_s()
+                                  end
+
+                                  params += bbox
 
                                   if(configDataset.res_x and configDataset.res_x > 0 and configDataset.res_y and configDataset.res_y > 0) then 
                                     params += "&RESX=" + configDataset.res_x.to_s()
