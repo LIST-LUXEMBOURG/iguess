@@ -78,7 +78,7 @@ def getAliveTags(dataset)
   else
     tags = []
 
-    alivetags = ProcessParam.find_all_by_datatype_and_alive('ComplexData', :true).map{ |p| p.identifier }.concat(getSpecialTags(dataset))
+    alivetags = ProcessParam.find_all_by_datatype_and_alive("ComplexData", :true).map{ |p| p.identifier }.concat(getSpecialTags(dataset))
 
     dataset.dataset_tags.each do |d| 
       if alivetags.include? d.tag then 
@@ -93,7 +93,7 @@ end
 
 
 def getAoiDatasets(city)
-  datasets = Dataset.find_all_by_city_id_and_alive(city.id, :true, :order=>'title')
+  datasets = Dataset.find_all_by_city_id_and_alive(city.id, :true, :order=>"title")
   aois = []
   
   dataset = Dataset.new
