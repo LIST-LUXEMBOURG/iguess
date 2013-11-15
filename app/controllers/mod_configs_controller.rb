@@ -96,11 +96,38 @@ class ModConfigsController < ApplicationController
   # NOTE that this is not a definitve status -- we don't know, for example, which datasets are needed, and whether they
   # have been provided.  This really just detects that there are blank text items.  This function should probably be removed.
   def getStatus(mod_config)
-    if(mod_config.status == nil || mod_config.status == 'READY' || mod_config.status == 'NEEDS_DATA')
-      return 'READY'
-    else
-      return mod_config.status
-    end
+
+    id = mod_config.id.to_s
+
+    # This beast figures out if there are any missing inputs or outputs for the specified module.  Note that 
+    # the most recent status of the module must be saved for this to work!
+    sql = "
+    WITH missing AS (
+      SELECT COUNT(*) AS c 
+      FROM iguess_dev.mod_configs AS mc 
+      LEFT JOIN iguess_dev.process_params     AS pp  ON mc.wps_process_id = pp.wps_process_id
+      LEFT JOIN iguess_dev.config_datasets    AS cd  ON pp.identifier = cd.input_identifier AND cd.mod_config_id = mc.id
+      LEFT JOIN iguess_dev.config_text_inputs AS cti ON pp.identifier = cti.column_name AND cti.mod_config_id = mc.id
+      WHERE mc.id = " + id + " AND pp.alive = TRUE AND pp.is_input = TRUE AND cd.dataset_id IS NULL AND (cti.value IS NULL OR cti.value = '')
+
+      UNION
+
+      SELECT count(*) AS c FROM iguess_dev.mod_configs AS mc 
+      LEFT JOIN iguess_dev.process_params AS pp ON mc.wps_process_id = pp.wps_process_id
+      LEFT JOIN iguess_dev.config_text_inputs AS cti ON pp.identifier = cti.column_name AND cti.mod_config_id = mc.id
+      WHERE mc.id = " + id + " AND pp.alive = TRUE AND pp.is_input = false AND (cti.value IS NULL OR cti.value = '')
+    ) 
+
+    SELECT sum(c) FROM missing
+    "
+
+    connection = ActiveRecord::Base.connection
+    connection.execute(sql) 
+
+    results = ModConfig.find_by_sql sql
+    errs = results[0]["sum"]
+
+    return errs == "0" ? 'READY' : 'NEEDS_DATA'
   end
 
 
@@ -300,6 +327,7 @@ class ModConfigsController < ApplicationController
       }
     end
 
+    success &= @mod_config.save
 
     @mod_config.status = getStatus(@mod_config)
 
@@ -419,8 +447,6 @@ class ModConfigsController < ApplicationController
     end
 
     #@mod_config.status = 'nil'  <== caused status to be reset when editing the description or title
-
-    # @mod_config.status = getStatus(@mod_config)
 
     ok == ok && @mod_config.update_attributes(params[:mod_config])
 
