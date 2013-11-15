@@ -229,7 +229,7 @@ DSS.showSelectWindow = function()
 	
 	DSS.comboGen = new Ext.form.ComboBox(
 	{
-		fieldLabel: 'Cumulative Generation', 	
+		fieldLabel: 'Cumulative Energy Generation/Savings', 	
 		labelAlign: 'top',
 		width: DSS.controlWidth,
 		store: [''], 

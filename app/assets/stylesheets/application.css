@@ -191,7 +191,7 @@ input, select, textarea {
 
 /* Light blue explanation box */
 .explanation {
-  background: #D5E9F6 url(images/info_icon.svg) no-repeat left center;
+  /background: #D5E9F6 url(images/info_icon.svg) no-repeat left center;
   background-size: 32px 32px;
   background-position: 10px 40%;    /* Distance from the left */
 
@@ -199,13 +199,13 @@ input, select, textarea {
 
 .explanation-running {
   background: #FFCC00 url(images/cogs02.gif) no-repeat left center;
-  background-size: 30px 30px;
+  background-size: 44px 44px;
   background-position: 10px 40%;    /* Distance from the left */
 }
 
 .explanation-success {
   background: #4CE44C url(images/success_green.png) no-repeat left center;
-  background-size: 30px 30px;
+  background-size: 32px 32px;
   background-position: 10px 40%;    /* Distance from the left */
 }
 
