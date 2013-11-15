@@ -27,7 +27,7 @@ def getSpecialTags(dataset)
 
   tags = []
 
-  if serviceList.include?("WFS") then
+  if serviceList.include?("WFS") and not dataset.bbox_top.blank? then
     tags.push("Area of Interest")
   end
 
