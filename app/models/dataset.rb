@@ -91,7 +91,6 @@ def getAliveTags(dataset)
 end
 
 
-
 def getAoiDatasets(city)
   datasets = Dataset.find_all_by_city_id_and_alive(city.id, :true, :order=>"title")
   aois = []
