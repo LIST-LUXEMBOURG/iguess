@@ -71585,8 +71585,16 @@ OpenLayers.Format.WFSCapabilities.v1_0_0 = OpenLayers.Class(
             "SRS": function(node, obj) {
                 var srs = this.getChildValue(node);
                 if (srs) {
-                    obj.srs = srs;
+                    obj.srs = "srs";
                 }
+            },
+            "LatLongBoundingBox": function(node, obj) {
+                obj.latLongBoundingBox = [
+                    parseFloat(node.getAttribute("minx")),
+                    parseFloat(node.getAttribute("miny")),
+                    parseFloat(node.getAttribute("maxx")),
+                    parseFloat(node.getAttribute("maxy"))
+                ];
             }
         }, OpenLayers.Format.WFSCapabilities.v1.prototype.readers["wfs"])
     },

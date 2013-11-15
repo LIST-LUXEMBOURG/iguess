@@ -263,12 +263,13 @@ WMS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
 
 // Probe a WFS and detect which layers are available
 WFS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
-  var fullUrl = WFS.getCapReq(serverUrl);                         // These are the fields we want from the WFS... note the addition of srs to the default list!
-  var store = new GeoExt.data.WFSCapabilitiesStore({ url: fullUrl, fields: [ { name: "name",      type: "string" },
-                                                                             { name: "title",     type: "string" },
-                                                                             { name: "namespace", type: "string", mapping: "featureNS" },
-                                                                             { name: "abstract",  type: "string" },
-                                                                             { name: "srs",       type: "string" } 
+  var fullUrl = WFS.getCapReq(serverUrl);     // These are the fields we want from the WFS... note the addition of srs to the default list!
+  var store = new GeoExt.data.WFSCapabilitiesStore({ url: fullUrl, fields: [ { name: "name",               type: "string" },
+                                                                             { name: "title",              type: "string" },
+                                                                             { name: "namespace",          type: "string", mapping: "featureNS" },
+                                                                             { name: "abstract",           type: "string" },
+                                                                             { name: "srs",                type: "string" } ,
+                                                                             { name: "latLongBoundingBox", type: "string" }
                                                                         ] });
   COMMON.updateLayerList(store, successFunction, failureFunction);
 };
