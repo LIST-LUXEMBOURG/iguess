@@ -38,6 +38,11 @@ DSS.costFactor = 1000;
 DSS.invFactor = 1000;
 DSS.genFactor = 1000;
 
+DSS.costEl = "cost";
+DSS.invEl = "invest";
+DSS.genEl = "gen";
+DSS.areaEl = "area";
+
 DSS.costLabel = "Cost: ";
 DSS.costUnits = " &euro;/kWh";
 
@@ -169,25 +174,25 @@ DSS.initSliders = function()
 DSS.setCost = function(value)
 {
 	DSS.costSlider.setValue(value * DSS.costFactor);
-	document.getElementById("cost").innerHTML = DSS.costLabel + parseFloat(value).toFixed(3) + DSS.costUnits;
+	document.getElementById(DSS.costEl).innerHTML = DSS.costLabel + parseFloat(value).toFixed(3) + DSS.costUnits;
 };
 
 DSS.setInv = function(value)
 {
 	DSS.invSlider.setValue(value / DSS.invFactor);
-	document.getElementById("invest").innerHTML = DSS.invLabel + (value / 1000).toFixed(0) + DSS.invUnits;
+	document.getElementById(DSS.invEl).innerHTML = DSS.invLabel + (value / 1000).toFixed(0) + DSS.invUnits;
 };
 
 DSS.setGen = function(value)
 {
 	DSS.genSlider.setValue(value / DSS.genFactor);
-	document.getElementById("gen").innerHTML = DSS.genLabel + (value / 1000).toFixed(0) + DSS.genUnits;
+	document.getElementById(DSS.genEl).innerHTML = DSS.genLabel + (value / 1000).toFixed(0) + DSS.genUnits;
 };
 
 DSS.setArea = function(value)
 {
 	DSS.areaSlider.setValue(value);
-	document.getElementById("area").innerHTML = DSS.areaLabel + parseInt(value) + DSS.areaUnits;
+	document.getElementById(DSS.areaEl).innerHTML = DSS.areaLabel + parseInt(value) + DSS.areaUnits;
 };
 
 DSS.costDragged = function(ed, value, oldValue) 
@@ -200,7 +205,7 @@ DSS.costDragged = function(ed, value, oldValue)
 		DSS.setInv(feature.inv);
 		DSS.setGen(feature.gen);
 		DSS.setArea(feature.area);
-		document.getElementById("cost").innerHTML = DSS.costLabel + value / DSS.costFactor + DSS.costUnits;
+		document.getElementById(DSS.costEl).innerHTML = DSS.costLabel + value / DSS.costFactor + DSS.costUnits;
 		
 		DSS.rule_highlight.filter.value = value / DSS.costFactor;
 		DSS.rule_highlight.filter.property = DSS.costField;
@@ -219,7 +224,7 @@ DSS.invDragged = function(ed, value, oldValue)
 		DSS.setCost(feature.cost);
 		DSS.setGen(feature.gen);
 		DSS.setArea(feature.area);
-		document.getElementById("invest").innerHTML = DSS.invLabel + value + DSS.invUnits;
+		document.getElementById(DSS.invEl).innerHTML = DSS.invLabel + value + DSS.invUnits;
 		
 		DSS.rule_highlight.filter.value = value * DSS.invFactor;
 		DSS.rule_highlight.filter.property = DSS.invField;
@@ -238,7 +243,7 @@ DSS.genDragged = function(ed, value, oldValue)
 		DSS.setInv(feature.inv);
 		DSS.setCost(feature.cost);
 		DSS.setArea(feature.area);
-		document.getElementById("gen").innerHTML = DSS.genLabel + value + DSS.genUnits;
+		document.getElementById(DSS.genEl).innerHTML = DSS.genLabel + value + DSS.genUnits;
 		
 		DSS.rule_highlight.filter.value = value * DSS.genFactor;
 		DSS.rule_highlight.filter.property = DSS.genField;
@@ -257,7 +262,7 @@ DSS.areaDragged = function(ed, value, oldValue)
 		DSS.setInv(feature.inv);
 		DSS.setGen(feature.gen);
 		DSS.setCost(feature.cost);
-		document.getElementById("area").innerHTML = DSS.areaLabel + value + DSS.areaUnits;
+		document.getElementById(DSS.areaEl).innerHTML = DSS.areaLabel + value + DSS.areaUnits;
 		
 		DSS.rule_highlight.filter.value = value;
 		DSS.rule_highlight.filter.property = DSS.areaField;
