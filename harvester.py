@@ -322,9 +322,6 @@ def checkDataServers(serverCursor):
             # wfs: ['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__getitem__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_buildMetadata', '_capabilities', 'contents', 'exceptions', 'getOperationByName', 'getcapabilities', 'getfeature', 'identification', 'items', 'log', 'operations', 'provider', 'url', 'version']
             # wfs.contents: ['__class__', '__cmp__', '__contains__', '__delattr__', '__delitem__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__init__', '__iter__', '__le__', '__len__', '__lt__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setitem__', '__sizeof__', '__str__', '__subclasshook__', 'clear', 'copy', 'fromkeys', 'get', 'has_key', 'items', 'iteritems', 'iterkeys', 'itervalues', 'keys', 'pop', 'popitem', 'setdefault', 'update', 'values', 'viewitems', 'viewkeys', 'viewvalues']
 
-
-            print "updating dataservers: ", serverUrl, "+++", dstitle, "+++", dsabstr
-
             sqlList.append(
                             "UPDATE " + tables["dataservers"] + " " 
                             "SET title = " + str(adapt(dstitle)) + ", "
@@ -355,10 +352,10 @@ def checkDataServers(serverCursor):
                 found = True
                 hasCityCRS = False
                 imgFormat  = ""
-                bboxLeft   = ""
-                bboxRight  = ""
-                bboxTop    = ""
-                bboxBottom = ""
+                bboxLeft   = None
+                bboxRight  = None
+                bboxTop    = None
+                bboxBottom = None
                 resX       = 0
                 resY       = 0
 
@@ -369,23 +366,24 @@ def checkDataServers(serverCursor):
                 found = False;
 
                 if wfs and identifier in wfs.contents:
-                    print "Found WFS..."
                     found = True;
                     dstitle = convert_encoding(wfs.contents[identifier].title    if wfs.contents[identifier].title    else identifier)
                     dsabstr = convert_encoding(wfs.contents[identifier].abstract if wfs.contents[identifier].abstract else "")
+
+                    if wfs.contents[identifier].boundingBoxWGS84 is not None:
+                        # For WFS 1.0, at least, the boundingBoxWGS84 is actually a local CRS bounding box
+                        bb = wfs.contents[identifier].boundingBoxWGS84    # Looks like (91979.2, 436330.0, 92615.5, 437657.0)
+                        bboxLeft, bboxBottom, bboxRight, bboxTop = bb
+                    else:
+                        print "No valid bb for ", serverUrl, identifier
 
                     # Check if dataset is available in the city's local srs
                     for c in wfs.contents[identifier].crsOptions:
                         if isEqualCrs(c.id, cityCRS[cityId]):
                             hasCityCRS = True
                             break
-
-                    # No more bounding box for wfs now that Christian has fixed the mapserver config file
-                    # bb = wfs.contents[identifier].boundingBoxWGS84
-                    # bboxLeft, bboxBottom, bboxRight, bboxTop = projectWgsToLocal(bb, cityCRS[cityId])
-
+                    
                 if wcs and identifier in wcs.contents:
-                    print "Found WCS..."
                     found = True;
                     crs = None
                     dstitle = convert_encoding(wcs.contents[identifier].title    if wcs.contents[identifier].title    else identifier)
@@ -455,7 +453,6 @@ def checkDataServers(serverCursor):
                         bb = wcs.contents[identifier].boundingBoxWGS84
                         bboxLeft, bboxBottom, bboxRight, bboxTop = projectWgsToLocal(bb, cityCRS[cityId])
 
-                             
 
                     if(len(wcs.contents[identifier].supportedFormats[0]) == 0):
                         print "Cannot get a supported format for WCS dataset " + serverUrl + " >>> " + identifier
@@ -473,13 +470,11 @@ def checkDataServers(serverCursor):
 
 
                 if wms and identifier in wms.contents:
-                    print "Found WMS..."
                     found = True;
                     dstitle = convert_encoding(wms.contents[identifier].title    if wms.contents[identifier].title    else identifier)
                     dsabstr = convert_encoding(wms.contents[identifier].abstract if wms.contents[identifier].abstract else "")
 
                 if found:
-                    print "Updating datasets..."
                     # Update the database with the layer info
 
                     sqlList.append(
@@ -490,10 +485,10 @@ def checkDataServers(serverCursor):
                                         "last_seen = NOW(), "
                                         "local_srs = "    + str(adapt(hasCityCRS)) + ", "
                                         "format = "       + str(adapt(imgFormat))  + ", "
-                                        "bbox_left = "    + str(adapt(bboxLeft))   + ", "
-                                        "bbox_right = "   + str(adapt(bboxRight))  + ", "
-                                        "bbox_top = "     + str(adapt(bboxTop))    + ", "
-                                        "bbox_bottom = "  + str(adapt(bboxBottom)) + ", "
+                                        "bbox_left = "    + ("NULL" if bboxLeft   is None else str(adapt(bboxLeft)))   + ", "
+                                        "bbox_right = "   + ("NULL" if bboxRight  is None else str(adapt(bboxRight)))  + ", "
+                                        "bbox_top = "     + ("NULL" if bboxTop    is None else str(adapt(bboxTop)))    + ", "
+                                        "bbox_bottom = "  + ("NULL" if bboxBottom is None else str(adapt(bboxBottom))) + ", "
                                         "resolution_x = " + str(adapt(resX))       + ", "
                                         "resolution_y = " + str(adapt(resY))       + " "
                                     "WHERE id = " + str(adapt(dsid)) 
