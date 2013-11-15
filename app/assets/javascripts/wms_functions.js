@@ -268,7 +268,7 @@ WFS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
                                                                              { name: "title",              type: "string" },
                                                                              { name: "namespace",          type: "string", mapping: "featureNS" },
                                                                              { name: "abstract",           type: "string" },
-                                                                             { name: "srs",                type: "string" } ,
+                                                                             { name: "srs",                type: "string" },
                                                                              { name: "latLongBoundingBox", type: "string" }
                                                                         ] });
   COMMON.updateLayerList(store, successFunction, failureFunction);
