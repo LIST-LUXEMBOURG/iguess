@@ -343,8 +343,6 @@ def checkDataServers(serverCursor):
                 identifier = dsrow[1]
                 cityId     = dsrow[2]
 
-                print "Processing ", identifier, cityId
-
                 dstitle = dsabstr = None
 
                 found = True
@@ -375,6 +373,7 @@ def checkDataServers(serverCursor):
                     else:
                         # Make sure there are no Area of Interest tags for this dataset if the bb has disappeared
                         # This is actually not needed as datasets are checked for bb info when the tag list is generated
+                        
                         # Make sure this dataset is not used as the aoi for any configurations
                         sql = "UPDATE " + tables["modconfigs"] + " SET aoi = -1 WHERE aoi = " + str(adapt(dsid))
                         dsCursor.execute(sql)
