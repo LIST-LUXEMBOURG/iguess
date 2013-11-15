@@ -313,7 +313,6 @@ def checkDataServers(serverCursor):
             continue
 
         try:
-
             hasWms = True if wms else False
             hasWfs = True if wfs else False
             hasWcs = True if wcs else False
@@ -322,8 +321,7 @@ def checkDataServers(serverCursor):
             # wfs: ['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__getitem__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_buildMetadata', '_capabilities', 'contents', 'exceptions', 'getOperationByName', 'getcapabilities', 'getfeature', 'identification', 'items', 'log', 'operations', 'provider', 'url', 'version']
             # wfs.contents: ['__class__', '__cmp__', '__contains__', '__delattr__', '__delitem__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__init__', '__iter__', '__le__', '__len__', '__lt__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setitem__', '__sizeof__', '__str__', '__subclasshook__', 'clear', 'copy', 'fromkeys', 'get', 'has_key', 'items', 'iteritems', 'iterkeys', 'itervalues', 'keys', 'pop', 'popitem', 'setdefault', 'update', 'values', 'viewitems', 'viewkeys', 'viewvalues']
 
-            sqlList.append(
-                            "UPDATE " + tables["dataservers"] + " " 
+            sqlList.append( "UPDATE " + tables["dataservers"] + " "
                             "SET title = " + str(adapt(dstitle)) + ", "
                                 "abstract = " + str(adapt(dsabstr)) + ", "
                                 "alive = TRUE, "
@@ -375,7 +373,11 @@ def checkDataServers(serverCursor):
                         bb = wfs.contents[identifier].boundingBoxWGS84    # Looks like (91979.2, 436330.0, 92615.5, 437657.0)
                         bboxLeft, bboxBottom, bboxRight, bboxTop = bb
                     else:
-                        print "No valid bb for ", serverUrl, identifier
+                        # Make sure there are no Area of Interest tags for this dataset if the bb has disappeared
+                        # This is actually not needed as datasets are checked for bb info when the tag list is generated
+                        # Make sure this dataset is not used as the aoi for any configurations
+                        sql = "UPDATE " + tables["modconfigs"] + " SET aoi = -1 WHERE aoi = " + str(adapt(dsid))
+                        dsCursor.execute(sql)
 
                     # Check if dataset is available in the city's local srs
                     for c in wfs.contents[identifier].crsOptions:
@@ -527,7 +529,7 @@ tables["processParams"] = dbSchema + ".process_params"
 tables["datasets"]      = dbSchema + ".datasets"
 tables["dataservers"]   = dbSchema + ".dataservers"
 tables["cities"]        = dbSchema + ".cities"
-
+tables["modconfigs"]    = dbSchema + ".mod_configs"
 
 # Connect to the database
 dbConn = psycopg2.connect(host = dbDatabase, database = dbName, user = dbUsername, password = dbPassword)

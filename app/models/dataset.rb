@@ -101,7 +101,7 @@ def getAoiDatasets(city)
   aois.push(dataset)
 
   datasets.each do |d|
-    if d.hasTag("Area of Interest") then
+    if d.hasTag("Area of Interest") and not d.bbox_top.blank? then
       aois.push(d)
     end
   end
