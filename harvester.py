@@ -491,7 +491,6 @@ def checkDataServers(serverCursor):
                                         "resolution_y = " + str(adapt(resY))       + " "
                                     "WHERE id = " + str(adapt(dsid)) 
                                   )
-
                 else:
                      print "Not found: " + identifier + " (on server " +  serverUrl + ")"
 
@@ -508,7 +507,6 @@ def checkDataServers(serverCursor):
         else:
             # Run queries and commit dataset transactions
             doSql(dbConn, updateCursor, upsertList, sqlList)
-
 
 
 
