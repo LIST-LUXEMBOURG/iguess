@@ -27,15 +27,15 @@ def getSpecialTags(dataset)
 
   tags = []
 
-  if serviceList.include?('WFS') then
-    tags.push('Area of Interest')
+  if serviceList.include?("WFS") then
+    tags.push("Area of Interest")
   end
 
   # if serviceList.include?('WMS') then
   # TODO: For now we seem to assume that everyting has a WMS service... this will need to chanage
   # Assumption also made in c. 80 of datasets/index.html .erb
   if true then
-    tags.push('Mapping')
+    tags.push("Mapping")
   end
 
   return tags.sort_by{ |x| x.downcase }.uniq
@@ -56,8 +56,8 @@ def getBaseTags(dataset)
     serviceList = dataset.service.split(' ')
   end
 
-  if serviceList.include?('WFS') or serviceList.include?('WCS') then
-    return ProcessParam.find_all_by_datatype_and_alive('ComplexData', :true).map{ |p| p.identifier }.sort_by{ |x| x.downcase }.uniq
+  if serviceList.include?("WFS") or serviceList.include?("WCS") then
+    return ProcessParam.find_all_by_datatype_and_alive("ComplexData", :true).map{ |p| p.identifier }.sort_by{ |x| x.downcase }.uniq
   end
 
   return []
