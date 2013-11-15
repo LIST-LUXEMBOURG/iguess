@@ -1250,7 +1250,10 @@
 
         dataset.wxsCrs = record.data.srs;  
 
-        dataset.wxsbbox= record.get("latLongBoundingBox");
+        var llbb = record.get("latLongBoundingBox");
+
+        if(llbb != "")
+          dataset.wxsbbox = llbb;
 
         mergeDatasetIntoLayerList(dataset, service);
       }
