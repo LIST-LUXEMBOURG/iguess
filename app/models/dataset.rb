@@ -27,7 +27,8 @@ def getSpecialTags(dataset)
 
   tags = []
 
-  if serviceList.include?("WFS") and not dataset.bbox_top.blank? then
+  # Include AOI tag for WFS where we were passed a string OR we were passed a full dataset and that dataset has a non-blank bbox_top
+  if serviceList.include?("WFS") and ((dataset.is_a? String) or not dataset.bbox_top.blank?) then
     tags.push("Area of Interest")
   end
 
