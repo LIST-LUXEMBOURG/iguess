@@ -179,7 +179,7 @@ class ModConfigsController < ApplicationController
     # Drop downs -- always inputs
     @mod_config.datasets.map { |dataset| 
 
-                                configDataset = ConfigDataset.find_by_mod_config_id_and_dataset_id(@mod_config.id, config_dataset.id)
+                                configDataset = ConfigDataset.find_by_mod_config_id_and_dataset_id(@mod_config.id, dataset.id)
 
                                 urlparams = ""
                                 bbox = ""
@@ -215,12 +215,12 @@ class ModConfigsController < ApplicationController
                                   end
                                 end
 
-                                request = (config_dataset.service == 'WCS') ? 'getCoverage' : 'getFeature'
-                                noun    = (config_dataset.service == 'WCS') ? 'COVERAGE'    : 'TYPENAME'
+                                request = (dataset.service == 'WCS') ? 'getCoverage' : 'getFeature'
+                                noun    = (dataset.service == 'WCS') ? 'COVERAGE'    : 'TYPENAME'
 
-                                dataname = config_dataset.server_url + (config_dataset.server_url.include?("?") == -1 ? "?" : "&") +
-                                'SERVICE=' + config_dataset.service + urlparams +
-                                URI.escape('&VERSION=1.0.0&REQUEST=' + request + '&' + noun + '=' + config_dataset.identifier)
+                                dataname = dataset.server_url + (dataset.server_url.include?("?") == -1 ? "?" : "&") +
+                                'SERVICE=' + dataset.service + urlparams +
+                                URI.escape('&VERSION=1.0.0&REQUEST=' + request + '&' + noun + '=' + dataset.identifier)
 
                                inputFields.push(configDataset.input_identifier)
                                inputValues.push(dataname) 
