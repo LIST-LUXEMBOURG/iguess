@@ -172,6 +172,7 @@ class ModConfigsController < ApplicationController
       @aoi = Dataset.find_by_id(@mod_config.aoi)
     end
 
+    @current_city = User.getCurrentCity(current_user, cookies)
 
 # http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map&
 # SERVICE=WCS&VERSION=1.0.0&REQUEST=GetCoverage&IDENTIFIER=ro_dsm_mini&
@@ -180,14 +181,15 @@ class ModConfigsController < ApplicationController
     # Drop downs -- always inputs
     @mod_config.datasets.map { |config_dataset| 
 
-                                configDataset = ConfigDataset.find_by_mod_config_id_and_dataset_id(@mod_config.id, config_dataset.id)
+                                # configDataset = ConfigDataset.find_by_mod_config_id_and_dataset_id(@mod_config.id, config_dataset.id)
+                                dataset = Dataset.find_by_id(config_dataset.id)
 
-                                params = ""
+                                urlparams = ""
                                 bbox = ""
 
-                                if(configDataset) then
-                                  if(not configDataset.format.blank?) then params += "&FORMAT=" + configDataset.format end
-                                  if(not configDataset.crs.blank?)    then params += "&CRS="    + configDataset.crs    end
+                                if(dataset) then
+                                  if(not dataset.format.blank?) then urlparams += "&FORMAT=" + dataset.format    end
+                                  urlparams += "&CRS=" + @current_city.srs  # Should always have this param
 
                                   # If we have an area of interest defined, insert that bounding box here
                                   if @aoi != nil then
@@ -201,17 +203,18 @@ class ModConfigsController < ApplicationController
                                   end
 
                                   # If no aoi is being used, or wasn't properly set, use any dataset bb that we have
-                                  if bbox == "" && (configDataset.bbox_left && configDataset.bbox_right && 
-                                                    configDataset.bbox_top && configDataset.bbox_bottom) then 
-                                    bbox += "&BBOX=" + configDataset.bbox_left.to_s()  + "," + configDataset.bbox_bottom.to_s() + "," +
-                                                       configDataset.bbox_right.to_s() + "," + configDataset.bbox_top.to_s()
+                                  if bbox == "" && (dataset.bbox_left && dataset.bbox_right && 
+                                                    dataset.bbox_top && dataset.bbox_bottom) then 
+                                    bbox += "&BBOX=" + dataset.bbox_left.to_s()  + "," + dataset.bbox_bottom.to_s() + "," +
+                                                       dataset.bbox_right.to_s() + "," + dataset.bbox_top.to_s()
                                   end
 
-                                  params += bbox
-
-                                  if(configDataset.res_x and configDataset.res_x > 0 and configDataset.res_y and configDataset.res_y > 0) then 
-                                    params += "&RESX=" + configDataset.res_x.to_s()
-                                    params += "&RESY=" + configDataset.res_y.to_s()
+                                  urlparams += bbox
+                                  if(dataset.resolution_x and dataset.resolution_x.to_f > 0 and 
+                                     dataset.resolution_y and dataset.resolution_y.to_f > 0) 
+                                  then 
+                                    urlparams += "&RESX=" + dataset.resolution_x.to_s()
+                                    urlparams += "&RESY=" + dataset.resolution_y.to_s()
                                   end
                                 end
 
@@ -219,13 +222,12 @@ class ModConfigsController < ApplicationController
                                 noun    = (config_dataset.service == 'WCS') ? 'COVERAGE'    : 'TYPENAME'
 
                                 dataname = config_dataset.server_url + (config_dataset.server_url.include?("?") == -1 ? "?" : "&") +
-                                'SERVICE=' + config_dataset.service + params +
+                                'SERVICE=' + config_dataset.service + urlparams +
                                 URI.escape('&VERSION=1.0.0&REQUEST=' + request + '&' + noun + '=' + config_dataset.identifier)
 
-                               inputFields.push(configDataset.input_identifier)
+                               inputFields.push(dataset.identifier)
                                inputValues.push(dataname) 
                               }
-
 
     # Text fields -- both inputs and outputs
     @mod_config.config_text_inputs.map { |d|  if d.is_input then 
