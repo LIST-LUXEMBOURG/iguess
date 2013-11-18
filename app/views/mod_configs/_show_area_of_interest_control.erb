@@ -7,5 +7,8 @@
 <% else %>
     <!-- This item will get an id of "mod_config_aoi" -->
     <%= collection_select(:mod_config, :aoi, aois, :id, :title, :id=>"area_of_interest") %>
+    <script>
+        $(document).ready(function() { $('#mod_config_aoi').change(onSelectedDatasetChanged) }); 
+    </script>
 <% end %>
 
