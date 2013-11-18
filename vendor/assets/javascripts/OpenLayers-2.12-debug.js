@@ -71585,7 +71585,7 @@ OpenLayers.Format.WFSCapabilities.v1_0_0 = OpenLayers.Class(
             "SRS": function(node, obj) {
                 var srs = this.getChildValue(node);
                 if (srs) {
-                    obj.srs = "srs";
+                    obj.srs = srs;
                 }
             },
             "LatLongBoundingBox": function(node, obj) {
