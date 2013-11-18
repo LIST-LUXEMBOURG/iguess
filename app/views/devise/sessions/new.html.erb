@@ -1,19 +1,19 @@
-<h2>Log in</h2>
+<h1>Log in</h1>
 
 <%= simple_form_for(resource, :as => resource_name, :url => session_path(resource_name)) do |f| %>
   <div class="form-inputs">
-    <%= f.input :login, :required => false, :autofocus => true, :hint => "Enter your username or email address" %>
+    <%= f.input :login, :required => false, :autofocus => true, :label=>"Username", :hint => "Enter your username or email address" %>
     <%= f.input :password, :required => false %>
-    <label></label><%= f.input :remember_me, :as => :boolean if devise_mapping.rememberable? %>
+    <label>&nbsp;</label><%= f.input :remember_me, :as => :boolean if devise_mapping.rememberable? %>
   </div>
 
   <div class="form-actions">
-    <label></label><%= f.button :submit, "Log in" %>
+    <label>&nbsp;</label><%= f.button :submit, "Log in" %>
   </div>
 
 
   <div class="shared_links">
-    <label></label><%= render "devise/shared/links" %>
+    <label>&nbsp;</label><%= render "devise/shared/links" %>
   </div>
 
 <% end %>
