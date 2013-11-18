@@ -38,17 +38,25 @@ WebGIS.coordsLongLabel = null;
 WebGIS.CreatePanels = function() {
 
   // Skip this stuff if the BroadMap div does not exist
-  if($('#BroadMap').length == 0)
-    return;
+  // What the hell is this? It generates errors.
+  /*if($('#BroadMap').length == 0)
+    return;*/
 
   Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
   
   Ext.QuickTips.init();
   
   Ext.get('main_body').setStyle('margin', '0');
-  Ext.get('nav').setStyle('margin-bottom', '0');
   
-  WebGIS.headerHeight = Ext.get("nav").getHeight() + Ext.get("top_banner").getHeight();
+  var navHeight = 0;
+  
+  if(Ext.get('nav') != null)
+  {
+	  Ext.get('nav').setStyle('margin-bottom', '0');
+	  navHeight = Ext.get("nav").getHeight();
+  }
+  
+  WebGIS.headerHeight = navHeight + Ext.get("top_banner").getHeight();
 
   WebGIS.initMap();
   

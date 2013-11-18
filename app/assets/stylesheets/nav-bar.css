@@ -1,6 +1,8 @@
     #navbar {
       width: 100%;
-      margin-bottom: 10px;
+      height: 32px;
+     /* margin-bottom: 10px;*/
+      background: #ccc;
     }
     
     
@@ -12,8 +14,10 @@
       font-size: 15px;
     }
     
+    
+    
     #nav {
-        float: left;
+       /* float: left;*/
         width: 100%;
         margin: 0;
         margin-bottom: 1em;
@@ -48,6 +52,7 @@
     #nav a:hover {
         color: #000;
         }
+    
     
     /* more */
     
