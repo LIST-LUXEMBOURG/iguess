@@ -7,7 +7,7 @@
     <%= f.input :username, :required => true, :autofocus => true %>
     <%= f.input :email, :required => true %>
     <%= f.input :password, :required => true %>
-    <%= f.input :password_confirmation, :required => true %>
+    <%= f.input :password_confirmation, :required => true, :label=>"Confirm" %>
 
     <%= f.input :first_name, :required => true %>
     <%= f.input :last_name, :required => true %>
@@ -17,11 +17,11 @@
   </div>
 
   <div class="form-actions">
-    <label></label><%= f.button :submit, "Sign up" %>
+    <label>&nbsp;</label><%= f.button :submit, "Sign up" %>
   </div>
 
   <div class="shared_links">
-    <label></label><%= render "devise/shared/links" %>
+    <label>&nbsp;</label><%= render "devise/shared/links" %>
   </div>
 
 <% end %>

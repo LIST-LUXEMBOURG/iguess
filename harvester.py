@@ -373,7 +373,7 @@ def checkDataServers(serverCursor):
                     else:
                         # Make sure there are no Area of Interest tags for this dataset if the bb has disappeared
                         # This is actually not needed as datasets are checked for bb info when the tag list is generated
-                        
+
                         # Make sure this dataset is not used as the aoi for any configurations
                         sql = "UPDATE " + tables["modconfigs"] + " SET aoi = -1 WHERE aoi = " + str(adapt(dsid))
                         dsCursor.execute(sql)
@@ -475,11 +475,8 @@ def checkDataServers(serverCursor):
                     dstitle = convert_encoding(wms.contents[identifier].title    if wms.contents[identifier].title    else identifier)
                     dsabstr = convert_encoding(wms.contents[identifier].abstract if wms.contents[identifier].abstract else "")
 
-                if found:
-                    # Update the database with the layer info
-
-                    sqlList.append(
-                                    "UPDATE " + tables["datasets"] + " "
+                if found:           # Update the database with the layer info
+                    sqlList.append( "UPDATE " + tables["datasets"] + " "
                                     "SET title = "        + str(adapt(dstitle))    + ", "
                                         "abstract = "     + str(adapt(dsabstr))    + ", "
                                         "alive = TRUE, "
@@ -494,7 +491,6 @@ def checkDataServers(serverCursor):
                                         "resolution_y = " + str(adapt(resY))       + " "
                                     "WHERE id = " + str(adapt(dsid)) 
                                   )
-
                 else:
                      print "Not found: " + identifier + " (on server " +  serverUrl + ")"
 
@@ -511,7 +507,6 @@ def checkDataServers(serverCursor):
         else:
             # Run queries and commit dataset transactions
             doSql(dbConn, updateCursor, upsertList, sqlList)
-
 
 
 

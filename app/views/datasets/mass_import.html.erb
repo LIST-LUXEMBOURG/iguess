@@ -448,11 +448,14 @@
         }
         
         // Now that the tag picker has finally been added to the dom, we can populate it
-        if(layer.type.hasObject('WCS'))
+        // Note that if there is no wxsbbox, we don't want the Area of Interest tag, so use the WCS tags instead of the WFS ones.
+        // This is kind of hacky, but seems to work.
+        if(layer.type.hasObject('WCS') || (layer.type.hasObject('WFS') && getCoord(layer, "left") === "")) {
           makeDropdown(tagPickerControlId, WCSTagList);
-
-        else if(layer.type.hasObject('WFS')) 
+        }
+        else if(layer.type.hasObject('WFS')) {
           makeDropdown(tagPickerControlId, WFSTagList);
+        }
 
         else
           makeDropdown(tagPickerControlId, WMSTagList);
@@ -1163,6 +1166,7 @@
   // Merges dataset into the already created layer record, if it exists
   var mergeDatasetIntoLayerList = function(dataset, service)
   {
+
     var key = cssEscape(dataset.serverUrl + dataset.identifier);   // Need a single key to make iteration elsewhere easier
 
     var layer = discoveredLayers[key];
@@ -1174,7 +1178,6 @@
       }
 
       layer.type.push(service);
-
 
       if(service === "WFS" || service === "WCS")
       {
@@ -1250,6 +1253,10 @@
 
         dataset.wxsCrs = record.data.srs;  
 
+        var llbb = record.get("latLongBoundingBox");
+
+        if(llbb != "")
+          dataset.wxsbbox = llbb;
         mergeDatasetIntoLayerList(dataset, service);
       }
 

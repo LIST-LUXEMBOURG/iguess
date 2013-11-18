@@ -4,15 +4,15 @@
   <%= f.error_notification %>
 
   <div class="form-inputs">
-    <%= f.input :login, :required => true, :autofocus => true %>
+    <%= f.input :login, :required => true, :autofocus => true, :label=>"Username", :hint => "Enter your username or email address" %>
   </div>
 
   <div class="form-actions">
-    <label></label><%= f.button :submit, "Send me reset password instructions" %>
+    <label>&nbsp;</label><%= f.button :submit, "Send me reset password instructions" %>
   </div>
 
   <div class="shared_links">
-    <label></label><%= render "devise/shared/links" %>
+    <label>&nbsp;</label><%= render "devise/shared/links" %>
   </div>
 
 <% end %>
