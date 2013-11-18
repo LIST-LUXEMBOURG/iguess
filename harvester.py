@@ -332,10 +332,16 @@ def checkDataServers(serverCursor):
                             "WHERE url = " + str(adapt(serverUrl))
                           )
 
+            sql = "SELECT d.id, d.identifier, d.city_id FROM " + tables["datasets"] + " AS d " \
+                  "LEFT JOIN " + tables["dataservers"] + " AS ds ON d.dataserver_id = ds.id "  \
+                  "WHERE ds.url = '" + serverUrl + "'"
+
             # Trailing comma needed in line below because Python tuples can't have just one element...
-            dsCursor.execute("SELECT d.id, d.identifier, d.city_id FROM " + tables["datasets"] + " AS d "
-                             "LEFT JOIN " + tables["dataservers"] + " AS ds ON d.dataserver_id = ds.id "
-                             "WHERE ds.url = %s", (serverUrl,))
+            dsCursor.execute(sql)
+
+            print sql
+
+            print "Rows --> ",dsCursor.rowcount
 
 
             for dsrow in dsCursor:
@@ -376,7 +382,7 @@ def checkDataServers(serverCursor):
 
                         # Make sure this dataset is not used as the aoi for any configurations
                         sql = "UPDATE " + tables["modconfigs"] + " SET aoi = -1 WHERE aoi = " + str(adapt(dsid))
-                        dsCursor.execute(sql)
+                        updateCursor.execute(sql)
 
                     # Check if dataset is available in the city's local srs
                     for c in wfs.contents[identifier].crsOptions:
