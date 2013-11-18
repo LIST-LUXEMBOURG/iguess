@@ -127,8 +127,6 @@ class ModConfigsController < ApplicationController
     results = ModConfig.find_by_sql sql
     errs = results[0]["sum"]
 
-    binding.pry
-
     return errs == "0" ? 'READY' : 'NEEDS_DATA'
   end
 
