@@ -127,6 +127,8 @@ class ModConfigsController < ApplicationController
     results = ModConfig.find_by_sql sql
     errs = results[0]["sum"]
 
+    binding.pry
+
     return errs == "0" ? 'READY' : 'NEEDS_DATA'
   end
 
@@ -462,8 +464,13 @@ class ModConfigsController < ApplicationController
 
           @output = ConfigTextInput.find_by_mod_config_id_and_column_name_and_is_input(@mod_config.id, name, paramkey == :input)
 
-          @output.value = val
-          ok = ok && @output.save
+          # TODO: @output can be nil if the wps changed the identifiers it uses
+          if @output != nil then
+            @output.value = val
+
+            ok = ok && @output.save
+          # else... what?
+          end
         }
       end
     end
