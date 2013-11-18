@@ -177,10 +177,9 @@ class ModConfigsController < ApplicationController
 # FORMAT=image/tiff&BBOX=92213,436671.500,92348,436795.000&CRS=EPSG:28992&RESX=1&RESY=1
 
     # Drop downs -- always inputs
-    @mod_config.datasets.map { |config_dataset| 
+    @mod_config.datasets.map { |dataset| 
 
-                                # configDataset = ConfigDataset.find_by_mod_config_id_and_dataset_id(@mod_config.id, config_dataset.id)
-                                dataset = Dataset.find_by_id(config_dataset.id)
+                                configDataset = ConfigDataset.find_by_mod_config_id_and_dataset_id(@mod_config.id, config_dataset.id)
 
                                 urlparams = ""
                                 bbox = ""
@@ -223,7 +222,7 @@ class ModConfigsController < ApplicationController
                                 'SERVICE=' + config_dataset.service + urlparams +
                                 URI.escape('&VERSION=1.0.0&REQUEST=' + request + '&' + noun + '=' + config_dataset.identifier)
 
-                               inputFields.push(dataset.identifier)
+                               inputFields.push(configDataset.input_identifier)
                                inputValues.push(dataname) 
                               }
 
