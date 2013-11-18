@@ -156,6 +156,7 @@ input, select, textarea {
  vertical-align: middle;
  background-color: #393;
  padding-top: .5em;
+ border-bottom: 1px #999 solid;
 }
 
 
