@@ -97,6 +97,7 @@ DSS.quit = function()
 {
 	DSS.winPanel.hide();
 	DSS.winSelect.hide();
+	//DSS.winSelect.close();
 	DSS.map.removeLayer(DSS.layerWFS);	
 };
 

@@ -205,7 +205,10 @@ WebGIS.CreatePanels = function() {
   
   Ext.EventManager.onWindowResize(function () 
   {
-	var width = Ext.getBody().getViewSize().width;
+	var width = 0, height = 0; 
+	if(Ext.get('nav') != null)
+		var width = Ext.get("nav").getWidth();
+	else width = Ext.getBody().getViewSize().width;
 	var height = Ext.getBody().getViewSize().height - WebGIS.headerHeight;
 	WebGIS.mainPanel.setSize(width, height);
   });
