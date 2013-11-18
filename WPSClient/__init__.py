@@ -219,6 +219,9 @@ class WPSClient:
         :param outputNames: list of strings with output names       
         """
         
+        self.loadConfigs()
+        self.setupLogging()
+        
         self.serverAddress = serverAddress
         self.processName = processName
         self.inputNames = inputNames
@@ -235,6 +238,9 @@ class WPSClient:
         
         :param url: string with the status URL address of a remote process      
         """
+        
+        self.loadConfigs()
+        self.setupLogging()
         
         self.statusURL = url
         self.processId = self.decodeId(url)
