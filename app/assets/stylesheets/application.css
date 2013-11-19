@@ -192,7 +192,7 @@ input, select, textarea {
 
 /* Light blue explanation box */
 .explanation {
-  /background: #D5E9F6 url(images/info_icon.svg) no-repeat left center;
+  background: #D5E9F6 url(images/info_icon.svg) no-repeat left center;
   background-size: 32px 32px;
   background-position: 10px 40%;    /* Distance from the left */
 
