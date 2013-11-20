@@ -15,11 +15,11 @@ def configLogging(logfile, loglevel):
 
 
 # Configure logging
-configLogging(logFileName, "INFO")
+#configLogging(logFileName, "INFO")
 
 argv = sys.argv[1:]
 
-logging.info("Processing command: " + " ".join(argv))
+#logging.info("Processing command: " + " ".join(argv))
 
 # Code modeled on http://stackoverflow.com/questions/7605631/passing-a-list-to-python-from-command-line
 arg_dict = { } 
@@ -38,7 +38,7 @@ for x in switches:
 try:            
     opts, args = getopt.getopt(argv, singles, long_form)
 except getopt.GetoptError, e:          
-    logging.error("Bad arg: " + e.msg)
+ #   logging.error("Bad arg: " + e.msg)
     sys.exit(2)       
 
 for opt, arg in opts:
@@ -55,12 +55,12 @@ for opt, arg in opts:
             arg_dict[o] = arg
 
     if not o:
-        logging.error("Invalid options!\n")
+  #      logging.error("Invalid options!\n")
         sys.exit(2)
     #Error: bad arg for names... [dem] is not a <type 'list'>!
 
     if not isinstance(arg_dict[o], switches[o]):
-        logging.error(str(opt) + " " + str(arg) + "\nError: bad arg for " + o + "... " + str(arg_dict[o]) + " is not a " + str(switches[o]) + "!")
+   #     logging.error(str(opt) + " " + str(arg) + "\nError: bad arg for " + o + "... " + str(arg_dict[o]) + " is not a " + str(switches[o]) + "!")
         sys.exit(2)                 
 
 
@@ -110,7 +110,7 @@ except Exception, e: # iniCli encountered an error
     sys.exit()
 
 # iniCli is happy!
-logging.info("Launching process: " + url)
+#logging.info("Launching process: " + url)
 sys.stdout.write("OK:" + url)  
 
 # if(url == None):        # iniCli encountered an error
