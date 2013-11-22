@@ -53,6 +53,12 @@ class WPSClient:
     This class manages the WPS request, status checking and results 
     processing cycle. 
     
+    .. attribute:: logger
+        Reference to logging object
+        
+    .. attribute:: logFormat
+        String formating log output
+    
     .. attribute:: serverAddress
         Address of the WPS server where the process to invoke resides
         
@@ -138,6 +144,9 @@ class WPSClient:
         publish the complex outputs
     """
     
+    logger = None
+    logFormat = "[WPSClient][%(asctime)s] %(levelname)s: %(message)s"
+    
     serverAddress = None
     processName = None
     inputNames = None
@@ -202,10 +211,13 @@ class WPSClient:
     SUCC_01 = "The process has finished successfully.\nProcessing the results..."
     SUCC_02 = "Wrote map file to disk:\n"
     
-    def __init__(self):
+    def __init__(self, logger = None):
          
         self.loadConfigs()
-        self.setupLogging()
+        
+        if (logger == None):
+            self.setupLogging()
+            
         
     def init(self, serverAddress, processName, inputNames, inputValues, outputNames, outputTitles):
         """
@@ -219,6 +231,8 @@ class WPSClient:
         :param outputNames: list of strings with output names       
         """
         
+        # Loading this stuff here probably doesn't make sense
+        # Check at a later data if __init__ is run from an external model (tha includes this one)
         self.loadConfigs()
         self.setupLogging()
         
@@ -239,6 +253,8 @@ class WPSClient:
         :param url: string with the status URL address of a remote process      
         """
         
+        # Loading this stuff here probably doesn't make sense
+        # Check at a later data if __init__ is run from an external model (tha includes this one)
         self.loadConfigs()
         self.setupLogging()
         
@@ -308,14 +324,23 @@ class WPSClient:
         """
         Sets up the logging file.
         """
-        #global logFile
-        format = "[%(asctime)s] %(levelname)s: %(message)s"
+        
+        formatter = logging.Formatter(self.logFormat)
+        
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(self.logLevel)
+
         if(self.logFile == None):
-            logging.basicConfig(level=self.logLevel,format=format)
-        else:
-            logging.basicConfig(filename=self.logFile,level=self.logLevel,format=format)
-            #logFile = open(fileName, "a")
+            ch_stream = logging.StreamHandler()
+            #ch_stream.setLevel(logging.INFO)
+            ch_stream.setFormatter(formatter)
+            self.logger.addHandler(ch_stream)
             
+        else:
+            ch_file = logging.FileHandler(self.logFile, 'w')
+            #ch_file.setLevel(self.logLevel)
+            ch_file.setFormatter(formatter)
+            self.logger.addHandler(ch_file)            
             
     def processOutputTitles(self, outputNames, outputTitles):
         """
@@ -326,7 +351,7 @@ class WPSClient:
         """
         
         if(len(outputNames) <> len(outputTitles)):
-            logging.warning(self.WARN_01)
+            self.logger.warning(self.WARN_01)
             for i in range(0, len(outputNames)):
                 self.outputTitles[outputNames[i]] = outputNames[i]
                 
@@ -353,7 +378,7 @@ class WPSClient:
         """
         
         if len(self.inputNames) <> len(self.inputValues):
-            logging.error(self.ERR_01)
+            self.logger.error(self.ERR_01)
             raise Exception(self.ERR_01)
             return
         
@@ -380,13 +405,13 @@ class WPSClient:
         self.buildRequest()
         
         if(self.xmlPost == None):
-            logging.error(self.ERR_02)
+            self.logger.error(self.ERR_02)
             raise Exception(self.ERR_02)
             return None
         
         request = self.xmlPost.getString()
         if(request == None):
-            logging.error(self.ERR_02)
+            self.logger.error(self.ERR_02)
             raise Exception(self.ERR_02)
             return None
         
@@ -394,7 +419,7 @@ class WPSClient:
         split = rest.split("/")
         
         if(len(split) < 2):
-            logging.error(self.ERR_03 + self.serverAddress)
+            self.logger.error(self.ERR_03 + self.serverAddress)
             raise Exception(self.ERR_03 + self.serverAddress)
             return None
         
@@ -403,10 +428,10 @@ class WPSClient:
         api_url = rest.replace(host, "", 1)        
         api_url = api_url.replace("?", "")
         
-        logging.debug("API: " + api_url)
-        logging.debug("HOST: " + host)
-        logging.debug("Sending the request:\n")
-        logging.debug(request + "\n")
+        self.logger.debug("API: " + api_url)
+        self.logger.debug("HOST: " + host)
+        self.logger.debug("Sending the request:\n")
+        self.logger.debug(request + "\n")
         
         webservice = httplib.HTTP(host)
         webservice.putrequest("POST", api_url)
@@ -419,13 +444,13 @@ class WPSClient:
         statuscode, statusmessage, header = webservice.getreply()
         self.xmlResponse = webservice.getfile().read()
         
-        logging.debug("Request info:" + str(statuscode) + str(statusmessage) + str(header))
-        logging.debug("Response:\n" + self.xmlResponse)
+        self.logger.debug("Request info:" + str(statuscode) + str(statusmessage) + str(header))
+        self.logger.debug("Response:\n" + self.xmlResponse)
         
         try:
             self.statusURL = self.xmlResponse.split("statusLocation=\"")[1].split("\"")[0]
         except Exception, err:
-            logging.error(self.ERR_04)
+            self.logger.error(self.ERR_04)
             raise Exception(self.ERR_04)
             return None
         
@@ -450,7 +475,7 @@ class WPSClient:
         self.status = None                     
 
         if (self.statusURL == None):
-            logging.error(self.ERR_05)
+            self.logger.error(self.ERR_05)
             raise Exception(self.ERR_05)
             return False
         
@@ -472,7 +497,7 @@ class WPSClient:
                 self.processErrorCode = "Unknown"
                 self.processErrorText = "Unknown"
 
-            logging.error(self.ERR_06 + self.processErrorText)
+            self.logger.error(self.ERR_06 + self.processErrorText)
             raise Exception(self.ERR_06 + self.processErrorText)
 
             return True
@@ -480,16 +505,16 @@ class WPSClient:
         # Check if the process has finished
         if not (Tags.preSucc in self.xmlResponse):
             self.status = self.RUNNING
-            logging.debug("The process hasn't finished yet.")
+            self.logger.debug("The process hasn't finished yet.")
             if ("percentCompleted" in self.xmlResponse):
                 temp = self.xmlResponse.split("percentCompleted=\"")[1]
                 rest = temp.split("\">")
                 self.percentCompleted = rest[0]
                 self.statusMessage = rest[1].split(Tags.prStart)[0]
-                logging.info(str(self.percentCompleted) + " % of the execution complete.")
+                self.logger.info(str(self.percentCompleted) + " % of the execution complete.")
             return False
         
-        logging.debug(self.SUCC_01)
+        self.logger.debug(self.SUCC_01)
         
         # Process the results
         outVector = self.xmlResponse.split(Tags.preOut)
@@ -569,10 +594,10 @@ class WPSClient:
                         layer.layerType = type
                     else:
                         layer.layerType = "Polygon"
-                    logging.debug("The layer type: " + str(c.dataSet.getGeometryType()))
+                    self.logger.debug("The layer type: " + str(c.dataSet.getGeometryType()))
                     layer.addStyle(style)
                     self.map.addLayer(layer)
-                    logging.debug("Generated layer " + layer.name + " of type " + layer.layerType + ".")
+                    self.logger.debug("Generated layer " + layer.name + " of type " + layer.layerType + ".")
                   
                 elif c.dataSet.dataType == c.dataSet.TYPE_RASTER:
                     layer = UMN.RasterLayer(
@@ -583,21 +608,21 @@ class WPSClient:
                                             self.outputTitles[c.name])
                     layer.setBounds(c.dataSet.getMaxValue(), c.dataSet.getMinValue())
                     self.map.addLayer(layer)
-                    logging.debug("Generated layer " + layer.name + " of type raster.")
+                    self.logger.debug("Generated layer " + layer.name + " of type raster.")
                     
                 else:
-                    logging.warning(self.WARN_02 + c.name)
+                    self.logger.warning(self.WARN_02 + c.name)
                     
                 
 
         try :
             self.map.writeToDisk()
         except Exception, e:
-            logging.error(self.ERR_07 + str(e))
+            self.logger.error(self.ERR_07 + str(e))
             raise Exception(self.ERR_07 + str(e))
             return
         
-        logging.info(self.SUCC_02 + self.map.filePath())
+        self.logger.info(self.SUCC_02 + self.map.filePath())
             
         return self.map.filePath()
         
