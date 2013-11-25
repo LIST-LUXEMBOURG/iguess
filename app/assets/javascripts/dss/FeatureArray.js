@@ -47,9 +47,10 @@ DSS.FeatureArray.prototype.get = function(pos)
 	return null;
 };
 
-DSS.FeatureArray.prototype.getLast = function(pos)
+DSS.FeatureArray.prototype.getLast = function()
 {
-		return this.array[this.array.length -1];
+		for(i = this.array.length - 1; (this.array[i].gen == null) || (this.array[i].gen == ""); i--);
+		return this.array[i];
 };
 
 DSS.FeatureArray.prototype.getNearestFromCost = function(cost) 
