@@ -125,6 +125,7 @@ DSS.initWinPanel = function()
 
 DSS.initSliders = function()
 {
+	var first = DSS.featureArray.get(0);
 	var last = DSS.featureArray.getLast();
 	
 	if(DSS.costSlider == null)
@@ -132,7 +133,7 @@ DSS.initSliders = function()
 	        renderTo: 'slider-cost',
 	        width: DSS.controlWidth,
 	        value: 0,
-	        minValue: (DSS.featureArray.get(0).cost * DSS.costFactor).toFixed(0),
+	        minValue: (first.cost * DSS.costFactor).toFixed(0),
 	        maxValue: (last.cost * DSS.costFactor).toFixed(0),
 	        plugins: new Ext.ux.SliderTip()
 	    });
@@ -166,6 +167,8 @@ DSS.initSliders = function()
 	        maxValue: parseInt(last.area),
 	        plugins: new Ext.ux.SliderTip()
 	    });
+	
+	document.getElementById(DSS.costEl).innerHTML = DSS.costLabel + parseFloat(first.cost).toFixed(3) + DSS.costUnits;
     
 	DSS.costSlider.on('change', DSS.costDragged, this);
 	DSS.invSlider.on ('change', DSS.invDragged, this);
