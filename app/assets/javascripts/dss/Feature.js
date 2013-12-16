@@ -33,13 +33,21 @@ DSS.Feature = function (cost, inv, gen, area)
  
 DSS.Feature.prototype.isGreaterThan = function(feature) 
 {
-    if(this.gen > feature.gen) return true;
+    if((this.gen != null) && 
+       (this.gen != "") && 
+       (parseFloat(this.gen) > parseFloat(feature.gen))) 
+    	return true;
+    
     else return false;
 };
 
 DSS.Feature.prototype.isLowerThan = function(feature) 
 {
-    if(this.gen < feature.gen) return true;
+    if((this.gen != null) && 
+       (this.gen != "") && 
+       (parseFloat(this.gen) < parseFloat(feature.gen))) 
+    	return true;
+    
     else return false;
 };
 

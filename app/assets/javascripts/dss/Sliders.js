@@ -97,6 +97,7 @@ DSS.quit = function()
 {
 	DSS.winPanel.hide();
 	DSS.winSelect.hide();
+	//DSS.winSelect.close();
 	DSS.map.removeLayer(DSS.layerWFS);	
 };
 
@@ -124,13 +125,16 @@ DSS.initWinPanel = function()
 
 DSS.initSliders = function()
 {
+	var first = DSS.featureArray.get(0);
+	var last = DSS.featureArray.getLast();
+	
 	if(DSS.costSlider == null)
 	    DSS.costSlider = new Ext.Slider({
 	        renderTo: 'slider-cost',
 	        width: DSS.controlWidth,
 	        value: 0,
-	        minValue: (DSS.featureArray.get(0).cost * DSS.costFactor).toFixed(0),
-	        maxValue: (DSS.featureArray.getLast().cost * DSS.costFactor).toFixed(0),
+	        minValue: (first.cost * DSS.costFactor).toFixed(0),
+	        maxValue: (last.cost * DSS.costFactor).toFixed(0),
 	        plugins: new Ext.ux.SliderTip()
 	    });
     
@@ -140,7 +144,7 @@ DSS.initSliders = function()
 	        width: DSS.controlWidth,
 	        value: 0,
 	        minValue: 0,
-	        maxValue: (DSS.featureArray.getLast().inv / DSS.invFactor).toFixed(0),
+	        maxValue: (last.inv / DSS.invFactor).toFixed(0),
 	        plugins: new Ext.ux.SliderTip()
 	    });
     
@@ -150,7 +154,7 @@ DSS.initSliders = function()
 	        width: DSS.controlWidth,
 	        value: 0,
 	        minValue: 0,
-	        maxValue: (DSS.featureArray.getLast().gen / DSS.genFactor).toFixed(0),
+	        maxValue: (last.gen / DSS.genFactor).toFixed(0),
 	        plugins: new Ext.ux.SliderTip()
 	    });
     
@@ -160,9 +164,11 @@ DSS.initSliders = function()
 	        width: DSS.controlWidth,
 	        value: 0,
 	        minValue: 0,
-	        maxValue: parseInt(DSS.featureArray.getLast().area),
+	        maxValue: parseInt(last.area),
 	        plugins: new Ext.ux.SliderTip()
 	    });
+	
+	document.getElementById(DSS.costEl).innerHTML = DSS.costLabel + parseFloat(first.cost).toFixed(3) + DSS.costUnits;
     
 	DSS.costSlider.on('change', DSS.costDragged, this);
 	DSS.invSlider.on ('change', DSS.invDragged, this);
