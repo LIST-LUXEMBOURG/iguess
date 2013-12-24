@@ -3,7 +3,8 @@ class ComparesController < ApplicationController
   def index
     @cities = City.all
 
-    @current_city = (City.find_by_name(cookies['city']) or City.first)
+    # @current_city = (City.find_by_id(cookies['city']) or City.first)
+    @current_city = User.getCurrentCity(current_user, cookies)
 
     @datasets = Dataset.all
     
