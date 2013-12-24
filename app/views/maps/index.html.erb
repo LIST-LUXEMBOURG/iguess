@@ -2,111 +2,109 @@
 
 <script>
 
-var MapUtils = MapUtils || { };   // Create namespace
+    var MapUtils = MapUtils || { };   // Create namespace
 
-MapUtils.retrieveDatasetsForCity = function(cityName, successFunction) {
-var serverUrl = '<%= url_for(:controller => "datasets", :action => "get_for_city", :format => :json) %>';
-$.ajax({
-type: 'POST',
-url: serverUrl,
-data: 'cityName=' + getCityCookie(),
-headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
-success: successFunction,
-error: function() { alert('Error retrieving datasets for city.'); }
-});
-}
+    MapUtils.retrieveDatasetsForCity = function(cityName, successFunction) {
+    var serverUrl = '<%= url_for(:controller => "datasets", :action => "get_for_city", :format => :json) %>';
+    $.ajax({
+        type: 'POST',
+        url: serverUrl,
+        data: 'cityName=' + getCityCookie(),
+        headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
+        success: successFunction,
+        error: function() { alert('Error retrieving datasets for city.'); }
+        });
+    }
 
-// We've got a new batch of datasets to display!
-// Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
-var addLayersToMap = function(datasets)
-{
-for (var i = 0, len = datasets.length; i < len; i++)
-WebGIS.addNewLayer(datasets[i].title || datasets[i].identifier, datasets[i].server_url, datasets[i].identifier, null);
-};
+    // We've got a new batch of datasets to display!
+    // Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
+    var addLayersToMap = function(datasets)
+    {
+        for (var i = 0, len = datasets.length; i < len; i++)
+            WebGIS.addNewLayer(datasets[i].title || datasets[i].identifier, datasets[i].server_url, datasets[i].identifier, null);
+    };
 
-// This gets run when user changes city dropdown
-var onLocationChanged = function(cityName)
-{
-WebGIS.clearLayers(false);
+    // This gets run when user changes city dropdown
+    var onLocationChanged = function(cityName)
+    {
+        WebGIS.clearLayers(false);
 
-// Retrieve all datasets for specified city
-MapUtils.retrieveDatasetsForCity(cityName, function(data){ addLayersToMap(data); });
+        // Retrieve all datasets for specified city
+        MapUtils.retrieveDatasetsForCity(cityName, function(data){ addLayersToMap(data); });
 
-// Notify WebGIS that things have changed
-<% for city in City.all %>
-if(cityName == "<%= city.name %>")
-{
-var point = new OpenLayers.LonLat(<%= city.mapx %>, <%= city.mapy %>);
-WebGIS.leftMap.setCenter(point, <%= city.zoom %>);
+        // Notify WebGIS that things have changed
+        <% for city in City.all %>
+            if(cityName == "<%= city.name %>")
+            {
+                var point = new OpenLayers.LonLat(<%= city.mapx %>, <%= city.mapy %>);
+                WebGIS.leftMap.setCenter(point, <%= city.zoom %>);
 
-$('.all-layers').hide();
-$('.layer-for-city-<%= city.id %>').show();
+                $('.all-layers').hide();
+                $('.layer-for-city-<%= city.id %>').show();
 
-return;
-}
-<% end %>
-};
+                return;
+            }
+        <% end %>
+    };
 
-Ext.onReady(function() {
-WebGIS.CreatePanels();
-//WebGIS.CreatePanelsParallel();
-});
-
-</script>
-
-<script type="text/javascript">
-	$(function() {
-		var theTable = $('#sortable_table')
-
-		theTable.find("tbody > tr").find("td:eq(1)").mousedown(function() {
-			$(this).prev().find(":checkbox").click()
-		});
-
-		$("#filter").keyup(function() {
-			$.uiTableFilter(theTable, this.value);
-		})
-
-		$('#filter-form').submit(function() {
-			theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
-			return false;
-		}).focus();
-		//Give focus to input field
-	}); 
-</script>
-
-<script type="text/javascript">
-	$(document).bind('ajax:success', function(xhr, data, status) {
-		$('#dataset-id-' + data).hide();
-	});
+    Ext.onReady(function() {
+        WebGIS.CreatePanels();
+        //WebGIS.CreatePanelsParallel();
+    });
 
 </script>
 
 <script type="text/javascript">
-	$(function() {
-		var theTable = $('#sortable_table')
+    $(function() {
+        var theTable = $('#sortable_table')
 
-		theTable.find("tbody > tr").find("td:eq(1)").mousedown(function() {
-			$(this).prev().find(":checkbox").click()
-		});
+        theTable.find("tbody > tr").find("td:eq(1)").mousedown(function() {
+            $(this).prev().find(":checkbox").click()
+        });
 
-		$("#filter").keyup(function() {
-			$.uiTableFilter(theTable, this.value);
-		})
+        $("#filter").keyup(function() {
+            $.uiTableFilter(theTable, this.value);
+        })
 
-		$('#filter-form').submit(function() {
-			theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
-			return false;
-		}).focus();
-		//Give focus to input field
-	}); 
+        $('#filter-form').submit(function() {
+            theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
+            return false;
+        }).focus();
+        //Give focus to input field
+    }); 
+</script>
+
+<script type="text/javascript">
+    $(document).bind('ajax:success', function(xhr, data, status) {
+        $('#dataset-id-' + data).hide();
+    });
+
+</script>
+
+<script type="text/javascript">
+    $(function() {
+        var theTable = $('#sortable_table')
+
+        theTable.find("tbody > tr").find("td:eq(1)").mousedown(function() {
+            $(this).prev().find(":checkbox").click()
+        });
+
+        $("#filter").keyup(function() {
+            $.uiTableFilter(theTable, this.value);
+        })
+
+        $('#filter-form').submit(function() {
+            theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
+            return false;
+        }).focus();
+        //Give focus to input field
+    }); 
 </script>
 
 <div id="BroadMap">
-	
-	<!-- Map goes here -->
-	<div id="leftMap"></div>
-	
-	<div id="rightMap"></div>
+    <!-- Map goes here -->
+    <div id="leftMap"></div>
+    <div id="rightMap"></div>
 </div>
 
 <div id="winDivIdentify"></div>
@@ -114,36 +112,36 @@ WebGIS.CreatePanels();
 <!------------ DSS windows ------------>
 
 <div title="divSelectId" id="divSelectId" class="x-hidden" style="padding:10px">
-	Use the form below to select a layer to apply the Potential Application tool.
-	<br>
-	<br>
-	Select an attribute for each of the parameters of the tool: <b>Cost</b>, <b>Cumulative Inventment</b>, <b>Cumulative Energy</b> and <b>Cumulative Area</b>.
+    Use the form below to select a layer to apply the Potential Application tool.
+    <br>
+    <br>
+    Select an attribute for each of the parameters of the tool: <b>Cost</b>, <b>Cumulative Inventment</b>, <b>Cumulative Energy</b> and <b>Cumulative Area</b>.
 </div>
 
 <div title="divWindowId" id="divWindowId" class="x-hidden" style="padding:10px">
-	<p>
-		Move the sliders to see in the map where the installation is most efficient.
-		The buildings with lower electricity costs for a 20 years lifetime are ranked first.
-	</p>
-	<p>
-		This is still a prototype.
-	</p>
-	<br>
-	<br>
-	<b id="cost">Cost: 0.000 &euro;/kWh</b>
-	<div id="slider-cost"></div>
-	<br>
-	<br>
-	<b id="invest">Investment: 0 k&euro;</sup></b>
-	<div id="slider-investment"></div>
-	<br>
-	<br>
-	<b id="gen">Energy Generation/Savings: 0 MWh/a</b>
-	<div id="slider-generation"></div>
-	<br>
-	<br>
-	<b id="area">Area: 0 m<sup>2</b>
-	<div id="slider-area"></div>
-	<br>
-	<br>
+    <p>
+        Move the sliders to see in the map where the installation is most efficient.
+        The buildings with lower electricity costs for a 20 years lifetime are ranked first.
+    </p>
+    <p>
+        This is still a prototype.
+    </p>
+    <br>
+    <br>
+    <b id="cost">Cost: 0.000 &euro;/kWh</b>
+    <div id="slider-cost"></div>
+    <br>
+    <br>
+    <b id="invest">Investment: 0 k&euro;</sup></b>
+    <div id="slider-investment"></div>
+    <br>
+    <br>
+    <b id="gen">Energy Generation/Savings: 0 MWh/a</b>
+    <div id="slider-generation"></div>
+    <br>
+    <br>
+    <b id="area">Area: 0 m<sup>2</b>
+    <div id="slider-area"></div>
+    <br>
+    <br>
 </div>
