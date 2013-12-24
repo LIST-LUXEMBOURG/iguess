@@ -21,7 +21,7 @@ class DatasetsController < ApplicationController
 
   # Get all datasets for the specified city, only used by ajax queries
   def get_for_city
-    @current_city = City.find_by_name(params[:cityName])
+    @current_city = City.find_by_id(params[:cityId])
 
     showOnlyPublished = false
     if current_user == nil  

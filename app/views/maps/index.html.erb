@@ -4,12 +4,12 @@
 
     var MapUtils = MapUtils || { };   // Create namespace
 
-    MapUtils.retrieveDatasetsForCity = function(cityName, successFunction) {
+    MapUtils.retrieveDatasetsForCity = function(cityId, successFunction) {
     var serverUrl = '<%= url_for(:controller => "datasets", :action => "get_for_city", :format => :json) %>';
     $.ajax({
         type: 'POST',
         url: serverUrl,
-        data: 'cityName=' + getCityCookie(),
+        data: 'cityId=' + getCityCookie(),
         headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
         success: successFunction,
         error: function() { alert('Error retrieving datasets for city.'); }
@@ -25,16 +25,16 @@
     };
 
     // This gets run when user changes city dropdown
-    var onLocationChanged = function(cityName)
+    var onLocationChanged = function(cityId)
     {
         WebGIS.clearLayers(false);
 
         // Retrieve all datasets for specified city
-        MapUtils.retrieveDatasetsForCity(cityName, function(data){ addLayersToMap(data); });
+        MapUtils.retrieveDatasetsForCity(cityId, function(data){ addLayersToMap(data); });
 
         // Notify WebGIS that things have changed
         <% for city in City.all %>
-            if(cityName == "<%= city.name %>")
+            if(cityId == "<%= city.id %>")
             {
                 var point = new OpenLayers.LonLat(<%= city.mapx %>, <%= city.mapy %>);
                 WebGIS.leftMap.setCenter(point, <%= city.zoom %>);
