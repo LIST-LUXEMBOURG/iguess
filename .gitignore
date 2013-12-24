@@ -10,8 +10,16 @@
 #Ignore passwords for harvester.py
 harvester_pwd.py
 
-# Ignore the default SQLite database.
+# Ignore the default SQLite database
 /db/*.sqlite3
+
+#Ignore config files
+config/database.yml
+config/database.yml.old
+config/database.yml
+WPSClient.cfg
+iguess_db_credentials.py
+
 
 .project
 ./config/database.yml
@@ -51,10 +59,7 @@ RCS
 RCSLOG
 SCCS
 _$*
-config/database.yml
-config/database.yml.old
-config/database.yml
-iguess_db_credentials.py
+
 Merges.txt
 .pydevproject
 .settings/org.eclipse.core.resources.prefs
