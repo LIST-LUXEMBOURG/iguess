@@ -82,7 +82,7 @@
           <% if (user_signed_in? and current_user.role_id == 2 ) or params[:controller] == "maps" or params[:controller] == "compares" %>
             <select name="cities" id="city-dropdown">
               <% for city in City.find_all_by_site_details_id(@details.id) %>
-                <option value="<%= city.id %>" <% if city.name == cookies['city'] %>selected<% end %>><%= city.name %></option>
+                <option value="<%= city.id %>" <% if city.id == cookies['city'] %>selected<% end %>><%= city.name %></option>
               <% end %>
             </select>
           <% end %>
