@@ -63,7 +63,7 @@ class WpsServersController < ApplicationController
 
     respond_to do |format|
       if @wps_server.save
-        format.html { redirect_to @wps_server, notice: "Wps server was successfully created." }
+        format.html { redirect_to @wps_server, notice: "WPS server was successfully created." }
         format.json { render json: @wps_server, status: :created, location: @wps_server }
       else
         format.html { render action: "new" }
@@ -85,7 +85,7 @@ class WpsServersController < ApplicationController
 
     respond_to do |format|
       if @wps_server.update_attributes(params[:wps_server])
-        format.html { redirect_to @wps_server, notice: "Wps server was successfully updated." }
+        format.html { redirect_to @wps_server, notice: "WPS server was successfully updated." }
         format.json { head :no_content }
       else
         format.html { render action: "edit" }
