@@ -35,7 +35,7 @@
     <div id="configured_modules_tab">
       <% if @wps_servers.empty? %>
         No module servers have been configured.  You can add one by clicking on the link below.<br>
-        <a href="#"><%= image_tag("document_add_24.png", :class => "link-icon") %>Add new server</a>
+        <%= link_to "Manage WPS Servers", wps_servers_path %>      
       <% else %>
         <% if @mod_configs.empty? %>
           <div id="mod-list-none">  
@@ -103,8 +103,8 @@
         <% end %>
       </ul>
       <% if user_signed_in? %>
-        <div id="catalog-add-new-server-link"><a href='#' onclick="alert('Not implemented yet!')">
-          <%= image_tag("document_add_24.png", :class => "link-icon") %>Add new server</a>
+        <div id="catalog-add-new-server-link">
+          <%= link_to "Manage WPS Servers", wps_servers_path %>
         </div>
       <% end %>
     </div>
