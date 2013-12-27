@@ -14,30 +14,30 @@
 </div>
 
 
-<div id="url_form">
-  <table><tr>
-    <td><input id="server_url" style="width: 100%" type="text" name="format" value='' placeholder="Enter URL or select a preset"/></td>
-    <td>
-      <button type="button" id="refresh_layers_button" style='padding-left: 20px; padding-right:20px;'>Load</button>
+<div class="url-form">
+  <table class="url-form">
+      <tr>
+      <td>
+        <input id="server_url" type="text" name="format" value="" placeholder="Enter data-server URL or select a preset"/>
+        <button type="button" id="load_services">Load</button>
+      </td>
+    </tr><tr>
+      <td>
+        <select id="url-preset-select"  style="width: 100%">
+          <option value="">Select a preset</option>
+          <%= raw @current_city.dataserver_url.map { |m| '<option value="' + m.url + '">' + m.url + '</option>' }.join(" ") %>
+        </select>
+      </td>
+    </tr><tr>
+    <td colspan=2>
+      <a href="#" id="save-preset" onclick="return false;">Save As Preset</a>
+      <a href="#" id="delete-preset" onclick="return false;">Delete From Presets</a>
     </td>
-  </tr><tr>
-    <td>
-      <select id="url-preset-select"  style="width: 100%">
-        <option value="">Select a preset</option>
-        <%= raw @current_city.dataserver_url.map { |m| '<option value="' + m.url + '">' + m.url + '</option>' }.join(" ") %>
-      </select>
-    </td>
-  </tr><tr>
-  <td colspan=2>
-    <a href="#" id="save-preset" onclick="return false;">Save As Preset</a>
-    <a href="#" id="delete-preset" onclick="return false;">Delete From Presets</a>
-  </td>
-  </tr></table>
+    </tr>
+  </table>
 </div>
 
 <br>
-
-</form>
 
 <div style="height:100%; background-color:#eeeeee;">
 
@@ -850,13 +850,13 @@
     }
 
     if(serverUrl === "") 
-      $('#refresh_layers_button').attr('disabled', true);
+      $('#load_services').attr('disabled', true);
 
     else if(serverUrl === currentlyLoadedUrl)
-      $('#refresh_layers_button').html('Reload')
+      $('#load_services').html('Reload')
                                  .attr('disabled', false);
     else
-      $('#refresh_layers_button').html('Load')
+      $('#load_services').html('Load')
                                  .attr('disabled', false);
   };
 
@@ -1003,12 +1003,12 @@
     // Event handlers for various controls
     // $('#server_url').change(loadDataLayers);
     $('#server_url').keyup(updateButtonVisibility);
-    $('#refresh_layers_button').click(loadDataLayers)
+    $('#load_services').click(loadDataLayers)
                                .attr('disabled', true);
     $('#save-preset').click(savePreset);
     $('#delete-preset').click(deletePreset);
 
-    $('#server_url').focus(function() { $('#refresh_layers_button').html('Load'); });
+    $('#server_url').focus(function() { $('#load_services').html('Load'); });
 
     $('#url-preset-select').change(function() { $("#server_url").val($(this).val()); 
                                                 $(this).val(""); 
@@ -1110,7 +1110,7 @@
     $("#submit_form_button").prop("disabled", true);
 
     $("#layers_loading_indicator").hide();
-    // $('#refresh_layers_button').attr('disabled', false);
+    // $('#load_services').attr('disabled', false);
     doneProcessing("???", "WMS", null, "ERROR");
   };
 
