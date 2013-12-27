@@ -32,3 +32,15 @@ table.sortable th.header {
 .table-label {
 	margin-top: 0.5em;
 }
+
+
+/* URL input on Register Datasets and Register WPS Server */
+.url-form {
+	width: 100%;
+	max-width: 600px;
+  white-space: nowrap;
+}
+
+.url-form input {
+  width: 100%;
+}
