@@ -190,9 +190,11 @@ WFS.unwrapServer = function(url) {
   return WFS.stripReq(decodeURIComponent(unwrapGeoProxy(url)));
 };
 
+
 WCS.unwrapServer = function(url) {
   return WCS.stripReq(decodeURIComponent(unwrapGeoProxy(url)));
 };
+
 
 WMS.unwrapServer = function(url) {
   return WMS.stripReq(decodeURIComponent(unwrapGeoProxy(url)));
