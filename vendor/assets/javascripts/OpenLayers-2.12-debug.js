@@ -6180,8 +6180,12 @@ OpenLayers.Format.XML = OpenLayers.Class(OpenLayers.Format, {
                         xmldom = new ActiveXObject("Microsoft.XMLDOM");
                     } else {
                         xmldom = this.xmldom;
-                        
                     }
+                    if(!xmldom)
+                    {
+                        throw "xmldom is null";
+                    }
+
                     xmldom.loadXML(text);
                     return xmldom;
                 }
@@ -16300,6 +16304,7 @@ OpenLayers.Format.XML.VersionedOGC = OpenLayers.Class(OpenLayers.Format.XML, {
             obj.error = format.read(data);
         }
         obj.version = version;
+        obj.requestType = this.name;
         return obj;
     },
 
@@ -67435,10 +67440,10 @@ OpenLayers.Format.WCSCapabilities.v1_1_0 = OpenLayers.Class(
             "SupportedFormat": function(node, coverageSummary) {
                 var format = this.getChildValue(node);
                 if(format) {
-                    if(!coverageSummary.supportedFormat) { 
-                        coverageSummary.supportedFormat = [];
+                    if(!coverageSummary.supportedFormats) { 
+                        coverageSummary.supportedFormats = [];
                     }
-                    coverageSummary.supportedFormat.push(format);
+                    coverageSummary.supportedFormats.push(format);
                 }
             }
         }, OpenLayers.Format.WCSCapabilities.v1.prototype.readers["wcs"]),

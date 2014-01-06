@@ -39,6 +39,8 @@ table.sortable th.header {
 	width: 100%;
 	max-width: 600px;
   white-space: nowrap;
+
+  margin-bottom: 15px;
 }
 
 .url-form input {

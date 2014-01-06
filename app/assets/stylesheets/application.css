@@ -160,7 +160,7 @@ input, select, textarea {
 }
 
 
-.form_error_message, .error-msg {
+#wms-failure-message, .error-msg {
   color: red;
 }
 
@@ -178,7 +178,7 @@ input, select, textarea {
 
 .loading_indicator {
   padding: 8px 8px;
-  background-image: url(assets/loading_spinner.gif);
+  background-image: url(images/loading_spinner.gif);
   background-repeat: no-repeat;
   background-position:center center;
 }
@@ -267,4 +267,21 @@ input, select, textarea {
   margin-left: 8px;
   margin-top: 3px;
   cursor:pointer;
+}
+
+/* Div where services are displayed on register WPS and register datasets screens */
+.services-display {
+  height:100%; 
+  background-color:#eeeeee;
+}
+
+/* Div containing progress indicators on register WPS and register datasets screens */
+.progress-container {
+  padding: 5px;
+  background-color: #f8f8f8;
+  display: none;
+}
+
+.probing {
+  padding-left: 5px;
 }

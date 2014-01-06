@@ -1,5 +1,106 @@
-<h1>New wps_server</h1>
+<h1>Register WPS Server</h1>
 
-<%= render 'form' %>
 
-<%= link_to 'Back', wps_servers_path %>
+<div id="error-list" class="explanation-problem" style="display: none"></div>
+
+<div class="explanation">
+  <p>blah blah</p>
+</div>
+
+<div class="url-form">
+  <table class="url-form">
+    <tr>
+      <td>
+        <input id="server_url" type="text" name="format" value="" placeholder="Enter WPS server URL"/>
+        <button type="button" id="load_services">Load</button>
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+<div class="services-display">
+
+  <div class="progress-container">
+    <span class="probing" id="probing-wps">Probing WPS server...<span class="loading_indicator"></span></span>
+  </div>
+
+  <div class="server-info">
+    <div class="server-name" id="server-name"></div>
+    <div class="server-descr" id="server-descr"></div>
+
+    <div id="results-display"><!-- Search results will be shown here --></div>
+  </div>
+
+
+
+</div>
+
+
+<script>
+  $(document).ready(function(){
+    onLoadServicesPageReady();
+  });
+
+  var showProbingIndicators = function() {
+    $(".progress-container").show();
+  };
+
+
+  var hideProbingIndicators = function() {
+    $(".progress-container").hide();
+  };
+
+  var resetServiceLoadedStatus = function() {
+    // Nothing to do
+  };
+
+
+  // Called when we've gotten whatever response we're going to get from the server 
+  var doneProcessing = function(url, type, serverInfo, status)    // status will be OK or ERROR
+  {
+    if(type == "WPS") {
+      $("#probing-wps").hide();
+    }
+    else { alert("Unknown service type " + type); }
+
+
+    displayServerDetails(serverInfo, type);   // Display this as it comes in
+
+    $(".progress-container").hide();
+    displayLayers();
+  };
+
+
+  // Class declaration -- maintain same public interface as ServiceProbe on mass_import page
+  var ServiceProbe = function(serverUrl) 
+  {   
+    this.serverUrl = serverUrl;
+    var self       = this;    // Stored pointer to ourselves, will be needed in the callback
+  
+
+    // :::public:::
+    this.startProbing = function() {
+      WPS.getCapabilities(self.serverUrl, self.onWpsGetCapabilitiesSucceeded, self.onWpsGetCapabilitiesFailed );
+    };
+
+    // :::private:::
+    // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-load
+    this.onWpsGetCapabilitiesSucceeded = function(dataProxy, records, options) {
+      // console.log("WFSSuccess>>", arguments);
+      onWpsGetCapabilitiesSucceeded(dataProxy, records);
+    };
+
+    // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-exception
+    this.onWpsGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) {
+      debugger;
+      if(type == 'response') {
+        // alert("Cannot parse response from WFS server.");
+        // console.log("Response", response.responseText)
+      }
+      doneProcessing(self.serverUrl, 'WPS', null, 'ERROR');
+    };
+  }
+
+
+</script>

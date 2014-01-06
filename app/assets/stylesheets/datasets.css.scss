@@ -231,13 +231,6 @@ div.error-body {
   padding: 5px;
 }
 
-/* Div containing progress indicators */
-.progress-container {
-  padding: 5px;
-  background-color: #f8f8f8;
-  display: none;
-}
-
 
 /* These for the maps */
 .x-panel-body ul {
@@ -376,9 +369,9 @@ span[disabled]
 }
 
 
-/* URL combobox */
-
+/* URL preset combobox */
 #url-preset-select { 
+
 }
 
 #server_url { 

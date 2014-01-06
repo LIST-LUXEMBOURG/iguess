@@ -41,58 +41,175 @@ var WPS = WPS || { };
 var WMS = WMS || { };
 var WFS = WFS || { };
 var WCS = WCS || { };
+var CRS = CRS || { };
+
 var COMMON = COMMON || { };
 
 
-// Probe a WMS and detect which layers are available
-WMS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
-  jQuery('.form_error_message').text("");    // Clear all error messages
-  jQuery('#layers_loading_indicator').show();
-
-  var fullUrl = WMS.getCapReq(serverUrl);
-
-  var store = new GeoExt.data.WMSCapabilitiesStore({ url: fullUrl });
-
-  COMMON.updateLayerList(store, successFunction, failureFunction);
+// XXX.getCapabilities only called from startProbing() on our ServiceProbe objects
+// Probe a WPS and detect which services are available
+WPS.getCapabilities = function(serverUrl, successFunction) {
+  OpenLayers.Request.GET({
+    url: serverUrl,
+    params: {     // These will be appeneded to the URL in the form SERVICE=WPS etc.
+      "SERVICE": "WPS",
+      "REQUEST": "GetCapabilities",
+      "VERSION": WPS.version
+    },
+    success: function(response){
+      try {
+        capabilities = new OpenLayers.Format.WPSCapabilities().read(response.responseText);
+      }
+      catch(error) {
+        capabilities = undefined;
+      }
+      successFunction(capabilities, response);
+    },
+    failure: function(response) {
+      successFunction(undefined, response);
+    }
+  });
 };
 
 
+WMS.getCapabilities = function(serverUrl, successFunction) {
+  OpenLayers.Request.GET({
+    url: serverUrl,
+    params: {     // These will be appeneded to the URL in the form SERVICE=WMS etc.
+      "SERVICE": "WMS",
+      "REQUEST": "GetCapabilities",
+      "VERSION": WMS.version
+    },
+    success: function(response) {
+      try {
+        capabilities = new OpenLayers.Format.WMSCapabilities().read(response.responseText);
+      }
+      catch(error) {
+        capabilities = undefined;
+      }
+      successFunction(capabilities, response);
+    },
+    failure: function(response) {
+      successFunction(undefined, response);
+    }
+  });
+};
 
-// Probe a WFS and detect which layers are available
-WFS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
-  var fullUrl = WFS.getCapReq(serverUrl);     // These are the fields we want from the WFS... note the addition of srs to the default list!
-  var store = new GeoExt.data.WFSCapabilitiesStore({ url: fullUrl, fields: [ { name: "name",               type: "string" },
-                                                                             { name: "title",              type: "string" },
-                                                                             { name: "namespace",          type: "string", mapping: "featureNS" },
-                                                                             { name: "abstract",           type: "string" },
-                                                                             { name: "srs",                type: "string" },
-                                                                             { name: "latLongBoundingBox", type: "string" }
-                                                                        ] });
-  COMMON.updateLayerList(store, successFunction, failureFunction);
+WFS.getCapabilities = function(serverUrl, successFunction) {
+  OpenLayers.Request.GET({
+    url: serverUrl,
+    params: {     // These will be appeneded to the URL in the form SERVICE=WFS etc.
+      "SERVICE": "WFS",
+      "REQUEST": "GetCapabilities",
+      "VERSION": WFS.version
+    },
+    success: function(response) {
+      try {
+        capabilities = new OpenLayers.Format.WFSCapabilities().read(response.responseText);
+      }
+      catch(error) {
+        capabilities = undefined;
+      }
+      successFunction(capabilities, response);
+    },
+    failure: function(response) {
+      successFunction(undefined, response);
+    }
+  });
 };
 
 
-// Probe a WCS and detect which layers are available.  Need two calls to get all the required info.  Lame.
-WCS.updateLayerList = function(serverUrl, successFunction, failureFunction) {
-  var fullUrl, store;
+// For WCS, we need to do both a GetCapabilities and a DescribeCoverage to get all the info we need.  Lame but true.
+WCS.getCapabilities = function(serverUrl, successFunction) {
+  OpenLayers.Request.GET({
+    url: serverUrl,
+    params: {     // These will be appeneded to the URL in the form SERVICE=WCS etc.
+      "SERVICE": "WCS",
+      "REQUEST": "GetCapabilities",
+      "VERSION": WCS.version
+    },
+    success: function(response) {
+      try {
+        capabilities = new OpenLayers.Format.WCSCapabilities().read(response.responseText);
+      }
+      catch(error) {
+        capabilities = undefined;
+      }
 
-  fullUrl = WCS.getCapReq(serverUrl);
-  store = new GeoExt.data.WCSCapabilitiesStore({ url: fullUrl });
-  COMMON.updateLayerList(store, successFunction, failureFunction);
+      successFunction(capabilities, response);
+    },
+    failure: function(response) {
+      successFunction(undefined, response);
+    }
+  });
 
-  fullUrl = WCS.descCovReq(serverUrl);
-  store = new GeoExt.data.WCSDescribeCoverageStore({ url: fullUrl });
-  COMMON.updateLayerList(store, successFunction, failureFunction);
+
+  OpenLayers.Request.GET({
+    url: serverUrl,
+    params: {     // These will be appeneded to the URL in the form SERVICE=WCS etc.
+      "SERVICE": "WCS",
+      "REQUEST": "DescribeCoverage",
+      "VERSION": WCS.version
+    },
+    success: function(response) {
+      capabilities = new OpenLayers.Format.WCSDescribeCoverage().read(response.responseText);
+      successFunction(capabilities, response);
+    },
+    failure: function(response) {
+      successFunction(undefined, response);
+    }
+  });
 };
 
 
-// Helper for WFS, WMS, and WCS.updateLayerList 
-COMMON.updateLayerList = function(store, successFunction, failureFunction) {
-  // Add some callbacks to handle various situations
-  store.on('load',      successFunction);
-  store.on('exception', failureFunction);
-  store.load();
-}
+// // Probe a WMS and detect which services are available
+// WMS.getCapabilities = function(serverUrl, successFunction, failureFunction) {
+//   jQuery("#wms-failure-message").text("");    // Clear all error messages
+
+//   var fullUrl = WMS.getCapReq(serverUrl);
+
+//   var store = new GeoExt.data.WMSCapabilitiesStore({ url: fullUrl });
+
+//   COMMON.getCapabilities(store, successFunction, failureFunction);
+// };
+
+
+
+// Probe a WFS and detect which services are available
+// WFS.getCapabilities = function(serverUrl, successFunction, failureFunction) {
+//   var fullUrl = WFS.getCapReq(serverUrl);     // These are the fields we want from the WFS... note the addition of srs to the default list!
+//   var store = new GeoExt.data.WFSCapabilitiesStore({ url: fullUrl, fields: [ { name: "name",               type: "string" },
+//                                                                              { name: "title",              type: "string" },
+//                                                                              { name: "namespace",          type: "string", mapping: "featureNS" },
+//                                                                              { name: "abstract",           type: "string" },
+//                                                                              { name: "srs",                type: "string" },
+//                                                                              { name: "latLongBoundingBox", type: "string" }
+//                                                                         ] });
+//   COMMON.getCapabilities(store, successFunction, failureFunction);
+// };
+
+
+// // Probe a WCS and detect which services are available.  Need two calls to get all the required info.  Lame.
+// WCS.getCapabilities = function(serverUrl, successFunction, failureFunction) {
+//   var fullUrl, store;
+
+//   fullUrl = WCS.getCapReq(serverUrl);
+//   store = new GeoExt.data.WCSCapabilitiesStore({ url: fullUrl });
+//   COMMON.getCapabilities(store, successFunction, failureFunction);
+
+//   fullUrl = WCS.descCovReq(serverUrl);
+//   store = new GeoExt.data.WCSDescribeCoverageStore({ url: fullUrl });
+//   COMMON.getCapabilities(store, successFunction, failureFunction);
+// };
+
+
+// // Helper for WFS, WMS, and WCS.getCapabilities 
+// COMMON.getCapabilities = function(store, successFunction, failureFunction) {
+//   // Add some callbacks to handle various situations
+//   store.on('load',      successFunction);
+//   store.on('exception', failureFunction);
+//   store.load();
+// }
 
 
 var geoProxyPrefix = '/home/geoproxy?url=';
@@ -115,116 +232,186 @@ var getJoinChar = function(url) {
 WMS.version = '1.3.0';
 WFS.version = '1.0.0';    // Still having problems with 1.1.0; use 1.0.0 for now
 WCS.version = '1.1.0';
-// WPS.version = '1.0.0';
+WPS.version = '1.0.0';
 
 //http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/LB_localOWS_test.map&SERVICE=WFS&VERSION=1.0.0&REQUEST=GetCapabilities
 //http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map&SERVICE=WFS&VERSION=1.0.0&REQUEST=GetCapabilities
 
+
+////////////////////////////////////////
+// WPS functions
+WPS.getCapStr = "SERVICE=WPS&VERSION=" + WPS.version + "&REQUEST=GetCapabilities";
+
+
+WPS.getCapUrl = function(serverUrl) {
+  var joinchar = getJoinChar(serverUrl);
+  return serverUrl + joinchar + WPS.getCapStr;
+};
+
+WPS.getCapReq = function(serverUrl) {
+  return wrapGeoProxy(WPS.getCapUrl(serverUrl));
+};
+
+WPS.stripReq = function(serverUrl) {
+  return serverUrl.replace(WPS.getCapStr, '').slice(0, -1);   // slice strips last char
+};
+
+WPS.unwrapServer = function(url) {
+  return WPS.stripReq(decodeURIComponent(unwrapGeoProxy(url)));
+};
+
+
+
+////////////////////////////////////////
 // WMS functions
-WMS.getCapStr = 'SERVICE=WMS&VERSION=' + WMS.version + '&REQUEST=GetCapabilities';
+WMS.getCapStr = "SERVICE=WMS&VERSION=" + WMS.version + "&REQUEST=GetCapabilities";
 
 WMS.getCapUrl = function(serverUrl) {
   var joinchar = getJoinChar(serverUrl);
   return serverUrl + joinchar + WMS.getCapStr;
-}
+};
 
 WMS.getCapReq = function(serverUrl) {
   return wrapGeoProxy(WMS.getCapUrl(serverUrl));
 };
 
-WMS.stripReq = function(serverUrl) {
-  return serverUrl.replace(WMS.getCapStr, '').slice(0, -1);   // slice strips last char
-};
+// WMS.stripReq = function(serverUrl) {
+//   return serverUrl.replace(WMS.getCapStr, '').slice(0, -1);   // slice strips last char
+// };
+
+// WMS.unwrapServer = function(url) {
+//   return WMS.stripReq(decodeURIComponent(unwrapGeoProxy(url)));
+// };
 
 
+
+////////////////////////////////////////
+// WFS functions
 // http://www.mail-archive.com/users@geoext.org/msg01843.html
-WFS.getCapStr = 'SERVICE=WFS&VERSION=' + WFS.version + '&REQUEST=GetCapabilities';    
+// WFS.getCapStr = "SERVICE=WFS&VERSION=" + WFS.version + "&REQUEST=GetCapabilities";    
 
-WFS.getCapUrl = function(serverUrl) {
-  var joinchar = getJoinChar(serverUrl);
-  return serverUrl + joinchar + WFS.getCapStr;
-}
+// WFS.getCapUrl = function(serverUrl) {
+//   var joinchar = getJoinChar(serverUrl);
+//   return serverUrl + joinchar + WFS.getCapStr;
+// };
+
+// WFS.getCapReq = function(serverUrl) {
+//   return wrapGeoProxy(WFS.getCapUrl(serverUrl));
+// };
+
+// WFS.stripReq = function(serverUrl) {
+//   return serverUrl.replace(WFS.getCapStr, '').slice(0, -1);   // slice strips last char
+// };
+
+// WFS.unwrapServer = function(url) {
+//   return WFS.stripReq(decodeURIComponent(unwrapGeoProxy(url)));
+// };
 
 
-WFS.getCapReq = function(serverUrl) {
-  return wrapGeoProxy(WFS.getCapUrl(serverUrl));
-};
-
-WFS.stripReq = function(serverUrl) {
-  return serverUrl.replace(WFS.getCapStr, '').slice(0, -1);   // slice strips last char
-};
-
-
+////////////////////////////////////////
+// WCS functions
 // http://www.mail-archive.com/users@geoext.org/msg01843.html
-WCS.getCapStr = 'SERVICE=WCS&VERSION=' + WCS.version + '&REQUEST=GetCapabilities';   
+// WCS.getCapStr = "SERVICE=WCS&VERSION=" + WCS.version + "&REQUEST=GetCapabilities";   
+// WCS.descCovStr = 'SERVICE=WCS&VERSION=' + WCS.version + '&REQUEST=DescribeCoverage';   
 
-WCS.getCapUrl = function(serverUrl) {
-  var joinchar = getJoinChar(serverUrl);
-  return serverUrl + joinchar + WCS.getCapStr;
-}
+// WCS.getCapUrl = function(serverUrl) {
+//   var joinchar = getJoinChar(serverUrl);
+//   return serverUrl + joinchar + WCS.getCapStr;
+// };
 
+// WCS.descCovUrl = function(serverUrl) {
+//   var joinchar = getJoinChar(serverUrl);
+//   return serverUrl + joinchar + WCS.descCovStr;
+// }
 
-WCS.descCovStr = 'SERVICE=WCS&VERSION=' + WCS.version + '&REQUEST=DescribeCoverage';   
+// WCS.getCapReq = function(serverUrl) {
+//   return wrapGeoProxy(WCS.getCapUrl(serverUrl));
+// };
 
-WCS.descCovUrl = function(serverUrl) {
-  var joinchar = getJoinChar(serverUrl);
-  return serverUrl + joinchar + WCS.descCovStr;
-}
+// WCS.stripReq = function(serverUrl) {
+//   return serverUrl.replace(WCS.getCapStr, '').replace(WCS.descCovStr, '').slice(0, -1);   // slice strips last char
+// };
 
+// WCS.descCovReq = function(serverUrl) {
+//   return wrapGeoProxy(WCS.descCovUrl(serverUrl));
+// }
 
-WCS.getCapReq = function(serverUrl) {
-  return wrapGeoProxy(WCS.getCapUrl(serverUrl));
-};
+// WCS.unwrapServer = function(url) {
+//   return WCS.stripReq(decodeURIComponent(unwrapGeoProxy(url)));
+// };
 
-WCS.stripReq = function(serverUrl) {
-  return serverUrl.replace(WCS.getCapStr, '').replace(WCS.descCovStr, '').slice(0, -1);   // slice strips last char
-};
-
-
-WCS.descCovReq = function(serverUrl) {
-  return wrapGeoProxy(WCS.descCovUrl(serverUrl));
-}
-
-
-WFS.unwrapServer = function(url) {
-  return WFS.stripReq(decodeURIComponent(unwrapGeoProxy(url)));
-};
+////////////////////////////////////////
 
 
-WCS.unwrapServer = function(url) {
-  return WCS.stripReq(decodeURIComponent(unwrapGeoProxy(url)));
-};
+// var unwrapServer = function(url, format)
+// {
+//   if(format == "WPSCapabilities")     { return WPS.unwrapServer(url); }
+//   if(format == "WFSCapabilities")     { return WFS.unwrapServer(url); }
+//   if(format == "WMSCapabilities")     { return WMS.unwrapServer(url); }
+//   if(format == "WCSCapabilities")     { return WCS.unwrapServer(url); }
+//   if(format == "WCSDescribeCoverage") { return WCS.unwrapServer(url); }
+
+//   return "Unknown Format!!";
+// };
 
 
-WMS.unwrapServer = function(url) {
-  return WMS.stripReq(decodeURIComponent(unwrapGeoProxy(url)));
-};
+////////////////////////////////////////
 
 
-unwrapServer = function(url, format)
+// Break crs into tokens for comparison or reconstitution
+CRS.splitCrsIntoWords = function(crs)
 {
-  if(format === 'WFSCapabilities')     { return WFS.unwrapServer(url); }
-  if(format === 'WMSCapabilities')     { return WMS.unwrapServer(url); }
-  if(format === 'WCSCapabilities')     { return WCS.unwrapServer(url); }
-  if(format === 'WCSDescribeCoverage') { return WCS.unwrapServer(url); }
+  // First, replace the :: with a single :
+  crsFixed  = crs.replace('::', ':');
 
-  return "Unknown Format!!";
+  // Now split on a ':', lowercasing to remove case considerations, so we can compare the last two tokens
+  return crsFixed.split(':');
 };
 
 
-getService = function(format)
+// Convert:
+//  1) urn:ogc:def:crs:EPSG::28992 ==> EPSG:28992
+//  2) EPSG:28992                  ==> EPSG:28992
+CRS.getSimpleFormat = function(crs)
 {
-  if(format === 'WFSCapabilities')     { return "WFS"; }
-  if(format === 'WMSCapabilities')     { return "WMS"; }
-  if(format === 'WCSCapabilities')     { return "WCS"; }
-  if(format === 'WCSDescribeCoverage') { return "WCSdc"; }
-
-  return "Unknown Service!!";
+  crsWords = CRS.splitCrsIntoWords(crs);
+  return crsWords[crsWords.length - 2] + ':' + crsWords[crsWords.length - 1];
 };
 
 
-isPrimaryService = function(service)
+// Compare whether two crs's are in fact the same.  We'll consider the following two strings equal:
+// urn:ogc:def:crs:EPSG::28992
+// EPSG:28992
+CRS.isEqual = function(first, second)
 {
-  return (service === 'WMS' || service === 'WFS' || service === 'WCS');
+  if(first === second)
+    return true;
+
+  firstWords  = CRS.splitCrsIntoWords(first);
+  secondWords = CRS.splitCrsIntoWords(second);
+
+  if(first.length < 2 || second.length < 2)
+    return;
+
+  return firstWords[firstWords.length - 2].toLowerCase() === secondWords[secondWords.length - 2].toLowerCase() && 
+         firstWords[firstWords.length - 1]               === secondWords[secondWords.length - 1];
 };
 
+
+CRS.hasCRS = function(crsList, crs)
+{
+  if(typeof(crsList) === "string")
+    return CRS.isEqual(crsList, crs);
+
+  if(!crsList || !crs)
+    return false;
+
+  var i = 0, c;
+  while(c = crsList[i]) {
+      if(CRS.isEqual(c, crs)) 
+        return true;
+      i++;
+  }
+    
+  return false;
+};
