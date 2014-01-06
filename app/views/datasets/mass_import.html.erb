@@ -952,10 +952,6 @@
 
     if(layer) {   // Already found this layer, add service to it
 
-      if(layer.type.hasObject(service)) {    // Will happen if duplicate identifiers are used on the server.  Should never happen.
-        return;
-      }
-
       layer.type.push(service);
 
       if(service == "WFS" || service == "WCS") {
