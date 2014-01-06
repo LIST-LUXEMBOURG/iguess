@@ -575,8 +575,8 @@
                 "&dataset[bbox_right]="      + getCoord(layer, "right") +
                 "&dataset[bbox_top]="        + getCoord(layer, "top") +
                 "&dataset[bbox_bottom]="     + getCoord(layer, "bottom") +
-                "&dataset[resolution_x]="    + Math.abs(layer.resolution.x) +
-                "&dataset[resolution_y]="    + Math.abs(layer.resolution.y) +
+                "&dataset[resolution_x]="    + (layer.resolution ? Math.abs(layer.resolution.x) : 0) +
+                "&dataset[resolution_y]="    + (layer.resolution ? Math.abs(layer.resolution.y) : 0) +
                 "&dataset[format]="          + (layer.format ? layer.format : "")+
                 "&dataset[local_srs]="       + (CRS.hasCRS(layer.wxsCrs, LOCAL_SRS) ? "true" : "false") +
                 "&dataset[city_id]=<%= raw @current_city.id %>" +
@@ -888,9 +888,10 @@
     this.wmsbbox     = null;
     this.wxsbbox     = null;
     this.llbbox      = null;
-    this.resolution  = { x: null, y: null };
+    this.resolution  = null;
 
-    if(!datasetInfo) return
+    if(!datasetInfo) 
+      return
 
 
     this.identifier  = datasetInfo.name  || datasetInfo.identifier;
@@ -917,6 +918,15 @@
         this.format = "image/tiff";
       else
         this.format = datasetInfo.supportedFormats[0];
+
+      try {
+        this.resolution = datasetInfo.domain.spatialDomain.gridCRS.gridOffsets;
+        console.log("found: ", datasetInfo);
+      }
+      catch(error) {
+        console.log("no found: ", datasetInfo);
+        // Do nothing
+      }
     }
 
     if(service == "WFS" || service == "WCS") {
@@ -948,22 +958,24 @@
 
       layer.type.push(service);
 
-      if(service == "WFS" || service == "WCS")
-      {
+      if(service == "WFS" || service == "WCS") {
         layer.wxsCrs     = dataset.wxsCrs;
         layer.wxsbbox    = dataset.wxsbbox;
-        layer.resolution = dataset.resolution;
-
-        if(service == "WCS")
+       
+        if(service == "WCS") {
           layer.format = dataset.format;
+
+          if(dataset.resolution)
+            layer.resolution = dataset.resolution;
+        }
       }
       else if(service == "WMS")
       {
-        layer.wmsCrs     = dataset.wmsCrs;
-        layer.wmsCrsList = dataset.wmsCrsList
-        layer.wmsbbox    = dataset.wmsbbox;
-        layer.llbbox     = dataset.llbbox;
-        layer.title      = dataset.title;         // Title and abstract from WMS supercede those from other services
+        layer.wmsCrs      = dataset.wmsCrs;
+        layer.wmsCrsList  = dataset.wmsCrsList
+        layer.wmsbbox     = dataset.wmsbbox;
+        layer.llbbox      = dataset.llbbox;
+        layer.title       = dataset.title;         // Title and abstract from WMS supercede those from other services
         layer["abstract"] = dataset["abstract"];
       }
       else
@@ -972,6 +984,12 @@
     else {    // It's a new layer, add it to discoveredLayers wholesale
       discoveredLayers[key] = dataset;
     }
+
+
+    if(service == "WCS")
+        {
+          console.log("inside merge: ", discoveredLayers[key].resolution);
+        }
   };
 
 
