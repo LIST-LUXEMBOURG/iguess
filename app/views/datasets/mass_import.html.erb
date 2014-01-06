@@ -893,7 +893,6 @@
     if(!datasetInfo) 
       return
 
-
     this.identifier  = datasetInfo.name  || datasetInfo.identifier;
     this.title       = datasetInfo.title || this.identifier;
     this["abstract"] = datasetInfo.abstract;    // abstract is a js reserved word!
@@ -911,31 +910,41 @@
       this.llbbox  = datasetInfo.llbbox;
     }
 
-    if(service == "WCS") {
-      if(datasetInfo.supportedFormats.hasObject("image/img"))
-        this.format = "image/img";
-      else if(datasetInfo.supportedFormats.hasObject("image/tiff"))
-        this.format = "image/tiff";
-      else
-        this.format = datasetInfo.supportedFormats[0];
-
-      try {
-        this.resolution = datasetInfo.domain.spatialDomain.gridCRS.gridOffsets;
-      }
-      catch(error) {
-        // Do nothing
-      }
-    }
-
-    if(service == "WFS" || service == "WCS") {
+    else { //  (service == "WFS" || service == "WCS") {
       this.wxsCrs  = datasetInfo.srs || (datasetInfo.supportedCRS  && datasetInfo.supportedCRS[0]) ||
                                         (datasetInfo.supportedCRSs && datasetInfo.supportedCRSs[0]);
 
-      if(datasetInfo.latLongBoundingBox)
+      if(service == "WCS") {
+        try {
+          if(datasetInfo.supportedFormats.hasObject("image/img"))
+            this.format = "image/img";
+          else if(datasetInfo.supportedFormats.hasObject("image/tiff"))
+            this.format = "image/tiff";
+          else
+            this.format = datasetInfo.supportedFormats[0];
+        }
+        catch(error) {
+          // Do nothing
+        }
+
+        try {
+          this.resolution = datasetInfo.domain.spatialDomain.gridCRS.gridOffsets;
+        }
+        catch(error) {
+          // Do nothing
+        }
+
+        try {
+          this.wxsbbox = datasetInfo.domain.spatialDomain.boundingBoxes[this.wxsCrs];
+        }
+        catch(error) {
+          // Do nothing
+        }
+      }
+
+      else if(service == "WFS") {
         this.wxsbbox = datasetInfo.latLongBoundingBox;  
-      else if(datasetInfo.domain && datasetInfo.domain.spatialDomain && 
-              datasetInfo.domain.spatialDomain.boundingBoxes && datasetInfo.domain.spatialDomain.boundingBoxes[this.wxsCrs])
-        this.wxsbbox = datasetInfo.domain.spatialDomain.boundingBoxes[this.wxsCrs];
+      }
     }
   };
 
@@ -948,9 +957,16 @@
 
     var layer = discoveredLayers[key];
 
-    if(layer) {   // Already found this layer, add service to it
+    if(!layer) {   // It's a new layer, add it to discoveredLayers without further ado
+      discoveredLayers[key] = dataset;
+      layer = dataset;
+    }
 
-      layer.type.push(service);
+    else {   // Already found this layer, add service to it
+
+      // We'll get here twice with service == WCS; we don't want to list it twice in layer.type
+      if(!layer.type.hasObject(service))
+        layer.type.push(service);
 
       if(service == "WFS" || service == "WCS") {
         layer.wxsCrs     = dataset.wxsCrs;
@@ -975,13 +991,11 @@
       else
         alert("Unknown service " + service + " encountered!");
     }
-    else {    // It's a new layer, add it to discoveredLayers wholesale
-      discoveredLayers[key] = dataset;
-    }
+
+
+    if(service == "WCS")
+    console.log("XXX", layer.wxsbbox);
   };
-
-
-  var wcsReplies = {};
 
 
   // Tracks data about a server that we might want to display on the page
