@@ -921,10 +921,8 @@
 
       try {
         this.resolution = datasetInfo.domain.spatialDomain.gridCRS.gridOffsets;
-        console.log("found: ", datasetInfo);
       }
       catch(error) {
-        console.log("no found: ", datasetInfo);
         // Do nothing
       }
     }
@@ -980,12 +978,6 @@
     else {    // It's a new layer, add it to discoveredLayers wholesale
       discoveredLayers[key] = dataset;
     }
-
-
-    if(service == "WCS")
-        {
-          console.log("inside merge: ", discoveredLayers[key].resolution);
-        }
   };
 
 
