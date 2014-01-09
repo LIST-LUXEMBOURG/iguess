@@ -140,7 +140,7 @@ var displayServerDetails = function(serverInfo, service)
 {
   if(serverInfo && $("#server-name").html() == "")
   {
-    var serverName  = serverInfo.title    || "Data Server";
+    var serverName  = serverInfo.title    || "Unnamed Server";
     var serverDescr = serverInfo.abstract || "";
 
     $("#server-name").html("Server: " + serverName);
@@ -149,3 +149,30 @@ var displayServerDetails = function(serverInfo, service)
     $(".server-info").show();
   }
 };
+
+
+// Check response and see if it looks like it is good and requires further parsing
+var isGoodResponse = function(service, response, capabilities)
+{
+  var code = response.status;   // Standard http response code herein
+  if(code < 200 || code > 299)
+    return false;
+
+  // If a service does not exist, this next condition should be triggered
+  if(response.responseXML.documentElement.tagName == "ows:ExceptionReport")
+    return false;
+
+  // Sometimes ESRI software send us data about the wrong service... these responses are invalid
+  if(capabilities.requestType.substring(0, 3) != service)
+    return false;
+
+  return true;
+};
+
+
+// Tracks data about a server that we might want to display on the page
+var ServerInfo = function(title, abstract)
+{
+  this.title    = title;
+  this.abstract = abstract;
+}

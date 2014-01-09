@@ -72,6 +72,32 @@ WPS.getCapabilities = function(serverUrl, successFunction) {
 };
 
 
+WPS.describeProcess = function(serverUrl, successFunction) {
+  OpenLayers.Request.GET({
+    url: serverUrl,
+    params: {     // These will be appeneded to the URL in the form SERVICE=WPS etc.
+      "SERVICE":    "WPS",
+      "REQUEST":    "DescribeProcess",
+      "IDENTIFIER": "ALL",
+      "VERSION":    WPS.version
+    },
+    success: function(response){
+      try {
+        capabilities = new OpenLayers.Format.WPSDescribeProcess().read(response.responseText);
+      }
+      catch(error) {
+        capabilities = undefined;
+      }
+      successFunction(capabilities, response);
+    },
+    failure: function(response) {
+      successFunction(undefined, response);
+    }
+  });
+};
+
+
+
 WMS.getCapabilities = function(serverUrl, successFunction) {
   OpenLayers.Request.GET({
     url: serverUrl,

@@ -71,36 +71,182 @@
     displayLayers();
   };
 
+  
 
   // Class declaration -- maintain same public interface as ServiceProbe on mass_import page
   var ServiceProbe = function(serverUrl) 
   {   
     this.serverUrl = serverUrl;
-    var self       = this;    // Stored pointer to ourselves, will be needed in the callback
-  
+    this.serverInfo = {};
+
+    var self = this;    // Stored pointer to ourselves, will be needed in the callback
 
     // :::public:::
     this.startProbing = function() {
-      WPS.getCapabilities(self.serverUrl, self.onWpsGetCapabilitiesSucceeded, self.onWpsGetCapabilitiesFailed );
+      this.serverInfo = {};   // Clear any previous results
+      WPS.getCapabilities(self.serverUrl, self.onWpsGetCapabilitiesSucceeded);
+      WPS.describeProcess(self.serverUrl, self.onWpsDescribeProcessSucceeded);
     };
 
     // :::private:::
-    // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-load
-    this.onWpsGetCapabilitiesSucceeded = function(dataProxy, records, options) {
-      // console.log("WFSSuccess>>", arguments);
-      onWpsGetCapabilitiesSucceeded(dataProxy, records);
+    this.onWpsGetCapabilitiesSucceeded = function(capabilities, response) {
+      if(capabilities && isGoodResponse("WPS", response, capabilities)) {
+        self.serverInfo.title         = capabilities.serviceIdentification.title;
+        self.serverInfo.abstract      = capabilities.serviceIdentification["abstract"];
+        self.serverInfo.provider_name = capabilities.serviceProvider.providerName;
+        self.serverInfo.contact_email = capabilities.serviceProvider.serviceContact.contactInfo.address.electronicMailAddress;
+        self.serverInfo.contact_name  = capabilities.serviceProvider.serviceContact.individualName;
+        self.serverInfo.id = 0;   // Dummy for comaptibility purposes
+
+        doneProcessing(self.serverUrl, "WPS", self.serverInfo);
+      }
+      else    // Error:
+        doneProcessing(self.serverUrl, "WPS", null);
     };
 
-    // Explanation of args: http://docs.sencha.com/ext-js/3-4/#!/api/Ext.data.DataProxy-event-exception
-    this.onWpsGetCapabilitiesFailed = function(dataProxy, type, action, options, response, arg) {
-      debugger;
-      if(type == 'response') {
-        // alert("Cannot parse response from WFS server.");
-        // console.log("Response", response.responseText)
+    this.onWpsDescribeProcessSucceeded = function(capabilities, response) {
+      if(capabilities && isGoodResponse("WPS", response, capabilities)) {
+        self.serverInfo.wps_processes = capabilities.processDescriptions;
+        doneProcessing(self.serverUrl, "WPS", self.serverInfo);
       }
-      doneProcessing(self.serverUrl, 'WPS', null, 'ERROR');
+      else    // Error:
+        doneProcessing(self.serverUrl, "WPS", null);
     };
   }
 
+
+  var wpsProcessingComplete = 0;  
+  
+
+  var resetServiceLoadedStatus = function() {
+    wpsProcessingComplete = 0;
+  };
+
+
+  // Called when we've gotten whatever response we're going to get from the server in question
+  // i.e. when a WFS response arrives.  More responses might be coming (from WMS, and WCS, for example).
+  var doneProcessing = function(url, type, serverInfo) 
+  {
+    if(type == "WPS") {
+      $("#probing-wps").hide();
+      wpsProcessingComplete++;
+    }
+    else { alert("Unknown service type " + type); }
+
+    displayServerDetails(serverInfo, type);   // Display this as it comes in
+
+    // Make sure we've heard from all requests before continuing
+    if(wpsProcessingComplete != 2)  
+      return; 
+
+    $(".progress-container").hide();
+    displayServices(serverInfo);
+  };
+
+
+  var processIncomingWPSLayers = function(capabilities, serverUrl)
+  {
+    for(var i = 0, len = capabilities.processOfferings.length; i < len; i++)
+    {
+      var dataset = new Dataset(serverUrl, "WPS", capabilities.featureTypeList.featureTypes[i]);
+
+      mergeDatasetIntoLayerList(dataset, "WPS");
+    }
+
+    var serverInfo = new ServerInfo(capabilities.service.title, capabilities.service["abstract"]);
+    doneProcessing(serverUrl, "WPS", serverInfo);
+  };
+
+
+  var displayServices = function(serverInfo) 
+  {
+    // $("#results-display").html('<div class="error-header">Please check the number and dial again</div>' +
+    //                              '<div class="error-body">No services could be found on the specified server.<br>' +
+    //                              'Either the URL is not that of a WPS process server, or the server is not responding.' +
+    //                              '</div>');
+
+    var html = "<div>Server Name: " + serverInfo.title         + "</div>" + 
+               "<div>Description: " + serverInfo["abstract"]   + "</div>" + 
+               "<div>Owner: "       + serverInfo.provider_name + "</div>";
+
+    for(var key in serverInfo.processes) {
+      var proc = serverInfo.processes[key];
+      html += "<div>Proc: " + proc.title + " -- " + proc["abstract"] + "</div>";
+    }
+
+    html += '<div id="module-catalog">';
+
+
+    for(var key in serverInfo.wps_processes) { 
+      var p = serverInfo.wps_processes[key];
+
+      html += 
+        '<h2 class="process-title">' + p.title + '</h2>' +
+        '<div class="catalog-item">' + 
+          '<div class = "process-identifier">' +
+            'Identifier: <span>' + p.identifier + '</span>' +
+          '</div>' + 
+          '<div class="process-descr">' + p.abstract + '</div>' + 
+
+          '<table class="model-descr-table">' + 
+            '<tbody class="inputs">' + 
+              '<tr><th colspan=3 class="group-header" scope="rowgroup"><div class="outdent">';
+      
+      var inputs = p.dataInputs;
+
+      if(inputs.length === 0)
+        html += "No Inputs";
+      else
+        html += "Model Inputs";
+ 
+      html += '</div></th></tr>';
+    
+      if(inputs.length > 0)
+        html += '<tr><th>Parameter Name</th><th>Identifier</th><th>Description</th></tr>';
+
+      for(var i = 0, len = p.dataInputs.length; i < len; i++) {
+        var input = p.dataInputs[i];
+
+        html += '<tr>' + 
+          '<td class="param-name">'  + input.title      + '</td>'  +
+          '<td class="param-name">[' + input.identifier + ']</td>' +
+          '<td class="param-descr">' + input.abstract   + '</td>'  +
+        '</tr>';            
+      }   
+
+      html += '<tr><th colspan=3 class="group-header" scope="rowgroup"><div class="outdent">';
+      
+      var outputs = p.processOutputs;
+
+      if(outputs.length === 0)
+        html += "No Outputs";
+      else
+        html += "Model Outputs";
+      
+      html += '</div></th></tr>';
+      
+      if(outputs.length > 0)
+        html += '<tr><th>Parameter Name</th><th>Identifier</th><th>Description</th></tr>';
+      
+      for(var i = 0, len = outputs.length; i < len; i++)
+      {
+        var output = outputs[i];
+
+        html += '<tr>' + 
+          '<td class="param-name">'  + output.title      + '</td>'  +
+          '<td class="param-name">[' + output.identifier + ']</td>' +
+          '<td class="param-descr">' + output.abstract   + '</td>'  +
+        '</tr>';            
+      }  
+
+      html += '</tbody></table></div>';
+    }
+
+
+    $("#results-display").html(html);
+    $(".server-info").show();
+
+    initializeAccordion('#module-catalog > h2', '.catalog-item');
+  };
 
 </script>

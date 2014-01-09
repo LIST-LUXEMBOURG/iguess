@@ -114,6 +114,19 @@
   };
 
 
+
+  var wfsProcessingComplete = 0;
+  var wmsProcessingComplete = 0;
+  var wcsProcessingComplete = 0;  
+
+
+  var resetServiceLoadedStatus = function() {
+    wfsProcessingComplete = 0;
+    wmsProcessingComplete = 0;
+    wcsProcessingComplete = 0;
+  };
+
+
   // Called when we've gotten whatever response we're going to get from the server in question
   // i.e. when a WFS response arrives.  More responses might be coming (from WMS, and WCS, for example).
   var doneProcessing = function(url, type, serverInfo) 
@@ -141,26 +154,6 @@
     $(".progress-container").hide();
     displayServices();
   };
-
-
-  var wfsProcessingComplete = 0;
-  var wmsProcessingComplete = 0;
-  var wcsProcessingComplete = 0;  
-
-
-  var resetServiceLoadedStatus = function() {
-    wfsProcessingComplete = 0;
-    wmsProcessingComplete = 0;
-    wcsProcessingComplete = 0;
-  };
-
-
-  // var datasetSort = function(d1, d2)
-  // {
-  //   if(d1.identifier == d2.identifier) return 0;
-  //   if(d1.identifier < d2.identifier)  return 1;
-  //   return -1;
-  // }
 
 
   // Make sure to sanitize datasetIdentifier to remove all the crap that MapGuide puts in!
@@ -673,25 +666,6 @@
   };
 
 
-  // Check response and see if it looks like it is good and requires further parsing
-  var isGoodResponse = function(service, response, capabilities)
-  {
-    var code = response.status;   // Standard http response code herein
-    if(code < 200 || code > 299)
-      return false;
-
-    // If a service does not exist, this next condition should be triggered
-    if(response.responseXML.documentElement.tagName == "ows:ExceptionReport")
-      return false;
-
-    // Sometimes ESRI software send us data about the wrong service... these responses are invalid
-    if(capabilities.requestType.substring(0, 3) != service)
-      return false;
-
-    return true;
-  };
-
-
   // Class declaration -- maintain same public interface as ServiceProbe on register WPS server page
   // :::constructor:::
   var ServiceProbe = function(serverUrl) 
@@ -994,14 +968,6 @@
   };
 
 
-  // Tracks data about a server that we might want to display on the page
-  var ServerInfo = function(title, abstract)
-  {
-    this.title = title;
-    this.abstract = abstract;
-  }
-
-
   var processIncomingWMSLayers = function(capabilities, serverUrl)
   {
     for(var i = 0, len = capabilities.capability.layers.length; i < len; i++)
@@ -1012,7 +978,7 @@
     }
 
     var serverInfo = new ServerInfo(capabilities.service.title, capabilities.service["abstract"]);
-    doneProcessing(serverUrl, "WMS", serverInfo, "OK");
+    doneProcessing(serverUrl, "WMS", serverInfo);
   };
 
 
@@ -1026,14 +992,13 @@
     }
 
     var serverInfo = new ServerInfo(capabilities.service.title, capabilities.service["abstract"]);
-    doneProcessing(serverUrl, "WFS", serverInfo, "OK");
+    doneProcessing(serverUrl, "WFS", serverInfo);
   };
 
 
   // capabilities could contain responses from either GetCapabilities or DescribeCoverage
   var processIncomingWCSLayers = function(capabilities, serverUrl)
   {
-
     // WCSDescribeCoverage requests return a dictionary rather than an array... blech
     if(capabilities.requestType == "WCSDescribeCoverage") {
       var coverageKeys = capabilities.coverageDescriptionKeys;
@@ -1062,7 +1027,7 @@
                 (capabilities.serviceIdentification && capabilities.serviceIdentification.title);
 
     var serverInfo = new ServerInfo(title, abstrct);
-    doneProcessing(serverUrl, "WCS", serverInfo, "OK");
+    doneProcessing(serverUrl, "WCS", serverInfo);
   };  
 
 </script>

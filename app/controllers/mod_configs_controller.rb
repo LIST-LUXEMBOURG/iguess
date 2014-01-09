@@ -14,7 +14,7 @@ class ModConfigsController < ApplicationController
 
     @wps_processes = WpsProcess.joins(:wps_server)
                                .where('wps_servers.city_id' => @current_city.id, :alive => :true)
-                               .order('title, identifier')   # For catalog
+                               .order('wps_processes.title, identifier')   # For catalog
 
     respond_to do |format|
       format.html # index.html.erb

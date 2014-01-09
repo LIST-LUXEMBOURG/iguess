@@ -30,6 +30,7 @@
   <li><a class="l" id="t2" href="#module_catalog_tab">Module Catalog</a></li>
 </ul>
 
+
 <div id="tab-panes" class="tab-pane-container">
   <% if user_signed_in? %>
     <div id="configured_modules_tab">
@@ -43,7 +44,7 @@
             <%= link_to "Click here to create one.", new_mod_config_path %>
           </div>   
         <% else %>
-          <div id='mod-list'>      
+          <div id="mod-list">      
             These are the calculation modules that have been configured.
 
 
@@ -224,27 +225,7 @@
       $('.item-' + i + ' img[rel]').overlay();    // Activate layer info overlays
 
 
-    // Accordion initialization code -- allows user to reclose accordion item by clicking on header
-    // This init code will be called repeatedly as we add a new item to the catalog.  This will let users expand items
-    // before everything is fully loaded, making the UI feel much more responsive.  But we have to be careful not to add
-    // multiple click events to any item; to prevent this, we unbind everything before rebinding.
-
-    $('#module-catalog > h2').unbind('click');  // Clear out previously added click handlers
-
-    $('#module-catalog > h2').bind('click', function() {
-
-      var animTime = 200;
-
-      $('.catalog-item').slideUp(animTime);     // Close any open panes
-
-      if($(this).hasClass('current')) {
-        $(this).removeClass('current');
-      } else {
-        $('.current').removeClass('current');
-        $(this).addClass('current');
-        $(this).next().slideDown(animTime);     // Open selected pane
-      }
-    });
+    initializeAccordion('#module-catalog > h2', '.catalog-item');
 
 
     $('#sortable_table').tablesorter({ sortList: [[0,0]], headers: { 3: {sorter: false}}, sortMultiSortKey: 'ctrlKey' });   
