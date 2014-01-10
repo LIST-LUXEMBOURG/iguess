@@ -75,12 +75,7 @@
     // :::private:::
     this.onWpsGetCapabilitiesSucceeded = function(capabilities, response) {
       if(capabilities && isGoodResponse("WPS", response, capabilities)) {
-        self.serverInfo.title         = capabilities.serviceIdentification.title;
-        self.serverInfo.abstract      = capabilities.serviceIdentification["abstract"];
-        self.serverInfo.provider_name = capabilities.serviceProvider.providerName;
-        self.serverInfo.contact_email = capabilities.serviceProvider.serviceContact.contactInfo.address.electronicMailAddress;
-        self.serverInfo.contact_name  = capabilities.serviceProvider.serviceContact.individualName;
-        self.serverInfo.id = 0;   // Dummy for comaptibility purposes
+        self.serverInfo = extractServerInfoVals(capabilities);
 
         doneProcessing(self.serverUrl, "WPS", self.serverInfo);
       }
@@ -96,7 +91,49 @@
       else    // Error:
         doneProcessing(self.serverUrl, "WPS", null);
     };
-  }
+  };
+
+
+  // Wrap all these assignments in try/catch to ensure no crashes if values are missing
+  var extractServerInfoVals = function(capabilities)
+  {
+    var serverInfo = {};
+
+    try {
+      serverInfo.title = capabilities.serviceIdentification.title;
+    } catch(error) {
+      serverInfo.title = null;
+    }
+
+    try {
+      serverInfo.abstract = capabilities.serviceIdentification["abstract"];
+    } catch(error) {
+      serverInfo.abstract = null;
+    }
+
+    try {
+      serverInfo.provider_name = capabilities.serviceProvider.providerName;
+    } catch(error) {
+      serverInfo.provider_name = null;
+    }
+
+    try {
+      serverInfo.contact_email = capabilities.serviceProvider.serviceContact.contactInfo.address.electronicMailAddress;
+    } catch(error) {
+      serverInfo.contact_email = null;
+    }
+
+    try {
+      serverInfo.contact_name = capabilities.serviceProvider.serviceContact.individualName;
+    } catch(error) {
+      serverInfo.contact_name = null;
+    }
+
+    return serverInfo;
+  };
+
+
+
 
 
   var wpsProcessingComplete = 0;  
