@@ -189,10 +189,13 @@
           '<div class="process-descr">' + p.abstract + '</div>' + 
 
           '<table class="model-descr-table">' + 
-            '<tbody class="inputs">' + 
-              '<tr><th colspan=3 class="group-header" scope="rowgroup"><div class="outdent">';
+            '<tbody class="inputs">';
+              
       
+      // Inputs
       var inputs = p.dataInputs;
+
+      html += '<tr><th colspan=3 class="group-header" scope="rowgroup"><div class="outdent">';
 
       if(inputs.length === 0)
         html += "No Inputs";
@@ -201,22 +204,13 @@
  
       html += '</div></th></tr>';
     
-      if(inputs.length > 0)
-        html += '<tr><th>Parameter Name</th><th>Identifier</th><th>Description</th></tr>';
+      html += createInputOutputTable(inputs);
 
-      for(var i = 0, len = p.dataInputs.length; i < len; i++) {
-        var input = p.dataInputs[i];
-
-        html += '<tr>' + 
-          '<td class="param-name">'  + input.title      + '</td>'  +
-          '<td class="param-name">[' + input.identifier + ']</td>' +
-          '<td class="param-descr">' + input.abstract   + '</td>'  +
-        '</tr>';            
-      }   
-
-      html += '<tr><th colspan=3 class="group-header" scope="rowgroup"><div class="outdent">';
       
+      // Outputs
       var outputs = p.processOutputs;
+      
+      html += '<tr><th colspan=3 class="group-header" scope="rowgroup"><div class="outdent">';
 
       if(outputs.length === 0)
         html += "No Outputs";
@@ -225,19 +219,7 @@
       
       html += '</div></th></tr>';
       
-      if(outputs.length > 0)
-        html += '<tr><th>Parameter Name</th><th>Identifier</th><th>Description</th></tr>';
-      
-      for(var i = 0, len = outputs.length; i < len; i++)
-      {
-        var output = outputs[i];
-
-        html += '<tr>' + 
-          '<td class="param-name">'  + output.title      + '</td>'  +
-          '<td class="param-name">[' + output.identifier + ']</td>' +
-          '<td class="param-descr">' + output.abstract   + '</td>'  +
-        '</tr>';            
-      }  
+      html += createInputOutputTable(outputs);
 
       html += '</tbody></table></div>';
     }
@@ -247,6 +229,27 @@
     $(".server-info").show();
 
     initializeAccordion('#module-catalog > h2', '.catalog-item');
+  };
+
+
+  var createInputOutputTable = function(items) 
+  {
+    var html = "";
+    
+    if(items.length > 0)
+        html += '<tr><th>Parameter Name</th><th>Identifier</th><th>Description</th></tr>';
+
+    for(var i = 0, len = items.length; i < len; i++) {
+      var item = items[i];
+
+      html += '<tr>' + 
+        '<td class="param-name">'  + (item.title ? item.title : item.identifier) + '</td>'  +
+        '<td class="param-name">[' + item.identifier                             + ']</td>' +
+        '<td class="param-descr">' + (item.abstract ? item.abstract : "")        + '</td>'  +
+      '</tr>';            
+    }
+
+    return html;
   };
 
 </script>
