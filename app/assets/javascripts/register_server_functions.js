@@ -118,7 +118,8 @@ var loadDataLayers = function()
     return;   
 
   // Reset various displays
-  $("#server-name").html("");   
+  clearServerDetails();
+
   $("#error-list").html("").slideUp(200); // Clear and hide error box
 
   alreadyShownWmsError = false;
@@ -135,19 +136,39 @@ var loadDataLayers = function()
 };
 
 
-// Note that details can be null here
+// This may get called multiple times with different serverInfos.  Here we need to figure out
+// what to display without clobbering good values that may have arrived earlier.
+// Note that some properties can be null.
 var displayServerDetails = function(serverInfo, service) 
 {
   if(serverInfo && $("#server-name").html() == "")
   {
-    var serverName  = serverInfo.title    || "Unnamed Server";
-    var serverDescr = serverInfo.abstract || "";
+    var serverName  = serverInfo.title         || $("#server-name").html()  || "Unnamed Server";
+    var serverDescr = serverInfo.abstract      || $("#server-descr").html() || "";
+    var serverOwner = serverInfo.provider_name || $("#server-owner").html() || null;
 
     $("#server-name").html("Server: " + serverName);
-    $("#server-descr").html(linkify(serverDescr));
+
+    if(serverDescr)
+      $("#server-descr").html(linkify(serverDescr));
+    else
+      $("#server-descr").html("");
+
+    if(serverOwner)
+      $("#server-owner").html("Owner: " + serverOwner);
+    else
+      $("#server-owner").html("");
 
     $(".server-info").show();
   }
+};
+
+
+var clearServerDetails = function()
+{
+  $("#server-owner").html("");
+  $("#server-descr").html("");
+  $("#server-name").html("");
 };
 
 
@@ -168,11 +189,3 @@ var isGoodResponse = function(service, response, capabilities)
 
   return true;
 };
-
-
-// Tracks data about a server that we might want to display on the page
-var ServerInfo = function(title, abstract)
-{
-  this.title    = title;
-  this.abstract = abstract;
-}

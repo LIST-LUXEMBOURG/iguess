@@ -1015,9 +1015,8 @@ OpenLayers.WPS = OpenLayers.Class({
      *
      */
     onException: function (process,code,text) {
-      alert("WPS Error.. dropping to debugger")
+      alert("WPS Error.. see error in the console");
       console.log(process);
-      debugger;
     },
 
     /**

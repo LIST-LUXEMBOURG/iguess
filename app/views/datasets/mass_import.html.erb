@@ -49,6 +49,7 @@
   <div class="server-info">
     <div class="server-name" id="server-name"></div>
     <div class="server-descr" id="server-descr"></div>
+    <div class="server-owner" id="server-owner"></div>
 
     <div id="results-display"><!-- Search results will be shown here --></div>
   </div>
@@ -129,23 +130,26 @@
 
   // Called when we've gotten whatever response we're going to get from the server in question
   // i.e. when a WFS response arrives.  More responses might be coming (from WMS, and WCS, for example).
+  // serverInfo could be null.
   var doneProcessing = function(url, type, serverInfo) 
   {
     if(type == "WFS") {
-      $("#probing-wfs").hide();
       wfsProcessingComplete++;
+      $("#probing-wfs").hide();
     }
     else if(type == "WMS") {
-      $("#probing-wms").hide();
       wmsProcessingComplete++;
+      $("#probing-wms").hide();
     }
     else if(type == "WCS") {
-      $("#probing-wcs").hide();
       wcsProcessingComplete++;
+      if(wcsProcessingComplete == 2)
+        $("#probing-wcs").hide();
     }
     else { alert("Unknown service type " + type); }
 
-    displayServerDetails(serverInfo, type);   // Display this as it comes in
+    if(serverInfo)
+      displayServerDetails(serverInfo, type);   // Display this as it comes in
 
     // Make sure we've heard from all services before continuing
     if(wfsProcessingComplete != 1 || wmsProcessingComplete != 1 || wcsProcessingComplete != 2)  
@@ -156,7 +160,9 @@
   };
 
 
-  // Make sure to sanitize datasetIdentifier to remove all the crap that MapGuide puts in!
+  // Sanitize datasetIdentifier to remove all the crap that MapGuide puts in!
+  // Replaces backslashes with the letter X, which can be safely handled by most browsers.
+  // This will let us use identifiers to construct div ids.
   var sanitizeId = function(str)
   {
     if(typeof(str) === "string")
@@ -896,22 +902,19 @@
             this.format = "image/tiff";
           else
             this.format = datasetInfo.supportedFormats[0];
-        }
-        catch(error) {
+        } catch(error) {
           // Do nothing
         }
 
         try {
           this.resolution = datasetInfo.domain.spatialDomain.gridCRS.gridOffsets;
-        }
-        catch(error) {
+        } catch(error) {
           // Do nothing
         }
 
         try {
           this.wxsbbox = datasetInfo.domain.spatialDomain.boundingBoxes[this.wxsCrs];
-        }
-        catch(error) {
+        } catch(error) {
           // Do nothing
         }
       }
@@ -967,6 +970,14 @@
     }
   };
 
+  // Tracks data about a server that we might want to display on the page
+  var ServerInfo = function(title, abstract, owner)
+  {
+    this.title    = title;
+    this.abstract = abstract;
+    this.owner    = owner;
+  };
+
 
   var processIncomingWMSLayers = function(capabilities, serverUrl)
   {
@@ -977,7 +988,19 @@
       mergeDatasetIntoLayerList(dataset, "WMS");
     }
 
-    var serverInfo = new ServerInfo(capabilities.service.title, capabilities.service["abstract"]);
+    var owner = "";
+
+    try {
+      // This property is not always present!
+      owner = capabilities.service.contactInformation.personPrimary.organization;
+    } catch(error) {
+      // Do nothing
+    }
+
+    var serverInfo = new ServerInfo(capabilities.service.title, 
+                                    capabilities.service["abstract"],
+                                    owner);
+
     doneProcessing(serverUrl, "WMS", serverInfo);
   };
 
@@ -991,7 +1014,10 @@
       mergeDatasetIntoLayerList(dataset, "WFS");
     }
 
-    var serverInfo = new ServerInfo(capabilities.service.title, capabilities.service["abstract"]);
+    // WFS 1.0.0 seems not to return server owner details
+    var serverInfo = new ServerInfo(capabilities.service.title, 
+                                    capabilities.service["abstract"]);
+
     doneProcessing(serverUrl, "WFS", serverInfo);
   };
 
@@ -999,6 +1025,8 @@
   // capabilities could contain responses from either GetCapabilities or DescribeCoverage
   var processIncomingWCSLayers = function(capabilities, serverUrl)
   {
+    var serverInfo = null;
+
     // WCSDescribeCoverage requests return a dictionary rather than an array... blech
     if(capabilities.requestType == "WCSDescribeCoverage") {
       var coverageKeys = capabilities.coverageDescriptionKeys;
@@ -1016,17 +1044,12 @@
         var dataset = new Dataset(serverUrl, "WCS", coverageList[i]);
         mergeDatasetIntoLayerList(dataset, "WCS");
       }
+
+      serverInfo = new ServerInfo(capabilities.serviceIdentification.title, 
+                                  capabilities.serviceIdentification["abstract"], 
+                                  capabilities.serviceProvider.providerName);
     }
 
-
-    // This is more complex than above because both GetCapabilities and DescribeCoverage requests end up here
-    var abstrct = (capabilities.service && capabilities.service["abstract"]) ||
-                  (capabilities.serviceIdentification && capabilities.serviceIdentification["abstract"]);
-
-    var title = (capabilities.service && capabilities.service.title) || 
-                (capabilities.serviceIdentification && capabilities.serviceIdentification.title);
-
-    var serverInfo = new ServerInfo(title, abstrct);
     doneProcessing(serverUrl, "WCS", serverInfo);
   };  
 

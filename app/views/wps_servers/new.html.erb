@@ -26,8 +26,9 @@
   </div>
 
   <div class="server-info">
-    <div class="server-name" id="server-name"></div>
+    <div class="server-name"  id="server-name"></div>
     <div class="server-descr" id="server-descr"></div>
+    <div class="server-owner" id="server-owner"></div>
 
     <div id="results-display"><!-- Search results will be shown here --></div>
   </div>
@@ -56,24 +57,7 @@
   };
 
 
-  // Called when we've gotten whatever response we're going to get from the server 
-  var doneProcessing = function(url, type, serverInfo, status)    // status will be OK or ERROR
-  {
-    if(type == "WPS") {
-      $("#probing-wps").hide();
-    }
-    else { alert("Unknown service type " + type); }
-
-
-    displayServerDetails(serverInfo, type);   // Display this as it comes in
-
-    $(".progress-container").hide();
-    displayLayers();
-  };
-
-  
-
-  // Class declaration -- maintain same public interface as ServiceProbe on mass_import page
+  //  declaration -- maintain same public interface as ServiceProbe on mass_import page
   var ServiceProbe = function(serverUrl) 
   {   
     this.serverUrl = serverUrl;
@@ -127,34 +111,16 @@
   // i.e. when a WFS response arrives.  More responses might be coming (from WMS, and WCS, for example).
   var doneProcessing = function(url, type, serverInfo) 
   {
-    if(type == "WPS") {
-      $("#probing-wps").hide();
-      wpsProcessingComplete++;
-    }
-    else { alert("Unknown service type " + type); }
-
-    displayServerDetails(serverInfo, type);   // Display this as it comes in
+    wpsProcessingComplete++;
 
     // Make sure we've heard from all requests before continuing
     if(wpsProcessingComplete != 2)  
       return; 
 
+    displayServerDetails(serverInfo, type);   // Display this as it comes in
+
     $(".progress-container").hide();
     displayServices(serverInfo);
-  };
-
-
-  var processIncomingWPSLayers = function(capabilities, serverUrl)
-  {
-    for(var i = 0, len = capabilities.processOfferings.length; i < len; i++)
-    {
-      var dataset = new Dataset(serverUrl, "WPS", capabilities.featureTypeList.featureTypes[i]);
-
-      mergeDatasetIntoLayerList(dataset, "WPS");
-    }
-
-    var serverInfo = new ServerInfo(capabilities.service.title, capabilities.service["abstract"]);
-    doneProcessing(serverUrl, "WPS", serverInfo);
   };
 
 
@@ -165,9 +131,7 @@
     //                              'Either the URL is not that of a WPS process server, or the server is not responding.' +
     //                              '</div>');
 
-    var html = "<div>Server Name: " + serverInfo.title         + "</div>" + 
-               "<div>Description: " + serverInfo["abstract"]   + "</div>" + 
-               "<div>Owner: "       + serverInfo.provider_name + "</div>";
+    var html = "";
 
     for(var key in serverInfo.processes) {
       var proc = serverInfo.processes[key];
