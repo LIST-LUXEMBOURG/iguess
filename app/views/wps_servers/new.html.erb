@@ -32,9 +32,6 @@
 
     <div id="results-display"><!-- Search results will be shown here --></div>
   </div>
-
-
-
 </div>
 
 
@@ -156,6 +153,8 @@
 
     $(".progress-container").hide();
     displayServices(serverInfo);
+
+    appendRegisterCheckbox("register-wps", false);
   };
 
 
@@ -172,6 +171,8 @@
       var proc = serverInfo.processes[key];
       html += "<div>Proc: " + proc.title + " -- " + proc["abstract"] + "</div>";
     }
+
+    html += "<div id='register-control'></div>";
 
     html += '<div id="module-catalog">';
 
@@ -200,16 +201,139 @@
       var outputs = p.processOutputs;
       html += createInputOutputTableRow(outputs, outputs.length > 0 ? "Model Outputs" : "No Outputs");
 
-
-      html += '</tbody></table></div>';
+      html += "</tbody></table></div>";
     }
-
 
     $("#results-display").html(html);
     $(".server-info").show();
 
     initializeAccordion('#module-catalog > h2', '.catalog-item');
   };
+
+
+  var appendRegisterCheckbox = function(name, registered)
+  {
+    var registerControl = $(document.createElement("input"));
+
+    // var $e = $("<div>", {id: "newDiv1", name: 'test', class: "aClass"});
+    // $div.click(function(){ /* ... */ });
+
+    registerControl.attr({ type:    "checkbox", 
+                           name:    "registered_" + name, 
+                           class:   "switchbox",
+                           id:      "registered_" + name, 
+                           value:   "registered", 
+                           checked: registered 
+                         });
+
+    $('#register-control').append(registerControl);
+    
+    // Add toggle switch after each checkbox.  If checked, then toggle the switch.
+    $(".switchbox").after(function() {
+       if($(this).is(":checked")) {
+         return "<a href='#' class='toggle checked' ref='" + $(this).attr("id") + "'></a>";
+       } else {
+         return "<a href='#' class='toggle' ref='" + $(this).attr("id") + "'></a>";
+       }
+    });
+
+    // When the toggle switch is clicked, check off / de-select the associated checkbox
+    // Want to find this when we search for "registered_"
+    $(".toggle").click(function(e) 
+    {
+      var checkboxID = $(this).attr("ref");
+
+      var checkbox = document.getElementById(checkboxID);
+
+      var serverUrl = getServerUrl();
+
+
+      if(checkbox.checked && !confirm(
+          "Are you sure you want to unregister this WPS server?\n\n" + 
+          "If you do, none of the functions will be available for new Module Configurations.\n\n" +
+          "Existing configurations will continue to work.")) 
+      {
+        e.preventDefault();
+        return;
+      }
+
+
+      // var urlId = cssEscape(serverUrl + datasetIdentifier);
+
+      var thiiis = $(this);
+
+      if(checkbox.checked) {
+        // ===== Unregister WPS =====
+
+        // Let the server know this layer is no longer registered -- to do this we delete the corresponding
+        // record in the datasets table.
+        // $.ajax({
+        //   type: "DELETE",      // DELETE combined with url below triggers "destroy_by_params" action on controller
+        //   url: '<%= url_for(:controller => 'datasets', :action => 'destroy_by_params') %>',
+        //   data: "dataset[identifier]="  + datasetIdentifier +
+        //         "&dataset[server_url]=" + serverUrl,
+
+        //   headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
+        //   // http://api.jquery.com/jQuery.ajax/
+        //   success: function(data, status, jqXHR)  { unregisterDataset(serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); },
+        //   error:   function(jqXHR, status, error) { alert('Cound not unregister dataset! (server returned status "' + error.trim() + '")'); }
+        // });
+
+checkbox.checked = false;
+thiiis.toggleClass("checked");
+
+      } else {
+        // ===== Register WPS =====
+
+        // var layer    = discoveredLayers[urlId];
+        // var taglist  = extractTagList(serverUrl, datasetIdentifier);
+        // var title    = $("#dataset-title-"    + sanitizeId(datasetIdentifier)).text();
+        // var abstract = $("#dataset-abstract-" + sanitizeId(datasetIdentifier)).text();
+
+
+        // var service  = "";
+        // if(     layer.type.hasObject("WFS")) { service = "WFS"; }
+        // else if(layer.type.hasObject("WCS")) { service = "WCS"; }
+        // else if(layer.type.hasObject("WMS")) { service = "WMS"; }
+
+        // // Let the server know this layer is now registered -- to do this we must create a new record in
+        // // our datasets table.
+
+        // $.ajax({
+        //   type: "POST",      // POST combined with url below triggers "create" action on controller
+        //   url: "<%= url_for(:controller => "datasets", :action => "create", :format=>:json) %>",
+        //   data: "dataset[identifier]="       + datasetIdentifier +
+        //         "&dataset[service]="         + service +
+        //         "&dataset[server_url]="      + serverUrl +
+        //         "&server_title="             + getServerTitle() +
+        //         "&server_abstract="          + getServerAbstract() +
+        //         "&tags="                     + taglist +
+        //         "&dataset[title]="           + encodeURIComponent(title) +
+        //         "&dataset[abstract]="        + encodeURIComponent(abstract) +
+        //         "&dataset[bbox_left]="       + getCoord(layer, "left") +
+        //         "&dataset[bbox_right]="      + getCoord(layer, "right") +
+        //         "&dataset[bbox_top]="        + getCoord(layer, "top") +
+        //         "&dataset[bbox_bottom]="     + getCoord(layer, "bottom") +
+        //         "&dataset[resolution_x]="    + (layer.resolution ? Math.abs(layer.resolution.x) : 0) +
+        //         "&dataset[resolution_y]="    + (layer.resolution ? Math.abs(layer.resolution.y) : 0) +
+        //         "&dataset[format]="          + (layer.format ? layer.format : "") +
+        //         "&dataset[local_srs]="       + (CRS.hasCRS(layer.wxsCrs, LOCAL_SRS) ? "true" : "false") +
+        //         "&dataset[city_id]=<%= raw @current_city.id %>" +
+        //         "&dataset[alive]=true"       +
+        //         "&cityName=<%= raw @current_city.id %>",
+        //   headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
+        //   success: function(data, status, jqXHR)  { registerDataset(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); },
+        //   error:   function(jqXHR, status, error) { alert('Cound not register dataset! (server returned status "' + error.trim() + '")'); }
+        // });
+checkbox.checked = true;
+      thiiis.toggleClass("checked");
+
+      }
+
+      e.preventDefault();
+
+    });  // end toggle state change handler
+  }
 
 
   var createInputOutputTableRow = function(items, title) 

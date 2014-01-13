@@ -32,6 +32,7 @@ class WpsServersController < ApplicationController
       return
     end
 
+    @current_city    = User.getCurrentCity(current_user, cookies)
     @wps_server = WpsServer.new
 
     respond_to do |format|

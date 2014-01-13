@@ -237,7 +237,7 @@
         }
 
       
-        var registerControl = $(document.createElement('input'));
+        var registerControl = $(document.createElement("input"));
 
         registerControl.attr({ type:    "checkbox", 
                                name:    "registered_" + layer.identifier, 
@@ -248,29 +248,31 @@
                              });
 
 
-        var titleNode = $(document.createElement('div'));
-        titleNode.html("<span class='dataset_title' id='dataset-title-" + sanitizeId(layer.identifier) + "'>" + (layer.title != "" ? layer.title : layer.identifier) + "</span>" + 
+        var titleNode = $(document.createElement("div"));
+        titleNode.html("<span class='dataset_title' id='dataset-title-" + sanitizeId(layer.identifier) + "'>" + 
+                          (layer.title != "" ? layer.title : layer.identifier) + 
+                       "</span>" + 
                        "<span class='dataset-identifier'>Identifier: <span>" + layer.identifier + "</span>");
 
 
-        var servicesAvailNode = $(document.createElement('div'));
-        servicesAvailNode.attr({ class:'dataset_services_available' });
-        servicesAvailNode.text("Services: " + layer.type.join(', ') );
+        var servicesAvailNode = $(document.createElement("div"));
+        servicesAvailNode.attr({ class:"dataset_services_available" });
+        servicesAvailNode.text("Services: " + layer.type.join(', '));
 
         if(regLyr) {  
-          servicesAvailNode.append('<br>Used in ' + regLyr.configCount + ' configurations');
+          servicesAvailNode.append("<br>Used in " + regLyr.configCount + " configurations");
         }
 
         var abstractNode = "";
 
         if(layer.abstract) {
           abstractNode = $(document.createElement('div'));
-          abstractNode.attr({ class:'dataset_abstract', id:'dataset-abstract-' + sanitizeId(layer.identifier)});
+          abstractNode.attr({ class:"dataset_abstract", id:"dataset-abstract-" + sanitizeId(layer.identifier)});
           abstractNode.html(linkify(layer.abstract));
         }
 
-        var srsNode = $(document.createElement('div'));
-        srsNode.attr({ class:'dataset_srs' });
+        var srsNode = $(document.createElement("div"));
+        srsNode.attr({ class:"dataset_srs" });
 
         var code = '<div style="cursor:pointer" rel="#infotable-unavailable-for-mapping">' +
                    '<span class="proj-background">available for mapping</span><span class="' + 
@@ -296,7 +298,8 @@
         data_info.append(srsNode)
                  .append(registerControl)
                  .append(servicesAvailNode)
-                 .append('<div class="tag-control"><span class="taglist-deletable-' + urlId + ' taglist"' + (regLyr ? "" : " disabled='disabled'") + '>' +  
+                 .append('<div class="tag-control"><span class="taglist-deletable-' + urlId + ' taglist"' + 
+                          (regLyr ? "" : " disabled='disabled'") + '>' +  
                           (regLyr && regLyr.tags.length > 0 ?  createTagList(regLyr.tags, true, 
                                                                         layer.serverUrl, layer.identifier) : "No tags" ) +
                          '</span>' + 
@@ -444,9 +447,9 @@
     // Add toggle switch after each checkbox.  If checked, then toggle the switch.
     $(".switchbox").after(function() {
        if($(this).is(":checked")) {
-         return "<a href='#' class='toggle checked' ref='"+$(this).attr("id")+"'></a>";
+         return "<a href='#' class='toggle checked' ref='" + $(this).attr("id") + "'></a>";
        } else {
-         return "<a href='#' class='toggle' ref='"+$(this).attr("id")+"'></a>";
+         return "<a href='#' class='toggle' ref='" + $(this).attr("id") + "'></a>";
        }
     });
 
@@ -526,7 +529,7 @@
       var thiiis = $(this);
 
       if(checkbox.checked) {
-        // ===== Unregistering dataset =====
+        // ===== Unregister dataset =====
 
         // Let the server know this layer is no longer registered -- to do this we delete the corresponding
         // record in the datasets table.
@@ -576,7 +579,7 @@
                 "&dataset[bbox_bottom]="     + getCoord(layer, "bottom") +
                 "&dataset[resolution_x]="    + (layer.resolution ? Math.abs(layer.resolution.x) : 0) +
                 "&dataset[resolution_y]="    + (layer.resolution ? Math.abs(layer.resolution.y) : 0) +
-                "&dataset[format]="          + (layer.format ? layer.format : "")+
+                "&dataset[format]="          + (layer.format ? layer.format : "") +
                 "&dataset[local_srs]="       + (CRS.hasCRS(layer.wxsCrs, LOCAL_SRS) ? "true" : "false") +
                 "&dataset[city_id]=<%= raw @current_city.id %>" +
                 "&dataset[alive]=true"       +
