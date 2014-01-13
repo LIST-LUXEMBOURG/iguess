@@ -215,27 +215,10 @@
   {
     var registerControl = $(document.createElement("input"));
 
-    // var $e = $("<div>", {id: "newDiv1", name: 'test', class: "aClass"});
-    // $div.click(function(){ /* ... */ });
 
-    registerControl.attr({ type:    "checkbox", 
-                           name:    "registered_" + name, 
-                           class:   "switchbox",
-                           id:      "registered_" + name, 
-                           value:   "registered", 
-                           checked: registered 
-                         });
-
-    $('#register-control').append(registerControl);
+    $('#register-control').append(getRegisterControl(name, registered));
     
-    // Add toggle switch after each checkbox.  If checked, then toggle the switch.
-    $(".switchbox").after(function() {
-       if($(this).is(":checked")) {
-         return "<a href='#' class='toggle checked' ref='" + $(this).attr("id") + "'></a>";
-       } else {
-         return "<a href='#' class='toggle' ref='" + $(this).attr("id") + "'></a>";
-       }
-    });
+    addSwitchboxHandler();
 
     // When the toggle switch is clicked, check off / de-select the associated checkbox
     // Want to find this when we search for "registered_"

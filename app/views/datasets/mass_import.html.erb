@@ -236,18 +236,6 @@
           availableInGoogleProjection = CRS.hasCRS(layer.wmsCrsList, GOOGLE_SRS);
         }
 
-      
-        var registerControl = $(document.createElement("input"));
-
-        registerControl.attr({ type:    "checkbox", 
-                               name:    "registered_" + layer.identifier, 
-                               class:   "switchbox",
-                               id:      "registered_" + layer.identifier, 
-                               value:   "registered", 
-                               checked: registered 
-                             });
-
-
         var titleNode = $(document.createElement("div"));
         titleNode.html("<span class='dataset_title' id='dataset-title-" + sanitizeId(layer.identifier) + "'>" + 
                           (layer.title != "" ? layer.title : layer.identifier) + 
@@ -296,7 +284,7 @@
         data_info.attr({ class:'data-info' });
 
         data_info.append(srsNode)
-                 .append(registerControl)
+                 .append(getRegisterControl(layer.identifier, registered))
                  .append(servicesAvailNode)
                  .append('<div class="tag-control"><span class="taglist-deletable-' + urlId + ' taglist"' + 
                           (regLyr ? "" : " disabled='disabled'") + '>' +  
@@ -437,21 +425,11 @@
 
 
     addDeleteTagClickHander();
+    addSwitchboxHandler();
+
+
     $('div[rel]').overlay();  // Activate availability status overlays
-
-
-
     $("#results-display-count").text(discoveredLayerKeys.length);    // Update layer display
-
-
-    // Add toggle switch after each checkbox.  If checked, then toggle the switch.
-    $(".switchbox").after(function() {
-       if($(this).is(":checked")) {
-         return "<a href='#' class='toggle checked' ref='" + $(this).attr("id") + "'></a>";
-       } else {
-         return "<a href='#' class='toggle' ref='" + $(this).attr("id") + "'></a>";
-       }
-    });
 
 
     // This gets called when the ajax request to the server returns with a success message

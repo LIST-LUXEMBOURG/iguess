@@ -189,3 +189,38 @@ var isGoodResponse = function(service, response, capabilities)
 
   return true;
 };
+
+
+
+// The below could be formatted:
+// var $e = $("<div>", {id: "newDiv1", name: 'test', class: "aClass"});
+// $div.click(function(){ /* ... */ });
+
+var getRegisterControl = function(name, registered)
+{
+  var registerControl = $(document.createElement("input"));
+
+  registerControl.attr({ type:    "checkbox", 
+                         name:    "registered_" + name, 
+                         class:   "switchbox",
+                         id:      "registered_" + name, 
+                         value:   "registered", 
+                         checked: registered 
+                       });
+
+  return registerControl;
+};
+
+
+// Convert any checkboxes in the class "switchbox" to fancy switches
+var addSwitchboxHandler = function()
+{
+  // Add toggle switch after each checkbox.  If checked, then toggle the switch.
+    $(".switchbox").after(function() {
+       if($(this).is(":checked")) {
+         return "<a href='#' class='toggle checked' ref='" + $(this).attr("id") + "'></a>";
+       } else {
+         return "<a href='#' class='toggle' ref='" + $(this).attr("id") + "'></a>";
+       }
+    });
+  };
