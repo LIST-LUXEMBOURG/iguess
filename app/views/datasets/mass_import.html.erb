@@ -433,7 +433,7 @@
 
 
     // This gets called when the ajax request to the server returns with a success message
-    var registerDataset = function(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, item)
+    var registeredDataset = function(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, item)
     {
         $(".taglist-deletable-" + urlId).attr("disabled", false);
 
@@ -445,7 +445,7 @@
     }
 
 
-    var unregisterDataset = function(serverUrl, datasetIdentifier, checkbox, tagPickerControl, item)
+    var unregisteredDataset = function(serverUrl, datasetIdentifier, checkbox, tagPickerControl, item)
     {
       // Remove layer from the list of registered layers
       delete registeredDataLayers[serverUrl][datasetIdentifier];
@@ -477,13 +477,12 @@
     // Want to find this when we search for "registered_"
     $(".toggle").click(function(e) 
     {
-      var checkboxID = $(this).attr("ref");
-
-      var checkbox = document.getElementById(checkboxID);
+      var checkboxID        = $(this).attr("ref");
+      var checkbox          = document.getElementById(checkboxID);
       var datasetIdentifier = getLayerNameFromCheckboxId(checkboxID);
 
       var tagPickerControl = document.getElementById(getTagPickerControlId(datasetIdentifier));
-      var serverUrl = getServerUrl();
+      var serverUrl        = getServerUrl();
 
       var dataLayer = registeredDataLayers[serverUrl][datasetIdentifier];
 
@@ -504,7 +503,7 @@
 
       var urlId = cssEscape(serverUrl + datasetIdentifier);
 
-      var thiiis = $(this);
+      var thiiis = $(this);   // Remember "this" for when the ajax requests return
 
       if(checkbox.checked) {
         // ===== Unregister dataset =====
@@ -513,14 +512,18 @@
         // record in the datasets table.
         $.ajax({
           type: "DELETE",      // DELETE combined with url below triggers "destroy_by_params" action on controller
-          url: '<%= url_for(:controller => 'datasets', :action => 'destroy_by_params') %>',
+          url: '<%= url_for(:controller=>:datasets, :action=>:destroy_by_params) %>',
           data: "dataset[identifier]="  + datasetIdentifier +
                 "&dataset[server_url]=" + serverUrl,
 
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
           // http://api.jquery.com/jQuery.ajax/
-          success: function(data, status, jqXHR)  { unregisterDataset(serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); },
-          error:   function(jqXHR, status, error) { alert('Cound not unregister dataset! (server returned status "' + error.trim() + '")'); }
+          success: function(data, status, jqXHR)  { 
+              unregisteredDataset(serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); 
+            },
+          error:   function(jqXHR, status, error) { 
+              alert('Could not unregister dataset! (server returned status "' + error.trim() + '")'); 
+            }
         });
 
       } else {
@@ -539,10 +542,9 @@
 
         // Let the server know this layer is now registered -- to do this we must create a new record in
         // our datasets table.
-
         $.ajax({
           type: "POST",      // POST combined with url below triggers "create" action on controller
-          url: "<%= url_for(:controller => "datasets", :action => "create", :format=>:json) %>",
+          url: "<%= url_for(:controller=>:datasets, :action=>:create, :format=>:json) %>",
           data: "dataset[identifier]="       + datasetIdentifier +
                 "&dataset[service]="         + service +
                 "&dataset[server_url]="      + serverUrl +
@@ -563,8 +565,12 @@
                 "&dataset[alive]=true"       +
                 "&cityName=<%= raw @current_city.id %>",
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
-          success: function(data, status, jqXHR)  { registerDataset(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); },
-          error:   function(jqXHR, status, error) { alert('Cound not register dataset! (server returned status "' + error.trim() + '")'); }
+          success: function(data, status, jqXHR)  { 
+              registeredDataset(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); 
+            },
+          error: function(jqXHR, status, error) { 
+              alert('Could not register dataset! (server returned status "' + error.trim() + '")'); 
+            }
         });
       }
 
