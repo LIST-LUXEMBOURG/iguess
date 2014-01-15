@@ -18,7 +18,6 @@
   </table>
 </div>
 
-
 <div class="services-display">
 
   <div class="progress-container">
@@ -139,6 +138,8 @@
   };
 
 
+  var currentServerInfo = null;
+
   // Called when we've gotten whatever response we're going to get from the server in question
   // i.e. when a WFS response arrives.  More responses might be coming (from WMS, and WCS, for example).
   var doneProcessing = function(url, type, serverInfo) 
@@ -148,6 +149,8 @@
     // Make sure we've heard from all requests before continuing
     if(wpsProcessingComplete != 2)  
       return; 
+
+    currentServerInfo = serverInfo;
 
     displayServerDetails(serverInfo, type);   // Display this as it comes in
 
@@ -225,8 +228,7 @@
     $(".toggle").click(function(e) 
     {
       var checkboxID = $(this).attr("ref");
-
-      var checkbox = document.getElementById(checkboxID);
+      var checkbox   = document.getElementById(checkboxID);
 
       var serverUrl = getServerUrl();
 
@@ -240,83 +242,60 @@
         return;
       }
 
-
-      // var urlId = cssEscape(serverUrl + datasetIdentifier);
-
-      var thiiis = $(this);
+      var thiiis = $(this);   // Remember "this" for when the ajax requests return
 
       if(checkbox.checked) {
         // ===== Unregister WPS =====
 
-        // Let the server know this layer is no longer registered -- to do this we delete the corresponding
-        // record in the datasets table.
-        // $.ajax({
-        //   type: "DELETE",      // DELETE combined with url below triggers "destroy_by_params" action on controller
-        //   url: '<%= url_for(:controller => 'datasets', :action => 'destroy_by_params') %>',
-        //   data: "dataset[identifier]="  + datasetIdentifier +
-        //         "&dataset[server_url]=" + serverUrl,
-
-        //   headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
-        //   // http://api.jquery.com/jQuery.ajax/
-        //   success: function(data, status, jqXHR)  { unregisterDataset(serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); },
-        //   error:   function(jqXHR, status, error) { alert('Cound not unregister dataset! (server returned status "' + error.trim() + '")'); }
-        // });
-
-checkbox.checked = false;
-thiiis.toggleClass("checked");
+        // Let the server know this server is no longer registered -- to do this we mark
+        // the corresponding record in the wps-servers table as deleted.  We don't actually
+        //  delete it as there may be mod_configs that still depend on it.
+        $.ajax({
+          type: "PUT",
+          url:  "<%= url_for(:controller=>:wps_servers, :action=>:unregister, :format=>:json) %>",
+          data: "cityId="      + "<%= raw @current_city.id %>" +
+                "&server_url=" + serverUrl,
+          headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
+          success: function(data, status, jqXHR)  { 
+              checkbox.checked = false;
+              thiiis.toggleClass("checked");
+              alert(jqXHR.responseText);
+            },
+          error: function(jqXHR, status, error) { 
+              alert('Could not unregister process server! (server returned status "' + error.trim() + '")'); 
+            }
+        });
 
       } else {
         // ===== Register WPS =====
-
-        // var layer    = discoveredLayers[urlId];
-        // var taglist  = extractTagList(serverUrl, datasetIdentifier);
-        // var title    = $("#dataset-title-"    + sanitizeId(datasetIdentifier)).text();
-        // var abstract = $("#dataset-abstract-" + sanitizeId(datasetIdentifier)).text();
-
-
-        // var service  = "";
-        // if(     layer.type.hasObject("WFS")) { service = "WFS"; }
-        // else if(layer.type.hasObject("WCS")) { service = "WCS"; }
-        // else if(layer.type.hasObject("WMS")) { service = "WMS"; }
-
-        // // Let the server know this layer is now registered -- to do this we must create a new record in
-        // // our datasets table.
-
-        // $.ajax({
-        //   type: "POST",      // POST combined with url below triggers "create" action on controller
-        //   url: "<%= url_for(:controller => "datasets", :action => "create", :format=>:json) %>",
-        //   data: "dataset[identifier]="       + datasetIdentifier +
-        //         "&dataset[service]="         + service +
-        //         "&dataset[server_url]="      + serverUrl +
-        //         "&server_title="             + getServerTitle() +
-        //         "&server_abstract="          + getServerAbstract() +
-        //         "&tags="                     + taglist +
-        //         "&dataset[title]="           + encodeURIComponent(title) +
-        //         "&dataset[abstract]="        + encodeURIComponent(abstract) +
-        //         "&dataset[bbox_left]="       + getCoord(layer, "left") +
-        //         "&dataset[bbox_right]="      + getCoord(layer, "right") +
-        //         "&dataset[bbox_top]="        + getCoord(layer, "top") +
-        //         "&dataset[bbox_bottom]="     + getCoord(layer, "bottom") +
-        //         "&dataset[resolution_x]="    + (layer.resolution ? Math.abs(layer.resolution.x) : 0) +
-        //         "&dataset[resolution_y]="    + (layer.resolution ? Math.abs(layer.resolution.y) : 0) +
-        //         "&dataset[format]="          + (layer.format ? layer.format : "") +
-        //         "&dataset[local_srs]="       + (CRS.hasCRS(layer.wxsCrs, LOCAL_SRS) ? "true" : "false") +
-        //         "&dataset[city_id]=<%= raw @current_city.id %>" +
-        //         "&dataset[alive]=true"       +
-        //         "&cityName=<%= raw @current_city.id %>",
-        //   headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
-        //   success: function(data, status, jqXHR)  { registerDataset(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); },
-        //   error:   function(jqXHR, status, error) { alert('Cound not register dataset! (server returned status "' + error.trim() + '")'); }
-        // });
-checkbox.checked = true;
-      thiiis.toggleClass("checked");
-
+        $.ajax({
+          type: "PUT",
+          url:  "<%= url_for(:controller=>:wps_servers, :action=>:register, :format=>:json) %>",
+          data: "cityId="      + "<%= raw @current_city.id %>" +
+                "&server_url="            + serverUrl +
+                "&server[url]="           + serverUrl +
+                "&server[title]="         + currentServerInfo.title +
+                "&server[abstract]="      + currentServerInfo.abstract +
+                "&server[provider_name]=" + currentServerInfo.provider_name +
+                "&server[contact_email]=" + currentServerInfo.contact_email +
+                "&server[city_id]="       + "<%= raw @current_city.id %>",
+          headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
+          success: function(data, status, jqXHR)  { 
+              checkbox.checked = true;
+              thiiis.toggleClass("checked");
+              alert(jqXHR.responseText);
+            },
+          error: function(jqXHR, status, error) { 
+            debugger;
+              alert('Could not register process server! (server returned status "' + error.trim() + '")'); 
+            }
+        });
       }
 
       e.preventDefault();
 
     });  // end toggle state change handler
-  }
+  };
 
 
   var createInputOutputTableRow = function(items, title) 

@@ -96,6 +96,67 @@ class WpsServersController < ApplicationController
   end
 
 
+  # Will only be called with json
+  def register
+    # if not User.canAccessObject(current_user, @wps_server)
+    #   showError("Insufficient permissions -- you cannot access this object!")
+    #   return
+    # end
+
+    if not user_signed_in?    # Should always be true
+      return
+    end
+
+
+    # Check if server is already registered... we expect it not to be
+    wps_server = WpsServer.find_by_url(params[:server][:url])
+
+    if wps_server then
+      render :text => "Server is already registered!", :status => 403
+      return
+    end
+
+    @wps_server = wps_server.new(params[:server_url])
+
+    @wps_server.last_seen = DateTime.now
+
+    @wps_server.alive = true
+    @wps_server.deleteable = true
+    @wps_server.deleted = false
+
+    @wps_server.save
+
+
+    format.json { render json: @wps_server, status: :ok }
+
+  end
+
+  # Will only be called with json
+  def unregister
+    # if not User.canAccessObject(current_user, @wps_server)
+    #   showError("Insufficient permissions -- you cannot access this object!")
+    #   return
+    # end
+
+
+    if not user_signed_in?    # Should always be true
+      return
+    end
+
+    @wps_server = WpsServer.find_by_url(params[:url])
+    if not @wps_server then
+      render :text => "Server is not registered!", :status => 403
+      return
+    end
+
+    @wps_server.deleted = true
+    @wps_server.save
+
+    format.json { render json: @wps_server, status: :ok }
+
+  end
+
+
   # DELETE /wps_servers/1
   # DELETE /wps_servers/1.json
   def destroy

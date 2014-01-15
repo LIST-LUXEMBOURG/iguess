@@ -4,9 +4,16 @@ Iguess::Application.routes.draw do
 
   resources :cities
 
-  resources :wps_servers
+
+  resources :wps_servers do
+    collection do
+      put 'register'
+      put 'unregister'
+    end
+  end
 
   resources :datasets
+
 
   resources :dataserver_urls
   

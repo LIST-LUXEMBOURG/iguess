@@ -13,7 +13,7 @@
         headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
         success: successFunction,
         error: function() { alert('Error retrieving datasets for city.'); }
-        });
+      });
     }
 
     // We've got a new batch of datasets to display!
@@ -21,7 +21,10 @@
     var addLayersToMap = function(datasets)
     {
         for (var i = 0, len = datasets.length; i < len; i++)
-            WebGIS.addNewLayer(datasets[i].title || datasets[i].identifier, datasets[i].server_url, datasets[i].identifier, null);
+            WebGIS.addNewLayer(datasets[i].title || datasets[i].identifier, 
+                              datasets[i].server_url, 
+                              datasets[i].identifier, 
+                              null);
     };
 
     // This gets run when user changes city dropdown
