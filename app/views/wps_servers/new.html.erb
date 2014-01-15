@@ -262,7 +262,7 @@
               alert(jqXHR.responseText);
             },
           error: function(jqXHR, status, error) { 
-              alert('Could not unregister process server! (server returned status "' + error.trim() + '")'); 
+              alert(jqXHR.responseText); 
             }
         });
 
@@ -286,8 +286,7 @@
               alert(jqXHR.responseText);
             },
           error: function(jqXHR, status, error) { 
-            debugger;
-              alert('Could not register process server! (server returned status "' + error.trim() + '")'); 
+              alert(jqXHR.responseText); 
             }
         });
       }
