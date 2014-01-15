@@ -142,6 +142,7 @@
 
   // Called when we've gotten whatever response we're going to get from the server in question
   // i.e. when a WFS response arrives.  More responses might be coming (from WMS, and WCS, for example).
+  // If an error has ocurred, serverInfo will be null
   var doneProcessing = function(url, type, serverInfo) 
   {
     wpsProcessingComplete++;
@@ -150,24 +151,31 @@
     if(wpsProcessingComplete != 2)  
       return; 
 
-    currentServerInfo = serverInfo;
-
-    displayServerDetails(serverInfo, type);   // Display this as it comes in
-
     $(".progress-container").hide();
-    displayServices(serverInfo);
 
-    appendRegisterCheckbox("register-wps", false);
+    if(serverInfo)
+    {
+      currentServerInfo = serverInfo;
+      displayServerDetails(serverInfo, type);   // Display this as it comes in
+      displayServices(serverInfo);
+      appendRegisterCheckbox("register-wps", false);
+    }
+    else
+      noResponse();
+  };
+
+
+  var noResponse = function() {
+    $("#results-display").html('<div class="error-header">Please check the number and dial again</div>' +
+                               '<div class="error-body">No services could be found on the specified server.<br>' +
+                               'Either the URL is not that of a WPS process server, or the server is not responding.' +
+                               '</div>');
+    $(".server-info").show();
   };
 
 
   var displayServices = function(serverInfo) 
   {
-    // $("#results-display").html('<div class="error-header">Please check the number and dial again</div>' +
-    //                              '<div class="error-body">No services could be found on the specified server.<br>' +
-    //                              'Either the URL is not that of a WPS process server, or the server is not responding.' +
-    //                              '</div>');
-
     var html = "";
 
     for(var key in serverInfo.processes) {

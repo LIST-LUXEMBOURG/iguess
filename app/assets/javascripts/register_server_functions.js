@@ -180,7 +180,8 @@ var isGoodResponse = function(service, response, capabilities)
     return false;
 
   // If a service does not exist, this next condition should be triggered
-  if(response.responseXML.documentElement.tagName == "ows:ExceptionReport")
+  if(response.responseXML.documentElement.tagName == "ows:ExceptionReport" ||
+     response.responseXML.documentElement.tagName == "ExceptionReport")
     return false;
 
   // Sometimes ESRI software send us data about the wrong service... these responses are invalid
