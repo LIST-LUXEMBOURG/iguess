@@ -109,14 +109,19 @@ class WpsServersController < ApplicationController
 
 
     # Check if server is already registered... we expect it not to be
-    wps_server = WpsServer.find_by_url(params[:server][:url])
+    @wps_server = WpsServer.find_by_url(params[:server_url])
 
-    if wps_server then
-      render :message => "Server is already registered!", :status => 403
-      return
+    if @wps_server then
+      if !@wps_server.deleted
+        render :message => "Server is already registered!", :status => 403
+        return
+      else    # We have a record for this, but was deleted at some point in past
+        @wps_server.update_attributes(params[:server])
+      end
+    else      # This is a brand new server
+      @wps_server = WpsServer.new(params[:server])
     end
 
-    @wps_server = WpsServer.new(params[:server])
 
     @wps_server.last_seen = DateTime.now
 
@@ -141,9 +146,11 @@ class WpsServersController < ApplicationController
       return
     end
 
-    @wps_server = WpsServer.find_by_url(params[:server][:url])
+
+    @wps_server = WpsServer.find_by_url(params[:server_url])
+
     if not @wps_server then
-      render :text => "Server is not registered!", :status => 403
+      render :message => "Server is not registered!", :status => 403
       return
     end
 
