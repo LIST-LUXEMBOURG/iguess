@@ -465,6 +465,8 @@
     var onDatasetRegisteredOrUnregistered = function(item, checkbox, tagPickerControl, registering)
     {
       item.toggleClass("checked");
+
+      // Make div red or green
       item.parent().parent().parent().toggleClass("registered_dataset");
       item.parent().parent().parent().toggleClass("unregistered_dataset");
 

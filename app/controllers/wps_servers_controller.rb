@@ -112,23 +112,21 @@ class WpsServersController < ApplicationController
     wps_server = WpsServer.find_by_url(params[:server][:url])
 
     if wps_server then
-      render :text => "Server is already registered!", :status => 403
+      render :message => "Server is already registered!", :status => 403
       return
     end
 
-    @wps_server = wps_server.new(params[:server_url])
+    @wps_server = WpsServer.new(params[:server])
 
     @wps_server.last_seen = DateTime.now
 
-    @wps_server.alive = true
+    @wps_server.alive      = true
     @wps_server.deleteable = true
-    @wps_server.deleted = false
+    @wps_server.deleted    = false
 
     @wps_server.save
 
-
-    format.json { render json: @wps_server, status: :ok }
-
+    render :json => { :success => true, :message => "Server has been registered!" }
   end
 
   # Will only be called with json
@@ -143,7 +141,7 @@ class WpsServersController < ApplicationController
       return
     end
 
-    @wps_server = WpsServer.find_by_url(params[:url])
+    @wps_server = WpsServer.find_by_url(params[:server][:url])
     if not @wps_server then
       render :text => "Server is not registered!", :status => 403
       return
@@ -152,8 +150,7 @@ class WpsServersController < ApplicationController
     @wps_server.deleted = true
     @wps_server.save
 
-    format.json { render json: @wps_server, status: :ok }
-
+    render :json => { :success => true, :message => "Server has been unregistered!" }
   end
 
 

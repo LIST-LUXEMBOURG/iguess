@@ -267,7 +267,7 @@
           success: function(data, status, jqXHR)  { 
               checkbox.checked = false;
               thiiis.toggleClass("checked");
-              alert(jqXHR.responseText);
+              alert(jqXHR.responseJSON.message);
             },
           error: function(jqXHR, status, error) { 
               alert(jqXHR.responseText); 
@@ -286,12 +286,14 @@
                 "&server[abstract]="      + currentServerInfo.abstract +
                 "&server[provider_name]=" + currentServerInfo.provider_name +
                 "&server[contact_email]=" + currentServerInfo.contact_email +
+                "&server[contact_name]="  + currentServerInfo.contact_name +
                 "&server[city_id]="       + "<%= raw @current_city.id %>",
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
           success: function(data, status, jqXHR)  { 
               checkbox.checked = true;
               thiiis.toggleClass("checked");
-              alert(jqXHR.responseText);
+              console.log(thiiis);
+              alert(jqXHR.responseJSON.message);
             },
           error: function(jqXHR, status, error) { 
               alert(jqXHR.responseText); 
