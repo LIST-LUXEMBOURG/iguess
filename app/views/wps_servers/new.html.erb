@@ -166,10 +166,11 @@
 
 
   var noResponse = function() {
-    $("#results-display").html('<div class="error-header">Please check the number and dial again</div>' +
-                               '<div class="error-body">No services could be found on the specified server.<br>' +
-                               'Either the URL is not that of a WPS process server, or the server is not responding.' +
-                               '</div>');
+    $("#results-display").html(
+        '<div class="error-header">Please check the number and dial again</div>' +
+        '<div class="error-body">No services could be found on the specified server.<br>' +
+        'Either the URL is not that of a WPS process server, or the server is not responding.' +
+    '</div>');
     $(".server-info").show();
   };
 
