@@ -198,7 +198,9 @@
           '<div class = "process-identifier">' +
             'Identifier: <span>' + p.identifier + '</span>' +
           '</div>' + 
-          '<div class="process-descr">' + (p.abstract || "No description") + '</div>' + 
+          '<div class="process-descr">' + 
+              (p.abstract && linkify(p.abstract) || "No description") + 
+          '</div>' + 
 
           '<table class="model-descr-table">' + 
             '<tbody class="inputs">';
