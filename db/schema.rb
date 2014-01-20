@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131114151041) do
+ActiveRecord::Schema.define(:version => 20140120141148) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -127,6 +127,8 @@ ActiveRecord::Schema.define(:version => 20131114151041) do
     t.boolean  "is_input"
     t.boolean  "alive"
     t.datetime "last_seen"
+    t.integer  "min_occurs",     :default => 1, :null => false
+    t.integer  "max_occurs",     :default => 1, :null => false
   end
 
   create_table "site_details", :force => true do |t|
