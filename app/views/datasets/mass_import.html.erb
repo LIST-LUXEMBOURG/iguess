@@ -160,18 +160,6 @@
   };
 
 
-  // Sanitize datasetIdentifier to remove all the crap that MapGuide puts in!
-  // Replaces backslashes with the letter X, which can be safely handled by most browsers.
-  // This will let us use identifiers to construct div ids.
-  var sanitizeId = function(str)
-  {
-    if(typeof(str) === "string")
-      return str.replace(/\//g, "X");
-    else
-      return str;
-  };
-
-
   var displayServices = function() 
   {
     var mapId = 0;
@@ -237,7 +225,7 @@
         }
 
         var titleNode = $(document.createElement("div"));
-        titleNode.html("<span class='dataset_title' id='dataset-title-" + sanitizeId(layer.identifier) + "'>" + 
+        titleNode.html("<span class='dataset_title' id='dataset-title-" + layer.identifier + "'>" + 
                           (layer.title != "" ? layer.title : layer.identifier) + 
                        "</span>" + 
                        "<span class='dataset-identifier'>Identifier: <span>" + layer.identifier + "</span>");
@@ -255,31 +243,32 @@
 
         if(layer.abstract) {
           abstractNode = $(document.createElement('div'));
-          abstractNode.attr({ class:"dataset_abstract", id:"dataset-abstract-" + sanitizeId(layer.identifier)});
+          abstractNode.attr({ class:"dataset_abstract", id:"dataset-abstract-" + layer.identifier });
           abstractNode.html(linkify(layer.abstract));
         }
 
         var srsNode = $(document.createElement("div"));
         srsNode.attr({ class:"dataset_srs" });
 
-        var code = '<div style="cursor:pointer" rel="#infotable-unavailable-for-mapping">' +
-                   '<span class="proj-background">available for mapping</span><span class="' + 
-                              (availableInGoogleProjection ? 'yes-background' : 'no-background') + '">' + 
-                              (availableInGoogleProjection ? 'yes'            : 'no')            + '</span>' +
-                    '</div>' +
+        var code = 
+          '<div style="cursor:pointer" rel="#infotable-unavailable-for-mapping">' +
+          '<span class="proj-background">available for mapping</span><span class="' + 
+              (availableInGoogleProjection ? 'yes-background' : 'no-background') + '">' + 
+              (availableInGoogleProjection ? 'yes'            : 'no')     + '</span>' +
+          '</div>' +
 
-                    '<div style="cursor:pointer" rel="#infotable-unavailable-for-mapping">' +
-                    '<span class="proj-background">available for processing</span><span class="' + 
-                              (availableInLocalProjection  ? 'yes-background' : 'no-background') + '">' + 
-                              (availableInLocalProjection  ? 'yes'            : 'no')            + '</span>' +
-                    '</div>' +
-                    '<br><br><br>';
+          '<div style="cursor:pointer" rel="#infotable-unavailable-for-mapping">' +
+          '<span class="proj-background">available for processing</span><span class="' + 
+              (availableInLocalProjection  ? 'yes-background' : 'no-background') + '">' + 
+              (availableInLocalProjection  ? 'yes'            : 'no')     + '</span>' +
+          '</div>' +
+          '<br><br><br>';
 
         srsNode.append(code);
 
 
         var data_info = $(document.createElement('div'));
-        var tagPickerControlId = getTagPickerControlId(layer.identifier);
+        var tagPickerControlId = 'data-type-' + layer.identifier;
 
         data_info.attr({ class:'data-info' });
 
@@ -417,7 +406,6 @@
         else if(layer.type.hasObject('WFS')) {
           makeDropdown(tagPickerControlId, WFSTagList);
         }
-
         else
           makeDropdown(tagPickerControlId, WMSTagList);
       }  // end for loop
@@ -483,7 +471,7 @@
       var checkbox          = document.getElementById(checkboxID);
       var datasetIdentifier = getLayerNameFromCheckboxId(checkboxID);
 
-      var tagPickerControl = document.getElementById(getTagPickerControlId(datasetIdentifier));
+      var tagPickerControl = document.getElementById('data-type-' + datasetIdentifier);
       var serverUrl        = getServerUrl();
 
       var dataLayer = registeredDataLayers[serverUrl][datasetIdentifier];
@@ -531,10 +519,11 @@
       } else {
         // ===== Register dataset =====
 
-        var layer    = discoveredLayers[urlId];
-        var taglist  = extractTagList(serverUrl, datasetIdentifier);
-        var title    = $("#dataset-title-"    + sanitizeId(datasetIdentifier)).text();
-        var abstract = $("#dataset-abstract-" + sanitizeId(datasetIdentifier)).text();
+        var layer          = discoveredLayers[urlId];
+        var taglist        = extractTagList(serverUrl, datasetIdentifier);
+        var sanitizedIdent = sanitizeForCss(datasetIdentifier)
+        var title          = $("#dataset-title-"    + sanitizedIdent).text();
+        var abstract       = $("#dataset-abstract-" + sanitizedIdent).text();
 
 
         var service  = "";
@@ -623,13 +612,7 @@
 
 
   var makeDropdown = function(controlId, tagList) {
-    $('#' + controlId).append(tagList);
-  }
-
-
-  var getTagPickerControlId = function(datasetIdentifier)
-  {
-    return 'data-type-' + sanitizeId(datasetIdentifier);
+    $('#' + sanitizeForCss(controlId)).append(tagList);
   }
 
 

@@ -5,6 +5,9 @@ class Dataset < ActiveRecord::Base
   belongs_to :city
   belongs_to :dataserver
 
+  before_save { self.last_seen = DateTime.now }
+
+
   def hasTag(tag)
     return getAliveTags(self).include?(tag)
   end

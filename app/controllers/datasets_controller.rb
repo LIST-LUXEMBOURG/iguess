@@ -70,7 +70,6 @@ class DatasetsController < ApplicationController
     end
 
     @dataset.dataserver = dataserver
-    @dataset.last_seen = DateTime.now
 
     @dataset.save
 

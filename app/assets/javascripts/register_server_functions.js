@@ -217,11 +217,25 @@ var getRegisterControl = function(name, registered)
 var addSwitchboxHandler = function()
 {
   // Add toggle switch after each checkbox.  If checked, then toggle the switch.
-    $(".switchbox").after(function() {
-       if($(this).is(":checked")) {
-         return "<a href='#' class='toggle checked' ref='" + $(this).attr("id") + "'></a>";
-       } else {
-         return "<a href='#' class='toggle' ref='" + $(this).attr("id") + "'></a>";
-       }
-    });
-  };
+  $(".switchbox").after(function() {
+     if($(this).is(":checked")) {
+       return "<a href='#' class='toggle checked' ref='" + $(this).attr("id") + "'></a>";
+     } else {
+       return "<a href='#' class='toggle' ref='" + $(this).attr("id") + "'></a>";
+     }
+  });
+};
+
+
+
+// Sanitize datasetIdentifier so it can be used as an HTML identifier.
+// Quotes questionable characters.  Only want to do this when searching for 
+// identifiers; use the raw identifier when writing the id tags to html.
+// Will change "a.b" into "a\.b".
+var sanitizeForCss = function(str)
+{
+  if(typeof(str) === "string")
+    return str.replace(/(^[-_]|[^A-Za-z0-9\-_])/g, "\\\$1");
+  else
+    return str;
+};

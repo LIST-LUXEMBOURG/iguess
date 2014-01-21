@@ -85,7 +85,7 @@ class WpsServersController < ApplicationController
     end
 
     respond_to do |format|
-      if @wps_server.update_attributes(params[:wps_server])
+      if @wps_server.update_attributes(params[:wps_server]) then
         format.html { redirect_to @wps_server, notice: "WPS server was successfully updated." }
         format.json { head :no_content }
       else
@@ -103,36 +103,22 @@ class WpsServersController < ApplicationController
     #   return
     # end
 
-    if not user_signed_in?    # Should always be true
+    if not user_signed_in? then   # Should always be true
       return
     end
 
-
-    # Check if server is already registered... we expect it not to be
-    @wps_server = WpsServer.find_by_url(params[:server_url])
-
-    if @wps_server then
-      if !@wps_server.deleted
-        render :message => "Server is already registered!", :status => 403
-        return
-      else    # We have a record for this, but was deleted at some point in past
-        @wps_server.update_attributes(params[:server])
+    begin
+      if WpsServer.addServer(params[:server_url], 
+                             params[:server], 
+                             params[:serverDetails]) then
+        render :json => { :success => true, :message => "Server has been registered!" }
       end
-    else      # This is a brand new server
-      @wps_server = WpsServer.new(params[:server])
+    rescue => ex
+      render :json => { :success => false, :status => 500, 
+                        :message => "Error registering server:\n" + ex.message }
     end
-
-
-    @wps_server.last_seen = DateTime.now
-
-    @wps_server.alive      = true
-    @wps_server.deleteable = true
-    @wps_server.deleted    = false
-
-    @wps_server.save
-
-    render :json => { :success => true, :message => "Server has been registered!" }
   end
+
 
   # Will only be called with json
   def unregister
@@ -142,7 +128,7 @@ class WpsServersController < ApplicationController
     # end
 
 
-    if not user_signed_in?    # Should always be true
+    if not user_signed_in? then   # Should always be true
       return
     end
 
