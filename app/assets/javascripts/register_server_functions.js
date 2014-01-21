@@ -227,7 +227,6 @@ var addSwitchboxHandler = function()
 };
 
 
-
 // Sanitize datasetIdentifier so it can be used as an HTML identifier.
 // Quotes questionable characters.  Only want to do this when searching for 
 // identifiers; use the raw identifier when writing the id tags to html.
