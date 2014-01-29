@@ -24,6 +24,7 @@
 var WebGIS = WebGIS || { };
 
 WebGIS.ctrlIdentify = null;
+WebGIS.infoPopUp = null;
 
 WebGIS.registerIdentify = function(map, ref) {
 
@@ -59,8 +60,10 @@ WebGIS.showInfo = function(evt) {
             source: feature.attributes
         });
     });
+    
+    if(WebGIS.infoPopUp != null) WebGIS.infoPopUp.close();
 
-    new GeoExt.Popup({
+    WebGIS.infoPopUp = new GeoExt.Popup({
         title: "Feature Info",
         width: 300,
         height: 450,
@@ -68,5 +71,7 @@ WebGIS.showInfo = function(evt) {
         map: WebGIS.leftPanel,
 		location: evt.xy,
         items: items
-    }).show();
+    });
+    
+    WebGIS.infoPopUp.show();
 };
