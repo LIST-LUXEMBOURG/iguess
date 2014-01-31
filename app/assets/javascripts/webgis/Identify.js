@@ -52,9 +52,9 @@ WebGIS.toggleLayer = function(evt)
 
 WebGIS.showInfo = function(evt) {
 	
-	var items = [];
+	var itemGrid = [];
     Ext.each(evt.features, function(feature) {
-        items.push({
+    	itemGrid.push({
             xtype: "propertygrid",
             title: feature.fid,
             source: feature.attributes
@@ -70,7 +70,7 @@ WebGIS.showInfo = function(evt) {
         layout: "accordion",
         map: WebGIS.leftPanel,
 		location: evt.xy,
-        items: items
+        items: itemGrid
     });
     
     WebGIS.infoPopUp.show();
