@@ -50,15 +50,17 @@ WebGIS.toggleLayer = function(evt)
     }
 };
 
-WebGIS.showInfo = function(evt) {
-	
-	var itemGrid = [];
-    Ext.each(evt.features, function(feature) {
-    	itemGrid.push({
-            xtype: "propertygrid",
-            title: feature.fid,
-            source: feature.attributes
-        });
+WebGIS.showInfo = function(evt) 
+{
+	var itemSet = [];
+    Ext.each(evt.features, function(feature) 
+    {
+    	grid = new Ext.grid.PropertyGrid();
+    	delete grid.getStore().sortInfo; // Remove default sorting
+    	grid.getColumnModel().getColumnById('name').sortable = false; // set sorting of first column to false
+    	grid.setSource(feature.attributes); // Now load data
+    	grid.title = feature.fid;
+    	itemSet.push(grid);
     });
     
     if(WebGIS.infoPopUp != null) WebGIS.infoPopUp.close();
@@ -70,7 +72,7 @@ WebGIS.showInfo = function(evt) {
         layout: "accordion",
         map: WebGIS.leftPanel,
 		location: evt.xy,
-        items: itemGrid
+        items: itemSet
     });
     
     WebGIS.infoPopUp.show();
