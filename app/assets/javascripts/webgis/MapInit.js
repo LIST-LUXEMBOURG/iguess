@@ -125,6 +125,8 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag)
         layer: layer,
         leaf: true,
         checked: false,
+        //icon: null,
+        iconCls: "treeIcon",
         children: [],
         nodeType: "gx_layer"
     });
