@@ -24,7 +24,8 @@
             WebGIS.addNewLayer(datasets[i].title || datasets[i].identifier, 
                               datasets[i].server_url, 
                               datasets[i].identifier, 
-                              null);
+                              null,
+                              datasets[i].dataset_tags[0].tag);
     };
 
     // This gets run when user changes city dropdown

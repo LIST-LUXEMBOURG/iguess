@@ -28,7 +28,10 @@ var WebGIS = WebGIS || { };
 
 WebGIS.mainPanel = null;
 WebGIS.leftPanel = null;
-WebGIS.layerTree;
+WebGIS.layerTree = null;
+
+WebGIS.treeRoot = null;
+WebGIS.treeNodes = new Array();
 
 WebGIS.headerHeight = 120;
 
@@ -141,11 +144,14 @@ WebGIS.CreatePanels = function() {
           GeoExt.tree.LayerNodeUI,
           new GeoExt.tree.TreeNodeUIEventMixin()
   );
-
-  var treeConfig = [{
-    nodeType: "gx_overlaylayercontainer",
-    expanded: true
-  }];
+   
+  WebGIS.treeRoot = new Ext.tree.TreeNode({
+      text        : 'Project',
+      id          : '0',
+      leaf        :false,
+      expandable  : true,
+      expanded    : true
+  });
   
   // Layer list
   WebGIS.layerTree = new Ext.tree.TreePanel({
@@ -164,12 +170,10 @@ WebGIS.CreatePanels = function() {
         "custom_ui": LayerNodeUI
       }
     },
-    root: {
-      children: treeConfig
-    },
+    root: WebGIS.treeRoot,
     rootVisible: false,
     lines: false
-  });	
+  });
   
   WebGIS.mainPanel = new Ext.Panel({
     layout:'border',
