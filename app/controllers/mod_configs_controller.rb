@@ -245,8 +245,7 @@ class ModConfigsController < ApplicationController
     argOutTitles = '--titles="['    + outputTitles.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
     
     cmd = 'cd ' 
-    #cmd += ENV["ROOT_PATH"]
-    cmd += '/home/desousa/Eclipse/Workspace.Tudor/iguess' 
+    cmd += ENV["ROOT_PATH"] 
     cmd += '; /usr/bin/python wpsstart.py ' 
     cmd += argUrl + ' ' 
     cmd += argProc + ' ' 
