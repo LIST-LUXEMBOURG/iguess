@@ -25,7 +25,7 @@ argv = sys.argv[1:]
 arg_dict = { } 
 
 # Params (and the types) we expect  IMPORTANT: make sure each starts with a different letter!!!
-switches = { 'url':str, 'procname':str, 'names':list, 'vals':list, 'outnames':list, 'titles':list }
+switches = { 'url':str, 'procname':str, 'inputs':list, 'outnames':list, 'titles':list }
 
 singles = '' . join([x[0] + ':' for x in switches])
 long_form = [x + '=' for x in switches]
@@ -66,11 +66,7 @@ for opt, arg in opts:
 
 # Now that we have our args sorted out, let's try to launch the WPSClient
 
-
 iniCli = WPSClient.WPSClient()
-
-# Sanitize vals
-vals = [ v.replace('&', '&amp;') for v in arg_dict['vals'] ]
 
 # Basic test with literal inputs
 #iniCli.init(
@@ -94,14 +90,10 @@ iniCli.init(
     arg_dict['url'] + '?', 
     # Process name
     arg_dict['procname'], 
-    # Input names
-    arg_dict['names'],
-    # Input values - '&' character must be passed as '&amp;'
-    vals,
+    # Inputs
+    arg_dict['inputs'],
     # Output names
-    arg_dict['outnames'],
-    # Titles for those datasets
-    arg_dict['titles'] )
+    arg_dict['outnames'])
 
 try:
     url = iniCli.sendRequest()

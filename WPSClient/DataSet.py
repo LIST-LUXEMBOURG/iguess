@@ -25,6 +25,7 @@ in the disk. This code is inspired in the UMN module of the PyWPS project [1].
 '''
 
 import logging
+import fileinput
 
 gdal=False
 #try:
@@ -65,14 +66,24 @@ class DataSet:
 	min=None
 	max=None
 	
-	TYPE_VECTOR = "vector" 
-	TYPE_RASTER = "raster"
+	name=None
+	value=""
+	uniqueID=None
+	
+	TYPE_VECTOR  = "vector" 
+	TYPE_RASTER  = "raster"
+	TYPE_LITERAL = "literal"
 
-	def __init__(self, path):
+	def __init__(self, path, name, uniqueID):
+		
+		self.name = name
+		self.uniqueID = uniqueID
 
 		self.dataType = self.getDataSet(path)
-		if self.dataType == None:
+		
+		if self.dataType == self.TYPE_LITERAL:
 			return
+		
 		self.getSpatialReference()
 		
 		logging.debug("Read a data set of type " + str(self.dataType))
@@ -108,7 +119,11 @@ class DataSet:
 		if self.dataSet:
 			return self.TYPE_VECTOR
 		else:
-			logging.error("It wasn't possible to import the dataset using gdal or ogr.")
+			logging.info("It wasn't possible to import the dataset using gdal or ogr. Assuming literal type.")
+			#** Not very efficient, reading what was just written
+			for line in fileinput.input(path):
+				self.value += str(line)
+			return self.TYPE_LITERAL
 			return None
 
 	def getSpatialReference(self):

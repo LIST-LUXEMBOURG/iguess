@@ -50,8 +50,6 @@ def logInfoMsg(msg):
     logging.info(msg)
     print msg
 
-
-
 configLogging(logFileName, logLevel)
 
 try:
@@ -68,7 +66,8 @@ try:
             "FROM " + dbSchema + ".mod_configs AS mc " \
             "LEFT JOIN " + dbSchema + ".cities AS c ON c.id = mc.city_id " \
             "WHERE status = 'RUNNING'"
-
+            #"WHERE mc.id = 144"
+            
     cur.execute(query)
 
 except:
@@ -110,11 +109,11 @@ for row in rows:
 
     outs = cur.fetchall()
     for out in outs:
-        identifiers.append(out[0])
+        identifiers.append((out[0], "True"))
         titles.append(out[1])
 
     try:
-        client.initFromURL(pid, identifiers, titles)
+        client.initFromURL(pid, identifiers)#, titles)
     except Exception as ex:
         logErrorMsg(recordId, "Process Error: initFromURL() call failed - " + str(ex))
         continue
@@ -170,70 +169,75 @@ for row in rows:
 
             cur.execute(queryTemplate, (client.processErrorText, str(datetime.datetime.now()), recordId))
                    
-            for r in client.resultsLiteral:
-
-                logInfoMsg("Processing literal result " + r.name +  " = " + str(r.value) +  "...")
-
-                # Clean out any old results
-                queryTemplate = "DELETE FROM " + dbSchema + ".config_text_inputs " \
-                                "WHERE mod_config_id = %s AND column_name = %s AND is_input = %s"
-                cur.execute(queryTemplate, (recordId, r.name, False))      
-
-
-                # Insert fresh ones
-                queryTemplate = "INSERT INTO " + dbSchema + ".config_text_inputs " \
-                                "(mod_config_id, column_name, value, is_input)"  \
-                                "VALUES(%s, %s, %s, %s)"
-                cur.execute(queryTemplate, (recordId, r.name, r.value, False))
-
-
-            for r in client.resultsComplex:
-                logInfoMsg("Processing complex result " + r.name + " with id of " + r.uniqueID)
-
-                identifier = r.name
-
-
-                # Check if data server already exists in the database, otherwise insert it.  We need the record id
-                qcur.execute("SELECT id FROM " + dbSchema + ".dataservers WHERE url = %s", (url,))        # Trailing , needed
-                if qcur.rowcount == 0:
-                    title = "iGUESS results server"
-                    abstract = "Server hosting the results of a module run"
-                    qcur.execute("INSERT INTO " + dbSchema + ".dataservers (url, title, abstract, alive, wms, wfs, wcs) "\
-                                 "VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING id", 
-                                                    (url, title, abstract, True, True, True, True))
-
-                if qcur.rowcount == 0:
-                    logErrorMsg(recordId, "Database Error: Unable to insert record into dataservers table!")
-                    continue
-
-                serverId = qcur.fetchone()[0]
+            for r in client.dataSets:
                 
-                service = "WMS"
-                
-                if r.dataSet.dataType == r.dataSet.TYPE_VECTOR:
-                    service = "WFS"
-                elif r.dataSet.dataType == r.dataSet.TYPE_RASTER:
-                    service = "WCS"
+                if r.dataType is r.TYPE_LITERAL:
+                    
+                    print "** Processing literal: " + r.name
 
-                queryTemplate = "INSERT INTO " + dbSchema + ".datasets "\
-                                "(title, server_url, dataserver_id, identifier, abstract, city_id, alive, finalized, created_at, updated_at, service)" \
-                                "VALUES((SELECT value FROM " + dbSchema + ".config_text_inputs " \
-                                    "WHERE mod_config_id = %s AND column_name = %s AND is_input = FALSE), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "\
-                                "RETURNING id"
+                    logInfoMsg("Processing literal result " + r.name +  " = " + str(r.value) +  "...")
+    
+                    # Clean out any old results
+                    queryTemplate = "DELETE FROM " + dbSchema + ".config_text_inputs " \
+                                    "WHERE mod_config_id = %s AND column_name = %s AND is_input = %s"
+                    cur.execute(queryTemplate, (recordId, r.name, False))      
+    
+    
+                    # Insert fresh ones
+                    queryTemplate = "INSERT INTO " + dbSchema + ".config_text_inputs " \
+                                    "(mod_config_id, column_name, value, is_input)"  \
+                                    "VALUES(%s, %s, %s, %s)"
+                    cur.execute(queryTemplate, (recordId, r.name, r.value, False))
 
-                abstract = "Result calculated with module"
-                
-                qcur.execute(queryTemplate, (recordId, identifier, url, serverId, identifier, abstract, str(city_id), True, True, 
-                                             str(datetime.datetime.now()), str(datetime.datetime.now()), service) )
 
-                if qcur.rowcount == 0:
-                    logErrorMsg(recordId, "Database Error: Unable to insert record into datasets table")
-                    continue
-
-                insertedId = qcur.fetchone()[0]
-
-                # Insert mapping tag
-                qcur.execute("insert into " + dbSchema + ".dataset_tags(dataset_id, tag) values(" + str(insertedId) + ", 'Mapping')")
+                else:
+                    
+                    logInfoMsg("Processing complex result " + r.name + " with id of " + r.uniqueID)
+    
+                    identifier = r.name
+    
+    
+                    # Check if data server already exists in the database, otherwise insert it.  We need the record id
+                    qcur.execute("SELECT id FROM " + dbSchema + ".dataservers WHERE url = %s", (url,))        # Trailing , needed
+                    if qcur.rowcount == 0:
+                        title = "iGUESS results server"
+                        abstract = "Server hosting the results of a module run"
+                        qcur.execute("INSERT INTO " + dbSchema + ".dataservers (url, title, abstract, alive, wms, wfs, wcs) "\
+                                     "VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING id", 
+                                                        (url, title, abstract, True, True, True, True))
+    
+                    if qcur.rowcount == 0:
+                        logErrorMsg(recordId, "Database Error: Unable to insert record into dataservers table!")
+                        continue
+    
+                    serverId = qcur.fetchone()[0]
+                    
+                    service = "WMS"
+                    
+                    if r.dataType == r.TYPE_VECTOR:
+                        service = "WFS"
+                    elif r.dataType == r.TYPE_RASTER:
+                        service = "WCS"
+    
+                    queryTemplate = "INSERT INTO " + dbSchema + ".datasets "\
+                                    "(title, server_url, dataserver_id, identifier, abstract, city_id, alive, finalized, created_at, updated_at, service)" \
+                                    "VALUES((SELECT value FROM " + dbSchema + ".config_text_inputs " \
+                                        "WHERE mod_config_id = %s AND column_name = %s AND is_input = FALSE), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "\
+                                    "RETURNING id"
+    
+                    abstract = "Result calculated with module"
+                    
+                    qcur.execute(queryTemplate, (recordId, identifier, url, serverId, identifier, abstract, str(city_id), True, True, 
+                                                 str(datetime.datetime.now()), str(datetime.datetime.now()), service) )
+    
+                    if qcur.rowcount == 0:
+                        logErrorMsg(recordId, "Database Error: Unable to insert record into datasets table")
+                        continue
+    
+                    insertedId = qcur.fetchone()[0]
+    
+                    # Insert mapping tag
+                    qcur.execute("insert into " + dbSchema + ".dataset_tags(dataset_id, tag) values(" + str(insertedId) + ", 'Mapping')")
 
             conn.commit()
 
@@ -252,4 +256,4 @@ for row in rows:
         continue
 
 
-    logInfoMsg(client.xmlResponse)
+    #logInfoMsg(client.xmlResponse)
