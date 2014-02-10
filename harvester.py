@@ -186,8 +186,6 @@ def checkWPS(serverCursor):
                     datatype = input.dataType
                     if datatype is None:
                         datatype = "" 
-                    
-                print "The data type: " + str(input.dataType)
 
                 if datatype and datatype.startswith("//www.w3.org/TR/xmlschema-2/#"):
                     datatype = datatype.replace("//www.w3.org/TR/xmlschema-2/#", "")
