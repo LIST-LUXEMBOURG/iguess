@@ -2,7 +2,7 @@
 
 import os, sys
 import psycopg2
-import WPSClient
+import WPSClient.WPSClient
 import datetime
 import logging
 

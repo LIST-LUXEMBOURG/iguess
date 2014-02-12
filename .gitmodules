@@ -1,0 +1,3 @@
+[submodule "WPSClient"]
+	path = WPSClient
+	url = https://github.com/iguess/wpsclient.git
