@@ -1,4 +1,4 @@
-import sys, ast, getopt, types, WPSClient.WPSClient, time, syslog 
+import sys, ast, getopt, types, WPSClient.WPSClient as WPSClient, time, syslog 
 # from locale import str
 import logging
 from iguess_db_credentials import logFileName
