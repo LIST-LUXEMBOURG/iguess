@@ -223,7 +223,7 @@ class ModConfigsController < ApplicationController
                                 'SERVICE=' + dataset.service + urlparams +
                                 URI.escape('&VERSION=1.0.0&REQUEST=' + request + '&' + noun + '=' + dataset.identifier)
 
-                                inputs.push("('" + configDataset.input_identifier + "', '" + dataname.gsub("&", "&amp;") + "')")
+                                inputs.push("('" + configDataset.input_identifier + "', '" + dataname + "')")
                               }
 
 
