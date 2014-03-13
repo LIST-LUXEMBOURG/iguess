@@ -856,6 +856,7 @@
 
       if(service == "WCS") {
         try {
+          // Use image/img if it is available... seems to work best
           if(datasetInfo.supportedFormats.hasObject("image/img"))
             this.format = "image/img";
           else if(datasetInfo.supportedFormats.hasObject("image/tiff"))
@@ -987,7 +988,7 @@
   {
     var serverInfo = null;
 
-    // WCSDescribeCoverage requests return a dictionary rather than an array... blech
+    // WCSDescribeCoverage requests return a dictionary rather than an array, as the other services do
     if(capabilities.requestType == "WCSDescribeCoverage") {
       var coverageKeys = capabilities.coverageDescriptionKeys;
 
