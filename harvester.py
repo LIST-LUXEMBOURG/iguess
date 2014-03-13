@@ -147,11 +147,16 @@ def checkWPS(serverCursor):
             # We'll return the record id so that we can use it below.
 
             whereClause = "WHERE wps_server_id = " + str(adapt(serverId)) + " AND identifier = " + str(adapt(proc.identifier))
+            
+            if hasattr(proc, 'abstract'):
+                abstract = proc.abstract
+            else:
+                abstract = ""
 
             sqlList.append(
                             "UPDATE " + tables["processes"] + " "
                             "SET title = " + str(adapt(proc.title)) + ", "
-                                "abstract = " + str(adapt(proc.abstract)) + ", "
+                                "abstract = " + str(adapt(abstract)) + ", "
                                 "last_seen = NOW(), alive = TRUE " +
                             whereClause
                           )
@@ -179,6 +184,8 @@ def checkWPS(serverCursor):
                 datatype = ""
                 if hasattr(input, "dataType"):
                     datatype = input.dataType
+                    if datatype is None:
+                        datatype = "" 
 
                 if datatype and datatype.startswith("//www.w3.org/TR/xmlschema-2/#"):
                     datatype = datatype.replace("//www.w3.org/TR/xmlschema-2/#", "")

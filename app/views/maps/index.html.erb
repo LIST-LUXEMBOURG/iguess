@@ -20,11 +20,18 @@
     // Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
     var addLayersToMap = function(datasets)
     {
+    	WebGIS.clearLayers(false);
         for (var i = 0, len = datasets.length; i < len; i++)
+        {
+        	if(datasets[i].dataset_tags[0] == null)
+        		tag = "Untagged";
+        	else tag = datasets[i].dataset_tags[0].tag;
             WebGIS.addNewLayer(datasets[i].title || datasets[i].identifier, 
                               datasets[i].server_url, 
                               datasets[i].identifier, 
-                              null);
+                              null,
+                              tag);
+        }
     };
 
     // This gets run when user changes city dropdown

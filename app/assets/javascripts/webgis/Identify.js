@@ -24,6 +24,7 @@
 var WebGIS = WebGIS || { };
 
 WebGIS.ctrlIdentify = null;
+WebGIS.infoPopUp = null;
 
 WebGIS.registerIdentify = function(map, ref) {
 
@@ -49,24 +50,30 @@ WebGIS.toggleLayer = function(evt)
     }
 };
 
-WebGIS.showInfo = function(evt) {
-	
-	var items = [];
-    Ext.each(evt.features, function(feature) {
-        items.push({
-            xtype: "propertygrid",
-            title: feature.fid,
-            source: feature.attributes
-        });
+WebGIS.showInfo = function(evt) 
+{
+	var itemSet = [];
+    Ext.each(evt.features, function(feature) 
+    {
+    	grid = new Ext.grid.PropertyGrid();
+    	delete grid.getStore().sortInfo; // Remove default sorting
+    	grid.getColumnModel().getColumnById('name').sortable = false; // set sorting of first column to false
+    	grid.setSource(feature.attributes); // Now load data
+    	grid.title = feature.fid;
+    	itemSet.push(grid);
     });
+    
+    if(WebGIS.infoPopUp != null) WebGIS.infoPopUp.close();
 
-    new GeoExt.Popup({
+    WebGIS.infoPopUp = new GeoExt.Popup({
         title: "Feature Info",
         width: 300,
         height: 450,
         layout: "accordion",
         map: WebGIS.leftPanel,
 		location: evt.xy,
-        items: items
-    }).show();
+        items: itemSet
+    });
+    
+    WebGIS.infoPopUp.show();
 };

@@ -85,9 +85,19 @@ WebGIS.zoomToCity = function ()
 };
 
 // Adds a new layer to the map "on the fly"
-WebGIS.addNewLayer = function (title, serviceURL, layerName, type)
+WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag)
 {
     // Call OpenLayers.Layer.WMS.initialize()
+	if(WebGIS.treeNodes[tag] == null)
+	{
+		WebGIS.treeNodes[tag] = new Ext.tree.TreeNode
+		({
+			    text: tag,
+			    leaf: false,
+			    expanded: true
+		});
+		WebGIS.treeRoot.appendChild(WebGIS.treeNodes[tag]);
+	}
 
     var params = { layers: layerName,      
                    format: "image/png",
@@ -106,10 +116,21 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type)
     //serviceURL = WebGIS.proxy + encodeURIComponent(serviceURL);
 
     var layer = new OpenLayers.Layer.WMS(title, serviceURL, params, options);
-
     WebGIS.leftMap.addLayer(layer);
-    
     layer.events.register("visibilitychanged", this, WebGIS.toggleLayer);
+    
+    var newNode = new GeoExt.tree.LayerNode(
+    {
+        text: title,
+        layer: layer,
+        leaf: true,
+        checked: false,
+        //icon: null,
+        iconCls: "treeIcon",
+        children: [],
+        nodeType: "gx_layer"
+    });
+    WebGIS.treeNodes[tag].appendChild(newNode);
 };
 
 // Remove all layers from the current map

@@ -161,6 +161,7 @@ class ModConfigsController < ApplicationController
 
     inputFields  = []
     inputValues  = []
+    inputs       = []
     outputFields = []
     outputTitles = []
 
@@ -228,8 +229,7 @@ class ModConfigsController < ApplicationController
 
     # Text fields -- both inputs and outputs
     @mod_config.config_text_inputs.map { |d|  if d.is_input then 
-                                                inputFields.push(d.column_name)
-                                                inputValues.push(d.value)
+                                                inputs.push("('" + d.column_name.gsub("&", "&amp;") + "', '" + d.value + "')")
                                               else
                                                 outputFields.push(d.column_name)
                                                 outputTitles.push(d.value)
@@ -238,16 +238,22 @@ class ModConfigsController < ApplicationController
 
     argUrl       = '--url="'        + @mod_config.wps_process.wps_server.url + '"'
     argProc      = '--procname="'   + @mod_config.wps_process.identifier + '"'
+    
+    argInputs    = '--inputs="[' + inputs.map { |i| i.to_s }.join(",") + ']"' 
 
-    argName      = '--names="[' + inputFields.map { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
-    argVals      = '--vals="['  + inputValues.map { |i| "'" + i.to_s + "'" }.join(",") + ']"' 
-
-    argOuts      = '--outnames="['  + outputFields.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
+    argOuts      = '--outnames="['  + outputFields.map { |i| "('" + i.to_s + "', 'True')" }.join(",") + ']"'
     argOutTitles = '--titles="['    + outputTitles.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
-
-    # ROOT_PATH is defined in config/local_env.yml
-    cmd = 'cd ' + ENV["ROOT_PATH"] + '; /usr/bin/python wpsstart.py ' + argUrl + ' ' +
-                                   argProc + ' ' + argName + ' ' + argVals + ' ' + argOuts + ' ' + argOutTitles
+    
+    cmd = 'cd ' 
+    cmd += ENV["ROOT_PATH"] 
+    cmd += '; /usr/bin/python wpsstart.py ' 
+    cmd += argUrl + ' ' 
+    cmd += argProc + ' ' 
+    cmd += argInputs + ' ' 
+    cmd += argOuts + ' ' 
+    cmd += argOutTitles
+    
+    print cmd
 
     require 'open3'
 

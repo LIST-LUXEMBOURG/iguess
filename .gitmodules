@@ -1,0 +1,6 @@
+[submodule "WPSClient"]
+	path = WPSClient
+	url = https://github.com/iguess/wpsclient.git
+[submodule "OWSLib"]
+	path = OWSLib
+	url = https://github.com/ldesousa/OWSLib.git
