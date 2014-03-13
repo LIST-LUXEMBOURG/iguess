@@ -192,24 +192,12 @@ var isGoodResponse = function(service, response, capabilities)
 };
 
 
-
-// The below could be formatted:
-// var $e = $("<div>", {id: "newDiv1", name: 'test', class: "aClass"});
-// $div.click(function(){ /* ... */ });
-
-var getRegisterControl = function(name, registered)
+var getRegisterControlHtml = function(name, isRegistered)
 {
-  var registerControl = $(document.createElement("input"));
 
-  registerControl.attr({ type:    "checkbox", 
-                         name:    "registered_" + name, 
-                         class:   "switchbox",
-                         id:      "registered_" + name, 
-                         value:   "registered", 
-                         checked: registered 
-                       });
-
-  return registerControl;
+  return '<input type="checkbox" name="registered_' + name + '" ' +
+            'class="switchbox" id = "registered_' + name + '" value="registered" ' +
+            (isRegistered ? 'checked="true"' : '') + '>';
 };
 
 

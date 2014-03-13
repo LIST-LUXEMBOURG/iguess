@@ -23,10 +23,12 @@
   <div class="input text"><label class="simple_form label"></label><span id="proc-descr">&nbsp;</span></div>
 
 
-  <%= f.input :descr, :as => :text, :label => "Description", :input_html => { :rows => 6, :cols => 80, :maxlength => 5000 },
+  <%= f.input :descr, :as => :text, :label => "Description", 
+              :input_html => { :rows => 6, :cols => 80, :maxlength => 5000 },
               :placeholder => "Description of configuration" %>
 
-  <div id="input-output-form">   <%# NOTE -- We don't have a configuration here when we are creating a new module! %>
+  <%# NOTE -- We don't have a configuration here when we are creating a new module! %>
+  <div id="input-output-form">   
     <%= render :partial => "show_area_of_interest_control" %>
 
     <label class="simple_form label table-label">Inputs</label>

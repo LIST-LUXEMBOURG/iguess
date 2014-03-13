@@ -15,6 +15,44 @@ class Dataset < ActiveRecord::Base
 end
 
 
+def stripServerUrlAndIdentifier(item)
+  item.delete("server_url")
+  item.delete("identifier")
+  return item
+end
+
+
+def jsonHelper(dataset)
+  json = dataset.as_json(:only => [:server_url, :identifier])
+  # server_url
+  json['configCount'] = dataset.mod_configs.count
+  json['tags'] = dataset.dataset_tags.map { |t| t.tag }
+
+  return json
+end
+
+
+# Build some json that looks like this:
+# registeredDataLayers[serverUrl][datasetIdentifier] = {
+#       tags:        ['tag1', 'tag2', ...]
+#       configCount: 3
+#     };
+public 
+def buildRegisteredDataLayersJson(datasets)
+
+  json = datasets.map{|d| jsonHelper(d)}
+
+  hash = Hash.new()
+
+  json.map{|k| hash[k["server_url"]] = Hash.new() }
+  json.map{|k| hash[k["server_url"]][k["identifier"]] = stripServerUrlAndIdentifier(k) }
+
+  return hash.to_json
+end
+
+
+
+
 # Returns any special tags that can be applied to this dataset
 # Note that we can also pass a service here, such as "WFS"
 def getSpecialTags(dataset)

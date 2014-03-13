@@ -195,9 +195,11 @@
       if(!proc.identifier)
         continue;
 
-      $("#module-catalog").append(getProcessHtml(proc));
-      appendRegisterCheckbox(proc.identifier, false);   // {P{P}}  not false... 
+       var registered = false; // {P{P}} not false
+      $("#module-catalog").append(getProcessHtml(proc, registered));
     }
+
+    addRegisterClickHandler();    // Activate the register/unregister controls 
 
     $(".server-info").show();
 
@@ -206,7 +208,7 @@
   };
 
 
-  var getProcessHtml = function(proc)
+  var getProcessHtml = function(proc, isRegistered)
   {
     var html = 
       '<h2 class="process-title">' + proc.title + '</h2>' +
@@ -217,7 +219,7 @@
         '<div class="process-descr">' + 
             (proc.abstract && linkify(proc.abstract) || "No description") + 
         '</div>'+
-        '<table class="model-descr-table"><tbody class="inputs">';      // [2]
+        '<table class="model-descr-table"><tbody class="inputs">';        // [2]
     
     // Inputs
     var inputs = proc.dataInputs;
@@ -229,6 +231,9 @@
                                       "Model Outputs" : "No Outputs");
 
     html += "</tbody></table>";   // [2]
+
+    html += getRegisterControlHtml(proc.identifier, isRegistered);
+
     html += "</div>";             // [1]
 
     return html;
@@ -258,12 +263,8 @@
   };
 
 
-  var appendRegisterCheckbox = function(ident, registered)
+  var addRegisterClickHandler = function()
   {
-    var registerControl = $(document.createElement("input"));
-
-    $("#proc-" + sanitizeForCss(ident)).append(getRegisterControl(ident, registered));
-    
 
     // When the toggle switch is clicked, check off / de-select the associated checkbox
     // Want to find this when we search for "registered_"
@@ -273,7 +274,6 @@
       var checkbox   = document.getElementById(checkboxID);
 
       var serverUrl = getServerUrl();
-
 
       if(checkbox.checked && !confirm(
         "Are you sure you want to unregister this process?\n\n" + 

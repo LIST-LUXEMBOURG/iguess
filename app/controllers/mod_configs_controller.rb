@@ -102,23 +102,23 @@ class ModConfigsController < ApplicationController
     # This beast figures out if there are any missing inputs or outputs for the specified module.  Note that 
     # the most recent status of the module must be saved for this to work!
     sql = "
-    WITH missing AS (
-      SELECT COUNT(*) AS c 
-      FROM iguess_dev.mod_configs AS mc 
-      LEFT JOIN iguess_dev.process_params     AS pp  ON mc.wps_process_id = pp.wps_process_id
-      LEFT JOIN iguess_dev.config_datasets    AS cd  ON pp.identifier = cd.input_identifier AND cd.mod_config_id = mc.id
-      LEFT JOIN iguess_dev.config_text_inputs AS cti ON pp.identifier = cti.column_name AND cti.mod_config_id = mc.id
-      WHERE mc.id = " + id + " AND pp.alive = TRUE AND pp.is_input = TRUE AND cd.dataset_id IS NULL AND (cti.value IS NULL OR cti.value = '')
+      WITH missing AS (
+        SELECT COUNT(*) AS c 
+        FROM iguess_dev.mod_configs AS mc 
+        LEFT JOIN iguess_dev.process_params     AS pp  ON mc.wps_process_id = pp.wps_process_id
+        LEFT JOIN iguess_dev.config_datasets    AS cd  ON pp.identifier = cd.input_identifier AND cd.mod_config_id = mc.id
+        LEFT JOIN iguess_dev.config_text_inputs AS cti ON pp.identifier = cti.column_name AND cti.mod_config_id = mc.id
+        WHERE mc.id = " + id + " AND pp.alive = TRUE AND pp.is_input = TRUE AND cd.dataset_id IS NULL AND (cti.value IS NULL OR cti.value = '')
 
-      UNION
+        UNION
 
-      SELECT count(*) AS c FROM iguess_dev.mod_configs AS mc 
-      LEFT JOIN iguess_dev.process_params AS pp ON mc.wps_process_id = pp.wps_process_id
-      LEFT JOIN iguess_dev.config_text_inputs AS cti ON pp.identifier = cti.column_name AND cti.mod_config_id = mc.id
-      WHERE mc.id = " + id + " AND pp.alive = TRUE AND pp.is_input = false AND (cti.value IS NULL OR cti.value = '')
-    ) 
+        SELECT count(*) AS c FROM iguess_dev.mod_configs AS mc 
+        LEFT JOIN iguess_dev.process_params AS pp ON mc.wps_process_id = pp.wps_process_id
+        LEFT JOIN iguess_dev.config_text_inputs AS cti ON pp.identifier = cti.column_name AND cti.mod_config_id = mc.id
+        WHERE mc.id = " + id + " AND pp.alive = TRUE AND pp.is_input = false AND (cti.value IS NULL OR cti.value = '')
+      ) 
 
-    SELECT sum(c) FROM missing
+      SELECT sum(c) FROM missing
     "
 
     connection = ActiveRecord::Base.connection
@@ -490,6 +490,7 @@ class ModConfigsController < ApplicationController
       end
     end
   end
+  
 
   # DELETE /mod_configs/1
   # DELETE /mod_configs/1.json

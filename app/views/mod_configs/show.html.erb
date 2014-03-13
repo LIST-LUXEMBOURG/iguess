@@ -90,7 +90,8 @@
 
 
   <span id="stop_module_button_container" style="display:none">
-    <%= button_to "Stop Running >>>", { :action => "stop_running", :controller => "mod_configs", :id => @mod_config.id }, 
+    <%= button_to "Stop Running >>>", { :action => "stop_running", :controller => "mod_configs", 
+                                        :id => @mod_config.id }, 
                                :remote => true, :class => "linkbutton", :id => "stop-module-button", 
                                :confirm =>"Are you sure you want to stop running the module??",
                                form: { :id => 'stop-module-form', "data-type" => "json" }  %>
@@ -117,34 +118,34 @@
   // // Uses functions in build_data_layers partial
   // getWmsLayers(registeredDataServers);
 
-  function hideButtons() {
+  var hideButtons = function() {
     $('#run_module_button_container').hide();
     $('#stop_module_button_container').hide();
     hideClearButton();
-  }
+  };
 
-  function enableEditing() {
+  var enableEditing = function() {
     $('.disableable').prop('disabled',false);
     $('.hideable').show();
-  }
+  };
 
-  function disableEditing() {
+  var disableEditing = function() {
     $('.disableable').prop('disabled',true);
     $('.hideable').hide();
-  }
+  };
 
-  function showRunButton(text) {
+  var showRunButton = function(text) {
     $('#run-module-button').attr('value', text);
     $('#run_module_button_container').show();
-  }
+  };
 
-  function showClearButton() {
+  var showClearButton = function() {
     $('#clear-error-container').show();
-  }
+  };
 
-  function hideClearButton() {
+  var hideClearButton = function() {
     $('#clear-error-container').hide();
-  }
+  };
 
 
 // Fix a jQuery bug by overwriting this function... kind of lame...   This fixes an negative interaction
@@ -169,8 +170,8 @@ if($().jquery.split(".")[0] == "1") {
             // Make sure the incoming data is actual JSON
             // Logic borrowed from http://json.org/json2.js
             if ( rvalidchars.test( data.replace( rvalidescape, "@" )
-            .replace( rvalidtokens, "]" )
-            .replace( rvalidbraces, "")) ) {
+                    .replace( rvalidtokens, "]" )
+                    .replace( rvalidbraces, "")) ) {
               return ( new Function( "return " + data ) )();
             }
           }
