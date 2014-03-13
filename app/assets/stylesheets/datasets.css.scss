@@ -219,7 +219,9 @@ div.error-body {
 
 /* Styling for little message that is displayed when a dataset has no WMS server */
 .map-unavailable {
-  
+   text-decoration: underline;
+   padding-top: 80px;
+   text-align: center;
 }
 
 

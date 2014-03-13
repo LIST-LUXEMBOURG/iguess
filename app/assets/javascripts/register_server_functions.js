@@ -179,6 +179,9 @@ var isGoodResponse = function(service, response, capabilities)
   if(code < 200 || code > 299)
     return false;
 
+  if(!response.responseXML)
+    
+
   // If a service does not exist, this next condition should be triggered
   if(response.responseXML.documentElement.tagName == "ows:ExceptionReport" ||
      response.responseXML.documentElement.tagName == "ExceptionReport")

@@ -56,13 +56,19 @@
 
 
   <div class="infotable" id="infotable-unavailable-for-mapping">
-    <h1><span class="dataset-title">Available For Mapping</span></h1>
-      <div>We do all our mapping using <%= @GoogleProjection %>, which is compatible with Google Maps and OpenStreetMap, 
-      used as a background in the map window.  If a dataset is available in this projection, we can display it on our maps.</div>
+    <h1 class="dataset-title">Available for mapping</h1>
+      <div>
+        We do all our mapping using <%= @GoogleProjection %>, which is compatible with Google Maps and OpenStreetMap, 
+        used as a background in the map window.  If a dataset is available from a WMS service, and is in this projection, 
+        then we can display it on our maps.
+      </div>
       <br>
-    <h1><span class="dataset-title">Available For Processing</span></h1>
-    <div>Each city defines a projection that will be used for all calculations.  For <%= @current_city.name %>, that is <%= @current_city.srs %>.
-      If a dataset is available in this projection, we can use it in the computation modules.</div>
+    <h1 class="dataset-title">Available for processing</h1>
+    <div>
+      Each city defines a projection that will be used for all calculations.  For <%= @current_city.name %>, 
+      that is <%= @current_city.srs %>.  If a dataset is available from a WFS or WCS server, and is in this projection, 
+      then we can use it in the computation modules.
+    </div>
   </div>
 
 
@@ -143,6 +149,47 @@
 
     $(".progress-container").hide();
     displayServices();
+  };
+
+
+  // We can have bouding box info socked away in several different places, depending on which service sent it,
+  // and which openLayers component processed it.  We'll break this out to avoid complexity in the calling function.
+  // Returns null if we can't find any good bounding box coords.
+  var getNormalizedBoundingBox = function(layer)
+  {
+    if(layer.wmsCrs && layer.wmsbbox && layer.wmsbbox.left)
+      return [layer.wmsbbox.left, 
+              layer.wmsbbox.bottom, 
+              layer.wmsbbox.right, 
+              layer.wmsbbox.top, 
+              layer.wmsCrs];
+
+
+    if(layer.wmsCrs && layer.wmsbbox && layer.wmsbbox.bbox)   
+      return [layer.wmsbbox.bbox[0], 
+              layer.wmsbbox.bbox[1], 
+              layer.wmsbbox.bbox[2], 
+              layer.wmsbbox.bbox[3], 
+              layer.wmsCrs];
+
+
+    if(layer.wmsCrs && layer.wmsbbox && layer.wmsbbox.length == 4)
+      return [layer.wmsbbox[0], 
+              layer.wmsbbox[1], 
+              layer.wmsbbox[2], 
+              layer.wmsbbox[3], 
+              layer.wmsCrs];
+
+    
+    // See if we can do this in lat/long -- this is very hacky
+    if(layer.llbbox && layer.llbbox.length == 4) 
+      return [layer.llbbox[0], 
+              layer.llbbox[1], 
+              layer.llbbox[2], 
+              layer.llbbox[3], 
+              'EPSG:4326'];
+
+    return null;
   };
 
 
@@ -305,50 +352,15 @@
 
         $("#layer-table").append(li_element);
 
+        var bb = getNormalizedBoundingBox(layer);   // Returns an array, or null if we can't figure out what to do
 
-        var bbox_left, bbox_bottom, bbox_right, bbox_top;
-        var activeSRS = null;
-
-        if(layer.wmsCrs && layer.wmsbbox && layer.wmsbbox.left)
-        {
-          bbox_left   = layer.wmsbbox.left;
-          bbox_bottom = layer.wmsbbox.bottom;
-          bbox_right  = layer.wmsbbox.right;
-          bbox_top    = layer.wmsbbox.top;
-
-          activeSRS   = layer.wmsCrs;
-        }
-        else if(layer.wmsCrs && layer.wmsbbox && layer.wmsbbox.bbox)   
-        {
-          bbox_left   = layer.wmsbbox.bbox[0];
-          bbox_bottom = layer.wmsbbox.bbox[1];
-          bbox_right  = layer.wmsbbox.bbox[2];
-          bbox_top    = layer.wmsbbox.bbox[3];
-
-          activeSRS   = layer.wmsCrs;
-        }
-        else if(layer.wmsCrs && layer.wmsbbox && layer.wmsbbox.length == 4)
-        {
-          bbox_left   = layer.wmsbbox[0];
-          bbox_bottom = layer.wmsbbox[1];
-          bbox_right  = layer.wmsbbox[2];
-          bbox_top    = layer.wmsbbox[3];
-
-          activeSRS   = layer.wmsCrs;
-        }
-        // See if we can do this in lat/long -- this is very hacky
-        else if(layer.llbbox && layer.llbbox.length == 4) 
-        {
-          bbox_left   = layer.llbbox[0];
-          bbox_bottom = layer.llbbox[1];
-          bbox_right  = layer.llbbox[2];
-          bbox_top    = layer.llbbox[3];
-
-          activeSRS   = 'EPSG:4326';
-        }
-
-        if(activeSRS == null) {
-          $('#' + mapDivId).html('<div class="center"><br><u>Map unavailable</u></div>');
+        if(!bb) {
+          // I suspect that layer.type.hasObject('WMS') will always be false here...
+          $('#' + mapDivId).html(
+                '<div class="map-unavailable">' + 
+                (layer.type.hasObject('WMS') ? 'Map unavailable' : 'No WMS service for this layer') + 
+                '</div>'
+              );
 
           if(!alreadyShownWmsError) {
             var err = '<div>We cannot display sample maps for some datasets on this server.  ' +
@@ -363,11 +375,11 @@
             }
         }
         else {
-          var bounds = new OpenLayers.Bounds(bbox_left, bbox_bottom, bbox_right, bbox_top);  //minx miny maxx maxy
+          var bounds = new OpenLayers.Bounds(bb[0], bb[1], bb[2], bb[3], bb[4]);  //minx miny maxx maxy
 
           var miniMap = new OpenLayers.Map({
                   maxExtent:  bounds,
-                  projection: new OpenLayers.Projection(activeSRS),
+                  projection: new OpenLayers.Projection(bb[4]),
                   controls: [ new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]
           });
 
