@@ -236,9 +236,6 @@ class ModConfigsController < ApplicationController
                                               end
                                         }
 
-
-                                            binding.pry
-
     argUrl       = '--url="'        + @mod_config.wps_process.wps_server.url + '"'
     argProc      = '--procname="'   + @mod_config.wps_process.identifier + '"'
     
@@ -246,14 +243,9 @@ class ModConfigsController < ApplicationController
 
     argOuts      = '--outnames="['  + outputFields.map { |i| "('" + i.to_s + "', 'True')" }.join(",") + ']"'
     argOutTitles = '--titles="['    + outputTitles.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
-    
-    
-    #logger.debug "text_inputs: " + @mod_config.config_text_inputs.to_s()
-    #logger.debug "inputs: " + inputs.to_s()
-    #logger.debug "argInputs: " + argInputs.to_s()
-    
+        
     cmd = 'cd ' 
-    cmd += ENV["ROOT_PATH"].to_s() 
+    cmd += Rails.root.to_s()
     cmd += '; /usr/bin/python wpsstart.py ' 
     cmd += argUrl + ' ' 
     cmd += argProc + ' ' 
