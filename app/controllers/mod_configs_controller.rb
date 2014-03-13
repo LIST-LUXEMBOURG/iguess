@@ -223,18 +223,21 @@ class ModConfigsController < ApplicationController
                                 'SERVICE=' + dataset.service + urlparams +
                                 URI.escape('&VERSION=1.0.0&REQUEST=' + request + '&' + noun + '=' + dataset.identifier)
 
-                               inputFields.push(configDataset.input_identifier)
-                               inputValues.push(dataname) 
+                                inputs.push("('" + configDataset.input_identifier + "', '" + dataname.gsub("&", "&amp;") + "')")
                               }
+
 
     # Text fields -- both inputs and outputs
     @mod_config.config_text_inputs.map { |d|  if d.is_input then 
-                                                inputs.push("('" + d.column_name.gsub("&", "&amp;") + "', '" + d.value + "')")
+                                                inputs.push("('" + d.column_name + "', '" + d.value.gsub("&", "&amp;") + "')")
                                               else
                                                 outputFields.push(d.column_name)
                                                 outputTitles.push(d.value)
                                               end
                                         }
+
+
+                                            binding.pry
 
     argUrl       = '--url="'        + @mod_config.wps_process.wps_server.url + '"'
     argProc      = '--procname="'   + @mod_config.wps_process.identifier + '"'
