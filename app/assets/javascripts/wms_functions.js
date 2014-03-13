@@ -154,12 +154,15 @@ WCS.getCapabilities = function(serverUrl, successFunction) {
       "REQUEST": "GetCapabilities",
       "VERSION": WCS.version
     },
+
+    // Note that sometimes, the lamer servers out there will send a WFS document to us.  We need to 
+    // filter this lameness out.
     success: function(response) {
       try {
-        capabilities = new OpenLayers.Format.WCSCapabilities().read(response.responseText);
+        var capabilities = new OpenLayers.Format.WCSCapabilities().read(response.responseText);
       }
       catch(error) {
-        capabilities = undefined;
+        var capabilities = undefined;
       }
 
       successFunction(capabilities, response);
@@ -178,7 +181,13 @@ WCS.getCapabilities = function(serverUrl, successFunction) {
       "VERSION": WCS.version
     },
     success: function(response) {
-      capabilities = new OpenLayers.Format.WCSDescribeCoverage().read(response.responseText);
+      try {
+        var capabilities = new OpenLayers.Format.WCSDescribeCoverage().read(response.responseText);
+      }
+      catch(error) {
+        var capabilities = undefined;
+      }
+
       successFunction(capabilities, response);
     },
     failure: function(response) {

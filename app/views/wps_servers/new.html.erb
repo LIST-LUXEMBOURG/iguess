@@ -158,7 +158,6 @@
       currentServerInfo = serverInfo;
       displayServerDetails(serverInfo, type);   // Display this as it comes in
       displayServices(serverInfo);
-      appendRegisterCheckbox("register-wps", false);
     }
     else
       noResponse();
@@ -166,10 +165,11 @@
 
 
   var noResponse = function() {
-    $("#results-display").html('<div class="error-header">Please check the number and dial again</div>' +
-                               '<div class="error-body">No services could be found on the specified server.<br>' +
-                               'Either the URL is not that of a WPS process server, or the server is not responding.' +
-                               '</div>');
+    $("#results-display").html(
+        '<div class="error-header">Please check the number and dial again</div>' +
+        '<div class="error-body">No services could be found on the specified server.<br>' +
+        'Either the URL is not that of a WPS process server, or the server is not responding.' +
+    '</div>');
     $(".server-info").show();
   };
 
@@ -183,53 +183,88 @@
       html += "<div>Proc: " + proc.title + " -- " + proc["abstract"] + "</div>";
     }
 
-    html += "<div id='register-control'></div>";
+    html += "<div id='module-catalog'></div>";
 
-    html += '<div id="module-catalog">';
+    $("#results-display").append(html);
 
 
     for(var key in serverInfo.wps_processes) { 
-      var p = serverInfo.wps_processes[key];
+      var proc = serverInfo.wps_processes[key];
 
-      html += 
-        '<h2 class="process-title">' + p.title + '</h2>' +
-        '<div class="catalog-item">' + 
-          '<div class = "process-identifier">' +
-            'Identifier: <span>' + p.identifier + '</span>' +
-          '</div>' + 
-          '<div class="process-descr">' + p.abstract + '</div>' + 
+      // No identifier, no service!
+      if(!proc.identifier)
+        continue;
 
-          '<table class="model-descr-table">' + 
-            '<tbody class="inputs">';
-              
-      
-      // Inputs
-      var inputs = p.dataInputs;
-      html += createInputOutputTableRow(inputs, inputs.length > 0 ? "Model Inputs" : "No Inputs");
-
-      
-      // Outputs
-      var outputs = p.processOutputs;
-      html += createInputOutputTableRow(outputs, outputs.length > 0 ? "Model Outputs" : "No Outputs");
-
-      html += "</tbody></table></div>";
+       var registered = false; // {P{P}} not false
+      $("#module-catalog").append(getProcessHtml(proc, registered));
     }
 
-    $("#results-display").html(html);
+    addRegisterClickHandler();    // Activate the register/unregister controls 
+
     $(".server-info").show();
 
+    addSwitchboxHandler();    // Convert all our checkboxes into fancy switchboxes!
     initializeAccordion('#module-catalog > h2', '.catalog-item');
   };
 
 
-  var appendRegisterCheckbox = function(name, registered)
+  var getProcessHtml = function(proc, isRegistered)
   {
-    var registerControl = $(document.createElement("input"));
-
-
-    $('#register-control').append(getRegisterControl(name, registered));
+    var html = 
+      '<h2 class="process-title">' + proc.title + '</h2>' +
+      '<div class="catalog-item" id="proc-' + proc.identifier + '"">' +   // [1]
+        '<div class = "process-identifier">' +
+          'Identifier: <span>' + proc.identifier + '</span>' +
+        '</div>' + 
+        '<div class="process-descr">' + 
+            (proc.abstract && linkify(proc.abstract) || "No description") + 
+        '</div>'+
+        '<table class="model-descr-table"><tbody class="inputs">';        // [2]
     
-    addSwitchboxHandler();
+    // Inputs
+    var inputs = proc.dataInputs;
+    html += createInputOutputTableRow(inputs, inputs.length > 0 ? 
+                                      "Model Inputs" : "No Inputs");
+    // Outputs
+    var outputs = proc.processOutputs;
+    html += createInputOutputTableRow(outputs, outputs.length > 0 ? 
+                                      "Model Outputs" : "No Outputs");
+
+    html += "</tbody></table>";   // [2]
+
+    html += getRegisterControlHtml(proc.identifier, isRegistered);
+
+    html += "</div>";             // [1]
+
+    return html;
+  };
+
+
+  var createInputOutputTableRow = function(items, title) 
+  {
+    var html = '<tr><th colspan=3 class="group-header" scope="rowgroup">' + 
+                  '<div class="outdent">' + title + '</div>' +
+               '</th></tr>';
+
+    if(items.length > 0)
+        html += '<tr><th>Parameter Name</th><th>Identifier</th><th>Description</th></tr>';
+
+    for(var i = 0, len = items.length; i < len; i++) {
+      var item = items[i];
+
+      html += '<tr>' + 
+        '<td class="param-name">'  + (item.title ? item.title : item.identifier) + '</td>'  +
+        '<td class="param-name">[' + item.identifier                             + ']</td>' +
+        '<td class="param-descr">' + (item.abstract ? item.abstract : "")        + '</td>'  +
+      '</tr>';            
+    }
+
+    return html;
+  };
+
+
+  var addRegisterClickHandler = function()
+  {
 
     // When the toggle switch is clicked, check off / de-select the associated checkbox
     // Want to find this when we search for "registered_"
@@ -240,11 +275,10 @@
 
       var serverUrl = getServerUrl();
 
-
       if(checkbox.checked && !confirm(
-          "Are you sure you want to unregister this WPS server?\n\n" + 
-          "If you do, none of the functions will be available for new Module Configurations.\n\n" +
-          "Existing configurations will continue to work.")) 
+        "Are you sure you want to unregister this process?\n\n" + 
+        "If you do, none of the functions will be available for new Module Configurations.\n\n" +
+        "Existing configurations will continue to work.")) 
       {
         e.preventDefault();
         return;
@@ -267,7 +301,7 @@
           success: function(data, status, jqXHR)  { 
               checkbox.checked = false;
               thiiis.toggleClass("checked");
-              alert(jqXHR.responseText);
+              alert(jqXHR.responseJSON.message);
             },
           error: function(jqXHR, status, error) { 
               alert(jqXHR.responseText); 
@@ -276,6 +310,7 @@
 
       } else {
         // ===== Register WPS =====
+
         $.ajax({
           type: "PUT",
           url:  "<%= url_for(:controller=>:wps_servers, :action=>:register, :format=>:json) %>",
@@ -286,12 +321,15 @@
                 "&server[abstract]="      + currentServerInfo.abstract +
                 "&server[provider_name]=" + currentServerInfo.provider_name +
                 "&server[contact_email]=" + currentServerInfo.contact_email +
+                "&server[contact_name]="  + currentServerInfo.contact_name +
+                "&serverDetails="         + encodeURIComponent(JSON.stringify(currentServerInfo)) +
                 "&server[city_id]="       + "<%= raw @current_city.id %>",
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
           success: function(data, status, jqXHR)  { 
               checkbox.checked = true;
               thiiis.toggleClass("checked");
-              alert(jqXHR.responseText);
+              console.log(thiiis);
+              alert(jqXHR.responseJSON.message);
             },
           error: function(jqXHR, status, error) { 
               alert(jqXHR.responseText); 
@@ -304,27 +342,5 @@
     });  // end toggle state change handler
   };
 
-
-  var createInputOutputTableRow = function(items, title) 
-  {
-    var html = '<tr><th colspan=3 class="group-header" scope="rowgroup"><div class="outdent">' +
-               title +
-               '</div></th></tr>';
-
-    if(items.length > 0)
-        html += '<tr><th>Parameter Name</th><th>Identifier</th><th>Description</th></tr>';
-
-    for(var i = 0, len = items.length; i < len; i++) {
-      var item = items[i];
-
-      html += '<tr>' + 
-        '<td class="param-name">'  + (item.title ? item.title : item.identifier) + '</td>'  +
-        '<td class="param-name">[' + item.identifier                             + ']</td>' +
-        '<td class="param-descr">' + (item.abstract ? item.abstract : "")        + '</td>'  +
-      '</tr>';            
-    }
-
-    return html;
-  };
 
 </script>

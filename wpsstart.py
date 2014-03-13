@@ -1,7 +1,7 @@
-import sys, ast, getopt, types, WPSClient.WPSClient as WPSClient, time, syslog 
+import sys, ast, getopt, WPSClient.WPSClient as WPSClient 
 # from locale import str
 import logging
-from iguess_db_credentials import logFileName
+# from iguess_db_credentials import logFileName
 
 
 def configLogging(logfile, loglevel):

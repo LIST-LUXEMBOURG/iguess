@@ -192,24 +192,12 @@ var isGoodResponse = function(service, response, capabilities)
 };
 
 
-
-// The below could be formatted:
-// var $e = $("<div>", {id: "newDiv1", name: 'test', class: "aClass"});
-// $div.click(function(){ /* ... */ });
-
-var getRegisterControl = function(name, registered)
+var getRegisterControlHtml = function(name, isRegistered)
 {
-  var registerControl = $(document.createElement("input"));
 
-  registerControl.attr({ type:    "checkbox", 
-                         name:    "registered_" + name, 
-                         class:   "switchbox",
-                         id:      "registered_" + name, 
-                         value:   "registered", 
-                         checked: registered 
-                       });
-
-  return registerControl;
+  return '<input type="checkbox" name="registered_' + name + '" ' +
+            'class="switchbox" id = "registered_' + name + '" value="registered" ' +
+            (isRegistered ? 'checked="true"' : '') + '>';
 };
 
 
@@ -217,11 +205,24 @@ var getRegisterControl = function(name, registered)
 var addSwitchboxHandler = function()
 {
   // Add toggle switch after each checkbox.  If checked, then toggle the switch.
-    $(".switchbox").after(function() {
-       if($(this).is(":checked")) {
-         return "<a href='#' class='toggle checked' ref='" + $(this).attr("id") + "'></a>";
-       } else {
-         return "<a href='#' class='toggle' ref='" + $(this).attr("id") + "'></a>";
-       }
-    });
-  };
+  $(".switchbox").after(function() {
+     if($(this).is(":checked")) {
+       return "<a href='#' class='toggle checked' ref='" + $(this).attr("id") + "'></a>";
+     } else {
+       return "<a href='#' class='toggle' ref='" + $(this).attr("id") + "'></a>";
+     }
+  });
+};
+
+
+// Sanitize datasetIdentifier so it can be used as an HTML identifier.
+// Quotes questionable characters.  Only want to do this when searching for 
+// identifiers; use the raw identifier when writing the id tags to html.
+// Will change "a.b" into "a\.b".
+var sanitizeForCss = function(str)
+{
+  if(typeof(str) === "string")
+    return str.replace(/(^[-_]|[^A-Za-z0-9\-_])/g, "\\\$1");
+  else
+    return str;
+};

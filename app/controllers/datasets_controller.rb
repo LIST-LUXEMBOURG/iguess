@@ -70,7 +70,6 @@ class DatasetsController < ApplicationController
     end
 
     @dataset.dataserver = dataserver
-    @dataset.last_seen = DateTime.now
 
     @dataset.save
 
@@ -174,12 +173,13 @@ class DatasetsController < ApplicationController
 
 
   def mass_import
-    @datasets        = Dataset.all
-
-    @google_projection = 'EPSG:3857'
-
     # current_user should always be set here
     @current_city = User.getCurrentCity(current_user, cookies)
+
+    # Only used for generating a list of registered datasets
+    @datasets = Dataset.find_all_by_city_id_and_finalized(@current_city.id, true)
+
+    @GoogleProjection = 'EPSG:3857'
 
     if @current_city.nil?     # Should never happen, but just in case...
       @current_city = City.first
@@ -187,17 +187,4 @@ class DatasetsController < ApplicationController
 
     @cities = City.all
   end
-
-
-  # Will only be run with ajax
-  def run_harvester
-    cmd = 'usr/bin/python /home/iguess/iguess_test/iguess/harvester.py'
-
-    system(cmd)
-
-    respond_with do |format|
-      format.js { render :json => "Running", :status => :ok }
-    end
-  end
-
 end

@@ -57,7 +57,7 @@
 
   <div class="infotable" id="infotable-unavailable-for-mapping">
     <h1><span class="dataset-title">Available For Mapping</span></h1>
-      <div>We do all our mapping using <%= @google_projection %>, which is compatible with Google Maps and OpenStreetMap, 
+      <div>We do all our mapping using <%= @GoogleProjection %>, which is compatible with Google Maps and OpenStreetMap, 
       used as a background in the map window.  If a dataset is available in this projection, we can display it on our maps.</div>
       <br>
     <h1><span class="dataset-title">Available For Processing</span></h1>
@@ -73,41 +73,27 @@
   // Add "js" style to body -- makes fancy checkboxes work
   $('body').attr("class",$('body').attr("class") + " js");
 
-  GOOGLE_SRS = '<%= @google_projection %>';
-
-  registeredDataLayers = {};
+  GOOGLE_SRS = '<%= @GoogleProjection %>';
 
 
-  var makeRegisteredLayer = function(serverUrl, datasetIdentifier, datasetId, tags, configCount) 
+  var makeRegisteredLayer = function(serverUrl, datasetIdentifier, tags, configCount) 
   {
 
     if(registeredDataLayers[serverUrl] === undefined)
       registeredDataLayers[serverUrl] = {};
 
     registeredDataLayers[serverUrl][datasetIdentifier] = {
-      serverUrl:   serverUrl,
-      identifier:  datasetIdentifier,
-      id:          datasetId,
       tags:        tags,
       configCount: configCount
     };
   };
 
 
-  // Populate registeredDataLayers with data from the database
-  <%= raw @datasets.reject{ |d| d.finalized == false }.
-                map{ |d| "makeRegisteredLayer('" + d.server_url.gsub(/\\/, '\\\\\\') + "'," + 
-                                             "'" + d.identifier + "'," + 
-                                                   d.id.to_s() + "," + 
-                                                   "[" + d.dataset_tags.reject{ |m| !m.tag }  # Prevent crash from blank tags
-                                                                       .map{ |m| "'" + m.tag + "'" }.join(",") + "]," +
-                                                   d.mod_configs.count.to_s() + ");\n"
-                    }.
-                join(' ') %>  
-
-
   LOCAL_SRS = '<%= @current_city.srs %>';
 
+  // Note that Dataset overrides to_json to make this work nicely
+  var registeredDataLayers = <%= raw buildRegisteredDataLayersJson(@datasets) %>;
+ // Hash[Post.all.map { |p| [p.id, p] }]
 
   var getLayerNameFromCheckboxId = function(id)
   {
@@ -160,18 +146,6 @@
   };
 
 
-  // Sanitize datasetIdentifier to remove all the crap that MapGuide puts in!
-  // Replaces backslashes with the letter X, which can be safely handled by most browsers.
-  // This will let us use identifiers to construct div ids.
-  var sanitizeId = function(str)
-  {
-    if(typeof(str) === "string")
-      return str.replace(/\//g, "X");
-    else
-      return str;
-  };
-
-
   var displayServices = function() 
   {
     var mapId = 0;
@@ -209,15 +183,15 @@
         var urlId = discoveredLayerKeys[lyrctr];
         var layer = discoveredLayers[urlId];      
 
-        if(registeredDataLayers[layer.serverUrl] == undefined) {
-          // No already-registered layers for this url.. Put something here so the following lines won't crash.
-          registeredDataLayers[layer.serverUrl] = {};
-        }
+        // if(registeredDataLayers[layer.serverUrl] == undefined) {
+        //   // No already-registered layers for this url.. Put something here so the following lines won't crash.
+        //   registeredDataLayers[layer.serverUrl] = {};
+        // }
 
-        var regLyr     = registeredDataLayers[layer.serverUrl][layer.identifier];
-        var registered = registeredDataLayers[layer.serverUrl] && regLyr;  
+        var regLyr = registeredDataLayers[layer.serverUrl] && 
+                     registeredDataLayers[layer.serverUrl][layer.identifier];
 
-        if((pass == 0 && !registered) || (pass == 1 && registered)) { continue; }
+        if((pass == 0 && !regLyr) || (pass == 1 && regLyr)) { continue; }
 
         if(first) {
           $("#results-display").html("<div>Server has <span id='results-display-count'></span> layers.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
@@ -237,7 +211,7 @@
         }
 
         var titleNode = $(document.createElement("div"));
-        titleNode.html("<span class='dataset_title' id='dataset-title-" + sanitizeId(layer.identifier) + "'>" + 
+        titleNode.html("<span class='dataset_title' id='dataset-title-" + layer.identifier + "'>" + 
                           (layer.title != "" ? layer.title : layer.identifier) + 
                        "</span>" + 
                        "<span class='dataset-identifier'>Identifier: <span>" + layer.identifier + "</span>");
@@ -255,43 +229,45 @@
 
         if(layer.abstract) {
           abstractNode = $(document.createElement('div'));
-          abstractNode.attr({ class:"dataset_abstract", id:"dataset-abstract-" + sanitizeId(layer.identifier)});
+          abstractNode.attr({ class:"dataset_abstract", id:"dataset-abstract-" + layer.identifier });
           abstractNode.html(linkify(layer.abstract));
         }
 
         var srsNode = $(document.createElement("div"));
         srsNode.attr({ class:"dataset_srs" });
 
-        var code = '<div style="cursor:pointer" rel="#infotable-unavailable-for-mapping">' +
-                   '<span class="proj-background">available for mapping</span><span class="' + 
-                              (availableInGoogleProjection ? 'yes-background' : 'no-background') + '">' + 
-                              (availableInGoogleProjection ? 'yes'            : 'no')            + '</span>' +
-                    '</div>' +
+        var code = 
+          '<div style="cursor:pointer" rel="#infotable-unavailable-for-mapping">' +
+          '<span class="proj-background">available for mapping</span><span class="' + 
+              (availableInGoogleProjection ? 'yes-background' : 'no-background') + '">' + 
+              (availableInGoogleProjection ? 'yes'            : 'no')     + '</span>' +
+          '</div>' +
 
-                    '<div style="cursor:pointer" rel="#infotable-unavailable-for-mapping">' +
-                    '<span class="proj-background">available for processing</span><span class="' + 
-                              (availableInLocalProjection  ? 'yes-background' : 'no-background') + '">' + 
-                              (availableInLocalProjection  ? 'yes'            : 'no')            + '</span>' +
-                    '</div>' +
-                    '<br><br><br>';
+          '<div style="cursor:pointer" rel="#infotable-unavailable-for-mapping">' +
+          '<span class="proj-background">available for processing</span><span class="' + 
+              (availableInLocalProjection  ? 'yes-background' : 'no-background') + '">' + 
+              (availableInLocalProjection  ? 'yes'            : 'no')     + '</span>' +
+          '</div>' +
+          '<br><br><br>';
 
         srsNode.append(code);
 
 
         var data_info = $(document.createElement('div'));
-        var tagPickerControlId = getTagPickerControlId(layer.identifier);
+        var tagPickerControlId = 'data-type-' + layer.identifier;
 
         data_info.attr({ class:'data-info' });
 
         data_info.append(srsNode)
-                 .append(getRegisterControl(layer.identifier, registered))
+                 .append(getRegisterControlHtml(layer.identifier, regLyr))
                  .append(servicesAvailNode)
                  .append('<div class="tag-control"><span class="taglist-deletable-' + urlId + ' taglist"' + 
                           (regLyr ? "" : " disabled='disabled'") + '>' +  
-                          (regLyr && regLyr.tags.length > 0 ?  createTagList(regLyr.tags, true, 
-                                                                        layer.serverUrl, layer.identifier) : "No tags" ) +
+                          (regLyr && regLyr.tags.length > 0 ?  
+                              createTagList(regLyr.tags, true, layer.serverUrl, layer.identifier) : 
+                              "No tags" ) +
                          '</span>' + 
-                         makeTagPickerControl(layer, tagPickerControlId, registered) + '</div>');
+                         makeTagPickerControl(layer, tagPickerControlId, regLyr) + '</div>');
 
         var sample_map = $(document.createElement("div"));
         sample_map.attr({ id:mapDivId, class:"sample-map" });   // Map will be rendered based on div's id
@@ -318,13 +294,13 @@
         container.append(crsInfo);
 
         // li_element (map-data-item)
-        //    container (registered_dataset or unregistered_dataset)
+        //    container (regLyr_dataset or unregLyr_dataset)
         //       data_info
         //       sample_map
 
 
         var li_element = $(document.createElement("li"));
-        li_element.attr({ class:"map-data-item " + (registered ? "registered_dataset" : "unregistered_dataset") });
+        li_element.attr({ class:"map-data-item " + (regLyr ? "registered_dataset" : "unregistered_dataset") });
         li_element.append(container);
 
         $("#layer-table").append(li_element);
@@ -417,7 +393,6 @@
         else if(layer.type.hasObject('WFS')) {
           makeDropdown(tagPickerControlId, WFSTagList);
         }
-
         else
           makeDropdown(tagPickerControlId, WMSTagList);
       }  // end for loop
@@ -465,6 +440,8 @@
     var onDatasetRegisteredOrUnregistered = function(item, checkbox, tagPickerControl, registering)
     {
       item.toggleClass("checked");
+
+      // Make div red or green
       item.parent().parent().parent().toggleClass("registered_dataset");
       item.parent().parent().parent().toggleClass("unregistered_dataset");
 
@@ -481,19 +458,20 @@
       var checkbox          = document.getElementById(checkboxID);
       var datasetIdentifier = getLayerNameFromCheckboxId(checkboxID);
 
-      var tagPickerControl = document.getElementById(getTagPickerControlId(datasetIdentifier));
+      var tagPickerControl = document.getElementById('data-type-' + datasetIdentifier);
       var serverUrl        = getServerUrl();
 
-      var dataLayer = registeredDataLayers[serverUrl][datasetIdentifier];
+      var configCount = (registeredDataLayers[serverUrl] && 
+                         registeredDataLayers[serverUrl][datasetIdentifier])  ?
+                              registeredDataLayers[serverUrl][datasetIdentifier].configCount : 0;
 
       // When unregistering a data layer that is used in a configuration, show a warning
-      if(dataLayer && dataLayer.configCount > 0) {
-        var ct = dataLayer.configCount || 0;
-        var c =  (ct == 1) ? "configuration" : "configurations";
-        var t =  (ct == 1) ? "this"          : "these";
-        var th = (ct == 1) ? "it"            : "them";
+      if(configCount > 0) {
+        var c =  (configCount == 1) ? "configuration" : "configurations";
+        var t =  (configCount == 1) ? "this"          : "these";
+        var th = (configCount == 1) ? "it"            : "them";
 
-        if(!confirm("This dataset is in use by " + ct + " " + c + ". " +
+        if(!confirm("This dataset is in use by " + configCount + " " + c + ". " +
                     "Unregistering it will cause it to be removed from " + t + " " + c + ".\n\n" +
                     "Click OK if you are sure you want to unregister this dataset.")) {
           e.preventDefault();
@@ -529,10 +507,11 @@
       } else {
         // ===== Register dataset =====
 
-        var layer    = discoveredLayers[urlId];
-        var taglist  = extractTagList(serverUrl, datasetIdentifier);
-        var title    = $("#dataset-title-"    + sanitizeId(datasetIdentifier)).text();
-        var abstract = $("#dataset-abstract-" + sanitizeId(datasetIdentifier)).text();
+        var layer          = discoveredLayers[urlId];
+        var taglist        = extractTagList(serverUrl, datasetIdentifier);
+        var sanitizedIdent = sanitizeForCss(datasetIdentifier)
+        var title          = $("#dataset-title-"    + sanitizedIdent).text();
+        var abstract       = $("#dataset-abstract-" + sanitizedIdent).text();
 
 
         var service  = "";
@@ -621,13 +600,7 @@
 
 
   var makeDropdown = function(controlId, tagList) {
-    $('#' + controlId).append(tagList);
-  }
-
-
-  var getTagPickerControlId = function(datasetIdentifier)
-  {
-    return 'data-type-' + sanitizeId(datasetIdentifier);
+    $('#' + sanitizeForCss(controlId)).append(tagList);
   }
 
 
@@ -1025,16 +998,18 @@
     }
 
     else {   // WCSGetCapabilities
-      var coverageList = capabilities.contentMetadata;
+      if(capabilities.contentMetadata) {
+        var coverageList = capabilities.contentMetadata;
 
-      for(var i = 0, len = coverageList.length; i < len; i++) {
-        var dataset = new Dataset(serverUrl, "WCS", coverageList[i]);
-        mergeDatasetIntoLayerList(dataset, "WCS");
+        for(var i = 0, len = coverageList.length; i < len; i++) {
+          var dataset = new Dataset(serverUrl, "WCS", coverageList[i]);
+          mergeDatasetIntoLayerList(dataset, "WCS");
+        }
+
+        serverInfo = new ServerInfo(capabilities.serviceIdentification.title, 
+                                    capabilities.serviceIdentification["abstract"], 
+                                    capabilities.serviceProvider.providerName);
       }
-
-      serverInfo = new ServerInfo(capabilities.serviceIdentification.title, 
-                                  capabilities.serviceIdentification["abstract"], 
-                                  capabilities.serviceProvider.providerName);
     }
 
     doneProcessing(serverUrl, "WCS", serverInfo);
