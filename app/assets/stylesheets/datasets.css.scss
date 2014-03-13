@@ -137,6 +137,7 @@
   -webkit-box-shadow: 0 0 90px #000;
 }
  
+
 /* close button positioned on upper right corner */
 .infotable .close {
   background-image: url(/assets/close.png);
@@ -158,6 +159,7 @@
   border-bottom: 1px solid #999;
 }
   
+
 .infotable dt
 {
   clear: left;
@@ -169,6 +171,7 @@
   font-weight: bold;
 }
   
+
 .infotable dd
 {
   float: left;
@@ -214,15 +217,25 @@ div.error-body {
 }
 
 
+/* Styling for little message that is displayed when a dataset has no WMS server */
+.map-unavailable {
+   text-decoration: underline;
+   padding-top: 80px;
+   text-align: center;
+}
+
+
 /* Server name and description, shown above the data tiles */
 .server-name {
   font-size: 15px;
   font-weight: bold;
 }
 
+
 .server-descr {
   
 }
+
 
 .server-owner {
   margin-bottom: 10px;
