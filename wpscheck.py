@@ -96,8 +96,8 @@ for row in rows:
         logInfoMsg("Found invalid mod_config record with id " + str(recordId))
         continue
 
-    identifiers = [ ]
-    titles = [ ]
+    identifiers = {}
+    #titles = [ ]
 
 
     try:
@@ -109,8 +109,8 @@ for row in rows:
 
     outs = cur.fetchall()
     for out in outs:
-        identifiers.append((out[0], "True"))
-        titles.append(out[1])
+        identifiers[out[0]] = out[1]
+        #titles.append(out[1])
 
     try:
         client.initFromURL(pid, identifiers)#, titles)

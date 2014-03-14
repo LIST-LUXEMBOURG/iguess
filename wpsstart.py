@@ -3,7 +3,6 @@ import sys, ast, getopt, WPSClient.WPSClient as WPSClient
 import logging
 # from iguess_db_credentials import logFileName
 
-
 def configLogging(logfile, loglevel):
     '''
     Set up the logging file
@@ -25,7 +24,7 @@ argv = sys.argv[1:]
 arg_dict = { } 
 
 # Params (and the types) we expect  IMPORTANT: make sure each starts with a different letter!!!
-switches = { 'url':str, 'procname':str, 'inputs':list, 'outnames':list, 'titles':list }
+switches = { 'url':str, 'procname':str, 'inputs':list, 'outputs':dict}
 
 singles = '' . join([x[0] + ':' for x in switches])
 long_form = [x + '=' for x in switches]
@@ -34,6 +33,8 @@ d = {}
 for x in switches:
     d[x[0] + ':'] = '--' + x
 
+# Command line example
+# --url="http://localhost/cgi-bin/pywps.cgi" --procname="test_rand_map" --inputs="[('delay', '500')]" --outnames="[('rand', 'True'),('region', 'True')]" --titles="['LdS.RandomRast','LdS.RegionRast']"
 
 try:            
     opts, args = getopt.getopt(argv, singles, long_form)
@@ -93,7 +94,7 @@ iniCli.init(
     # Inputs
     arg_dict['inputs'],
     # Output names
-    arg_dict['outnames'])
+    arg_dict['outputs'])
 
 try:
     url = iniCli.sendRequest()
