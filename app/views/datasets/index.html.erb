@@ -70,7 +70,7 @@
     <% @datasets.each do |d| %>
       <div class="infotable" id="infotable-<%= d.id %>">
         <div class="close"></div>
-        <h1><span class="dataset-title"><%= d.title.present? ? d.title : d.identifier %></span></h1>
+        <h1 class="dataset-title"><%= d.title.present? ? d.title : d.identifier %></h1>
         <div class = "dataset-abstract"><%= d.abstract %></div> 
         <div style="overflow:hidden">
           <dl>
@@ -172,7 +172,7 @@
 </div>
 
 <div class="infotable" id="infotable-layer-unavailable">
-  <h1><span class="dataset-title">Layer Avaialilty</span></h1>
+  <h1 class="dataset-title">Layer Avaialilty</h1>
   <div>
     Data layers are generally hosted on remote servers.  From time to time, the remote server might be unavailable, the owners might change 
     the name of a data layer, or they could remove it altogether.  We periodically check these servers to see if data is still available.  

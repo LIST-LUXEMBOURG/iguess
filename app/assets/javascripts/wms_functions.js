@@ -407,29 +407,33 @@ CRS.splitCrsIntoWords = function(crs)
 // Convert:
 //  1) urn:ogc:def:crs:EPSG::28992 ==> EPSG:28992
 //  2) EPSG:28992                  ==> EPSG:28992
+//  3) 28992                       ==> ESPG:28992
 CRS.getSimpleFormat = function(crs)
 {
   crsWords = CRS.splitCrsIntoWords(crs);
+  
+  // Handle case 3
+  if(crsWords.length == 1)
+    return "EPSG:" + crsWords[0];
+
   return crsWords[crsWords.length - 2] + ':' + crsWords[crsWords.length - 1];
 };
 
 
-// Compare whether two crs's are in fact the same.  We'll consider the following two strings equal:
-// urn:ogc:def:crs:EPSG::28992
-// EPSG:28992
+// Compare whether two crs's are in fact the same.  We'll consider all of the following two strings:
+// A) urn:ogc:def:crs:EPSG::28992
+// B) EPSG:28992
+// C) 28992
 CRS.isEqual = function(first, second)
 {
   if(first === second)
     return true;
 
-  firstWords  = CRS.splitCrsIntoWords(first);
-  secondWords = CRS.splitCrsIntoWords(second);
+  // Normalize first and second by converting to a common format
+  firstSimple  = CRS.getSimpleFormat(first);
+  secondSimple = CRS.getSimpleFormat(second);
 
-  if(first.length < 2 || second.length < 2)
-    return;
-
-  return firstWords[firstWords.length - 2].toLowerCase() === secondWords[secondWords.length - 2].toLowerCase() && 
-         firstWords[firstWords.length - 1]               === secondWords[secondWords.length - 1];
+  return firstSimple === secondSimple;
 };
 
 
