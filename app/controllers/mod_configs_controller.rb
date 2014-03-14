@@ -243,6 +243,9 @@ class ModConfigsController < ApplicationController
     argOutputs = '--outputs="{'
     j = 0
     until j == outputFields.size
+      if (j > 0) 
+        argOutputs += ", "
+      end
       argOutputs += "'" + outputFields[j] + "':'" + outputTitles[j] + "'"
       j += 1
     end
