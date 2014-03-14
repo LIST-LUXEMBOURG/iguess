@@ -226,7 +226,6 @@ class ModConfigsController < ApplicationController
                                 inputs.push("('" + configDataset.input_identifier + "', '" + dataname + "')")
                               }
 
-
     # Text fields -- both inputs and outputs
     @mod_config.config_text_inputs.map { |d|  if d.is_input then 
                                                 inputs.push("('" + d.column_name + "', '" + d.value.gsub("&", "&amp;") + "')")
@@ -240,18 +239,22 @@ class ModConfigsController < ApplicationController
     argProc      = '--procname="'   + @mod_config.wps_process.identifier + '"'
     
     argInputs    = '--inputs="[' + inputs.map { |i| i.to_s }.join(",") + ']"' 
-
-    argOuts      = '--outnames="['  + outputFields.map { |i| "('" + i.to_s + "', 'True')" }.join(",") + ']"'
-    argOutTitles = '--titles="['    + outputTitles.map { |i| "'" + i.to_s + "'" }.join(",") + ']"'
+    
+    argOutputs = '--outputs="{'
+    j = 0
+    until j == outputFields.size
+      argOutputs += "'" + outputFields[j] + "':'" + outputTitles[j] + "'"
+      j += 1
+    end
+    argOutputs += '}"'
         
     cmd = 'cd ' 
     cmd += Rails.root.to_s()
     cmd += '; /usr/bin/python wpsstart.py ' 
     cmd += argUrl + ' ' 
     cmd += argProc + ' ' 
-    cmd += argInputs + ' ' 
-    cmd += argOuts + ' ' 
-    cmd += argOutTitles
+    cmd += argInputs + ' '
+    cmd += argOutputs 
     
     print cmd
 
