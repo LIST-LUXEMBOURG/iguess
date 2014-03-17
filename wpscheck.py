@@ -224,7 +224,7 @@ for row in rows:
     
                     abstract = "Result calculated with module"
                     
-                    qcur.execute(queryTemplate, (recordId, r.name, url, serverId, r.uniqueID, abstract, str(city_id), True, True, 
+                    qcur.execute(queryTemplate, (recordId, r.uniqueID, url, serverId, r.uniqueID, abstract, str(city_id), True, True, 
                                                  str(datetime.datetime.now()), str(datetime.datetime.now()), service) )
     
                     if qcur.rowcount == 0:
