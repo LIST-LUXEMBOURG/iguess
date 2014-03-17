@@ -156,7 +156,8 @@ class DatasetsController < ApplicationController
   # Only called with json
   def destroy
     if params[:id] == "destroy_by_params" then
-      @dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
+      @dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], 
+                                                           params[:dataset][:server_url])
     else
       @dataset = Dataset.find(params[:id])
     end
