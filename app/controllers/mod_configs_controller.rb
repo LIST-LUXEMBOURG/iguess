@@ -159,8 +159,6 @@ class ModConfigsController < ApplicationController
 
     require 'uri'
 
-    inputFields  = []
-    inputValues  = []
     inputs       = []
     outputFields = []
     outputTitles = []
@@ -180,60 +178,61 @@ class ModConfigsController < ApplicationController
     # Drop downs -- always inputs
     @mod_config.datasets.map { |dataset| 
 
-                                configDataset = ConfigDataset.find_by_mod_config_id_and_dataset_id(@mod_config.id, dataset.id)
+                    configDataset = ConfigDataset.find_by_mod_config_id_and_dataset_id(@mod_config.id, dataset.id)
 
-                                urlparams = ""
-                                bbox = ""
+                    urlparams = ""
+                    bbox = ""
 
-                                if(dataset) then
-                                  if(not dataset.format.blank?) then urlparams += "&FORMAT=" + dataset.format    end
-                                  urlparams += "&CRS=" + @current_city.srs  # Should always have this param
+                    if(dataset) then
+                      if(not dataset.format.blank?) then urlparams += "&FORMAT=" + dataset.format    end
+                      urlparams += "&CRS=" + @current_city.srs  # Should always have this param
 
-                                  # If we have an area of interest defined, insert that bounding box here
-                                  if @aoi != nil then
-                                    if (@aoi.bbox_left && @aoi.bbox_right && @aoi.bbox_top && @aoi.bbox_bottom) then 
-                                      bbox = "&BBOX=" + @aoi.bbox_left.to_s()  + "," + @aoi.bbox_bottom.to_s() + "," +
-                                                        @aoi.bbox_right.to_s() + "," + @aoi.bbox_top.to_s()
-                                    else
-                                      # Log an error -- we expected the aoi to have a valid bounding box, but it didn't!
-                                      # We'll use the dataset's bounding box as a fallback, below
-                                    end
-                                  end
+                      # If we have an area of interest defined, insert that bounding box here
+                      if @aoi != nil then
+                        if (@aoi.bbox_left && @aoi.bbox_right && @aoi.bbox_top && @aoi.bbox_bottom) then 
+                          bbox = "&BBOX=" + @aoi.bbox_left.to_s()  + "," + @aoi.bbox_bottom.to_s() + "," +
+                                            @aoi.bbox_right.to_s() + "," + @aoi.bbox_top.to_s()
+                        else
+                          # Log an error -- we expected the aoi to have a valid bounding box, but it didn't!
+                          # We'll use the dataset's bounding box as a fallback, below
+                        end
+                      end
 
-                                  # If no aoi is being used, or wasn't properly set, use any dataset bb that we have
-                                  if bbox == "" && (dataset.bbox_left && dataset.bbox_right && 
-                                                    dataset.bbox_top && dataset.bbox_bottom) then 
-                                    bbox += "&BBOX=" + dataset.bbox_left.to_s()  + "," + dataset.bbox_bottom.to_s() + "," +
-                                                       dataset.bbox_right.to_s() + "," + dataset.bbox_top.to_s()
-                                  end
+                      # If no aoi is being used, or wasn't properly set, use any dataset bb that we have
+                      if bbox == "" && (dataset.bbox_left && dataset.bbox_right && 
+                                        dataset.bbox_top && dataset.bbox_bottom) then 
+                        bbox += "&BBOX=" + dataset.bbox_left.to_s()  + "," + dataset.bbox_bottom.to_s() + "," +
+                                           dataset.bbox_right.to_s() + "," + dataset.bbox_top.to_s()
+                      end
 
-                                  urlparams += bbox
-                                  if(dataset.resolution_x and dataset.resolution_x.to_f > 0 and 
-                                     dataset.resolution_y and dataset.resolution_y.to_f > 0) 
-                                  then 
-                                    urlparams += "&RESX=" + dataset.resolution_x.to_s()
-                                    urlparams += "&RESY=" + dataset.resolution_y.to_s()
-                                  end
-                                end
+                      urlparams += bbox
+                      if(dataset.resolution_x and dataset.resolution_x.to_f > 0 and 
+                         dataset.resolution_y and dataset.resolution_y.to_f > 0) 
+                      then 
+                        urlparams += "&RESX=" + dataset.resolution_x.to_s()
+                        urlparams += "&RESY=" + dataset.resolution_y.to_s()
+                      end
+                    end
 
-                                request = (dataset.service == 'WCS') ? 'getCoverage' : 'getFeature'
-                                noun    = (dataset.service == 'WCS') ? 'COVERAGE'    : 'TYPENAME'
+                    request = (dataset.service == 'WCS') ? 'getCoverage' : 'getFeature'
+                    noun    = (dataset.service == 'WCS') ? 'COVERAGE'    : 'TYPENAME'
 
-                                dataname = dataset.server_url + (dataset.server_url.include?("?") == -1 ? "?" : "&") +
-                                'SERVICE=' + dataset.service + urlparams +
-                                URI.escape('&VERSION=1.0.0&REQUEST=' + request + '&' + noun + '=' + dataset.identifier)
+                    dataname = dataset.server_url + (dataset.server_url.include?("?") == -1 ? "?" : "&") +
+                    'SERVICE=' + dataset.service + urlparams +
+                    URI.escape('&VERSION=1.0.0&REQUEST=' + request + '&' + noun + '=' + dataset.identifier)
 
-                                inputs.push("('" + configDataset.input_identifier + "', '" + dataname + "')")
-                              }
+                    inputs.push("('" + configDataset.input_identifier + "', '" + dataname + "')")
+                  }
 
 
     # Text fields -- both inputs and outputs
-    @mod_config.config_text_inputs.map { |d|  if d.is_input then 
-                                                inputs.push("('" + d.column_name + "', '" + d.value.gsub("&", "&amp;") + "')")
-                                              else
-                                                outputFields.push(d.column_name)
-                                                outputTitles.push(d.value)
-                                              end
+    @mod_config.config_text_inputs.map { |d|  
+                    if d.is_input then 
+                      inputs.push("('" + d.column_name + "', '" + d.value.gsub("&", "&amp;") + "')")
+                    else
+                      outputFields.push(d.column_name)
+                      outputTitles.push(d.value)
+                    end
                                         }
 
     argUrl       = '--url="'        + @mod_config.wps_process.wps_server.url + '"'
