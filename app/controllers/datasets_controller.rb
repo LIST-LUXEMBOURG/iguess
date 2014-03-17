@@ -61,11 +61,12 @@ class DatasetsController < ApplicationController
     @dataset = Dataset.new(params[:dataset])
 
     # Check if the dataset's server url is in our dataservers database... if not, add it
-    dataserver = Dataserver.find_by_url(@dataset.server_url.strip)
+    url = @dataset.server_url.strip
+    dataserver = Dataserver.find_by_url(url)
 
     if not dataserver 
       # Need to create a new server
-      dataserver = Dataserver.new(@dataset.server_url.strip, params[:server_title], params[:server_abstract])
+      dataserver = Dataserver.new(url, params[:server_title], params[:server_abstract])
       dataserver.save
     end
 
