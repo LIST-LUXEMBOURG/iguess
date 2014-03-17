@@ -26,7 +26,7 @@ def jsonHelper(dataset)
   json = dataset.as_json(:only => [:server_url, :identifier])
   # server_url
   json['configCount'] = dataset.mod_configs.count
-  json['tags'] = dataset.dataset_tags.map { |t| t.tag }
+  json['tags']        = dataset.dataset_tags.map { |t| t.tag }
 
   return json
 end
@@ -187,15 +187,18 @@ def insertGetCapabilitiesLinkBlock(serverUrl, wms, wfs, wcs)
   output = "";
 
   if wms then
-    output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 'SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities" target="_blank">WMS</a>'
+    output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 
+        'SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities" target="_blank">WMS</a>'
   end
 
   if wfs then
-    output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 'SERVICE=WFS&VERSION=1.0.0&REQUEST=GetCapabilities" target="_blank">WFS</a>'
+    output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 
+        'SERVICE=WFS&VERSION=1.0.0&REQUEST=GetCapabilities" target="_blank">WFS</a>'
   end
 
   if wcs then
-    output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 'SERVICE=WCS&VERSION=1.1.0&REQUEST=GetCapabilities" target="_blank">WCS</a>'
+    output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 
+        'SERVICE=WCS&VERSION=1.1.0&REQUEST=GetCapabilities" target="_blank">WCS</a>'
   end
 
   raw(output)
