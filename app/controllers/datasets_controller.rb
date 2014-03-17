@@ -99,7 +99,9 @@ class DatasetsController < ApplicationController
         @dataset = Dataset.find_by_id(params[:dataset][:id])
       else
         @current_city = User.getCurrentCity(current_user, cookies)
-        @dataset = Dataset.find_by_identifier_and_server_url_and_city_id(params[:dataset][:identifier], params[:dataset][:server_url], @current_city.id)
+        @dataset = Dataset.find_by_identifier_and_server_url_and_city_id(params[:dataset][:identifier], 
+                                                                         params[:dataset][:server_url], 
+                                                                         @current_city.id)
       end
 
 
