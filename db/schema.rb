@@ -11,17 +11,18 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140120141148) do
+ActiveRecord::Schema.define(:version => 20140317173519) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
-    t.integer  "zoom",            :null => false
+    t.integer  "zoom",              :null => false
     t.string   "srs"
     t.float    "mapx"
     t.float    "mapy"
-    t.datetime "created_at",      :null => false
-    t.datetime "updated_at",      :null => false
-    t.integer  "site_details_id", :null => false
+    t.datetime "created_at",        :null => false
+    t.datetime "updated_at",        :null => false
+    t.integer  "site_details_id",   :null => false
+    t.string   "projection_params"
   end
 
   create_table "config_datasets", :force => true do |t|
