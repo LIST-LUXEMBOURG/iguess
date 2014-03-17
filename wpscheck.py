@@ -194,8 +194,8 @@ for row in rows:
                     
                     logInfoMsg("Processing complex result " + r.name + " with id of " + r.uniqueID)
     
-                    identifier = r.name
-    
+                    title = r.name
+                    identifier = r.uniqueID
     
                     # Check if data server already exists in the database, otherwise insert it.  We need the record id
                     qcur.execute("SELECT id FROM " + dbSchema + ".dataservers WHERE url = %s", (url,))        # Trailing , needed
@@ -227,7 +227,7 @@ for row in rows:
     
                     abstract = "Result calculated with module"
                     
-                    qcur.execute(queryTemplate, (recordId, identifier, url, serverId, identifier, abstract, str(city_id), True, True, 
+                    qcur.execute(queryTemplate, (recordId, title, url, serverId, identifier, abstract, str(city_id), True, True, 
                                                  str(datetime.datetime.now()), str(datetime.datetime.now()), service) )
     
                     if qcur.rowcount == 0:
