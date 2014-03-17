@@ -50,10 +50,11 @@ class DatasetsController < ApplicationController
   end
 
 
+
   # Called when user registers a dataset by clicking on the "Register" button;
   #    always called via ajax with json response type
   def create
-    if not user_signed_in?    # Should always be true
+    if not user_signed_in?    # Should always be true... but if not, we'll bail
       return
     end
 
@@ -64,10 +65,7 @@ class DatasetsController < ApplicationController
 
     if not dataserver 
       # Need to create a new server
-      dataserver = Dataserver.new
-      dataserver.url      = @dataset.server_url.strip
-      dataserver.title    = params[:server_title]
-      dataserver.abstract = params[:server_abstract]
+      dataserver = Dataserver.new(@dataset.server_url.strip, params[:server_title], params[:server_abstract])
       dataserver.save
     end
 
