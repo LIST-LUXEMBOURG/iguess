@@ -1,3 +1,4 @@
+
 class DatasetsController < ApplicationController
   before_filter :authenticate_user!, :except => [:get_for_city]
 
@@ -72,6 +73,36 @@ class DatasetsController < ApplicationController
 
     @dataset.dataserver = @dataserver
 
+
+    # Because of limitations in the WCS protocol, we don't always get a reliable projected bounding box from WCS servers.
+    # Therefore, we will take the lat-long bbox that is provided reliably, and project it here with the Proj4 library.
+    # We only need to do this with WCS data, and we'll overwrite whatever values are passed in the bbox params.
+    if @dataset.service == 'WCS' 
+      require 'proj4'
+
+      @current_city = City.find_by_id(params[:dataset][:city_id])
+      proj = Proj4::Projection.new(@current_city.projection_params)   # Create a projection for @current_city
+
+      points = params[:llbbox].split(/,/)
+      if points.length != 4
+        # Do something!
+      else
+        # Note that Proj4 wants lat-long coords in radians, so we need to convert as we are creating the points
+        p1 = Proj4::Point.new(points[0].to_f * Proj4::DEG_TO_RAD, points[1].to_f * Proj4::DEG_TO_RAD)
+        p2 = Proj4::Point.new(points[2].to_f * Proj4::DEG_TO_RAD, points[3].to_f * Proj4::DEG_TO_RAD)
+
+        pp1 = proj.forward(p1)
+        pp2 = proj.forward(p2)
+      end
+      
+      @dataset.bbox_left   = pp1.x 
+      @dataset.bbox_bottom = pp1.y 
+      @dataset.bbox_right  = pp2.x 
+      @dataset.bbox_top    = pp2.y 
+
+    end
+
+
     @dataset.save
 
     if(params[:tags]) 
@@ -79,6 +110,7 @@ class DatasetsController < ApplicationController
       tags.each { |t| makeTag(@dataset, t) }
     end
 
+    # Send the new dataset back to the client as a JSON object, along with any tags
     respond_to do |format|
       format.json { render :json => { :tags => DatasetTag.find_all_by_dataset_id(@dataset.id)
                                                          .map {|d| d.tag },

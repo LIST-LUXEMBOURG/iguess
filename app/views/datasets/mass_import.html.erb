@@ -546,9 +546,6 @@
           data: "dataset[identifier]="       + datasetIdentifier +
                 "&dataset[service]="         + service +
                 "&dataset[server_url]="      + serverUrl +
-                "&server_title="             + getServerTitle() +
-                "&server_abstract="          + getServerAbstract() +
-                "&tags="                     + taglist +
                 "&dataset[title]="           + encodeURIComponent(title) +
                 "&dataset[abstract]="        + encodeURIComponent(abstract) +
                 "&dataset[bbox_left]="       + getCoord(layer, "left") +
@@ -559,9 +556,14 @@
                 "&dataset[resolution_y]="    + (layer.resolution ? Math.abs(layer.resolution.y) : 0) +
                 "&dataset[format]="          + (layer.format ? layer.format : "") +
                 "&dataset[local_srs]="       + (CRS.hasCRS(layer.dataCrs, LOCAL_SRS) ? "true" : "false") +
-                "&dataset[city_id]=<%= raw @current_city.id %>" +
+                "&dataset[city_id]="         + "<%= raw @current_city.id %>" +
                 "&dataset[alive]=true"       +
-                "&cityName=<%= raw @current_city.id %>",
+
+                "&llbbox="                   + layer.llbbox +
+                "&server_title="             + getServerTitle() +
+                "&server_abstract="          + getServerAbstract() +
+                "&tags="                     + taglist +
+                "&cityName="                 + "<%= raw @current_city.id %>",
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
           success: function(data, status, jqXHR)  { 
               registeredDataset(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); 
@@ -645,47 +647,6 @@
 
     return tags;
   };
-
-
-  // Class declaration -- maintain same public interface as ServiceProbe on register WPS server page
-  // :::constructor:::
-  var ServiceProbe = function(serverUrl) 
-  {   
-    this.serverUrl = serverUrl;
-    var self       = this;    // Stored pointer to ourselves, will be needed in the callback
-  
-
-    // :::public:::
-    this.startProbing = function() 
-    { 
-      WFS.getCapabilities(self.serverUrl,  self.onWfsGetCapabilitiesSucceeded);
-      WCS.getCapabilities(self.serverUrl,  self.onWcsGetCapabilitiesSucceeded);   // Launches both GetCapabilities and DescribeCoverage requests
-      WMS.getCapabilities(self.serverUrl,  self.onWmsGetCapabilitiesSucceeded);
-    };
-
-    // :::private:::
-    // TODO: If capabilities is undefined, there was a problem somewhere... it should be logged
-    this.onWfsGetCapabilitiesSucceeded = function(capabilities, response) {
-      if(capabilities && isGoodResponse("WFS", response, capabilities))
-        processIncomingWFSLayers(capabilities, self.serverUrl);
-      else    // Error:
-        doneProcessing(self.serverUrl, "WFS", null);
-    };
-
-    this.onWmsGetCapabilitiesSucceeded = function(capabilities, response) {
-      if(capabilities && isGoodResponse("WMS", response, capabilities))
-        processIncomingWMSLayers(capabilities, self.serverUrl);
-      else    // Error:
-        doneProcessing(self.serverUrl, "WMS", null);
-    };
-
-    this.onWcsGetCapabilitiesSucceeded = function(capabilities, response) {
-      if(capabilities && isGoodResponse("WCS", response, capabilities))
-        processIncomingWCSLayers(capabilities, self.serverUrl);
-      else    // Error:
-        doneProcessing(self.serverUrl, "WCS", null) ; 
-    };
-  }
 
 
   // Save current value of text box to database
@@ -831,13 +792,15 @@
   {
     this.serverUrl = serverUrl;
 
-    this.identifier  = null;    // Dataset identifier
-    this.title       = null;    // Title of the dataset
-    this["abstract"] = null;    // abstract is a js reserved word!
-
-    this.identifier  = datasetInfo.name  || datasetInfo.identifier;
-    this.title       = datasetInfo.title || this.identifier;
-    this["abstract"] = datasetInfo.abstract;    // abstract is a js reserved word!
+    if(datasetInfo) {
+      this.identifier  = datasetInfo.name  || datasetInfo.identifier;
+      this.title       = datasetInfo.title || this.identifier;
+      this["abstract"] = datasetInfo.abstract;    // abstract is a js reserved word!
+    } else {
+      this.identifier  = ""; 
+      this.title       = ""; 
+      this["abstract"] = "";    // abstract is a js reserved word!
+    }
   };
 
 
@@ -1052,6 +1015,47 @@
 
     doneProcessing(serverUrl, "WFS", serverInfo);
   };
+
+
+  // Class declaration -- maintain same public interface as ServiceProbe on register WPS server page
+  // :::constructor:::
+  var ServiceProbe = function(serverUrl) 
+  {   
+    this.serverUrl = serverUrl;
+    var self       = this;    // Stored pointer to ourselves, will be needed in the callback
+  
+
+    // :::public:::
+    this.startProbing = function() 
+    { 
+      WFS.getCapabilities(self.serverUrl,  self.onWfsGetCapabilitiesSucceeded);
+      WCS.getCapabilities(self.serverUrl,  self.onWcsGetCapabilitiesSucceeded);   // Launches both GetCapabilities and DescribeCoverage requests
+      WMS.getCapabilities(self.serverUrl,  self.onWmsGetCapabilitiesSucceeded);
+    };
+
+    // :::private:::
+    // TODO: If capabilities is undefined, there was a problem somewhere... it should be logged
+    this.onWfsGetCapabilitiesSucceeded = function(capabilities, response) {
+      if(capabilities && isGoodResponse("WFS", response, capabilities))
+        processIncomingWFSLayers(capabilities, self.serverUrl);
+      else    // Error:
+        doneProcessing(self.serverUrl, "WFS", null);
+    };
+
+    this.onWmsGetCapabilitiesSucceeded = function(capabilities, response) {
+      if(capabilities && isGoodResponse("WMS", response, capabilities))
+        processIncomingWMSLayers(capabilities, self.serverUrl);
+      else    // Error:
+        doneProcessing(self.serverUrl, "WMS", null);
+    };
+
+    this.onWcsGetCapabilitiesSucceeded = function(capabilities, response) {
+      if(capabilities && isGoodResponse("WCS", response, capabilities))
+        processIncomingWCSLayers(capabilities, self.serverUrl);
+      else    // Error:
+        doneProcessing(self.serverUrl, "WCS", null) ; 
+    };
+  }
 
 
   // Build a ServerInfo object from capabilities... if it has the necessary data.
