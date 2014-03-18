@@ -11,7 +11,9 @@ gem 'pg'  # If this line causes problems, you may need to do this: "sudo apt-get
 gem 'sqlite3'
 gem 'simple_form'
 
-gem "devise", "~> 2.2.4"
+gem 'devise', '~> 2.2.4'
+
+gem 'proj4rb'  # If this causes problems, try this: "sudo apt-get install libproj-dev"
 
 
 gem 'pry', :group => :development

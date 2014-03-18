@@ -1,5 +1,9 @@
 Iguess::Application.routes.draw do
 
+  # Use root as a shorthand to name a route for the root path “/”.
+  root :to => "home#index"
+  
+
   resources :mod_configs
 
   resources :cities
@@ -13,7 +17,6 @@ Iguess::Application.routes.draw do
   end
 
   resources :datasets
-
 
   resources :dataserver_urls
   
@@ -39,8 +42,6 @@ Iguess::Application.routes.draw do
   get "home/index"
   get "home/geoproxy"
   
-  # Use root as a shorthand to name a route for the root path “/”.
-  root :to => "home#index"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
@@ -98,7 +99,8 @@ Iguess::Application.routes.draw do
   # This is a legacy wild controller route that's not recommended for RESTful applications.
   # Note: This route will make all actions in every controller accessible via GET requests.
   # match ':controller(/:action(/:id))(.:format)'
-  
+
+
   match ':controller(/:action(/:id(.:format)))'
   
 end

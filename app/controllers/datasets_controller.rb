@@ -1,3 +1,4 @@
+
 class DatasetsController < ApplicationController
   before_filter :authenticate_user!, :except => [:get_for_city]
 
@@ -9,7 +10,9 @@ class DatasetsController < ApplicationController
 
     # current_user should always be set here
     @current_city = User.getCurrentCity(current_user, cookies)
-    @datasets     = Dataset.find_all_by_city_id(@current_city.id, :select => "*, case when title = '' or title is null then identifier else title end as sortcol", :order => :sortcol )
+    @datasets     = Dataset.find_all_by_city_id(@current_city.id, 
+                        :select => "*, case when title = '' or title is null then identifier else title end as sortcol", 
+                        :order => :sortcol )
     @wps_servers  = WpsServer.all
 
     respond_to do |format|
@@ -48,28 +51,57 @@ class DatasetsController < ApplicationController
   end
 
 
+
   # Called when user registers a dataset by clicking on the "Register" button;
   #    always called via ajax with json response type
   def create
-    if not user_signed_in?    # Should always be true
+    if not user_signed_in?    # Should always be true... but if not, we'll bail
       return
     end
 
     @dataset = Dataset.new(params[:dataset])
 
     # Check if the dataset's server url is in our dataservers database... if not, add it
-    dataserver = Dataserver.find_by_url(@dataset.server_url.strip)
+    url = @dataset.server_url.strip
+    @dataserver = Dataserver.find_by_url(url)
 
-    if not dataserver 
+    if not @dataserver 
       # Need to create a new server
-      dataserver = Dataserver.new
-      dataserver.url      = @dataset.server_url.strip
-      dataserver.title    = params[:server_title]
-      dataserver.abstract = params[:server_abstract]
-      dataserver.save
+      @dataserver = Dataserver.new(url, params[:server_title], params[:server_abstract])
+      @dataserver.save
     end
 
-    @dataset.dataserver = dataserver
+    @dataset.dataserver = @dataserver
+
+
+    # Because of limitations in the WCS protocol, we don't always get a reliable projected bounding box from WCS servers.
+    # Therefore, we will take the lat-long bbox that is provided reliably, and project it here with the Proj4 library.
+    # We only need to do this with WCS data, and we'll overwrite whatever values are passed in the bbox params.
+    if @dataset.service == 'WCS' 
+      require 'proj4'
+
+      @current_city = City.find_by_id(params[:dataset][:city_id])
+      proj = Proj4::Projection.new(@current_city.projection_params)   # Create a projection for @current_city
+
+      points = params[:llbbox].split(/,/)
+      if points.length != 4
+        # Do something!
+      else
+        # Note that Proj4 wants lat-long coords in radians, so we need to convert as we are creating the points
+        p1 = Proj4::Point.new(points[0].to_f * Proj4::DEG_TO_RAD, points[1].to_f * Proj4::DEG_TO_RAD)
+        p2 = Proj4::Point.new(points[2].to_f * Proj4::DEG_TO_RAD, points[3].to_f * Proj4::DEG_TO_RAD)
+
+        pp1 = proj.forward(p1)
+        pp2 = proj.forward(p2)
+      end
+      
+      @dataset.bbox_left   = pp1.x 
+      @dataset.bbox_bottom = pp1.y 
+      @dataset.bbox_right  = pp2.x 
+      @dataset.bbox_top    = pp2.y 
+
+    end
+
 
     @dataset.save
 
@@ -78,8 +110,10 @@ class DatasetsController < ApplicationController
       tags.each { |t| makeTag(@dataset, t) }
     end
 
+    # Send the new dataset back to the client as a JSON object, along with any tags
     respond_to do |format|
-      format.json { render :json => { :tags => DatasetTag.find_all_by_dataset_id(@dataset.id).map {|d| d.tag },
+      format.json { render :json => { :tags => DatasetTag.find_all_by_dataset_id(@dataset.id)
+                                                         .map {|d| d.tag },
                                       :dataset => @dataset
                                     }
                   }
@@ -97,7 +131,9 @@ class DatasetsController < ApplicationController
         @dataset = Dataset.find_by_id(params[:dataset][:id])
       else
         @current_city = User.getCurrentCity(current_user, cookies)
-        @dataset = Dataset.find_by_identifier_and_server_url_and_city_id(params[:dataset][:identifier], params[:dataset][:server_url], @current_city.id)
+        @dataset = Dataset.find_by_identifier_and_server_url_and_city_id(params[:dataset][:identifier], 
+                                                                         params[:dataset][:server_url], 
+                                                                         @current_city.id)
       end
 
 
@@ -152,7 +188,8 @@ class DatasetsController < ApplicationController
   # Only called with json
   def destroy
     if params[:id] == "destroy_by_params" then
-      @dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], params[:dataset][:server_url])
+      @dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], 
+                                                           params[:dataset][:server_url])
     else
       @dataset = Dataset.find(params[:id])
     end

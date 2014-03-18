@@ -157,27 +157,27 @@
   // Returns null if we can't find any good bounding box coords.
   var getNormalizedBoundingBox = function(layer)
   {
-    if(layer.wmsCrs && layer.wmsbbox && layer.wmsbbox.left)
-      return [layer.wmsbbox.left, 
-              layer.wmsbbox.bottom, 
-              layer.wmsbbox.right, 
-              layer.wmsbbox.top, 
+    if(layer.wmsCrs && layer.mapBbox && layer.mapBbox.left)
+      return [layer.mapBbox.left, 
+              layer.mapBbox.bottom, 
+              layer.mapBbox.right, 
+              layer.mapBbox.top, 
               layer.wmsCrs];
 
 
-    if(layer.wmsCrs && layer.wmsbbox && layer.wmsbbox.bbox)   
-      return [layer.wmsbbox.bbox[0], 
-              layer.wmsbbox.bbox[1], 
-              layer.wmsbbox.bbox[2], 
-              layer.wmsbbox.bbox[3], 
+    if(layer.wmsCrs && layer.mapBbox && layer.mapBbox.bbox)   
+      return [layer.mapBbox.bbox[0], 
+              layer.mapBbox.bbox[1], 
+              layer.mapBbox.bbox[2], 
+              layer.mapBbox.bbox[3], 
               layer.wmsCrs];
 
 
-    if(layer.wmsCrs && layer.wmsbbox && layer.wmsbbox.length == 4)
-      return [layer.wmsbbox[0], 
-              layer.wmsbbox[1], 
-              layer.wmsbbox[2], 
-              layer.wmsbbox[3], 
+    if(layer.wmsCrs && layer.mapBbox && layer.mapBbox.length == 4)
+      return [layer.mapBbox[0], 
+              layer.mapBbox[1], 
+              layer.mapBbox[2], 
+              layer.mapBbox[3], 
               layer.wmsCrs];
 
     
@@ -191,6 +191,12 @@
 
     return null;
   };
+
+
+  var WMSTagList = '<% getAliveTags("WMS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>';
+  var WFSTagList = '<% getAliveTags("WFS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>';
+  var WCSTagList = '<% getAliveTags("WCS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>';
+
 
 
   var displayServices = function() 
@@ -253,7 +259,7 @@
         var availableInGoogleProjection = false;
 
         if(layer.srs !== null) {
-          availableInLocalProjection  = CRS.hasCRS(layer.wxsCrs,     LOCAL_SRS);
+          availableInLocalProjection  = CRS.hasCRS(layer.dataCrs,    LOCAL_SRS);
           availableInGoogleProjection = CRS.hasCRS(layer.wmsCrsList, GOOGLE_SRS);
         }
 
@@ -333,8 +339,8 @@
           crsInfo += "<div class='proj-list'>Mapping Projections: <span>"    + 
             (typeof(layer.wmsCrsList) === "string" ? layer.wmsCrsList : layer.wmsCrsList.join('; ')) + "</div>";
 
-        if(layer.wxsCrs)
-          crsInfo += "<div class='proj-list'>Processing Projections: <span>" + layer.wxsCrs + "</div>";
+        if(layer.dataCrs)
+          crsInfo += "<div class='proj-list'>Processing Projections: <span>" + layer.dataCrs + "</div>";
 
         crsInfo += "</div>";
 
@@ -396,8 +402,9 @@
           miniMap.render(mapDivId);    // Renders to <div id="map#">
         }
         
-        // Now that the tag picker has finally been added to the dom, we can populate it
-        // Note that if there is no wxsbbox, we don't want the Area of Interest tag, so use the WCS tags instead of the WFS ones.
+        // Now that the tag picker has finally been added to the dom, we can populate it.
+        // If there is no dataBbox, we don't want the Area of Interest tag.
+        // WFSTagList and WCSTagList are basically the same, except WFSTagList also has the AOI tag.
         // This is kind of hacky, but seems to work.
         if(layer.type.hasObject('WCS') || (layer.type.hasObject('WFS') && getCoord(layer, "left") === "")) {
           makeDropdown(tagPickerControlId, WCSTagList);
@@ -539,9 +546,6 @@
           data: "dataset[identifier]="       + datasetIdentifier +
                 "&dataset[service]="         + service +
                 "&dataset[server_url]="      + serverUrl +
-                "&server_title="             + getServerTitle() +
-                "&server_abstract="          + getServerAbstract() +
-                "&tags="                     + taglist +
                 "&dataset[title]="           + encodeURIComponent(title) +
                 "&dataset[abstract]="        + encodeURIComponent(abstract) +
                 "&dataset[bbox_left]="       + getCoord(layer, "left") +
@@ -551,10 +555,15 @@
                 "&dataset[resolution_x]="    + (layer.resolution ? Math.abs(layer.resolution.x) : 0) +
                 "&dataset[resolution_y]="    + (layer.resolution ? Math.abs(layer.resolution.y) : 0) +
                 "&dataset[format]="          + (layer.format ? layer.format : "") +
-                "&dataset[local_srs]="       + (CRS.hasCRS(layer.wxsCrs, LOCAL_SRS) ? "true" : "false") +
-                "&dataset[city_id]=<%= raw @current_city.id %>" +
+                "&dataset[local_srs]="       + (CRS.hasCRS(layer.dataCrs, LOCAL_SRS) ? "true" : "false") +
+                "&dataset[city_id]="         + "<%= raw @current_city.id %>" +
                 "&dataset[alive]=true"       +
-                "&cityName=<%= raw @current_city.id %>",
+
+                "&llbbox="                   + layer.llbbox +
+                "&server_title="             + getServerTitle() +
+                "&server_abstract="          + getServerAbstract() +
+                "&tags="                     + taglist +
+                "&cityName="                 + "<%= raw @current_city.id %>",
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
           success: function(data, status, jqXHR)  { 
               registeredDataset(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); 
@@ -576,13 +585,14 @@
   };
 
 
+  // which == "left", "right", "top", or "bottom"
   var getCoord = function(layer, which)
   {
-    if(layer.wxsbbox)
-      return doGetCoord(layer.wxsbbox, which);
+    if(layer.dataBbox)
+      return doGetCoord(layer.dataBbox, which);
 
-    if(layer.wmsbbox)
-      return doGetCoord(layer.wmsbbox, which);
+    if(layer.mapBbox)
+      return doGetCoord(layer.mapBbox, which);
 
     return "";
   };
@@ -604,11 +614,6 @@
     if(which == "bottom")
       return obj[1];
   };
-
-
-  var WMSTagList = '<% getAliveTags("WMS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>';
-  var WFSTagList = '<% getAliveTags("WFS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>';
-  var WCSTagList = '<% getAliveTags("WCS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>';
 
 
   var makeDropdown = function(controlId, tagList) {
@@ -642,47 +647,6 @@
 
     return tags;
   };
-
-
-  // Class declaration -- maintain same public interface as ServiceProbe on register WPS server page
-  // :::constructor:::
-  var ServiceProbe = function(serverUrl) 
-  {   
-    this.serverUrl = serverUrl;
-    var self       = this;    // Stored pointer to ourselves, will be needed in the callback
-  
-
-    // :::public:::
-    this.startProbing = function() 
-    { 
-      WFS.getCapabilities(self.serverUrl,  self.onWfsGetCapabilitiesSucceeded);
-      WCS.getCapabilities(self.serverUrl,  self.onWcsGetCapabilitiesSucceeded);   // Launches both GetCapabilities and DescribeCoverage requests
-      WMS.getCapabilities(self.serverUrl,  self.onWmsGetCapabilitiesSucceeded);
-    };
-
-    // :::private:::
-    // TODO: If capabilities is undefined, there was a problem somewhere... it should be logged
-    this.onWfsGetCapabilitiesSucceeded = function(capabilities, response) {
-      if(capabilities && isGoodResponse("WFS", response, capabilities))
-        processIncomingWFSLayers(capabilities, self.serverUrl);
-      else    // Error:
-        doneProcessing(self.serverUrl, "WFS", null);
-    };
-
-    this.onWmsGetCapabilitiesSucceeded = function(capabilities, response) {
-      if(capabilities && isGoodResponse("WMS", response, capabilities))
-        processIncomingWMSLayers(capabilities, self.serverUrl);
-      else    // Error:
-        doneProcessing(self.serverUrl, "WMS", null);
-    };
-
-    this.onWcsGetCapabilitiesSucceeded = function(capabilities, response) {
-      if(capabilities && isGoodResponse("WCS", response, capabilities))
-        processIncomingWCSLayers(capabilities, self.serverUrl);
-      else    // Error:
-        doneProcessing(self.serverUrl, "WCS", null) ; 
-    };
-  }
 
 
   // Save current value of text box to database
@@ -824,124 +788,166 @@
 
   // Basic dataset object -- this is what we track for datasets seen on remote server
   // Used for discoveredLayers
-  var Dataset = function(serverUrl, service, datasetInfo) 
+  var Dataset = function(serverUrl, datasetInfo) 
   {
     this.serverUrl = serverUrl;
-    this.type      = [service];
 
-    this.identifier  = null;
-    this.name        = null;
-    this.title       = null;
-    this["abstract"] = null;    // abstract is a js reserved word!
-    this.format      = null;
-    this.wmsCrs      = null;
-    this.wmsCrsList  = [];
-    this.wxsCrs      = null;
-    this.wmsbbox     = null;
-    this.wxsbbox     = null;
-    this.llbbox      = null;
-    this.resolution  = null;
-
-    if(!datasetInfo) 
-      return
-
-    this.identifier  = datasetInfo.name  || datasetInfo.identifier;
-    this.title       = datasetInfo.title || this.identifier;
-    this["abstract"] = datasetInfo.abstract;    // abstract is a js reserved word!
-
-    if(service == "WMS") {
-      var localCrs = CRS.getSimpleFormat(LOCAL_SRS);
-
-      // datasetInfo.srs[xxx] == true  ==> if this exists, the we can use localCrs
-      this.wmsCrs  = datasetInfo.srs[localCrs]  && localCrs;
-
-      for(var key in datasetInfo.srs)
-        this.wmsCrsList.push(key);
-
-      this.wmsbbox = datasetInfo.bbox[localCrs] && datasetInfo.bbox[localCrs].bbox;
-      this.llbbox  = datasetInfo.llbbox;
-    }
-
-    else { //  (service == "WFS" || service == "WCS") {
-      this.wxsCrs  = datasetInfo.srs || (datasetInfo.supportedCRS  && datasetInfo.supportedCRS[0]) ||
-                                        (datasetInfo.supportedCRSs && datasetInfo.supportedCRSs[0]);
-
-      if(service == "WCS") {
-        try {
-          // Use image/img if it is available... seems to work best
-          if(datasetInfo.supportedFormats.hasObject("image/img"))
-            this.format = "image/img";
-          else if(datasetInfo.supportedFormats.hasObject("image/tiff"))
-            this.format = "image/tiff";
-          else
-            this.format = datasetInfo.supportedFormats[0];
-        } catch(error) {
-          // Do nothing
-        }
-
-        try {
-          this.resolution = datasetInfo.domain.spatialDomain.gridCRS.gridOffsets;
-        } catch(error) {
-          // Do nothing
-        }
-
-        try {
-          this.wxsbbox = datasetInfo.domain.spatialDomain.boundingBoxes[this.wxsCrs];
-        } catch(error) {
-          // Do nothing
-        }
-      }
-
-      else if(service == "WFS") {
-        this.wxsbbox = datasetInfo.latLongBoundingBox;  
-      }
+    if(datasetInfo) {
+      this.identifier  = datasetInfo.name  || datasetInfo.identifier;
+      this.title       = datasetInfo.title || this.identifier;
+      this["abstract"] = datasetInfo.abstract;    // abstract is a js reserved word!
+    } else {
+      this.identifier  = ""; 
+      this.title       = ""; 
+      this["abstract"] = "";    // abstract is a js reserved word!
     }
   };
+
+
+  var WMSDataset = function(serverUrl, datasetInfo)
+  {
+    Dataset.call(this, serverUrl, datasetInfo);
+
+    this.type = ["WMS"];
+
+    this.wmsCrs      = null;
+    this.wmsCrsList  = [];      // CRSs that the map data is available in
+    this.mapBbox     = null;    // Projected bounds of the map
+    this.llbbox      = null;    // Lat-long bounds of the WCS dataset, or if not that, then the map
+
+    var localCrs = CRS.getSimpleFormat(LOCAL_SRS);
+
+    // datasetInfo.srs[xxx] == true  ==> if this exists, the we can use localCrs
+    this.wmsCrs  = datasetInfo.srs[localCrs]  && localCrs;
+
+    for(var key in datasetInfo.srs)
+      this.wmsCrsList.push(key);
+
+    this.mapBbox = datasetInfo.bbox[localCrs] && datasetInfo.bbox[localCrs].bbox;
+    this.llbbox  = datasetInfo.llbbox;
+  };
+  WMSDataset.prototype = new Dataset;
+  WMSDataset.prototype.constructor = WMSDataset; // repair the inherited constructor
+
+
+  var WFSDataset = function(serverUrl, datasetInfo)
+  {
+    Dataset.call(this, serverUrl, datasetInfo);
+
+    this.type = ["WFS"];
+
+    this.dataCrs     = null;    // CRSs that the data is available in (will be a list)
+    this.dataBbox    = null;    // Projected bounds of the WFS dataset, if any
+
+    this.dataCrs  = datasetInfo.srs || (datasetInfo.supportedCRS  && datasetInfo.supportedCRS[0]) ||
+                                       (datasetInfo.supportedCRSs && datasetInfo.supportedCRSs[0]);
+
+    // With WFS, latLongBoundingBox is really a projected bbox... the name is misleading.  Thouugh on some
+    // servers, it is misimpelmented, and we will get a real lat-long bbox here.  In those cases... well...
+    // the data will be bogus.  Garbage in, garbage out.
+    this.dataBbox = datasetInfo.latLongBoundingBox;  
+  };
+  WFSDataset.prototype = new Dataset;
+  WFSDataset.prototype.constructor = WFSDataset; // repair the inherited constructor
+
+
+  var WCSDataset = function(serverUrl, datasetInfo)
+  {
+    Dataset.call(this, serverUrl, datasetInfo);
+
+    this.type = ["WCS"];
+
+    this.dataCrs     = null;    // CRSs that the data is available in (will be a list)
+    this.llbbox      = null;    // Lat-long bounds of the WCS dataset, or if not that, then the map
+    this.format      = null;    // Image format for WCS data
+    this.resolution  = null;    // Resolution of the WCS dataset
+
+    // If the WCS data is hosted in a projection other than our computing projection, then
+    // the projected bounding box provided will be bogus.  Instead, we'll collect the lat-long 
+    // bounding box, and project it on the server before storing it in the database.  We don't
+    // need the WCS bounding box on the client at this time.
+    if(datasetInfo.bounds) 
+      this.llbbox = datasetInfo.bounds;
+    
+    this.dataCrs  = datasetInfo.srs || (datasetInfo.supportedCRS  && datasetInfo.supportedCRS[0]) ||
+                                       (datasetInfo.supportedCRSs && datasetInfo.supportedCRSs[0]);
+    try {
+      // Use image/img if it is available... seems to work best
+      if(datasetInfo.supportedFormats.hasObject("image/img"))
+        this.format = "image/img";
+      else if(datasetInfo.supportedFormats.hasObject("image/tiff"))
+        this.format = "image/tiff";
+      else
+        this.format = datasetInfo.supportedFormats[0];
+    } catch(error) {
+      // Do nothing
+    }
+
+    if(datasetInfo.domain && 
+      datasetInfo.domain.spatialDomain && 
+      datasetInfo.domain.spatialDomain.gridCRS && 
+      datasetInfo.domain.spatialDomain.gridCRS.gridOffsets)
+    {
+      this.resolution = datasetInfo.domain.spatialDomain.gridCRS.gridOffsets;
+    }
+  };
+  WCSDataset.prototype = new Dataset;
+  WCSDataset.prototype.constructor = WCSDataset; // repair the inherited constructor
 
 
   // Gets run on any layer found, registered or not; dataset is a Dataset object
   // Merges dataset into the already created layer record, if it exists
   var mergeDatasetIntoLayerList = function(dataset, service)
   {
-    var key = cssEscape(dataset.serverUrl + dataset.identifier);   // Need a single key to make iteration elsewhere easier
+    // Need a single key to make iteration elsewhere easier
+    var key = cssEscape(dataset.serverUrl + dataset.identifier);   
 
     var layer = discoveredLayers[key];
 
-    if(!layer) {   // It's a new layer, add it to discoveredLayers without further ado
+    // It's a new layer, add it to discoveredLayers without further ado
+    if(!layer) {   
       discoveredLayers[key] = dataset;
       layer = dataset;
+
     }
 
     else {   // Already found this layer, add service to it
 
       // We'll get here twice with service == WCS; we don't want to list it twice in layer.type
+      // layer.type is a list of strings: "WCS", "WFS", and/or "WMS"
       if(!layer.type.hasObject(service))
         layer.type.push(service);
 
-      if(service == "WFS" || service == "WCS") {
-        layer.wxsCrs     = dataset.wxsCrs;
-        layer.wxsbbox    = dataset.wxsbbox;
-       
-        if(service == "WCS") {
-          layer.format = dataset.format;
-
-          if(dataset.resolution)
-            layer.resolution = dataset.resolution;
-        }
+      if(service == "WFS") {
+        layer.dataCrs  = dataset.dataCrs;
+        layer.dataBbox = dataset.dataBbox;
       }
+      else if(service == "WCS") {
+        layer.dataCrs  = dataset.dataCrs;
+        layer.llbbox   = dataset.llbbox;
+        layer.format   = dataset.format;
+
+        if(dataset.resolution)
+          layer.resolution = dataset.resolution;
+      }
+
       else if(service == "WMS")
       {
         layer.wmsCrs      = dataset.wmsCrs;
         layer.wmsCrsList  = dataset.wmsCrsList
-        layer.wmsbbox     = dataset.wmsbbox;
-        layer.llbbox      = dataset.llbbox;
-        layer.title       = dataset.title;         // Title and abstract from WMS supercede those from other services
+        layer.mapBbox     = dataset.mapBbox;
+        
+        // If we already have an llbbox from WCS, don't clobber it
+        if(!layer.llbbox)
+          layer.llbbox    = dataset.llbbox;
+
+        // Title and abstract from WMS supercede those from other services
+        layer.title       = dataset.title;         
         layer["abstract"] = dataset["abstract"];
       }
-      else
-        alert("Unknown service " + service + " encountered!");
     }
   };
+
 
   // Tracks data about a server that we might want to display on the page
   var ServerInfo = function(title, abstract, owner)
@@ -952,27 +958,43 @@
   };
 
 
+  // Try to determine if capabilities represents an error or other negative response
+  var isError = function(capabilities)
+  {
+    if(capabilities.error && capabilities.error.exceptionReport) {
+      console.log("Error: ", capabilities);
+      return true;
+    }
+
+    return false;
+  };
+
+
   var processIncomingWMSLayers = function(capabilities, serverUrl)
   {
-    for(var i = 0, len = capabilities.capability.layers.length; i < len; i++)
-    {
-      var dataset = new Dataset(serverUrl, "WMS", capabilities.capability.layers[i]);
+    if(!isError(capabilities)) {
 
-      mergeDatasetIntoLayerList(dataset, "WMS");
+      for(var i = 0, len = capabilities.capability.layers.length; i < len; i++)
+      {
+        var dataset = new WMSDataset(serverUrl, capabilities.capability.layers[i]);
+
+        mergeDatasetIntoLayerList(dataset, "WMS");
+      }
+
+      var owner = "";
+
+      if(capabilities.service && 
+         capabilities.service.contactInformation && 
+         capabilities.service.contactInformation.personPrimary &&
+         capabilities.service.contactInformation.personPrimary.organization)
+      {
+        owner = capabilities.service.contactInformation.personPrimary.organization;
+      }
+
+      var serverInfo = new ServerInfo(capabilities.service.title, 
+                                      capabilities.service["abstract"],
+                                      owner);
     }
-
-    var owner = "";
-
-    try {
-      // This property is not always present!
-      owner = capabilities.service.contactInformation.personPrimary.organization;
-    } catch(error) {
-      // Do nothing
-    }
-
-    var serverInfo = new ServerInfo(capabilities.service.title, 
-                                    capabilities.service["abstract"],
-                                    owner);
 
     doneProcessing(serverUrl, "WMS", serverInfo);
   };
@@ -982,7 +1004,7 @@
   {
     for(var i = 0, len = capabilities.featureTypeList.featureTypes.length; i < len; i++)
     {
-      var dataset = new Dataset(serverUrl, "WFS", capabilities.featureTypeList.featureTypes[i]);
+      var dataset = new WFSDataset(serverUrl, capabilities.featureTypeList.featureTypes[i]);
 
       mergeDatasetIntoLayerList(dataset, "WFS");
     }
@@ -995,6 +1017,75 @@
   };
 
 
+  // Class declaration -- maintain same public interface as ServiceProbe on register WPS server page
+  // :::constructor:::
+  var ServiceProbe = function(serverUrl) 
+  {   
+    this.serverUrl = serverUrl;
+    var self       = this;    // Stored pointer to ourselves, will be needed in the callback
+  
+
+    // :::public:::
+    this.startProbing = function() 
+    { 
+      WFS.getCapabilities(self.serverUrl,  self.onWfsGetCapabilitiesSucceeded);
+      WCS.getCapabilities(self.serverUrl,  self.onWcsGetCapabilitiesSucceeded);   // Launches both GetCapabilities and DescribeCoverage requests
+      WMS.getCapabilities(self.serverUrl,  self.onWmsGetCapabilitiesSucceeded);
+    };
+
+    // :::private:::
+    // TODO: If capabilities is undefined, there was a problem somewhere... it should be logged
+    this.onWfsGetCapabilitiesSucceeded = function(capabilities, response) {
+      if(capabilities && isGoodResponse("WFS", response, capabilities))
+        processIncomingWFSLayers(capabilities, self.serverUrl);
+      else    // Error:
+        doneProcessing(self.serverUrl, "WFS", null);
+    };
+
+    this.onWmsGetCapabilitiesSucceeded = function(capabilities, response) {
+      if(capabilities && isGoodResponse("WMS", response, capabilities))
+        processIncomingWMSLayers(capabilities, self.serverUrl);
+      else    // Error:
+        doneProcessing(self.serverUrl, "WMS", null);
+    };
+
+    this.onWcsGetCapabilitiesSucceeded = function(capabilities, response) {
+      if(capabilities && isGoodResponse("WCS", response, capabilities))
+        processIncomingWCSLayers(capabilities, self.serverUrl);
+      else    // Error:
+        doneProcessing(self.serverUrl, "WCS", null) ; 
+    };
+  }
+
+
+  // Build a ServerInfo object from capabilities... if it has the necessary data.
+  // Will return null if we don't have any data.
+  var getServerInfo = function(capabilities)
+  {
+    var title    = "";
+    var abstr    = "";
+    var provider = "";
+    var ok = false;
+
+    if(capabilities.serviceIdentification) {
+      title = capabilities.serviceIdentification.title;
+      abstr = capabilities.serviceIdentification["abstract"];
+      ok = true;
+    }
+
+    if(capabilities.serviceProvider)
+    {
+      provider = capabilities.serviceProvider.providerName;
+      ok = true;
+    }
+
+    if(ok)
+      new ServerInfo(title, abstr, provider);
+    else
+      return null;
+  };
+
+
   // capabilities could contain responses from either GetCapabilities or DescribeCoverage
   var processIncomingWCSLayers = function(capabilities, serverUrl)
   {
@@ -1004,10 +1095,12 @@
     if(capabilities.requestType == "WCSDescribeCoverage") {
       var coverageKeys = capabilities.coverageDescriptionKeys;
 
-      for(var i = 0, len = coverageKeys.length; i < len; i++) {
-        var dataset = new Dataset(serverUrl, "WCS", capabilities.coverageDescriptions[coverageKeys[i]]);
-        mergeDatasetIntoLayerList(dataset, "WCS");
-      }
+      // Some servers return a husk of a response with no data in coverageDescriptionKeys
+      if(coverageKeys)
+        for(var i = 0, len = coverageKeys.length; i < len; i++) {
+          var dataset = new WCSDataset(serverUrl, capabilities.coverageDescriptions[coverageKeys[i]]);
+          mergeDatasetIntoLayerList(dataset, "WCS");
+        }
     }
 
     else {   // WCSGetCapabilities
@@ -1015,13 +1108,12 @@
         var coverageList = capabilities.contentMetadata;
 
         for(var i = 0, len = coverageList.length; i < len; i++) {
-          var dataset = new Dataset(serverUrl, "WCS", coverageList[i]);
+          var dataset = new WCSDataset(serverUrl, coverageList[i]);
           mergeDatasetIntoLayerList(dataset, "WCS");
         }
 
-        serverInfo = new ServerInfo(capabilities.serviceIdentification.title, 
-                                    capabilities.serviceIdentification["abstract"], 
-                                    capabilities.serviceProvider.providerName);
+        serverInfo = getServerInfo(capabilities);   // Could return null
+
       }
     }
 

@@ -26,7 +26,7 @@ def jsonHelper(dataset)
   json = dataset.as_json(:only => [:server_url, :identifier])
   # server_url
   json['configCount'] = dataset.mod_configs.count
-  json['tags'] = dataset.dataset_tags.map { |t| t.tag }
+  json['tags']        = dataset.dataset_tags.map { |t| t.tag }
 
   return json
 end
@@ -68,8 +68,10 @@ def getSpecialTags(dataset)
 
   tags = []
 
-  # Include AOI tag for WFS where we were passed a string OR we were passed a full dataset and that dataset has a non-blank bbox_top
-  if serviceList.include?("WFS") and ((dataset.is_a? String) or not dataset.bbox_top.blank?) then
+  # Include AOI tag for WFS where we were passed a string OR we were passed a full 
+  # dataset and that dataset has a non-blank bbox_top
+  if serviceList.include?("WFS") and ((dataset.is_a? String) or 
+        not dataset.bbox_top.blank?) then
     tags.push("Area of Interest")
   end
 
@@ -99,7 +101,10 @@ def getBaseTags(dataset)
   end
 
   if serviceList.include?("WFS") or serviceList.include?("WCS") then
-    return ProcessParam.find_all_by_datatype_and_alive("ComplexData", :true).map{ |p| p.identifier }.sort_by{ |x| x.downcase }.uniq
+    return ProcessParam.find_all_by_datatype_and_alive("ComplexData", :true)
+                       .map{|p| p.identifier }
+                       .sort_by{|x| x.downcase }
+                       .uniq
   end
 
   return []
@@ -120,7 +125,10 @@ def getAliveTags(dataset)
   else
     tags = []
 
-    alivetags = ProcessParam.find_all_by_datatype_and_alive("ComplexData", :true).map{ |p| p.identifier }.concat(getSpecialTags(dataset))
+    # Create list of tags from identifiers of registered WPS processes
+    alivetags = ProcessParam.find_all_by_datatype_and_alive("ComplexData", :true)
+                            .map{|p| p.identifier }
+                            .concat(getSpecialTags(dataset))
 
     dataset.dataset_tags.each do |d| 
       if alivetags.include? d.tag then 
@@ -179,15 +187,18 @@ def insertGetCapabilitiesLinkBlock(serverUrl, wms, wfs, wcs)
   output = "";
 
   if wms then
-    output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 'SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities" target="_blank">WMS</a>'
+    output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 
+        'SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities" target="_blank">WMS</a>'
   end
 
   if wfs then
-    output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 'SERVICE=WFS&VERSION=1.0.0&REQUEST=GetCapabilities" target="_blank">WFS</a>'
+    output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 
+        'SERVICE=WFS&VERSION=1.0.0&REQUEST=GetCapabilities" target="_blank">WFS</a>'
   end
 
   if wcs then
-    output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 'SERVICE=WCS&VERSION=1.1.0&REQUEST=GetCapabilities" target="_blank">WCS</a>'
+    output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 
+        'SERVICE=WCS&VERSION=1.1.0&REQUEST=GetCapabilities" target="_blank">WCS</a>'
   end
 
   raw(output)
