@@ -96,8 +96,8 @@ for row in rows:
         logInfoMsg("Found invalid mod_config record with id " + str(recordId))
         continue
 
-    identifiers = [ ]
-    titles = [ ]
+    identifiers = {}
+    #titles = [ ]
 
 
     try:
@@ -109,8 +109,8 @@ for row in rows:
 
     outs = cur.fetchall()
     for out in outs:
-        identifiers.append((out[0], "True"))
-        titles.append(out[1])
+        identifiers[out[0]] = out[1]
+        #titles.append(out[1])
 
     try:
         client.initFromURL(pid, identifiers)#, titles)
@@ -194,17 +194,14 @@ for row in rows:
                     
                     logInfoMsg("Processing complex result " + r.name + " with id of " + r.uniqueID)
     
-                    identifier = r.name
-    
-    
                     # Check if data server already exists in the database, otherwise insert it.  We need the record id
                     qcur.execute("SELECT id FROM " + dbSchema + ".dataservers WHERE url = %s", (url,))        # Trailing , needed
                     if qcur.rowcount == 0:
-                        title = "iGUESS results server"
+                        titleServ = "iGUESS results server"
                         abstract = "Server hosting the results of a module run"
                         qcur.execute("INSERT INTO " + dbSchema + ".dataservers (url, title, abstract, alive, wms, wfs, wcs) "\
                                      "VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING id", 
-                                                        (url, title, abstract, True, True, True, True))
+                                                        (url, titleServ, abstract, True, True, True, True))
     
                     if qcur.rowcount == 0:
                         logErrorMsg(recordId, "Database Error: Unable to insert record into dataservers table!")
@@ -227,7 +224,7 @@ for row in rows:
     
                     abstract = "Result calculated with module"
                     
-                    qcur.execute(queryTemplate, (recordId, identifier, url, serverId, identifier, abstract, str(city_id), True, True, 
+                    qcur.execute(queryTemplate, (recordId, r.uniqueID, url, serverId, r.uniqueID, abstract, str(city_id), True, True, 
                                                  str(datetime.datetime.now()), str(datetime.datetime.now()), service) )
     
                     if qcur.rowcount == 0:
