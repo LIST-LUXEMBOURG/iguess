@@ -92,7 +92,7 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag)
 	{
 		WebGIS.treeNodes[tag] = new Ext.tree.TreeNode
 		({
-			    text: tag,
+			    text: "tag",
 			    leaf: false,
 			    expanded: true
 		});
@@ -110,7 +110,7 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag)
     var options = { isBaseLayer: false,     
                     visibility:  false,   // By default layers are off
                     singleTile:  true,
-           		 	transitionEffect: 'resize'
+           		 	    transitionEffect: 'resize'
                   };
     
     //serviceURL = WebGIS.proxy + encodeURIComponent(serviceURL);
