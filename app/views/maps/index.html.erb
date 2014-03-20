@@ -26,7 +26,7 @@
         	if(datasets[i].dataset_tags[0] == null)
         		tag = "Untagged";
         	else tag = datasets[i].dataset_tags[0].tag;
-            WebGIS.addNewLayer(datasets[i].title || datasets[i].identifier, 
+            WebGIS.addNewLayer(datasets[i].title, //|| datasets[i].identifier, 
                               datasets[i].server_url, 
                               datasets[i].identifier, 
                               null,
