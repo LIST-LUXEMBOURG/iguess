@@ -219,7 +219,9 @@
     }
 
     // Activate layer info overlay popups and such
-    $('img[rel]').overlay();    
+    $('img[rel]').overlay();  
+    $('img[rel]').click(function(){ hideDetails(); });
+  
 
     for(var i = 0; i < <%= @wps_processes.size %>; i++)
       $('.item-' + i + ' img[rel]').overlay();    // Activate layer info overlays

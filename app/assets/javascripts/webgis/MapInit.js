@@ -68,7 +68,7 @@ WebGIS.initMap = function ()
     //Tell GoogleMaps we don't want the 45º view
     WebGIS.gsatLeft.mapObject.setTilt(0);
     
-    WebGIS.leftMap.events.register("mousemove", null, WebGIS.mapMouseMove);
+    WebGIS.leftMap.events.register("mousemove",   null, WebGIS.mapMouseMove);
     
     WebGIS.leftMap.addControl(new OpenLayers.Control.ScaleLine());
 };
@@ -85,8 +85,9 @@ WebGIS.zoomToCity = function ()
 };
 
 // Adds a new layer to the map "on the fly"
-WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag)
+WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag, id)
 {
+	var visible = false;
     // Call OpenLayers.Layer.WMS.initialize()
 	if(WebGIS.treeNodes[tag] == null)
 	{
@@ -98,6 +99,8 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag)
 		});
 		WebGIS.treeRoot.appendChild(WebGIS.treeNodes[tag]);
 	}
+	
+	if(sessionStorage.getItem(layerName) != null) visible = true;
 
     var params = { layers: layerName,      
                    format: "image/png",
@@ -108,9 +111,9 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag)
                  };
 
     var options = { isBaseLayer: false,     
-                    visibility:  false,   // By default layers are off
+    				visibility: visible,
                     singleTile:  true,
-           		 	transitionEffect: 'resize'
+           		 	    transitionEffect: 'resize'
                   };
     
     //serviceURL = WebGIS.proxy + encodeURIComponent(serviceURL);
@@ -124,14 +127,16 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag)
         text: title,
         layer: layer,
         leaf: true,
-        checked: false,
+        checked: visible,
         //icon: null,
         iconCls: "treeIcon",
         children: [],
         nodeType: "gx_layer"
     });
+    newNode.setId("dsid-" + id);
     WebGIS.treeNodes[tag].appendChild(newNode);
 };
+
 
 // Remove all layers from the current map
 WebGIS.clearLayers = function(alsoClearBaseLayers)
@@ -150,5 +155,8 @@ WebGIS.clearLayers = function(alsoClearBaseLayers)
     WebGIS.leftMap.removeLayer(layersToRemove[i]);
   }
 };
+		
+
+		 
 
 

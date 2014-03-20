@@ -26,12 +26,20 @@
         	if(datasets[i].dataset_tags[0] == null)
         		tag = "Untagged";
         	else tag = datasets[i].dataset_tags[0].tag;
-            WebGIS.addNewLayer(datasets[i].title || datasets[i].identifier, 
+            WebGIS.addNewLayer(datasets[i].title, //|| datasets[i].identifier, 
                               datasets[i].server_url, 
                               datasets[i].identifier, 
                               null,
-                              tag);
+                              tag,
+                              datasets[i].id);
+            $('div[ext\\:tree-node-id="dsid-' + datasets[i].id + '"]')
+                .append('<img src="/assets/small_gear.png" class="info-icon" \
+                         alt="More info" title="Click for details" rel="#infotable-' + datasets[i].id + '">');
         }
+
+        // Activate the gear popup menus
+        $('img[rel]').overlay(); 
+        $('img[rel]').click(function(){ hideDetails(); });
     };
 
     // This gets run when user changes city dropdown
@@ -155,3 +163,7 @@
     <br>
     <br>
 </div>
+
+
+<%= render :partial => 'shared/layer_info_popups.html.erb', locals: { fullControls: false } %>
+

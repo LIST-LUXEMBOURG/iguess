@@ -55,8 +55,8 @@ WebGIS.CreatePanels = function() {
   
   if(Ext.get('nav') != null)
   {
-	  Ext.get('nav').setStyle('margin-bottom', '0');
-	  navHeight = Ext.get("nav").getHeight();
+    Ext.get('nav').setStyle('margin-bottom', '0');
+    navHeight = Ext.get("nav").getHeight();
   }
   
   WebGIS.headerHeight = navHeight + Ext.get("top_banner").getHeight();
@@ -64,14 +64,14 @@ WebGIS.CreatePanels = function() {
   WebGIS.initMap();
   
   var bBar = new Ext.Toolbar({
-	  region: "south",
-	  height: 24,
-	  border: 0,
-	  collapsible: false,
-	  floatable: false,
-	  autoScroll: false,
-	  enableDD: false,
-	  items: WebGIS.createBbar()
+    region: "south",
+    height: 24,
+    border: 0,
+    collapsible: false,
+    floatable: false,
+    autoScroll: false,
+    enableDD: false,
+    items: WebGIS.createBbar()
   });
 
   var leftZoomSlider = new GeoExt.ZoomSlider({
@@ -106,37 +106,37 @@ WebGIS.CreatePanels = function() {
                xtype:'splitbutton',
                text: 'Open Street Map',
                menu: [{
-            	   text: 'Open Street Map',
-            	   checked: true,
-            	   handler  : WebGIS.baseOSM,
-            	   group: 'baseLayer'
+                 text: 'Open Street Map',
+                 checked: true,
+                 handler  : WebGIS.baseOSM,
+                 group: 'baseLayer'
                },{
-            	   text: 'Google Satellite',
-            	   checked: false,
-            	   handler  : WebGIS.baseGoogleSat,
-            	   group: 'baseLayer'
+                 text: 'Google Satellite',
+                 checked: false,
+                 handler  : WebGIS.baseGoogleSat,
+                 group: 'baseLayer'
                },{
-            	   text: 'Google Streets',
-            	   checked: false,
-            	   handler  : WebGIS.baseGoogleSt,
-            	   group: 'baseLayer'
+                 text: 'Google Streets',
+                 checked: false,
+                 handler  : WebGIS.baseGoogleSt,
+                 group: 'baseLayer'
                },{
-            	   text: 'Google Physical',
-            	   checked: false,
-            	   handler  : WebGIS.baseGooglePhy,
-            	   group: 'baseLayer'
+                 text: 'Google Physical',
+                 checked: false,
+                 handler  : WebGIS.baseGooglePhy,
+                 group: 'baseLayer'
                },{
-            	   text: 'Google Hybrid',
-            	   checked: false,
-            	   handler  : WebGIS.baseGoogleHy,
-            	   group: 'baseLayer'
+                 text: 'Google Hybrid',
+                 checked: false,
+                 handler  : WebGIS.baseGoogleHy,
+                 group: 'baseLayer'
                },{
-            	   text: 'Country borders',
-            	   checked: false,
-            	   handler  : WebGIS.baseCountries,
-            	   group: 'baseLayer'
+                 text: 'Country borders',
+                 checked: false,
+                 handler  : WebGIS.baseCountries,
+                 group: 'baseLayer'
                }]
-       		}]
+          }]
     }
   });
 
@@ -192,29 +192,33 @@ WebGIS.CreatePanels = function() {
     items: [
             WebGIS.leftPanel,
             WebGIS.layerTree,
-            { // Legend: must be created here to be auto-linked to the map
-        		region: "east",
-        		title: "Legend",
-        		xtype: "gx_legendpanel",
-        		width: 150,
-        		collapsible: true,
-        		autoScroll: true,
-        		enableDD: true,
-        		padding: 5,
-        		rootVisible: false,
-        		lines: false
+            { 
+              // Legend: must be created here to be auto-linked to the map
+              region: "east",
+              title: "Legend",
+              xtype: "gx_legendpanel",
+              width: 150,
+              collapsible: true,
+              autoScroll: true,
+              enableDD: true,
+              padding: 5,
+              rootVisible: false,
+              lines: false
             }
         ]
   });
   
   Ext.EventManager.onWindowResize(function () 
   {
-	var width = 0, height = 0; 
-	if(Ext.get('nav') != null)
-		var width = Ext.get("nav").getWidth();
-	else width = Ext.getBody().getViewSize().width;
-	var height = Ext.getBody().getViewSize().height - WebGIS.headerHeight;
-	WebGIS.mainPanel.setSize(width, height);
+    var width = 0, height = 0; 
+
+    if(Ext.get('nav') != null)
+      width = Ext.get("nav").getWidth();
+    else 
+      width = Ext.getBody().getViewSize().width;
+
+    height = Ext.getBody().getViewSize().height - WebGIS.headerHeight;
+    WebGIS.mainPanel.setSize(width, height);
   });
 
   WebGIS.zoomToCity();
@@ -316,47 +320,47 @@ WebGIS.createTbarItems = function(map) {
  * {Ext.Panel} An Ext panel with the bottom objects.
  */
 WebGIS.createBbar = function() {
-	
-	WebGIS.coordsLatLabel  = new Ext.form.Label({text: " "});
-	WebGIS.coordsLongLabel = new Ext.form.Label({text: " "});
-	
-	var scaleLabel = new Ext.form.Label({text: "Scale:    "});
+  
+  WebGIS.coordsLatLabel  = new Ext.form.Label({text: " "});
+  WebGIS.coordsLongLabel = new Ext.form.Label({text: " "});
+  
+  var scaleLabel = new Ext.form.Label({text: "Scale:    "});
 
-	var scaleStore = new GeoExt.data.ScaleStore({map: WebGIS.leftMap});
-	
-	var zoomSelector = new Ext.form.ComboBox({
-	    store: scaleStore,
-	    emptyText: "Zoom Level",
-	    tpl: '<tpl for="."><div class="x-combo-list-item">1 : {[parseInt(values.scale)]}</div></tpl>',
-	    editable: false,
-	    width: 120,
-	    //height: 66,
-	    triggerAction: 'all', // needed so that the combo box doesn't filter by its current content
-	    mode: 'local' // keep the combo box from forcing a lot of unneeded data refreshes
-	});
-	
-	zoomSelector.on('select', 
-	    function(combo, record, index) {
-			WebGIS.leftMap.zoomTo(record.data.level);
-	    },
-	    this
-	);     
-	
-	WebGIS.leftMap.events.register('zoomend', this, function() 
-	{
-	    var scale = scaleStore.queryBy(function(record){
-	        return WebGIS.leftMap.getZoom() == record.data.level;
-	    });
-	
-	    if (scale.length > 0) {
-	        scale = scale.items[0];
-	        zoomSelector.setValue("1 : " + parseInt(scale.data.scale));
-	    } else {
-	        if (!zoomSelector.rendered) return;
-	        zoomSelector.clearValue();
-	    }
-	});
-	
-	return ['-', scaleLabel, zoomSelector, '-', '->', 
-	         '-', WebGIS.coordsLongLabel, '-', WebGIS.coordsLatLabel, '-'];
+  var scaleStore = new GeoExt.data.ScaleStore({map: WebGIS.leftMap});
+  
+  var zoomSelector = new Ext.form.ComboBox({
+      store: scaleStore,
+      emptyText: "Zoom Level",
+      tpl: '<tpl for="."><div class="x-combo-list-item">1 : {[parseInt(values.scale)]}</div></tpl>',
+      editable: false,
+      width: 120,
+      //height: 66,
+      triggerAction: 'all', // needed so that the combo box doesn't filter by its current content
+      mode: 'local' // keep the combo box from forcing a lot of unneeded data refreshes
+  });
+  
+  zoomSelector.on('select', 
+      function(combo, record, index) {
+      WebGIS.leftMap.zoomTo(record.data.level);
+      },
+      this
+  );     
+  
+  WebGIS.leftMap.events.register('zoomend', this, function() 
+  {
+      var scale = scaleStore.queryBy(function(record){
+          return WebGIS.leftMap.getZoom() == record.data.level;
+      });
+  
+      if (scale.length > 0) {
+          scale = scale.items[0];
+          zoomSelector.setValue("1 : " + parseInt(scale.data.scale));
+      } else {
+          if (!zoomSelector.rendered) return;
+          zoomSelector.clearValue();
+      }
+  });
+  
+  return ['-', scaleLabel, zoomSelector, '-', '->', 
+           '-', WebGIS.coordsLongLabel, '-', WebGIS.coordsLatLabel, '-'];
 };

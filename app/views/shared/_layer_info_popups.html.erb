@@ -1,0 +1,132 @@
+<!-- Ruby var fullControls is passed when this is rendered -->
+
+<div id="infotables">
+  <!-- Create the popups that are displayed when the user clicks the gear icon -->
+  <% @datasets.each do |d| %>
+    <div class="infotable" id="infotable-<%= d.id %>">
+      <div class="close"></div>
+      <h1 class="dataset-title"><%= d.title.present? ? d.title : d.identifier %></h1>
+      <div class = "dataset-abstract"><%= d.abstract %></div> 
+      <div style="overflow:hidden">
+        <dl>
+          <dt>Server Name:</dt><dd class="server-name"><%= d.dataserver.title %></dd>
+          <dt>Data Services:</dt>
+          <dd id="results-<%= d.id %>">
+            <%= insertGetCapabilitiesLinkBlock(d.dataserver.url, d.dataserver.wms, d.service == "WFS", d.service == "WCS") %>
+          </dd>
+
+            <% if not d.alive %>
+              <dt class="error-header">Error State:</dt>
+              <dd class="error-body">
+                This layer is no longer available -- the data owner may have renamed or removed it.  Sorry!
+                <br><br>
+                <%= link_to "Unregister Dataset", d, confirm: "Are you sure you want to unregister this dataset?", 
+                         method: :delete, :remote => true, :class => "dataset-deleted" %>
+              </dd>
+            <% end %>
+
+          <dt>Tags:</dt>
+          <dd>
+            <span class="taglist-deletable-<%= cssEscape(d.dataserver.url + d.identifier) %>">
+              <% getAliveTags(d).each do |t| %>
+                <span class="tag">
+                  <span 
+    <% if fullControls %>                  
+                    class="tag-delete-button" 
+    <% end %>
+                    data-url="<%= d.dataserver.url %>" data-identifier="<%= d.identifier %>"></span>
+                  <%= t %>
+                </span>
+              <% end %>
+            </span>
+            
+    <% if fullControls %>
+            <select style="float:right" class="add-tag-dropdown-control" 
+              data-serverurl="<%= d.dataserver.url %>"
+              data-datasetidentifier="<%= d.identifier %>" 
+              onchange="tagPickerChanged($(this));"> 
+
+              <option value = "Ignore This">Add Tag:</option>
+
+              <% getAllTags(d).each do |t| %>
+                <option value="<%= t %>"><%= t %></option>
+              <% end %>
+            </select>
+    <% end %>
+          </dd>
+          <dt>Configurations:</td>
+          <dd>
+            <% if d.mod_configs.size > 0 %>
+              <% d.mod_configs.each do |m| %><%= m.name %> <% end %>
+            <% else %>
+              Not used in any configurations
+            <% end %>
+          </dd>
+    <% if fullControls %>
+          <dt>Actions:</dt>
+          <dd>
+            <% if d.mod_configs.size == 0 then 
+                  msg = "Are you sure you want to unregister this dataset?"
+               else
+                  t = d.mod_configs.size == 1 ? "that" : "those"
+                  c = d.mod_configs.size == 1 ? "configuration" : "configurations"
+
+                  msg = "This dataset is in use by " + d.mod_configs.size.to_s + " " + c + ".\n" +
+                        "Unregistering it will cause it to be removed from " + t + " " + c + ".\n" + 
+                        "Click OK if you are sure you want to unregister this dataset." 
+               end %>
+
+            <%= link_to "Unregister Dataset", d, confirm: raw(msg), 
+                         method: :delete, :remote => true, :class => "dataset-deleted" %>
+          </dd>
+    <% end %>          
+        </dl>
+      </div>
+      <div style="overflow:hidden" class="technical-details">
+        <div class="technical-details-header">Technical Details</div>
+        <dl>
+          <dt>Server Base URL:</dt><dd><%= d.server_url %></dd>
+          <dt>Dataset Identifier:</dt><dd><%= d.identifier %></dd>
+          <dt>All Get Capabilities Links:</dt><dd>
+            <%= insertGetCapabilitiesLinkBlock(d.dataserver.url, :true, :true, :true) %>
+          </dd>
+          <dt>Projections Available:</dt><dd></dd> 
+          <dt>Bounding Box:</dt><dd></dd>
+          <dt>Attribute Columns:</dt><dd></dd>
+        </dl>
+      </div>
+      <div>
+        <!-- return false; prevents underlying page from scrolling when -->
+        <a href="#" class="show-details" onclick="return false;">Technical details >>></a>
+      </div>    
+    </div>
+  <% end %>
+</div>
+
+
+
+<!-- Functions to show and hide the details of the popup -->
+<script type="text/javascript">
+
+  var showDetails = function() {
+    $('.technical-details').show(); 
+
+    var el = $('.show-details');
+
+    el.unbind("click");
+    el.click(function(){ hideDetails(); });
+    el.html('<<< Hide details');
+  };
+
+
+  var hideDetails = function() {
+    $('.technical-details').hide();
+
+    var el = $('.show-details');
+
+    el.unbind("click");
+    el.click(function(){ showDetails(); });
+    el.html('Technical details >>>');
+  };
+
+</script>
