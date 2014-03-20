@@ -1,3 +1,5 @@
+<!-- Ruby var fullControls is passed when this is rendered -->
+
 <div id="infotables">
   <!-- Create the popups that are displayed when the user clicks the gear icon -->
   <% @datasets.each do |d| %>
@@ -28,12 +30,17 @@
             <span class="taglist-deletable-<%= cssEscape(d.dataserver.url + d.identifier) %>">
               <% getAliveTags(d).each do |t| %>
                 <span class="tag">
-                  <span class="tag-delete-button" data-url="<%= d.dataserver.url %>" data-identifier="<%= d.identifier %>"></span>
+                  <span 
+    <% if fullControls %>                  
+                    class="tag-delete-button" 
+    <% end %>
+                    data-url="<%= d.dataserver.url %>" data-identifier="<%= d.identifier %>"></span>
                   <%= t %>
                 </span>
               <% end %>
             </span>
             
+    <% if fullControls %>
             <select style="float:right" class="add-tag-dropdown-control" 
               data-serverurl="<%= d.dataserver.url %>"
               data-datasetidentifier="<%= d.identifier %>" 
@@ -44,8 +51,8 @@
               <% getAllTags(d).each do |t| %>
                 <option value="<%= t %>"><%= t %></option>
               <% end %>
-              
             </select>
+    <% end %>
           </dd>
           <dt>Configurations:</td>
           <dd>
@@ -55,6 +62,7 @@
               Not used in any configurations
             <% end %>
           </dd>
+    <% if fullControls %>
           <dt>Actions:</dt>
           <dd>
             <% if d.mod_configs.size == 0 then 
@@ -71,6 +79,7 @@
             <%= link_to "Unregister Dataset", d, confirm: raw(msg), 
                          method: :delete, :remote => true, :class => "dataset-deleted" %>
           </dd>
+    <% end %>          
         </dl>
       </div>
       <div style="overflow:hidden" class="technical-details">
