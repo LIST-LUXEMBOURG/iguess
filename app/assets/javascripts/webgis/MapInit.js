@@ -69,7 +69,6 @@ WebGIS.initMap = function ()
     WebGIS.gsatLeft.mapObject.setTilt(0);
     
     WebGIS.leftMap.events.register("mousemove",   null, WebGIS.mapMouseMove);
-    WebGIS.leftMap.events.register("changelayer", null, WebGIS.layerChanged);
     
     WebGIS.leftMap.addControl(new OpenLayers.Control.ScaleLine());
 };
@@ -78,14 +77,6 @@ WebGIS.mapMouseMove = function(e)
 {
 	var lonLat = WebGIS.leftMap.getLonLatFromPixel(e.xy);	
 	WebGIS.updateCoords(lonLat);
-};
-
-WebGIS.layerChanged = function(e)
-{
-  if(e.layer.visibility==true)
-	  sessionStorage.setItem(e.layer.params["LAYERS"], e.layer.params["LAYERS"]);
-  else
-	  sessionStorage.removeItem(e.layer.params["LAYERS"]);
 };
 
 WebGIS.zoomToCity = function () 
