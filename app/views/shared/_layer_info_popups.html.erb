@@ -93,3 +93,30 @@
       </div>
     <% end %>
   </div>
+
+
+
+<script type="text/javascript">
+
+  var showDetails = function() {
+    $('.technical-details').show(); 
+
+    var el = $('.show-details');
+
+    el.unbind("click");
+    el.click(function(){ hideDetails(); });
+    el.html('<<< Hide details');
+  };
+
+
+  var hideDetails = function() {
+    $('.technical-details').hide();
+
+    var el = $('.show-details');
+
+    el.unbind("click");
+    el.click(function(){ showDetails(); });
+    el.html('Technical details >>>');
+  };
+
+</script>
