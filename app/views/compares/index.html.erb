@@ -27,7 +27,7 @@
   var addLayersToMap = function(datasets) 
   {
     for (var i = 0, len = datasets.length; i < len; i++) 
-      WebGIS.addNewLayer(datasets[i].title || datasets[i].identifier, datasets[i].server_url, datasets[i].identifier, null);
+      WebGIS.addNewLayer(datasets[i].title || datasets[i].identifier, datasets[i].server_url, datasets[i].identifier, null, datasets[i].id);
   };
 
 

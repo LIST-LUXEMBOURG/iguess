@@ -85,14 +85,14 @@ WebGIS.zoomToCity = function ()
 };
 
 // Adds a new layer to the map "on the fly"
-WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag)
+WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag, id)
 {
     // Call OpenLayers.Layer.WMS.initialize()
 	if(WebGIS.treeNodes[tag] == null)
 	{
 		WebGIS.treeNodes[tag] = new Ext.tree.TreeNode
 		({
-			    text: "tag",
+			    text: tag,
 			    leaf: false,
 			    expanded: true
 		});
@@ -130,8 +130,10 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag)
         children: [],
         nodeType: "gx_layer"
     });
+    newNode.setId("dsid-" + id);
     WebGIS.treeNodes[tag].appendChild(newNode);
 };
+
 
 // Remove all layers from the current map
 WebGIS.clearLayers = function(alsoClearBaseLayers)
