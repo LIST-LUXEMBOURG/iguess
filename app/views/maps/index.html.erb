@@ -32,15 +32,14 @@
                               null,
                               tag,
                               datasets[i].id);
-            
+
             $('div[ext\\:tree-node-id="dsid-' + datasets[i].id + '"]')
                 .append('<img src="/assets/small_gear.png" class="info-icon" \
                          alt="More info" title="Click for details" rel="#infotable-' + datasets[i].id + '">');
         }
 
         // Activate the gear popup menus
-        $('img[rel]').overlay(); 
-        $('img[rel]').click(function(){ hideDetails(); });
+        activateOverlays();
     };
 
     // This gets run when user changes city dropdown
