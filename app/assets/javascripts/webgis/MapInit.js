@@ -131,9 +131,9 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag, id)
         //icon: null,
         iconCls: "treeIcon",
         children: [],
-        nodeType: "gx_layer"
+        nodeType: "gx_layer",
+        id: "dsid-" + id
     });
-    newNode.setId("dsid-" + id);
     WebGIS.treeNodes[tag].appendChild(newNode);
 };
 

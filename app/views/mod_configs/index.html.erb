@@ -96,8 +96,7 @@
         <% @wps_servers.each do |s| %>
           <li>
             <div>
-              <span class="wps-title"><%= s.title %></span> <span class="wps-providerName"><%= s.provider_name %></span>
-              <img src="/assets/small_gear.png" class="info-icon" alt="More info" title="Click for details" rel="#server-infotable-<%= s.id %>">
+              <span class="wps-title"><%= s.title %></span> <span class="wps-providerName"><%= s.provider_name %></span><span class="info-icon properties" title="Click for details" rel="#server-infotable-<%= s.id %>"></span>
             </div>
             <div class="wps-descr" class="wps-abstr"><%= s.abstract %></div>
           </li>
@@ -120,8 +119,7 @@
             <div class="process-descr"><%= p.abstract %></div>
             <div class="process-server-name">
               <span class="hosted-by">Hosted by:</span><span class="server-name"><%= p.wps_server.title %></span>
-              <img src="/assets/small_gear.png" class="info-icon" alt="More info" 
-                   title="Click for details" rel="#server-infotable-<%= p.wps_server.id %>">
+              <span class="info-icon properties" title="Click for details" rel="#server-infotable-<%= p.wps_server.id %>"></span>
             </div>
 
             <table class="model-descr-table">
@@ -219,12 +217,11 @@
     }
 
     // Activate layer info overlay popups and such
-    $('img[rel]').overlay();  
-    $('img[rel]').click(function(){ hideDetails(); });
-  
+    $('span[rel]').overlay();  
+
 
     for(var i = 0; i < <%= @wps_processes.size %>; i++)
-      $('.item-' + i + ' img[rel]').overlay();    // Activate layer info overlays
+      $('.item-' + i + ' span[rel]').overlay();    // Activate layer info overlays
 
 
     initializeAccordion('#module-catalog > h2', '.catalog-item');

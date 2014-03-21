@@ -11,6 +11,7 @@
       margin-bottom: 3px;
       height: 24px;
       font-size: 15px;
+      margin-left: 8px;
     }
     
     
@@ -61,7 +62,7 @@
         
     /* Settings for the login link on the gray menu bar */
     #login {
-      float: right;
+      text-align: right;
       margin-right : 0px;
       color: #666;
       padding-right: 10px;

@@ -129,4 +129,9 @@
     el.html('Technical details >>>');
   };
 
+  var activateOverlays = function() {
+    $('span[rel]').overlay();                             // Set up the layer info overlays
+    $('span[rel]').click(function(){ hideDetails(); });
+  };
+
 </script>

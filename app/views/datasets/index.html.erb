@@ -27,8 +27,8 @@
           <% hasError = ! d.alive %>
           <td <% if hasError %>class="dataset-error"<% end %>>
             <%= d.title.present? ? d.title : d.identifier %>
-            <img src="/assets/small_gear.png" class="info-icon" 
-                  alt="More info" title="Click for details" rel="#infotable-<%= d.id %>">
+            <span class="info-icon properties" title="Click for details" 
+                         rel="#infotable-<%= d.id %>"></span>
           </td>
           <td>
             <span class="taglist-<%= cssEscape(d.dataserver.url + d.identifier) %>">
@@ -116,9 +116,7 @@
 
 <script type="text/javascript">
 
-  // $('a.popup[rel]').overlay();                         // Activate popups for managing dataset tags 
-  $('img[rel]').overlay();                             // Set up the layer info overlays
-  $('img[rel]').click(function(){ hideDetails(); });
+  activateOverlays();
 
 
   $('.publish-checkbox').click(function() { publishDataset(this); });

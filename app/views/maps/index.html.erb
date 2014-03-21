@@ -16,7 +16,6 @@
       });
     }
 
-    // We've got a new batch of datasets to display!
     // Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
     var addLayersToMap = function(datasets)
     {
@@ -26,20 +25,21 @@
         	if(datasets[i].dataset_tags[0] == null)
         		tag = "Untagged";
         	else tag = datasets[i].dataset_tags[0].tag;
+
             WebGIS.addNewLayer(datasets[i].title, //|| datasets[i].identifier, 
                               datasets[i].server_url, 
                               datasets[i].identifier, 
                               null,
                               tag,
                               datasets[i].id);
+
             $('div[ext\\:tree-node-id="dsid-' + datasets[i].id + '"]')
-                .append('<img src="/assets/small_gear.png" class="info-icon" \
-                         alt="More info" title="Click for details" rel="#infotable-' + datasets[i].id + '">');
+                .append('<span class="info-icon properties" title="Click for details" ' + 
+                        'rel="#infotable-' + datasets[i].id + '"></span>');
         }
 
         // Activate the gear popup menus
-        $('img[rel]').overlay(); 
-        $('img[rel]').click(function(){ hideDetails(); });
+        activateOverlays();
     };
 
     // This gets run when user changes city dropdown
