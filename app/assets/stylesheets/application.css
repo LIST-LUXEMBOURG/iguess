@@ -269,6 +269,13 @@ input, select, textarea {
   cursor:pointer;
 }
 
+.properties {
+  padding: 8px 8px;
+  background-image: url(/assets/small_gear.png);
+  background-repeat: no-repeat;
+  background-position:center center;
+}
+
 /* Div where services are displayed on register WPS and register datasets screens */
 .services-display {
   height:100%; 
