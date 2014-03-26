@@ -175,7 +175,7 @@ class ModConfigsController < ApplicationController
 
     # Drop downs -- always inputs
     @mod_config.datasets.map { |dataset| 
-      dataRequest = Dataset.getRequest(dataset, @current_city.srs, @aoi)
+      dataRequest = dataset.getRequest(@current_city.srs, @aoi)
 
       configDataset = ConfigDataset.find_by_mod_config_id_and_dataset_id(@mod_config.id, dataset.id)
       inputs.push("('" + configDataset.input_identifier + "', '" + dataRequest + "')")

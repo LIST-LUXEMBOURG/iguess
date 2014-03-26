@@ -126,6 +126,7 @@ class DatasetsController < ApplicationController
 
    # Create a hook to return a datarequest for a particular dataset... primarily for testing purposes
    # http://0.0.0.0:3000/datasets/showDataRequest/1829
+   # This should probably be deleted at some point, or at least require a key of some sort
   def ShowDataRequest
     dataset = Dataset.find_by_id(params[:id])
     if not dataset then
@@ -137,7 +138,7 @@ class DatasetsController < ApplicationController
     end
 
 
-    req = Dataset.getRequest(dataset, dataset.city.srs, nil)
+    req = dataset.getRequest(dataset.city.srs, nil)
 
     respond_with do |format|
       format.html { render :text => req, :status => :ok }
