@@ -137,7 +137,6 @@ class DatasetsController < ApplicationController
       return
     end
 
-
     req = dataset.getRequest(dataset.city.srs, nil)
 
     respond_with do |format|
