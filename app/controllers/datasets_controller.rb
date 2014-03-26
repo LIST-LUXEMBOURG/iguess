@@ -240,7 +240,7 @@ class DatasetsController < ApplicationController
     # Only used for generating a list of registered datasets
     @datasets = Dataset.find_all_by_city_id_and_finalized(@current_city.id, true)
 
-    @GoogleProjection = 'EPSG:3857'
+    GoogleProjection = 'EPSG:3857'
 
     if @current_city.nil?     # Should never happen, but just in case...
       @current_city = City.first
