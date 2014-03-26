@@ -78,22 +78,10 @@ class DatasetsController < ApplicationController
     # Therefore, we will take the lat-long bbox that is provided reliably, and project it here with the Proj4 library.
     # We only need to do this with WCS data, and we'll overwrite whatever values are passed in the bbox params.
     if @dataset.service == 'WCS' 
-      # require 'proj4'
-
-      @current_city = City.find_by_id(params[:dataset][:city_id])
-      # proj = Proj4::Projection.new(@current_city.projection_params)   # Create a projection for @current_city
-
       points = params[:llbbox].split(/,/)
       if points.length != 4
         # Do something!
       else
-        # # Note that Proj4 wants lat-long coords in radians, so we need to convert as we are creating the points
-        # p1 = Proj4::Point.new(points[0].to_f * Proj4::DEG_TO_RAD, points[1].to_f * Proj4::DEG_TO_RAD)
-        # p2 = Proj4::Point.new(points[2].to_f * Proj4::DEG_TO_RAD, points[3].to_f * Proj4::DEG_TO_RAD)
-
-        # pp1 = proj.forward(p1)
-        # pp2 = proj.forward(p2)
-      
         @dataset.bbox_left   = points[0] 
         @dataset.bbox_bottom = points[1]
         @dataset.bbox_right  = points[2] 
@@ -102,6 +90,7 @@ class DatasetsController < ApplicationController
 
       end
     elsif @dataset.service == 'WFS'
+      @current_city = City.find_by_id(params[:dataset][:city_id])
       @dataset.bbox_srs = @current_city.srs
     end
 
