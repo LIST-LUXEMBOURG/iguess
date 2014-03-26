@@ -21,8 +21,6 @@ class Dataset < ActiveRecord::Base
   # Pass nil for aoi if you aren't using one
   def getRequest(computationCrs, aoi)
     
-    # dataset = self
-
     urlparams = ""
     bbox = ""
     bboxCrs = nil

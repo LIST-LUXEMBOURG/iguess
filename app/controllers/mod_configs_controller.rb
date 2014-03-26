@@ -127,7 +127,8 @@ class ModConfigsController < ApplicationController
     results = ModConfig.find_by_sql sql
     errs = results[0]["sum"]
 
-    return errs == "0" ? 2 : 1 # 'READY' : 'NEEDS_DATA'
+    return errs == "0" ? RunStatus.find_by_status('READY').id : 
+                         RunStatus.find_by_status('NEEDS_DATA').id
   end
 
 
@@ -139,7 +140,10 @@ class ModConfigsController < ApplicationController
       return
     end
 
-    @mod_config.status = 2 # 'READY'
+
+    ReadyCode = RunStatus.find_by_status('READY').id  
+
+    @mod_config.status = ReadyCode
     @mod_config.save
 
     respond_with do |format|
@@ -235,14 +239,14 @@ class ModConfigsController < ApplicationController
       end
 
       # Show error to client
-      @mod_config.status = 5    # 5 == ERROR
+      @mod_config.status = RunStatus.find_by_status('ERROR').id
       @mod_config.pid = ''
       @mod_config.status_text = error
 
     else
-      #success! change status to running and all that
+      # Success! change status to running and all that
 
-      @mod_config.status = 3  # 3 == RUNNING
+      @mod_config.status = RunStatus.find_by_status('RUNNING').id
       @mod_config.pid = pid
       
       @mod_config.status_text = ''
@@ -356,8 +360,8 @@ class ModConfigsController < ApplicationController
       return
     end
 
-    if @mod_config.run_status_id == 5 then    # 5 == ERROR
-      @mod_config.run_status_id = 2           # 2 == READY
+    if @mod_config.run_status_id == RunStatus.find_by_status('ERROR').id then   
+      @mod_config.run_status_id = RunStatus.find_by_status('READY').id           
       @mod_config.save
     end
 
