@@ -87,8 +87,8 @@ class DatasetsController < ApplicationController
         @dataset.bbox_right  = points[2] 
         @dataset.bbox_top    = points[3]
         @dataset.bbox_srs    = "EPSG:4326"
-
       end
+      
     elsif @dataset.service == 'WFS'
       @current_city = City.find_by_id(params[:dataset][:city_id])
       @dataset.bbox_srs = @current_city.srs
