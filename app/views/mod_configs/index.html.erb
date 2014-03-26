@@ -68,7 +68,7 @@
                       <% end %>
                     </td>
                     <td><%= m.wps_process && (m.wps_process.title || m.wps_process.identifier) || "Unknown process" %></td>
-                    <td><span class="status-<%= m.status %>"><%= getPrettyStatusName(m.status) %></span></td>
+                    <td><span class="status-<%= m.status %>"><%= m.run_status.pretty_name %></span></td>
                     <td><%= m.descr %></td>
                   </tr>
                 <% end %>

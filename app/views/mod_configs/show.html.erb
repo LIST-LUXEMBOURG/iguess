@@ -67,7 +67,7 @@
     <%= render :partial => "show_associated_parameters_table",
                :locals  => { :mode => :output, :config => @mod_config } %>
 
-    <input name="mod_config[status]" type="hidden" value="NEEDS_DATA" id="hidden_status_tag" />
+    <input name="mod_config[run_status_id]" type="hidden" value="1" id="hidden_status_tag" />
 
   <% end %>
 </div>
@@ -195,23 +195,23 @@ if($().jquery.split(".")[0] == "1") {
 
 
   var checkDataStatus = function() {
-    stat = "READY";
+    stat = 2; // "READY"
 
     if(anyDatasetsMissing) {
-      stat = "NEEDS_DATA";
+      stat = 1; // "NEEDS_DATA"
     }
 
     // Check to ensure that each select box has a value (except AOI, which we don't care about)
     $("#input-output-form").find(":input").each( function() {
       if($(this).is("select") && $(this).attr("id") != "mod_config_aoi" && $(this).val() == -1) {
-        stat = "NEEDS_DATA";   // Found a missing dataset, so update the status to NEEDS_DATA and quit
+        stat = 1; //"NEEDS_DATA" -- Found a missing dataset, so update the status to NEEDS_DATA and quit
       }
     });
 
     // Check to ensure that each text input has a value
     $("#input-output-form").find(":input").each( function() {
       if($(this).is("input") && $(this).is(":visible") && $(this).val() === "") {
-        stat = "NEEDS_DATA";   // Found a missing dataset, so update the status to NEEDS_DATA and quit
+        stat = 1; //"NEEDS_DATA" -- Found a missing dataset, so update the status to NEEDS_DATA and quit
       }
     });
 
@@ -219,28 +219,15 @@ if($().jquery.split(".")[0] == "1") {
   }
 
 
-// TODO: Build this from the database
- var getPrettyStatusName = function(statusCode) 
- {
-    if(statusCode == 'NEEDS_DATA') { return 'Needs Data';    }
-    if(statusCode == 'READY')      { return 'Ready';         }
-    if(statusCode == 'RUNNING')    { return 'Running';       }
-    if(statusCode == 'FINISHED')   { return 'Run Completed'; }
-    if(statusCode == 'ERROR')      { return 'Error';         }
-
-    return ('Unknown Status');
-  }
-
-
   var isRunning = false;
 
-  var updateScreen = function(statusCode, message) 
+  var updateScreen = function(statusCode, prettyStatus, message) 
   {
     hideButtons();
 
     isRunning = false;
 
-    $('#status-display').text(getPrettyStatusName(statusCode));
+    $('#status-display').text(prettyStatus);
     var explanationclass = "explanation";
 
     if(statusCode == 'NEEDS_DATA') {    // Module just created, needs data
@@ -326,7 +313,7 @@ if($().jquery.split(".")[0] == "1") {
   {
     if(isRunning)
       $.getJSON("<%= url_for(:action => 'getupdate', :format=>:json) %>", function(data){
-        updateScreen(data.status, data.status_text);
+        updateScreen(data.run_status.status, data.run_status.pretty_name, data.status_text);
       });
 
     poll();
@@ -338,7 +325,9 @@ if($().jquery.split(".")[0] == "1") {
     populateTable(inputs,  true,  formValues, datasetValues);
     populateTable(outputs, false, formValues);
 
-    updateScreen("<%= @mod_config.status %>", "<%= escape_javascript @mod_config.status_text %>"); 
+    updateScreen("<%= @mod_config.run_status.status %>", 
+                 "<%= @mod_config.run_status.pretty_name %>", 
+                 "<%= escape_javascript @mod_config.status_text %>"); 
 
 
     // Bind some event handlers
@@ -346,24 +335,24 @@ if($().jquery.split(".")[0] == "1") {
       .bind("ajax:beforeSend", function(xhr, data, status) { 
         showRunButton("Working...");
     }).bind("ajax:success", function(xhr, data, status) { 
-        updateScreen(data.status, data.status_text); 
+        updateScreen(data.run_status.status, data.run_status.pretty_name, data.status_text); 
     });
 
     $("#stop-module-form")
       .bind("ajax:success", function(xhr, data, status) { 
-        updateScreen(data.status, data.status_text); 
+        updateScreen(data.run_status.status, data.pretty_status, data.status_text); 
     });
 
     $("#clear-error-form")
       .bind("ajax:success", function(xhr, data, status) { 
-        updateScreen(data.status, data.status_text); 
+        updateScreen(data.run_status.status, data.run_status.pretty_name, data.status_text); 
     });
 
 
     // An input/output text field has been updated; data contains a ModConfig object
     $("#input-output-form")
       .bind("ajax:success", function(xhr, data, status) {
-        updateScreen(data.status, data.status_text); 
+        updateScreen(data.run_status.status, data.run_status.pretty_name, data.status_text); 
     }).bind("ajax:error", function(evnt, jqXHR, ajaxSettings, thrownError) { 
         alert("iGUESS: There was an error.  Please see the console log for information.");
         console.log("error: ", arguments); 
@@ -372,7 +361,9 @@ if($().jquery.split(".")[0] == "1") {
     // Response handler for best_in_class fields (Name and Note)
     $(".best_in_place").best_in_place()
       .bind("ajax:success", function(xhr, data, status) { 
-        updateScreen(JSON.parse(data).status, JSON.parse(data).status_text); 
+        updateScreen(JSON.parse(data).status, 
+                     JSON.parse(data).pretty_status, 
+                     JSON.parse(data).status_text); 
     });
 
     poll();

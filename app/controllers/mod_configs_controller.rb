@@ -127,7 +127,7 @@ class ModConfigsController < ApplicationController
     results = ModConfig.find_by_sql sql
     errs = results[0]["sum"]
 
-    return errs == "0" ? 'READY' : 'NEEDS_DATA'
+    return errs == "0" ? 2 : 1 # 'READY' : 'NEEDS_DATA'
   end
 
 
@@ -139,13 +139,14 @@ class ModConfigsController < ApplicationController
       return
     end
 
-    @mod_config.status = 'READY'
+    @mod_config.status = 2 # 'READY'
     @mod_config.save
 
     respond_with do |format|
       format.js { render :json => @mod_config, :status => :ok }
     end
   end
+
 
 
   # Only called via ajax request... need to fire up WPSClient and tell it to start
@@ -171,68 +172,24 @@ class ModConfigsController < ApplicationController
 
     @current_city = User.getCurrentCity(current_user, cookies)
 
-# http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map&
-# SERVICE=WCS&VERSION=1.0.0&REQUEST=GetCoverage&IDENTIFIER=ro_dsm_mini&
-# FORMAT=image/tiff&BBOX=92213,436671.500,92348,436795.000&CRS=EPSG:28992&RESX=1&RESY=1
 
     # Drop downs -- always inputs
     @mod_config.datasets.map { |dataset| 
+      dataRequest = Dataset.getRequest(dataset, @current_city.srs, @aoi)
 
-                    configDataset = ConfigDataset.find_by_mod_config_id_and_dataset_id(@mod_config.id, dataset.id)
-
-                    urlparams = ""
-                    bbox = ""
-
-                    if(dataset) then
-                      if(not dataset.format.blank?) then urlparams += "&FORMAT=" + dataset.format    end
-                      urlparams += "&CRS=" + @current_city.srs  # Should always have this param
-
-                      # If we have an area of interest defined, insert that bounding box here
-                      if @aoi != nil then
-                        if (@aoi.bbox_left && @aoi.bbox_right && @aoi.bbox_top && @aoi.bbox_bottom) then 
-                          bbox = "&BBOX=" + @aoi.bbox_left.to_s()  + "," + @aoi.bbox_bottom.to_s() + "," +
-                                            @aoi.bbox_right.to_s() + "," + @aoi.bbox_top.to_s()
-                        else
-                          # Log an error -- we expected the aoi to have a valid bounding box, but it didn't!
-                          # We'll use the dataset's bounding box as a fallback, below
-                        end
-                      end
-
-                      # If no aoi is being used, or wasn't properly set, use any dataset bb that we have
-                      if bbox == "" && (dataset.bbox_left && dataset.bbox_right && 
-                                        dataset.bbox_top && dataset.bbox_bottom) then 
-                        bbox += "&BBOX=" + dataset.bbox_left.to_s()  + "," + dataset.bbox_bottom.to_s() + "," +
-                                           dataset.bbox_right.to_s() + "," + dataset.bbox_top.to_s()
-                      end
-
-                      urlparams += bbox
-                      if(dataset.resolution_x and dataset.resolution_x.to_f > 0 and 
-                         dataset.resolution_y and dataset.resolution_y.to_f > 0) 
-                      then 
-                        urlparams += "&RESX=" + dataset.resolution_x.to_s()
-                        urlparams += "&RESY=" + dataset.resolution_y.to_s()
-                      end
-                    end
-
-                    request = (dataset.service == 'WCS') ? 'getCoverage' : 'getFeature'
-                    noun    = (dataset.service == 'WCS') ? 'COVERAGE'    : 'TYPENAME'
-
-                    dataname = dataset.server_url + (dataset.server_url.include?("?") == -1 ? "?" : "&") +
-                    'SERVICE=' + dataset.service + urlparams +
-                    URI.escape('&VERSION=1.0.0&REQUEST=' + request + '&' + noun + '=' + dataset.identifier)
-
-                    inputs.push("('" + configDataset.input_identifier + "', '" + dataname + "')")
-                  }
+      configDataset = ConfigDataset.find_by_mod_config_id_and_dataset_id(@mod_config.id, dataset.id)
+      inputs.push("('" + configDataset.input_identifier + "', '" + dataRequest + "')")
+    }
 
     # Text fields -- both inputs and outputs
     @mod_config.config_text_inputs.map { |d|  
-                    if d.is_input then 
-                      inputs.push("('" + d.column_name + "', '" + d.value.gsub("&", "&amp;") + "')")
-                    else
-                      outputFields.push(d.column_name)
-                      outputTitles.push(d.value)
-                    end
-                                        }
+            if d.is_input then 
+              inputs.push("('" + d.column_name + "', '" + d.value.gsub("&", "&amp;") + "')")
+            else
+              outputFields.push(d.column_name)
+              outputTitles.push(d.value)
+            end
+                                }
 
     argUrl       = '--url="'        + @mod_config.wps_process.wps_server.url + '"'
     argProc      = '--procname="'   + @mod_config.wps_process.identifier + '"'
@@ -278,14 +235,14 @@ class ModConfigsController < ApplicationController
       end
 
       # Show error to client
-      @mod_config.status = 'ERROR'
+      @mod_config.status = 5    # 5 == ERROR
       @mod_config.pid = ''
       @mod_config.status_text = error
 
     else
       #success! change status to running and all that
 
-      @mod_config.status = 'RUNNING'
+      @mod_config.status = 3  # 3 == RUNNING
       @mod_config.pid = pid
       
       @mod_config.status_text = ''
@@ -363,7 +320,7 @@ class ModConfigsController < ApplicationController
 
     success &= @mod_config.save
 
-    @mod_config.status = getStatus(@mod_config)
+    @mod_config.run_status_id = getStatus(@mod_config)
 
     success &= @mod_config.save
 
@@ -399,8 +356,8 @@ class ModConfigsController < ApplicationController
       return
     end
 
-    if @mod_config.status == "ERROR" then
-      @mod_config.status = "READY"
+    if @mod_config.run_status_id == 5 then    # 5 == ERROR
+      @mod_config.run_status_id = 2           # 2 == READY
       @mod_config.save
     end
 
@@ -493,8 +450,8 @@ class ModConfigsController < ApplicationController
       if ok
         format.html { redirect_to @mod_config, notice: 'Mod config was successfully updated.' }  # <== Used at all?
         # Next line is text not json because for some reason something wasn't working...  this should
-        format.js   { render :json => @mod_config, :status => :ok }   # <== For handling ajax requests for form input changes
-        format.json { render :json => @mod_config, :status => :ok }   # <== For best_in_place
+        format.js   { render :json => @mod_config.to_json(:include => :run_status), :status => :ok }   # <== For handling ajax requests for form input changes
+        format.json { render :json => @mod_config.to_json(:include => :run_status), :status => :ok }   # <== For best_in_place
       else
         format.html { render action: "edit" }   # Need to handle errors here
         format.js { render :json => @mod_config.errors, :status => :unprocessable_entity }

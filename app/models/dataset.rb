@@ -171,6 +171,74 @@ def makeTag(dataset, tagVal)
 end 
 
 
+# http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map&
+# SERVICE=WCS&VERSION=1.0.0&REQUEST=GetCoverage&IDENTIFIER=ro_dsm_mini&
+# FORMAT=image/tiff&BBOX=92213,436671.500,92348,436795.000&CRS=EPSG:28992&RESX=1&RESY=1
+
+# Generates a WFS or WCS data request for the specified dataset
+# Pass nil for aoi if you aren't using one
+def getRequest(dataset, computationCrs, aoi)
+  
+  service = dataset.service
+
+  urlparams = ""
+  bbox = ""
+  bboxCrs = nil
+
+
+  if(not dataset.format.blank?) then 
+    urlparams += "&FORMAT=" + dataset.format    
+  end
+  
+  if(service == "WCS") then 
+    bboxCrs = dataset.bbox_srs
+  else
+    bboxCrs = computationCrs
+  end
+
+
+  bboxSource = nil
+
+  if aoi then
+    bboxSource = aoi
+    # If we're using an aoi, then the bbox will always be in the computation crs
+    bboxCrs = computationCrs
+  else
+    bboxSource = dataset
+  end
+
+  # If no aoi is being used, or wasn't properly set, use any dataset bb that we have
+  if bboxSource.bbox_left && bboxSource.bbox_right && bboxSource.bbox_top && bboxSource.bbox_bottom then
+    urlparams += "&BBOX=" + bboxSource.bbox_left.to_s()  + "," + bboxSource.bbox_bottom.to_s() + "," +
+                       bboxSource.bbox_right.to_s() + "," + bboxSource.bbox_top.to_s()
+  end
+
+  if(dataset.resolution_x and dataset.resolution_x.to_f > 0 and 
+     dataset.resolution_y and dataset.resolution_y.to_f > 0) 
+  then 
+    urlparams += "&RESX=" + dataset.resolution_x.to_s()
+    urlparams += "&RESY=" + dataset.resolution_y.to_s()
+  end
+
+  if(service == "WCS") then 
+    urlparams += "&RESPONSE_CRS=" + computationCrs
+    urlparams += "&CRS=" + bboxCrs
+  else
+    urlparams += "&CRS=" + computationCrs  
+  end
+
+  urlparams += "&CRS=" + computationCrs
+
+  request = (service == "WCS") ? "GetCoverage" : "GetFeature"
+  noun    = (service == "WCS") ? "COVERAGE"    : "TYPENAME"
+
+  return dataset.server_url + (dataset.server_url.include?("?") == -1 ? "?" : "&") +
+            "SERVICE=" + service + urlparams +
+            URI.escape("&VERSION=1.0.0&REQUEST=" + request + "&" + noun + "=" + dataset.identifier)
+end
+
+
+
 # Make str into an name that is safe to use as a css identifier
 # We have the equivalent in javascript as well
 def cssEscape(str)

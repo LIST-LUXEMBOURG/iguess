@@ -75,7 +75,6 @@ GEM
     orm_adapter (0.4.0)
     pg (0.16.0)
     polyglot (0.3.3)
-    proj4rb (0.4.3)
     pry (0.9.12.2)
       coderay (~> 1.0.5)
       method_source (~> 0.8)
@@ -154,7 +153,6 @@ DEPENDENCIES
   execjs
   jquery-rails
   pg
-  proj4rb
   pry
   puma
   railroady
