@@ -228,7 +228,7 @@ for row in rows:
                     logInfoMsg("Processing complex result " + r.name + " with id of " + r.uniqueID)
     
                     # Check if data server already exists in the database, otherwise insert it.  We need the record id
-                    qcur.execute("SELECT id FROM " + dbSchema + ".dataservers WHERE url = %s", (url,))        # Trailing , needed
+                    qcur.execute("SELECT id FROM " + dbSchema + ".dataservers WHERE url = %s", (url,))   # Trailing , needed
                     if qcur.rowcount == 0:
                         titleServ = "iGUESS results server"
                         abstract = "Server hosting the results of a module run"
