@@ -225,7 +225,6 @@ for row in rows:
 
 
                 else:
-                    
                     logInfoMsg("Processing complex result " + r.name + " with id of " + r.uniqueID)
     
                     # Check if data server already exists in the database, otherwise insert it.  We need the record id
@@ -236,7 +235,6 @@ for row in rows:
                         qcur.execute("INSERT INTO " + dbSchema + ".dataservers (url, title, abstract, alive, wms, wfs, wcs) "\
                                      "VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING id", 
                                                         (url, titleServ, abstract, True, True, True, True))
-    
                     if qcur.rowcount == 0:
                         logErrorMsg(recordId, "Database Error: Unable to insert record into dataservers table!")
                         continue
