@@ -101,7 +101,12 @@ class Dataset < ActiveRecord::Base
       end
 
       if includeDataLink then
-        output += ' ' + '<a href="' + getRequest(city.srs, nil) + '" target="_blank">Show Data</a>'
+        # Note that construction of the getRequest link can fail if the database is munged
+        begin
+          output += ' ' + '<a href="' + getRequest(city.srs, nil) + '" target="_blank">Show Data</a>'
+        rescue
+          # Don't add the link if we can't construct it!
+        end
       end
     end
 
