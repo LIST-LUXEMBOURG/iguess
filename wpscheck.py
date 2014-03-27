@@ -113,7 +113,7 @@ rows = cur.fetchall()
 try:
     client = WPSClient.WPSClient()
 except Exception as ex:
-    logErrorMsg(recordId, "Process Error: Could not initialize WPSClient module - " + str(ex))
+    logErrorMsg(None, "Process Error: Could not initialize WPSClient module - " + str(ex))
 
 
 for row in rows:
@@ -197,7 +197,7 @@ for row in rows:
         try:
 
             # Update status in the database
-            queryTemplate = "UPDATE " + dbSchema + ".mod_configs " \
+            queryTemplate = "UPDATE " + dbSchema + ".mod_configs "                                         \
                             "SET run_status_id = " + str(FINISHED) + ", status_text = %s, run_ended = %s " \
                             "WHERE id = %s" 
 
@@ -219,24 +219,22 @@ for row in rows:
     
                     # Insert fresh ones
                     queryTemplate = "INSERT INTO " + dbSchema + ".config_text_inputs " \
-                                    "(mod_config_id, column_name, value, is_input)"  \
+                                    "(mod_config_id, column_name, value, is_input)"    \
                                     "VALUES(%s, %s, %s, %s)"
                     cur.execute(queryTemplate, (recordId, r.name, r.value, False))
 
 
                 else:
-                    
                     logInfoMsg("Processing complex result " + r.name + " with id of " + r.uniqueID)
     
                     # Check if data server already exists in the database, otherwise insert it.  We need the record id
-                    qcur.execute("SELECT id FROM " + dbSchema + ".dataservers WHERE url = %s", (url,))        # Trailing , needed
+                    qcur.execute("SELECT id FROM " + dbSchema + ".dataservers WHERE url = %s", (url,))   # Trailing , needed
                     if qcur.rowcount == 0:
                         titleServ = "iGUESS results server"
                         abstract = "Server hosting the results of a module run"
                         qcur.execute("INSERT INTO " + dbSchema + ".dataservers (url, title, abstract, alive, wms, wfs, wcs) "\
                                      "VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING id", 
                                                         (url, titleServ, abstract, True, True, True, True))
-    
                     if qcur.rowcount == 0:
                         logErrorMsg(recordId, "Database Error: Unable to insert record into dataservers table!")
                         continue
@@ -250,16 +248,22 @@ for row in rows:
                     elif r.dataType == r.TYPE_RASTER:
                         service = "WCS"
     
-                    queryTemplate = "INSERT INTO " + dbSchema + ".datasets "\
-                                    "(title, server_url, dataserver_id, identifier, abstract, city_id, alive, finalized, created_at, updated_at, service)" \
-                                    "VALUES((SELECT value FROM " + dbSchema + ".config_text_inputs " \
-                                        "WHERE mod_config_id = %s AND column_name = %s AND is_input = FALSE), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "\
-                                    "RETURNING id"
+                    queryTemplate = "INSERT INTO " + dbSchema + ".datasets                                      \
+                                     (title, server_url, dataserver_id, identifier, abstract, city_id,          \
+                                             alive, finalized, created_at, updated_at, service)                 \
+                                     VALUES(                                                                    \
+                                        (                                                                       \
+                                            SELECT value FROM " + dbSchema + ".config_text_inputs               \
+                                            WHERE mod_config_id = %s AND column_name = %s AND is_input = FALSE  \
+                                        ),                                                                      \
+                                         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)                                \
+                                     RETURNING id"
     
                     abstract = "Result calculated with module"
                     
                     qcur.execute(queryTemplate, (recordId, r.uniqueID, url, serverId, r.uniqueID, abstract, str(city_id), True, True, 
                                                  str(datetime.datetime.now()), str(datetime.datetime.now()), service) )
+                    # For WCS datasets, need bounding box, and bbox srs, also 
     
                     if qcur.rowcount == 0:
                         logErrorMsg(recordId, "Database Error: Unable to insert record into datasets table")

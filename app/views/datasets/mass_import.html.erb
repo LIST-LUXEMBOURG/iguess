@@ -1,4 +1,3 @@
-
 <h1>Register Datasets</h1>
 
 <div id="error-list" class="explanation-problem" style="display: none"></div>
@@ -562,8 +561,7 @@
                 "&llbbox="                   + layer.llbbox +
                 "&server_title="             + getServerTitle() +
                 "&server_abstract="          + getServerAbstract() +
-                "&tags="                     + taglist +
-                "&cityName="                 + "<%= raw @current_city.id %>",
+                "&tags="                     + taglist,
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
           success: function(data, status, jqXHR)  { 
               registeredDataset(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); 

@@ -1,81 +1,81 @@
-    #navbar {
-      width: 100%;
-      height: 30px;
-      background: #ccc;
-    }
-    
-    
-    #city-dropdown {
-      float: right;
-      margin-top: 3px;
-      margin-bottom: 3px;
-      height: 24px;
-      font-size: 15px;
-      margin-left: 8px;
-    }
+#navbar {
+  width: 100%;
+  height: 30px;
+  background: #ccc;
+}
+
+
+#city-dropdown {
+  float: right;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  height: 24px;
+  font-size: 15px;
+  margin-left: 8px;
+}
+
+
+#nav {
+  width: 100%;
+  margin: 0;
+  margin-bottom: 1em;
+  padding: 0;
+  list-style: none;
+  background: #ccc;
+}
+
+
+#nav li { 
+  float: left;
+  margin: 0;
+  padding: 0;
+}
+
+
+#nav a {
+  float: left;
+  display: block;
+  padding: 6px 30px 6px 5px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 90%;
+  color: #666;
+  background: #ccc url(images/nav_slant.gif) no-repeat top right;
+}
     
 
-    #nav {
-        width: 100%;
-        margin: 0;
-        margin-bottom: 1em;
-        padding: 0;
-        list-style: none;
-        background: #ccc;
-        }
-    
+#nav #nav-1 a {
+  padding-left: 20px;
+}
 
-    #nav li { 
-        float: left;
-        margin: 0;
-        padding: 0;
-        }
-    
 
-    #nav a {
-        float: left;
-        display: block;
-        padding: 6px 30px 6px 5px;
-        text-decoration: none;
-        font-weight: bold;
-        font-size: 90%;
-        color: #666;
-        background: #ccc url(images/nav_slant.gif) no-repeat top right;
-        }
-        
- 
-    #nav #nav-1 a {
-        padding-left: 20px;
-        }
+#nav a:hover {
+  color: #000;
+}
+
+
+/* more */
+
+ul #more {
+  clear: left;
+  margin-top: 60px;
+}
     
     
-    #nav a:hover {
-        color: #000;
-        }
-    
-    
-    /* more */
-    
-    ul #more {
-        clear: left;
-        margin-top: 60px;
-        }
-        
-        
-    /* Settings for the login link on the gray menu bar */
-    #login {
-      text-align: right;
-      margin-right : 0px;
-      color: #666;
-      padding-right: 10px;
-      padding-top: 3px;
-    }     
-       
-    /* Must come after #nav a, because we are overriding some settings there */
-    #login a {
-      background: #ccc;    /* Hide slant graphic */
-      font-weight: normal;
-      display: inline;
-      float: none;
-      padding: 4px;
-    }
+/* Settings for the login link on the gray menu bar */
+#login {
+  text-align: right;
+  margin-right : 0px;
+  color: #666;
+  padding-right: 10px;
+  padding-top: 3px;
+}     
+   
+/* Must come after #nav a, because we are overriding some settings there */
+#login a {
+  background: #ccc;    /* Hide slant graphic */
+  font-weight: normal;
+  display: inline;
+  float: none;
+  padding: 4px;
+}

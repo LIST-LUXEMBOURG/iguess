@@ -12,7 +12,6 @@ class Dataset < ActiveRecord::Base
     return getAliveTags(self).include?(tag)
   end
 
-
   # http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map&
   # SERVICE=WCS&VERSION=1.0.0&REQUEST=GetCoverage&IDENTIFIER=ro_dsm_mini&
   # FORMAT=image/tiff&BBOX=92213,436671.500,92348,436795.000&CRS=EPSG:28992&RESX=1&RESY=1
@@ -20,7 +19,7 @@ class Dataset < ActiveRecord::Base
   # Generates a WFS or WCS data request for the specified dataset
   # Pass nil for aoi if you aren't using one
   def getRequest(computationCrs, aoi)
-    
+
     urlparams = ""
     bbox = ""
     bboxCrs = nil
@@ -76,6 +75,44 @@ class Dataset < ActiveRecord::Base
               "SERVICE=" + service + urlparams +
               URI.escape("&VERSION=1.0.0&REQUEST=" + request + "&" + noun + "=" + identifier)
   end
+
+
+  # Be sure to insert this code into a template using raw
+  def insertGetCapabilitiesLinkBlock(wms, wfs, wcs, includeDataLink)
+    output = ""
+
+    serverUrl = dataserver.url
+
+    if wms then
+      output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 
+          'SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities" target="_blank">WMS</a>'
+    end
+
+    # We could have both wfs and wcs true if we're showing all links in the technical details section
+    if wfs or wcs then
+      if wfs then
+        output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 
+            'SERVICE=WFS&VERSION=1.0.0&REQUEST=GetCapabilities" target="_blank">WFS</a>'
+      end
+
+      if wcs then
+        output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 
+            'SERVICE=WCS&VERSION=1.1.0&REQUEST=GetCapabilities" target="_blank">WCS</a>'
+      end
+
+      if includeDataLink then
+        # Note that construction of the getRequest link can fail if the database is munged
+        begin
+          output += ' ' + '<a href="' + getRequest(city.srs, nil) + '" target="_blank">Show Data</a>'
+        rescue
+          # Don't add the link if we can't construct it!
+        end
+      end
+    end
+
+    return output
+  end
+
 end
 
 
@@ -246,24 +283,3 @@ def getJoinChar(serverUrl)
   return serverUrl.index("?") == nil ? "?" : "&"
 end
 
-
-def insertGetCapabilitiesLinkBlock(serverUrl, wms, wfs, wcs)
-  output = "";
-
-  if wms then
-    output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 
-        'SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities" target="_blank">WMS</a>'
-  end
-
-  if wfs then
-    output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 
-        'SERVICE=WFS&VERSION=1.0.0&REQUEST=GetCapabilities" target="_blank">WFS</a>'
-  end
-
-  if wcs then
-    output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 
-        'SERVICE=WCS&VERSION=1.1.0&REQUEST=GetCapabilities" target="_blank">WCS</a>'
-  end
-
-  raw(output)
-end
