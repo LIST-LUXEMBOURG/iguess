@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os, sys
+import sys
 import psycopg2
 import WPSClient.WPSClient as WPSClient
 import datetime
