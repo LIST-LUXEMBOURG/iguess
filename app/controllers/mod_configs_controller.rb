@@ -141,9 +141,9 @@ class ModConfigsController < ApplicationController
     end
 
 
-    ReadyCode = RunStatus.find_by_status('READY').id  
+    readyCode = RunStatus.find_by_status('READY').id  
 
-    @mod_config.status = ReadyCode
+    @mod_config.status = readyCode
     @mod_config.save
 
     respond_with do |format|
