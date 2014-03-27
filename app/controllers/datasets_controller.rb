@@ -74,9 +74,6 @@ class DatasetsController < ApplicationController
     @dataset.dataserver = @dataserver
 
 
-    # Because of limitations in the WCS protocol, we don't always get a reliable projected bounding box from WCS servers.
-    # Therefore, we will take the lat-long bbox that is provided reliably, and project it here with the Proj4 library.
-    # We only need to do this with WCS data, and we'll overwrite whatever values are passed in the bbox params.
     if @dataset.service == 'WCS' 
       points = params[:llbbox].split(/,/)
       if points.length != 4
@@ -221,8 +218,6 @@ class DatasetsController < ApplicationController
     end
   end
 
-
-  GoogleProjection = 'EPSG:3857'
 
   def mass_import
     # current_user should always be set here
