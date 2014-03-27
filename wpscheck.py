@@ -73,7 +73,7 @@ def getRunningFinishedErrorVals():
 
     rows = cur.fetchall()
 
-    r = s = e = None
+    r = f = e = None
 
     for row in rows:
         id = row[0]
@@ -82,12 +82,14 @@ def getRunningFinishedErrorVals():
         if(status == 'RUNNING'):
             r = id 
         elif(status == 'FINISHED'):
-            s = id 
+            f = id 
         elif(status == 'ERROR'):
             e = id
 
-    if(not(r and s and e)):
+    if(not(r and f and e)):
         raise ValueError("Could not find required status in run_status table")
+
+    return r, f, e
 
 
 # Define constants for communication between different sotware bits
