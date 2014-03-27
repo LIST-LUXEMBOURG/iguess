@@ -78,6 +78,7 @@ class Dataset < ActiveRecord::Base
   end
 
 
+  # Be sure to insert this code into a template using raw
   def insertGetCapabilitiesLinkBlock(wms, wfs, wcs, includeDataLink)
     output = ""
 
