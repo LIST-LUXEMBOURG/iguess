@@ -67,7 +67,7 @@ qcur = conn.cursor()
 
 
 def getRunningFinishedErrorVals():
-    sql = "select id, status from run_statuses where status in ('RUNNING', 'FINISHED', 'ERROR')"
+    sql = "SELECT id, status FROM " + dbSchema + ".run_statuses WHERE status IN ('RUNNING', 'FINISHED', 'ERROR')"
 
     cur.execute(sql)
 
