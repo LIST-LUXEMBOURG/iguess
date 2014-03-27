@@ -114,7 +114,7 @@ class DatasetsController < ApplicationController
 
 
    # Create a hook to return a datarequest for a particular dataset... primarily for testing purposes
-   # http://0.0.0.0:3000/datasets/showDataRequest/1829
+   # http://0.0.0.0:3000/datasets/ShowDataRequest/1829
    # This should probably be deleted at some point, or at least require a key of some sort
   def ShowDataRequest
     dataset = Dataset.find_by_id(params[:id])
