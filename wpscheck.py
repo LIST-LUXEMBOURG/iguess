@@ -13,33 +13,6 @@ connstr = "dbname='" + dbName + "' user='" + dbUsername +"' host='" + dbServer +
 logLevel = "INFO"
 
 
-def getRunningFinishedErrorVals():
-    sql = "select id, status from run_statuses where status in ('RUNNING', 'FINISHED', 'ERROR')"
-
-    cur.execute(sql)
-
-    rows = cur.fetchall()
-
-    r = s = e = None
-
-    for row in rows:
-        id = row[0]
-        status = row[1]
-
-        if(status == 'RUNNING'):
-            r = id 
-        elif(status == 'FINISHED'):
-            s = id 
-        elif(status == 'ERROR'):
-            e = id
-
-    if(not(r and s and e)):
-        raise ValueError("Could not find required status in run_status table")
-
-
-# Define constants for communication between different sotware bits
-RUNNING, FINISHED, ERROR = getRunningFinishedErrorVals()
-
 
 def configLogging(logfile, loglevel):
     '''
@@ -76,6 +49,35 @@ def logInfoMsg(msg):
 
     logging.info(msg)
     print msg
+
+
+def getRunningFinishedErrorVals():
+    sql = "select id, status from run_statuses where status in ('RUNNING', 'FINISHED', 'ERROR')"
+
+    cur.execute(sql)
+
+    rows = cur.fetchall()
+
+    r = s = e = None
+
+    for row in rows:
+        id = row[0]
+        status = row[1]
+
+        if(status == 'RUNNING'):
+            r = id 
+        elif(status == 'FINISHED'):
+            s = id 
+        elif(status == 'ERROR'):
+            e = id
+
+    if(not(r and s and e)):
+        raise ValueError("Could not find required status in run_status table")
+
+
+# Define constants for communication between different sotware bits
+RUNNING, FINISHED, ERROR = getRunningFinishedErrorVals()
+
 
 configLogging(logFileName, logLevel)
 
