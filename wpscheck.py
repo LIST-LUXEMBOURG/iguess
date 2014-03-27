@@ -197,7 +197,7 @@ for row in rows:
         try:
 
             # Update status in the database
-            queryTemplate = "UPDATE " + dbSchema + ".mod_configs " \
+            queryTemplate = "UPDATE " + dbSchema + ".mod_configs "                                         \
                             "SET run_status_id = " + str(FINISHED) + ", status_text = %s, run_ended = %s " \
                             "WHERE id = %s" 
 
