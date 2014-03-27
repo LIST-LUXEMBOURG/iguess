@@ -148,7 +148,7 @@ class ModConfigsController < ApplicationController
     @mod_config.save
 
     respond_with do |format|
-      format.js { render :json => @mod_config, :status => :ok }
+      format.js { render :json => @mod_config.to_json(:include => :run_status), :status => :ok }
     end
   end
 
@@ -257,7 +257,7 @@ class ModConfigsController < ApplicationController
     @mod_config.save
 
     respond_with do |format|
-      format.js { render :json => @mod_config, :status => :ok }
+      format.js { render :json => @mod_config.to_json(:include => :run_status), :status => :ok }
     end
   end
 
@@ -349,8 +349,7 @@ class ModConfigsController < ApplicationController
       return
     end
 
-    render :json => @mod_config, :status => :ok
-    
+    render :json => @mod_config.to_json(:include => :run_status), :status => :ok
   end
 
 
@@ -367,7 +366,7 @@ class ModConfigsController < ApplicationController
     end
 
     respond_with do |format|
-      format.js { render :json => @mod_config, :status => :ok }
+      format.js { render :json => @mod_config.to_json(:include => :run_status), :status => :ok }
     end
 
   end
