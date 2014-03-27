@@ -12,7 +12,10 @@
           <dt>Server Name:</dt><dd class="server-name"><%= d.dataserver.title %></dd>
           <dt>Data Services:</dt>
           <dd id="results-<%= d.id %>">
-            <%= insertGetCapabilitiesLinkBlock(d.dataserver.url, d.dataserver.wms, d.service == "WFS", d.service == "WCS") %>
+            <%= raw d.insertGetCapabilitiesLinkBlock(d.dataserver.wms, 
+                                                     d.service == "WFS", 
+                                                     d.service == "WCS", 
+                                                     true) %>
           </dd>
 
             <% if not d.alive %>
@@ -88,7 +91,7 @@
           <dt>Server Base URL:</dt><dd><%= d.server_url %></dd>
           <dt>Dataset Identifier:</dt><dd><%= d.identifier %></dd>
           <dt>All Get Capabilities Links:</dt><dd>
-            <%= insertGetCapabilitiesLinkBlock(d.dataserver.url, :true, :true, :true) %>
+            <%= raw d.insertGetCapabilitiesLinkBlock(true, true, true, false) %>
           </dd>
           <dt>Projections Available:</dt><dd></dd> 
           <dt>Bounding Box:</dt><dd></dd>
