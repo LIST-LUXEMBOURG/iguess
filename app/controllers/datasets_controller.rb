@@ -114,7 +114,7 @@ class DatasetsController < ApplicationController
 
 
    # Create a hook to return a datarequest for a particular dataset... primarily for testing purposes
-   # http://0.0.0.0:3000/datasets/showDataRequest/1829
+   # http://0.0.0.0:3000/datasets/ShowDataRequest/1829
    # This should probably be deleted at some point, or at least require a key of some sort
   def ShowDataRequest
     dataset = Dataset.find_by_id(params[:id])
@@ -222,14 +222,14 @@ class DatasetsController < ApplicationController
   end
 
 
+  GoogleProjection = 'EPSG:3857'
+
   def mass_import
     # current_user should always be set here
     @current_city = User.getCurrentCity(current_user, cookies)
 
     # Only used for generating a list of registered datasets
     @datasets = Dataset.find_all_by_city_id_and_finalized(@current_city.id, true)
-
-    @GoogleProjection = 'EPSG:3857'
 
     if @current_city.nil?     # Should never happen, but just in case...
       @current_city = City.first

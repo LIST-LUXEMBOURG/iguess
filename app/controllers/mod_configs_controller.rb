@@ -93,6 +93,11 @@ class ModConfigsController < ApplicationController
   end
 
 
+  ReadyCode     = RunStatus.find_by_status('READY').id
+  NeedsDataCode = RunStatus.find_by_status('NEEDS_DATA').id
+  ErrorCode     = RunStatus.find_by_status('ERROR').id
+  RunningCode   = RunStatus.find_by_status('RUNNING').id
+
   # NOTE that this is not a definitve status -- we don't know, for example, which datasets are needed, and whether they
   # have been provided.  This really just detects that there are blank text items.  This function should probably be removed.
   def getStatus(mod_config)
@@ -127,8 +132,7 @@ class ModConfigsController < ApplicationController
     results = ModConfig.find_by_sql sql
     errs = results[0]["sum"]
 
-    return errs == "0" ? RunStatus.find_by_status('READY').id : 
-                         RunStatus.find_by_status('NEEDS_DATA').id
+    return errs == "0" ? ReadyCode : NeedsDataCode
   end
 
 
@@ -140,14 +144,11 @@ class ModConfigsController < ApplicationController
       return
     end
 
-
-    readyCode = RunStatus.find_by_status('READY').id  
-
-    @mod_config.status = readyCode
+    @mod_config.status = ReadyCode
     @mod_config.save
 
     respond_with do |format|
-      format.js { render :json => @mod_config, :status => :ok }
+      format.js { render :json => @mod_config.to_json(:include => :run_status), :status => :ok }
     end
   end
 
@@ -239,14 +240,14 @@ class ModConfigsController < ApplicationController
       end
 
       # Show error to client
-      @mod_config.status = RunStatus.find_by_status('ERROR').id
+      @mod_config.status = ErrorCode
       @mod_config.pid = ''
       @mod_config.status_text = error
 
     else
       # Success! change status to running and all that
 
-      @mod_config.status = RunStatus.find_by_status('RUNNING').id
+      @mod_config.status = RunningCode
       @mod_config.pid = pid
       
       @mod_config.status_text = ''
@@ -256,7 +257,7 @@ class ModConfigsController < ApplicationController
     @mod_config.save
 
     respond_with do |format|
-      format.js { render :json => @mod_config, :status => :ok }
+      format.js { render :json => @mod_config.to_json(:include => :run_status), :status => :ok }
     end
   end
 
@@ -348,8 +349,7 @@ class ModConfigsController < ApplicationController
       return
     end
 
-    render :json => @mod_config, :status => :ok
-    
+    render :json => @mod_config.to_json(:include => :run_status), :status => :ok
   end
 
 
@@ -360,13 +360,13 @@ class ModConfigsController < ApplicationController
       return
     end
 
-    if @mod_config.run_status_id == RunStatus.find_by_status('ERROR').id then   
-      @mod_config.run_status_id = RunStatus.find_by_status('READY').id           
+    if @mod_config.run_status_id == ErrorCode then   
+      @mod_config.run_status_id = ReadyCode           
       @mod_config.save
     end
 
     respond_with do |format|
-      format.js { render :json => @mod_config, :status => :ok }
+      format.js { render :json => @mod_config.to_json(:include => :run_status), :status => :ok }
     end
 
   end
