@@ -14,8 +14,7 @@
       margin-left: 8px;
     }
     
-    
-    
+
     #nav {
         width: 100%;
         margin: 0;
@@ -25,12 +24,14 @@
         background: #ccc;
         }
     
+
     #nav li { 
         float: left;
         margin: 0;
         padding: 0;
         }
     
+
     #nav a {
         float: left;
         display: block;
@@ -46,6 +47,7 @@
     #nav #nav-1 a {
         padding-left: 20px;
         }
+    
     
     #nav a:hover {
         color: #000;

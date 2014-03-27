@@ -78,28 +78,20 @@ class DatasetsController < ApplicationController
     # Therefore, we will take the lat-long bbox that is provided reliably, and project it here with the Proj4 library.
     # We only need to do this with WCS data, and we'll overwrite whatever values are passed in the bbox params.
     if @dataset.service == 'WCS' 
-      require 'proj4'
-
-      @current_city = City.find_by_id(params[:dataset][:city_id])
-      proj = Proj4::Projection.new(@current_city.projection_params)   # Create a projection for @current_city
-
       points = params[:llbbox].split(/,/)
       if points.length != 4
         # Do something!
       else
-        # Note that Proj4 wants lat-long coords in radians, so we need to convert as we are creating the points
-        p1 = Proj4::Point.new(points[0].to_f * Proj4::DEG_TO_RAD, points[1].to_f * Proj4::DEG_TO_RAD)
-        p2 = Proj4::Point.new(points[2].to_f * Proj4::DEG_TO_RAD, points[3].to_f * Proj4::DEG_TO_RAD)
-
-        pp1 = proj.forward(p1)
-        pp2 = proj.forward(p2)
+        @dataset.bbox_left   = points[0] 
+        @dataset.bbox_bottom = points[1]
+        @dataset.bbox_right  = points[2] 
+        @dataset.bbox_top    = points[3]
+        @dataset.bbox_srs    = "EPSG:4326"
       end
-      
-      @dataset.bbox_left   = pp1.x 
-      @dataset.bbox_bottom = pp1.y 
-      @dataset.bbox_right  = pp2.x 
-      @dataset.bbox_top    = pp2.y 
 
+    elsif @dataset.service == 'WFS'
+      @current_city = City.find_by_id(params[:dataset][:city_id])
+      @dataset.bbox_srs = @current_city.srs
     end
 
 
@@ -117,6 +109,27 @@ class DatasetsController < ApplicationController
                                       :dataset => @dataset
                                     }
                   }
+    end
+  end
+
+
+   # Create a hook to return a datarequest for a particular dataset... primarily for testing purposes
+   # http://0.0.0.0:3000/datasets/showDataRequest/1829
+   # This should probably be deleted at some point, or at least require a key of some sort
+  def ShowDataRequest
+    dataset = Dataset.find_by_id(params[:id])
+    if not dataset then
+      respond_with do |format|
+        format.html { render :text => "Could not find dataset with id = " + params[:id].to_s, 
+                             :status => :ok }
+      end
+      return
+    end
+
+    req = dataset.getRequest(dataset.city.srs, nil)
+
+    respond_with do |format|
+      format.html { render :text => req, :status => :ok }
     end
   end
 

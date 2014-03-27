@@ -13,7 +13,7 @@ gem 'simple_form'
 
 gem 'devise', '~> 2.2.4'
 
-gem 'proj4rb'  # If this causes problems, try this: "sudo apt-get install libproj-dev"
+#gem 'proj4rb'  # If this causes problems, try this: "sudo apt-get install libproj-dev"
 
 
 gem 'pry', :group => :development

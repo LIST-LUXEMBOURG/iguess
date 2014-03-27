@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os, sys
+import sys
 import psycopg2
 import WPSClient.WPSClient as WPSClient
 import datetime
@@ -12,6 +12,33 @@ connstr = "dbname='" + dbName + "' user='" + dbUsername +"' host='" + dbServer +
 
 logLevel = "INFO"
 
+
+def getRunningFinishedErrorVals():
+    sql = "select id, status from run_statuses where status in ('RUNNING', 'FINISHED', 'ERROR')"
+
+    cur.execute(sql)
+
+    rows = cur.fetchall()
+
+    r = s = e = None
+
+    for row in rows:
+        id = row[0]
+        status = row[1]
+
+        if(status == 'RUNNING'):
+            r = id 
+        elif(status == 'FINISHED'):
+            s = id 
+        elif(status == 'ERROR'):
+            e = id
+
+    if(not(r and s and e)):
+        raise ValueError("Could not find required status in run_status table")
+
+
+# Define constants for communication between different sotware bits
+RUNNING, FINISHED, ERROR = getRunningFinishedErrorVals()
 
 
 def configLogging(logfile, loglevel):
@@ -31,7 +58,7 @@ def logErrorMsg(recordId, msg):
 
     if(recordId):
         queryTemplate = "UPDATE " + dbSchema + ".mod_configs " \
-            "SET status = 'ERROR', status_text = %s, run_ended = %s " \
+            "SET run_status_id = " + str(ERROR) + ", status_text = %s, run_ended = %s " \
             "WHERE id = %s" 
 
         cur.execute(queryTemplate, (msg, str(datetime.datetime.now()), recordId))
@@ -65,7 +92,7 @@ try:
     query = "SELECT mc.id, pid, c.srs, c.id " \
             "FROM " + dbSchema + ".mod_configs AS mc " \
             "LEFT JOIN " + dbSchema + ".cities AS c ON c.id = mc.city_id " \
-            "WHERE status = 'RUNNING'"
+            "WHERE run_status_id = " + str(RUNNING)
             #"WHERE mc.id = 144"
             
     cur.execute(query)
@@ -135,13 +162,13 @@ for row in rows:
 
     logInfoMsg("Status = " + str(client.status))
 
-    if client.status == client.RUNNING:      # 1
+
+    if client.status == client.RUNNING:      # 1... 
         queryTemplate = "UPDATE " + dbSchema + ".mod_configs " \
-                        "SET status = 'RUNNING', status_text = %s " \
+                        "SET run_status_id = " + str(RUNNING) + ", status_text = %s " \
                         "WHERE id = %s"
         cur.execute(queryTemplate, (str(client.percentCompleted) + '% complete', recordId))
         conn.commit()
-
 
     elif client.status == client.FINISHED:   # 2
         mapfile = ""
@@ -164,7 +191,7 @@ for row in rows:
 
             # Update status in the database
             queryTemplate = "UPDATE " + dbSchema + ".mod_configs " \
-                            "SET status = 'FINISHED', status_text = %s, run_ended = %s " \
+                            "SET run_status_id = " + str(FINISHED) + ", status_text = %s, run_ended = %s " \
                             "WHERE id = %s" 
 
             cur.execute(queryTemplate, (client.processErrorText, str(datetime.datetime.now()), recordId))

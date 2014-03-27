@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140317173519) do
+ActiveRecord::Schema.define(:version => 20140326135055) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -90,6 +90,7 @@ ActiveRecord::Schema.define(:version => 20140317173519) do
     t.text     "resolution_x"
     t.text     "resolution_y"
     t.boolean  "local_srs"
+    t.text     "bbox_srs"
   end
 
   create_table "geometry_columns", :id => false, :force => true do |t|
@@ -117,6 +118,7 @@ ActiveRecord::Schema.define(:version => 20140317173519) do
     t.text     "status_text",    :default => ""
     t.integer  "wps_process_id"
     t.integer  "aoi",            :default => -1, :null => false
+    t.integer  "run_status_id",  :default => 1,  :null => false
   end
 
   create_table "process_params", :force => true do |t|
@@ -130,6 +132,11 @@ ActiveRecord::Schema.define(:version => 20140317173519) do
     t.datetime "last_seen"
     t.integer  "min_occurs",     :default => 1, :null => false
     t.integer  "max_occurs",     :default => 1, :null => false
+  end
+
+  create_table "run_statuses", :force => true do |t|
+    t.text "status"
+    t.text "pretty_name"
   end
 
   create_table "site_details", :force => true do |t|
