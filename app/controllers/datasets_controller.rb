@@ -222,14 +222,14 @@ class DatasetsController < ApplicationController
   end
 
 
+  GoogleProjection = 'EPSG:3857'
+
   def mass_import
     # current_user should always be set here
     @current_city = User.getCurrentCity(current_user, cookies)
 
     # Only used for generating a list of registered datasets
     @datasets = Dataset.find_all_by_city_id_and_finalized(@current_city.id, true)
-
-    @GoogleProjection = 'EPSG:3857'
 
     if @current_city.nil?     # Should never happen, but just in case...
       @current_city = City.first

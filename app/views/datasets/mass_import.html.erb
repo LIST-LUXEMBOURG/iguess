@@ -58,7 +58,7 @@
   <div class="infotable" id="infotable-unavailable-for-mapping">
     <h1 class="dataset-title">Available for mapping</h1>
       <div>
-        We do all our mapping using <%= @GoogleProjection %>, which is compatible with Google Maps and OpenStreetMap, 
+        We do all our mapping using <%= GoogleProjection %>, which is compatible with Google Maps and OpenStreetMap, 
         used as a background in the map window.  If a dataset is available from a WMS service, and is in this projection, 
         then we can display it on our maps.
       </div>
@@ -79,7 +79,7 @@
   // Add "js" style to body -- makes fancy checkboxes work
   $('body').attr("class",$('body').attr("class") + " js");
 
-  GOOGLE_SRS = '<%= @GoogleProjection %>';
+  GOOGLE_SRS = '<%= GoogleProjection %>';
 
 
   var makeRegisteredLayer = function(serverUrl, datasetIdentifier, tags, configCount) 
