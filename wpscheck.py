@@ -51,6 +51,21 @@ def logInfoMsg(msg):
     print msg
 
 
+
+
+configLogging(logFileName, logLevel)
+
+try:
+    conn = psycopg2.connect(connstr)
+except:
+    logErrorMsg(None, "Database Error: Can't connect to database " + dbName + "!")
+    sys.exit(2)
+
+cur  = conn.cursor()
+qcur = conn.cursor()
+
+
+
 def getRunningFinishedErrorVals():
     sql = "select id, status from run_statuses where status in ('RUNNING', 'FINISHED', 'ERROR')"
 
@@ -77,18 +92,6 @@ def getRunningFinishedErrorVals():
 
 # Define constants for communication between different sotware bits
 RUNNING, FINISHED, ERROR = getRunningFinishedErrorVals()
-
-
-configLogging(logFileName, logLevel)
-
-try:
-    conn = psycopg2.connect(connstr)
-except:
-    logErrorMsg(None, "Database Error: Can't connect to database " + dbName + "!")
-    sys.exit(2)
-
-cur  = conn.cursor()
-qcur = conn.cursor()
 
 try:
     query = "SELECT mc.id, pid, c.srs, c.id " \
