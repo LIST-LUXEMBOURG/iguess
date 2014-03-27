@@ -248,16 +248,22 @@ for row in rows:
                     elif r.dataType == r.TYPE_RASTER:
                         service = "WCS"
     
-                    queryTemplate = "INSERT INTO " + dbSchema + ".datasets "\
-                                    "(title, server_url, dataserver_id, identifier, abstract, city_id, alive, finalized, created_at, updated_at, service)" \
-                                    "VALUES((SELECT value FROM " + dbSchema + ".config_text_inputs " \
-                                        "WHERE mod_config_id = %s AND column_name = %s AND is_input = FALSE), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "\
-                                    "RETURNING id"
+                    queryTemplate = "INSERT INTO " + dbSchema + ".datasets                                      \
+                                     (title, server_url, dataserver_id, identifier, abstract, city_id,          \
+                                             alive, finalized, created_at, updated_at, service)                 \
+                                     VALUES(                                                                    \
+                                        (                                                                       \
+                                            SELECT value FROM " + dbSchema + ".config_text_inputs               \
+                                            WHERE mod_config_id = %s AND column_name = %s AND is_input = FALSE  \
+                                        ),                                                                      \
+                                         %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)                                \
+                                     RETURNING id"
     
                     abstract = "Result calculated with module"
                     
                     qcur.execute(queryTemplate, (recordId, r.uniqueID, url, serverId, r.uniqueID, abstract, str(city_id), True, True, 
                                                  str(datetime.datetime.now()), str(datetime.datetime.now()), service) )
+                    # For WCS datasets, need bounding box, and bbox srs, also 
     
                     if qcur.rowcount == 0:
                         logErrorMsg(recordId, "Database Error: Unable to insert record into datasets table")
