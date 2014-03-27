@@ -219,7 +219,7 @@ for row in rows:
     
                     # Insert fresh ones
                     queryTemplate = "INSERT INTO " + dbSchema + ".config_text_inputs " \
-                                    "(mod_config_id, column_name, value, is_input)"  \
+                                    "(mod_config_id, column_name, value, is_input)"    \
                                     "VALUES(%s, %s, %s, %s)"
                     cur.execute(queryTemplate, (recordId, r.name, r.value, False))
 
