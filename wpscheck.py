@@ -113,7 +113,7 @@ rows = cur.fetchall()
 try:
     client = WPSClient.WPSClient()
 except Exception as ex:
-    logErrorMsg(recordId, "Process Error: Could not initialize WPSClient module - " + str(ex))
+    logErrorMsg(None, "Process Error: Could not initialize WPSClient module - " + str(ex))
 
 
 for row in rows:
