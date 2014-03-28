@@ -460,7 +460,6 @@ class ModConfigsController < ApplicationController
       end
     end
 
-    #@mod_config.status = 'nil'  <== caused status to be reset when editing the description or title
 
     ok == ok && @mod_config.update_attributes(params[:mod_config])
 
