@@ -96,11 +96,10 @@ def getRunningFinishedErrorVals():
 RUNNING, FINISHED, ERROR = getRunningFinishedErrorVals()
 
 try:
-    query = "SELECT mc.id, pid, c.srs, c.id " \
-            "FROM " + dbSchema + ".mod_configs AS mc " \
+    query = "SELECT mc.id, pid, c.srs, c.id "                              \
+            "FROM " + dbSchema + ".mod_configs AS mc "                     \
             "LEFT JOIN " + dbSchema + ".cities AS c ON c.id = mc.city_id " \
             "WHERE run_status_id = " + str(RUNNING)
-            #"WHERE mc.id = 144"
             
     cur.execute(query)
 
@@ -117,10 +116,7 @@ except Exception as ex:
 
 
 for row in rows:
-    recordId = row[0]
-    pid = row[1]
-    srs = row[2]
-    city_id = row[3]
+    recordId, pid, srs, city_id = row
 
     logInfoMsg("Checking pid " + str(pid) + "...")
 
