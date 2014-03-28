@@ -175,6 +175,16 @@ WebGIS.CreatePanels = function() {
     lines: false
   });
   
+  WebGIS.testPanel = new Ext.Panel({
+  	title: 'Map Layers',
+	region: "west",
+	width: 200,
+    collapsible: true,
+    autoScroll: true,
+    enableDD: true,
+    items: [WebGIS.createFilter()]
+  });
+  
   WebGIS.mainPanel = new Ext.Panel({
     layout:'border',
     bodyBorder: false,
@@ -191,7 +201,8 @@ WebGIS.CreatePanels = function() {
     },
     items: [
             WebGIS.leftPanel,
-            WebGIS.layerTree,
+            WebGIS.testPanel,
+            //WebGIS.layerTree,
             { 
               // Legend: must be created here to be auto-linked to the map
               region: "east",
@@ -222,6 +233,24 @@ WebGIS.CreatePanels = function() {
   });
 
   WebGIS.zoomToCity();
+};
+
+WebGIS.createFilter = function()
+{
+	filterBox = new Ext.form.TextField({ 
+		fieldLabel:'', 
+		name:'txt-name', 
+		emptyText:'Your name...', 
+		id:"id-filter" 
+	});
+	form = new Ext.FormPanel({ 
+		border:false, // <-- removing the border of the form
+		defaults:{xtype:'textfield'},	//component by default of the form
+		bodyStyle:'background-color:#e8e8e8; padding:12px',
+		labelAlign: 'top',
+		items:[filterBox] 
+	});
+	return form;
 };
 
 /**
