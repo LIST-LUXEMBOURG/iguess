@@ -154,6 +154,33 @@ class ModConfigsController < ApplicationController
 
 
 
+  # Build the cmd line that we need to launch wpsstart.py
+  def assembleCommandLine(mod_config, inputs, outputFields, outputTitles)
+
+    cmd = 'cd ' + Rails.root.to_s() + '; /usr/bin/python wpsstart.py ' 
+    cmd += '--url="'      + mod_config.wps_process.wps_server.url + '" ' 
+    cmd += '--procname="' + mod_config.wps_process.identifier     + '" '
+    cmd += '--inputs="['  + inputs.map { |i| i.to_s }.join(",")   + ']" '
+
+    argOutputs = '--outputs="{'
+    j = 0
+    until j == outputFields.size
+      if (j > 0) 
+        argOutputs += ", "
+      end
+      argOutputs += "'" + outputFields[j] + "':'" + outputTitles[j] + "'"
+      j += 1
+    end
+    argOutputs += '}"'
+
+
+    cmd += argOutputs 
+
+    return cmd
+  end
+
+
+
   # Only called via ajax request... need to fire up WPSClient and tell it to start
   # running the specified module
   def run
@@ -188,42 +215,24 @@ class ModConfigsController < ApplicationController
 
     # Text fields -- both inputs and outputs
     @mod_config.config_text_inputs.map { |d|  
-            if d.is_input then 
-              inputs.push("('" + d.column_name + "', '" + d.value.gsub("&", "&amp;") + "')")
-            else
-              outputFields.push(d.column_name)
-              outputTitles.push(d.value)
-            end
-                                }
+          if d.is_input then 
+            inputs.push("('" + d.column_name + "', '" + d.value.gsub("&", "&amp;") + "')")
+          else
+            outputFields.push(d.column_name)
+            outputTitles.push(d.value)
+          end
+    }
 
-    argUrl       = '--url="'        + @mod_config.wps_process.wps_server.url + '"'
-    argProc      = '--procname="'   + @mod_config.wps_process.identifier + '"'
-    
-    argInputs    = '--inputs="[' + inputs.map { |i| i.to_s }.join(",") + ']"' 
-    
-    argOutputs = '--outputs="{'
-    j = 0
-    until j == outputFields.size
-      if (j > 0) 
-        argOutputs += ", "
-      end
-      argOutputs += "'" + outputFields[j] + "':'" + outputTitles[j] + "'"
-      j += 1
-    end
-    argOutputs += '}"'
-        
-    cmd = 'cd ' 
-    cmd += Rails.root.to_s()
-    cmd += '; /usr/bin/python wpsstart.py ' 
-    cmd += argUrl + ' ' 
-    cmd += argProc + ' ' 
-    cmd += argInputs + ' '
-    cmd += argOutputs 
-    
+    # Assemble our command line
+    cmd = assembleCommandLine(@mod_config, inputs, outputFields, outputTitles)
+
+    print "=============================================\n"
     print cmd
+    print "\n============================================="
 
     require 'open3'
 
+    # Run the command
     output, stat = Open3.capture2e(cmd)
 
 
@@ -240,14 +249,13 @@ class ModConfigsController < ApplicationController
       end
 
       # Show error to client
-      @mod_config.status = ErrorCode
+      @mod_config.run_status_id = ErrorCode
       @mod_config.pid = ''
       @mod_config.status_text = error
 
     else
       # Success! change status to running and all that
-
-      @mod_config.status = RunningCode
+      @mod_config.run_status_id = RunningCode
       @mod_config.pid = pid
       
       @mod_config.status_text = ''
