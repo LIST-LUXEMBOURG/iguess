@@ -266,6 +266,10 @@ $leftMargin: 120px;
   margin-bottom: 5px;
 }
 
+#input-table, #output-table {
+  empty-cells: hide;    /* Hide our message cell when empty */
+}
+
 
 #bottom-links {
   margin-top: 25px;
@@ -275,4 +279,8 @@ $leftMargin: 120px;
 /* How to style an input box that contains a dataset name that is already registered */
 input.error-nameAlreadyRegistered {
   background-color: #FCC;
+}
+
+.message-cell {
+  background-color: white;  /* Same as body color to make it appear part of the background */
 }
