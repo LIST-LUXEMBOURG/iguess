@@ -232,4 +232,28 @@ class DatasetsController < ApplicationController
 
     @cities = City.all
   end
+
+
+  def check_name
+
+    requested_name = params[:name]
+    field_name = params[:fieldName]
+
+    @current_city = User.getCurrentCity(current_user, cookies)
+
+    datasets = Dataset.find_all_by_title_and_city_id(requested_name, @current_city.id).length
+
+    if datasets == 0
+      status = 'ok' 
+    else
+      status = 'not ok'
+    end
+
+    available = '{"data": [{"fieldname": "' + field_name + '", "status": "' + status + '"} ] }'
+
+    respond_to do |format|
+      format.json { render :json => available, :status => :ok }
+    end
+  end
+
 end

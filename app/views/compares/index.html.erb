@@ -11,7 +11,7 @@
        data: 'cityId=' + getCityCookie(),
        headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
        success: successFunction,
-       error: function() { alert('Error retrieving datasets for city.'); }
+       error: function(jqXHR, textStatus, error) { alert("Error retrieving datasets for city: " + error); }
      });
   }
 

@@ -16,7 +16,9 @@ Iguess::Application.routes.draw do
     end
   end
 
-  resources :datasets
+  get '/datasets/check_name', to: 'datasets#check_name'
+
+  resources :datasets 
 
   resources :dataserver_urls
   

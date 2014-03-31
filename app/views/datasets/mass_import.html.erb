@@ -566,8 +566,9 @@
           success: function(data, status, jqXHR)  { 
               registeredDataset(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); 
             },
-          error: function(jqXHR, status, error) { 
-              alert('Could not register dataset! (server returned status "' + error.trim() + '")'); 
+          error: function(jqXHR, textStatus, error) { 
+                alert("Could not register dataset: " + error); 
+                }
             }
         });
       }

@@ -271,3 +271,8 @@ $leftMargin: 120px;
   margin-top: 25px;
   margin-left: $leftMargin;
 }
+
+/* How to style an input box that contains a dataset name that is already registered */
+input.error-nameAlreadyRegistered {
+  background-color: red;
+}

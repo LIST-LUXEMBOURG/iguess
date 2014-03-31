@@ -111,7 +111,10 @@
 
   // User has updated an input or output entry slot (called via onChange event)
   // In this case, we have nothing to do
-  var onInputOutputTextEntryChanged = function() { }
+  var onInputOutputTextEntryChanged = function(field) 
+  { 
+    checkIfNameIsAvailable(field);
+  }
 
   // Here a dataset dropdown has changed.  Again we have nothing to do.
   var onSelectedDatasetChanged = function() { }

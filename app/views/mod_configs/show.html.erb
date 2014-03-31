@@ -286,11 +286,12 @@ if($().jquery.split(".")[0] == "1") {
 
 
   // User has updated an input or output entry slot (called via onChange event)
-  var onInputOutputTextEntryChanged = function() 
+  var onInputOutputTextEntryChanged = function(field) 
   {
     var status = checkDataStatus();
     $('#hidden_status_tag').val(status);
     $('#input-output-form').submit();
+    checkIfNameIsAvailable(field);
   };
 
   // Gets triggered when a selected dataset changes

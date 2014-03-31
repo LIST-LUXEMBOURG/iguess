@@ -303,9 +303,7 @@
               thiiis.toggleClass("checked");
               alert(jqXHR.responseJSON.message);
             },
-          error: function(jqXHR, status, error) { 
-              alert(jqXHR.responseText); 
-            }
+          error: function(jqXHR, textStatus, error) { alert("Error unregistering server: " + error); }
         });
 
       } else {
@@ -331,9 +329,7 @@
               console.log(thiiis);
               alert(jqXHR.responseJSON.message);
             },
-          error: function(jqXHR, status, error) { 
-              alert(jqXHR.responseText); 
-            }
+          error: function(jqXHR, textStatus, error) { alert("Error registering server: " + error); }
         });
       }
 

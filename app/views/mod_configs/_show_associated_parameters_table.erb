@@ -232,7 +232,7 @@
           var placeholder = isInput ? item.datatype.capitalize() + " value" : "Output dataset name";
 
           cell.html('<input type="text" name="' + modeName + '[' + item.identifier + ']" placeholder="' + placeholder + '" ' +
-                           'value="' + value + '" class="' + className + ' disableable" onchange="onInputOutputTextEntryChanged()">');
+                           'value="' + value + '" class="' + className + ' disableable" onchange="onInputOutputTextEntryChanged(this)">');
         }
 
         row.append(cell);
@@ -241,5 +241,40 @@
       }
     }
   };
+
+
+  var nameVerified = function(jqXHR)
+  {
+    // var response = jqXHR.responseText;
+    var field = jqXHR.data[0]["fieldname"];
+    var status = jqXHR.data[0].status;        // Should be "ok" or "not ok"
+
+    // Fix up field to "legalize" the fieldname that rails uses
+    field.replace("[", "\\[");
+    field.replace("]", "\\]");
+
+    $('input[name="' + field + '"]').toggleClass("error-nameAlreadyRegistered", status == 'not ok');
+  }
+
+
+  // Check if we already have a dataset with this name
+  var checkIfNameIsAvailable = function(field)
+  {
+    // Only worry about output values
+    if(field.name.substring(0,6) != "output") 
+      return;
+
+    var name = field.value;
+
+    var serverUrl = '<%= url_for(:controller => "datasets", :action => "check_name", :format => :json) %>';
+    $.ajax({
+        type: 'GET',
+        url: serverUrl,
+        data: 'name=' + field.value + '&fieldName=' + field.name,
+        headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
+        success: nameVerified,
+        error: function(jqXHR, textStatus, error) { alert("Error checking name availability: " + error); }
+      });
+  }
 
  </script>
