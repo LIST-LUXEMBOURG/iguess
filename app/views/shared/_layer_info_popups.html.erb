@@ -57,6 +57,8 @@
             </select>
     <% end %>
           </dd>
+          <dt>When registered:</td>
+          <dd><%= d.created_at.to_formatted_s(:long) %> (UTC)</dd>
           <dt>Configurations:</td>
           <dd>
             <% if d.mod_configs.size > 0 %>

@@ -50,10 +50,16 @@ class ModConfigsController < ApplicationController
 
     # current_user should always be set here
     @datasets        = Dataset.find_all_by_city_id(@current_city.id)
-    
+   
+    # Protect against database corruption; if a dataset is deleted from the datasets table and not
+    # removed from config_datasets, the if-then clause in the map statement will give protection
     @datasetValues   = ConfigDataset.find_all_by_mod_config_id(params[:id])
-                                    .map{|d| d.input_identifier + ': "' + d.dataset.id.to_s + '"'}
+                                    .map{|d| if d.dataset then 
+                                                d.input_identifier + ': "' + d.dataset.id.to_s + '"' 
+                                            end }
                                     .join(',')
+
+
     @formValues      = ConfigTextInput.find_all_by_mod_config_id(@mod_config)
                                       .map{|text| text.column_name + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"'}
                                       .join(',')
