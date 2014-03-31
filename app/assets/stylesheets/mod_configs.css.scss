@@ -225,6 +225,9 @@ $leftMargin: 120px;
 }
 
 
+/* AVAILABLE, UNAVAILABLE --> used on datasets page */
+/* ERROR, READY, NEEDS_DATA, AVAILABLE, RUNNING --> used on the modules page */
+
 /* Status of module run (these styles are generated, won't be found in code */
 .status-ERROR, .status-UNAVAILABLE {
   background: red;
