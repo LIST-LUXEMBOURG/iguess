@@ -51,15 +51,15 @@
               </span>
             </label>
           </td>
+
+          <!-- Hidden span allows sorting by availability -->
           <td nowrap>
-            <span class="hidden"><%= d.alive ? "1" : "2" %></span>      <!-- Hidden span allows sorting by availability -->
-              <%= d.alive ? raw('<div style="cursor:pointer; display:inline;" rel="#infotable-layer-unavailable">' +
-                                  '<img class="status-indicator" src="/assets/layer_available_yes.png" alt="Layer available">' +
-                                '</div>') :
-                            raw('<div style="cursor:pointer; display:inline;" rel="#infotable-layer-unavailable">' +
-                                  '<img class="status-indicator" src="/assets/layer_available_no.png"  alt="Layer not available">' +
-                                '</div>') 
-              %>
+            <span class="hidden" style="display: none;"><%= d.alive ? "1" : "2" %></span> 
+            <% if d.alive %>
+              <span class="status-AVAILABLE">Available</span>
+            <% else %>
+              <span class="status-UNAVAILABLE">Unavailable</span>
+            <% end %>
           </td>
           <td nowrap>
             <%= d.dataserver.title %>

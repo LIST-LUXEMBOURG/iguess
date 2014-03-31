@@ -226,14 +226,17 @@ $leftMargin: 120px;
 
 
 /* Status of module run (these styles are generated, won't be found in code */
-.status-ERROR {
+.status-ERROR, .status-UNAVAILABLE {
   background: red;
   color: white;
   font-weight: bold;
-  display: block;
   text-align: center;
   padding-left: 3px;
   padding-right: 3px;
+}
+
+.status-READY, .status-ERROR {
+  display: block;
 }
 
 .status-NEEDS_DATA {
@@ -241,9 +244,8 @@ $leftMargin: 120px;
   display: block;
 }
 
-.status-READY {
+.status-AVAILABLE, .status-READY {
   text-align: center;
-  display: block;
 }
 
 .status-RUNNING {
