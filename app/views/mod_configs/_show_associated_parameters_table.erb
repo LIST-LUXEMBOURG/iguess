@@ -211,6 +211,8 @@
           // Add any other (hidden) controls returned by createDatasetSelectionControls()
           for(var j = 1, len = controls.length; j < len; j++) 
             cell.append(controls[j]);
+
+          row.append(cell);
         }
 
         // Simple output
@@ -222,6 +224,8 @@
             cell.append('<b>' + value + '</b>');
           else 
             cell.append('<i>Will be computed</i>');
+
+          row.append(cell);
         }
 
         // Simple input or complex output -- we'll need to show a text field here
@@ -231,11 +235,15 @@
           var value = (formValues == undefined) ? "" : formValues[item.identifier + modeName];
           var placeholder = isInput ? item.datatype.capitalize() + " value" : "Output dataset name";
 
-          cell.html('<input type="text" name="' + modeName + '[' + item.identifier + ']" placeholder="' + placeholder + '" ' +
+          var name = modeName + '[' + item.identifier + ']';
+
+          cell.html('<input type="text" name="' + name + '" placeholder="' + placeholder + '" ' +
                            'value="' + value + '" class="' + className + ' disableable" onchange="onInputOutputTextEntryChanged(this)">');
+          row.append(cell);
+
+          row.append('<td name="' + name + '"></td>' );   // Place for messages and such
         }
 
-        row.append(cell);
         table.append(row);
 
       }
@@ -253,8 +261,13 @@
     field.replace("[", "\\[");
     field.replace("]", "\\]");
 
+    var msg = "";
+    if(status == 'not ok')
+      msg = "Warning: Already have registered dataset with this name!";
+
     // Add or remove error class depnding on status sent by the server
     $('input[name="' + field + '"]').toggleClass("error-nameAlreadyRegistered", status == 'not ok');
+    $('td[name="' + field + '"]').text(msg);
   }
 
 
