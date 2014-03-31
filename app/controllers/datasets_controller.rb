@@ -241,6 +241,7 @@ class DatasetsController < ApplicationController
 
     @current_city = User.getCurrentCity(current_user, cookies)
 
+    # See if there are any datasets with this name already registered
     datasets = Dataset.find_all_by_title_and_city_id(requested_name, @current_city.id).length
 
     if datasets == 0
