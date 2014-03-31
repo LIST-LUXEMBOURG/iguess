@@ -38,6 +38,8 @@ WebGIS.headerHeight = 120;
 WebGIS.coordsLatLabel = null;
 WebGIS.coordsLongLabel = null;
 
+WebGIS.filterBox = null;
+
 WebGIS.CreatePanels = function() {
 
   // Skip this stuff if the BroadMap div does not exist
@@ -155,10 +157,11 @@ WebGIS.CreatePanels = function() {
   
   // Layer list
   WebGIS.layerTree = new Ext.tree.TreePanel({
-    title: 'Map Layers',
-    region: "west",
-    width: 200,
-    collapsible: true,
+    //title: 'Map Layers',
+    region: "south",
+    width: "100%",
+    height: "100%",
+    //collapsible: true,
     autoScroll: true,
     enableDD: true,
     plugins: [{
@@ -182,7 +185,7 @@ WebGIS.CreatePanels = function() {
     collapsible: true,
     autoScroll: true,
     enableDD: true,
-    items: [WebGIS.createFilter()]
+    items: [WebGIS.createFilter(), WebGIS.layerTree]
   });
   
   WebGIS.mainPanel = new Ext.Panel({
@@ -235,21 +238,80 @@ WebGIS.CreatePanels = function() {
   WebGIS.zoomToCity();
 };
 
+/**
+ * Method: showAllTreeNodes
+ * Removes filtering from the layer tree by showin all nodes.
+ */
+WebGIS.showAllTreeNodes = function()
+{
+	nodes = WebGIS.layerTree.root.childNodes;
+	for (var i = 0; i < nodes.length; i++) 
+	{
+		nodes[i].getUI().show();
+		leafs = nodes[i].childNodes;
+		for (var j = 0; j < leafs.length; j++) 
+			leafs[j].getUI().show();
+	}
+};
+
+/**
+ * Method: handleFilter
+ * Handles filtering to the layer tree.
+ */
+WebGIS.handleFilter = function()
+{
+	WebGIS.showAllTreeNodes();
+	filter = WebGIS.filterBox.getValue();
+	if((filter == null) || (filter == "")) return;
+	nodes = WebGIS.layerTree.root.childNodes;
+	for (var i = 0; i < nodes.length; i++) 
+	{
+		leafs = nodes[i].childNodes;
+		show = false;
+		for (var j = 0; j < leafs.length; j++) 
+		{
+			if((leafs[j].text !=null) && (leafs[j].text.indexOf(filter,0) >= 0))					
+				show = true;
+			else 
+				leafs[j].getUI().hide();
+				
+		}
+		if(!show) nodes[i].getUI().hide();
+	}
+};	
+
+/**
+ * Method: createFilter
+ * Creates layer tree filter
+ *
+ * Returns:
+ * {FormPanel({Ext.FormPanel})} An panel containing the filter text box.
+ */
 WebGIS.createFilter = function()
 {
-	filterBox = new Ext.form.TextField({ 
+	WebGIS.filterBox = new Ext.form.TextField({ 
 		fieldLabel:'', 
 		name:'txt-name', 
-		emptyText:'Your name...', 
-		id:"id-filter" 
+		width: "100%",
+		emptyText:'Filter layers...', 
+		id:"id-filter",
+		enableKeyEvents: true
 	});
+    
+    WebGIS.filterBox.on('change', WebGIS.handleFilter);
+    WebGIS.filterBox.on('keyup', WebGIS.handleFilter);
+	
 	form = new Ext.FormPanel({ 
-		border:false, // <-- removing the border of the form
-		defaults:{xtype:'textfield'},	//component by default of the form
-		bodyStyle:'background-color:#e8e8e8; padding:12px',
-		labelAlign: 'top',
-		items:[filterBox] 
+		border:false, 
+		bodyStyle:'background-color:#e8e8e8; padding:6px',
+		region:'north',
+		width: "100%",
+		labelWidth: 1,
+		height: 28,
+		labelAlign: 'right',
+		items:[WebGIS.filterBox] 
 	});
+	
 	return form;
 };
 
