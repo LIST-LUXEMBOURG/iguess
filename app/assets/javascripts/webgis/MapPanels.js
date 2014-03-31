@@ -303,11 +303,11 @@ WebGIS.createFilter = function()
 	
 	form = new Ext.FormPanel({ 
 		border:false, 
-		bodyStyle:'background-color:#e8e8e8; padding:3px',
+		bodyStyle:'background-color:#e8e8e8; padding:6px',
 		region:'north',
 		width: "100%",
 		labelWidth: 1,
-		height: 27,
+		height: 28,
 		labelAlign: 'right',
 		items:[WebGIS.filterBox] 
 	});
