@@ -208,6 +208,11 @@ class DatasetsController < ApplicationController
 
     if @dataset and User.canAccessObject(current_user, @dataset)
       @dataset.destroy
+
+      # Run the command
+      system(PythonPath,  Rails.root.to_s() + '/deleteDataset.py', 
+             @dataset.server_url, @dataset.identifier)
+
     else
       status = 403
     end

@@ -163,7 +163,7 @@ class ModConfigsController < ApplicationController
   # Build the cmd line that we need to launch wpsstart.py
   def assembleCommandLine(mod_config, inputs, outputFields, outputTitles)
 
-    cmd = 'cd ' + Rails.root.to_s() + '; /usr/bin/python wpsstart.py ' 
+    cmd = 'cd ' + Rails.root.to_s() + '; ' + PythonPath + ' wpsstart.py ' 
     cmd += '--url="'      + mod_config.wps_process.wps_server.url + '" ' 
     cmd += '--procname="' + mod_config.wps_process.identifier     + '" '
     cmd += '--inputs="['  + inputs.map { |i| i.to_s }.join(",")   + ']" '
