@@ -292,3 +292,42 @@ input, select, textarea {
 .probing {
   padding-left: 5px;
 }
+
+
+
+/* AVAILABLE, UNAVAILABLE --> used on datasets page */
+/* ERROR, READY, NEEDS_DATA, AVAILABLE, RUNNING --> used on the modules page */
+
+/* Status of module run (these styles are generated, won't be found in code */
+.status-ERROR, .status-UNAVAILABLE {
+  background: red;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+.status-READY, .status-ERROR {
+  display: block;
+}
+
+.status-NEEDS_DATA {
+  text-align: center;
+  display: block;
+}
+
+.status-AVAILABLE, .status-READY {
+  text-align: center;
+}
+
+.status-RUNNING {
+  background: green;
+  color: white;
+  font-weight: bold;
+  display: block;
+  text-align: center;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
