@@ -261,8 +261,11 @@ WebGIS.showAllTreeNodes = function()
 WebGIS.handleFilter = function()
 {
 	WebGIS.showAllTreeNodes();
+	
 	filter = WebGIS.filterBox.getValue();
 	if((filter == null) || (filter == "")) return;
+	filter = filter.toUpperCase();
+	
 	nodes = WebGIS.layerTree.root.childNodes;
 	for (var i = 0; i < nodes.length; i++) 
 	{
@@ -270,7 +273,7 @@ WebGIS.handleFilter = function()
 		show = false;
 		for (var j = 0; j < leafs.length; j++) 
 		{
-			if((leafs[j].text !=null) && (leafs[j].text.indexOf(filter,0) >= 0))					
+			if((leafs[j].text !=null) && (leafs[j].text.toUpperCase().indexOf(filter,0) >= 0))					
 				show = true;
 			else 
 				leafs[j].getUI().hide();
