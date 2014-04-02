@@ -48,6 +48,7 @@ tables["modconfigs"]    = dbSchema + ".mod_configs"
 # Global vars
 
 db_conn = update_cursor = serverCursor = ds_cursor = None
+city_crs = {}
 
 
 ############################################################
@@ -436,7 +437,7 @@ def check_data_servers(serverCursor):
 
                     # Check if dataset is available in the city's local srs
                     for c in wfs.contents[identifier].crsOptions:
-                        if is_equal_crs(c.id, cityCRS[cityId]):
+                        if is_equal_crs(c.id, city_crs[cityId]):
                             has_city_crs = True
                             break
                     
@@ -448,7 +449,7 @@ def check_data_servers(serverCursor):
 
 
                     for c in wcs.contents[identifier].supportedCRS:     # crsOptions is available here, but always empty; only exists for OOP
-                        if is_equal_crs(c.id, cityCRS[cityId]):
+                        if is_equal_crs(c.id, city_crs[cityId]):
                             has_city_crs = True
                             crs = c.id
                             break
@@ -508,7 +509,7 @@ def check_data_servers(serverCursor):
                     # Try projecting the WGS84 bounding box
                     if bbox_top == "":
                         bb = wcs.contents[identifier].boundingBoxWGS84
-                        bbox_left, bbox_bottom, bbox_right, bbox_top = project_wgs_to_local(bb, cityCRS[cityId])
+                        bbox_left, bbox_bottom, bbox_right, bbox_top = project_wgs_to_local(bb, city_crs[cityId])
 
 
                     if(len(wcs.contents[identifier].supportedFormats[0]) == 0):
@@ -566,7 +567,7 @@ def check_data_servers(serverCursor):
 
 
 def main():
-    global db_conn, update_cursor, serverCursor, ds_cursor
+    global db_conn, update_cursor, serverCursor, ds_cursor, city_crs
 
     # Get the database connection info
     print "Starting Harvester of Sorrow ", datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
@@ -589,11 +590,10 @@ def main():
     # Build a list of native CRS's for the cities
     # Creates:
     # {2: 'urn:ogc:def:crs:EPSG::31370', 3: 'urn:ogc:def:crs:EPSG::31467', 4: 'urn:ogc:def:crs:EPSG::2154', 5: 'urn:ogc:def:crs:EPSG::28992'}
-    cityCRS = {}
     serverCursor.execute("SELECT id, srs FROM " + tables["cities"])
 
     for row in serverCursor:
-        cityCRS[row[0]] = row[1]
+        city_crs[row[0]] = row[1]
 
 
     try:
