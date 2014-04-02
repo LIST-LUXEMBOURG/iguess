@@ -3,6 +3,10 @@
 Script to periodically check the status of running modules.  
 This script should be run from cron on a regular basis.
 '''
+
+############################################################
+# Imports
+
 import sys
 import psycopg2
 import WPSClient.WPSClient as WPSClient
@@ -19,6 +23,7 @@ logLevel = "INFO"
 
 ############################################################
 # Global vars -- will be assigned later
+
 RUNNING = FINISHED = ERROR = None
 cur = qcur = conn = None
 
