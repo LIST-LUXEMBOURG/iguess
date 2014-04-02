@@ -341,7 +341,7 @@ def check_data_servers(serverCursor):
             except: 
                 wcs = None
 
-             print "Done"
+            print "Done"
 
             if not (wms or wfs or wcs):
                 continue
