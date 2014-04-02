@@ -321,7 +321,7 @@ def check_data_servers(serverCursor):
             sqlList.append("UPDATE " + tables["dataservers"] + " SET alive = false WHERE url = '" + serverUrl + "'")
 
             try:        
-                print "Testing WMS...",
+                print "Testing WMS..."
                 wms = WebMapService(serverUrl, version = wmsVersion)
             except:
                 wms = None
@@ -329,7 +329,7 @@ def check_data_servers(serverCursor):
             print "Done"
 
             try:
-                print "Testing WFS...",
+                print "Testing WFS..."
                 wfs = WebFeatureService(serverUrl, version = wfsVersion)
             except:
                 wfs = None
@@ -337,7 +337,7 @@ def check_data_servers(serverCursor):
             print "Done"
 
             try:
-                print "Testing WCS...",
+                print "Testing WCS..."
                 wcs = WebCoverageService(serverUrl, version = wcsVersion)
             except: 
                 wcs = None
