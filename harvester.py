@@ -306,7 +306,7 @@ def check_data_servers(serverCursor):
         sqlList = []        # Statements to be run once we're sure the relevant records exist
         
         serverUrl = row[0]
-        print "Processing server ", serverUrl
+        print "Processing server", serverUrl
 
         try:
             # Now check on the dataservers and datasets, first marking them all as defunct
@@ -316,23 +316,32 @@ def check_data_servers(serverCursor):
                                  "WHERE dataservers.id = datasets.dataserver_id "
                                  "AND dataservers.url = '" + serverUrl + "'"
                                ")"
-                  );
+                  )
             sqlList.append("UPDATE " + tables["dataservers"] + " SET alive = false WHERE url = '" + serverUrl + "'")
 
             try:        
+                print "Testing WMS...",
                 wms = WebMapService(serverUrl, version = wmsVersion)
             except:
                 wms = None
 
+            print "Done"
+
             try:
+                print "Testing WFS...",
                 wfs = WebFeatureService(serverUrl, version = wfsVersion)
             except:
                 wfs = None
 
+            print "Done"
+
             try:
+                print "Testing WCS...",
                 wcs = WebCoverageService(serverUrl, version = wcsVersion)
             except: 
                 wcs = None
+
+             print "Done"
 
             if not (wms or wfs or wcs):
                 continue
