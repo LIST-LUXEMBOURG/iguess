@@ -12,17 +12,17 @@ import logging
 from iguess_db_credentials import dbServer, dbName, dbUsername, dbPassword, dbSchema, baseMapServerUrl, logFileName
 
 
-##########################################################
+############################################################
 # Some contants you might want to adjust:
 
 logLevel = "INFO"
 
-##########################################################
+############################################################
 # Global vars
 RUNNING = FINISHED = ERROR = None   # Will be assigned later
 cur = qcur = conn = None
 
-##########################################################
+############################################################
 
 
 def config_logging(logfile, loglevel):
