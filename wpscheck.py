@@ -25,7 +25,7 @@ logLevel = "INFO"
 # Global vars -- will be assigned later
 
 RUNNING = FINISHED = ERROR = None
-cur = qcur = conn = None
+cur = qcur = db_conn = None
 
 ############################################################
 
@@ -40,19 +40,19 @@ def config_logging(logfile, loglevel):
 
 
 def initialize_database_connection():
-    global conn, cur, qcur
+    global db_conn, cur, qcur
 
     try:
         connstr = ("dbname='" + dbName + "' user='" + dbUsername +"' " +
                    "host='" + dbServer + "' password='" + dbPassword + "'")
-        conn = psycopg2.connect(connstr)
+        db_conn = psycopg2.connect(connstr)
     except:
         # Can't log error message until logging is configured, which requires a db connection.  What do do!
         # log_error_msg(None, "Database Error: Can't connect to database " + dbName + "!")
         sys.exit(2)
 
-    cur  = conn.cursor()
-    qcur = conn.cursor()
+    cur  = db_conn.cursor()
+    qcur = db_conn.cursor()
 
 
 def log_error_msg(recordId, msg):
@@ -66,7 +66,7 @@ def log_error_msg(recordId, msg):
                           "WHERE id = %s" )
 
         cur.execute(query_template, (msg, str(datetime.datetime.now()), recordId))
-        conn.commit()
+        db_conn.commit()
 
     logging.error(str(recordId) + " " + msg)
     print str(recordId) + " " + msg   # Very helpful when running from cmd line
@@ -115,7 +115,7 @@ def get_running_finished_error_vals():
 
 
 def main():
-    initialize_database_connection()
+    initialize_database_db_connection()
     config_logging(logFileName, logLevel)
 
     # Define constants for communication between different sotware bits
@@ -195,7 +195,7 @@ def main():
                               "SET run_status_id = " + str(RUNNING) + ", status_text = %s " 
                               "WHERE id = %s" )
             cur.execute(query_template, (str(client.percentCompleted) + '% complete', recordId))
-            conn.commit()
+            db_conn.commit()
 
         elif client.status == client.FINISHED:   # 2
             mapfile = ""
@@ -291,7 +291,7 @@ def main():
                         # Insert mapping tag
                         qcur.execute("insert into " + dbSchema + ".dataset_tags(dataset_id, tag) values(" + str(insertedId) + ", 'Mapping')")
 
-                conn.commit()
+                db_conn.commit()
 
             except:
                 log_error_msg(recordId, "Error: Last client status was " + str(client.status))

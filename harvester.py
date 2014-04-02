@@ -1,20 +1,32 @@
 #!/usr/bin/python
+'''
+Harvester of (Great) Sorrow
+Periodically check on availablity and details of various registered services and datasets.
+This should be run on a scheduled basis from a service like cron.
+'''
 
-# Harvester of Sorrow
+############################################################
+# Imports
 
 from owslib.wps import WebProcessingService
 from owslib.wfs import WebFeatureService
 from owslib.wcs import WebCoverageService
-from owslib.wms import WebMapService, ServiceException
+from owslib.wms import WebMapService
 
 # Download source from http://code.google.com/p/pyproj/downloads/list, follow instructions in README
 from pyproj import transform, Proj
 
-import psycopg2          # For database access
-from psycopg2.extensions import adapt  # adapt gives us secure qutoing
+import psycopg2                         # For database access
+from psycopg2.extensions import adapt   # adapt gives us secure qutoing
 import time
 import datetime
 import string
+
+from harvester_pwd import dbDatabase, dbName, dbUsername, dbPassword, dbSchema
+
+
+############################################################
+# Constants
 
 wpsVersion = '1.0.0'
 wmsVersion = '1.1.1'        # Rotterdam wms doesn't like 1.3.0!
@@ -22,8 +34,29 @@ wfsVersion = '1.0.0'        # Montreuil only works with 1.0.0
 wcsVersion = '1.1.0'        # Rotterdam only works when this is set to 1.1.0
 
 
-# Create a database row if one is needed
+# Tables we will use
+tables = { }
+tables["wpsServers"]    = dbSchema + ".wps_servers"
+tables["processes"]     = dbSchema + ".wps_processes"
+tables["processParams"] = dbSchema + ".process_params"
+tables["datasets"]      = dbSchema + ".datasets"
+tables["dataservers"]   = dbSchema + ".dataservers"
+tables["cities"]        = dbSchema + ".cities"
+tables["modconfigs"]    = dbSchema + ".mod_configs"
+
+############################################################
+# Global vars
+
+db_conn = update_cursor = serverCursor = ds_cursor = None
+
+
+############################################################
+
+
 def upsert(cursor, table, idCol, rowId, identifier):
+    '''
+    Create a database row if one is needed
+    '''
     # This query will return the row's id if it finds a match, otherwise it will return nothing. 
     # We will check this with rowcount, below.
     cursor.execute("UPDATE " + table + " SET alive = TRUE WHERE " + idCol + " = %s AND identifier = %s RETURNING id",
@@ -54,7 +87,7 @@ def convert_encoding(data, new_coding='UTF-8'):
     return data
 
 
-def doSql(conn, cursor, upsertList, sqlList):
+def do_sql(conn, cursor, upsertList, sqlList):
 
     conn.set_session(autocommit=False)
 
@@ -98,7 +131,7 @@ def doSql(conn, cursor, upsertList, sqlList):
     
 
 
-def checkWPS(serverCursor):
+def check_wps(serverCursor):
     # Get the server list, but ignore servers marked as deleted
     serverCursor.execute("SELECT url, id FROM " + tables["wpsServers"] + " WHERE deleted = false")
 
@@ -162,13 +195,13 @@ def checkWPS(serverCursor):
                           )
 
             # Need to do this here so that the SELECT below will find a record if the upsert inserts... a little messy
-            doSql(dbConn, updateCursor, upsertList, sqlList)
+            do_sql(db_conn, update_cursor, upsertList, sqlList)
             upsertList = []
             sqlList = []
 
-            updateCursor.execute("SELECT id FROM " + tables["processes"] + " " + whereClause)
+            update_cursor.execute("SELECT id FROM " + tables["processes"] + " " + whereClause)
 
-            procId = updateCursor.fetchone()[0]
+            procId = update_cursor.fetchone()[0]
 
             try:
                 procDescr = wps.describeprocess(proc.identifier)
@@ -229,13 +262,13 @@ def checkWPS(serverCursor):
                               )
 
     # Run and commit WPS transactions
-    doSql(dbConn, updateCursor, upsertList, sqlList)
+    do_sql(db_conn, update_cursor, upsertList, sqlList)
 
 
 # Compare whether two crs's are in fact the same.  We'll consider the following two strings equal
 # urn:ogc:def:crs:EPSG::28992
 # EPSG:28992
-def isEqualCrs(first, second):
+def is_equal_crs(first, second):
     # Frist, replace the :: with a single :
     first = first.replace('::', ':')
     second = second.replace('::', ':')
@@ -244,26 +277,27 @@ def isEqualCrs(first, second):
     firstWords = first.lower().split(':')
     secondWords = second.lower().split(':')
     
-    return firstWords[len(firstWords) - 2] == secondWords[len(secondWords) - 2] and firstWords[len(firstWords) - 1] == secondWords[len(secondWords) - 1]
+    return (firstWords[len(firstWords) - 2] == secondWords[len(secondWords) - 2] and 
+            firstWords[len(firstWords) - 1] == secondWords[len(secondWords) - 1])
 
 
 
-def projectWgsToLocal(boundingBox, localProj):
+def project_wgs_to_local(bounding_box, local_proj):
     p1 = Proj(init='EPSG:4326')     # WGS84
-    p2 = Proj(init=localProj)
+    p2 = Proj(init=local_proj)
 
-    bboxLeft,  bboxBottom = transform(p1, p2, boundingBox[0], boundingBox[1])
-    bboxRight, bboxTop    = transform(p1, p2, boundingBox[2], boundingBox[3])
+    bbox_left,  bbox_bottom = transform(p1, p2, bounding_box[0], bounding_box[1])
+    bbox_right, bbox_top    = transform(p1, p2, bounding_box[2], bounding_box[3])
 
     print "Transforming:"
-    print localProj, bboxLeft,  bboxBottom ,"= transform(p1, p2, ",boundingBox[0],",", boundingBox[1],")"
-    print localProj, bboxRight, bboxTop ,"= transform(p1, p2, ",boundingBox[2], ",", boundingBox[3],")"
+    print local_proj, bbox_left,  bbox_bottom, "= transform(p1, p2, ", bounding_box[0], ",", bounding_box[1],")"
+    print local_proj, bbox_right, bbox_top,    "= transform(p1, p2, ", bounding_box[2], ",", bounding_box[3],")"
 
-    return bboxLeft,  bboxBottom, bboxRight, bboxTop
+    return bbox_left,  bbox_bottom, bbox_right, bbox_top
 
 
 
-def checkDataServers(serverCursor):
+def check_data_servers(serverCursor):
     # Get the server list
     serverCursor.execute("SELECT DISTINCT url FROM " + tables["dataservers"])
 
@@ -344,14 +378,14 @@ def checkDataServers(serverCursor):
                   "WHERE ds.url = '" + serverUrl + "'"
 
             # Trailing comma needed in line below because Python tuples can't have just one element...
-            dsCursor.execute(sql)
+            ds_cursor.execute(sql)
 
             print sql
 
-            print "Rows --> ",dsCursor.rowcount
+            print "Rows --> ",ds_cursor.rowcount
 
 
-            for dsrow in dsCursor:
+            for dsrow in ds_cursor:
                 dsid       = dsrow[0]
                 identifier = dsrow[1]
                 cityId     = dsrow[2]
@@ -359,12 +393,12 @@ def checkDataServers(serverCursor):
                 dstitle = dsabstr = None
 
                 found = True
-                hasCityCRS = False
+                has_city_crs = False
                 imgFormat  = ""
-                bboxLeft   = None
-                bboxRight  = None
-                bboxTop    = None
-                bboxBottom = None
+                bbox_left   = None
+                bbox_right  = None
+                bbox_top    = None
+                bbox_bottom = None
                 resX       = 0
                 resY       = 0
 
@@ -382,19 +416,19 @@ def checkDataServers(serverCursor):
                     if wfs.contents[identifier].boundingBoxWGS84 is not None:
                         # For WFS 1.0, at least, the boundingBoxWGS84 is actually a local CRS bounding box
                         bb = wfs.contents[identifier].boundingBoxWGS84    # Looks like (91979.2, 436330.0, 92615.5, 437657.0)
-                        bboxLeft, bboxBottom, bboxRight, bboxTop = bb
+                        bbox_left, bbox_bottom, bbox_right, bbox_top = bb
                     else:
                         # Make sure there are no Area of Interest tags for this dataset if the bb has disappeared
                         # This is actually not needed as datasets are checked for bb info when the tag list is generated
 
                         # Make sure this dataset is not used as the aoi for any configurations
                         sql = "UPDATE " + tables["modconfigs"] + " SET aoi = -1 WHERE aoi = " + str(adapt(dsid))
-                        updateCursor.execute(sql)
+                        update_cursor.execute(sql)
 
                     # Check if dataset is available in the city's local srs
                     for c in wfs.contents[identifier].crsOptions:
-                        if isEqualCrs(c.id, cityCRS[cityId]):
-                            hasCityCRS = True
+                        if is_equal_crs(c.id, cityCRS[cityId]):
+                            has_city_crs = True
                             break
                     
                 if wcs and identifier in wcs.contents:
@@ -405,8 +439,8 @@ def checkDataServers(serverCursor):
 
 
                     for c in wcs.contents[identifier].supportedCRS:     # crsOptions is available here, but always empty; only exists for OOP
-                        if isEqualCrs(c.id, cityCRS[cityId]):
-                            hasCityCRS = True
+                        if is_equal_crs(c.id, cityCRS[cityId]):
+                            has_city_crs = True
                             crs = c.id
                             break
 
@@ -440,32 +474,32 @@ def checkDataServers(serverCursor):
 
                     # Try to get the native bounding box, if we can find it.  If we can't we'll try projecting the WGS84 bounding box, but this
                     # is less accurate
-                    if(hasCityCRS):
+                    if(has_city_crs):
                         # bb = dc.find(".//{*}BoundingBox[@crs='" + crs + "']")
                         lc = None
                         bbs = dc.xpath("//*[local-name() = 'LowerCorner']")
                         for bb in bbs:
-                            if bb.getparent().get("crs") and isEqualCrs(bb.getparent().get("crs"), crs):
+                            if bb.getparent().get("crs") and is_equal_crs(bb.getparent().get("crs"), crs):
                                 lc = bb.text
                                 break
 
                         uc = None
                         bbs = dc.xpath("//*[local-name() = 'UpperCorner']")
                         for bb in bbs:
-                            if bb.getparent().get("crs") and isEqualCrs(bb.getparent().get("crs"), crs):
+                            if bb.getparent().get("crs") and is_equal_crs(bb.getparent().get("crs"), crs):
                                 uc = bb.text
                                 break
 
 
                         if lc is not None and uc is not None:
-                            bboxLeft, bboxBottom = string.split(lc)
-                            bboxRight, bboxTop   = string.split(uc)
+                            bbox_left, bbox_bottom = string.split(lc)
+                            bbox_right, bbox_top   = string.split(uc)
 
 
                     # Try projecting the WGS84 bounding box
-                    if bboxTop == "":
+                    if bbox_top == "":
                         bb = wcs.contents[identifier].boundingBoxWGS84
-                        bboxLeft, bboxBottom, bboxRight, bboxTop = projectWgsToLocal(bb, cityCRS[cityId])
+                        bbox_left, bbox_bottom, bbox_right, bbox_top = project_wgs_to_local(bb, cityCRS[cityId])
 
 
                     if(len(wcs.contents[identifier].supportedFormats[0]) == 0):
@@ -494,12 +528,12 @@ def checkDataServers(serverCursor):
                                         "abstract = "     + str(adapt(dsabstr))    + ", "
                                         "alive = TRUE, "
                                         "last_seen = NOW(), "
-                                        "local_srs = "    + str(adapt(hasCityCRS)) + ", "
+                                        "local_srs = "    + str(adapt(has_city_crs)) + ", "
                                         "format = "       + str(adapt(imgFormat))  + ", "
-                                        "bbox_left = "    + ("NULL" if bboxLeft   is None else str(adapt(bboxLeft)))   + ", "
-                                        "bbox_right = "   + ("NULL" if bboxRight  is None else str(adapt(bboxRight)))  + ", "
-                                        "bbox_top = "     + ("NULL" if bboxTop    is None else str(adapt(bboxTop)))    + ", "
-                                        "bbox_bottom = "  + ("NULL" if bboxBottom is None else str(adapt(bboxBottom))) + ", "
+                                        "bbox_left = "    + ("NULL" if bbox_left   is None else str(adapt(bbox_left)))   + ", "
+                                        "bbox_right = "   + ("NULL" if bbox_right  is None else str(adapt(bbox_right)))  + ", "
+                                        "bbox_top = "     + ("NULL" if bbox_top    is None else str(adapt(bbox_top)))    + ", "
+                                        "bbox_bottom = "  + ("NULL" if bbox_bottom is None else str(adapt(bbox_bottom))) + ", "
                                         "resolution_x = " + str(adapt(resX))       + ", "
                                         "resolution_y = " + str(adapt(resY))       + " "
                                     "WHERE id = " + str(adapt(dsid)) 
@@ -519,82 +553,77 @@ def checkDataServers(serverCursor):
 
         else:
             # Run queries and commit dataset transactions
-            doSql(dbConn, updateCursor, upsertList, sqlList)
+            do_sql(db_conn, update_cursor, upsertList, sqlList)
 
 
+def main():
+    global db_conn, update_cursor, serverCursor, ds_cursor
 
-# Get the database connection info
-print "Starting Harvester of Sorrow ", datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-
-
-from harvester_pwd import dbDatabase, dbName, dbUsername, dbPassword, dbSchema
-
-tables = { }
-tables["wpsServers"]    = dbSchema + ".wps_servers"
-tables["processes"]     = dbSchema + ".wps_processes"
-tables["processParams"] = dbSchema + ".process_params"
-tables["datasets"]      = dbSchema + ".datasets"
-tables["dataservers"]   = dbSchema + ".dataservers"
-tables["cities"]        = dbSchema + ".cities"
-tables["modconfigs"]    = dbSchema + ".mod_configs"
-
-# Connect to the database
-dbConn = psycopg2.connect(host = dbDatabase, database = dbName, user = dbUsername, password = dbPassword)
-
-dbConn.set_client_encoding("UTF-8")
-
-# Turn autocommit on to avoid locking our select statements
-# set_session([isolation_level,] [readonly,] [deferrable,] [autocommit])
-dbConn.set_session(autocommit=True)
+    # Get the database connection info
+    print "Starting Harvester of Sorrow ", datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
 
 
-serverCursor = dbConn.cursor()      # For listing servers
-updateCursor = dbConn.cursor()      # For updating the database
-dsCursor     = dbConn.cursor()      # For iterating over datasets and 
+    #  to the database
+    db_conn = psycopg2.connect(host = dbDatabase, database = dbName, user = dbUsername, password = dbPassword)
 
-# Build a list of native CRS's for the cities
-# Creates:
-# {2: 'urn:ogc:def:crs:EPSG::31370', 3: 'urn:ogc:def:crs:EPSG::31467', 4: 'urn:ogc:def:crs:EPSG::2154', 5: 'urn:ogc:def:crs:EPSG::28992'}
-cityCRS = {}
-serverCursor.execute("SELECT id, srs FROM " + tables["cities"])
+    db_conn.set_client_encoding("UTF-8")
 
-for row in serverCursor:
-    cityCRS[row[0]] = row[1]
+    # Turn autocommit on to avoid locking our select statements
+    # set_session([isolation_level,] [readonly,] [deferrable,] [autocommit])
+    db_conn.set_session(autocommit=True)
 
 
-try:
-    checkWPS(serverCursor)
-    checkDataServers(serverCursor)
+    serverCursor = db_conn.cursor()      # For listing servers
+    update_cursor = db_conn.cursor()      # For updating the database
+    ds_cursor     = db_conn.cursor()      # For iterating over datasets and 
 
-except Exception as e:
-    print "-----"
-    print "Unexpected error!"
-    print type(e)
-    print e.args
-    print e
-    print "-----"
+    # Build a list of native CRS's for the cities
+    # Creates:
+    # {2: 'urn:ogc:def:crs:EPSG::31370', 3: 'urn:ogc:def:crs:EPSG::31467', 4: 'urn:ogc:def:crs:EPSG::2154', 5: 'urn:ogc:def:crs:EPSG::28992'}
+    cityCRS = {}
+    serverCursor.execute("SELECT id, srs FROM " + tables["cities"])
 
-    dbConn.rollback()
+    for row in serverCursor:
+        cityCRS[row[0]] = row[1]
 
-# Close all cursors/connections
-try:
-    serverCursor.close()
-except:
-    print "Error closing serverCursor"
 
-try:
-    dsCursor.close()
-except:
-    print "Error closing dsCursor"
+    try:
+        check_wps(serverCursor)
+        check_data_servers(serverCursor)
 
-try:
-    updateCursor.close()
-except:
-    print "Error closing updateCursor"
+    except Exception as e:
+        print "-----"
+        print "Unexpected error!"
+        print type(e)
+        print e.args
+        print e
+        print "-----"
 
-try:
-    dbConn.close()
-except:
-    print "Error closing dbConn!"
+        db_conn.rollback()
 
-print "Done!"
+    # Close all cursors/connections
+    try:
+        serverCursor.close()
+    except:
+        print "Error closing serverCursor"
+
+    try:
+        ds_cursor.close()
+    except:
+        print "Error closing ds_cursor"
+
+    try:
+        update_cursor.close()
+    except:
+        print "Error closing update_cursor"
+
+    try:
+        db_conn.close()
+    except:
+        print "Error closing db_conn!"
+
+    print "Done!"
+
+
+if __name__ == '__main__':
+    main()
