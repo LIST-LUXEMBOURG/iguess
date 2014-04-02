@@ -29,6 +29,8 @@ var WebGIS = WebGIS || { };
 WebGIS.leftMap = null;
 WebGIS.rightMap = null;
 
+WebGIS.treeNodes = new Array();
+
 WebGIS.proxy = "/home/geoproxy?url=";
 OpenLayers.ProxyHost = "/home/geoproxy?url=";
 
@@ -45,7 +47,6 @@ WebGIS.displayProjection = "EPSG:4326";
 
 Proj4js.defs["EPSG:3857"]  = "+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs";
 Proj4js.defs["EPSG:28992"]  = "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +towgs84=565.237,50.0087,465.658,-0.406857,0.350733,-1.87035,4.0812 +units=m +no_defs";
-
 
 WebGIS.initMap = function () 
 {
@@ -145,15 +146,17 @@ WebGIS.clearLayers = function(alsoClearBaseLayers)
   var layers = WebGIS.leftMap.layers;
   var layersToRemove = [];
 
-  for(var i = 0, len = layers.length; i < len; i++) {
-    if(alsoClearBaseLayers || !layers[i].isBaseLayer) {
-      layersToRemove.push(layers[i]);
-    }
-  }
-
-  for(var i = 0, len = layersToRemove.length; i < len; i++) {
-    WebGIS.leftMap.removeLayer(layersToRemove[i]);
-  }
+  for(var i = 0, len = layers.length; i < len; i++) 
+  {   
+    if(layers[i] != null) 
+    {
+    	if(!alsoClearBaseLayers && layers[i].isBaseLayer);
+    	else WebGIS.leftMap.removeLayer(layers[i]);
+    } 
+  } 
+  	
+  WebGIS.treeNodes = [];
+  WebGIS.treeRoot.removeAll();
 };
 		
 

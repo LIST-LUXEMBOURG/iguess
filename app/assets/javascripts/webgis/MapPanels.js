@@ -31,7 +31,6 @@ WebGIS.leftPanel = null;
 WebGIS.layerTree = null;
 
 WebGIS.treeRoot = null;
-WebGIS.treeNodes = new Array();
 
 WebGIS.headerHeight = 120;
 
