@@ -18,8 +18,8 @@ from iguess_db_credentials import dbServer, dbName, dbUsername, dbPassword, dbSc
 logLevel = "INFO"
 
 ############################################################
-# Global vars
-RUNNING = FINISHED = ERROR = None   # Will be assigned later
+# Global vars -- will be assigned later
+RUNNING = FINISHED = ERROR = None
 cur = qcur = conn = None
 
 ############################################################
