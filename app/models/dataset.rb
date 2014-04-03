@@ -66,8 +66,6 @@ class Dataset < ActiveRecord::Base
       urlparams += "&CRS=" + computationCrs  
     end
 
-    urlparams += "&CRS=" + computationCrs
-
     request = (service == "WCS") ? "GetCoverage" : "GetFeature"
     noun    = (service == "WCS") ? "COVERAGE"    : "TYPENAME"
 

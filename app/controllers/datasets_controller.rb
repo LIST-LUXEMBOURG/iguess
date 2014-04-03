@@ -209,7 +209,8 @@ class DatasetsController < ApplicationController
     if @dataset and User.canAccessObject(current_user, @dataset)
       @dataset.destroy
 
-      # Run the command in a background thread
+      # Call a script to delete any locally stored datasets;
+      # Run the command in a background process
       system PythonPath + " " + Rails.root.to_s() + "/deleteDataset.py " + 
           @dataset.server_url + " " + @dataset.identifier + " &"
 
