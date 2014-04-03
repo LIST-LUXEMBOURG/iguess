@@ -115,7 +115,7 @@ def get_running_finished_error_vals():
 
 
 def main():
-    initialize_database_db_connection()
+    initialize_database_connection()
     config_logging(logFileName, logLevel)
 
     # Define constants for communication between different sotware bits
