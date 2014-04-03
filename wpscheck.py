@@ -115,11 +115,13 @@ def get_running_finished_error_vals():
 
 
 def main():
+    global RUNNING, FINISHED, ERROR
     initialize_database_connection()
     config_logging(logFileName, logLevel)
 
     # Define constants for communication between different sotware bits
-    RUNNING, FINISHED, ERROR = get_running_finished_error_vals()
+    
+     = get_running_finished_error_vals()
 
     try:
         query = ("SELECT mc.id, pid, c.srs, c.id "                              
