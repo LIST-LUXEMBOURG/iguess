@@ -38,7 +38,7 @@
               <% end %>
             </span>
           </td>
-          <td>
+          <td class="center">
             <%= d.created_at.to_formatted_s(:short_ordinal) %>
           </td>
           <td>
@@ -53,7 +53,7 @@
           </td>
 
           <!-- Hidden span allows sorting by availability -->
-          <td nowrap>
+          <td nowrap class="center">
             <span class="hidden" style="display: none;"><%= d.alive ? "1" : "2" %></span> 
             <% if d.alive %>
               <span class="status-AVAILABLE">Available</span>
