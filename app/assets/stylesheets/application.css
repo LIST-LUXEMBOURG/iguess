@@ -331,3 +331,8 @@ input, select, textarea {
   padding-right: 3px;
 }
 
+
+.show-no-tags-msg:empty:after {
+  content: "No tags";
+  width: 20px;
+};

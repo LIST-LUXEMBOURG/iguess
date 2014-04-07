@@ -42,20 +42,21 @@
 
           <dt>Folder Tags:</dt>
           <dd>
-            <span class="folder-taglist-deletable-<%= cssEscape(d.dataserver.url + d.identifier) %>">
-              <% d.dataset_folder_tags.each do |t| %>
+            <!-- Important!  When no datasets, make sure there is no whitespace in the span below -->
+            <span class="folder-taglist-deletable-<%= cssEscape(d.dataserver.url + d.identifier) %> show-no-tags-msg"><% d.dataset_folder_tags.each do |t| %>
                 <span class="folder-tag">
-                  <span <%= folderTagClassAttr %>
+                  <span <%= folderTagClassAttr %> 
                     data-url="<%= d.dataserver.url %>" data-identifier="<%= d.identifier %>"></span>
-                  <%= t.folder_tag %>
-                </span>
-              <% end %>
+                    <%= t.folder_tag %>
+                  </span>
+              <% end %></span>
           </dd>
 
           <dt>Processing Tags:</dt>
           <dd>
-            <span class="taglist-deletable-<%= cssEscape(d.dataserver.url + d.identifier) %>">
-              <% getAliveTags(d).each do |t| %>
+            <!-- Important!  When no datasets, make sure there is no whitespace in the span below -->
+            <span class="taglist-deletable-<%= cssEscape(d.dataserver.url + d.identifier) %> show-no-tags-msg"
+              ><% getAliveTags(d).each do |t| %>
                 <span class="tag">
                   <span 
                     <%= tagClassAttr %>
@@ -63,8 +64,7 @@
                   </span>
                   <%= t %>
                 </span>
-              <% end %>
-            </span>
+              <% end %></span>
             
     <% if fullControls %>
             <select style="float:right" class="add-tag-dropdown-control" 

@@ -26,12 +26,12 @@
 
 
   // Take an array or comma-separated list of tags and format them into some presentation quality HTML
-  var createTagList = function(taglist, deletable, serverUrl, datasetIdentifier, tagclass, placeholder) 
+  var createTagList = function(taglist, deletable, serverUrl, datasetIdentifier, tagclass) 
   {
       if(taglist.length == 0)
-        return placeholder;
+        return "";
 
-      if(typeof(taglist) === "string")
+      if(typeof(taglist) == "string")
         taglist = taglist.split(",");
 
       var delBtn = "";
@@ -42,7 +42,7 @@
                  'data-identifier="' + datasetIdentifier + '"></span>';
 
       var renderedList = "";
-      var strings = typeof(taglist[0]) === "string";
+      var strings = typeof(taglist[0]) == "string";
 
       for(var i = 0, len = taglist.length; i < len; i++) 
         renderedList += '<span class="' + tagclass + '">' + delBtn +
@@ -70,7 +70,7 @@
     var urlId = cssEscape(serverUrl + datasetIdentifier);
 
     $('.' + id + '-deletable-' + urlId).html(
-          createTagList(tags, true, serverUrl, datasetIdentifier, tagclass, 'No tags'));
+          createTagList(tags, true, serverUrl, datasetIdentifier, tagclass));
 
     addDeleteTagClickHander(tagclass == 'tag');
   };
@@ -84,7 +84,7 @@
     var urlId = cssEscape(serverUrl + datasetIdentifier);
 
     $('.' + id + '-' + urlId).html(
-          createTagList(tags, false, serverUrl, datasetIdentifier, tagclass, ''));
+          createTagList(tags, false, serverUrl, datasetIdentifier, tagclass));
   };
 
 
