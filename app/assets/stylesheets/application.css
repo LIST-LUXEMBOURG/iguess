@@ -332,7 +332,7 @@ input, select, textarea {
 }
 
 
-.show-no-tags-msg:empty:after {
+.show-no-tags-msg-when-empty:empty:after {
   content: "No tags";
   width: 20px;
 };

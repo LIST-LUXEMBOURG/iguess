@@ -43,7 +43,7 @@
           <dt>Folder Tags:</dt>
           <dd>
             <!-- Important!  When no datasets, make sure there is no whitespace in the span below -->
-            <span class="folder-taglist-deletable-<%= cssEscape(d.dataserver.url + d.identifier) %> show-no-tags-msg"><% d.dataset_folder_tags.each do |t| %>
+            <span class="folder-taglist-deletable-<%= cssEscape(d.dataserver.url + d.identifier) %> show-no-tags-msg-when-empty"><% d.dataset_folder_tags.each do |t| %>
                 <span class="folder-tag">
                   <span <%= folderTagClassAttr %> 
                     data-url="<%= d.dataserver.url %>" data-identifier="<%= d.identifier %>"></span>
@@ -55,7 +55,7 @@
           <dt>Processing Tags:</dt>
           <dd>
             <!-- Important!  When no datasets, make sure there is no whitespace in the span below -->
-            <span class="taglist-deletable-<%= cssEscape(d.dataserver.url + d.identifier) %> show-no-tags-msg"
+            <span class="taglist-deletable-<%= cssEscape(d.dataserver.url + d.identifier) %> show-no-tags-msg-when-empty"
               ><% getAliveTags(d).each do |t| %>
                 <span class="tag">
                   <span 
