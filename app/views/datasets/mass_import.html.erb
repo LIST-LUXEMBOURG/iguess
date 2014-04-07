@@ -456,6 +456,7 @@
     var registeredDataset = function(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, item)
     {
         $(".taglist-deletable-" + urlId).attr("disabled", false);
+        $(".folder-taglist-deletable-" + urlId).attr("disabled", false);
 
         // Add layer to the list of registered layers
         makeRegisteredLayer(serverUrl, data, 0);
@@ -467,8 +468,11 @@
 
 
     var disableTagItems = function(urlId, attr) {
-      $(".taglist-deletable-" + urlId + " ." + attr).attr("disabled", true);
-      $(".taglist-deletable-" + urlId + " ." + attr).off("click");   // Disable clicking
+      $(".taglist-deletable-"        + urlId + " ." + attr, 
+        ".folder-taglist-deletable-" + urlId + " ." + attr).attr("disabled", true);
+
+      $(".taglist-deletable-"        + urlId + " ." + attr,
+        ".folder-taglist-deletable-" + urlId + " ." + attr).off("click");   // Disable clicking
     };
 
 
@@ -482,8 +486,11 @@
       disableTagItems(urlId, "tag-delete-button");
       disableTagItems(urlId, "folder-tag-delete-button");
 
-      $(".taglist-deletable-" + urlId + " .tag").attr("disabled", true);
-      $(".taglist-deletable-" + urlId)          .attr("disabled", true);
+      $(".taglist-deletable-"        + urlId + " .tag", 
+        ".folder-taglist-deletable-" + urlId + " .tag").attr("disabled", true);
+
+      $(".taglist-deletable-"        + urlId,
+        ".folder-taglist-deletable-" + urlId)          .attr("disabled", true);
 
       onDatasetRegisteredOrUnregistered(item, checkbox, tagPickerControl, false);
     };
@@ -562,6 +569,7 @@
 
         var layer          = discoveredLayers[urlId];
         var taglist        = extractTagList(serverUrl, datasetIdentifier);
+        var folderTagList  = extractFolderTagList(serverUrl, datasetIdentifier);
         var sanitizedIdent = sanitizeForCss(datasetIdentifier)
         var title          = $("#dataset-title-"    + sanitizedIdent).text();
         var abstract       = $("#dataset-abstract-" + sanitizedIdent).text();
@@ -596,7 +604,9 @@
                 "&llbbox="                   + layer.llbbox +
                 "&server_title="             + getServerTitle() +
                 "&server_abstract="          + getServerAbstract() +
-                "&tags="                     + taglist,
+                "&tags="                     + taglist +
+                "&folder_tags="              + folderTagList,
+
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
           success: function(data, status, jqXHR)  { 
               registeredDataset(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); 
@@ -675,6 +685,21 @@
 
 
     $('.taglist-deletable-' + urlId).children().each(function() {
+        tags.push($(this).text());
+    });
+
+    return tags;
+  };
+
+
+  var extractFolderTagList = function(serverUrl, datasetIdentifier) 
+  {
+    var urlId = cssEscape(serverUrl + datasetIdentifier);
+
+    var tags = [];
+
+
+    $('.folder-taglist-deletable-' + urlId).children().each(function() {
         tags.push($(this).text());
     });
 
