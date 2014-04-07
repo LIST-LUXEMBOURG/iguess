@@ -267,10 +267,22 @@ div.error-body {
 }
 
 
-/* Dataset tags -- all tags get this style */
+/* Dataset tags look like this */
 .tag {
   color: #0E3D5E;
   background-color: #E0EAF1;
+}
+
+
+/* Folder tags look like this */
+.folder-tag {
+  color: #0E3D5E;
+  background-color: #C1E9BB;
+}
+
+
+/* All tags get this style */
+.folder-tag, .tag {
   border-bottom: 1px solid #3E6D8E;
   border-right: 1px solid #7F9FB6;
   padding: 0 3px;
@@ -282,8 +294,10 @@ div.error-body {
   display: inline-block;
 }
 
+
 /* Add this style to make tag have a delete icon on it */
-.tag-delete-button {
+.tag-delete-button, 
+.folder-tag-delete-button {
   background-image: url(/assets/close_small.png);
   background-repeat: no-repeat;
   padding-left: 14px;
@@ -292,15 +306,19 @@ div.error-body {
   white-space: nowrap;
 }
 
-.tag-delete-button[disabled] {
+
+.tag-delete-button[disabled], 
+.folder-tag-delete-button[disabled] {
   background-image: url(/assets/close_small-disabled.png);
   cursor: default;
 } 
+
 
 /* Div containing the list of tags and tag picker on mass_import screen */
 .tag-control {
   padding-right: 5px;
 }
+
 
 span[disabled]
 {
@@ -326,6 +344,7 @@ span[disabled]
   margin-bottom: 3px;
 }
 
+
 .proj-background {
   float: left;
   width: 180px;
@@ -333,24 +352,29 @@ span[disabled]
   margin-right: 0px;
 }
 
+
 .yes-background, .no-background {
   width: 30px;
   float: left;
   margin-left: 0px;
 }
 
+
 .yes-background {
   background-color: #01b002;
 }
+
 
 .no-background {
   background-color: #aa0000;
 }
 
+
 /* The Filter entry box at the top of the page */
 .filter-box {
   margin-bottom: 6px;
 }
+
 
 /* Projection list on each tile */
 .proj-list {
@@ -359,9 +383,11 @@ span[disabled]
   color: #777;
 }
 
+
 .proj-list {
   padding-top: 8px;
 }
+
 
 /* See http://stackoverflow.com/questions/2717480/css-selector-for-first-element-with-class/8539107#8539107 */
 .proj-list ~ .proj-list {
@@ -381,6 +407,7 @@ span[disabled]
   font-weight: bold;
 }
 
+
 .dataset-identifier span {
   font-weight: normal;
 }
@@ -390,6 +417,7 @@ span[disabled]
 #url-preset-select { 
 
 }
+
 
 #server_url { 
 

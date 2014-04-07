@@ -6,6 +6,7 @@
 
   var deleteTagClickHandler = function(ctrl)
   {
+    debugger;
     var serverUrl         = ctrl.data('url');
     var datasetIdentifier = ctrl.data('identifier');
     var tagVal            = ctrl.parent().text().trim();
@@ -15,39 +16,89 @@
   };
 
 
-  // Take an array or comma-separated list of tags and format them into some presentation quality HTML
-  var createTagList = function(taglist, deletable, serverUrl, datasetIdentifier) 
+  var deleteFolderTagClickHandler = function(ctrl)
   {
+    // We don't ask for a confirmation here...
+    deleteFolderTag(ctrl.data('url'), 
+                    ctrl.data('identifier'), 
+                    ctrl.parent().text().trim());
+  };
+
+
+  // Take an array or comma-separated list of tags and format them into some presentation quality HTML
+  var createTagList = function(taglist, deletable, serverUrl, datasetIdentifier, tagclass, placeholder) 
+  {
+      if(taglist.length == 0)
+        return placeholder;
+
       if(typeof(taglist) === "string")
         taglist = taglist.split(",");
 
       var delBtn = "";
 
-      if(deletable) 
-        delBtn = '<span class="tag-delete-button" ' +
+      if(deletable)   // or folder-tag-delete-button
+        delBtn = '<span class="' + tagclass + '-delete-button" ' +
                  'data-url="' + serverUrl + '" ' +
                  'data-identifier="' + datasetIdentifier + '"></span>';
 
-
-      var list = "";
+      var renderedList = "";
       var strings = typeof(taglist[0]) === "string";
 
       for(var i = 0, len = taglist.length; i < len; i++) 
-        list += '<span class="tag">' + delBtn +
-                  (strings ? taglist[i] : taglist[i].tag) + "</span> ";  // <== trailing space needed
+        renderedList += '<span class="' + tagclass + '">' + delBtn +
+                         (strings ? taglist[i] : taglist[i].tag) + '</span> ';  // Trailing space required
 
-     return list; 
+     return renderedList; 
+  };
+
+
+  var addDeleteTagClickHander = function(isProcessingTag) 
+  {
+    // Add a handler to delete tags when clicked on
+    if(isProcessingTag)
+      $('.tag-delete-button')       .on('click', function(event){ deleteTagClickHandler($(this)) });
+    else
+      $('.folder-tag-delete-button').on('click', function(event){ deleteFolderTagClickHandler($(this)) });
+  };
+
+
+  // This will update any tag lists composed of tags that do have a delete control, such as 
+  // the tags entries on the dataset info popups.  Note that we do not combine folder tags and
+  // processing tags, and do want to add a 'No Tags' placeholder if the list is empty.
+  var doUpdateDeleteableTags = function(serverUrl, datasetIdentifier, id, tags, tagclass)
+  {
+    var urlId = cssEscape(serverUrl + datasetIdentifier);
+
+    $('.' + id + '-deletable-' + urlId).html(
+          createTagList(tags, true, serverUrl, datasetIdentifier, tagclass, 'No tags'));
+
+    addDeleteTagClickHander(tagclass == 'tag');
+  };
+
+
+  // This will update any tag lists composed of tags that do not have a delete control, such as 
+  // the Tags column of the Registered Datasets screen.  Note that we combine folder tags and
+  // processing tags, and do not want to add a 'No Tags' placeholder if the list is empty.
+  var doUpdateNonDeleteableTags = function(serverUrl, datasetIdentifier, id, tags, tagclass)
+  {
+    var urlId = cssEscape(serverUrl + datasetIdentifier);
+
+    $('.' + id + '-' + urlId).html(
+          createTagList(tags, false, serverUrl, datasetIdentifier, tagclass, ''));
   };
 
 
   var updateTags = function(serverUrl, datasetIdentifier, tags)
   {
-    var urlId = cssEscape(serverUrl + datasetIdentifier);
+    doUpdateDeleteableTags   (serverUrl, datasetIdentifier, 'taglist', tags, 'tag');
+    doUpdateNonDeleteableTags(serverUrl, datasetIdentifier, 'taglist', tags, 'tag');
+  };
 
-    $('.taglist-deletable-' + urlId).html(tags.length > 0 ? createTagList(tags, true, serverUrl, datasetIdentifier) : 'No tags');
-    $('.taglist-' + urlId).html(tags.length > 0 ? createTagList(tags, false, serverUrl, datasetIdentifier) : 'No tags');
 
-    addDeleteTagClickHander();
+  var updateFolderTags = function(serverUrl, datasetIdentifier, tags)
+  {
+    doUpdateDeleteableTags   (serverUrl, datasetIdentifier, 'folder-taglist', tags, 'folder-tag');
+    doUpdateNonDeleteableTags(serverUrl, datasetIdentifier, 'folder-taglist', tags, 'folder-tag');
   };
 
 
@@ -59,13 +110,6 @@
       return; 
 
     addTag(ctrl);
-  };
-
-
-  var addDeleteTagClickHander = function() 
-  {
-    // Add a handler to delete tags when clicked on
-    $('.tag-delete-button').on('click', function(event){ deleteTagClickHandler($(this)) });
   };
 
 
@@ -102,9 +146,30 @@
   };
 
 
-  // User adds or removes a tag
-  var addTag = function(ctrl)
+
+  // General handler for json requests that return an unexpected error
+  var jsonErrorHandler = function(jqXHR, status, error, msg)
   {
+    // Often, if we encounter a rails error, jqXHR.status will be 500.  Show that error
+    // in a new window because responseText will contain a full HTML document.
+    if(jqXHR.status == 500)
+    {
+      var w = window.open();
+      $(w.document.body).html(jqXHR.responseText);
+    }
+    else
+      alert(msg + ' (server says: "' + jqXHR.responseText + '")');
+  };
+
+
+
+  // tagType will be true for regular tags, false for folder-tags
+  var doAddTag = function(ctrl, tagType, successFunction)
+  {
+
+    var url = tagType ? '<%= url_for(:controller => 'datasets', :action => 'add_data_tag') %>' :
+                        '<%= url_for(:controller => 'datasets', :action => 'add_data_folder_tag') %>'
+
     var datasetIdentifier = ctrl.data('datasetidentifier');
     var serverUrl         = ctrl.data('serverurl');
 
@@ -113,30 +178,63 @@
 
     $.ajax({
       type:    'PUT',      // PUT combined with url below triggers "update" action on controller
-      url:     '<%= url_for(:controller => 'datasets', :action => 'add_data_tag') %>',
+      url:     url,
       data:    'dataset[identifier]='  + datasetIdentifier +
                '&dataset[server_url]=' + serverUrl +
-               '&dataset_tag='         + tag,
+               '&tag_val='             + tag,
       headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
                  'Content-Type': 'application/json' */},
-      success: function(data) { updateTags(serverUrl, datasetIdentifier, eval(data)); }
+      success: function(data) { successFunction(serverUrl, datasetIdentifier, eval(data)); },
+      error:   function(jqXHR, status, error) { 
+                  jsonErrorHandler(jqXHR, status, error, "Could not add tag!");
+               }
     });
-  }
+  };
 
+
+  // User adds or removes a tag
+  var addTag = function(ctrl)
+  {
+    doAddTag(ctrl, true, updateTags);
+  };
+
+
+  // User adds or removes a tag
+  var addFolderTag = function(ctrl)
+  {
+    doAddTag(ctrl, false, updateFolderTags);
+  };
+
+
+  // tagType will be true for regular tags, false for folder-tags
+  var doDeleteTag = function(datasetIdentifier, serverUrl, tagValue, tagType, successFunction)
+  {
+    $.ajax({
+      type:    'PUT',      // PUT combined with url below triggers "update" action on controller
+      url:     '<%= url_for(:controller => "datasets", :action => "del_tag") %>',
+      data:    'dataset[identifier]='  + datasetIdentifier +
+               '&dataset[server_url]=' + serverUrl +
+               '&tag_type='            + (tagType ? 'proc' : 'folder') +
+               '&tag_val='             + tagValue,
+      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
+                 'Content-Type': 'application/json' */},
+      success: function(data) { successFunction(serverUrl, datasetIdentifier, eval(data)); },
+      error:   function(jqXHR, status, error) { 
+                  jsonErrorHandler(jqXHR, status, error, "Could not delete tag!");
+               }
+    });
+  };
 
 
   var deleteTag = function(serverUrl, datasetIdentifier, tagValue)
   {
-    $.ajax({
-      type:    'PUT',      // PUT combined with url below triggers "update" action on controller
-      url:     '<%= url_for(:controller => 'datasets', :action => 'del_data_tag') %>',
-      data:    'dataset[identifier]='  + datasetIdentifier +
-               '&dataset[server_url]=' + serverUrl +
-               '&dataset_tag='         + tagValue,
-      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
-                 'Content-Type': 'application/json' */},
-      success: function(data) { updateTags(serverUrl, datasetIdentifier, eval(data)); }
-    });
+    doDeleteTag(datasetIdentifier, serverUrl, tagValue, true, updateTags);
+  };
+
+
+  var deleteFolderTag = function(serverUrl, datasetIdentifier, tagValue)
+  {
+    doDeleteTag(datasetIdentifier, serverUrl, tagValue, false, updateFolderTags);
   };
 
 </script>

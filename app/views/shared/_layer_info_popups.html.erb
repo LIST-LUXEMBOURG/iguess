@@ -1,5 +1,17 @@
 <!-- Ruby var fullControls is passed when this is rendered -->
 
+<%  if fullControls then 
+      tagClassAttr = "class=tag-delete-button"        
+    else 
+      tagClassAttr = "" 
+    end %>
+
+<%  if fullControls then 
+      folderTagClassAttr = "class=folder-tag-delete-button" 
+    else 
+      folderTagClassAttr = "" 
+    end %>
+
 <div id="infotables">
   <!-- Create the popups that are displayed when the user clicks the gear icon -->
   <% @datasets.each do |d| %>
@@ -28,16 +40,27 @@
               </dd>
             <% end %>
 
-          <dt>Tags:</dt>
+          <dt>Folder Tags:</dt>
+          <dd>
+            <span class="folder-taglist-deletable-<%= cssEscape(d.dataserver.url + d.identifier) %>">
+              <% d.dataset_folder_tags.each do |t| %>
+                <span class="folder-tag">
+                  <span <%= folderTagClassAttr %>
+                    data-url="<%= d.dataserver.url %>" data-identifier="<%= d.identifier %>"></span>
+                  <%= t.folder_tag %>
+                </span>
+              <% end %>
+          </dd>
+
+          <dt>Processing Tags:</dt>
           <dd>
             <span class="taglist-deletable-<%= cssEscape(d.dataserver.url + d.identifier) %>">
               <% getAliveTags(d).each do |t| %>
                 <span class="tag">
                   <span 
-    <% if fullControls %>                  
-                    class="tag-delete-button" 
-    <% end %>
-                    data-url="<%= d.dataserver.url %>" data-identifier="<%= d.identifier %>"></span>
+                    <%= tagClassAttr %>
+                    data-url="<%= d.dataserver.url %>" data-identifier="<%= d.identifier %>">
+                  </span>
                   <%= t %>
                 </span>
               <% end %>
@@ -49,9 +72,9 @@
               data-datasetidentifier="<%= d.identifier %>" 
               onchange="tagPickerChanged($(this));"> 
 
-              <option value = "Ignore This">Add Tag:</option>
+              <option value = "Ignore This">Add Processing Tag:</option>
 
-              <% getAllTags(d).each do |t| %>
+              <% d.getProcessingTagList().each do |t| %>
                 <option value="<%= t %>"><%= t %></option>
               <% end %>
             </select>

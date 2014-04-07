@@ -46,7 +46,11 @@ class DatasetsController < ApplicationController
 
     # I really want this, but it returns HTML... respond_with(@datasets)
     respond_to do |format|
-      format.json { render json: @datasets.to_json(:include => {:dataset_tags => { :only => :tag } } ) } 
+      format.json { render json: @datasets.to_json(:include => {:dataset_tags => { :only => :tag }, 
+                                                                :dataset_folder_tags => { :only => :tag } 
+                                                               } 
+                                                  ) 
+                  } 
     end
   end
 
@@ -55,7 +59,10 @@ class DatasetsController < ApplicationController
   # Called when user registers a dataset by clicking on the "Register" button;
   #    always called via ajax with json response type
   def create
-    if not user_signed_in?    # Should always be true... but if not, we'll bail
+    if not user_signed_in?    # Should always be true... but if not, return error and bail
+      respond_to do |format|
+        format.json { render :text => "You must be logged in!", :status => 403 }
+      end
       return
     end
 
@@ -103,6 +110,8 @@ class DatasetsController < ApplicationController
     respond_to do |format|
       format.json { render :json => { :tags => DatasetTag.find_all_by_dataset_id(@dataset.id)
                                                          .map {|d| d.tag },
+                                      :folder_tags => DatasetFolderTag.find_all_by_dataset_id(@dataset.id)
+                                                         .map {|d| d.tag },
                                       :dataset => @dataset
                                     }
                   }
@@ -118,7 +127,7 @@ class DatasetsController < ApplicationController
     if not dataset then
       respond_with do |format|
         format.html { render :text => "Could not find dataset with id = " + params[:id].to_s, 
-                             :status => :ok }
+                             :status => 404 }
       end
       return
     end
@@ -134,61 +143,72 @@ class DatasetsController < ApplicationController
   # PUT /datasets/1
   # PUT /datasets/1.json
   def update
-    error = false
-
-    if user_signed_in? 
-      if params[:dataset][:id]
-        @dataset = Dataset.find_by_id(params[:dataset][:id])
-      else
-        @current_city = User.getCurrentCity(current_user, cookies)
-        @dataset = Dataset.find_by_identifier_and_server_url_and_city_id(params[:dataset][:identifier], 
-                                                                         params[:dataset][:server_url], 
-                                                                         @current_city.id)
+    if not user_signed_in?
+      respond_to do |format|
+        format.json { render :text => "You must be logged in!", :status => 403 }
       end
+      return
+    end
 
+    if params[:dataset][:id]
+      @dataset = Dataset.find_by_id(params[:dataset][:id])
+    else
+      @current_city = User.getCurrentCity(current_user, cookies)
+      @dataset = Dataset.find_by_identifier_and_server_url_and_city_id(params[:dataset][:identifier], 
+                                                                       params[:dataset][:server_url], 
+                                                                       @current_city.id)
+    end
 
-      if(@dataset.nil?)   # Couldn't find dataset... now what?
-        error = true
-        return
+    if(@dataset.nil?)   # Couldn't find dataset... now what?
+      respond_to do |format|
+        format.json { render :text => "Could not find dataset!", :status => 404 }
       end
+      return
+    end
 
-      if params[:id] == "add_data_tag" or params[:id] == "del_data_tag"
-        tagVal = params[:dataset_tag]    # Tag we are either adding or deleting
+    # Add or delete a tag
+    if params[:id] == "add_data_tag"        or params[:id] == "del_tag" or
+       params[:id] == "add_data_folder_tag" then
+      tagVal = params[:tag_val]    # Tag we are either adding or deleting
 
-        if params[:id] == "add_data_tag" 
-          makeTag(@dataset, tagVal)
+      # Add a processing tag
+      if params[:id] == "add_data_tag" then
+        makeTag(@dataset, tagVal)
+        returnTags = @dataset.getProcessingTagList()
+      # Add a folder tag
+      elsif params[:id] == "add_data_folder_tag" then
+        returnTags = @dataset.getFolderTagList()
 
-        elsif params[:id] == "del_data_tag" 
-          if @dataset and @dataset.dataset_tags.find_by_tag(tagVal) 
-            tags = DatasetTag.find_all_by_dataset_id_and_tag(@dataset, tagVal)
-            tags.map {|t| t.delete }    # Handles the case where tag is in db more than once as result of bug elsewhere
-          else
-            error = true
-          end
-        end
-
-        if not error
-          alltags = getAllTags(@dataset)
-          respond_to do |format|
-            # Filter out any dead tags
-            format.json { render :json => @dataset ? DatasetTag.find_all_by_dataset_id(@dataset.id, :order=>:tag)
-                                                               .select {|d| alltags.include? d.tag }
-                                                               .map {|d| d.tag } : [] }
-          end
-        end
-
-      # User checked or unchecked publish checkbox (NOT the register dataset checkbox!!)
-      elsif params[:id] == "publish"   
-        if User.canAccessObject(current_user, @dataset)
-          @dataset.published = params[:checked]
-          @dataset.save
+      # Delete tag
+      elsif params[:id] == "del_tag" then
+        if params[:tag_type] == "folder"   # Will be "proc" or "folder"
+          tags = @dataset ? @dataset.dataset_folder_tags.find_all_by_folder_tag(tagVal) : nil
         else
-          error = true
+          tags = @dataset ? @dataset.dataset_tags.find_all_by_tag(tagVal) : nil
         end
+
+        if tags then
+          tags.map {|t| t.delete }    # Handles tag in db more than once as result of bug elsewhere
+        end
+
+        returnTags = params[:tag_type] == "folder" ? @dataset.getFolderTagList() :
+                                                     @dataset.getProcessingTagList()
       end
 
-    else  # Don't have permission... do what?
-      error = true
+      respond_to do |format|
+        format.json { render :json => returnTags, :status => :ok }
+      end
+
+    # User checked or unchecked publish checkbox (NOT the register dataset checkbox!!)
+    elsif params[:id] == "publish"   
+      if User.canAccessObject(current_user, @dataset)
+        @dataset.published = params[:checked]
+        @dataset.save
+      else
+        respond_to do |format|
+          format.json { render :text => "You don't have permissions for this object!", :status => 403 }
+        end
+      end
     end
   end
 

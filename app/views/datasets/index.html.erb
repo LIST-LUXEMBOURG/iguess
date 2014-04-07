@@ -1,8 +1,6 @@
 <div>
   <h1 class="page_header">Registered Datasets</h1>
 
-
-
   <div class="filter-box"><form id="filter-form" style="display: inline">Filter: <input name="filter" id="filter" value="" maxlength="30" size="30" type="text"></form>
 
   <%= button_to "Register New Datasets", 
@@ -31,7 +29,12 @@
             <span class="info-icon properties" title="Click for details" 
                          rel="#infotable-<%= d.id %>"></span>
           </td>
-          <td>
+          <td><!-- Tags -->
+            <span class="folder-taglist-<%= cssEscape(d.dataserver.url + d.identifier) %>">
+              <% d.dataset_folder_tags.each do |t| %>
+                <span class="folder-tag"><%= t.folder_tag %></span>
+              <% end %>
+            </span>
             <span class="taglist-<%= cssEscape(d.dataserver.url + d.identifier) %>">
               <% getAliveTags(d).each do |t| %>
                 <span class="tag"><%= t %></span>
@@ -147,7 +150,10 @@
                '&checked='    + checked,
       headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
                  'Content-Type': 'application/json' */},
-      success: function(data) {  }
+      success: function(data) {  },
+      error:   function(jqXHR, status, error) { 
+              alert('Could not publish dataset! (server says: "' + error.trim() + '")'); 
+            }
     });
   };
 

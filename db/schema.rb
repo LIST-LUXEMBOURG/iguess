@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140326135055) do
+ActiveRecord::Schema.define(:version => 20140403141410) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -61,6 +61,11 @@ ActiveRecord::Schema.define(:version => 20140326135055) do
     t.boolean  "wms"
     t.boolean  "wfs"
     t.boolean  "wcs"
+  end
+
+  create_table "dataset_folder_tags", :force => true do |t|
+    t.integer "dataset_id"
+    t.string  "folder_tag"
   end
 
   create_table "dataset_tags", :force => true do |t|

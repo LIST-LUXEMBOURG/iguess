@@ -2,6 +2,7 @@ class Dataset < ActiveRecord::Base
   has_many :mod_configs, :through => :config_datasets
   has_many :config_datasets, :dependent => :destroy
   has_many :dataset_tags, :dependent => :destroy, :order => :tag
+  has_many :dataset_folder_tags, :dependent => :destroy, :order => :folder_tag
   belongs_to :city
   belongs_to :dataserver
 
@@ -21,7 +22,6 @@ class Dataset < ActiveRecord::Base
   def getRequest(computationCrs, aoi)
 
     urlparams = ""
-    bbox = ""
     bboxCrs = nil
 
 
@@ -75,6 +75,25 @@ class Dataset < ActiveRecord::Base
   end
 
 
+  # Returns a list of processing tags for this dataset, with any dead tags filtered out, 
+  # converted to an array of strings
+  def getProcessingTagList()
+    # Get a list of all tags that could be applied to dataset, including specials AOI and Mapping
+    alltags = getSpecialTags(self).concat(getBaseTags(self))
+
+    # This makes sure that any tags the dataset has are still connected to a registered process
+    return DatasetTag.find_all_by_dataset_id(self.id, :order=>:tag)
+                                                   .select {|d| alltags.include? d.tag }
+                                                   .map {|d| d.tag }
+  end  
+
+
+  def getFolderTagList()
+    DatasetFolderTag.find_all_by_dataset_id(self.id, :order=>:folder_tag)
+                                                    .map {|d| d.folder_tag }
+  end
+
+
   # Be sure to insert this code into a template using raw
   def insertGetCapabilitiesLinkBlock(wms, wfs, wcs, includeDataLink)
     output = ""
@@ -124,8 +143,9 @@ end
 def jsonHelper(dataset)
   json = dataset.as_json(:only => [:server_url, :identifier])
   # server_url
-  json['configCount'] = dataset.mod_configs.count
+  json['configCount'] = dataset.mod_configs.count    # Number of configurations this layer is used in
   json['tags']        = dataset.dataset_tags.map { |t| t.tag }
+  json['folder_tags'] = dataset.dataset_folder_tags.map { |t| t.folder_tag }
 
   return json
 end
@@ -148,7 +168,6 @@ def buildRegisteredDataLayersJson(datasets)
 
   return hash.to_json
 end
-
 
 
 
@@ -210,12 +229,6 @@ def getBaseTags(dataset)
 end
 
 
-# Returns the list of all tags that can be applied to the dataset
-def getAllTags(dataset)
-  return getSpecialTags(dataset).concat(getBaseTags(dataset))
-end
-
-
 # Gets the list of all tags that have been applied to the dataset, excluding any dead ones
 # Note that we can also pass a service here, such as "WFS"
 def getAliveTags(dataset)
@@ -262,10 +275,21 @@ end
 def makeTag(dataset, tagVal)
   # Prevent duplicate tags
   if dataset and not dataset.dataset_tags.find_by_tag(tagVal) then
-    tag = DatasetTag.new
+    tag            = DatasetTag.new
     tag.dataset_id = dataset.id
-    tag.tag = tagVal
+    tag.tag        = tagVal
     tag.save
+  end
+end 
+
+
+def makeFolderTag(dataset, tagVal)
+  # Prevent duplicate tags
+  if dataset and not dataset.dataset_folder_tags.find_by_folder_tag(tagVal) then
+    folder_tag            = DatasetFolderTag.new
+    folder_tag.dataset_id = dataset.id
+    folder_tag.folder_tag = tagVal
+    folder_tag.save
   end
 end 
 
