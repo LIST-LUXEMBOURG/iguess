@@ -1086,9 +1086,10 @@
     // :::public:::
     this.startProbing = function() 
     { 
-      WFS.getCapabilities(self.serverUrl,  self.onWfsGetCapabilitiesSucceeded);
-      WCS.getCapabilities(self.serverUrl,  self.onWcsGetCapabilitiesSucceeded);   // Launches both GetCapabilities and DescribeCoverage requests
       WMS.getCapabilities(self.serverUrl,  self.onWmsGetCapabilitiesSucceeded);
+      WFS.getCapabilities(self.serverUrl,  self.onWfsGetCapabilitiesSucceeded);
+      // Launch both GetCapabilities and DescribeCoverage requests:
+      WCS.getCapabilities(self.serverUrl,  self.onWcsGetCapabilitiesSucceeded);   
     };
 
     // :::private:::
