@@ -160,8 +160,8 @@
         return;
       }
 
-      // Can't open window...
-      alert(msg + "Can't open window... got error: " + jqXHR.responseText + '")');
+      // Can't open window... thorow this up as a last ditch effort to report the error
+      alert(msg + "  Can't open window... got error: " + jqXHR.responseText + '")');
       return;
     }
 
