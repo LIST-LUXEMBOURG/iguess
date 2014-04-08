@@ -209,8 +209,13 @@
   // Popup a window for displaying the passed content
   var displayOverflow = function(content)
   {
-    var w = window.open("", "", "width=600, height=400, scrollbars=yes");
-    $(w.document.body).html(content);
+    var win = window.open("", "", "width=600, height=400, scrollbars=yes");
+    if(win)
+    {
+      $(win.document.body).html(content);
+      return;
+    }
+    alert("Can't open new window. Please change your browser settings to allow popups from this site.");
   };
 
 

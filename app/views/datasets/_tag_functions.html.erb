@@ -153,11 +153,20 @@
     // in a new window because responseText will contain a full HTML document.
     if(jqXHR.status == 500)
     {
-      var w = window.open();
-      $(w.document.body).html(jqXHR.responseText);
+      var win = window.open();
+      if(win)
+      {
+        $(win.document.body).html(jqXHR.responseText);
+        return;
+      }
+
+      // Can't open window...
+      alert(msg + "Can't open window... got error: " + jqXHR.responseText + '")');
+      return;
     }
-    else
-      alert(msg + ' (server says: "' + jqXHR.responseText + '")');
+
+    
+    alert(msg + ' (server says: "' + jqXHR.responseText + '")');
   };
 
 
