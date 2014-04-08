@@ -222,7 +222,9 @@
     if(itemCount > maxLen)
       itemCount = maxLen;
 
-    var html = (typeof(crsList) == "string" ? crsList : crsList.slice(0, itemCount - 1).join('; '));
+    var html = "<span>";
+
+    html += (typeof(crsList) == "string" ? crsList : crsList.slice(0, itemCount - 1).join('; '));
 
     // Set up overflow for long lists
     if(len > itemCount)
@@ -231,6 +233,7 @@
                crsList.join('; ') +  "\");return false;'>More &gt;&gt;</a>";
     }
 
+    html += "</span>";
     return html;
   };
 
