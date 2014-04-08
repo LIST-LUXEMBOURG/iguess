@@ -264,7 +264,6 @@ class DatasetsController < ApplicationController
 
 
   def check_name
-
     requested_name = params[:name]
     field_name = params[:fieldName]
 
