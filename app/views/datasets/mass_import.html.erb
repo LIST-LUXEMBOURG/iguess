@@ -361,7 +361,7 @@
 
 
         var crsInfo = "<div>";
-        if(layer.wmsCrsList.length > 0)
+        if(layer.wmsCrsList && layer.wmsCrsList.length > 0)
           crsInfo += "<div class='proj-list'>Mapping Projections: <span>"    + 
             (typeof(layer.wmsCrsList) === "string" ? layer.wmsCrsList : layer.wmsCrsList.join('; ')) + "</div>";
 
