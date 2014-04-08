@@ -55,7 +55,6 @@ class DatasetsController < ApplicationController
   end
 
 
-
   # Called when user registers a dataset by clicking on the "Register" button;
   #    always called via ajax with json response type
   def create
