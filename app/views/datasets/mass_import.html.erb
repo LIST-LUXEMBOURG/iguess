@@ -206,6 +206,35 @@
 
 
 
+  // Popup a window for displaying the passed content
+  var displayOverflow = function(content)
+  {
+    var w = window.open("", "", "width=600, height=400, scrollbars=yes");
+    $(w.document.body).html(content);
+  };
+
+
+  var getCrsListDisplay = function(crsList, maxLen)
+  {
+    var len = typeof(crsList) == "string" ? 0 : crsList.length;
+    var itemCount = len;
+
+    if(itemCount > maxLen)
+      itemCount = maxLen;
+
+    var html = (typeof(crsList) == "string" ? crsList : crsList.slice(0, itemCount - 1).join('; '));
+
+    // Set up overflow for long lists
+    if(len > itemCount)
+    {
+      html += " <a href='#' onclick='displayOverflow(\"Full list of CRSs supported for this dataset:<br>" +
+               crsList.join('; ') +  "\");return false;'>More &gt;&gt;</a>";
+    }
+
+    return html;
+  };
+
+
   var displayServices = function() 
   {
     var mapId = 0;
@@ -223,7 +252,7 @@
       $(".server-info").show();
 
       return;
-    }
+    };
 
 
     // Generate a tag list for the specified layer
@@ -361,12 +390,16 @@
 
 
         var crsInfo = "<div>";
+
         if(layer.wmsCrsList && layer.wmsCrsList.length > 0)
-          crsInfo += "<div class='proj-list'>Mapping Projections: <span>"    + 
-            (typeof(layer.wmsCrsList) === "string" ? layer.wmsCrsList : layer.wmsCrsList.join('; ')) + "</div>";
+          crsInfo += "<div class='proj-list'>Mapping Projections: " + 
+                        getCrsListDisplay(layer.wmsCrsList, 5) + 
+                     "</div>";            
 
         if(layer.dataCrs)
-          crsInfo += "<div class='proj-list'>Processing Projections: <span>" + layer.dataCrs + "</div>";
+          crsInfo += "<div class='proj-list'>Processing Projections: " + 
+                        getCrsListDisplay(layer.dataCrs, 5) +
+                     "</div>";
 
         crsInfo += "</div>";
 
