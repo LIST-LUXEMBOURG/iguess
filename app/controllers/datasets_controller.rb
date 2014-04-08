@@ -73,8 +73,12 @@ class DatasetsController < ApplicationController
     @dataserver = Dataserver.find_by_url(url)
 
     if not @dataserver 
-      # Need to create a new server
-      @dataserver = Dataserver.new(url, params[:server_title], params[:server_abstract])
+      # Need to create a new server (create method creates and saves the object)
+      @dataserver = Dataserver.new
+      @dataserver.url      = url
+      @dataserver.title    = params[:server_title]
+      @dataserver.abstract = params[:server_abstract]
+
       @dataserver.save
     end
 
