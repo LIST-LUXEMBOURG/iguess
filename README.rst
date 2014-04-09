@@ -31,6 +31,7 @@ use of spatial multi-criteria analysis algorithms. Another aspect of iGUESS is
 the incorporation of uncertainties associated with input data and modelling
 results into the decision support.
 
+
 Resources
 -------------------------------------------------------------------------------
 
@@ -40,10 +41,28 @@ http://www.iemss.org/iemss2012/proceedings/A3_0783_Sousa_et_al.pdf
 The MUSIC project website:
 http://www.themusicproject.eu/
   
+
 License
 -------------------------------------------------------------------------------
 
 This code is released under the GNU General Public License, version 3, 
 please consult the LICENSE file for details.
 
- 
+
+Requirements
+-------------------------------------------------------------------------------
+Rails 3.x
+Python 2.7
+
+
+Installation
+-------------------------------------------------------------------------------
+Check out code
+Install web application
+Basic configuration
+Set up cron jobs
+
+
+Support
+-------------------------------------------------------------------------------
+Details to be provided
