@@ -107,10 +107,12 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag, id)
                    format: "image/png",
                    srsName: WebGIS.requestProjection,
                    srs: WebGIS.requestProjection,
-                   transparent: "true",
-                   sld_body: WebGIS.getStyle(layerName, type)
+                   transparent: "true"
                  };
-
+    
+    sldBody = WebGIS.getStyle(layerName, type);
+    if(sldBody != null) params["sld_body"] = sldBody;
+    
     var options = { isBaseLayer: false,     
     				visibility: visible,
                     singleTile:  true,
