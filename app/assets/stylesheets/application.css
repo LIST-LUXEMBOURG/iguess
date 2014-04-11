@@ -199,9 +199,10 @@ input, select, textarea {
 }
 
 .explanation-running {
-  background: #FFCC00 url(images/cogs02.gif) no-repeat left center;
+  background: #FFCC00 url(images/cogs03.gif) no-repeat left center;
   background-size: 44px 44px;
-  background-position: 10px 40%;    /* Distance from the left */
+  background-position: 8px 40%;  /* Distance from the left */
+  padding-left: 56px;
 }
 
 .explanation-success {
