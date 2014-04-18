@@ -265,7 +265,7 @@ class DatasetsController < ApplicationController
 
   def check_name
     requested_name = params[:name]
-    field_name = params[:fieldName]
+    field_name = params[:field_name]
 
     @current_city = User.getCurrentCity(current_user, cookies)
 
@@ -282,6 +282,37 @@ class DatasetsController < ApplicationController
 
     respond_to do |format|
       format.json { render :json => available, :status => :ok }
+    end
+  end
+
+
+  # Find any tags that look like the passed value... called via ajax
+
+  def find_matching_tags
+    prefix = params[:prefix]
+    field_name = params[:field_name]
+
+    cityId = User.getCurrentCity(current_user, cookies).id
+
+    knownTags = DatasetTag.select("distinct tag")
+                          .joins(:dataset)
+                          .merge(Dataset.where(:city_id => cityId))
+                          .where("tag ilike :prefix", prefix: "#{prefix}%")
+                          .map {|d| d.tag }
+
+    if knownTags.blank? then
+      taglist = '""'
+    else
+      taglist = '["' + knownTags.join('","') + '"]'
+    end
+
+    print "Taglist:", taglist
+
+    
+    json = '{"data": [{"fieldname": "' + field_name + '", "matching_tags": ' + taglist + '} ] }'
+
+    respond_to do |format|
+      format.json { render :json => json, :status => :ok }
     end
   end
 

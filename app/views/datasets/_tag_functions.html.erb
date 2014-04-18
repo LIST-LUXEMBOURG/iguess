@@ -245,4 +245,44 @@
     doDeleteTag(datasetIdentifier, serverUrl, tagValue, false, updateFolderTags);
   };
 
+
+  var setTagField = function(field, val)
+  {
+    $('span[name="' + field + '"]').text(val);
+  };
+
+
+  // Handles success callback from findMatchingTags
+  var foundMatchingTags = function(jqXHR)
+  {
+    var field        = jqXHR.data[0].fieldname;
+    var matchingTags = jqXHR.data[0].matching_tags;
+
+    setTagField(field, matchingTags);
+  };
+
+
+  // Check if we already have a dataset with this name
+  var findMatchingTags = function(field)
+  {
+    // Only worry about output values
+    if(field.value.trim() == "") 
+    {
+      setTagField(field.name, "");
+      return;
+    }
+
+    var name = field.value;
+
+    var serverUrl = '<%= url_for(:controller => "datasets", :action => "find_matching_tags", :format => :json) %>';
+    $.ajax({
+        type: 'GET',
+        url: serverUrl,
+        data: 'prefix=' + field.value + '&field_name=' + field.name,
+        headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
+        success: foundMatchingTags,
+        error: function(jqXHR, textStatus, error) { jsonErrorHandler(jqXHR, status, error, "Error looking for tags!"); }
+      });
+  }
+
 </script>

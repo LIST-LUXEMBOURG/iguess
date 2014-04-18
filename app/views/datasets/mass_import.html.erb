@@ -243,6 +243,12 @@
   };
 
 
+  var onFolderTagEntryChanged = function(field) 
+  { 
+    findMatchingTags(field);
+  }
+
+
   var displayServices = function() 
   {
     var mapId = 0;
@@ -380,8 +386,10 @@
         data_info.append(srsNode)
                  .append(getRegisterControlHtml(layer.identifier, regLyr))
                  .append(servicesAvailNode)
+.append('<span name="xxx"></span>')                  
                  .append('<div class="tag-control">' +
                             makeTagList(layer, regLyr, urlId, "No tags") + 
+                            '<input name = "xxx" onkeyup="onFolderTagEntryChanged(this);">' +
                             makeTagPickerControl(layer, tagPickerControlId, regLyr) + 
                          '</div>');
 
