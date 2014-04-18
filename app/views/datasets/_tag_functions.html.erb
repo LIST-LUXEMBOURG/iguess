@@ -246,9 +246,21 @@
   };
 
 
-  var setTagField = function(fieldName, val)
+  // Show the list of possible tag matches
+  var showTagMatches = function(fieldName, tagList)
   {
-    $('span[name="' + fieldName + '"]').text(val);
+    if(tagList === "") {
+      $('span[name="' + fieldName + '"]').empty();
+      return;
+    }
+
+    var matchList = "";
+
+    for(var tag; tag = tagList.pop();) {
+      matchList += "<span class='folder-tag'>" + tag + "</span> ";  // Trailing space required
+    }
+
+    $('span[name="' + fieldName + '"]').html(matchList);
   };
 
 
@@ -258,7 +270,7 @@
     var field        = jqXHR.data[0].fieldname;
     var matchingTags = jqXHR.data[0].matching_tags;
 
-    setTagField(field, matchingTags);
+    showTagMatches(field, matchingTags);
   };
 
 
