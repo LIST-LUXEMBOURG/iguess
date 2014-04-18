@@ -246,14 +246,53 @@
   };
 
 
+  var tagLists = {};
+
+  var addFolderTagXXX = function(fieldName, tag, rebuilding)
+  {
+    if(!tagLists[fieldName])
+      tagLists[fieldName] = [];
+
+    // Check if we already have the tag... don't add it twice!
+    if(!rebuilding)
+    {
+      var index = tagLists[fieldName].indexOf(tag);
+      if(index > -1)
+        return;    
+
+      tagLists[fieldName].push(tag);
+    }
+
+    // Trailing space required below!
+    var tagCode = "<span class='folder-tag'><span class='folder-tag-delete-button' onclick='delTagXXX(\"" + fieldName + "\",\"" + tag + "\"); return false;'></span>" + tag + "</span> "; 
+
+    $('span[name="tags-' + fieldName + '"]').append(tagCode);  
+  };
+
+
+  var delTagXXX = function(fieldName, tag)
+  {
+    var index = tagLists[fieldName].indexOf(tag);
+    if(index > -1)
+      tagLists[fieldName].splice(index, 1);
+
+    // Rebuild tag list
+    $('span[name="tags-' + fieldName + '"]').empty();
+    for(var i=0, len=tagLists[fieldName].length; i < len; i++)
+      addFolderTagXXX(fieldName, tagLists[fieldName][i], true);
+
+  };
+
+
   // Show the list of possible tag matches.  Matches will be shown as tags that can be clicked to complete
   // a partially typed tag.
   var showTagMatches = function(fieldName, tagList)
   {
     if(tagList === "") {
-      $('span[name="' + fieldName + '"]').empty();
+      $('span[name="matches-' + fieldName + '"]').empty();
       return;
     }
+
 
     var matchList = "";
 
@@ -261,17 +300,17 @@
       matchList += "<span class='folder-tag'>" + tag + "</span> ";  // Trailing space required
     }
 
-    $('span[name="' + fieldName + '"]').html(matchList);
+    $('span[name="matches-' + fieldName + '"]').html(matchList);
   };
 
 
   // Handles success callback from findMatchingTags
   var foundMatchingTags = function(jqXHR)
   {
-    var field        = jqXHR.data[0].fieldname;
+    var fieldName    = jqXHR.data[0].fieldname;
     var matchingTags = jqXHR.data[0].matching_tags;
 
-    showTagMatches(field, matchingTags);
+    showTagMatches(fieldName, matchingTags);
   };
 
 

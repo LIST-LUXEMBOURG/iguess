@@ -246,7 +246,12 @@
   var onFolderTagEntryChanged = function(field) 
   { 
     var words = field.value.split(" ");
-    if(words.length > 0 && words.slice(-1) != "")
+    if(words.length > 0 && words[words.length - 1] === "") {
+      addFolderTagXXX(field.name, words[words.length - 2], false);
+      field.value = "";
+    }
+
+    else if(words.length > 0 && words[words.length - 1] !== "")
       findMatchingTags(words[words.length - 1], field.name);
     else
       showTagMatches(field.name, "");
@@ -271,6 +276,9 @@
 
       return;
     };
+
+
+    var tagEntryFieldNameCounter = 0;
 
 
     // Generate a tag list for the specified layer
@@ -384,16 +392,23 @@
 
         var data_info = $(document.createElement('div'));
         var tagPickerControlId = 'data-type-' + layer.identifier;
+        
+        var tagEntryFieldName = "tagEntry" + tagEntryFieldNameCounter;
+        tagEntryFieldNameCounter++;
 
         data_info.attr({ class:'data-info' });
 
         data_info.append(srsNode)
                  .append(getRegisterControlHtml(layer.identifier, regLyr))
                  .append(servicesAvailNode)
-.append('<span name="xxx"></span>')                  
+.append('<span name="matches-' + tagEntryFieldName + '" id="matches-' + tagEntryFieldName + '"></span>')
                  .append('<div class="tag-control">' +
-                            makeTagList(layer, regLyr, urlId, "No tags") + 
-                            '<input name = "xxx" onkeyup="onFolderTagEntryChanged(this);">' +
+                            makeTagList(layer, regLyr, urlId, "No tags") +
+                            '<div class="fake-input">' +
+                              '<span name="tags-' + tagEntryFieldName + '" id="tags-' + tagEntryFieldName + '"></span>' +
+                              '<input class="invisible" name = "' + tagEntryFieldName + '" ' +
+                              'onkeyup="onFolderTagEntryChanged(this);">' +
+                            '</div>' +
                             makeTagPickerControl(layer, tagPickerControlId, regLyr) + 
                          '</div>');
 
