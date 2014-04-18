@@ -246,9 +246,9 @@
   };
 
 
-  var setTagField = function(field, val)
+  var setTagField = function(fieldName, val)
   {
-    $('span[name="' + field + '"]').text(val);
+    $('span[name="' + fieldName + '"]').text(val);
   };
 
 
@@ -262,23 +262,14 @@
   };
 
 
-  // Check if we already have a dataset with this name
-  var findMatchingTags = function(field)
+  // Check if we already have a dataset with this name; tagFragment should always have some value
+  var findMatchingTags = function(tagFragment, fieldName)
   {
-    // Only worry about output values
-    if(field.value.trim() == "") 
-    {
-      setTagField(field.name, "");
-      return;
-    }
-
-    var name = field.value;
-
     var serverUrl = '<%= url_for(:controller => "datasets", :action => "find_matching_tags", :format => :json) %>';
     $.ajax({
         type: 'GET',
         url: serverUrl,
-        data: 'prefix=' + field.value + '&field_name=' + field.name,
+        data: 'prefix=' + tagFragment + '&field_name=' + fieldName,
         headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
         success: foundMatchingTags,
         error: function(jqXHR, textStatus, error) { jsonErrorHandler(jqXHR, status, error, "Error looking for tags!"); }

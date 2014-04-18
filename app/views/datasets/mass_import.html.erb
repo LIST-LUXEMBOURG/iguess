@@ -245,7 +245,11 @@
 
   var onFolderTagEntryChanged = function(field) 
   { 
-    findMatchingTags(field);
+    var words = field.value.split(" ");
+    if(words.length > 0 && words.slice(-1) != "")
+      findMatchingTags(words[words.length - 1], field.name);
+    else
+      setTagField(field.name, "");
   }
 
 
