@@ -300,7 +300,6 @@
   {
     addFolderTagXXX(fieldName, tag, false);   
     clearTagMatchCandidateList(fieldName);
-
   };
 
 
@@ -316,6 +315,11 @@
     var matchList = "";
 
     for(var tag; tag = tagList.pop();) {
+
+      // Skip matches that are in use here
+      if(tagLists[fieldName] && tagLists[fieldName].hasObject(tag))
+        continue;
+
       var code = 'folderTagMatchCandidateClicked("' + fieldName + '", "' + tag + '"); return false;';
       matchList += "<span class='folder-tag' onclick='" + code + "'>" + tag + "</span> ";  // Trailing space required
     }
