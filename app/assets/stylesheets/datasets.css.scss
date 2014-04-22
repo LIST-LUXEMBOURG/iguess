@@ -304,12 +304,22 @@ div.tagsinput div { display:block; float: left; }
 
 /* An input field that is invisible */
 .invisible {
-  width:80px; margin:0px; font-family: helvetica; font-size: 13px; border:1px solid transparent; padding:5px; background: transparent; color: #000; outline:0px; margin-right:5px; margin-bottom:5px;
+  width: 100%; 
+  margin: 0px; 
+  border: 1px solid transparent; 
+  background: transparent; 
+  outline: 0px; 
 }
 
 /* A div that looks like a text entry field */
 .fake-input {
-border:1px solid #CCC; background: #FFF; padding:5px; width:300px; height:100px; overflow-y: auto;
+  border: 1px solid #CCC; 
+  background: #FFF; 
+  padding: 2px; 
+  padding-left: 4px;
+  width: 240px; 
+  overflow-y: auto;
+  white-space: nowrap;
 }
 
 
