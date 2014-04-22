@@ -246,6 +246,7 @@
   };
 
 
+  // Dict to keep track of user added folder tags 
   var tagLists = {};
 
   var addFolderTagXXX = function(fieldName, tag, rebuilding)
@@ -264,7 +265,10 @@
     }
 
     // Trailing space required below!
-    var tagCode = "<span class='folder-tag'><span class='folder-tag-delete-button' onclick='delTagXXX(\"" + fieldName + "\",\"" + tag + "\"); return false;'></span>" + tag + "</span> "; 
+    var tagCode = "<span class='folder-tag'>" + 
+                    "<span class='folder-tag-delete-button' " +
+                          "onclick='delTagXXX(\"" + fieldName + "\",\"" + tag + "\"); return false;'></span>" + 
+                  tag + "</span> "; 
 
     $('span[name="tags-' + fieldName + '"]').append(tagCode);  
   };
@@ -276,10 +280,26 @@
     if(index > -1)
       tagLists[fieldName].splice(index, 1);
 
-    // Rebuild tag list
+    // Rebuild tag list without the deleted tag
     $('span[name="tags-' + fieldName + '"]').empty();
     for(var i=0, len=tagLists[fieldName].length; i < len; i++)
       addFolderTagXXX(fieldName, tagLists[fieldName][i], true);
+  };
+
+
+  // fieldName looks like "tagEntry8"
+  var clearTagMatchCandidateList = function(fieldName)
+  {
+    $('span[name="matches-' + fieldName + '"]').empty();
+    $('span[name="matches-' + fieldName + '"]').hide();
+    $('#input-' + fieldName).val("");    // Remove any partially typed tags
+  };
+
+
+  var folderTagMatchCandidateClicked = function(fieldName, tag)
+  {
+    addFolderTagXXX(fieldName, tag, false);   
+    clearTagMatchCandidateList(fieldName);
 
   };
 
@@ -289,18 +309,19 @@
   var showTagMatches = function(fieldName, tagList)
   {
     if(tagList === "") {
-      $('span[name="matches-' + fieldName + '"]').empty();
+      clearTagMatchCandidateList(fieldName);
       return;
     }
-
 
     var matchList = "";
 
     for(var tag; tag = tagList.pop();) {
-      matchList += "<span class='folder-tag'>" + tag + "</span> ";  // Trailing space required
+      var code = 'folderTagMatchCandidateClicked("' + fieldName + '", "' + tag + '"); return false;';
+      matchList += "<span class='folder-tag' onclick='" + code + "'>" + tag + "</span> ";  // Trailing space required
     }
 
     $('span[name="matches-' + fieldName + '"]').html(matchList);
+    $('span[name="matches-' + fieldName + '"]').show();
   };
 
 

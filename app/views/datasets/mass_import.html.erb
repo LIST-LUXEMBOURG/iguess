@@ -246,13 +246,19 @@
   var onFolderTagEntryChanged = function(field) 
   { 
     var words = field.value.split(" ");
-    if(words.length > 0 && words[words.length - 1] === "") {
+
+    // Last word will be "" when field.value ends with a space, so
+    // user has ended a word and we should add the tag
+    if(field.value !== "" && words[words.length - 1] === "") {
       addFolderTagXXX(field.name, words[words.length - 2], false);
       field.value = "";
     }
 
-    else if(words.length > 0 && words[words.length - 1] !== "")
+    // field.value does not end in space, so still typing a word
+    else if(words[words.length - 1] !== "")
       findMatchingTags(words[words.length - 1], field.name);
+
+    // Otherwise, field must be empty
     else
       showTagMatches(field.name, "");
   }
@@ -406,8 +412,10 @@
                             makeTagList(layer, regLyr, urlId, "No tags") +
                             '<div class="fake-input">' +
                               '<span name="tags-' + tagEntryFieldName + '" id="tags-' + tagEntryFieldName + '"></span>' +
-                              '<input class="invisible" name = "' + tagEntryFieldName + '" ' +
-                              'onkeyup="onFolderTagEntryChanged(this);">' +
+                              '<input class="invisible" ' + 
+                                'id="input-' + tagEntryFieldName + '" ' +
+                                'name="'     + tagEntryFieldName + '" ' +
+                                'onkeyup="onFolderTagEntryChanged(this);">' +
                             '</div>' +
                             makeTagPickerControl(layer, tagPickerControlId, regLyr) + 
                          '</div>');
