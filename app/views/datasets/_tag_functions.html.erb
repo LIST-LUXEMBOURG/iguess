@@ -292,7 +292,6 @@
   {
     $('span[name="matches-' + fieldName + '"]').empty();
     $('span[name="matches-' + fieldName + '"]').hide();
-    $('#input-' + fieldName).val("");    // Remove any partially typed tags
   };
 
 
@@ -300,6 +299,7 @@
   {
     addFolderTagXXX(fieldName, tag, false);   
     clearTagMatchCandidateList(fieldName);
+     $('#input-' + fieldName).val("");    // Remove any partially typed tags
   };
 
 
