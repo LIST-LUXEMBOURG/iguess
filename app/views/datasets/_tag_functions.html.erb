@@ -249,6 +249,23 @@
   // Dict to keep track of user added folder tags 
   var tagLists = {};
 
+
+  var resizeInputField = function(fieldName)
+  {
+    // Resize input field to fit neatly inside the fake input box
+    var input = $('#input-' + fieldName);
+
+    var width = input.parent().width() - input.prevAll().width();
+
+    // If resulting width is too small, bump it up to a min size
+    if(width < 50)
+      width = 50;
+
+    input.width(width);
+    input.parent().scrollLeft(99999);
+  };
+
+
   var addFolderTagXXX = function(fieldName, tag, rebuilding)
   {
     if(tag === "")
@@ -274,6 +291,9 @@
                   tag + "</span> "; 
 
     $('span[name="tags-' + fieldName + '"]').append(tagCode);  
+
+    if(!rebuilding)
+      resizeInputField(fieldName);
   };
 
 
@@ -287,6 +307,8 @@
     $('span[name="tags-' + fieldName + '"]').empty();
     for(var i=0, len=tagLists[fieldName].length; i < len; i++)
       addFolderTagXXX(fieldName, tagLists[fieldName][i], true);
+
+    resizeInputField(fieldName);
   };
 
 
@@ -302,7 +324,7 @@
   {
     addFolderTagXXX(fieldName, tag, false);   
     clearTagMatchCandidateList(fieldName);
-    $('#input-' + fieldName).val("");    // Remove any partially typed tags
+    $('#input-' + fieldName).val("");   // Remove any partially typed tags
   };
 
 
@@ -326,6 +348,8 @@
       var code = 'folderTagMatchCandidateClicked("' + fieldName + '", "' + tag + '"); return false;';
       matchList += "<span class='folder-tag clickable' onclick='" + code + "'>" + tag + "</span> ";  // Trailing space required
     }
+
+    console.log(":ML: ",matchList);
 
     $('#matches-' + fieldName).html("Possible matches:<br>" + matchList);
     $('#matches-' + fieldName).show();
