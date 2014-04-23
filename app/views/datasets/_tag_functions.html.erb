@@ -251,6 +251,9 @@
 
   var addFolderTagXXX = function(fieldName, tag, rebuilding)
   {
+    if(tag === "")
+      return;
+
     if(!tagLists[fieldName])
       tagLists[fieldName] = [];
 
@@ -351,6 +354,28 @@
         success: foundMatchingTags,
         error: function(jqXHR, textStatus, error) { jsonErrorHandler(jqXHR, status, error, "Error looking for tags!"); }
       });
+  }
+
+
+  var onFolderTagEntryChanged = function(field) 
+  { 
+    var words = field.value.split(" ");
+
+    // Last word will be "" when field.value ends with a space, so
+    // user has ended a word and we should add the tag
+    if(field.value !== "" && words[words.length - 1] === "") {
+      addFolderTagXXX(field.name, words[words.length - 2], false);
+      field.value = "";
+      clearTagMatchCandidateList(field.name);
+    }
+
+    // field.value does not end in space, so still typing a word
+    else if(words[words.length - 1] !== "")
+      findMatchingTags(words[words.length - 1], field.name);
+
+    // Otherwise, field must be empty
+    else
+      showTagMatches(field.name, "");
   }
 
 </script>
