@@ -407,17 +407,21 @@
         data_info.append(srsNode)
                  .append(getRegisterControlHtml(layer.identifier, regLyr))
                  .append(servicesAvailNode)
-.append('<span name="matches-' + tagEntryFieldName + '" id="matches-' + tagEntryFieldName + '"></span>')
-                 .append('<div class="tag-control">' +
-                            makeTagList(layer, regLyr, urlId, "No tags") +
-                            '<div class="fake-input">' +
-                              '<span name="tags-' + tagEntryFieldName + '" id="tags-' + tagEntryFieldName + '"></span>' +
-                              '<input class="invisible" ' + 
-                                'id="input-' + tagEntryFieldName + '" ' +
-                                'name="'     + tagEntryFieldName + '" ' +
-                                'onkeyup="onFolderTagEntryChanged(this);">' +
-                            '</div>' +
-                            makeTagPickerControl(layer, tagPickerControlId, regLyr) + 
+                 .append('<div style="position: relative;">' + 
+                           '<div class="tag-control">' +
+                              makeTagList(layer, regLyr, urlId, "No tags") +
+                              '<div class="fake-input">' +
+                                '<span name="tags-' + tagEntryFieldName + '" id="tags-' + tagEntryFieldName + '"></span>' +
+                                '<input class="invisible" ' + 
+                                  'id="input-' + tagEntryFieldName + '" ' +
+                                  'name="'     + tagEntryFieldName + '" ' +
+                                  'onkeyup="onFolderTagEntryChanged(this);">' +
+                              '</div>' +
+                              makeTagPickerControl(layer, tagPickerControlId, regLyr) + 
+                           '</div>' + 
+                           '<div class="tag-candidate-overlay" ' + 
+                                  'id="matches-' + tagEntryFieldName + '">' + 
+                           '</div>' + 
                          '</div>');
 
         var sample_map = $(document.createElement("div"));

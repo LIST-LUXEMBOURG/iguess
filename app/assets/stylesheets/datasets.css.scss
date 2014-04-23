@@ -323,7 +323,23 @@ div.tagsinput div { display:block; float: left; }
 }
 
 
-/* Add this style to make tag have a delete icon on it */
+/* Overlay frame where tag candidates are displayed, starts out hidden */
+.tag-candidate-overlay {
+  background: #FFF;
+  border: 1px solid #666;
+  position: absolute;
+  left: 0px; 
+  padding: 2px;
+  display: none;
+}
+
+
+.clickable {
+  cursor: hand; cursor: pointer;    /* Cover multiple browsers */
+}
+
+
+/* Add one of these styles to make tag have a delete icon on it */
 .tag-delete-button, 
 .folder-tag-delete-button {
   background-image: url(/assets/close_small.png);

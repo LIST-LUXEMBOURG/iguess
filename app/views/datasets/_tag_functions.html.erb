@@ -290,8 +290,8 @@
   // fieldName looks like "tagEntry8"
   var clearTagMatchCandidateList = function(fieldName)
   {
-    $('span[name="matches-' + fieldName + '"]').empty();
-    $('span[name="matches-' + fieldName + '"]').hide();
+    $('#matches-' + fieldName).empty();
+    $('#matches-' + fieldName).hide();
   };
 
 
@@ -299,7 +299,7 @@
   {
     addFolderTagXXX(fieldName, tag, false);   
     clearTagMatchCandidateList(fieldName);
-     $('#input-' + fieldName).val("");    // Remove any partially typed tags
+    $('#input-' + fieldName).val("");    // Remove any partially typed tags
   };
 
 
@@ -321,11 +321,11 @@
         continue;
 
       var code = 'folderTagMatchCandidateClicked("' + fieldName + '", "' + tag + '"); return false;';
-      matchList += "<span class='folder-tag' onclick='" + code + "'>" + tag + "</span> ";  // Trailing space required
+      matchList += "<span class='folder-tag clickable' onclick='" + code + "'>" + tag + "</span> ";  // Trailing space required
     }
 
-    $('span[name="matches-' + fieldName + '"]').html(matchList);
-    $('span[name="matches-' + fieldName + '"]').show();
+    $('#matches-' + fieldName).html("Possible matches:<br>" + matchList);
+    $('#matches-' + fieldName).show();
   };
 
 
