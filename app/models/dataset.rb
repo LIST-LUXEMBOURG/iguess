@@ -146,6 +146,7 @@ def jsonBuilder(dataset)
   json['configCount'] = dataset.mod_configs.count    # Number of configurations this layer is used in
   json['tags']        = dataset.dataset_tags.map { |t| t.tag }
   json['folder_tags'] = dataset.dataset_folder_tags.map { |t| t.folder_tag }
+  json['id']          = dataset.id
 
   return json
 end
