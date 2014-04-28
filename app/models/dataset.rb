@@ -140,7 +140,7 @@ def stripServerUrlAndIdentifier(item)
 end
 
 
-def jsonHelper(dataset)
+def jsonBuilder(dataset)
   json = dataset.as_json(:only => [:server_url, :identifier])
   # server_url
   json['configCount'] = dataset.mod_configs.count    # Number of configurations this layer is used in
@@ -160,7 +160,7 @@ end
 public 
 def buildRegisteredDataLayersJson(datasets)
 
-  json = datasets.map{|d| jsonHelper(d)}
+  json = datasets.map{|d| jsonBuilder(d)}
 
   hash = Hash.new()
 
