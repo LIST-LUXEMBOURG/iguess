@@ -447,7 +447,8 @@ class ModConfigsController < ApplicationController
           name = p[0]
           val = p[1].strip    # strip off leading and trailing whitespace
 
-          @output = ConfigTextInput.find_by_mod_config_id_and_column_name_and_is_input(@mod_config.id, name, paramkey == :input)
+          @output = ConfigTextInput.find_by_mod_config_id_and_column_name_and_is_input(
+                        @mod_config.id, name, paramkey == :input)
 
           # TODO: @output can be nil if the wps changed the identifiers it uses
           if @output != nil then

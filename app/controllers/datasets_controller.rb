@@ -172,7 +172,7 @@ class DatasetsController < ApplicationController
     # Add or delete a tag
     if params[:id] == "add_data_tag"        or params[:id] == "del_tag" or
        params[:id] == "add_data_folder_tag" then
-      tagVal = params[:tag_val]    # Tag we are either adding or deleting
+      tagVal = params[:tag_val].strip    # Tag we are either adding or deleting
 
       # Add a processing tag
       if params[:id] == "add_data_tag" then
@@ -180,6 +180,7 @@ class DatasetsController < ApplicationController
         returnTags = @dataset.getProcessingTagList()
       # Add a folder tag
       elsif params[:id] == "add_data_folder_tag" then
+        makeFolderTag(@dataset, tagVal)
         returnTags = @dataset.getFolderTagList()
 
       # Delete tag

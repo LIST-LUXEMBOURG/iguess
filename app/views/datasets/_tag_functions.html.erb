@@ -27,27 +27,27 @@
   // Take an array or comma-separated list of tags and format them into some presentation quality HTML
   var createTagList = function(taglist, deletable, serverUrl, datasetIdentifier, tagclass) 
   {
-      if(taglist.length == 0)
-        return "";
+    if(taglist.length == 0)
+      return "";
 
-      if(typeof(taglist) == "string")
-        taglist = taglist.split(",");
+    if(typeof(taglist) == "string")
+      taglist = taglist.split(",");
 
-      var delBtn = "";
+    var delBtn = "";
 
-      if(deletable)   // or folder-tag-delete-button
-        delBtn = '<span class="' + tagclass + '-delete-button" ' +
-                 'data-url="' + serverUrl + '" ' +
-                 'data-identifier="' + datasetIdentifier + '"></span>';
+    if(deletable)   // or folder-tag-delete-button
+      delBtn = '<span class="' + tagclass + '-delete-button" ' +
+               'data-url="' + serverUrl + '" ' +
+               'data-identifier="' + datasetIdentifier + '"></span>';
 
-      var renderedList = "";
-      var strings = typeof(taglist[0]) == "string";
+    var renderedList = "";
+    var strings = typeof(taglist[0]) == "string";
 
-      for(var i = 0, len = taglist.length; i < len; i++) 
-        renderedList += '<span class="' + tagclass + '">' + delBtn +
-                         (strings ? taglist[i] : taglist[i].tag) + '</span> ';  // Trailing space required
+    for(var i = 0, len = taglist.length; i < len; i++) 
+      renderedList += '<span class="' + tagclass + '">' + delBtn +
+                       (strings ? taglist[i] : taglist[i].tag) + '</span> ';  // Trailing space required
 
-     return renderedList; 
+   return renderedList; 
   };
 
 
@@ -101,18 +101,43 @@
   };
 
 
+  // Some string constants
+  var INPUT_FIELD_PREFIX = "new-tag-";
+  var IGNORE_THIS        = "__Ignore_This__";
+  var NEW_TAG            = "__New_Tag__";
+
+
   var tagPickerChanged = function(ctrl)
   {
     ctrl.blur();    // For firefox?
 
-    if(ctrl.val() === 'Ignore This') 
+    if(ctrl.val() == IGNORE_THIS) 
       return; 
 
     addTag(ctrl);
   };
 
 
+ var folderTagPickerChanged = function(ctrl, tag)
+  {
+    ctrl.blur();    // For firefox?
+
+    if(ctrl.val() == IGNORE_THIS) 
+      return; 
+
+    if(ctrl.val() == NEW_TAG) {
+      $("#" + INPUT_FIELD_PREFIX + ctrl[0].id).show();
+      $("#" + INPUT_FIELD_PREFIX + ctrl[0].id).focus();
+      return;
+    }
+
+    addFolderTag(ctrl, tag);
+  };
+
+
   // TODO: This should really be computed server-side, and should only consider config datasets that we control
+  // To understand this mess, the best way to understand what it means is to look at the generated code using
+  // view source, and see what it makes.
   TagIsInUse = {};
   <%= raw @datasets.map{ |d| 
           d.config_datasets.map{ |c| 'if(!TagIsInUse["' + c.input_identifier + '"])' +
@@ -164,7 +189,6 @@
       alert(msg + "  Can't open window... got error: " + jqXHR.responseText + '")');
       return;
     }
-
     
     alert(msg + ' (server says: "' + jqXHR.responseText + '")');
   };
@@ -172,21 +196,14 @@
 
 
   // tagType will be true for regular tags, false for folder-tags
-  var doAddTag = function(ctrl, tagType, successFunction)
+  var doAddTag = function(serverUrl, datasetIdentifier, tag, tagType, successFunction)
   {
-
     var url = tagType ? '<%= url_for(:controller => 'datasets', :action => 'add_data_tag') %>' :
                         '<%= url_for(:controller => 'datasets', :action => 'add_data_folder_tag') %>'
 
-    var datasetIdentifier = ctrl.data('datasetidentifier');
-    var serverUrl         = ctrl.data('serverurl');
-
-    // Let the server know the dataType has changed
-    var tag = ctrl.val();
-
     $.ajax({
-      type:    'PUT',      // PUT combined with url below triggers "update" action on controller
-      url:     url,
+      type:    'PUT',     // PUT combined with url below triggers "update" action on controller
+      url:     url,       // url includes info about what sort of tag will be added
       data:    'dataset[identifier]='  + datasetIdentifier +
                '&dataset[server_url]=' + serverUrl +
                '&tag_val='             + tag,
@@ -203,14 +220,21 @@
   // User adds or removes a tag
   var addTag = function(ctrl)
   {
-    doAddTag(ctrl, true, updateTags);
+    var datasetIdentifier = ctrl.data('datasetidentifier');
+    var serverUrl         = ctrl.data('serverurl');
+    var tag = ctrl.val();
+
+    doAddTag(serverUrl, datasetIdentifier, tag, true, updateTags);
   };
 
 
   // User adds or removes a tag
-  var addFolderTag = function(ctrl)
+  var addFolderTag = function(ctrl, tag)
   {
-    doAddTag(ctrl, false, updateFolderTags);
+    var datasetIdentifier = ctrl.data('datasetidentifier');
+    var serverUrl         = ctrl.data('serverurl');
+
+    doAddTag(serverUrl, datasetIdentifier, tag, false, updateFolderTags);
   };
 
 
@@ -266,11 +290,13 @@
   };
 
 
+  // Add a folder tag to the specified dataset... send the addition to the server
   var addFolderTagXXX = function(fieldName, tag, rebuilding)
   {
     if(tag === "")
       return;
 
+    // Create a new container for tags if we don't already have one
     if(!tagLists[fieldName])
       tagLists[fieldName] = [];
 
@@ -292,8 +318,20 @@
 
     $('span[name="tags-' + fieldName + '"]').append(tagCode);  
 
+    // If we're rebuilding the list, we'll resize the input field when we're done, rather than doing
+    // it as we call this function repeatedly
     if(!rebuilding)
       resizeInputField(fieldName);
+
+    // Alert the server of the new tag
+    if(!rebuilding)
+    {
+      var ctrl = $('#input-' + fieldName);
+      var datasetUrl        = ctrl.data('serverurl');
+      var datasetIdentifier = ctrl.data('datasetidentifier');
+
+      doAddTag(datasetUrl, datasetIdentifier, tag, false, updateFolderTags);
+    }
   };
 
 
@@ -383,7 +421,7 @@
 
   var onFolderTagEntryChanged = function(field) 
   { 
-    var words = field.value.split(" ");
+    var words = field.value.split(",");
 
     // Last word will be "" when field.value ends with a space, so
     // user has ended a word and we should add the tag
@@ -401,5 +439,76 @@
     else
       showTagMatches(field.name, "");
   }
+
+
+  // Generate a tag list for the specified layer
+  // regLyr is an object that has tags and folder_tags fields
+  var makeTagList = function(layer, regLyr, urlId, placeholder) 
+  {
+    if(!regLyr)
+      return placeholder;
+
+    if(!regLyr.tags && !regLyr.tags)
+      return placeholder;
+
+    return '<span class="folder-taglist-deletable-' + urlId + ' taglist">' + 
+        createTagList(regLyr.folder_tags, true, layer.serverUrl, layer.identifier, 'folder-tag') +
+      '</span>' +
+
+      '<span class="taglist-deletable-' + urlId + ' taglist">' + 
+        createTagList(regLyr.tags, true, layer.serverUrl, layer.identifier, 'tag') +
+      '</span>';
+  };
+
+
+  // We can pass in anything for layer as long as it has an identifier property
+  var makeTagPickerControl = function(layer, controlId, enabled)
+  {
+    return '<select style="float:right" class="add-tag-dropdown-control" ' +
+             'data-serverurl="' + layer.serverUrl + '" ' + 
+             'data-datasetidentifier="' + layer.identifier + '" ' +
+             'id="' + controlId + '" ' + (enabled ? '' : 'disabled="true" ') +
+             'onchange="tagPickerChanged($(this));">' +
+               '<option value = "' + IGNORE_THIS + '">Add Processing Tag:</option>' + 
+           '</select>';
+  };
+
+
+  // Gets run when user enters a new folderTag
+  var tagManuallyEntered = function(ctrl, selectId) 
+  {
+    addFolderTag(ctrl, ctrl.val());
+    ctrl.val('');
+    ctrl.hide();
+    $('#' + selectId).val(IGNORE_THIS);
+  };
+
+
+  // tagEntryFieldName --> This should be some unique identifier (string) for the field
+  // layer --> some object that has both an identifier and serverUrl field
+  // regLyr --> some object that has tags and folder_tags fields
+  var createFolderTagControl = function(layer, tagEntryFieldName, tagPickerControlId, enabled)
+  {
+    var selectId = "input-" + tagEntryFieldName;
+    var newTagInputId = INPUT_FIELD_PREFIX + selectId;
+
+    return '<div style="position: relative;display: inline;">' +
+             '<input style="display:none;" ' + 
+                'id="' + newTagInputId + '" ' + 
+                'onchange="tagManuallyEntered($(this), \'' + selectId + '\'); return false;" ' +
+                'data-serverurl="'         + layer.serverUrl  + '" ' +   
+                'data-datasetidentifier="' + layer.identifier + '">' +
+             '<select style="float:right" class="add-tag-dropdown-control" ' +
+               'data-serverurl="'         + layer.serverUrl  + '" ' +   
+               'data-datasetidentifier="' + layer.identifier + '" ' +
+               'id="'                     + selectId + '" ' + 
+                    (enabled ? '' : 'disabled="true" ') +
+               'onchange="folderTagPickerChanged($(this), $(this).val());">' +
+                 '<option value = "' + IGNORE_THIS + '">Add Mapping Tag:</option>' + 
+                 '<option value = "' + NEW_TAG + '">Add New Tag</option>' +
+                 '<% getAliveFolderTags().each do |t| %><option value="<%= t %>"><%= t %></option><% end %>' +
+             '</select>' +
+           '</div>';
+  };
 
 </script>

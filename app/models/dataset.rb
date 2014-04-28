@@ -176,7 +176,8 @@ end
 def getSpecialTags(dataset)
 
   if(dataset.is_a? String) then
-    serviceList = [dataset]     # Put dataset string into a list so we can treat it the same as the split result below
+    # Put dataset string into a list so we can treat it the same as the split result below
+    serviceList = [dataset]     
   else
     if dataset.service.nil? then
       return []
@@ -251,6 +252,19 @@ def getAliveTags(dataset)
     return tags
   end
 end
+
+
+# Return a list of active folder tags suitable for displaying in a dropdown list
+def getAliveFolderTags()
+  cityId = User.getCurrentCity(current_user, cookies).id
+  
+  return DatasetFolderTag.select("distinct folder_tag")
+                         .joins(:dataset)
+                         .merge(Dataset.where(:city_id => cityId))
+                         .where("alive = true")
+                         .map {|d| d.folder_tag }
+                         .sort
+end  
 
 
 def getAoiDatasets(city)
