@@ -56,7 +56,7 @@ WebGIS.vals[WebGIS.SLD_GEOTH]  = new Array(0, 25, 50, 75, 100);
 
 WebGIS.getStyle = function(layerName, type) 
 {	
-	if ((type == null) || isNaN(type) || (type < 0) || (type > 4)) return "\n"; 
+	if ((type == null) || isNaN(type) || (type < 0) || (type > 4)) return null; 
 	
 	sld =  "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
 	sld += "<StyledLayerDescriptor version=\"1.0.0\"\n";

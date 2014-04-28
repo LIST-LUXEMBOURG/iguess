@@ -31,12 +31,14 @@
                               datasets[i].identifier, 
                               null,
                               tag,
-                              datasets[i].id);
+                              datasets[i].id);   
 
             $('div[ext\\:tree-node-id="dsid-' + datasets[i].id + '"]')
                 .append('<span class="info-icon properties" title="Click for details" ' + 
                         'rel="#infotable-' + datasets[i].id + '"></span>');
         }
+        
+        WebGIS.addNewLayer("UHI risk", "http://extragisqa.gent.be/geoserver/ows", "UHI risk", WebGIS.SLD_GEOTH, "Test", "666");
 
         // Activate the gear popup menus
         activateOverlays();
