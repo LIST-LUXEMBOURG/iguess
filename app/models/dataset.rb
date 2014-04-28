@@ -153,8 +153,9 @@ end
 
 # Build some json that looks like this:
 # registeredDataLayers[serverUrl][datasetIdentifier] = {
-#       tags:        ['tag1', 'tag2', ...]
-#       configCount: 3
+#       "tags":        ['tag1', 'tag2', ...],
+#       "folder_tags":['first', 'second',...],
+#       "configCount": 3
 #     };
 public 
 def buildRegisteredDataLayersJson(datasets)
