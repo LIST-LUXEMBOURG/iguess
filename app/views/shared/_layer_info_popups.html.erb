@@ -52,7 +52,7 @@
                     <%= t.folder_tag %>
                   </span>
               <% end %></span>
-
+<% if fullControls %>
             <script>
               var layer = {};
               layer.identifier = "<%= d.identifier %>";
@@ -68,6 +68,7 @@
               document.write(
                   createFolderTagControl(layer, tagEntryFieldName, tagPickerControlId, true));
             </script>
+<% end %>            
 
           </dd>
 
