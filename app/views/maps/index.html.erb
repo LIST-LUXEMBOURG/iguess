@@ -22,9 +22,9 @@
     	WebGIS.clearLayers(false);
         for (var i = 0, len = datasets.length; i < len; i++)
         {
-        	if(datasets[i].dataset_tags[0] == null)
+        	if(datasets[i].dataset_folder_tags[0] == null)
         		tag = "Untagged";
-        	else tag = datasets[i].dataset_tags[0].tag;
+        	else tag = datasets[i].dataset_folder_tags[0].tag;
 
             WebGIS.addNewLayer(datasets[i].title, //|| datasets[i].identifier, 
                               datasets[i].server_url, 
