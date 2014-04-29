@@ -177,14 +177,31 @@ WebGIS.CreatePanels = function() {
     lines: false
   });
   
-  WebGIS.testPanel = new Ext.Panel({
-  	title: 'Map Layers',
-	region: "west",
-	width: 200,
-    collapsible: true,
+  WebGIS.cataloguePanel = new Ext.Panel({
+  	title: 'Layers Catalogue',
+	region: "south",
+    collapsible: false,
     autoScroll: true,
     enableDD: true,
     items: [WebGIS.createFilter(), WebGIS.layerTree]
+  });
+  
+  WebGIS.northPanel = new Ext.Panel({
+  	title: 'Layer Tree',
+	region: "north",
+	height: 100,
+    collapsible: false,
+    autoScroll: true,
+    enableDD: true
+  });
+  
+  WebGIS.westPanel = new Ext.Panel({
+	region: "west",
+	width: 210,
+    collapsible: true,
+    autoScroll: true,
+    enableDD: true,
+    items: [WebGIS.northPanel, WebGIS.cataloguePanel]
   });
   
   WebGIS.mainPanel = new Ext.Panel({
@@ -203,7 +220,7 @@ WebGIS.CreatePanels = function() {
     },
     items: [
             WebGIS.leftPanel,
-            WebGIS.testPanel,
+            WebGIS.westPanel,
             //WebGIS.layerTree,
             { 
               // Legend: must be created here to be auto-linked to the map
