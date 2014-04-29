@@ -116,7 +116,7 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag, id)
     var options = { isBaseLayer: false,     
     				visibility: visible,
                     singleTile:  true,
-           		 	    transitionEffect: 'resize'
+           		 	transitionEffect: 'resize'
                   };
     
     //serviceURL = WebGIS.proxy + encodeURIComponent(serviceURL);
@@ -125,7 +125,7 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag, id)
     WebGIS.leftMap.addLayer(layer);
     layer.events.register("visibilitychanged", this, WebGIS.toggleLayer);
     
-    var newNode = new GeoExt.tree.LayerNode(
+    /*var newNode = new GeoExt.tree.LayerNode(
     {
         text: title,
         layer: layer,
@@ -135,6 +135,15 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag, id)
         iconCls: "treeIcon",
         children: [],
         nodeType: "gx_layer",
+        id: "dsid-" + id
+    });*/
+    var newNode = new Ext.tree.TreeNode(
+    {
+        text: title,
+        leaf: true,
+        checked: visible,
+        iconCls: "treeIcon",
+        children: [],
         id: "dsid-" + id
     });
     WebGIS.treeNodes[tag].appendChild(newNode);

@@ -180,7 +180,7 @@ WebGIS.CreatePanels = function() {
   WebGIS.cataloguePanel = new Ext.Panel({
   	title: 'Layers Catalogue',
 	region: "south",
-    collapsible: false,
+    collapsible: true,
     autoScroll: true,
     enableDD: true,
     items: [WebGIS.createFilter(), WebGIS.layerTree]
@@ -190,7 +190,7 @@ WebGIS.CreatePanels = function() {
   	title: 'Layer Tree',
 	region: "north",
 	height: 100,
-    collapsible: false,
+    collapsible: true,
     autoScroll: true,
     enableDD: true
   });
