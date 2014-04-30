@@ -58,10 +58,6 @@
               layer.identifier = "<%= d.identifier %>";
               layer.serverUrl  = "<%= d.server_url %>";
 
-              // var regLyr = {};
-              // regLyr.tags        = [<% d.getProcessingTagList().each do |t| %> "<%= t %>", <% end %> ];
-              // regLyr.folder_tags = [<% d.getFolderTagList().each     do |t| %> "<%= t %>", <% end %> ];
-
               var tagEntryFieldName  = "tag-entry-<%= d.id %>";
               var tagPickerControlId = "tag-entry-id-<%= d.id %>";
               
@@ -87,17 +83,18 @@
               <% end %></span>
             
     <% if fullControls %>
-            <select style="float:right" class="add-tag-dropdown-control" 
-              data-serverurl="<%= d.dataserver.url %>"
-              data-datasetidentifier="<%= d.identifier %>" 
-              onchange="tagPickerChanged($(this));"> 
+            <script>
+              var layer = {};
+              layer.identifier = "<%= d.identifier %>";
+              layer.serverUrl  = "<%= d.server_url %>";
 
-              <option value = "Ignore This">Add Processing Tag:</option>
+              // var tagEntryFieldName  = "tag-entry-<%= d.id %>";
+              var tagPickerControlId = 'data-type-' + layer.identifier;
+              
+              document.write(
+                  makeTagPickerControl(layer, tagPickerControlId, "<%= d.service %>", true));
 
-              <% d.getProcessingTagList().each do |t| %>
-                <option value="<%= t %>"><%= t %></option>
-              <% end %>
-            </select>
+            </script>
     <% end %>
           </dd>
           <dt>When registered:</td>
@@ -183,5 +180,21 @@
     $('span[rel]').overlay();                             // Set up the layer info overlays
     $('span[rel]').click(function(){ hideDetails(); });
   };
+
+
+  <% if fullControls %>
+    // Populate all the tag picker dropdowns
+    $(document).ready(function() {
+
+      makeDropdownService('WMS', 
+          '<% getAliveTags("WMS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>');
+
+      makeDropdownService('WFS', 
+          '<% getAliveTags("WFS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>');
+
+      makeDropdownService('WCS', 
+          '<% getAliveTags("WCS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>');
+    });
+<% end %>
 
 </script>

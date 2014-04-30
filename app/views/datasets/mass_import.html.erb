@@ -252,7 +252,7 @@
     return '<div class="tag-control">' +
              makeTagList(layer, regLyr, urlId, "No tags") +
              createFolderTagControl(layer, tagEntryFieldName, tagPickerControlId, enabled) +
-             makeTagPickerControl(layer, tagPickerControlId, enabled) +
+             makeTagPickerControl(layer, tagPickerControlId, 'xxx', enabled) +
            '</div>';
   };
 
@@ -695,11 +695,6 @@
     if(which == "bottom")
       return obj[1];
   };
-
-
-  var makeDropdown = function(controlId, tagList) {
-    $('#' + sanitizeForCss(controlId)).append(tagList);
-  }
 
 
   var extractTagList = function(serverUrl, datasetIdentifier) 
