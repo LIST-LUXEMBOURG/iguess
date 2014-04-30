@@ -172,7 +172,7 @@ class DatasetsController < ApplicationController
     # Add or delete a tag
     if params[:id] == "add_data_tag"        or params[:id] == "del_tag" or
        params[:id] == "add_data_folder_tag" then
-      tagVal = params[:tag_val]    # Tag we are either adding or deleting
+      tagVal = params[:tag_val].strip    # Tag we are either adding or deleting
 
       # Add a processing tag
       if params[:id] == "add_data_tag" then
@@ -180,6 +180,7 @@ class DatasetsController < ApplicationController
         returnTags = @dataset.getProcessingTagList()
       # Add a folder tag
       elsif params[:id] == "add_data_folder_tag" then
+        makeFolderTag(@dataset, tagVal)
         returnTags = @dataset.getFolderTagList()
 
       # Delete tag
@@ -265,7 +266,7 @@ class DatasetsController < ApplicationController
 
   def check_name
     requested_name = params[:name]
-    field_name = params[:fieldName]
+    field_name = params[:field_name]
 
     @current_city = User.getCurrentCity(current_user, cookies)
 
@@ -282,6 +283,37 @@ class DatasetsController < ApplicationController
 
     respond_to do |format|
       format.json { render :json => available, :status => :ok }
+    end
+  end
+
+
+  # Find any tags that look like the passed value... called via ajax
+
+  def find_matching_tags
+    prefix = params[:prefix]
+    field_name = params[:field_name]
+
+    cityId = User.getCurrentCity(current_user, cookies).id
+
+    knownTags = DatasetTag.select("distinct tag")
+                          .joins(:dataset)
+                          .merge(Dataset.where(:city_id => cityId))
+                          .where("tag ilike :prefix", prefix: "#{prefix}%")
+                          .map {|d| d.tag }
+
+    if knownTags.blank? then
+      taglist = '""'
+    else
+      taglist = '["' + knownTags.join('","') + '"]'
+    end
+
+    print "Taglist:", taglist
+
+    
+    json = '{"data": [{"fieldname": "' + field_name + '", "matching_tags": ' + taglist + '} ] }'
+
+    respond_to do |format|
+      format.json { render :json => json, :status => :ok }
     end
   end
 

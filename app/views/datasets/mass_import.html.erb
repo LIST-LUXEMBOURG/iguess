@@ -243,6 +243,20 @@
   };
 
 
+  // tagEntryFieldName --> This should be some unique identifier (string) for the field
+  // layer --> some object that has both an identifier and serverUrl field
+  // regLyr --> some object that has tags and folder_tags fields
+  var createTagControl = function(layer, regLyr, urlId, tagEntryFieldName, 
+                                  tagPickerControlId, enabled)
+  {
+    return '<div class="tag-control">' +
+             makeTagList(layer, regLyr, urlId, "No tags") +
+             createFolderTagControl(layer, tagEntryFieldName, tagPickerControlId, enabled) +
+             makeTagPickerControl(layer, tagPickerControlId, enabled) +
+           '</div>';
+  };
+
+
   var displayServices = function() 
   {
     var mapId = 0;
@@ -252,10 +266,11 @@
 
     // If no layers were loaded, show an intelligble error message and bail
     if(layerCount == 0) {
-      $("#results-display").html('<div class="error-header">Please check the number and dial again</div>' +
-                                 '<div class="error-body">No data layers could be found on the specified server.<br>' +
-                                 'Either the URL is not that of a WMS/WFS/WCS data server, or the server is not responding.' +
-                                 '</div>');
+      $("#results-display").html(
+    '<div class="error-header">Please check the number and dial again</div>' +
+    '<div class="error-body">No data layers could be found on the specified server.<br>' +
+    'Either the URL is not that of a WMS/WFS/WCS data server, or the server is not responding.' +
+    '</div>');
 
       $(".server-info").show();
 
@@ -263,26 +278,7 @@
     };
 
 
-    // Generate a tag list for the specified layer
-    var makeTagList = function(layer, regLyr, urlId, placeholder) 
-    {
-      if(!regLyr)
-        return placeholder;
-
-      if(!regLyr.tags && !regLyr.tags)
-        return placeholder;
-
-      return '<span class="folder-taglist-deletable-' + urlId + ' taglist">' + 
-               createTagList(regLyr.folder_tags, true, layer.serverUrl, 
-                             layer.identifier, 'folder-tag') +
-             '</span>' +
-     
-             '<span class="taglist-deletable-' + urlId + ' taglist">' + 
-               createTagList(regLyr.tags, true, layer.serverUrl, 
-                             layer.identifier, 'tag') +
-             '</span>';
-    };
-
+    var tagEntryFieldNameCounter = 0;
 
     // We have layers!!!
 
@@ -374,16 +370,17 @@
 
         var data_info = $(document.createElement('div'));
         var tagPickerControlId = 'data-type-' + layer.identifier;
+        
+        var tagEntryFieldName = "tagEntry" + tagEntryFieldNameCounter;
+        tagEntryFieldNameCounter++;
 
         data_info.attr({ class:'data-info' });
 
         data_info.append(srsNode)
                  .append(getRegisterControlHtml(layer.identifier, regLyr))
                  .append(servicesAvailNode)
-                 .append('<div class="tag-control">' +
-                            makeTagList(layer, regLyr, urlId, "No tags") + 
-                            makeTagPickerControl(layer, tagPickerControlId, regLyr) + 
-                         '</div>');
+                 .append(createTagControl(layer, regLyr, urlId,
+                                          tagEntryFieldName, tagPickerControlId, true));
 
         var sample_map = $(document.createElement("div"));
         sample_map.attr({ id:mapDivId, class:"sample-map" });   // Map will be rendered based on div's id
@@ -702,19 +699,6 @@
 
   var makeDropdown = function(controlId, tagList) {
     $('#' + sanitizeForCss(controlId)).append(tagList);
-  }
-
-
-   // If readyToPoulate is false, we can pass in anything for layer as long as it has an identifier property
-  var makeTagPickerControl = function(layer, controlId, enabled)
-  {
-    return '<select style="float:right" class="add-tag-dropdown-control" ' + 
-           'data-serverurl="' + layer.serverUrl + '" ' +   // These keys seem to get lowercased anyway... so no upper case letter pls!
-           'data-datasetidentifier="' + layer.identifier + '" ' +
-           'id="' + controlId + '" ' + (enabled ? '' : 'disabled="true" ') +
-           'onchange="tagPickerChanged($(this));">' +
-             '<option value = "Ignore This">Add Processing Tag:</option>' + 
-           '</select>';
   }
 
 

@@ -16,7 +16,8 @@ Iguess::Application.routes.draw do
     end
   end
 
-  get '/datasets/check_name', to: 'datasets#check_name'
+  get '/datasets/check_name',         to: 'datasets#check_name'
+  get '/datasets/find_matching_tags', to: 'datasets#find_matching_tags'
 
   resources :datasets 
 

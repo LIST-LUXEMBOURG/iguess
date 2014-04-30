@@ -140,12 +140,13 @@ def stripServerUrlAndIdentifier(item)
 end
 
 
-def jsonHelper(dataset)
+def jsonBuilder(dataset)
   json = dataset.as_json(:only => [:server_url, :identifier])
   # server_url
   json['configCount'] = dataset.mod_configs.count    # Number of configurations this layer is used in
   json['tags']        = dataset.dataset_tags.map { |t| t.tag }
   json['folder_tags'] = dataset.dataset_folder_tags.map { |t| t.folder_tag }
+  json['id']          = dataset.id
 
   return json
 end
@@ -153,13 +154,14 @@ end
 
 # Build some json that looks like this:
 # registeredDataLayers[serverUrl][datasetIdentifier] = {
-#       tags:        ['tag1', 'tag2', ...]
-#       configCount: 3
+#       "tags":        ['tag1', 'tag2', ...],
+#       "folder_tags":['first', 'second',...],
+#       "configCount": 3
 #     };
 public 
 def buildRegisteredDataLayersJson(datasets)
 
-  json = datasets.map{|d| jsonHelper(d)}
+  json = datasets.map{|d| jsonBuilder(d)}
 
   hash = Hash.new()
 
@@ -176,7 +178,8 @@ end
 def getSpecialTags(dataset)
 
   if(dataset.is_a? String) then
-    serviceList = [dataset]     # Put dataset string into a list so we can treat it the same as the split result below
+    # Put dataset string into a list so we can treat it the same as the split result below
+    serviceList = [dataset]     
   else
     if dataset.service.nil? then
       return []
@@ -251,6 +254,19 @@ def getAliveTags(dataset)
     return tags
   end
 end
+
+
+# Return a list of active folder tags suitable for displaying in a dropdown list
+def getAliveFolderTags()
+  cityId = User.getCurrentCity(current_user, cookies).id
+  
+  return DatasetFolderTag.select("distinct folder_tag")
+                         .joins(:dataset)
+                         .merge(Dataset.where(:city_id => cityId))
+                         .where("alive = true")
+                         .map {|d| d.folder_tag }
+                         .sort
+end  
 
 
 def getAoiDatasets(city)

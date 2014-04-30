@@ -1,5 +1,7 @@
 <!-- Ruby var fullControls is passed when this is rendered -->
 
+<%= render :partial => 'tag_functions.html.erb' %>
+
 <%  if fullControls then 
       tagClassAttr = "class=tag-delete-button"        
     else 
@@ -40,7 +42,7 @@
               </dd>
             <% end %>
 
-          <dt>Folder Tags:</dt>
+          <dt>Mapping Tags:</dt>
           <dd>
             <!-- Important!  When no datasets, make sure there is no whitespace in the span below -->
             <span class="folder-taglist-deletable-<%= cssEscape(d.dataserver.url + d.identifier) %> show-no-tags-msg-when-empty"><% d.dataset_folder_tags.each do |t| %>
@@ -50,6 +52,23 @@
                     <%= t.folder_tag %>
                   </span>
               <% end %></span>
+
+            <script>
+              var layer = {};
+              layer.identifier = "<%= d.identifier %>";
+              layer.serverUrl  = "<%= d.server_url %>";
+
+              // var regLyr = {};
+              // regLyr.tags        = [<% d.getProcessingTagList().each do |t| %> "<%= t %>", <% end %> ];
+              // regLyr.folder_tags = [<% d.getFolderTagList().each     do |t| %> "<%= t %>", <% end %> ];
+
+              var tagEntryFieldName  = "tag-entry-<%= d.id %>";
+              var tagPickerControlId = "tag-entry-id-<%= d.id %>";
+              
+              document.write(
+                  createFolderTagControl(layer, tagEntryFieldName, tagPickerControlId, true));
+            </script>
+
           </dd>
 
           <dt>Processing Tags:</dt>
@@ -94,13 +113,15 @@
           <dt>Actions:</dt>
           <dd>
             <% if d.mod_configs.size == 0 then 
-                  msg = "Are you sure you want to unregister this dataset?"
+                  msg = "Are you sure you want to unregister this dataset?  " + 
+                        "This may delete the underlying dataset and make it unavailable to other users."
                else
                   t = d.mod_configs.size == 1 ? "that" : "those"
                   c = d.mod_configs.size == 1 ? "configuration" : "configurations"
 
                   msg = "This dataset is in use by " + d.mod_configs.size.to_s + " " + c + ".\n" +
-                        "Unregistering it will cause it to be removed from " + t + " " + c + ".\n" + 
+                        "Unregistering it will cause it to be removed from " + t + " " + c + ".\n\n" + 
+                        "This may also delete the underlying dataset and make it unavailable to other users.\n"
                         "Click OK if you are sure you want to unregister this dataset." 
                end %>
 

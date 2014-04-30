@@ -254,7 +254,7 @@
   var nameVerified = function(jqXHR)
   {
     // var response = jqXHR.responseText;
-    var field = jqXHR.data[0]["fieldname"];
+    var field  = jqXHR.data[0].fieldname;
     var status = jqXHR.data[0].status;        // Should be "ok" or "not ok"
 
     // Fix up field to "legalize" the fieldname that rails uses
@@ -284,7 +284,7 @@
     $.ajax({
         type: 'GET',
         url: serverUrl,
-        data: 'name=' + field.value + '&fieldName=' + field.name,
+        data: 'name=' + field.value + '&field_name=' + field.name,
         headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
         success: nameVerified,
         error: function(jqXHR, textStatus, error) { alert("Error checking name availability: " + error); }
