@@ -27,9 +27,9 @@
       <td>
         <select id="url-preset-select"  style="width: 100%">
           <option value="">Select a preset</option>
-          <%= raw @current_city.dataserver_url.map 
-                    { |m| '<option value="' + m.url + '">' + m.url + '</option>' }
-                                              .join(" ") %>
+          <%= raw @current_city.dataserver_url
+                               .map { |m| '<option value="' + m.url + '">' + m.url + '</option>' }
+                               .join(" ") %>
         </select>
       </td>
     </tr><tr>
@@ -140,8 +140,9 @@
 
 
   // Called when we've gotten whatever response we're going to get from the server in question
-  // i.e. when a WFS response arrives.  More responses might be coming (from WMS, and WCS, for example).
-  // serverInfo could be null.
+  // i.e. when a WFS response arrives.  More responses might be coming (from WMS, and WCS, 
+  // for example).
+  // Note: serverInfo could be null.
   var doneProcessing = function(url, type, serverInfo) 
   {
     if(type == "WFS") {
@@ -243,7 +244,8 @@
     // Set up overflow for long lists
     if(len > itemCount)
     {
-      html += " <a href='#' onclick='displayOverflow(\"Full list of CRSs supported for this dataset:<br>" +
+      html += " <a href='#' " + 
+                  "onclick='displayOverflow(\"Full list of CRSs supported for this dataset:<br>" +
                crsList.join('; ') +  "\");return false;'>More &gt;&gt;</a>";
     }
 
