@@ -19,14 +19,17 @@
   <table class="url-form">
       <tr>
       <td>
-        <input id="server_url" type="text" name="format" value="" placeholder="Enter data-server URL or select a preset"/>
+        <input id="server_url" type="text" name="format" 
+               value="" placeholder="Enter data-server URL or select a preset"/>
         <button type="button" id="load_services">Load</button>
       </td>
     </tr><tr>
       <td>
         <select id="url-preset-select"  style="width: 100%">
           <option value="">Select a preset</option>
-          <%= raw @current_city.dataserver_url.map { |m| '<option value="' + m.url + '">' + m.url + '</option>' }.join(" ") %>
+          <%= raw @current_city.dataserver_url.map 
+                    { |m| '<option value="' + m.url + '">' + m.url + '</option>' }
+                                              .join(" ") %>
         </select>
       </td>
     </tr><tr>
