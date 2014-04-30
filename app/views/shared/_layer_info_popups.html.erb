@@ -185,15 +185,7 @@
   <% if fullControls %>
     // Populate all the tag picker dropdowns
     $(document).ready(function() {
-
-      makeDropdownService('WMS', 
-          '<% getAliveTags("WMS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>');
-
-      makeDropdownService('WFS', 
-          '<% getAliveTags("WFS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>');
-
-      makeDropdownService('WCS', 
-          '<% getAliveTags("WCS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>');
+      populateTagLists();
     });
 <% end %>
 

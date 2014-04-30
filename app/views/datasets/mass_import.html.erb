@@ -243,16 +243,29 @@
   };
 
 
-  // tagEntryFieldName --> This should be some unique identifier (string) for the field
-  // layer --> some object that has both an identifier and serverUrl field
-  // regLyr --> some object that has tags and folder_tags fields
   var createTagControl = function(layer, regLyr, urlId, tagEntryFieldName, 
                                   tagPickerControlId, enabled)
   {
+    var service;
+
+    if(layer.type.hasObject("WCS"))
+      service = "WCS";
+
+    // If we have a WFS layer with no coordinate data, show the WCS tag list, which
+    // is basically the same, but without the Area of Interest tag
+    else if (layer.type.hasObject("WFS") && getCoord(layer, "left") === "")
+      service = "WCS"; 
+    
+    else if(layer.type.hasObject("WFS")) 
+      service = "WFS";
+
+    else
+      service = "WMS";
+
     return '<div class="tag-control">' +
              makeTagList(layer, regLyr, urlId, "No tags") +
              createFolderTagControl(layer, tagEntryFieldName, tagPickerControlId, enabled) +
-             makeTagPickerControl(layer, tagPickerControlId, 'xxx', enabled) +
+             makeTagPickerControl(layer, tagPickerControlId, service, enabled) +
            '</div>';
   };
 
@@ -470,17 +483,18 @@
         // If there is no dataBbox, we don't want the Area of Interest tag.
         // WFSTagList and WCSTagList are basically the same, except WFSTagList also has the AOI tag.
         // This is kind of hacky, but seems to work.
-        if(layer.type.hasObject('WCS') || (layer.type.hasObject('WFS') && getCoord(layer, "left") === "")) {
-          makeDropdown(tagPickerControlId, WCSTagList);
-        }
-        else if(layer.type.hasObject('WFS')) {
-          makeDropdown(tagPickerControlId, WFSTagList);
-        }
-        else
-          makeDropdown(tagPickerControlId, WMSTagList);
+        // if(layer.type.hasObject('WCS') || (layer.type.hasObject('WFS') && getCoord(layer, "left") === "")) {
+        //   makeDropdown(tagPickerControlId, WCSTagList);
+        // }
+        // else if(layer.type.hasObject('WFS')) {
+        //   makeDropdown(tagPickerControlId, WFSTagList);
+        // }
+        // else
+        //   makeDropdown(tagPickerControlId, WMSTagList);
       }  // end for loop
     }  // for pass = 0 to 2
 
+    populateTagLists();
     addDeleteTagClickHander(true);    // Add delete click handler for processing tags
     addDeleteTagClickHander(false);   // Add delete click handler for folder tags
     addSwitchboxHandler();

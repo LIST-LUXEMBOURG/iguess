@@ -529,4 +529,17 @@
   };
 
 
+  var populateTagLists = function() 
+  {
+    makeDropdownService('WMS', 
+        '<% getAliveTags("WMS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>');
+
+    makeDropdownService('WFS', 
+        '<% getAliveTags("WFS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>');
+
+    makeDropdownService('WCS', 
+        '<% getAliveTags("WCS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>');
+  };
+
+
 </script>
