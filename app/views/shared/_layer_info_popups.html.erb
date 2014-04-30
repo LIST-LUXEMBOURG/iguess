@@ -1,6 +1,6 @@
 <!-- Ruby var fullControls is passed when this is rendered -->
 
-<%= render :partial => 'tag_functions.html.erb' %>
+<%= render :partial => '/datasets/tag_functions.html.erb' %>
 
 <%  if fullControls then 
       tagClassAttr = "class=tag-delete-button"        
@@ -52,7 +52,7 @@
                     <%= t.folder_tag %>
                   </span>
               <% end %></span>
-
+<% if fullControls %>
             <script>
               var layer = {};
               layer.identifier = "<%= d.identifier %>";
@@ -68,6 +68,7 @@
               document.write(
                   createFolderTagControl(layer, tagEntryFieldName, tagPickerControlId, true));
             </script>
+<% end %>            
 
           </dd>
 
