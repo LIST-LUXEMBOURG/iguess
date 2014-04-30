@@ -3,13 +3,15 @@
 <div id="error-list" class="explanation-problem" style="display: none"></div>
 
 <div class="explanation">
-  <p>iGUESS uses datasets stored on remote servers.  To register datasets with the system, enter a server URL in the box below.
-  iGUESS will probe the remote server and present you a list of datasets you can register.  In order to use a dataset with
-  a module, you will need to tag it with the appropriate tags.  If you want to use the dataset for mapping
-  purposes, use the Mapping tag.</p>
+  <p>iGUESS uses datasets stored on remote servers.  To register datasets with the system, 
+    enter a server URL in the box below. iGUESS will probe the remote server and present 
+    you a list of datasets you can register.  In order to use a dataset with a module, 
+    you will need to tag it with the appropriate tags.  If you want to use the dataset 
+    for mapping purposes, use the Mapping tag.</p>
 
-  <p>iGUESS will probe for WFS, WCS, and WMS servers at the URL provided below.  Layers offered by the WMS will be available for mapping,
-  and layers offered by the WFS/WCS will be available for using as inputs to web processes.</p>
+  <p>iGUESS will probe for WFS, WCS, and WMS servers at the URL provided below.  Layers 
+    offered by the WMS will be available for mapping, and layers offered by the WFS/WCS 
+    will be available for using as inputs to web processes.</p>
 </div>
 
 
@@ -40,9 +42,15 @@
 <div class="services-display">
 
   <div class="progress-container">
-    <span class="probing" id="probing-wms">Probing WMS server...<span class="loading_indicator"></span></span>
-    <span class="probing" id="probing-wfs">Probing WFS server...<span class="loading_indicator"></span></span>
-    <span class="probing" id="probing-wcs">Probing WCS server...<span class="loading_indicator"></span></span>
+    <span class="probing" id="probing-wms">Probing WMS server...
+      <span class="loading_indicator"></span>
+    </span>
+    <span class="probing" id="probing-wfs">Probing WFS server...
+      <span class="loading_indicator"></span>
+    </span>
+    <span class="probing" id="probing-wcs">Probing WCS server...
+      <span class="loading_indicator"></span>
+    </span>
   </div>
 
   <div class="server-info">
@@ -57,16 +65,18 @@
   <div class="infotable" id="infotable-unavailable-for-mapping">
     <h1 class="dataset-title">Available for mapping</h1>
       <div>
-        We do all our mapping using <%= GoogleProjection %>, which is compatible with Google Maps and OpenStreetMap, 
-        used as a background in the map window.  If a dataset is available from a WMS service, and is in this projection, 
-        then we can display it on our maps.
+        We do all our mapping using <%= GoogleProjection %>, which is compatible with 
+        Google Maps and OpenStreetMap, used as a background in the map window.  If a 
+        dataset is available from a WMS service, and is in this projection, then 
+        we can display it on our maps.
       </div>
       <br>
     <h1 class="dataset-title">Available for processing</h1>
     <div>
-      Each city defines a projection that will be used for all calculations.  For <%= @current_city.name %>, 
-      that is <%= @current_city.srs %>.  If a dataset is available from a WFS or WCS server, and is in this projection, 
-      then we can use it in the computation modules.
+      Each city defines a projection that will be used for all calculations.  
+      For <%= @current_city.name %>, that is <%= @current_city.srs %>.  If a dataset 
+      is available from a WFS or WCS server, and is in this projection, then we can 
+      use it in the computation modules.
     </div>
   </div>
 
@@ -78,7 +88,7 @@
   // Add "js" style to body -- makes fancy checkboxes work
   $('body').attr("class",$('body').attr("class") + " js");
 
-  GOOGLE_SRS = '<%= GoogleProjection %>';
+  var GOOGLE_SRS = '<%= GoogleProjection %>';
 
 
   // registeredDataLayers is a list of info about all layers registered with the system.  It gets
@@ -105,14 +115,13 @@
   };
 
 
-  LOCAL_SRS = '<%= @current_city.srs %>';
+  var LOCAL_SRS = '<%= @current_city.srs %>';
 
 
   var getLayerNameFromCheckboxId = function(id)
   {
   	return id.substring('registered_'.length);	// Remove 'registered_' from the front of the string
   };
-
 
 
   var wfsProcessingComplete = 0;
@@ -159,9 +168,10 @@
   };
 
 
-  // We can have bouding box info socked away in several different places, depending on which service sent it,
-  // and which openLayers component processed it.  We'll break this out to avoid complexity in the calling function.
-  // Returns null if we can't find any good bounding box coords.
+  // We can have bouding box info socked away in several different places, 
+  // depending on which service sent it, and which openLayers component
+  // processed it.  We'll break this out to avoid complexity in the calling 
+  // function.  Returns null if we can't find any good bounding box coords.
   var getNormalizedBoundingBox = function(layer)
   {
     if(layer.wmsCrs && layer.mapBbox && layer.mapBbox.left)
@@ -200,12 +210,6 @@
   };
 
 
-  var WMSTagList = '<% getAliveTags("WMS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>';
-  var WFSTagList = '<% getAliveTags("WFS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>';
-  var WCSTagList = '<% getAliveTags("WCS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>';
-
-
-
   // Popup a window for displaying the passed content
   var displayOverflow = function(content)
   {
@@ -215,13 +219,14 @@
       $(win.document.body).html(content);
       return;
     }
-    alert("Can't open new window. Please change your browser settings to allow popups from this site.");
+    alert("Can't open new window. Please change your browser settings to allow " + 
+          "popups from this site.");
   };
 
 
   var getCrsListDisplay = function(crsList, maxLen)
   {
-    var len = typeof(crsList) == "string" ? 0 : crsList.length;
+    var len = (typeof(crsList) == "string") ? 0 : crsList.length;
     var itemCount = len;
 
     if(itemCount > maxLen)
@@ -229,7 +234,8 @@
 
     var html = "<span>";
 
-    html += (typeof(crsList) == "string" ? crsList : crsList.slice(0, itemCount - 1).join('; '));
+    html += (typeof(crsList) == "string" ? crsList : 
+                                           crsList.slice(0, itemCount - 1).join('; '));
 
     // Set up overflow for long lists
     if(len > itemCount)
@@ -270,6 +276,9 @@
   };
 
 
+  var CONTROL_PREFIX = "data-type-";
+
+
   var displayServices = function() 
   {
     var mapId = 0;
@@ -299,10 +308,10 @@
 
     // These refer to the layers that have been discovered on the remote servers
     var discoveredLayerKeys = Object.keys(discoveredLayers).sort();
-    // discoveredLayers.sort(datasetSort);
 
 
-    // Render found datasets in two passes -- first for registered items, second for unregistered ones.
+    // Render found datasets in two passes -- first for registered items, 
+    // second for unregistered ones.
     // This puts registered items at the top of the screen.
     for(var pass = 0; pass < 2; pass++)
     {
@@ -310,11 +319,6 @@
       {
         var urlId = discoveredLayerKeys[lyrctr];
         var layer = discoveredLayers[urlId];      
-
-        // if(registeredDataLayers[layer.serverUrl] == undefined) {
-        //   // No already-registered layers for this url.. Put something here so the following lines won't crash.
-        //   registeredDataLayers[layer.serverUrl] = {};
-        // }
 
         var regLyr = registeredDataLayers[layer.serverUrl] && 
                      registeredDataLayers[layer.serverUrl][layer.identifier];
@@ -382,7 +386,7 @@
 
 
         var data_info = $(document.createElement('div'));
-        var tagPickerControlId = 'data-type-' + layer.identifier;
+        var tagPickerControlId = CONTROL_PREFIX + layer.identifier;
         
         var tagEntryFieldName = "tagEntry" + tagEntryFieldNameCounter;
         tagEntryFieldNameCounter++;
@@ -478,19 +482,6 @@
           miniMap.zoomToMaxExtent();
           miniMap.render(mapDivId);    // Renders to <div id="map#">
         }
-        
-        // Now that the tag picker has finally been added to the dom, we can populate it.
-        // If there is no dataBbox, we don't want the Area of Interest tag.
-        // WFSTagList and WCSTagList are basically the same, except WFSTagList also has the AOI tag.
-        // This is kind of hacky, but seems to work.
-        // if(layer.type.hasObject('WCS') || (layer.type.hasObject('WFS') && getCoord(layer, "left") === "")) {
-        //   makeDropdown(tagPickerControlId, WCSTagList);
-        // }
-        // else if(layer.type.hasObject('WFS')) {
-        //   makeDropdown(tagPickerControlId, WFSTagList);
-        // }
-        // else
-        //   makeDropdown(tagPickerControlId, WMSTagList);
       }  // end for loop
     }  // for pass = 0 to 2
 
@@ -570,7 +561,7 @@
       var checkbox          = document.getElementById(checkboxID);
       var datasetIdentifier = getLayerNameFromCheckboxId(checkboxID);
       
-      var tagPickerControl  = document.getElementById('data-type-' + datasetIdentifier);
+      var tagPickerControl  = document.getElementById(CONTROL_PREFIX + datasetIdentifier);
       var serverUrl         = getServerUrl();
 
       var configCount = (registeredDataLayers[serverUrl] && 
