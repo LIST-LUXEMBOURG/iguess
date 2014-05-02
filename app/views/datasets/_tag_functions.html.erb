@@ -293,13 +293,19 @@
   };
 
 
+  var hideTagEntryField = function(ctrl, selectId)
+  {
+    ctrl.val('');
+    ctrl.hide();
+    $('#' + selectId).val(IGNORE_THIS);
+  };
+
+
   // Gets run when user enters a new folderTag
   var tagManuallyEntered = function(ctrl, selectId) 
   {
     addFolderTag(ctrl, ctrl.val());
-    ctrl.val('');
-    ctrl.hide();
-    $('#' + selectId).val(IGNORE_THIS);
+    hideTagEntryField(ctrl, selectId);
   };
 
 
@@ -313,8 +319,9 @@
 
     return '<div style="position: relative;display: inline;">' +
              '<input style="display:none;" ' + 
-                'id="' + newTagInputId + '" ' + 
+                'id="' + newTagInputId + '" placeholder="Enter a new tag" ' +
                 'onchange="tagManuallyEntered($(this), \'' + selectId + '\'); return false;" ' +
+                'onblur="hideTagEntryField($(this), \'' + selectId + '\'); return false;" ' +
                 'data-serverurl="'         + layer.serverUrl  + '" ' +   
                 'data-datasetidentifier="' + layer.identifier + '">' +
              '<select style="float:right" class="add-tag-dropdown-control ' + className + '" ' +
