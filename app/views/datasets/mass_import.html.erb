@@ -123,7 +123,8 @@
 
   var getLayerNameFromCheckboxId = function(id)
   {
-  	return id.substring('registered_'.length);	// Remove 'registered_' from the front of the string
+    // Remove 'registered_' from the front of the string
+  	return id.substring('registered_'.length);	
   };
 
 
@@ -283,7 +284,7 @@
   };
 
 
-  var TAG_PICKER_PREFIX        = "tag-picker-";
+  var TAG_PICKER_PREFIX = "tag-picker-";
 
 
   var displayServices = function() 
@@ -368,7 +369,8 @@
 
         if(layer.abstract) {
           abstractNode = $(document.createElement('div'));
-          abstractNode.attr({ class:"dataset_abstract", id:"dataset-abstract-" + layer.identifier });
+          abstractNode.attr({ class:"dataset_abstract", 
+                              id:   "dataset-abstract-" + layer.identifier });
           abstractNode.html(linkify(layer.abstract));
         }
 
@@ -407,7 +409,9 @@
                                           tagEntryFieldName, tagPickerControlClass));
 
         var sample_map = $(document.createElement("div"));
-        sample_map.attr({ id:mapDivId, class:"sample-map" });   // Map will be rendered based on div's id
+
+        // Map will be rendered based on div's id
+        sample_map.attr({ id:mapDivId, class:"sample-map" });   
 
 
         var container = $(document.createElement("div"));
@@ -452,16 +456,20 @@
           // I suspect that layer.type.hasObject('WMS') will always be false here...
           $('#' + mapDivId).html(
                 '<div class="map-unavailable">' + 
-                (layer.type.hasObject('WMS') ? 'Map unavailable' : 'No WMS service for this layer') + 
+                    (layer.type.hasObject('WMS') ? 'Map unavailable' : 
+                                                   'No WMS service for this layer') + 
                 '</div>'
               );
 
           if(!alreadyShownWmsError) {
-            var err = '<div>We cannot display sample maps for some datasets on this server.  ' +
-                      'The most likely cause of this problem is that the server\'s WMS functionality is not properly configured: ' +
-                      'either a WMS service has not been defined for a particular identifier, or I cannot get a usable bounding box ' +
-                      'for the layers you have requested.<P><P>You can see how the server responds to WMS queries by clicking here: ' + 
-                      '<a href="'+ WMS.getCapReq(layer.serverUrl) + '" target="_blank">WMS GetCapabilities</a></div>';
+            var err = '<div>We cannot display sample maps for some datasets on this ' + 
+                'server.  The most likely cause of this problem is that the server\'s WMS ' + 
+                'functionality is not properly configured: either a WMS service has not ' + 
+                'been defined for a particular identifier, or I cannot get a usable ' + 
+                'bounding box for the layers you have requested.<P><P>You can see how the ' + 
+                'server responds to WMS queries by clicking here: ' +
+                '<a href="'+ WMS.getCapReq(layer.serverUrl) + '" target="_blank">' + 
+                    'WMS GetCapabilities</a></div>';
 
             $('#error-list').append(err).slideDown(500);
 
@@ -542,12 +550,12 @@
       $(".taglist-deletable-"        + urlId,
         ".folder-taglist-deletable-" + urlId)          .attr("disabled", true);
 
-      onDatasetRegisteredOrUnregistered(item, checkbox, datasetIdentifier, false);
+      onDatasetRegOrUnreg(item, checkbox, datasetIdentifier, false);
     };
 
 
     // Common code to run when we regiester or unregister a dataset
-    var onDatasetRegisteredOrUnregistered = function(item, checkbox, datasetIdentifier, registering)
+    var onDatasetRegOrUnreg = function(item, checkbox, datasetIdentifier, registering)
     {
       item.toggleClass("checked");
 
@@ -693,7 +701,8 @@
 
 
   // Helper for above
-  // Handles both types of bounding boxes... either a simple array, or a dictionary with left/right/top/bottom keys
+  // Handles both types of bounding boxes... either a simple array, or a dictionary 
+  // with left/right/top/bottom keys
   var doGetCoord = function(obj, which) 
   {
     if(obj[which])
@@ -820,59 +829,68 @@
   });
 
 
-
   // Adapted from http://css-tricks.com/equal-height-blocks-in-rows/
   var currentTallest = 0,
       currentRowStart = 0,
       rowDivs = new Array();
 
-  var setConformingHeight = function(el, newHeight) {
-     // set the height to something new, but remember the original height in case things change
-     el.data("originalHeight", (el.data("originalHeight") == undefined) ? (el.height()) : (el.data("originalHeight")));
+
+  var setConformingHeight = function(el, newHeight) 
+  {
+     // Set the height to something new, but remember the original height in case things change
+     el.data("originalHeight", (el.data("originalHeight") == undefined) ? el.height() : 
+                                                                          el.data("originalHeight"));
      el.height(newHeight);
-  }
+  };
 
-  var getOriginalHeight = function(el) {
+
+  var getOriginalHeight = function(el) 
+  {
      // if the height has changed, send the originalHeight
-     return (el.data("originalHeight") == undefined) ? (el.height()) : (el.data("originalHeight"));
-  }
+     return (el.data("originalHeight") == undefined) ? el.height() : 
+                                                       el.data("originalHeight");
+  };
 
-  var equalizeRowHeights = function() {
 
+  var equalizeRowHeights = function() 
+  {
      // Find the tallest LI in the row, and set the heights of all of the LIs to match it
      $('li.map-data-item').each(function() {
         // "caching"
-        var $el = $(this);
+        var el = $(this);
         
-        var topPosition = $el.position().top;
+        var topPosition = el.position().top;
 
-        if (currentRowStart != topPosition) {
+        if(currentRowStart != topPosition) {
 
-           // We just came to a new row.  Set all the heights on the completed row.
-           for(currentDiv = 0 ; currentDiv < rowDivs.length ; currentDiv++) setConformingHeight(rowDivs[currentDiv], currentTallest);
+          // We just came to a new row.  Set all the heights on the completed row.
+          for(var i=0, len=rowDivs.length; i < len; i++) 
+            setConformingHeight(rowDivs[i], currentTallest);
 
-           // Set the variables for the new row
-           rowDivs.length = 0; // empty the array
-           currentRowStart = topPosition;
-           currentTallest = getOriginalHeight($el);
-           rowDivs.push($el);
+          // Set the variables for the new row
+          rowDivs.length  = 0; // empty the array
+          currentRowStart = topPosition;
+          currentTallest  = getOriginalHeight(el);
+          rowDivs.push(el);
 
         } else {
 
            // Another div on the current row.  Add it to the list and check if it's taller.
-           rowDivs.push($el);
-           currentTallest = (currentTallest < getOriginalHeight($el)) ? (getOriginalHeight($el)) : (currentTallest);
-
+           rowDivs.push(el);
+           currentTallest = (currentTallest < getOriginalHeight(el)) ? getOriginalHeight(el) : 
+                                                                       currentTallest;
         }
         // Do the last row
-        for (currentDiv = 0 ; currentDiv < rowDivs.length ; currentDiv++) setConformingHeight(rowDivs[currentDiv], currentTallest);
+        for (currentDiv = 0 ; currentDiv < rowDivs.length ; currentDiv++) 
+          setConformingHeight(rowDivs[currentDiv], currentTallest);
 
      });
+  };
 
-  }
 
   // Recalc heights if window size changes
-  $(window).resize(function() {
+  $(window).resize(function() 
+  {
      equalizeRowHeights();
   });
 
@@ -917,6 +935,7 @@
     this.mapBbox = datasetInfo.bbox[localCrs] && datasetInfo.bbox[localCrs].bbox;
     this.llbbox  = datasetInfo.llbbox;
   };
+
   WMSDataset.prototype = new Dataset;
   WMSDataset.prototype.constructor = WMSDataset; // repair the inherited constructor
 
@@ -938,6 +957,7 @@
     // the data will be bogus.  Garbage in, garbage out.
     this.dataBbox = datasetInfo.latLongBoundingBox;  
   };
+
   WFSDataset.prototype = new Dataset;
   WFSDataset.prototype.constructor = WFSDataset; // repair the inherited constructor
 
@@ -982,6 +1002,7 @@
       this.resolution = datasetInfo.domain.spatialDomain.gridCRS.gridOffsets;
     }
   };
+
   WCSDataset.prototype = new Dataset;
   WCSDataset.prototype.constructor = WCSDataset; // repair the inherited constructor
 
@@ -999,7 +1020,6 @@
     if(!layer) {   
       discoveredLayers[key] = dataset;
       layer = dataset;
-
     }
 
     else {   // Already found this layer, add service to it
