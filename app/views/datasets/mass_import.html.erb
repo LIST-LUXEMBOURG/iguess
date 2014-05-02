@@ -513,11 +513,12 @@
     // This gets called when the ajax request to the server returns with a success message
     var registeredDataset = function(data, serverUrl, datasetIdentifier, checkbox, item)
     {
-        $(".taglist-deletable-" + urlId).attr("disabled", false);
+        $(".taglist-deletable-"        + urlId).attr("disabled", false);
         $(".folder-taglist-deletable-" + urlId).attr("disabled", false);
 
         // Add layer to the list of registered layers
         makeRegisteredLayer(serverUrl, data, 0);
+
         updateTags(serverUrl, data.dataset.identifier, data.tags);
         updateFolderTags(serverUrl, data.dataset.identifier, data.folder_tags);
 
@@ -668,6 +669,7 @@
 
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
           success: function(data, status, jqXHR)  { 
+            console.log(data);
               registeredDataset(data, serverUrl, datasetIdentifier, checkbox, thiiis); 
             },
           error: function(jqXHR, textStatus, error) { 

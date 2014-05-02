@@ -331,7 +331,7 @@
                     (enabled ? '' : 'disabled="true" ') +
                'onchange="folderTagPickerChanged($(this), $(this).val());">' +
                  '<option value = "' + IGNORE_THIS + '">Add Mapping Tag:</option>' + 
-                 '<option value = "' + NEW_TAG + '">Add New Tag</option>' +
+                 '<option value = "' + NEW_TAG + '">Create New Tag</option>' +
                  '<% getAliveFolderTags().each do |t| %><option value="<%= t %>"><%= t %></option><% end %>' +
              '</select>' +
            '</div>';
