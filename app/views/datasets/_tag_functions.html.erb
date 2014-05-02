@@ -194,12 +194,12 @@
   };
 
 
-
+  // Adds processing and folder tags
   // tagType will be true for regular tags, false for folder-tags
   var doAddTag = function(serverUrl, datasetIdentifier, tag, tagType, successFunction)
   {
     var url = tagType ? '<%= url_for(:controller => 'datasets', :action => 'add_data_tag') %>' :
-                        '<%= url_for(:controller => 'datasets', :action => 'add_data_folder_tag') %>'
+                        '<%= url_for(:controller => 'datasets', :action => 'add_data_folder_tag') %>';
 
     $.ajax({
       type:    'PUT',     // PUT combined with url below triggers "update" action on controller
@@ -441,23 +441,26 @@
   }
 
 
+  var makeTagListContainer = function(urlId, contents1, contents2)
+  {
+    return '<span class="folder-taglist-deletable-' + urlId + ' taglist">' + contents1 + '</span>' +
+           '<span class="taglist-deletable-' + urlId + ' taglist">' + contents2 + '</span>';
+  };
+
+
   // Generate a tag list for the specified layer
   // regLyr is an object that has tags and folder_tags fields
   var makeTagList = function(layer, regLyr, urlId, placeholder) 
   {
     if(!regLyr)
-      return placeholder;
+      return makeTagListContainer(urlId, "", "");    // Layer not registered
 
     if(!regLyr.tags && !regLyr.folder_tags)
-      return placeholder;
+      return makeTagListContainer(urlId, "", "");    // Layer registered, but has no tags
 
-    return '<span class="folder-taglist-deletable-' + urlId + ' taglist">' + 
-        createTagList(regLyr.folder_tags, true, layer.serverUrl, layer.identifier, 'folder-tag') +
-      '</span>' +
-
-      '<span class="taglist-deletable-' + urlId + ' taglist">' + 
-        createTagList(regLyr.tags, true, layer.serverUrl, layer.identifier, 'tag') +
-      '</span>';
+    return makeTagListContainer(urlId,
+              createTagList(regLyr.folder_tags, true, layer.serverUrl, layer.identifier, 'folder-tag'),
+              createTagList(regLyr.tags, true, layer.serverUrl, layer.identifier, 'tag'));
   };
 
 
@@ -474,7 +477,7 @@
   // tagEntryFieldName --> This should be some unique identifier (string) for the field
   // layer --> some object that has both an identifier and serverUrl field
   // regLyr --> some object that has tags and folder_tags fields
-  var createFolderTagControl = function(layer, tagEntryFieldName, tagPickerControlId, enabled)
+  var createFolderTagControl = function(layer, tagEntryFieldName, className, enabled)
   {
     var selectId = "input-" + tagEntryFieldName;
     var newTagInputId = INPUT_FIELD_PREFIX + selectId;
@@ -485,7 +488,7 @@
                 'onchange="tagManuallyEntered($(this), \'' + selectId + '\'); return false;" ' +
                 'data-serverurl="'         + layer.serverUrl  + '" ' +   
                 'data-datasetidentifier="' + layer.identifier + '">' +
-             '<select style="float:right" class="add-tag-dropdown-control" ' +
+             '<select style="float:right" class="add-tag-dropdown-control ' + className + '" ' +
                'data-serverurl="'         + layer.serverUrl  + '" ' +   
                'data-datasetidentifier="' + layer.identifier + '" ' +
                'id="'                     + selectId + '" ' + 
@@ -499,31 +502,26 @@
   };
 
 
-
   var TAGS_FOR_PREFIX = 'tags-for-';
 
   // We can pass in anything for layerInfo as long as it has an identifier and serverURL property
   // layerInfo --> an object that has both an identifier and serverUrl field
-  var makeTagPickerControl = function(layerInfo, controlId, service, enabled)
+  var makeTagPickerControl = function(layerInfo, className, service, enabled)
   {
     return '<select style="float:right" ' + 
-             'class="add-tag-dropdown-control ' + TAGS_FOR_PREFIX + service.toLowerCase() + '" ' +
+             'class="add-tag-dropdown-control ' + 
+                     TAGS_FOR_PREFIX + service.toLowerCase() + ' ' + 
+                     className + '" ' +
              'data-serverurl="' + layerInfo.serverUrl + '" ' + 
              'data-datasetidentifier="' + layerInfo.identifier + '" ' +
-             'id="' + controlId + '" ' + (enabled ? '' : 'disabled="true" ') +
+             (enabled ? '' : 'disabled="true" ') +
              'onchange="tagPickerChanged($(this));">' +
                '<option value = "' + IGNORE_THIS + '">Add Processing Tag:</option>' + 
            '</select>';
   };
 
 
-  var makeDropdown = function(controlId, tagList) 
-  {
-    $('#' + sanitizeForCss(controlId)).append(tagList);
-  };
-
-
-  var makeDropdownService = function(service, tagList) 
+  var populateTagList = function(service, tagList) 
   {
     $('.' + TAGS_FOR_PREFIX + service.toLowerCase()).append(tagList);
   };
@@ -531,13 +529,13 @@
 
   var populateTagLists = function() 
   {
-    makeDropdownService('WMS', 
+    populateTagList('WMS', 
         '<% getAliveTags("WMS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>');
 
-    makeDropdownService('WFS', 
+    populateTagList('WFS', 
         '<% getAliveTags("WFS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>');
 
-    makeDropdownService('WCS', 
+    populateTagList('WCS', 
         '<% getAliveTags("WCS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>');
   };
 

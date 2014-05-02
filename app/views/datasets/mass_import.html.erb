@@ -255,7 +255,7 @@
 
 
   var createTagControl = function(layer, regLyr, urlId, tagEntryFieldName, 
-                                  tagPickerControlId, enabled)
+                                  tagPickerControlClass)
   {
     var service;
 
@@ -273,15 +273,17 @@
     else
       service = "WMS";
 
+    var enabled = true && regLyr;
+
     return '<div class="tag-control">' +
              makeTagList(layer, regLyr, urlId, "No tags") +
-             createFolderTagControl(layer, tagEntryFieldName, tagPickerControlId, enabled) +
-             makeTagPickerControl(layer, tagPickerControlId, service, enabled) +
+             createFolderTagControl(layer, tagEntryFieldName, tagPickerControlClass, enabled) +
+             makeTagPickerControl(layer, tagPickerControlClass, service, enabled) +
            '</div>';
   };
 
 
-  var CONTROL_PREFIX = "data-type-";
+  var TAG_PICKER_PREFIX        = "tag-picker-";
 
 
   var displayServices = function() 
@@ -391,7 +393,7 @@
 
 
         var data_info = $(document.createElement('div'));
-        var tagPickerControlId = CONTROL_PREFIX + layer.identifier;
+        var tagPickerControlClass = TAG_PICKER_PREFIX + layer.identifier;
         
         var tagEntryFieldName = "tagEntry" + tagEntryFieldNameCounter;
         tagEntryFieldNameCounter++;
@@ -402,7 +404,7 @@
                  .append(getRegisterControlHtml(layer.identifier, regLyr))
                  .append(servicesAvailNode)
                  .append(createTagControl(layer, regLyr, urlId,
-                                          tagEntryFieldName, tagPickerControlId, true));
+                                          tagEntryFieldName, tagPickerControlClass));
 
         var sample_map = $(document.createElement("div"));
         sample_map.attr({ id:mapDivId, class:"sample-map" });   // Map will be rendered based on div's id
@@ -501,7 +503,7 @@
 
 
     // This gets called when the ajax request to the server returns with a success message
-    var registeredDataset = function(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, item)
+    var registeredDataset = function(data, serverUrl, datasetIdentifier, checkbox, item)
     {
         $(".taglist-deletable-" + urlId).attr("disabled", false);
         $(".folder-taglist-deletable-" + urlId).attr("disabled", false);
@@ -511,7 +513,7 @@
         updateTags(serverUrl, data.dataset.identifier, data.tags);
         updateFolderTags(serverUrl, data.dataset.identifier, data.folder_tags);
 
-        onDatasetRegisteredOrUnregistered(item, checkbox, tagPickerControl, true);
+        onDatasetRegisteredOrUnregistered(item, checkbox, datasetIdentifier, true);
     }
 
 
@@ -524,7 +526,7 @@
     };
 
 
-    var unregisteredDataset = function(serverUrl, datasetIdentifier, checkbox, tagPickerControl, item)
+    var unregisteredDataset = function(serverUrl, datasetIdentifier, checkbox, item)
     {
       // Remove layer from the list of registered layers
       delete registeredDataLayers[serverUrl][datasetIdentifier];
@@ -540,12 +542,12 @@
       $(".taglist-deletable-"        + urlId,
         ".folder-taglist-deletable-" + urlId)          .attr("disabled", true);
 
-      onDatasetRegisteredOrUnregistered(item, checkbox, tagPickerControl, false);
+      onDatasetRegisteredOrUnregistered(item, checkbox, datasetIdentifier, false);
     };
 
 
     // Common code to run when we regiester or unregister a dataset
-    var onDatasetRegisteredOrUnregistered = function(item, checkbox, tagPickerControl, registering)
+    var onDatasetRegisteredOrUnregistered = function(item, checkbox, datasetIdentifier, registering)
     {
       item.toggleClass("checked");
 
@@ -554,7 +556,9 @@
       item.parent().parent().parent().toggleClass("unregistered_dataset");
 
       checkbox.checked = registering;
-      tagPickerControl.disabled = !registering;
+
+      // This will enable/disable both the Mapping and Processing tag dropdowns
+      $('.' + TAG_PICKER_PREFIX + datasetIdentifier).attr('disabled', !registering);
     };
 
 
@@ -566,7 +570,6 @@
       var checkbox          = document.getElementById(checkboxID);
       var datasetIdentifier = getLayerNameFromCheckboxId(checkboxID);
       
-      var tagPickerControl  = document.getElementById(CONTROL_PREFIX + datasetIdentifier);
       var serverUrl         = getServerUrl();
 
       var configCount = (registeredDataLayers[serverUrl] && 
@@ -605,7 +608,7 @@
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
           // http://api.jquery.com/jQuery.ajax/
           success: function(data, status, jqXHR)  { 
-              unregisteredDataset(serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); 
+              unregisteredDataset(serverUrl, datasetIdentifier, checkbox, thiiis); 
             },
           error: function(jqXHR, status, error) {
               jsonErrorHandler(jqXHR, status, error, "Could not unregister dataset!");
@@ -657,7 +660,7 @@
 
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
           success: function(data, status, jqXHR)  { 
-              registeredDataset(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); 
+              registeredDataset(data, serverUrl, datasetIdentifier, checkbox, thiiis); 
             },
           error: function(jqXHR, textStatus, error) { 
                  jsonErrorHandler(jqXHR, status, error, "Could not register dataset!");
