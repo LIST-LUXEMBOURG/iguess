@@ -526,11 +526,12 @@
     }
 
 
-    var disableTagItems = function(urlId, attr) {
-      $(".taglist-deletable-"        + urlId + " ." + attr, 
+    var disableTagItems = function(urlId, attr) 
+    {
+      $(".taglist-deletable-"        + urlId + " ." + attr + "," + 
         ".folder-taglist-deletable-" + urlId + " ." + attr).attr("disabled", true);
 
-      $(".taglist-deletable-"        + urlId + " ." + attr,
+      $(".taglist-deletable-"        + urlId + " ." + attr + "," +
         ".folder-taglist-deletable-" + urlId + " ." + attr).off("click");   // Disable clicking
     };
 
