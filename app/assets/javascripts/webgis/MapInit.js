@@ -30,6 +30,7 @@ WebGIS.leftMap = null;
 WebGIS.rightMap = null;
 
 WebGIS.treeNodes = new Array();
+WebGIS.layerList = new Array();
 
 WebGIS.proxy = "/home/geoproxy?url=";
 OpenLayers.ProxyHost = "/home/geoproxy?url=";
@@ -88,6 +89,12 @@ WebGIS.zoomToCity = function ()
 // Adds a new layer to the map "on the fly"
 WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag, id)
 {
+	WebGIS.layerList[id] = new Array();
+	WebGIS.layerList[id]["serviceURL"] = serviceURL;
+	WebGIS.layerList[id]["layerName"] = layerName;
+	WebGIS.layerList[id]["type"] = type;
+	WebGIS.layerList[id]["tag"] = tag;
+
 	var visible = false;
     // Call OpenLayers.Layer.WMS.initialize()
 	if(WebGIS.treeNodes[tag] == null)
@@ -144,9 +151,18 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag, id)
         checked: visible,
         iconCls: "treeIcon",
         children: [],
-        id: "dsid-" + id
+        id: "dsid-" + id,
+        toto: "TOTO"
     });
+    newNode.on("checkchange", WebGIS.addLayerToMap);
     WebGIS.treeNodes[tag].appendChild(newNode);
+};
+
+WebGIS.addLayerToMap = function(node, checked)
+{
+	var id = node.id.substring(5,node.id.length);
+	alert("Toto: " + id);
+	
 };
 
 

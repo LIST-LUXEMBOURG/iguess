@@ -39,7 +39,7 @@ WebGIS.coordsLongLabel = null;
 
 WebGIS.filterBox = null;
 
-WebGIS.CreatePanels = function() {
+WebGIS.createPanels = function() {
 
   // Skip this stuff if the BroadMap div does not exist
   // What the hell is this? It generates errors.
@@ -155,7 +155,7 @@ WebGIS.CreatePanels = function() {
   });
   
   // Layer list
-  WebGIS.layerTree = new Ext.tree.TreePanel({
+  WebGIS.layerCatalogue = new Ext.tree.TreePanel({
     //title: 'Map Layers',
     region: "south",
     width: "100%",
@@ -183,17 +183,52 @@ WebGIS.CreatePanels = function() {
     collapsible: true,
     autoScroll: true,
     enableDD: true,
-    items: [WebGIS.createFilter(), WebGIS.layerTree]
+    items: [WebGIS.createFilter(), WebGIS.layerCatalogue]
   });
   
-  WebGIS.northPanel = new Ext.Panel({
+  var LayerNodeUI = Ext.extend(
+          GeoExt.tree.LayerNodeUI,
+          new GeoExt.tree.TreeNodeUIEventMixin()
+  );
+
+  var treeConfig = [{
+    nodeType: "gx_overlaylayercontainer",
+    expanded: true
+  }];
+  
+  // Layer list
+  WebGIS.layerTree = new Ext.tree.TreePanel({
+    title: 'Map Layers',
+    region: "North",
+    //width: 200,
+    collapsible: true,
+    autoScroll: true,
+    enableDD: true,
+    plugins: [{
+      ptype: "gx_treenodecomponent"
+    }],
+    loader: {
+      applyLoader: false,
+      uiProviders: {
+        "custom_ui": LayerNodeUI
+      }
+    },
+    root: {
+      children: treeConfig
+    },
+    rootVisible: false,
+    lines: false
+  });	
+  
+  /*WebGIS.northPanel = new Ext.Panel({
   	title: 'Layer Tree',
 	region: "north",
 	height: 100,
     collapsible: true,
     autoScroll: true,
-    enableDD: true
-  });
+    enableDD: true,
+    items: [WebGIS.layerTree]
+  });*/
   
   WebGIS.westPanel = new Ext.Panel({
 	region: "west",
@@ -201,7 +236,7 @@ WebGIS.CreatePanels = function() {
     collapsible: true,
     autoScroll: true,
     enableDD: true,
-    items: [WebGIS.northPanel, WebGIS.cataloguePanel]
+    items: [WebGIS.layerTree, WebGIS.cataloguePanel]
   });
   
   WebGIS.mainPanel = new Ext.Panel({

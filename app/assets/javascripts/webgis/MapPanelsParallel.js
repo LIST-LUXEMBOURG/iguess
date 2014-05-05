@@ -25,7 +25,7 @@
 
 var WebGIS = WebGIS || { };
 
-WebGIS.CreatePanelsParallel = function() {
+WebGIS.createPanelsParallel = function() {
 
   // Skip this stuff if the BroadMap div does not exist
   if($('#BroadMap').length == 0)
