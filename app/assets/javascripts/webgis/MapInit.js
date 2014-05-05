@@ -90,12 +90,11 @@ WebGIS.zoomToCity = function ()
 WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag, id)
 {
 	WebGIS.layerList[id] = new Array();
+	WebGIS.layerList[id]["title"] = title;
 	WebGIS.layerList[id]["serviceURL"] = serviceURL;
 	WebGIS.layerList[id]["layerName"] = layerName;
 	WebGIS.layerList[id]["type"] = type;
-	WebGIS.layerList[id]["tag"] = tag;
-
-	var visible = false;
+	
     // Call OpenLayers.Layer.WMS.initialize()
 	if(WebGIS.treeNodes[tag] == null)
 	{
@@ -107,30 +106,6 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag, id)
 		});
 		WebGIS.treeRoot.appendChild(WebGIS.treeNodes[tag]);
 	}
-	
-	if(sessionStorage.getItem(layerName) != null) visible = true;
-
-    var params = { layers: layerName,      
-                   format: "image/png",
-                   srsName: WebGIS.requestProjection,
-                   srs: WebGIS.requestProjection,
-                   transparent: "true"
-                 };
-    
-    sldBody = WebGIS.getStyle(layerName, type);
-    if(sldBody != null) params["sld_body"] = sldBody;
-    
-    var options = { isBaseLayer: false,     
-    				visibility: visible,
-                    singleTile:  true,
-           		 	transitionEffect: 'resize'
-                  };
-    
-    //serviceURL = WebGIS.proxy + encodeURIComponent(serviceURL);
-
-    var layer = new OpenLayers.Layer.WMS(title, serviceURL, params, options);
-    WebGIS.leftMap.addLayer(layer);
-    layer.events.register("visibilitychanged", this, WebGIS.toggleLayer);
     
     /*var newNode = new GeoExt.tree.LayerNode(
     {
@@ -148,21 +123,59 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag, id)
     {
         text: title,
         leaf: true,
-        checked: visible,
+        checked: false,
         iconCls: "treeIcon",
         children: [],
         id: "dsid-" + id,
         toto: "TOTO"
     });
-    newNode.on("checkchange", WebGIS.addLayerToMap);
+    newNode.on("checkchange", WebGIS.addLayerToMapEvent);
     WebGIS.treeNodes[tag].appendChild(newNode);
+    
+	if(sessionStorage.getItem(layerName) != null)
+		WebGIS.addLayerToMap(id);	
 };
 
-WebGIS.addLayerToMap = function(node, checked)
+WebGIS.addLayerToMapEvent = function(node, checked)
 {
 	var id = node.id.substring(5,node.id.length);
 	alert("Toto: " + id);
 	
+	WebGIS.addLayerToMap(id);
+};
+
+WebGIS.addLayerToMap = function(id)
+{
+	var params = { 
+		layers: WebGIS.layerList[id]["layerName"],      
+		format: "image/png",
+		srsName: WebGIS.requestProjection,
+		srs: WebGIS.requestProjection,
+		transparent: "true"
+    };
+    
+    var sldBody = WebGIS.getStyle(
+    	WebGIS.layerList[id]["layerName"], 
+    	WebGIS.layerList[id]["type"]
+    	);
+    if(sldBody != null) params["sld_body"] = sldBody;
+    
+    var options = { 
+    	isBaseLayer: false,     
+		visibility: true,
+		singleTile:  true,
+		transitionEffect: 'resize'
+    };
+	
+	var layer = new OpenLayers.Layer.WMS(
+		WebGIS.layerList[id]["title"], 
+		WebGIS.layerList[id]["serviceURL"], 
+		params, 
+		options
+	);
+	
+	WebGIS.leftMap.addLayer(layer);
+	layer.events.register("visibilitychanged", this, WebGIS.toggleLayer);
 };
 
 
