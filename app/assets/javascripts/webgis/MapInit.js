@@ -139,7 +139,6 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag, id)
 WebGIS.addLayerToMapEvent = function(node, checked)
 {
 	var id = node.id.substring(5,node.id.length);
-	alert("Toto: " + id);
 	
 	WebGIS.addLayerToMap(id);
 };
@@ -176,6 +175,27 @@ WebGIS.addLayerToMap = function(id)
 	
 	WebGIS.leftMap.addLayer(layer);
 	layer.events.register("visibilitychanged", this, WebGIS.toggleLayer);
+	
+	var buttonUp = new Ext.Button({
+		xtype: 'button',
+		tooltip : 'Move up',
+		iconCls : 'tinyUp',
+		autoWidth : true,
+		//autoHeight : true
+		height: '7px'
+	});
+	
+	var buttonDown = new Ext.Button({
+		xtype: 'button',
+		tooltip : 'Move down',
+		iconCls : 'tinyDown',
+		autoWidth : true,
+		autoHeight : true
+	});
+	
+	var node = WebGIS.layerTree.root.firstChild.firstChild;
+	buttonUp.render(node.getUI().getTextEl());
+	buttonDown.render(node.getUI().getTextEl());
 };
 
 

@@ -140,11 +140,6 @@ WebGIS.createPanels = function() {
           }]
     }
   });
-
-  var LayerNodeUI = Ext.extend(
-          GeoExt.tree.LayerNodeUI,
-          new GeoExt.tree.TreeNodeUIEventMixin()
-  );
    
   WebGIS.treeRoot = new Ext.tree.TreeNode({
       text        : 'Project',
