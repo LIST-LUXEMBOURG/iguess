@@ -21,6 +21,7 @@
  * Adds GeoExt controls and panels to map.
  */ 
 
+//= require webgis/MapInit
 //= require webgis/Identify
 //= require dss/Sliders
 

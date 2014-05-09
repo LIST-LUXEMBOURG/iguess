@@ -140,7 +140,8 @@ WebGIS.addLayerToMapEvent = function(node, checked)
 {
 	var id = node.id.substring(5,node.id.length);
 	
-	WebGIS.addLayerToMap(id);
+	if(checked) WebGIS.addLayerToMap(id);
+	else WebGIS.removeLayerFromMap(id);
 };
 
 WebGIS.addLayerToMap = function(id)
@@ -176,13 +177,27 @@ WebGIS.addLayerToMap = function(id)
 	WebGIS.leftMap.addLayer(layer);
 	layer.events.register("visibilitychanged", this, WebGIS.toggleLayer);
 	
+	WebGIS.addWidgetsToLayerNode(WebGIS.layerTree.root.firstChild.firstChild);
+};
+
+WebGIS.removeLayerFromMap = function(id)
+{
+	var array = WebGIS.leftMap.getLayersByName(WebGIS.layerList[id]["title"]);
+	if (array.length > 0) 
+	{
+		WebGIS.leftMap.removeLayer(array[0]);
+		WebGIS.layerTree.root.firstChild.eachChild(WebGIS.addWidgetsToLayerNode);
+	}
+};
+
+WebGIS.addWidgetsToLayerNode = function(treeNode)
+{
 	var buttonUp = new Ext.Button({
 		xtype: 'button',
 		tooltip : 'Move up',
 		iconCls : 'tinyUp',
 		autoWidth : true,
-		//autoHeight : true
-		height: '7px'
+		cls: 'tinyUp'
 	});
 	
 	var buttonDown = new Ext.Button({
@@ -190,14 +205,25 @@ WebGIS.addLayerToMap = function(id)
 		tooltip : 'Move down',
 		iconCls : 'tinyDown',
 		autoWidth : true,
-		autoHeight : true
+		cls: 'tinyDown'
 	});
 	
-	var node = WebGIS.layerTree.root.firstChild.firstChild;
-	buttonUp.render(node.getUI().getTextEl());
-	buttonDown.render(node.getUI().getTextEl());
+	var slider = new GeoExt.LayerOpacitySlider({
+        layer: treeNode.layer,
+        aggressive: true, 
+        //width: 200,
+        autoWidth : true,
+        isFormField: true,
+        inverse: false,
+        fieldLabel: "opacity",
+        plugins: new GeoExt.LayerOpacitySliderTip({template: '<div>Transparency: {opacity}%</div>'})
+    });
+	
+	treeNode.setCls("layerNode");
+	buttonUp.render(treeNode.getUI().getTextEl());
+	buttonDown.render(treeNode.getUI().getTextEl());
+	slider.render(treeNode.getUI().getTextEl());
 };
-
 
 // Remove all layers from the current map
 WebGIS.clearLayers = function(alsoClearBaseLayers)
