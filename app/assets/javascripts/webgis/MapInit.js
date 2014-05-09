@@ -211,8 +211,9 @@ WebGIS.addWidgetsToLayerNode = function(treeNode)
 	var slider = new GeoExt.LayerOpacitySlider({
         layer: treeNode.layer,
         aggressive: true, 
-        //width: 200,
-        autoWidth : true,
+        width: "90%",
+        cls: "layerSlide",
+        //autoWidth : true,
         isFormField: true,
         inverse: false,
         fieldLabel: "opacity",

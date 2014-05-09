@@ -79,6 +79,20 @@
 	height: 36px;
 }
 
+.layerSlide {
+	display: block;
+    margin-left: auto;
+    margin-right: auto
+}
+
+.emptyIcon{
+	background-image:url(images/mapStyles/empty.png) !important;
+}
+
+.hiddenRoot {
+	height: 0px !important;
+}
+
 /* ----------- Legend ----------- */
 
 .legend {

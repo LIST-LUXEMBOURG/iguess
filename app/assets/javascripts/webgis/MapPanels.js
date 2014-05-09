@@ -189,7 +189,12 @@ WebGIS.createPanels = function() {
 
   var treeConfig = [{
     nodeType: "gx_overlaylayercontainer",
-    expanded: true
+    text: "",
+    iconCls: "emptyIcon",
+    height: "0px",
+    cls: "hiddenRoot",
+    expanded: true,
+    rootVisible: false
   }];
   
   // Layer list
@@ -198,7 +203,8 @@ WebGIS.createPanels = function() {
     region: "North",
     //width: 200,
     collapsible: true,
-    autoScroll: true,
+    autoScroll: false,
+    scrollable: false,
     enableDD: true,
     plugins: [{
       ptype: "gx_treenodecomponent"
@@ -281,6 +287,9 @@ WebGIS.createPanels = function() {
     height = Ext.getBody().getViewSize().height - WebGIS.headerHeight;
     WebGIS.mainPanel.setSize(width, height);
   });
+  
+  WebGIS.layerTree.root.firstChild.hidden = true;
+  WebGIS.layerTree.root.hidden = true;
 
   WebGIS.zoomToCity();
 };
