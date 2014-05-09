@@ -286,22 +286,6 @@ def is_equal_crs(first, second):
             firstWords[len(firstWords) - 1] == secondWords[len(secondWords) - 1])
 
 
-
-def project_wgs_to_local(bounding_box, local_proj):
-    p1 = Proj(init='EPSG:4326')     # WGS84
-    p2 = Proj(init=local_proj)
-
-    bbox_left,  bbox_bottom = transform(p1, p2, bounding_box[0], bounding_box[1])
-    bbox_right, bbox_top    = transform(p1, p2, bounding_box[2], bounding_box[3])
-
-    print "Transforming:"
-    print local_proj, bbox_left,  bbox_bottom, "= transform(p1, p2, ", bounding_box[0], ",", bounding_box[1],")"
-    print local_proj, bbox_right, bbox_top,    "= transform(p1, p2, ", bounding_box[2], ",", bounding_box[3],")"
-
-    return bbox_left,  bbox_bottom, bbox_right, bbox_top
-
-
-
 def check_data_servers(serverCursor):
     # Get the server list
     serverCursor.execute("SELECT DISTINCT url FROM " + tables["dataservers"])
@@ -336,6 +320,10 @@ def check_data_servers(serverCursor):
 
             try:
                 wcs = WebCoverageService(serverUrl, version = wcsVersion)
+                if serverUrl == 'http://maps.iguess.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/iGUESSMapFiles/pywps-b02156da-50ef-11e3-82c5-005056a52e0d.map':
+                    print "keys: ", wcs.contents.keys() 
+                    print  wcs.contents['slope'].boundingBoxWGS84
+                    quit()
             except: 
                 wcs = None
 
@@ -462,7 +450,6 @@ def check_data_servers(serverCursor):
                         continue
 
 
-                    # gridOffsets = dc.find(".//{*}GridOffsets") 
                     gridOffsets = dc.xpath("//*[local-name() = 'GridOffsets']")
 
                     if len(gridOffsets) == 0:
@@ -475,9 +462,11 @@ def check_data_servers(serverCursor):
                         if(float(resY) < 0):
                             resY = float(resY) * -1
 
+                    print identifier, wcs.contents[identifier].boundingBoxWGS84
+
 
                     # We will always store the WGS84 bounding box, and use that for our requests
-                    if bbox_top == "":
+                    if wcs.contents[identifier].boundingBoxWGS84:
                         bbox_left, bbox_bottom, bbox_right, bbox_top = wcs.contents[identifier].boundingBoxWGS84
                         bbox_srs = "EPSG:4326"    # Now we always store the WGS84 bbox, which has this srs
 
