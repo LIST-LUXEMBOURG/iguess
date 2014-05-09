@@ -105,7 +105,6 @@ def do_sql(conn, cursor, upsertList, sqlList):
         for sql in sqlList:
             try:
                 sql = convert_encoding(sql)
-                # sql = unicode(sql, "latin-1")
                 cursor.execute(sql)
                 conn.commit()
 
@@ -185,7 +184,6 @@ def check_wps(serverCursor):
 
             # Now we know that our row exists, and we can do a simple update to get the rest of the info in
             # We'll return the record id so that we can use it below.
-
             whereClause = "WHERE wps_server_id = " + str(adapt(serverId)) + " AND identifier = " + str(adapt(proc.identifier))
             
             if hasattr(proc, 'abstract'):
@@ -327,28 +325,19 @@ def check_data_servers(serverCursor):
             sqlList.append("UPDATE " + tables["dataservers"] + " SET alive = false WHERE url = '" + serverUrl + "'")
 
             try:        
-                #print "Testing WMS..."
                 wms = WebMapService(serverUrl, version = wmsVersion)
             except:
                 wms = None
 
-            #print "Done"
-
             try:
-                #print "Testing WFS..."
                 wfs = WebFeatureService(serverUrl, version = wfsVersion)
             except:
                 wfs = None
 
-            #print "Done"
-
             try:
-                #print "Testing WCS..."
                 wcs = WebCoverageService(serverUrl, version = wcsVersion)
             except: 
                 wcs = None
-
-            #print "Done"
 
             if not (wms or wfs or wcs):
                 continue
@@ -395,11 +384,6 @@ def check_data_servers(serverCursor):
 
             # Trailing comma needed in line below because Python tuples can't have just one element...
             ds_cursor.execute(sql)
-
-            #print sql
-
-            #print "Rows --> ",ds_cursor.rowcount
-
 
             for dsrow in ds_cursor:
                 dsid       = dsrow[0]
@@ -557,10 +541,7 @@ def check_data_servers(serverCursor):
                 else:
                      print "Not found: " + identifier + " (on server " +  serverUrl + ")"
 
-                #print "Done with row!"
-
         except Exception as e:
-            #print "-----"
             print "Error scanning server " + serverUrl
             print type(e)
             print e.args
@@ -579,7 +560,7 @@ def main():
     print "Starting Harvester of Sorrow ", datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
 
 
-    #  to the database
+    # To the database
     db_conn = psycopg2.connect(host = dbDatabase, database = dbName, user = dbUsername, password = dbPassword)
 
     db_conn.set_client_encoding("UTF-8")
@@ -589,7 +570,7 @@ def main():
     db_conn.set_session(autocommit=True)
 
 
-    serverCursor = db_conn.cursor()      # For listing servers
+    serverCursor = db_conn.cursor()       # For listing servers
     update_cursor = db_conn.cursor()      # For updating the database
     ds_cursor     = db_conn.cursor()      # For iterating over datasets and 
 
@@ -600,7 +581,6 @@ def main():
 
     for row in serverCursor:
         city_crs[row[0]] = row[1]
-
 
     try:
         check_wps(serverCursor)
