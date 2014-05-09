@@ -69,22 +69,28 @@ def upsert(cursor, table, idCol, rowId, identifier):
 
 
 def convert_encoding(data, new_coding='UTF-8'):
-    # More here: http://www.postgresql.org/docs/9.1/static/multibyte.html
-    codings = ["UTF-8", "latin1", "latin2", "latin3", "latin4", "latin5", "latin6", "latin7", "latin8", "latin9", "latin10", "ascii"]
-    ok = False
+    '''
+    We get data from many different servers with different encodings.  This function will attempt to convert
+    a string in data into a UTF-8 encoded string, which is what the database expects.  This task can
+    be somewhat complex, possibly due to server misconfiguration.
+    '''
+    
+    # First try encoding the data directly.  This should always work, but fails with data from some servers in the wild.
+    try:
+        return data.encode(new_coding)
+    except:
 
-    for coding in codings:
-        try:
-            data = unicode(data, coding).encode(new_coding)
-            ok = True
-            break
-        except:
-            continue
+        # If that doesn't work, try a series of decoding and re-encodings.  This should never be needed, but sometimes is.
+        codings = ["UTF-8", "latin1", "latin2", "latin3", "latin4", "latin5", "latin6", "latin7", "latin8", "latin9", "latin10", "ascii"]
+        for coding in codings:
+            try:
+                return unicode(data, coding).encode(new_coding)
+            except:
+                continue
 
+    print 'Could not find a unicode coding for string "' + data + '"'
 
-    if not ok:
-        print "Could not find a unicode coding for string " + data
-
+    # Return the string unaltered, and hope that the database doesn't choke
     return data
 
 
@@ -321,28 +327,28 @@ def check_data_servers(serverCursor):
             sqlList.append("UPDATE " + tables["dataservers"] + " SET alive = false WHERE url = '" + serverUrl + "'")
 
             try:        
-                print "Testing WMS..."
+                #print "Testing WMS..."
                 wms = WebMapService(serverUrl, version = wmsVersion)
             except:
                 wms = None
 
-            print "Done"
+            #print "Done"
 
             try:
-                print "Testing WFS..."
+                #print "Testing WFS..."
                 wfs = WebFeatureService(serverUrl, version = wfsVersion)
             except:
                 wfs = None
 
-            print "Done"
+            #print "Done"
 
             try:
-                print "Testing WCS..."
+                #print "Testing WCS..."
                 wcs = WebCoverageService(serverUrl, version = wcsVersion)
             except: 
                 wcs = None
 
-            print "Done"
+            #print "Done"
 
             if not (wms or wfs or wcs):
                 continue
@@ -390,9 +396,9 @@ def check_data_servers(serverCursor):
             # Trailing comma needed in line below because Python tuples can't have just one element...
             ds_cursor.execute(sql)
 
-            print sql
+            #print sql
 
-            print "Rows --> ",ds_cursor.rowcount
+            #print "Rows --> ",ds_cursor.rowcount
 
 
             for dsrow in ds_cursor:
@@ -551,10 +557,10 @@ def check_data_servers(serverCursor):
                 else:
                      print "Not found: " + identifier + " (on server " +  serverUrl + ")"
 
-                print "Done with row!"
+                #print "Done with row!"
 
         except Exception as e:
-            print "-----"
+            #print "-----"
             print "Error scanning server " + serverUrl
             print type(e)
             print e.args
