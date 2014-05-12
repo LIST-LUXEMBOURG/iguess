@@ -124,7 +124,7 @@ def get_running_finished_error_vals():
 
 def get_running_process_list():
     '''
-    Return a list of processes that the database thinks are running
+    Return a list of processes that the database thinks are running. 
     '''
     cur = db_conn.cursor()
 
@@ -132,9 +132,9 @@ def get_running_process_list():
         query = ("SELECT mc.id, pid, c.srs, c.id "                              
                  "FROM " + dbSchema + ".mod_configs AS mc "                     
                  "LEFT JOIN " + dbSchema + ".cities AS c ON c.id = mc.city_id " 
-                 "WHERE run_status_id = " + str(RUNNING))
+                 "WHERE run_status_id = %s")
                 
-        cur.execute(query)
+        cur.execute(query, (RUNNING,))      # Trailing comma required
 
     except:
         log_error_msg(None, "Error: Can't retrieve list of running processes from database!")
@@ -146,7 +146,10 @@ def get_running_process_list():
 
 
 
-def get_identifiers(recordId):
+def get_output_identifiers(recordId):
+    '''
+    Get a list of identifiers of all outputs this module expects will be produced
+    '''
     cur = db_conn.cursor()
 
     identifiers = {}
@@ -363,6 +366,8 @@ def main():
         log_error_msg(None, "Error: Could not initialize WPSClient module - " + str(ex))
 
 
+    # Grab a list of processes that the database thinks are running.  We'll cycle through these
+    # to check their progress/status.
     processes = get_running_process_list()
 
     for process in processes:
@@ -373,7 +378,7 @@ def main():
 
         log_info_msg("Checking pid " + str(pid) + "...")
 
-        identifiers = get_identifiers(recordId)
+        identifiers = get_output_identifiers(recordId)
 
         if identifiers is None:
             logging.warning("Can't get params for config id " + str(recordId))
