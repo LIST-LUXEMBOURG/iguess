@@ -190,6 +190,27 @@ WebGIS.removeLayerFromMap = function(id)
 	}
 };
 
+WebGIS.moveLayer = function(layerName, delta)
+{
+	if (layerName == null) return;
+	
+	var layers = WebGIS.leftMap.getLayersByName(layerName);
+	if (layers.length <= 0) return;
+	WebGIS.leftMap.raiseLayer(layers[0], delta);
+	
+	WebGIS.layerTree.root.firstChild.eachChild(WebGIS.addWidgetsToLayerNode);
+};
+
+WebGIS.moveLayerUp = function(butt, event)
+{ 
+	WebGIS.moveLayer(butt.container.dom.firstChild.data, 1);
+};
+
+WebGIS.moveLayerDown = function(butt, event)
+{ 
+	WebGIS.moveLayer(butt.container.dom.firstChild.data, -1);
+};
+
 WebGIS.addWidgetsToLayerNode = function(treeNode)
 {
 	var buttonUp = new Ext.Button({
@@ -197,7 +218,8 @@ WebGIS.addWidgetsToLayerNode = function(treeNode)
 		tooltip : 'Move up',
 		iconCls : 'tinyUp',
 		autoWidth : true,
-		cls: 'tinyUp'
+		cls: 'tinyUp',
+		handler: WebGIS.moveLayerUp,
 	});
 	
 	var buttonDown = new Ext.Button({
@@ -205,7 +227,8 @@ WebGIS.addWidgetsToLayerNode = function(treeNode)
 		tooltip : 'Move down',
 		iconCls : 'tinyDown',
 		autoWidth : true,
-		cls: 'tinyDown'
+		cls: 'tinyDown',
+		handler: WebGIS.moveLayerDown
 	});
 	
 	var slider = new GeoExt.LayerOpacitySlider({
