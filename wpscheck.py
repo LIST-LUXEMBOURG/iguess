@@ -145,12 +145,14 @@ def get_running_process_list():
 
 
 def get_identifiers(recordId):
+    cur = db_conn.cursor()
+
     identifiers = {}
 
     try:
-        query = ("SELECT column_name, value FROM " + dbSchema + ".config_text_inputs "
-                 "WHERE mod_config_id = " + str(recordId) + " AND is_input = False")
-        cur.execute(query)
+        cur.execute("SELECT column_name, value FROM " + dbSchema + ".config_text_inputs "
+                    "WHERE mod_config_id = %s AND is_input = False",
+                    (recordId,))     # Trailing comma required
     except:
         return None
 
