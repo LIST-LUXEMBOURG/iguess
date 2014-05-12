@@ -121,7 +121,7 @@ def main():
 
     # Define constants for communication between different sotware bits
     
-     RUNNING, FINISHED, ERROR = get_running_finished_error_vals()
+    RUNNING, FINISHED, ERROR = get_running_finished_error_vals()
 
     try:
         query = ("SELECT mc.id, pid, c.srs, c.id "                              
