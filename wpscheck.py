@@ -25,7 +25,7 @@ logLevel = "INFO"
 # Global vars -- will be assigned later
 
 RUNNING = FINISHED = ERROR = None
-cur = db_conn = None
+db_conn = None
 
 ############################################################
 
@@ -41,7 +41,7 @@ def config_logging(logfile, loglevel):
 
 
 def initialize_database_connection():
-    global db_conn, cur
+    global db_conn
 
     try:
         connstr = ("dbname='" + dbName + "' user='" + dbUsername +"' " +
@@ -52,16 +52,16 @@ def initialize_database_connection():
         # log_error_msg(None, "Database Error: Can't connect to database " + dbName + "!")
         sys.exit(2)
 
-    cur  = db_conn.cursor()
-
 
 
 def update_run_status_in_database(recordId, status, msg):
+    cur = db_conn.cursor()
+
     query_template = ("UPDATE " + dbSchema + ".mod_configs " 
-                      "SET run_status_id = " + str(status) + ", status_text = %s, run_ended = %s " 
+                      "SET run_status_id = %s, status_text = %s, run_ended = %s " 
                       "WHERE id = %s" )
 
-    cur.execute(query_template, (msg, str(datetime.datetime.now()), recordId))
+    cur.execute(query_template, (status, msg, str(datetime.datetime.now()), recordId))
     db_conn.commit()
 
 
@@ -93,12 +93,12 @@ def get_running_finished_error_vals():
     Fetch status messages/codes from the database
     Will throw a ValueError if one of the expected statuses cannot be found
     '''
+    cur = db_conn.cursor()
+
     global RUNNING, FINISHED, ERROR
 
-    sql = ("SELECT id, status FROM " + dbSchema + ".run_statuses "
-           "WHERE status IN ('RUNNING', 'FINISHED', 'ERROR')")
-
-    cur.execute(sql)
+    cur.execute("SELECT id, status FROM " + dbSchema + ".run_statuses "
+                "WHERE status IN ('RUNNING', 'FINISHED', 'ERROR')")
 
     rows = cur.fetchall()
 
@@ -126,6 +126,8 @@ def get_running_process_list():
     '''
     Return a list of processes that the database thinks are running
     '''
+    cur = db_conn.cursor()
+
     try:
         query = ("SELECT mc.id, pid, c.srs, c.id "                              
                  "FROM " + dbSchema + ".mod_configs AS mc "                     
@@ -347,6 +349,7 @@ def update_finished_module(client, recordId, city_id):
 
 def main():
     global RUNNING, FINISHED, ERROR
+
     initialize_database_connection()
     config_logging(logFileName, logLevel)
 
