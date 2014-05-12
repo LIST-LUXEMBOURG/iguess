@@ -95,6 +95,8 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag, id)
 	WebGIS.layerList[id]["layerName"] = layerName;
 	WebGIS.layerList[id]["type"] = type;
 	
+	var selected = false;
+	
     // Call OpenLayers.Layer.WMS.initialize()
 	if(WebGIS.treeNodes[tag] == null)
 	{
@@ -106,24 +108,18 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag, id)
 		});
 		WebGIS.treeRoot.appendChild(WebGIS.treeNodes[tag]);
 	}
+	
+	if(sessionStorage.getItem(layerName) != null)
+	{
+		WebGIS.addLayerToMap(id);	
+		selected = true;
+	}
     
-    /*var newNode = new GeoExt.tree.LayerNode(
-    {
-        text: title,
-        layer: layer,
-        leaf: true,
-        checked: visible,
-        //icon: null,
-        iconCls: "treeIcon",
-        children: [],
-        nodeType: "gx_layer",
-        id: "dsid-" + id
-    });*/
     var newNode = new Ext.tree.TreeNode(
     {
         text: title,
         leaf: true,
-        checked: false,
+        checked: selected,
         iconCls: "treeIcon",
         children: [],
         id: "dsid-" + id,
@@ -132,16 +128,24 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag, id)
     newNode.on("checkchange", WebGIS.addLayerToMapEvent);
     WebGIS.treeNodes[tag].appendChild(newNode);
     
-	if(sessionStorage.getItem(layerName) != null)
-		WebGIS.addLayerToMap(id);	
+
 };
 
 WebGIS.addLayerToMapEvent = function(node, checked)
 {
 	var id = node.id.substring(5,node.id.length);
+	var layerName = WebGIS.layerList[id]["layerName"];
 	
-	if(checked) WebGIS.addLayerToMap(id);
-	else WebGIS.removeLayerFromMap(id);
+	if(checked) 
+	{
+		WebGIS.addLayerToMap(id);
+		sessionStorage.setItem(layerName, layerName);
+	}
+	else
+	{
+		WebGIS.removeLayerFromMap(id);
+		sessionStorage.removeItem(layerName);
+	} 
 };
 
 WebGIS.addLayerToMap = function(id)
