@@ -17,7 +17,8 @@ from owslib.wms import WebMapService
 from pyproj import transform, Proj
 
 import psycopg2                         # For database access
-from psycopg2.extensions import adapt   # adapt gives us secure qutoing
+from psycopg2.extensions import adapt   # adapt: secure qutoing e.g. adapt('LL\L') => 'LL\\L'; adapt("A'B") => 'A''B'
+
 import time
 import datetime
 import string
@@ -286,22 +287,6 @@ def is_equal_crs(first, second):
             firstWords[len(firstWords) - 1] == secondWords[len(secondWords) - 1])
 
 
-
-def project_wgs_to_local(bounding_box, local_proj):
-    p1 = Proj(init='EPSG:4326')     # WGS84
-    p2 = Proj(init=local_proj)
-
-    bbox_left,  bbox_bottom = transform(p1, p2, bounding_box[0], bounding_box[1])
-    bbox_right, bbox_top    = transform(p1, p2, bounding_box[2], bounding_box[3])
-
-    print "Transforming:"
-    print local_proj, bbox_left,  bbox_bottom, "= transform(p1, p2, ", bounding_box[0], ",", bounding_box[1],")"
-    print local_proj, bbox_right, bbox_top,    "= transform(p1, p2, ", bounding_box[2], ",", bounding_box[3],")"
-
-    return bbox_left,  bbox_bottom, bbox_right, bbox_top
-
-
-
 def check_data_servers(serverCursor):
     # Get the server list
     serverCursor.execute("SELECT DISTINCT url FROM " + tables["dataservers"])
@@ -317,7 +302,7 @@ def check_data_servers(serverCursor):
             # Now check on the dataservers and datasets, first marking them all as defunct
             sqlList.append("UPDATE " + tables["datasets"] + " SET alive = false "
                               "WHERE EXISTS ( "
-                                "SELECT * FROM " + tables["dataservers"] + " "
+                                 "SELECT * FROM " + tables["dataservers"] + " "
                                  "WHERE dataservers.id = datasets.dataserver_id "
                                  "AND dataservers.url = '" + serverUrl + "'"
                                ")"
@@ -339,7 +324,7 @@ def check_data_servers(serverCursor):
             except: 
                 wcs = None
 
-            if not (wms or wfs or wcs):
+            if not (wms or wfs or wcs):    # No data services available?  Time to move on!
                 continue
 
             dstitle = dsabstr = None
@@ -366,6 +351,10 @@ def check_data_servers(serverCursor):
             # wms: ['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__getitem__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_buildMetadata', '_capabilities', '_getcapproperty', 'contents', 'exceptions', 'getOperationByName', 'getServiceXML', 'getcapabilities', 'getfeatureinfo', 'getmap', 'identification', 'items', 'operations', 'password', 'provider', 'url', 'username', 'version']
             # wfs: ['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__getitem__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_buildMetadata', '_capabilities', 'contents', 'exceptions', 'getOperationByName', 'getcapabilities', 'getfeature', 'identification', 'items', 'log', 'operations', 'provider', 'url', 'version']
             # wfs.contents: ['__class__', '__cmp__', '__contains__', '__delattr__', '__delitem__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__init__', '__iter__', '__le__', '__len__', '__lt__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setitem__', '__sizeof__', '__str__', '__subclasshook__', 'clear', 'copy', 'fromkeys', 'get', 'has_key', 'items', 'iteritems', 'iterkeys', 'itervalues', 'keys', 'pop', 'popitem', 'setdefault', 'update', 'values', 'viewitems', 'viewkeys', 'viewvalues']
+            # wcs: ['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__getitem__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_capabilities', '_describeCoverage', 'contents', 'cookies', 'getCoverage', 'getDescribeCoverage', 'getOperationByName', 'identification', 'items', 'log', 'operations', 'provider', 'setLogLevel', 'url', 'version']
+            # wcs.contents: ['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_checkChildAndParent', '_elem', '_getGrid', '_getTimeLimits', '_getTimePositions', '_parent', '_service', 'abstract', 'boundingBox', 'boundingBoxWGS84', 'boundingboxes', 'crsOptions', 'description', 'grid', 'id', 'keywords', 'styles', 'supportedCRS', 'supportedFormats', 'timelimits', 'timepositions', 'title']
+
+
 
             sqlList.append( "UPDATE " + tables["dataservers"] + " "
                             "SET title = " + str(adapt(dstitle)) + ", "
@@ -380,10 +369,11 @@ def check_data_servers(serverCursor):
 
             sql = "SELECT d.id, d.identifier, d.city_id FROM " + tables["datasets"] + " AS d " \
                   "LEFT JOIN " + tables["dataservers"] + " AS ds ON d.dataserver_id = ds.id "  \
-                  "WHERE ds.url = '" + serverUrl + "'"
+                  "WHERE ds.url = %s"
 
-            # Trailing comma needed in line below because Python tuples can't have just one element...
-            ds_cursor.execute(sql)
+            # Pass serverUrl as a parameter in order to properly handle issues with backslashes in the url.  Blech!
+            # Trailing comma needed in line below because Python tuples can't have just one element.
+            ds_cursor.execute(sql, (serverUrl,))
 
             for dsrow in ds_cursor:
                 dsid       = dsrow[0]
@@ -394,13 +384,14 @@ def check_data_servers(serverCursor):
 
                 found = True
                 has_city_crs = False
-                imgFormat  = ""
+                imgFormat   = ""
                 bbox_left   = None
                 bbox_right  = None
                 bbox_top    = None
                 bbox_bottom = None
-                resX       = 0
-                resY       = 0
+                bbox_srs    = None
+                resX        = 0
+                resY        = 0
 
                 # from lxml import etree
                 # if wms:
@@ -432,11 +423,10 @@ def check_data_servers(serverCursor):
                             break
                     
                 if wcs and identifier in wcs.contents:
-                    found = True;
+                    found = True
                     crs = None
                     dstitle = convert_encoding(wcs.contents[identifier].title    if wcs.contents[identifier].title    else identifier)
                     dsabstr = convert_encoding(wcs.contents[identifier].abstract if wcs.contents[identifier].abstract else "")
-
 
                     for c in wcs.contents[identifier].supportedCRS:     # crsOptions is available here, but always empty; only exists for OOP
                         if is_equal_crs(c.id, city_crs[cityId]):
@@ -457,8 +447,6 @@ def check_data_servers(serverCursor):
                         print "Error with " + identifier + " on " + serverUrl + ": " + errorText
                         continue
 
-
-                    # gridOffsets = dc.find(".//{*}GridOffsets") 
                     gridOffsets = dc.xpath("//*[local-name() = 'GridOffsets']")
 
                     if len(gridOffsets) == 0:
@@ -471,36 +459,13 @@ def check_data_servers(serverCursor):
                         if(float(resY) < 0):
                             resY = float(resY) * -1
 
-
-                    # Try to get the native bounding box, if we can find it.  If we can't we'll try projecting the WGS84 bounding box, but this
-                    # is less accurate
-                    if(has_city_crs):
-                        # bb = dc.find(".//{*}BoundingBox[@crs='" + crs + "']")
-                        lc = None
-                        bbs = dc.xpath("//*[local-name() = 'LowerCorner']")
-                        for bb in bbs:
-                            if bb.getparent().get("crs") and is_equal_crs(bb.getparent().get("crs"), crs):
-                                lc = bb.text
-                                break
-
-                        uc = None
-                        bbs = dc.xpath("//*[local-name() = 'UpperCorner']")
-                        for bb in bbs:
-                            if bb.getparent().get("crs") and is_equal_crs(bb.getparent().get("crs"), crs):
-                                uc = bb.text
-                                break
+                    print identifier, wcs.contents[identifier].boundingBoxWGS84
 
 
-                        if lc is not None and uc is not None:
-                            bbox_left, bbox_bottom = string.split(lc)
-                            bbox_right, bbox_top   = string.split(uc)
-
-
-                    # Try projecting the WGS84 bounding box
-                    if bbox_top == "":
-                        bb = wcs.contents[identifier].boundingBoxWGS84
-                        bbox_left, bbox_bottom, bbox_right, bbox_top = project_wgs_to_local(bb, city_crs[cityId])
-
+                    # We will always store the WGS84 bounding box, and use that for our requests
+                    if wcs.contents[identifier].boundingBoxWGS84:
+                        bbox_left, bbox_bottom, bbox_right, bbox_top = wcs.contents[identifier].boundingBoxWGS84
+                        bbox_srs = "EPSG:4326"    # Now we always store the WGS84 bbox, which has this srs
 
                     if(len(wcs.contents[identifier].supportedFormats[0]) == 0):
                         print "Cannot get a supported format for WCS dataset " + serverUrl + " >>> " + identifier
@@ -515,7 +480,6 @@ def check_data_servers(serverCursor):
                             index = wcs.contents[identifier].supportedFormats.index('image/tiff')   # Second choice is tiff
                             
                         imgFormat = wcs.contents[identifier].supportedFormats[index]
-
 
                 if wms and identifier in wms.contents:
                     found = True;
@@ -534,6 +498,7 @@ def check_data_servers(serverCursor):
                                         "bbox_right = "   + ("NULL" if bbox_right  is None else str(adapt(bbox_right)))  + ", "
                                         "bbox_top = "     + ("NULL" if bbox_top    is None else str(adapt(bbox_top)))    + ", "
                                         "bbox_bottom = "  + ("NULL" if bbox_bottom is None else str(adapt(bbox_bottom))) + ", "
+                                        "bbox_srs = "     + ("NULL" if bbox_srs    is None else str(adapt(bbox_srs)))    + ", "
                                         "resolution_x = " + str(adapt(resX))       + ", "
                                         "resolution_y = " + str(adapt(resY))       + " "
                                     "WHERE id = " + str(adapt(dsid)) 
