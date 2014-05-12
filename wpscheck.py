@@ -25,7 +25,7 @@ logLevel = "INFO"
 # Global vars -- will be assigned later
 
 RUNNING = FINISHED = ERROR = None
-cur = qcur = db_conn = None
+cur = db_conn = None
 
 ############################################################
 
@@ -39,8 +39,9 @@ def config_logging(logfile, loglevel):
     logging.basicConfig(filename=logfile, level=loglevel, format=format)
 
 
+
 def initialize_database_connection():
-    global db_conn, cur, qcur
+    global db_conn, cur
 
     try:
         connstr = ("dbname='" + dbName + "' user='" + dbUsername +"' " +
@@ -52,7 +53,17 @@ def initialize_database_connection():
         sys.exit(2)
 
     cur  = db_conn.cursor()
-    qcur = db_conn.cursor()
+
+
+
+def update_run_status_in_database(recordId, status, msg):
+    query_template = ("UPDATE " + dbSchema + ".mod_configs " 
+                      "SET run_status_id = " + str(status) + ", status_text = %s, run_ended = %s " 
+                      "WHERE id = %s" )
+
+    cur.execute(query_template, (msg, str(datetime.datetime.now()), recordId))
+    db_conn.commit()
+
 
 
 def log_error_msg(recordId, msg):
@@ -61,24 +72,20 @@ def log_error_msg(recordId, msg):
     '''
 
     if(recordId):
-        query_template = ("UPDATE " + dbSchema + ".mod_configs " 
-                          "SET run_status_id = " + str(ERROR) + ", status_text = %s, run_ended = %s " 
-                          "WHERE id = %s" )
-
-        cur.execute(query_template, (msg, str(datetime.datetime.now()), recordId))
-        db_conn.commit()
+        update_run_status_in_database(recordId, ERROR, msg)
 
     logging.error(str(recordId) + " " + msg)
     print str(recordId) + " " + msg   # Very helpful when running from cmd line
+
 
 
 def log_info_msg(msg):
     '''
     Print out a warning message, and log it to the logFile
     '''
-
     logging.info(msg)
     print msg
+
 
 
 def get_running_finished_error_vals():
@@ -114,15 +121,11 @@ def get_running_finished_error_vals():
     return r, f, e
 
 
-def main():
-    global RUNNING, FINISHED, ERROR
-    initialize_database_connection()
-    config_logging(logFileName, logLevel)
 
-    # Define constants for communication between different sotware bits
-    
-    RUNNING, FINISHED, ERROR = get_running_finished_error_vals()
-
+def get_running_process_list():
+    '''
+    Return a list of processes that the database thinks are running
+    '''
     try:
         query = ("SELECT mc.id, pid, c.srs, c.id "                              
                  "FROM " + dbSchema + ".mod_configs AS mc "                     
@@ -137,36 +140,239 @@ def main():
 
     rows = cur.fetchall()
 
+    return rows
+
+
+
+def get_identifiers(recordId):
+    identifiers = {}
+
+    try:
+        query = ("SELECT column_name, value FROM " + dbSchema + ".config_text_inputs "
+                 "WHERE mod_config_id = " + str(recordId) + " AND is_input = False")
+        cur.execute(query)
+    except:
+        return None
+
+    outs = cur.fetchall()
+    for out in outs:
+        identifiers[out[0]] = out[1]
+
+    return identifiers 
+
+
+
+def normalize_srs(srs):
+    '''
+    Convert srs into a consistent format
+    '''
+    if srs.startswith("EPSG:"):          # Strip prefix, if there is one
+        return srs[5:]
+
+    return srs
+
+
+
+def validate_process_params(recordId, pid, srs):
+    '''
+    Check for bad records that will cause crashy-crashy
+    Returns True if things look OK, False if there is a problem
+    '''
+    if pid is None:
+        log_info_msg(recordId, "Found missing pid in record with id " + str(recordId))
+        return False
+
+    if srs is None:
+        log_info_msg(recordId, "Found missing srs in record with id " + str(recordId))
+        return False
+
+    return True
+
+
+
+def update_running_module(client, recordId):
+    '''
+    Update the status of a running module with the latest progress reported by the WPS server
+    '''
+    update_run_status_in_database(recordId, RUNNING, str(client.percentCompleted) + '% complete')
+
+
+
+def get_service(dataset):
+    '''
+    Return the service name for the passed dataset
+    '''
+    if dataset.dataType == dataset.TYPE_VECTOR:
+        return "WFS"
+    elif dataset.dataType == dataset.TYPE_RASTER:
+        return "WCS"
+    else:
+        return "WMS"
+
+
+
+def insert_new_dataset(dataset, recordId, url, serverId, city_id):
+    '''
+    Insert a new dataset into our database; returns id of inserted record
+    '''
+    cur = db_conn.cursor()
+
+    query_template = ("INSERT INTO " + dbSchema + ".datasets                                     "
+                      "    (title, server_url, dataserver_id, identifier, abstract, city_id,     "
+                      "         alive, finalized, created_at, updated_at, service)               "
+                      "VALUES(                                                                   "
+                      "  (                                                                       "
+                      "      SELECT value FROM " + dbSchema + ".config_text_inputs               "
+                      "      WHERE mod_config_id = %s AND column_name = %s AND is_input = FALSE  "
+                      "  ),                                                                      "
+                      "   %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)                                "
+                      "RETURNING id")
+
+    abstract = "Result calculated with module"
+
+    cur.execute(query_template, (recordId, dataset.uniqueID, url, serverId, dataset.uniqueID, abstract, 
+                                 str(city_id), True, True, 
+                                 str(datetime.datetime.now()), str(datetime.datetime.now()), 
+                                 get_service(dataset)) )
+    # For WCS datasets, need bounding box, and bbox srs, also 
+
+    if cur.rowcount == 0:
+        log_error_msg(recordId, "Error: Unable to insert record into datasets table")
+        return
+
+    return cur.fetchone()[0]
+
+
+
+def insert_literal_value_in_database(recordId, dataset):
+    cur = db_conn.cursor()
+
+    # Clean out any old results
+    cur.execute("DELETE FROM " + dbSchema + ".config_text_inputs "
+                "WHERE mod_config_id = %s AND column_name = %s AND is_input = %s",
+                (recordId, dataset.name, False))      
+
+    # Insert fresh ones
+    cur.execute("INSERT INTO " + dbSchema + ".config_text_inputs "
+                "     (mod_config_id, column_name, value, is_input) "
+                "VALUES(%s, %s, %s, %s)",
+                (recordId, dataset.name, dataset.value, False))
+
+
+
+def add_tag(dataset_id, tag):
+    cur = db_conn.cursor()
+
+    # Avoid duplicate tags by deleting any existing tags with same value
+    cur.execute("DELETE FROM " + dbSchema + ".dataset_tags WHERE dataset_id = %s AND tag = %s)",
+                (dataset_id, tag))  
+
+    # Insert the new tag
+    cur.execute("INSERT INTO " + dbSchema + ".dataset_tags(dataset_id, tag) VALUES(%s, %s)",
+                (dataset_id, tag))    
+
+
+
+def insert_complex_value_in_database(recordId, dataset, url, city_id):
+    '''
+    Returns False if there was a problem with the database
+    '''
+    cur = db_conn.cursor()
+
+    # Check if data server already exists in the database, otherwise insert it.  We need the record id.
+    cur.execute("SELECT id FROM " + dbSchema + ".dataservers WHERE url = %s", (url,))   # Trailing , needed
+
+    if cur.rowcount == 0:      # Not found; insert it!
+        title    = "iGUESS results server"
+        abstract = "Server hosting the results of a module run"
+
+        cur.execute("INSERT INTO " + dbSchema + ".dataservers (url, title, abstract, alive, wms, wfs, wcs) "
+                    "VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING id", 
+                    (url, title, abstract, True, True, True, True))
+
+    if cur.rowcount == 0:
+        log_error_msg(recordId, "Error: Unable to insert record into dataservers table!")
+        return False
+
+    server_id = cur.fetchone()[0]
+    
+    dataset_id = insert_new_dataset(dataset, recordId, url, server_id, city_id)
+
+    add_tag(dataset_id, "Mapping")
+
+    return True
+
+
+
+def update_finished_module(client, recordId, city_id):
+    '''
+    Update the database after a module has finished running
+    '''
+    try:
+        # Retrieve and save the data locally to disk, creating a mapfile in the process
+        mapfile = client.generateMapFile()
+
+        if mapfile is None:
+            log_error_msg(recordId, "Error: Got None back from generateMapFile()")
+            return
+
+    except Exception as ex:
+        log_error_msg(recordId, "Error: generateMapFile() call failed - " + str(ex))
+        return
+
+    url = baseMapServerUrl + mapfile
+
+    try:
+        update_run_status_in_database(recordId, FINISHED, client.processErrorText)
+               
+        for dataset in client.dataSets:
+            
+            if dataset.dataType is dataset.TYPE_LITERAL:
+                log_info_msg("Processing literal result " + dataset.name +  " = " + str(dataset.value) +  "...")
+                insert_literal_value_in_database(recordId, dataset)
+
+            else:
+                log_info_msg("Processing complex result " + dataset.name + " with id of " + dataset.uniqueID)
+                if not insert_complex_value_in_database(recordId, dataset, url, city_id):
+                    return
+
+        db_conn.commit()
+
+    except:
+        log_error_msg(recordId, "Error: Last client status was " + str(client.status))
+
+
+
+def main():
+    global RUNNING, FINISHED, ERROR
+    initialize_database_connection()
+    config_logging(logFileName, logLevel)
+
+    # Define constants for communication between different sotware bits
+    
+    RUNNING, FINISHED, ERROR = get_running_finished_error_vals()
+
     try:
         client = WPSClient.WPSClient()
     except Exception as ex:
         log_error_msg(None, "Error: Could not initialize WPSClient module - " + str(ex))
 
 
-    for row in rows:
-        recordId, pid, srs, city_id = row
+    processes = get_running_process_list()
+
+    for process in processes:
+        recordId, pid, srs, city_id = process
+
+        if not validate_process_params(recordId, pid, srs):
+            continue
 
         log_info_msg("Checking pid " + str(pid) + "...")
 
+        identifiers = get_identifiers(recordId)
 
-        # Check for bad records that will cause crashy-crashy
-        if pid == None:
-            log_info_msg(recordId, "Found invalid mod_config record with id " + str(recordId))
-            continue
-
-        identifiers = {}
-
-        try:
-            query = ("SELECT column_name, value FROM " + dbSchema + ".config_text_inputs "
-                     "WHERE mod_config_id = " + str(recordId) + " AND is_input = False")
-            cur.execute(query)
-        except:
+        if identifiers is None:
             logging.warning("Can't get params for config id " + str(recordId))
             continue
-
-        outs = cur.fetchall()
-        for out in outs:
-            identifiers[out[0]] = out[1]
 
         try:
             client.initFromURL(pid, identifiers)
@@ -174,10 +380,7 @@ def main():
             log_error_msg(recordId, "Error: initFromURL() call failed - " + str(ex))
             continue
 
-        if srs.startswith("EPSG:"):          # Strip prefix, if there is one
-            srs = srs[5:]
-
-        client.epsg = srs   
+        client.epsg = normalize_srs(srs)   
 
         try:
             status = client.checkStatus()        # Returns true if checkStatus worked, false if it failed
@@ -189,125 +392,20 @@ def main():
             log_error_msg(recordId, "There was an error checking the status of running modules!")
             continue
 
-        log_info_msg("Status = " + str(client.status))
+        log_info_msg("client.checkStatus() returned: " + str(client.status))
 
 
         if client.status == client.RUNNING:      # 1... 
-            query_template = ("UPDATE " + dbSchema + ".mod_configs " 
-                              "SET run_status_id = " + str(RUNNING) + ", status_text = %s " 
-                              "WHERE id = %s" )
-            cur.execute(query_template, (str(client.percentCompleted) + '% complete', recordId))
-            db_conn.commit()
+            update_running_module(client, recordId)
 
         elif client.status == client.FINISHED:   # 2
-            mapfile = ""
-
-            try:
-                # Retrieve and save the data locally to disk, creating a mapfile in the process
-                mapfile = client.generateMapFile()
-
-                if mapfile is None:
-                    log_error_msg(recordId, "Error: Got None back from generateMapFile()")
-                    sys.exit(2)
-
-            except Exception as ex:
-                log_error_msg(recordId, "Error: generateMapFile() call failed - " + str(ex))
-                continue
-
-            url = baseMapServerUrl + mapfile
-
-            try:
-                # Update status in the database
-                query_template = ("UPDATE " + dbSchema + ".mod_configs "                                         
-                                  "SET run_status_id = " + str(FINISHED) + ", status_text = %s, run_ended = %s " 
-                                  "WHERE id = %s" )
-
-                cur.execute(query_template, (client.processErrorText, str(datetime.datetime.now()), recordId))
-                       
-                for r in client.dataSets:
-                    
-                    if r.dataType is r.TYPE_LITERAL:
-                        
-                        log_info_msg("Processing literal result " + r.name +  " = " + str(r.value) +  "...")
-        
-                        # Clean out any old results
-                        query_template = ("DELETE FROM " + dbSchema + ".config_text_inputs "
-                                          "WHERE mod_config_id = %s AND column_name = %s AND is_input = %s")
-                        cur.execute(query_template, (recordId, r.name, False))      
-        
-        
-                        # Insert fresh ones
-                        query_template = ("INSERT INTO " + dbSchema + ".config_text_inputs "
-                                          "     (mod_config_id, column_name, value, is_input) "
-                                          "VALUES(%s, %s, %s, %s)")
-                        cur.execute(query_template, (recordId, r.name, r.value, False))
-
-
-                    else:
-                        log_info_msg("Processing complex result " + r.name + " with id of " + r.uniqueID)
-        
-                        # Check if data server already exists in the database, otherwise insert it.  We need the record id
-                        qcur.execute("SELECT id FROM " + dbSchema + ".dataservers WHERE url = %s", (url,))   # Trailing , needed
-                        if qcur.rowcount == 0:
-                            titleServ = "iGUESS results server"
-                            abstract = "Server hosting the results of a module run"
-                            qcur.execute(("INSERT INTO " + dbSchema + ".dataservers (url, title, abstract, alive, wms, wfs, wcs) "
-                                          "VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING id"), 
-                                                            (url, titleServ, abstract, True, True, True, True))
-                        if qcur.rowcount == 0:
-                            log_error_msg(recordId, "Error: Unable to insert record into dataservers table!")
-                            continue
-        
-                        serverId = qcur.fetchone()[0]
-                        
-                        service = "WMS"
-                        
-                        if r.dataType == r.TYPE_VECTOR:
-                            service = "WFS"
-                        elif r.dataType == r.TYPE_RASTER:
-                            service = "WCS"
-        
-                        query_template = ("INSERT INTO " + dbSchema + ".datasets                                     "
-                                          "    (title, server_url, dataserver_id, identifier, abstract, city_id,     "
-                                          "         alive, finalized, created_at, updated_at, service)               "
-                                          "VALUES(                                                                   "
-                                          "  (                                                                       "
-                                          "      SELECT value FROM " + dbSchema + ".config_text_inputs               "
-                                          "      WHERE mod_config_id = %s AND column_name = %s AND is_input = FALSE  "
-                                          "  ),                                                                      "
-                                          "   %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)                                "
-                                          "RETURNING id")
-        
-                        abstract = "Result calculated with module"
-                        
-                        qcur.execute(query_template, (recordId, r.uniqueID, url, serverId, r.uniqueID, abstract, str(city_id), True, True, 
-                                                     str(datetime.datetime.now()), str(datetime.datetime.now()), service) )
-                        # For WCS datasets, need bounding box, and bbox srs, also 
-        
-                        if qcur.rowcount == 0:
-                            log_error_msg(recordId, "Error: Unable to insert record into datasets table")
-                            continue
-        
-                        insertedId = qcur.fetchone()[0]
-        
-                        # Insert mapping tag
-                        qcur.execute("insert into " + dbSchema + ".dataset_tags(dataset_id, tag) values(" + str(insertedId) + ", 'Mapping')")
-
-                db_conn.commit()
-
-            except:
-                log_error_msg(recordId, "Error: Last client status was " + str(client.status))
-                continue    
+            update_finished_module(client, recordId, city_id)
 
         elif client.status == client.ERROR:    
-
             log_error_msg(recordId, "Error: " + str(client.processErrorText))
-            continue
-
 
         else:
-            log_error_msg(recordId, "Error: Unknown status " + str(client.status))
-            continue
+            log_error_msg(recordId, "Error: Unknown status -- " + str(client.status))
 
 
 if __name__ == '__main__':
