@@ -204,7 +204,8 @@ WebGIS.createPanels = function() {
     collapsible: true,
     autoScroll: false,
     scrollable: false,
-    enableDD: true,
+    enableDD: false,
+    draggable: false,
     plugins: [{
       ptype: "gx_treenodecomponent"
     }],
