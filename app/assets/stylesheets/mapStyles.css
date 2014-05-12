@@ -61,18 +61,24 @@
 
 .tinyUp {
     background-image:url(images/mapStyles/tinyUp.png) !important;
-    height:7px !important;
-    width:10px !important;
+    background-repeat: no-repeat;
+    height:8px !important;
+    width:11px !important;
     float: right !important;
-    vertical-align: top !important;
+    vertical-align: bottom !important;
+    padding-right: 2px !important;
+    padding-top: 3px !important;
 }
 
 .tinyDown {
     background-image:url(images/mapStyles/tinyDown.png) !important;
-    height:7px !important;
-    width:10px !important;
+   	background-repeat: no-repeat;
+    height:8px !important;
+    width:11px !important;
     float: right !important;
-    vertical-align: top !important;
+    vertical-align: bottom !important;
+    padding-right: 2px !important;
+    padding-top: 3px !important;
 }
 
 .layerNode {
@@ -81,8 +87,11 @@
 
 .layerSlide {
 	display: block;
-    margin-left: auto;
-    margin-right: auto
+    /*margin-left: auto;
+    margin-right: auto;*/
+    margin-right: 42px;
+    margin-left: 4px;
+    margin-bottom: 4px;
 }
 
 .emptyIcon{

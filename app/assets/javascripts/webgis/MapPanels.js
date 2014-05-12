@@ -191,7 +191,6 @@ WebGIS.createPanels = function() {
     nodeType: "gx_overlaylayercontainer",
     text: "",
     iconCls: "emptyIcon",
-    height: "0px",
     cls: "hiddenRoot",
     expanded: true,
     rootVisible: false
@@ -296,7 +295,7 @@ WebGIS.createPanels = function() {
 
 /**
  * Method: showAllTreeNodes
- * Removes filtering from the layer tree by showin all nodes.
+ * Removes filtering from the layer tree by showing all nodes.
  */
 WebGIS.showAllTreeNodes = function()
 {
