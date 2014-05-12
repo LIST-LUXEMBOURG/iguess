@@ -196,8 +196,12 @@ WebGIS.moveLayer = function(layerName, delta)
 	
 	var layers = WebGIS.leftMap.getLayersByName(layerName);
 	if (layers.length <= 0) return;
-	WebGIS.leftMap.raiseLayer(layers[0], delta);
 	
+	var index = WebGIS.leftMap.getLayerIndex(layers[0]);
+	if ((delta < 0) && (index <= 0)) return;
+	if ((delta > 0) && (index >= (WebGIS.leftMap.layers.length - 1))) return;
+	
+	WebGIS.leftMap.raiseLayer(layers[0], delta);
 	WebGIS.layerTree.root.firstChild.eachChild(WebGIS.addWidgetsToLayerNode);
 };
 
