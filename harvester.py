@@ -17,7 +17,8 @@ from owslib.wms import WebMapService
 from pyproj import transform, Proj
 
 import psycopg2                         # For database access
-from psycopg2.extensions import adapt   # adapt gives us secure qutoing
+from psycopg2.extensions import adapt   # adapt: secure qutoing e.g. adapt('LL\L') => 'LL\\L'; adapt("A'B") => 'A''B'
+
 import time
 import datetime
 import string
@@ -320,10 +321,6 @@ def check_data_servers(serverCursor):
 
             try:
                 wcs = WebCoverageService(serverUrl, version = wcsVersion)
-                if serverUrl == 'http://maps.iguess.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/iGUESSMapFiles/pywps-b02156da-50ef-11e3-82c5-005056a52e0d.map':
-                    print "keys: ", wcs.contents.keys() 
-                    print  wcs.contents['slope'].boundingBoxWGS84
-                    quit()
             except: 
                 wcs = None
 
@@ -372,10 +369,11 @@ def check_data_servers(serverCursor):
 
             sql = "SELECT d.id, d.identifier, d.city_id FROM " + tables["datasets"] + " AS d " \
                   "LEFT JOIN " + tables["dataservers"] + " AS ds ON d.dataserver_id = ds.id "  \
-                  "WHERE ds.url = '" + serverUrl + "'"
+                  "WHERE ds.url = %s"
 
-            # Trailing comma needed in line below because Python tuples can't have just one element...
-            ds_cursor.execute(sql)
+            # Pass serverUrl as a parameter in order to properly handle issues with backslashes in the url.  Blech!
+            # Trailing comma needed in line below because Python tuples can't have just one element.
+            ds_cursor.execute(sql, (serverUrl,))
 
             for dsrow in ds_cursor:
                 dsid       = dsrow[0]
@@ -448,7 +446,6 @@ def check_data_servers(serverCursor):
                             errorText = errorMsgs[0].text
                         print "Error with " + identifier + " on " + serverUrl + ": " + errorText
                         continue
-
 
                     gridOffsets = dc.xpath("//*[local-name() = 'GridOffsets']")
 
