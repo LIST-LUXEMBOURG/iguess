@@ -250,6 +250,8 @@ WebGIS.addWidgetsToLayerNode = function(treeNode)
     });
 	
 	treeNode.setCls("layerNode");
+	treeNode.getUI().checkbox.hidden = true;
+	treeNode.getUI().elNode.childNodes[0].hidden = true;
 	buttonUp.render(treeNode.getUI().getTextEl());
 	buttonDown.render(treeNode.getUI().getTextEl());
 	slider.render(treeNode.getUI().getTextEl());
