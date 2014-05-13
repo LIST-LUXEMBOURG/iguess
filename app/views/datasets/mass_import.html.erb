@@ -3,13 +3,15 @@
 <div id="error-list" class="explanation-problem" style="display: none"></div>
 
 <div class="explanation">
-  <p>iGUESS uses datasets stored on remote servers.  To register datasets with the system, enter a server URL in the box below.
-  iGUESS will probe the remote server and present you a list of datasets you can register.  In order to use a dataset with
-  a module, you will need to tag it with the appropriate tags.  If you want to use the dataset for mapping
-  purposes, use the Mapping tag.</p>
+  <p>iGUESS uses datasets stored on remote servers.  To register datasets with the system, 
+    enter a server URL in the box below. iGUESS will probe the remote server and present 
+    you a list of datasets you can register.  In order to use a dataset with a module, 
+    you will need to tag it with the appropriate tags.  If you want to use the dataset 
+    for mapping purposes, use the Mapping tag.</p>
 
-  <p>iGUESS will probe for WFS, WCS, and WMS servers at the URL provided below.  Layers offered by the WMS will be available for mapping,
-  and layers offered by the WFS/WCS will be available for using as inputs to web processes.</p>
+  <p>iGUESS will probe for WFS, WCS, and WMS servers at the URL provided below.  Layers 
+    offered by the WMS will be available for mapping, and layers offered by the WFS/WCS 
+    will be available for using as inputs to web processes.</p>
 </div>
 
 
@@ -17,14 +19,17 @@
   <table class="url-form">
       <tr>
       <td>
-        <input id="server_url" type="text" name="format" value="" placeholder="Enter data-server URL or select a preset"/>
+        <input id="server_url" type="text" name="format" 
+               value="" placeholder="Enter data-server URL or select a preset"/>
         <button type="button" id="load_services">Load</button>
       </td>
     </tr><tr>
       <td>
         <select id="url-preset-select"  style="width: 100%">
           <option value="">Select a preset</option>
-          <%= raw @current_city.dataserver_url.map { |m| '<option value="' + m.url + '">' + m.url + '</option>' }.join(" ") %>
+          <%= raw @current_city.dataserver_url
+                               .map { |m| '<option value="' + m.url + '">' + m.url + '</option>' }
+                               .join(" ") %>
         </select>
       </td>
     </tr><tr>
@@ -40,9 +45,15 @@
 <div class="services-display">
 
   <div class="progress-container">
-    <span class="probing" id="probing-wms">Probing WMS server...<span class="loading_indicator"></span></span>
-    <span class="probing" id="probing-wfs">Probing WFS server...<span class="loading_indicator"></span></span>
-    <span class="probing" id="probing-wcs">Probing WCS server...<span class="loading_indicator"></span></span>
+    <span class="probing" id="probing-wms">Probing WMS server...
+      <span class="loading_indicator"></span>
+    </span>
+    <span class="probing" id="probing-wfs">Probing WFS server...
+      <span class="loading_indicator"></span>
+    </span>
+    <span class="probing" id="probing-wcs">Probing WCS server...
+      <span class="loading_indicator"></span>
+    </span>
   </div>
 
   <div class="server-info">
@@ -57,16 +68,18 @@
   <div class="infotable" id="infotable-unavailable-for-mapping">
     <h1 class="dataset-title">Available for mapping</h1>
       <div>
-        We do all our mapping using <%= GoogleProjection %>, which is compatible with Google Maps and OpenStreetMap, 
-        used as a background in the map window.  If a dataset is available from a WMS service, and is in this projection, 
-        then we can display it on our maps.
+        We do all our mapping using <%= GoogleProjection %>, which is compatible with 
+        Google Maps and OpenStreetMap, used as a background in the map window.  If a 
+        dataset is available from a WMS service, and is in this projection, then 
+        we can display it on our maps.
       </div>
       <br>
     <h1 class="dataset-title">Available for processing</h1>
     <div>
-      Each city defines a projection that will be used for all calculations.  For <%= @current_city.name %>, 
-      that is <%= @current_city.srs %>.  If a dataset is available from a WFS or WCS server, and is in this projection, 
-      then we can use it in the computation modules.
+      Each city defines a projection that will be used for all calculations.  
+      For <%= @current_city.name %>, that is <%= @current_city.srs %>.  If a dataset 
+      is available from a WFS or WCS server, and is in this projection, then we can 
+      use it in the computation modules.
     </div>
   </div>
 
@@ -78,7 +91,7 @@
   // Add "js" style to body -- makes fancy checkboxes work
   $('body').attr("class",$('body').attr("class") + " js");
 
-  GOOGLE_SRS = '<%= GoogleProjection %>';
+  var GOOGLE_SRS = '<%= GoogleProjection %>';
 
 
   // registeredDataLayers is a list of info about all layers registered with the system.  It gets
@@ -105,14 +118,14 @@
   };
 
 
-  LOCAL_SRS = '<%= @current_city.srs %>';
+  var LOCAL_SRS = '<%= @current_city.srs %>';
 
 
   var getLayerNameFromCheckboxId = function(id)
   {
-  	return id.substring('registered_'.length);	// Remove 'registered_' from the front of the string
+    // Remove 'registered_' from the front of the string
+  	return id.substring('registered_'.length);	
   };
-
 
 
   var wfsProcessingComplete = 0;
@@ -128,8 +141,9 @@
 
 
   // Called when we've gotten whatever response we're going to get from the server in question
-  // i.e. when a WFS response arrives.  More responses might be coming (from WMS, and WCS, for example).
-  // serverInfo could be null.
+  // i.e. when a WFS response arrives.  More responses might be coming (from WMS, and WCS, 
+  // for example).
+  // Note: serverInfo could be null.
   var doneProcessing = function(url, type, serverInfo) 
   {
     if(type == "WFS") {
@@ -159,9 +173,10 @@
   };
 
 
-  // We can have bouding box info socked away in several different places, depending on which service sent it,
-  // and which openLayers component processed it.  We'll break this out to avoid complexity in the calling function.
-  // Returns null if we can't find any good bounding box coords.
+  // We can have bouding box info socked away in several different places, 
+  // depending on which service sent it, and which openLayers component
+  // processed it.  We'll break this out to avoid complexity in the calling 
+  // function.  Returns null if we can't find any good bounding box coords.
   var getNormalizedBoundingBox = function(layer)
   {
     if(layer.wmsCrs && layer.mapBbox && layer.mapBbox.left)
@@ -200,12 +215,6 @@
   };
 
 
-  var WMSTagList = '<% getAliveTags("WMS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>';
-  var WFSTagList = '<% getAliveTags("WFS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>';
-  var WCSTagList = '<% getAliveTags("WCS").each do |t| %><option value="<%= t %>"><%= t %></option><% end %>';
-
-
-
   // Popup a window for displaying the passed content
   var displayOverflow = function(content)
   {
@@ -215,13 +224,14 @@
       $(win.document.body).html(content);
       return;
     }
-    alert("Can't open new window. Please change your browser settings to allow popups from this site.");
+    alert("Can't open new window. Please change your browser settings to allow " + 
+          "popups from this site.");
   };
 
 
   var getCrsListDisplay = function(crsList, maxLen)
   {
-    var len = typeof(crsList) == "string" ? 0 : crsList.length;
+    var len = (typeof(crsList) == "string") ? 0 : crsList.length;
     var itemCount = len;
 
     if(itemCount > maxLen)
@@ -229,12 +239,14 @@
 
     var html = "<span>";
 
-    html += (typeof(crsList) == "string" ? crsList : crsList.slice(0, itemCount - 1).join('; '));
+    html += (typeof(crsList) == "string" ? crsList : 
+                                           crsList.slice(0, itemCount - 1).join('; '));
 
     // Set up overflow for long lists
     if(len > itemCount)
     {
-      html += " <a href='#' onclick='displayOverflow(\"Full list of CRSs supported for this dataset:<br>" +
+      html += " <a href='#' " + 
+                  "onclick='displayOverflow(\"Full list of CRSs supported for this dataset:<br>" +
                crsList.join('; ') +  "\");return false;'>More &gt;&gt;</a>";
     }
 
@@ -243,18 +255,36 @@
   };
 
 
-  // tagEntryFieldName --> This should be some unique identifier (string) for the field
-  // layer --> some object that has both an identifier and serverUrl field
-  // regLyr --> some object that has tags and folder_tags fields
   var createTagControl = function(layer, regLyr, urlId, tagEntryFieldName, 
-                                  tagPickerControlId, enabled)
+                                  tagPickerControlClass)
   {
+    var service;
+
+    if(layer.type.hasObject("WCS"))
+      service = "WCS";
+
+    // If we have a WFS layer with no coordinate data, show the WCS tag list, which
+    // is basically the same, but without the Area of Interest tag
+    else if (layer.type.hasObject("WFS") && getCoord(layer, "left") === "")
+      service = "WCS"; 
+    
+    else if(layer.type.hasObject("WFS")) 
+      service = "WFS";
+
+    else
+      service = "WMS";
+
+    var enabled = true && regLyr;
+
     return '<div class="tag-control">' +
              makeTagList(layer, regLyr, urlId, "No tags") +
-             createFolderTagControl(layer, tagEntryFieldName, tagPickerControlId, enabled) +
-             makeTagPickerControl(layer, tagPickerControlId, enabled) +
+             createFolderTagControl(layer, tagEntryFieldName, tagPickerControlClass, enabled) +
+             makeTagPickerControl(layer, tagPickerControlClass, service, enabled) +
            '</div>';
   };
+
+
+  var TAG_PICKER_PREFIX = "tag-picker-";
 
 
   var displayServices = function() 
@@ -286,10 +316,10 @@
 
     // These refer to the layers that have been discovered on the remote servers
     var discoveredLayerKeys = Object.keys(discoveredLayers).sort();
-    // discoveredLayers.sort(datasetSort);
 
 
-    // Render found datasets in two passes -- first for registered items, second for unregistered ones.
+    // Render found datasets in two passes -- first for registered items, 
+    // second for unregistered ones.
     // This puts registered items at the top of the screen.
     for(var pass = 0; pass < 2; pass++)
     {
@@ -297,11 +327,6 @@
       {
         var urlId = discoveredLayerKeys[lyrctr];
         var layer = discoveredLayers[urlId];      
-
-        // if(registeredDataLayers[layer.serverUrl] == undefined) {
-        //   // No already-registered layers for this url.. Put something here so the following lines won't crash.
-        //   registeredDataLayers[layer.serverUrl] = {};
-        // }
 
         var regLyr = registeredDataLayers[layer.serverUrl] && 
                      registeredDataLayers[layer.serverUrl][layer.identifier];
@@ -344,7 +369,8 @@
 
         if(layer.abstract) {
           abstractNode = $(document.createElement('div'));
-          abstractNode.attr({ class:"dataset_abstract", id:"dataset-abstract-" + layer.identifier });
+          abstractNode.attr({ class:"dataset_abstract", 
+                              id:   "dataset-abstract-" + layer.identifier });
           abstractNode.html(linkify(layer.abstract));
         }
 
@@ -369,7 +395,7 @@
 
 
         var data_info = $(document.createElement('div'));
-        var tagPickerControlId = 'data-type-' + layer.identifier;
+        var tagPickerControlClass = TAG_PICKER_PREFIX + layer.identifier;
         
         var tagEntryFieldName = "tagEntry" + tagEntryFieldNameCounter;
         tagEntryFieldNameCounter++;
@@ -380,10 +406,12 @@
                  .append(getRegisterControlHtml(layer.identifier, regLyr))
                  .append(servicesAvailNode)
                  .append(createTagControl(layer, regLyr, urlId,
-                                          tagEntryFieldName, tagPickerControlId, true));
+                                          tagEntryFieldName, tagPickerControlClass));
 
         var sample_map = $(document.createElement("div"));
-        sample_map.attr({ id:mapDivId, class:"sample-map" });   // Map will be rendered based on div's id
+
+        // Map will be rendered based on div's id
+        sample_map.attr({ id:mapDivId, class:"sample-map" });   
 
 
         var container = $(document.createElement("div"));
@@ -428,16 +456,20 @@
           // I suspect that layer.type.hasObject('WMS') will always be false here...
           $('#' + mapDivId).html(
                 '<div class="map-unavailable">' + 
-                (layer.type.hasObject('WMS') ? 'Map unavailable' : 'No WMS service for this layer') + 
+                    (layer.type.hasObject('WMS') ? 'Map unavailable' : 
+                                                   'No WMS service for this layer') + 
                 '</div>'
               );
 
           if(!alreadyShownWmsError) {
-            var err = '<div>We cannot display sample maps for some datasets on this server.  ' +
-                      'The most likely cause of this problem is that the server\'s WMS functionality is not properly configured: ' +
-                      'either a WMS service has not been defined for a particular identifier, or I cannot get a usable bounding box ' +
-                      'for the layers you have requested.<P><P>You can see how the server responds to WMS queries by clicking here: ' + 
-                      '<a href="'+ WMS.getCapReq(layer.serverUrl) + '" target="_blank">WMS GetCapabilities</a></div>';
+            var err = '<div>We cannot display sample maps for some datasets on this ' + 
+                'server.  The most likely cause of this problem is that the server\'s WMS ' + 
+                'functionality is not properly configured: either a WMS service has not ' + 
+                'been defined for a particular identifier, or I cannot get a usable ' + 
+                'bounding box for the layers you have requested.<P><P>You can see how the ' + 
+                'server responds to WMS queries by clicking here: ' +
+                '<a href="'+ WMS.getCapReq(layer.serverUrl) + '" target="_blank">' + 
+                    'WMS GetCapabilities</a></div>';
 
             $('#error-list').append(err).slideDown(500);
 
@@ -465,22 +497,10 @@
           miniMap.zoomToMaxExtent();
           miniMap.render(mapDivId);    // Renders to <div id="map#">
         }
-        
-        // Now that the tag picker has finally been added to the dom, we can populate it.
-        // If there is no dataBbox, we don't want the Area of Interest tag.
-        // WFSTagList and WCSTagList are basically the same, except WFSTagList also has the AOI tag.
-        // This is kind of hacky, but seems to work.
-        if(layer.type.hasObject('WCS') || (layer.type.hasObject('WFS') && getCoord(layer, "left") === "")) {
-          makeDropdown(tagPickerControlId, WCSTagList);
-        }
-        else if(layer.type.hasObject('WFS')) {
-          makeDropdown(tagPickerControlId, WFSTagList);
-        }
-        else
-          makeDropdown(tagPickerControlId, WMSTagList);
       }  // end for loop
     }  // for pass = 0 to 2
 
+    populateTagLists();
     addDeleteTagClickHander(true);    // Add delete click handler for processing tags
     addDeleteTagClickHander(false);   // Add delete click handler for folder tags
     addSwitchboxHandler();
@@ -491,30 +511,32 @@
 
 
     // This gets called when the ajax request to the server returns with a success message
-    var registeredDataset = function(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, item)
+    var registeredDataset = function(data, serverUrl, datasetIdentifier, checkbox, item)
     {
-        $(".taglist-deletable-" + urlId).attr("disabled", false);
+        $(".taglist-deletable-"        + urlId).attr("disabled", false);
         $(".folder-taglist-deletable-" + urlId).attr("disabled", false);
 
         // Add layer to the list of registered layers
         makeRegisteredLayer(serverUrl, data, 0);
+
         updateTags(serverUrl, data.dataset.identifier, data.tags);
         updateFolderTags(serverUrl, data.dataset.identifier, data.folder_tags);
 
-        onDatasetRegisteredOrUnregistered(item, checkbox, tagPickerControl, true);
+        onDatasetRegOrUnreg(item, checkbox, datasetIdentifier, true);
     }
 
 
-    var disableTagItems = function(urlId, attr) {
-      $(".taglist-deletable-"        + urlId + " ." + attr, 
+    var disableTagItems = function(urlId, attr) 
+    {
+      $(".taglist-deletable-"        + urlId + " ." + attr + "," + 
         ".folder-taglist-deletable-" + urlId + " ." + attr).attr("disabled", true);
 
-      $(".taglist-deletable-"        + urlId + " ." + attr,
+      $(".taglist-deletable-"        + urlId + " ." + attr + "," +
         ".folder-taglist-deletable-" + urlId + " ." + attr).off("click");   // Disable clicking
     };
 
 
-    var unregisteredDataset = function(serverUrl, datasetIdentifier, checkbox, tagPickerControl, item)
+    var unregisteredDataset = function(serverUrl, datasetIdentifier, checkbox, item)
     {
       // Remove layer from the list of registered layers
       delete registeredDataLayers[serverUrl][datasetIdentifier];
@@ -530,12 +552,12 @@
       $(".taglist-deletable-"        + urlId,
         ".folder-taglist-deletable-" + urlId)          .attr("disabled", true);
 
-      onDatasetRegisteredOrUnregistered(item, checkbox, tagPickerControl, false);
+      onDatasetRegOrUnreg(item, checkbox, datasetIdentifier, false);
     };
 
 
     // Common code to run when we regiester or unregister a dataset
-    var onDatasetRegisteredOrUnregistered = function(item, checkbox, tagPickerControl, registering)
+    var onDatasetRegOrUnreg = function(item, checkbox, datasetIdentifier, registering)
     {
       item.toggleClass("checked");
 
@@ -544,7 +566,9 @@
       item.parent().parent().parent().toggleClass("unregistered_dataset");
 
       checkbox.checked = registering;
-      tagPickerControl.disabled = !registering;
+
+      // This will enable/disable both the Mapping and Processing tag dropdowns
+      $('.' + TAG_PICKER_PREFIX + datasetIdentifier).attr('disabled', !registering);
     };
 
 
@@ -556,7 +580,6 @@
       var checkbox          = document.getElementById(checkboxID);
       var datasetIdentifier = getLayerNameFromCheckboxId(checkboxID);
       
-      var tagPickerControl  = document.getElementById('data-type-' + datasetIdentifier);
       var serverUrl         = getServerUrl();
 
       var configCount = (registeredDataLayers[serverUrl] && 
@@ -595,7 +618,7 @@
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
           // http://api.jquery.com/jQuery.ajax/
           success: function(data, status, jqXHR)  { 
-              unregisteredDataset(serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); 
+              unregisteredDataset(serverUrl, datasetIdentifier, checkbox, thiiis); 
             },
           error: function(jqXHR, status, error) {
               jsonErrorHandler(jqXHR, status, error, "Could not unregister dataset!");
@@ -647,7 +670,8 @@
 
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
           success: function(data, status, jqXHR)  { 
-              registeredDataset(data, serverUrl, datasetIdentifier, checkbox, tagPickerControl, thiiis); 
+            console.log(data);
+              registeredDataset(data, serverUrl, datasetIdentifier, checkbox, thiiis); 
             },
           error: function(jqXHR, textStatus, error) { 
                  jsonErrorHandler(jqXHR, status, error, "Could not register dataset!");
@@ -680,7 +704,8 @@
 
 
   // Helper for above
-  // Handles both types of bounding boxes... either a simple array, or a dictionary with left/right/top/bottom keys
+  // Handles both types of bounding boxes... either a simple array, or a dictionary 
+  // with left/right/top/bottom keys
   var doGetCoord = function(obj, which) 
   {
     if(obj[which])
@@ -695,11 +720,6 @@
     if(which == "bottom")
       return obj[1];
   };
-
-
-  var makeDropdown = function(controlId, tagList) {
-    $('#' + sanitizeForCss(controlId)).append(tagList);
-  }
 
 
   var extractTagList = function(serverUrl, datasetIdentifier) 
@@ -812,59 +832,68 @@
   });
 
 
-
   // Adapted from http://css-tricks.com/equal-height-blocks-in-rows/
   var currentTallest = 0,
       currentRowStart = 0,
       rowDivs = new Array();
 
-  var setConformingHeight = function(el, newHeight) {
-     // set the height to something new, but remember the original height in case things change
-     el.data("originalHeight", (el.data("originalHeight") == undefined) ? (el.height()) : (el.data("originalHeight")));
+
+  var setConformingHeight = function(el, newHeight) 
+  {
+     // Set the height to something new, but remember the original height in case things change
+     el.data("originalHeight", (el.data("originalHeight") == undefined) ? el.height() : 
+                                                                          el.data("originalHeight"));
      el.height(newHeight);
-  }
+  };
 
-  var getOriginalHeight = function(el) {
+
+  var getOriginalHeight = function(el) 
+  {
      // if the height has changed, send the originalHeight
-     return (el.data("originalHeight") == undefined) ? (el.height()) : (el.data("originalHeight"));
-  }
+     return (el.data("originalHeight") == undefined) ? el.height() : 
+                                                       el.data("originalHeight");
+  };
 
-  var equalizeRowHeights = function() {
 
+  var equalizeRowHeights = function() 
+  {
      // Find the tallest LI in the row, and set the heights of all of the LIs to match it
      $('li.map-data-item').each(function() {
         // "caching"
-        var $el = $(this);
+        var el = $(this);
         
-        var topPosition = $el.position().top;
+        var topPosition = el.position().top;
 
-        if (currentRowStart != topPosition) {
+        if(currentRowStart != topPosition) {
 
-           // We just came to a new row.  Set all the heights on the completed row.
-           for(currentDiv = 0 ; currentDiv < rowDivs.length ; currentDiv++) setConformingHeight(rowDivs[currentDiv], currentTallest);
+          // We just came to a new row.  Set all the heights on the completed row.
+          for(var i=0, len=rowDivs.length; i < len; i++) 
+            setConformingHeight(rowDivs[i], currentTallest);
 
-           // Set the variables for the new row
-           rowDivs.length = 0; // empty the array
-           currentRowStart = topPosition;
-           currentTallest = getOriginalHeight($el);
-           rowDivs.push($el);
+          // Set the variables for the new row
+          rowDivs.length  = 0; // empty the array
+          currentRowStart = topPosition;
+          currentTallest  = getOriginalHeight(el);
+          rowDivs.push(el);
 
         } else {
 
            // Another div on the current row.  Add it to the list and check if it's taller.
-           rowDivs.push($el);
-           currentTallest = (currentTallest < getOriginalHeight($el)) ? (getOriginalHeight($el)) : (currentTallest);
-
+           rowDivs.push(el);
+           currentTallest = (currentTallest < getOriginalHeight(el)) ? getOriginalHeight(el) : 
+                                                                       currentTallest;
         }
         // Do the last row
-        for (currentDiv = 0 ; currentDiv < rowDivs.length ; currentDiv++) setConformingHeight(rowDivs[currentDiv], currentTallest);
+        for (currentDiv = 0 ; currentDiv < rowDivs.length ; currentDiv++) 
+          setConformingHeight(rowDivs[currentDiv], currentTallest);
 
      });
+  };
 
-  }
 
   // Recalc heights if window size changes
-  $(window).resize(function() {
+  $(window).resize(function() 
+  {
      equalizeRowHeights();
   });
 
@@ -909,6 +938,7 @@
     this.mapBbox = datasetInfo.bbox[localCrs] && datasetInfo.bbox[localCrs].bbox;
     this.llbbox  = datasetInfo.llbbox;
   };
+
   WMSDataset.prototype = new Dataset;
   WMSDataset.prototype.constructor = WMSDataset; // repair the inherited constructor
 
@@ -930,6 +960,7 @@
     // the data will be bogus.  Garbage in, garbage out.
     this.dataBbox = datasetInfo.latLongBoundingBox;  
   };
+
   WFSDataset.prototype = new Dataset;
   WFSDataset.prototype.constructor = WFSDataset; // repair the inherited constructor
 
@@ -974,6 +1005,7 @@
       this.resolution = datasetInfo.domain.spatialDomain.gridCRS.gridOffsets;
     }
   };
+
   WCSDataset.prototype = new Dataset;
   WCSDataset.prototype.constructor = WCSDataset; // repair the inherited constructor
 
@@ -991,7 +1023,6 @@
     if(!layer) {   
       discoveredLayers[key] = dataset;
       layer = dataset;
-
     }
 
     else {   // Already found this layer, add service to it

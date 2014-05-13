@@ -65,6 +65,7 @@ class DatasetsController < ApplicationController
       return
     end
 
+
     @dataset = Dataset.new(params[:dataset])
 
     # Check if the dataset's server url is in our dataservers database... if not, add it
@@ -109,12 +110,17 @@ class DatasetsController < ApplicationController
       tags.each { |t| makeTag(@dataset, t) }
     end
 
+    if(params[:folder_tags]) 
+      tags = params[:folder_tags].split(/,/)
+      tags.each { |t| makeFolderTag(@dataset, t) }
+    end
+
     # Send the new dataset back to the client as a JSON object, along with any tags
     respond_to do |format|
       format.json { render :json => { :tags => DatasetTag.find_all_by_dataset_id(@dataset.id)
                                                          .map {|d| d.tag },
                                       :folder_tags => DatasetFolderTag.find_all_by_dataset_id(@dataset.id)
-                                                         .map {|d| d.tag },
+                                                         .map {|d| d.folder_tag },
                                       :dataset => @dataset
                                     }
                   }
