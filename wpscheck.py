@@ -255,7 +255,6 @@ def insert_new_dataset(dataset, recordId, url, serverId, city_id):
                                  city_id, True, True, now, now,
                                  get_service(dataset), xl, yl, xh, yh, format, raster_res_x, raster_res_y,
                                  dataset.getEPSG() ))
-    # For WCS datasets, need bounding box, and bbox srs, also 
 
     if cur.rowcount == 0:
         log_error_msg(recordId, "Error: Unable to insert record into datasets table")
