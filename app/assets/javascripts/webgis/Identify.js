@@ -38,13 +38,7 @@ WebGIS.registerIdentify = function(map, ref) {
 };
 
 WebGIS.toggleLayer = function(e) 
-{
-	// First store layer identifier in the Session for later use
-	if(e.object.visibility==true)
-	  sessionStorage.setItem(e.object.params["LAYERS"], e.object.params["LAYERS"]);
-  	else
-	  sessionStorage.removeItem(e.object.params["LAYERS"]);
-	  
+{  
 	WebGIS.ctrlIdentify.layers = [];
 	
 	var layers  = WebGIS.leftMap.layers;                              

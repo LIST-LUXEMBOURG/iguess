@@ -30,6 +30,7 @@ WebGIS.leftMap = null;
 WebGIS.rightMap = null;
 
 WebGIS.treeNodes = new Array();
+WebGIS.layerList = new Array();
 
 WebGIS.proxy = "/home/geoproxy?url=";
 OpenLayers.ProxyHost = "/home/geoproxy?url=";
@@ -88,7 +89,14 @@ WebGIS.zoomToCity = function ()
 // Adds a new layer to the map "on the fly"
 WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag, id)
 {
-	var visible = false;
+	WebGIS.layerList[id] = new Array();
+	WebGIS.layerList[id]["title"] = title;
+	WebGIS.layerList[id]["serviceURL"] = serviceURL;
+	WebGIS.layerList[id]["layerName"] = layerName;
+	WebGIS.layerList[id]["type"] = type;
+	
+	var selected = false;
+	
     // Call OpenLayers.Layer.WMS.initialize()
 	if(WebGIS.treeNodes[tag] == null)
 	{
@@ -101,45 +109,153 @@ WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag, id)
 		WebGIS.treeRoot.appendChild(WebGIS.treeNodes[tag]);
 	}
 	
-	if(sessionStorage.getItem(layerName) != null) visible = true;
-
-    var params = { layers: layerName,      
-                   format: "image/png",
-                   srsName: WebGIS.requestProjection,
-                   srs: WebGIS.requestProjection,
-                   transparent: "true"
-                 };
+	if(sessionStorage.getItem(layerName) != null)
+	{
+		WebGIS.addLayerToMap(id);	
+		selected = true;
+	}
     
-    sldBody = WebGIS.getStyle(layerName, type);
-    if(sldBody != null) params["sld_body"] = sldBody;
-    
-    var options = { isBaseLayer: false,     
-    				visibility: visible,
-                    singleTile:  true,
-           		 	    transitionEffect: 'resize'
-                  };
-    
-    //serviceURL = WebGIS.proxy + encodeURIComponent(serviceURL);
-
-    var layer = new OpenLayers.Layer.WMS(title, serviceURL, params, options);
-    WebGIS.leftMap.addLayer(layer);
-    layer.events.register("visibilitychanged", this, WebGIS.toggleLayer);
-    
-    var newNode = new GeoExt.tree.LayerNode(
+    var newNode = new Ext.tree.TreeNode(
     {
         text: title,
-        layer: layer,
         leaf: true,
-        checked: visible,
-        //icon: null,
+        checked: selected,
         iconCls: "treeIcon",
         children: [],
-        nodeType: "gx_layer",
-        id: "dsid-" + id
+        id: "dsid-" + id,
+        toto: "TOTO"
     });
+    newNode.on("checkchange", WebGIS.addLayerToMapEvent);
     WebGIS.treeNodes[tag].appendChild(newNode);
+    
+
 };
 
+WebGIS.addLayerToMapEvent = function(node, checked)
+{
+	var id = node.id.substring(5,node.id.length);
+	var layerName = WebGIS.layerList[id]["layerName"];
+	
+	if(checked) 
+	{
+		WebGIS.addLayerToMap(id);
+		sessionStorage.setItem(layerName, layerName);
+	}
+	else
+	{
+		WebGIS.removeLayerFromMap(id);
+		sessionStorage.removeItem(layerName);
+	} 
+};
+
+WebGIS.addLayerToMap = function(id)
+{
+	var params = { 
+		layers: WebGIS.layerList[id]["layerName"],      
+		format: "image/png",
+		srsName: WebGIS.requestProjection,
+		srs: WebGIS.requestProjection,
+		transparent: "true"
+    };
+    
+    var sldBody = WebGIS.getStyle(
+    	WebGIS.layerList[id]["layerName"], 
+    	WebGIS.layerList[id]["type"]
+    	);
+    if(sldBody != null) params["sld_body"] = sldBody;
+    
+    var options = { 
+    	isBaseLayer: false,     
+		visibility: true,
+		singleTile:  true,
+		transitionEffect: 'resize'
+    };
+	
+	var layer = new OpenLayers.Layer.WMS(
+		WebGIS.layerList[id]["title"], 
+		WebGIS.layerList[id]["serviceURL"], 
+		params, 
+		options
+	);
+	
+	WebGIS.leftMap.addLayer(layer);
+	layer.events.register("visibilitychanged", this, WebGIS.toggleLayer);
+	
+	WebGIS.addWidgetsToLayerNode(WebGIS.layerTree.root.firstChild.firstChild);
+};
+
+WebGIS.removeLayerFromMap = function(id)
+{
+	var array = WebGIS.leftMap.getLayersByName(WebGIS.layerList[id]["title"]);
+	if (array.length > 0) 
+	{
+		WebGIS.leftMap.removeLayer(array[0]);
+		WebGIS.layerTree.root.firstChild.eachChild(WebGIS.addWidgetsToLayerNode);
+	}
+};
+
+WebGIS.moveLayer = function(layerName, delta)
+{
+	if (layerName == null) return;
+	
+	var layers = WebGIS.leftMap.getLayersByName(layerName);
+	if (layers.length <= 0) return;
+	
+	var index = WebGIS.leftMap.getLayerIndex(layers[0]);
+	if ((delta < 0) && (index <= 0)) return;
+	if ((delta > 0) && (index >= (WebGIS.leftMap.layers.length - 1))) return;
+	
+	WebGIS.leftMap.raiseLayer(layers[0], delta);
+	WebGIS.layerTree.root.firstChild.eachChild(WebGIS.addWidgetsToLayerNode);
+};
+
+WebGIS.moveLayerUp = function(butt, event)
+{ 
+	WebGIS.moveLayer(butt.container.dom.firstChild.data, 1);
+};
+
+WebGIS.moveLayerDown = function(butt, event)
+{ 
+	WebGIS.moveLayer(butt.container.dom.firstChild.data, -1);
+};
+
+WebGIS.addWidgetsToLayerNode = function(treeNode)
+{
+	var buttonUp = new Ext.Button({
+		xtype: 'button',
+		tooltip : 'Move up',
+		iconCls : 'tinyUp tinyButton',
+		autoWidth : true,
+		cls: 'tinyUp tinyButton',
+		handler: WebGIS.moveLayerUp,
+	});
+	
+	var buttonDown = new Ext.Button({
+		xtype: 'button',
+		tooltip : 'Move down',
+		iconCls : 'tinyDown tinyButton',
+		autoWidth : true,
+		cls: 'tinyDown tinyButton',
+		handler: WebGIS.moveLayerDown
+	});
+	
+	var slider = new GeoExt.LayerOpacitySlider({
+        layer: treeNode.layer,
+        aggressive: true, 
+        cls: "layerSlide",
+        isFormField: true,
+        inverse: false,
+        fieldLabel: "opacity",
+        plugins: new GeoExt.LayerOpacitySliderTip({template: '<div>Transparency: {opacity}%</div>'})
+    });
+	
+	treeNode.setCls("layerNode");
+	treeNode.getUI().checkbox.hidden = true;
+	treeNode.getUI().elNode.childNodes[0].hidden = true;
+	buttonUp.render(treeNode.getUI().getTextEl());
+	buttonDown.render(treeNode.getUI().getTextEl());
+	slider.render(treeNode.getUI().getTextEl());
+};
 
 // Remove all layers from the current map
 WebGIS.clearLayers = function(alsoClearBaseLayers)

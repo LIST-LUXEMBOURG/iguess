@@ -21,6 +21,7 @@
  * Adds GeoExt controls and panels to map.
  */ 
 
+//= require webgis/MapInit
 //= require webgis/Identify
 //= require dss/Sliders
 
@@ -39,7 +40,7 @@ WebGIS.coordsLongLabel = null;
 
 WebGIS.filterBox = null;
 
-WebGIS.CreatePanels = function() {
+WebGIS.createPanels = function() {
 
   // Skip this stuff if the BroadMap div does not exist
   // What the hell is this? It generates errors.
@@ -140,11 +141,6 @@ WebGIS.CreatePanels = function() {
           }]
     }
   });
-
-  var LayerNodeUI = Ext.extend(
-          GeoExt.tree.LayerNodeUI,
-          new GeoExt.tree.TreeNodeUIEventMixin()
-  );
    
   WebGIS.treeRoot = new Ext.tree.TreeNode({
       text        : 'Project',
@@ -155,7 +151,7 @@ WebGIS.CreatePanels = function() {
   });
   
   // Layer list
-  WebGIS.layerTree = new Ext.tree.TreePanel({
+  WebGIS.layerCatalogue = new Ext.tree.TreePanel({
     //title: 'Map Layers',
     region: "south",
     width: "100%",
@@ -177,14 +173,72 @@ WebGIS.CreatePanels = function() {
     lines: false
   });
   
-  WebGIS.testPanel = new Ext.Panel({
-  	title: 'Map Layers',
-	region: "west",
-	width: 200,
+  WebGIS.cataloguePanel = new Ext.Panel({
+  	title: 'Layers Catalogue',
+	region: "south",
     collapsible: true,
     autoScroll: true,
     enableDD: true,
-    items: [WebGIS.createFilter(), WebGIS.layerTree]
+    items: [WebGIS.createFilter(), WebGIS.layerCatalogue]
+  });
+  
+  var LayerNodeUI = Ext.extend(
+          GeoExt.tree.LayerNodeUI,
+          new GeoExt.tree.TreeNodeUIEventMixin()
+  );
+
+  var treeConfig = [{
+    nodeType: "gx_overlaylayercontainer",
+    text: "",
+    iconCls: "emptyIcon",
+    cls: "hiddenRoot",
+    expanded: true,
+    rootVisible: false
+  }];
+  
+  // Layer list
+  WebGIS.layerTree = new Ext.tree.TreePanel({
+    title: 'Map Layers',
+    region: "North",
+    //width: 200,
+    collapsible: true,
+    autoScroll: false,
+    scrollable: false,
+    enableDD: false,
+    draggable: false,
+    plugins: [{
+      ptype: "gx_treenodecomponent"
+    }],
+    loader: {
+      applyLoader: false,
+      uiProviders: {
+        "custom_ui": LayerNodeUI
+      }
+    },
+    root: {
+      children: treeConfig
+    },
+    rootVisible: false,
+    lines: false
+  });	
+  
+  /*WebGIS.northPanel = new Ext.Panel({
+  	title: 'Layer Tree',
+	region: "north",
+	height: 100,
+    collapsible: true,
+    autoScroll: true,
+    enableDD: true,
+    items: [WebGIS.layerTree]
+  });*/
+  
+  WebGIS.westPanel = new Ext.Panel({
+	region: "west",
+	width: 210,
+    collapsible: true,
+    autoScroll: true,
+    enableDD: true,
+    items: [WebGIS.layerTree, WebGIS.cataloguePanel]
   });
   
   WebGIS.mainPanel = new Ext.Panel({
@@ -203,7 +257,7 @@ WebGIS.CreatePanels = function() {
     },
     items: [
             WebGIS.leftPanel,
-            WebGIS.testPanel,
+            WebGIS.westPanel,
             //WebGIS.layerTree,
             { 
               // Legend: must be created here to be auto-linked to the map
@@ -233,13 +287,16 @@ WebGIS.CreatePanels = function() {
     height = Ext.getBody().getViewSize().height - WebGIS.headerHeight;
     WebGIS.mainPanel.setSize(width, height);
   });
+  
+  WebGIS.layerTree.root.firstChild.hidden = true;
+  WebGIS.layerTree.root.hidden = true;
 
   WebGIS.zoomToCity();
 };
 
 /**
  * Method: showAllTreeNodes
- * Removes filtering from the layer tree by showin all nodes.
+ * Removes filtering from the layer tree by showing all nodes.
  */
 WebGIS.showAllTreeNodes = function()
 {

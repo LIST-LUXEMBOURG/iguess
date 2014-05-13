@@ -59,6 +59,53 @@
     width:20px !important;
 }
 
+/* ----------- Layer Tree ----------- */
+
+.tinyButton
+{
+    background-repeat: no-repeat;
+    height:8px !important;
+    width:11px !important;
+    float: right !important;
+    vertical-align: bottom !important;
+    padding-right: 2px !important;
+    padding-top: 3px !important;
+}
+
+.tinyUp 
+{
+    background-image:url(images/mapStyles/tinyUp.png) !important;
+}
+
+.tinyDown 
+{
+    background-image:url(images/mapStyles/tinyDown.png) !important;
+}
+
+.layerNode 
+{
+	height: 36px;
+	font-weight: bold;
+}
+
+.layerSlide 
+{
+	display: block;
+    margin-right: 42px;
+    margin-left: 4px;
+    margin-bottom: 4px;
+}
+
+.emptyIcon
+{
+	background-image:url(images/mapStyles/empty.png) !important;
+}
+
+.hiddenRoot 
+{
+	height: 0px !important;
+}
+
 /* ----------- Legend ----------- */
 
 .legend {
