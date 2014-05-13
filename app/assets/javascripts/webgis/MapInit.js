@@ -224,18 +224,18 @@ WebGIS.addWidgetsToLayerNode = function(treeNode)
 	var buttonUp = new Ext.Button({
 		xtype: 'button',
 		tooltip : 'Move up',
-		iconCls : 'tinyUp',
+		iconCls : 'tinyUp tinyButton',
 		autoWidth : true,
-		cls: 'tinyUp',
+		cls: 'tinyUp tinyButton',
 		handler: WebGIS.moveLayerUp,
 	});
 	
 	var buttonDown = new Ext.Button({
 		xtype: 'button',
 		tooltip : 'Move down',
-		iconCls : 'tinyDown',
+		iconCls : 'tinyDown tinyButton',
 		autoWidth : true,
-		cls: 'tinyDown',
+		cls: 'tinyDown tinyButton',
 		handler: WebGIS.moveLayerDown
 	});
 	
