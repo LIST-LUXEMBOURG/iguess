@@ -224,24 +224,37 @@ def insert_new_dataset(dataset, recordId, url, serverId, city_id):
     '''
     cur = db_conn.cursor()
 
-    query_template = ("INSERT INTO " + dbSchema + ".datasets                                     "
-                      "    (title, server_url, dataserver_id, identifier, abstract, city_id,     "
-                      "         alive, finalized, created_at, updated_at, service)               "
-                      "VALUES(                                                                   "
-                      "  (                                                                       "
-                      "      SELECT value FROM " + dbSchema + ".config_text_inputs               "
-                      "      WHERE mod_config_id = %s AND column_name = %s AND is_input = FALSE  "
-                      "  ),                                                                      "
-                      "   %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)                                "
+    query_template = ("INSERT INTO " + dbSchema + ".datasets                                      "
+                      "    (title, server_url, dataserver_id, identifier, abstract, city_id,      "
+                      "         alive, finalized, created_at, updated_at, service,                "
+                      "         bbox_left, bbox_bottom, bbox_right, bbox_top, format,             "
+                      "         resolution_x, resolution_y, bbox_srs                              "
+                      "VALUES(                                                                    "
+                      "  (                                                                        "
+                      "      SELECT value FROM " + dbSchema + ".config_text_inputs                "
+                      "      WHERE mod_config_id = %s AND column_name = %s AND is_input = FALSE   "
+                      "  ),                                                                       "
+                      "   %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
                       "RETURNING id")
 
     abstract = "Result calculated with module"
 
+    xl,yl,xh,yh = dataset.getBBox()  # This is the bbox in the native coordinate system
+
+    # These params will be different for vectors and rasters
+    if dataset.dataType == dataset.TYPE_RASTER:
+        raster_res_x, raster_res_y = dataset.getPixelRes()
+        format = dataset.getDriver()
+    else:
+        raster_res_x = raster_res_y = format = None
+
+
+    now = datetime.datetime.now()
+
     cur.execute(query_template, (recordId, dataset.uniqueID, url, serverId, dataset.uniqueID, abstract, 
-                                 str(city_id), True, True, 
-                                 str(datetime.datetime.now()), str(datetime.datetime.now()), 
-                                 get_service(dataset)) )
-    # For WCS datasets, need bounding box, and bbox srs, also 
+                                 city_id, True, True, now, now,
+                                 get_service(dataset), xl, yl, xh, yh, format, raster_res_x, raster_res_y,
+                                 dataset.getEPSG() ))
 
     if cur.rowcount == 0:
         log_error_msg(recordId, "Error: Unable to insert record into datasets table")
