@@ -62,10 +62,10 @@ Requirements
 
 Installation
 -------------------------------------------------------------------------------
-Check out code
-Install web application
-Basic configuration
-Set up cron jobs
+# Check out code
+# Install web application
+# Basic configuration
+# Set up cron jobs
 
 
 Architecture
