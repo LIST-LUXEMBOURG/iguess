@@ -309,7 +309,7 @@ input, select, textarea {
   padding-right: 3px;
 }
 
-.status-READY, .status-ERROR {
+.status-READY, .status-ERROR, .status-FINISHED {
   display: block;
 }
 
