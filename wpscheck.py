@@ -9,7 +9,7 @@ This script should be run from cron on a regular basis.
 
 import sys
 import psycopg2
-import WPSClient
+import WPSClient.WPSClient as WPSClient
 import datetime
 import logging
 
