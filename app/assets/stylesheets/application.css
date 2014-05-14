@@ -318,7 +318,7 @@ input, select, textarea {
   display: block;
 }
 
-.status-AVAILABLE, .status-READY {
+.status-AVAILABLE, .status-READY, .status-FINISHED {
   text-align: center;
 }
 
