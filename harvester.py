@@ -13,15 +13,11 @@ from owslib.wfs import WebFeatureService
 from owslib.wcs import WebCoverageService
 from owslib.wms import WebMapService
 
-# Download source from http://code.google.com/p/pyproj/downloads/list, follow instructions in README
-from pyproj import transform, Proj
-
 import psycopg2                         # For database access
 from psycopg2.extensions import adapt   # adapt: secure qutoing e.g. adapt('LL\L') => 'LL\\L'; adapt("A'B") => 'A''B'
 
 import time
 import datetime
-import string
 
 from harvester_pwd import dbDatabase, dbName, dbUsername, dbPassword, dbSchema
 

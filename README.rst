@@ -51,21 +51,25 @@ please consult the LICENSE file for details.
 
 Requirements
 -------------------------------------------------------------------------------
-Rails 3.x
-Python 2.7, with the following libraries
+* Rails 3.x
+* Python 2.7, with the following libraries:
 	psycopg2
-GDAL
-MapScript
-MapServer
-Postgres
+* GDAL
+* MapScript
+* MapServer
+* Postgres
 
 
 Installation
 -------------------------------------------------------------------------------
-Check out code
-Install web application
-Basic configuration
-Set up cron jobs
+* Check out code
+* Install web application
+* Basic configuration
+* Set up cron jobs
+
+
+Architecture
+-------------------------------------------------------------------------------
 
 
 Support
