@@ -248,11 +248,10 @@ class ModConfigsController < ApplicationController
 
     if pid == nil then
       output =~ /^ERR:(.*)$/
-      error = $1
+      error = re.sub('\n', '<br>\n', $1)
 
       if error == nil then    # We could not run wpsstart... output IS the error message
         error = "WPSClient Configuration Error: " + output
-        error = re.sub('\n', '<br>\n', error)
       end
 
       # Show error to client
