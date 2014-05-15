@@ -309,24 +309,40 @@ WebGIS.handleFilter = function()
 	WebGIS.showAllTreeNodes();
 	
 	filter = WebGIS.filterBox.getValue();
-	if((filter == null) || (filter == "")) return;
-	filter = filter.toUpperCase();
-	
-	//nodes = WebGIS.layerTree.root.childNodes;
 	nodes = WebGIS.layerCatalogue.root.childNodes;
-	for (var i = 0; i < nodes.length; i++) 
-	{
-		leafs = nodes[i].childNodes;
-		show = false;
-		for (var j = 0; j < leafs.length; j++) 
+	
+	if((filter == null) || (filter == ""))
+	{ 
+		for (var i = 0; i < nodes.length; i++) 
 		{
-			if((leafs[j].text !=null) && (leafs[j].text.toUpperCase().indexOf(filter,0) >= 0))					
-				show = true;
-			else 
-				leafs[j].getUI().hide();
-				
+			nodes[i].getUI().show();
+			leafs = nodes[i].childNodes;
+			for (var j = 0; j < leafs.length; j++) leafs[j].getUI().show();
 		}
-		if(!show) nodes[i].getUI().hide();
+	}
+	
+	else
+	{
+		filter = filter.toUpperCase();
+		
+		for (var i = 0; i < nodes.length; i++) 
+		{
+			leafs = nodes[i].childNodes;
+			show = false;
+			for (var j = 0; j < leafs.length; j++) 
+			{
+				if((leafs[j].text !=null) && (leafs[j].text.toUpperCase().indexOf(filter,0) >= 0))		
+				{	
+					show = true;
+					leafs[j].getUI().show();
+				}
+				else 
+					leafs[j].getUI().hide();
+					
+			}
+			if(show) nodes[i].getUI().show();
+			else     nodes[i].getUI().hide();
+		}
 	}
 };	
 
