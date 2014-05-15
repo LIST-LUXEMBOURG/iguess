@@ -222,16 +222,6 @@ WebGIS.createPanels = function() {
     lines: false
   });	
   
-  /*WebGIS.northPanel = new Ext.Panel({
-  	title: 'Layer Tree',
-	region: "north",
-	height: 100,
-    collapsible: true,
-    autoScroll: true,
-    enableDD: true,
-    items: [WebGIS.layerTree]
-  });*/
-  
   WebGIS.westPanel = new Ext.Panel({
 	region: "west",
 	width: 210,
@@ -312,7 +302,7 @@ WebGIS.showAllTreeNodes = function()
 
 /**
  * Method: handleFilter
- * Handles filtering to the layer tree.
+ * Handles filtering to the layer catalogue.
  */
 WebGIS.handleFilter = function()
 {
@@ -322,7 +312,8 @@ WebGIS.handleFilter = function()
 	if((filter == null) || (filter == "")) return;
 	filter = filter.toUpperCase();
 	
-	nodes = WebGIS.layerTree.root.childNodes;
+	//nodes = WebGIS.layerTree.root.childNodes;
+	nodes = WebGIS.layerCatalogue.root.childNodes;
 	for (var i = 0; i < nodes.length; i++) 
 	{
 		leafs = nodes[i].childNodes;
