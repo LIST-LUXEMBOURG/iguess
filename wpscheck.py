@@ -47,6 +47,7 @@ def initialize_database_connection():
         connstr = ("dbname='" + dbName + "' user='" + dbUsername +"' " +
                    "host='" + dbServer + "' password='" + dbPassword + "'")
         db_conn = psycopg2.connect(connstr)
+        db_conn.set_session(autocommit=True)
     except:
         # Can't log error message until logging is configured, which requires a db connection.  What do do!
         # log_error_msg(None, "Database Error: Can't connect to database " + dbName + "!")
@@ -61,8 +62,10 @@ def update_run_status_in_database(recordId, status, msg):
                       "SET run_status_id = %s, status_text = %s, run_ended = %s " 
                       "WHERE id = %s" )
 
-    cur.execute(query_template, (status, msg, str(datetime.datetime.now()), recordId))
-    db_conn.commit()
+    try:
+        cur.execute(query_template, (status, msg, datetime.datetime.now(), recordId))
+    except Exception as ex:
+        logging.error("Database error: Could not update status; " + str(ex))
 
 
 
@@ -218,23 +221,23 @@ def get_service(dataset):
 
 
 
-def insert_new_dataset(dataset, recordId, url, serverId, city_id):
+def insert_new_dataset(dataset, recordId, url, serverId, city_id, epsg):
     '''
     Insert a new dataset into our database; returns id of inserted record
     '''
     cur = db_conn.cursor()
 
-    query_template = ("INSERT INTO " + dbSchema + ".datasets                                      "
-                      "    (title, server_url, dataserver_id, identifier, abstract, city_id,      "
-                      "         alive, finalized, created_at, updated_at, service,                "
-                      "         bbox_left, bbox_bottom, bbox_right, bbox_top, format,             "
-                      "         resolution_x, resolution_y, bbox_srs                              "
-                      "VALUES(                                                                    "
-                      "  (                                                                        "
-                      "      SELECT value FROM " + dbSchema + ".config_text_inputs                "
-                      "      WHERE mod_config_id = %s AND column_name = %s AND is_input = FALSE   "
-                      "  ),                                                                       "
-                      "   %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
+    query_template = ("INSERT INTO " + dbSchema + ".datasets                                        "
+                      "    (title, server_url, dataserver_id, identifier, abstract, city_id,        "
+                      "         alive, finalized, created_at, updated_at, service,                  "
+                      "         bbox_left, bbox_bottom, bbox_right, bbox_top, format, last_seen,    "
+                      "         resolution_x, resolution_y, local_srs, bbox_srs)                    "
+                      "VALUES(                                                                      "
+                      "  (                                                                          "
+                      "      SELECT value FROM " + dbSchema + ".config_text_inputs                  "
+                      "      WHERE mod_config_id = %s AND column_name = %s AND is_input = FALSE     "
+                      "  ),                                                                         "
+                      " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
                       "RETURNING id")
 
     abstract = "Result calculated with module"
@@ -244,7 +247,7 @@ def insert_new_dataset(dataset, recordId, url, serverId, city_id):
     # These params will be different for vectors and rasters
     if dataset.dataType == dataset.TYPE_RASTER:
         raster_res_x, raster_res_y = dataset.getPixelRes()
-        format = dataset.getDriver()
+        format = dataset.getMimeType()
     else:
         raster_res_x = raster_res_y = format = None
 
@@ -253,8 +256,8 @@ def insert_new_dataset(dataset, recordId, url, serverId, city_id):
 
     cur.execute(query_template, (recordId, dataset.uniqueID, url, serverId, dataset.uniqueID, abstract, 
                                  city_id, True, True, now, now,
-                                 get_service(dataset), xl, yl, xh, yh, format, raster_res_x, raster_res_y,
-                                 dataset.getEPSG() ))
+                                 get_service(dataset), xl, yl, xh, yh, format, now, raster_res_x, raster_res_y,
+                                 True, "EPSG:" + str(epsg) ))
 
     if cur.rowcount == 0:
         log_error_msg(recordId, "Error: Unable to insert record into datasets table")
@@ -283,24 +286,27 @@ def insert_literal_value_in_database(recordId, dataset):
 def add_tag(dataset_id, tag):
     cur = db_conn.cursor()
 
-    # Avoid duplicate tags by deleting any existing tags with same value
-    cur.execute("DELETE FROM " + dbSchema + ".dataset_tags WHERE dataset_id = %s AND tag = %s)",
-                (dataset_id, tag))  
+    try:
+        # Avoid duplicate tags by deleting any existing tags with same value
+        cur.execute("DELETE FROM " + dbSchema + ".dataset_tags WHERE dataset_id = %s AND tag = %s",
+                    (dataset_id, tag))  
 
-    # Insert the new tag
-    cur.execute("INSERT INTO " + dbSchema + ".dataset_tags(dataset_id, tag) VALUES(%s, %s)",
-                (dataset_id, tag))    
+        # Insert the new tag
+        cur.execute("INSERT INTO " + dbSchema + ".dataset_tags(dataset_id, tag) VALUES(%s, %s)",
+                    (dataset_id, tag))    
+    except:
+        log_error_msg("Could not insert tag for dataset " + str(dataset_id) + " and value " + tag)
 
 
 
-def insert_complex_value_in_database(recordId, dataset, url, city_id):
+def insert_complex_value_in_database(recordId, dataset, url, city_id, epsg):
     '''
     Returns False if there was a problem with the database
     '''
     cur = db_conn.cursor()
 
     # Check if data server already exists in the database, otherwise insert it.  We need the record id.
-    cur.execute("SELECT id FROM " + dbSchema + ".dataservers WHERE url = %s", (url,))   # Trailing , needed
+    cur.execute("SELECT id FROM " + dbSchema + ".dataservers WHERE url = %s", (url,))   # Trailing comma needed
 
     if cur.rowcount == 0:      # Not found; insert it!
         title    = "iGUESS results server"
@@ -315,8 +321,8 @@ def insert_complex_value_in_database(recordId, dataset, url, city_id):
         return False
 
     server_id = cur.fetchone()[0]
-    
-    dataset_id = insert_new_dataset(dataset, recordId, url, server_id, city_id)
+   
+    dataset_id = insert_new_dataset(dataset, recordId, url, server_id, city_id, epsg)
 
     add_tag(dataset_id, "Mapping")
 
@@ -342,22 +348,17 @@ def update_finished_module(client, recordId, city_id):
 
     url = baseMapServerUrl + mapfile
 
+    update_run_status_in_database(recordId, FINISHED, client.processErrorText)
+
     try:
-        update_run_status_in_database(recordId, FINISHED, client.processErrorText)
-               
         for dataset in client.dataSets:
-            
             if dataset.dataType is dataset.TYPE_LITERAL:
                 log_info_msg("Processing literal result " + dataset.name +  " = " + str(dataset.value) +  "...")
                 insert_literal_value_in_database(recordId, dataset)
 
             else:
                 log_info_msg("Processing complex result " + dataset.name + " with id of " + dataset.uniqueID)
-                if not insert_complex_value_in_database(recordId, dataset, url, city_id):
-                    return
-
-        db_conn.commit()
-
+                insert_complex_value_in_database(recordId, dataset, url, city_id, client.epsg)
     except:
         log_error_msg(recordId, "Error: Last client status was " + str(client.status))
 
