@@ -74,6 +74,7 @@ In addition to the web application, there are several Python scripts that play a
 the operation of iGUESS.  
 
 *   harvester.py
+
     The harvester is a script responsible for verifying that information about datasets and processes stored in the data base is up-to-date.  Because of the distributed nature of iGUESS, it is possible that datasets are changed, servers go off-line (and come back online), and the names or descriptions of processes are modified.  
 
     The harvester systematically visits each of the resources and updates all metadata stored in the system.  If a dataset or process is no longer available, the harvester will mark it as dead in the database, but will not delete it.  "Dead" resources cannot be used by iGUESS, but the harvester will continue to check these "dead" resources, and if one becomes avaialable again, the harvester will mark it as alive and it will be available for use once again.
