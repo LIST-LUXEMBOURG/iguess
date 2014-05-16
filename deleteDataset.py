@@ -11,12 +11,14 @@ import os
 import sys
 import mapscript
 from checkbox.lib.text import split
-from rdflib.sparql.bison.FunctionLibrary import STR
 
 if len(sys.argv) != 3:
 	raise Exception("Script requires 2 args: dataset_url and dataset_identifier")
 
 scriptName, serverUrl, datasetIdentifier = sys.argv
+
+# TODO: Should probably check the database to see if the server/identifier combo is still
+# registered elsewhere
 
 # Get the path to the map file
 filePath = split(serverUrl, "=")
@@ -35,11 +37,11 @@ mapobject.save(filePath[1])
 if os.path.exists(layerData):
     os.remove(layerData)
 else:
-    raise Exception("Sorry, I can not remove %s file." % layerData)
+    raise Exception("Sorry, I cannot remove %s file." % layerData)
 
 # Delete map file if no layers are left
 if mapobject.numlayers <= 0: 
 	if os.path.exists(filePath[1]):
 	    os.remove(filePath[1])
 	else:
-	    raise Exception("Sorry, I can not remove %s file." % filePath[1])
+	    raise Exception("Sorry, I cannot remove %s file." % filePath[1])
