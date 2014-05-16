@@ -204,7 +204,7 @@ def update_running_module(client, recordId):
     '''
     Update the status of a running module with the latest progress reported by the WPS server
     '''
-    update_run_status_in_database(recordId, RUNNING, str(client.percentCompleted) + '% complete')
+    update_run_status_in_database(recordId, RUNNING, str(client.getPercentCompleted()) + '% complete')
 
 
 
@@ -407,14 +407,14 @@ def main():
         client.epsg = normalize_srs(srs)   
 
         try:
-            status = client.checkStatus()        # Returns true if checkStatus worked, false if it failed
+            client.checkStatus()
         except Exception as ex:
             log_error_msg(recordId, "Error: checkStatus() call failed - " + str(ex))
             continue
 
-        if not status:
-            log_error_msg(recordId, "There was an error checking the status of running modules!")
-            continue
+        #if not status:
+            #log_error_msg(recordId, "There was an error checking the status of running modules!")
+            #continue
 
         log_info_msg("client.checkStatus() returned: " + str(client.status))
 
