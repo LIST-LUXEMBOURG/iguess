@@ -70,6 +70,22 @@ Installation
 
 Architecture
 -------------------------------------------------------------------------------
+In addition to the web application, there are several Python scripts that play an important role in
+the operation of iGUESS.  
+
+*   harvester.py
+    The harvester is a script responsible for verifying that information about datasets and processes stored in the data base is up-to-date.  Because of the distributed nature of iGUESS, it is possible that datasets are changed, servers go off-line (and come back online), and the names or descriptions of processes are modified.  
+
+    The harvester systematically visits each of the resources and updates all metadata stored in the system.  If a dataset or process is no longer available, the harvester will mark it as dead in the database, but will not delete it.  "Dead" resources cannot be used by iGUESS, but the harvester will continue to check these "dead" resources, and if one becomes avaialable again, the harvester will mark it as alive and it will be available for use once again.
+
+    The harvester should be scheduled to run periodically via cron.  How often it should be run will depend on the number of resources in the database (more resources mean longer running time, which suggests running the harvester less frequently), and the anticipated liklihood that resources will change over time.
+
+    Note that if a dataset is updated, the new data will be immediately available to modules (as iGUESS only stores pointers to the data), but if metadata changes (including bounding box), those changes will not be reflected in iGUESS until the harvester has been run.  This could potentially cause a problem if datasets are used to denote Areas of Interest for a module.
+
+*   wpsstart.py
+*   wpscheck.py
+*   deleteDataset.py
+
 
 
 Support
