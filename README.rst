@@ -73,6 +73,8 @@ Installation
 
 Architecture
 -------------------------------------------------------------------------------
+<<< Need an overview of the Rails application structure here, especially the data/process registration stuff >>>
+
 In addition to the web application, there are several Python scripts that play an important role in
 the operation of iGUESS.  
 
