@@ -18,6 +18,7 @@ from psycopg2.extensions import adapt   # adapt: secure qutoing e.g. adapt('LL\L
 
 import time
 import datetime
+import traceback
 
 from harvester_pwd import dbDatabase, dbName, dbUsername, dbPassword, dbSchema
 
@@ -55,13 +56,14 @@ def upsert(cursor, params):
     '''
     Create a database row if one is needed
     '''
+    table, column, server_id, proc_id = params
 
     # This query will return the row's id if it finds a match, otherwise it will return nothing. 
     # We will check this with rowcount, below.
-    cursor.execute("UPDATE %s SET alive = TRUE WHERE %s = %s AND identifier = %s RETURNING id", params)
+    cursor.execute("UPDATE " + table + " SET alive = TRUE WHERE " + column + " = %s AND identifier = %s RETURNING id", (server_id, proc_id))
 
     if(cursor.rowcount == 0):
-        cursor.execute("INSERT INTO %s (%s, identifier) VALUES (%s, %s)", params)
+        cursor.execute("INSERT INTO " + table + " (" + column + ", identifier) VALUES (%s, %s)", (server_id, proc_id))
 
 
 
@@ -108,7 +110,7 @@ def run_queries(conn, upsert_list, update_list):
         except Exception as e:
             print "-----"
             print "Error running upsert SQL:"
-            print "Params":, params
+            print "Params:", str(params)
             print "-----"
             print type(e)
             print e.args
@@ -237,7 +239,8 @@ def check_wps(serverCursor):
     # Get the server list, but ignore servers marked as deleted
     serverCursor.execute("SELECT url, id FROM " + tables["wpsServers"] + " WHERE deleted = false")
 
-    upsert_list = sqlList = []
+    upsert_list = []
+    sqlList = []
 
     # Mark all our records as dead; we'll mark them as alive as we process them.  Note that the database won't
     # actually be udpated until we commit all our transactions at the end, so we'll never see this value
@@ -276,7 +279,8 @@ def check_wps(serverCursor):
 
             # Need to do this here so that the SELECT below will find a record if the upsert inserts... a little messy
             run_queries(db_conn, upsert_list, sqlList)
-            upsert_list = sqlList = []
+            upsert_list = []
+            sqlList = []
 
             update_cursor.execute(prepare_select_process(serverId, proc.identifier))
 
@@ -298,7 +302,8 @@ def check_wps(serverCursor):
 
     # Run and commit WPS transactions
     run_queries(db_conn, upsert_list, sqlList)
-    upsert_list = sqlList = []
+    upsert_list = []
+    sqlList = []
 
 
 
@@ -447,11 +452,11 @@ def get_bounding_box(describe_coverage_object, target_crs):
                 lower_corner = element.find("{http://www.opengis.net/ows/1.1}LowerCorner").text 
                 upper_corner = element.find("{http://www.opengis.net/ows/1.1}UpperCorner").text
 
-                return str.split(lower_corner), str.split(upper_corner)
+                return str.split(lower_corner + " " + upper_corner)
     except:
-        return None, None, None, None
+        return (None, None, None, None)
 
-    return None, None, None, None 
+    return (None, None, None, None)
 
 
 
@@ -464,7 +469,8 @@ def check_data_servers(serverCursor):
     serverCursor.execute("SELECT DISTINCT url FROM " + tables["dataservers"])
 
     for row in serverCursor:
-        upsert_list = sqlList = []
+        upsert_list = []
+        sqlList = []
         
         serverUrl = row[0]
 
@@ -513,11 +519,11 @@ def check_data_servers(serverCursor):
                     title    = get_service_title   (wfs, identifier)
                     abstract = get_service_abstract(wfs, identifier)
 
-                    if wfs.contents[identifier].boundingBoxWGS84 is not None:
+                    if wfs.contents[identifier].boundingBoxWGS84:
                         # For WFS 1.0, at least, the boundingBoxWGS84 is actually a local CRS bounding box
                         bb = wfs.contents[identifier].boundingBoxWGS84    # Looks like (91979.2, 436330.0, 92615.5, 437657.0)
                         bbox_left, bbox_bottom, bbox_right, bbox_top = bb
-                    else:
+                    else:  # No bounding box!
                         # Make sure this dataset is not used as the aoi for any configurations
                         sql = "UPDATE " + tables["modconfigs"] + " SET aoi = -1 WHERE aoi = %s"
                         update_cursor.execute(sql, (dsid,))
@@ -576,12 +582,10 @@ def check_data_servers(serverCursor):
                         print "Could not find a bbox for WCS dataset " + serverUrl + " >>> " + identifier
                         continue
 
-
                     if(len(wcs.contents[identifier].supportedFormats[0]) == 0):
                         print "Cannot get a supported format for WCS dataset " + serverUrl + " >>> " + identifier
                         continue
                     
-
                     # All else being equal, we'd prefer to work with img datasets; second choice is tiff,
                     # otherwise, we'll just take what is offered first
                     if len(wcs.contents[identifier].supportedFormats) == 0:
@@ -630,6 +634,7 @@ def check_data_servers(serverCursor):
             print e.args
             print e
             print "-----"
+            print traceback.format_exc()
 
         else:
             # Run queries and commit dataset transactions
