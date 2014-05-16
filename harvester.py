@@ -51,10 +51,12 @@ city_crs = {}
 ############################################################
 
 
-def upsert(cursor, table, idCol, rowId, identifier):
+def upsert(cursor, params):
     '''
     Create a database row if one is needed
     '''
+    table, idCol, rowId, identifier = params
+
     # This query will return the row's id if it finds a match, otherwise it will return nothing. 
     # We will check this with rowcount, below.
     cursor.execute("UPDATE " + table + " SET alive = TRUE WHERE " + idCol + " = %s AND identifier = %s RETURNING id",
