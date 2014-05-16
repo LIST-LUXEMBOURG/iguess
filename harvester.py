@@ -102,40 +102,39 @@ def run_queries(conn, upsert_list, update_list):
     conn.set_session(autocommit=False)
     cursor = db_conn.cursor()
 
-    try:
-        for up in upsert_list:
+    for up in upsert_list:
+        try:
             upsert(cursor, up[0], up[1], up[2], up[3])
-
-        for sql in update_list:
-            try:
-                sql = convert_encoding(sql)
-                cursor.execute(sql)
-                conn.commit()
-
-            except Exception as e:
-                print "-----"
-                print "Error running SQL:"
-                print sql
-                print "-----"
-                print type(e)
-                print e.args
-                print e
-                print "-----"
-                conn.rollback()
-
-        conn.commit()
+        except Exception as e:
+            print "-----"
+            print "Error running upsert SQL:"
+            print up
+            print "-----"
+            print type(e)
+            print e.args
+            print str(e)
+            print "-----"
+            conn.rollback()
 
 
-    except Exception as e:
-        print "-----"
-        print "Error running SQL:"
-        print update_list
-        print "-----"
-        print type(e)
-        print e.args
-        print e
-        print "-----"
-        conn.rollback()
+    for sql in update_list:
+        try:
+            sql = convert_encoding(sql)
+            cursor.execute(sql)
+            conn.commit()
+
+        except Exception as e:
+            print "-----"
+            print "Error running update SQL:"
+            print sql
+            print "-----"
+            print type(e)
+            print e.args
+            print str(e)
+            print "-----"
+            conn.rollback()
+
+    conn.commit()
 
     conn.set_session(autocommit=True)
 
