@@ -232,7 +232,8 @@ def check_wps(serverCursor):
                                     "abstract = " + str(adapt(abstract)) + ", "
                                     "datatype = " + str(adapt(datatype)) + ", "
                                     "is_input = TRUE, alive = TRUE, last_seen = NOW() "
-                                "WHERE wps_process_id = " + str(adapt(procId)) + " AND identifier = " + str(adapt(input.identifier))
+                                "WHERE wps_process_id = " + str(adapt(procId)) + " "
+                                    "AND identifier = " + str(adapt(input.identifier))
                               )
 
             for output in procDescr.processOutputs:
@@ -260,27 +261,56 @@ def check_wps(serverCursor):
                                     "abstract = " + str(adapt(abstract)) + ", "
                                     "datatype = " + str(adapt(datatype)) + ", "
                                     "is_input = FALSE, alive = TRUE, last_seen = NOW() "
-                                "WHERE wps_process_id = " + str(adapt(procId)) + " AND identifier = " + str(adapt(output.identifier))
+                                "WHERE wps_process_id = " + str(adapt(procId)) + " "
+                                    "AND identifier = " + str(adapt(output.identifier))
                               )
 
     # Run and commit WPS transactions
     do_sql(db_conn, update_cursor, upsertList, sqlList)
 
 
-# Compare whether two crs's are in fact the same.  We'll consider the following two strings equal
-# urn:ogc:def:crs:EPSG::28992
-# EPSG:28992
-def is_equal_crs(first, second):
-    # Frist, replace the :: with a single :
-    first = first.replace('::', ':')
-    second = second.replace('::', ':')
 
-    # Now split on a ':', lowercasing to remove case considerations, so we can compare the last two tokens
-    firstWords = first.lower().split(':')
-    secondWords = second.lower().split(':')
-    
-    return (firstWords[len(firstWords) - 2] == secondWords[len(secondWords) - 2] and 
-            firstWords[len(firstWords) - 1] == secondWords[len(secondWords) - 1])
+def simplify_crs(crs):
+    '''
+    Convert urn:ogc:def:crs:EPSG::28992 to EPSG:28992
+    '''
+    # First, replace the :: with a single :
+    crs = crs.replace('::', ':')
+    words  = crs.split(':')
+
+    return words[len(words) - 2]  + ":" + words[len(words) - 1]
+
+
+
+def is_equal_crs(first, second):
+    '''
+    Compare whether two crs's are the same.  We'll consider the following two strings equal:
+    urn:ogc:def:crs:EPSG::28992 <==>  EPSG:28992
+    '''
+    return simplify_crs(first).lower() == simplify_crs(second).lower()
+
+
+
+def getTitle(wms, wfs, wcs):
+    '''
+    Get the title for this data service; if multiple services are defined, prioritize WMS
+    '''
+    return convert_encoding(wms and wms.identification.title or
+                            wfs and wfs.identification.title or
+                            wcs and wcs.identification.title or
+                            "Unnamed server" )
+
+
+
+def getAbstract(wms, wfs, wcs):
+    '''
+    Get the abstract for this data service; if multiple services are defined, prioritize WMS
+    '''
+    return convert_encoding(wms and wms.identification.abstract or
+                            wfs and wfs.identification.abstract or
+                            wcs and wcs.identification.abstract or
+                            "")
+
 
 
 def check_data_servers(serverCursor):
@@ -292,7 +322,6 @@ def check_data_servers(serverCursor):
         sqlList = []        # Statements to be run once we're sure the relevant records exist
         
         serverUrl = row[0]
-        print "Processing server", serverUrl
 
         try:
             # Now check on the dataservers and datasets, first marking them all as defunct
@@ -323,17 +352,9 @@ def check_data_servers(serverCursor):
             if not (wms or wfs or wcs):    # No data services available?  Time to move on!
                 continue
 
-            dstitle = dsabstr = None
-
-            dstitle = convert_encoding(wms and wms.identification.title or 
-                                       wfs and wfs.identification.title or 
-                                       wcs and wcs.identification.title or 
-                                       "Unnamed server" )
-
-            dsabstr = convert_encoding(wms and wms.identification.abstract or 
-                                       wfs and wfs.identification.abstract or 
-                                       wcs and wcs.identification.abstract or 
-                                       "")
+            dstitle = getTitle(wms, wfs, wcs)
+            dsabstr = getAbstract(wms, wfs, wcs)
+        
         except Exception as e:
             print "Error reading data from server " + serverUrl
             print wms, wfs, wcs
@@ -349,7 +370,6 @@ def check_data_servers(serverCursor):
             # wfs.contents: ['__class__', '__cmp__', '__contains__', '__delattr__', '__delitem__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__gt__', '__hash__', '__init__', '__iter__', '__le__', '__len__', '__lt__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__setitem__', '__sizeof__', '__str__', '__subclasshook__', 'clear', 'copy', 'fromkeys', 'get', 'has_key', 'items', 'iteritems', 'iterkeys', 'itervalues', 'keys', 'pop', 'popitem', 'setdefault', 'update', 'values', 'viewitems', 'viewkeys', 'viewvalues']
             # wcs: ['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__getitem__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_capabilities', '_describeCoverage', 'contents', 'cookies', 'getCoverage', 'getDescribeCoverage', 'getOperationByName', 'identification', 'items', 'log', 'operations', 'provider', 'setLogLevel', 'url', 'version']
             # wcs.contents: ['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_checkChildAndParent', '_elem', '_getGrid', '_getTimeLimits', '_getTimePositions', '_parent', '_service', 'abstract', 'boundingBox', 'boundingBoxWGS84', 'boundingboxes', 'crsOptions', 'description', 'grid', 'id', 'keywords', 'styles', 'supportedCRS', 'supportedFormats', 'timelimits', 'timepositions', 'title']
-
 
 
             sqlList.append( "UPDATE " + tables["dataservers"] + " "
@@ -372,22 +392,12 @@ def check_data_servers(serverCursor):
             ds_cursor.execute(sql, (serverUrl,))
 
             for dsrow in ds_cursor:
-                dsid       = dsrow[0]
-                identifier = dsrow[1]
-                cityId     = dsrow[2]
+                dsid, identifier, cityId = dsrow
 
                 dstitle = dsabstr = None
 
                 found = True
                 has_city_crs = False
-                imgFormat   = ""
-                bbox_left   = None
-                bbox_right  = None
-                bbox_top    = None
-                bbox_bottom = None
-                bbox_srs    = None
-                resX        = 0
-                resY        = 0
 
                 # from lxml import etree
                 # if wms:
@@ -405,12 +415,10 @@ def check_data_servers(serverCursor):
                         bb = wfs.contents[identifier].boundingBoxWGS84    # Looks like (91979.2, 436330.0, 92615.5, 437657.0)
                         bbox_left, bbox_bottom, bbox_right, bbox_top = bb
                     else:
-                        # Make sure there are no Area of Interest tags for this dataset if the bb has disappeared
-                        # This is actually not needed as datasets are checked for bb info when the tag list is generated
-
                         # Make sure this dataset is not used as the aoi for any configurations
-                        sql = "UPDATE " + tables["modconfigs"] + " SET aoi = -1 WHERE aoi = " + str(adapt(dsid))
-                        update_cursor.execute(sql)
+                        sql = "UPDATE " + tables["modconfigs"] + " SET aoi = -1 WHERE aoi = %s"
+                        update_cursor.execute(sql, (dsid,))
+                        bbox_left = bbox_bottom = bbox_right = bbox_top = None
 
                     # Check if dataset is available in the city's local srs
                     for c in wfs.contents[identifier].crsOptions:
@@ -438,8 +446,10 @@ def check_data_servers(serverCursor):
                     if len(errors) > 0:
                         errorText = "No error message"
                         errorMsgs = dc.xpath("//*[local-name() = 'ExceptionText']")
+
                         if len(errorMsgs) > 0:
                             errorText = errorMsgs[0].text
+
                         print "Error with " + identifier + " on " + serverUrl + ": " + errorText
                         continue
 
@@ -455,13 +465,34 @@ def check_data_servers(serverCursor):
                         if(float(resY) < 0):
                             resY = float(resY) * -1
 
-                    print identifier, wcs.contents[identifier].boundingBoxWGS84
+                    try:
+                        for element in dc[0].iter("{http://www.opengis.net/wcs/1.1}GridBaseCRS"):
+                            target_crs = element.text
+                            break
+                    except:
+                        target_crs = None
 
+                    if not target_crs:
+                        print "Could not find GridBaseCRS element!"
+                        continue
 
-                    # We will always store the WGS84 bounding box, and use that for our requests
-                    if wcs.contents[identifier].boundingBoxWGS84:
-                        bbox_left, bbox_bottom, bbox_right, bbox_top = wcs.contents[identifier].boundingBoxWGS84
-                        bbox_srs = "EPSG:4326"    # Now we always store the WGS84 bbox, which has this srs
+                    try:
+                        for element in dc[0].iter("{http://www.opengis.net/ows/1.1}BoundingBox"):
+                            if element.attrib["crs"] == target_crs:
+                                lower_corner = element.find("{http://www.opengis.net/ows/1.1}LowerCorner").text 
+                                bbox_left, bbox_bottom = str.split(lower_corner)
+
+                                upper_corner = element.find("{http://www.opengis.net/ows/1.1}UpperCorner").text
+                                bbox_right, bbox_top = str.split(upper_corner)
+
+                                break
+                    except:
+                        bbox_left = bbox_bottom = bbox_right = bbox_top = None
+
+                    if not (bbox_left and bbox_bottom and bbox_right and bbox_top):
+                        print "Could not find a bbox for our desired crs!"
+                        continue
+
 
                     if(len(wcs.contents[identifier].supportedFormats[0]) == 0):
                         print "Cannot get a supported format for WCS dataset " + serverUrl + " >>> " + identifier
@@ -475,7 +506,12 @@ def check_data_servers(serverCursor):
                         elif 'image/tiff' in wcs.contents[identifier].supportedFormats[index].lower():
                             index = wcs.contents[identifier].supportedFormats.index('image/tiff')   # Second choice is tiff
                             
-                        imgFormat = wcs.contents[identifier].supportedFormats[index]
+                        img_format = wcs.contents[identifier].supportedFormats[index]
+
+                else:               # No WCS
+                    resX = resY = None
+                    img_format = None
+
 
                 if wms and identifier in wms.contents:
                     found = True;
@@ -489,14 +525,14 @@ def check_data_servers(serverCursor):
                                         "alive = TRUE, "
                                         "last_seen = NOW(), "
                                         "local_srs = "    + str(adapt(has_city_crs)) + ", "
-                                        "format = "       + str(adapt(imgFormat))  + ", "
+                                        "format = "       + ("NULL" if img_format  is None else str(adapt(img_format)))  + ", "
                                         "bbox_left = "    + ("NULL" if bbox_left   is None else str(adapt(bbox_left)))   + ", "
                                         "bbox_right = "   + ("NULL" if bbox_right  is None else str(adapt(bbox_right)))  + ", "
                                         "bbox_top = "     + ("NULL" if bbox_top    is None else str(adapt(bbox_top)))    + ", "
                                         "bbox_bottom = "  + ("NULL" if bbox_bottom is None else str(adapt(bbox_bottom))) + ", "
-                                        "bbox_srs = "     + ("NULL" if bbox_srs    is None else str(adapt(bbox_srs)))    + ", "
-                                        "resolution_x = " + str(adapt(resX))       + ", "
-                                        "resolution_y = " + str(adapt(resY))       + " "
+                                        "bbox_srs = "     + ("NULL" if target_crs  is None else str(adapt(simplify_crs(target_crs))))  + ", "
+                                        "resolution_x = " + ("NULL" if resX        is None else str(adapt(resX)))        + ", "
+                                        "resolution_y = " + ("NULL" if resY        is None else str(adapt(resY)))        + " "
                                     "WHERE id = " + str(adapt(dsid)) 
                                   )
                 else:
