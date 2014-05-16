@@ -51,13 +51,15 @@ please consult the LICENSE file for details.
 
 Requirements
 -------------------------------------------------------------------------------
-* Rails 3.x
+* Rails 3.x, with all the gems specifed in Gemfile
 * Python 2.7, with the following libraries:
 	psycopg2
+	mapscript
+
 * GDAL
 * MapScript
 * MapServer
-* Postgres
+* Postgres (multiple processes access the database, so sqlite is not advisable)
 
 
 Installation
@@ -66,6 +68,7 @@ Installation
 * Install web application
 * Basic configuration
 * Set up cron jobs
+* Create password files (harvester_pwd, etc.)
 
 
 Architecture
