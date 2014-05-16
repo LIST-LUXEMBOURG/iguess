@@ -55,16 +55,13 @@ def upsert(cursor, params):
     '''
     Create a database row if one is needed
     '''
-    table, idCol, rowId, identifier = params
 
     # This query will return the row's id if it finds a match, otherwise it will return nothing. 
     # We will check this with rowcount, below.
-    cursor.execute("UPDATE " + table + " SET alive = TRUE WHERE " + idCol + " = %s AND identifier = %s RETURNING id",
-                   (rowId, identifier))
+    cursor.execute("UPDATE %s SET alive = TRUE WHERE %s = %s AND identifier = %s RETURNING id", params)
 
     if(cursor.rowcount == 0):
-        cursor.execute("INSERT INTO " + table + " (" + idCol + ", identifier) VALUES (%s, %s)",
-                       (rowId, identifier))
+        cursor.execute("INSERT INTO %s (%s, identifier) VALUES (%s, %s)", params)
 
 
 
@@ -94,6 +91,7 @@ def convert_encoding(data, new_coding='UTF-8'):
     return data
 
 
+
 def run_queries(conn, upsert_list, update_list):
     '''
     Run all the sql statements we've generated thus far.  First the statements in upsert_list are run,
@@ -104,13 +102,13 @@ def run_queries(conn, upsert_list, update_list):
     conn.set_session(autocommit=False)
     cursor = db_conn.cursor()
 
-    for up in upsert_list:
+    for params in upsert_list:
         try:
-            upsert(cursor, up[0], up[1], up[2], up[3])
+            upsert(cursor, params)
         except Exception as e:
             print "-----"
             print "Error running upsert SQL:"
-            print up
+            print "Params":, params
             print "-----"
             print type(e)
             print e.args
@@ -295,7 +293,7 @@ def check_wps(serverCursor):
                 sqlList.append(prepare_update_wps_param(procId, input, True))
 
             for output in procDescr.processOutputs:
-                upsert_list.append(tables["processParams"], "wps_process_id", procId, output.identifier)
+                upsert_list.append((tables["processParams"], "wps_process_id", procId, output.identifier))
                 sqlList.append(prepare_update_wps_param(procId, output, False))
 
     # Run and commit WPS transactions
