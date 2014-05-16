@@ -53,8 +53,8 @@ Requirements
 -------------------------------------------------------------------------------
 * Rails 3.x, with all the gems specifed in Gemfile
 * Python 2.7, with the following libraries:
-	psycopg2
-	mapscript
+	* psycopg2
+	* mapscript
 
 * GDAL
 * MapScript
