@@ -73,12 +73,12 @@ Installation
 
 Architecture
 -------------------------------------------------------------------------------
-<<< Need an overview of the Rails application structure here, especially the data/process registration stuff >>>
+>>> Need an overview of the Rails application structure here, especially the data/process registration stuff 
 
 In addition to the web application, there are several Python scripts that play an important role in
 the operation of iGUESS.  
 
-*   harvester.py:
+*   harvester.py
 
     The harvester is a script responsible for verifying that information about datasets and processes stored in the data base is up-to-date.  Because of the distributed nature of iGUESS, it is possible that datasets are changed, servers go off-line (and come back online), and the names or descriptions of processes are modified.  
 
@@ -88,15 +88,15 @@ the operation of iGUESS.
 
     Note that if a dataset is updated, the new data will be immediately available to modules (as iGUESS only stores pointers to the data), but if metadata changes (including bounding box), those changes will not be reflected in iGUESS until the harvester has been run.  This could potentially cause a problem if datasets are used to denote Areas of Interest for a module.
 
-*   wpsstart.py:
+*   wpsstart.py
 
     wpsstart.py is responsible for initiating a module run.  When a module is run by clicking the Run button on the web interface, a message is set to the Rails server, which in turn calls wpsstart, passing a list of all the parameters which the WPS server needs to run the module.  The primary task of wpsstart is to assemble these parameters into the format required by WPSClient, which makes the actual call to the WPS server.  Therefore, wpsstart almost entirely consists of rather ugly parameter munging code.
 
-*   wpscheck.py:
+*   wpscheck.py
 
     When wpscheck is run, it will visit each running module, check its status, and make any necessary updates to the database, including registering any datasets created by the module.  wpscheck should be run from cron, and should be scheduled to run frequently, say once per minute.  The more frequently the process runs, the more responsive the system will feel.
 
-*   deleteDataset.py:
+*   deleteDataset.py
 
     When the user unregisters a dataset, deleteDataset gets called.  deleteDataset's primary job is to ensure that any abandoned datasets on the iGUESS server are deleted.
 
