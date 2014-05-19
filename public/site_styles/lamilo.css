@@ -35,3 +35,9 @@
 	margin: 50px;
 	padding: 20px;
 }
+
+
+/* Hide certain tabs for Lamilo */
+#nav-2, #nav-3, #nav-4, #nav-7 {
+  display: none;
+}
