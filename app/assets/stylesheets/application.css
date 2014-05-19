@@ -46,7 +46,6 @@ body.basic {
   min-width: 900px;
   width: 100%;
 
-  background-image: url(images/buildings.png);
   background-repeat:repeat-x;
   background-position:bottom;
 }
