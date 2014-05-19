@@ -17,3 +17,21 @@
     border-spacing: 15px;
     border-collapse: separate;
 }
+
+
+.home-page-text {
+	color: #888;
+	font-size: 18px;
+	width: 450px;
+}
+
+
+.side-links {
+	color:white;
+	width: 200px;
+	background-color: #B3D335;
+	float: right;
+	font-size: 30px;
+	margin: 50px;
+	padding: 20px;
+}
