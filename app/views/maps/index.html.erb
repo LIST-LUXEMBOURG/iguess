@@ -24,7 +24,7 @@
         {
         	if(datasets[i].dataset_folder_tags[0] == null)
         		tag = "Untagged";
-        	else tag = datasets[i].dataset_folder_tags[0].tag;
+        	else tag = datasets[i].dataset_folder_tags[0].folder_tag;
 
             WebGIS.addNewLayer(datasets[i].title, //|| datasets[i].identifier, 
                               datasets[i].server_url, 
