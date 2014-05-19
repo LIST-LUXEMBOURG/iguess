@@ -148,5 +148,7 @@
   <br><br><br>
 <% end %>
 
+<%= if not @site_details.footer_html_file.blank? then render "/home/" + @site_details.footer_html_file end %>
+
 </body>
 </html>
