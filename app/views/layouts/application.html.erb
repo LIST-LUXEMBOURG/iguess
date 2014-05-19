@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <% @site = Site.find_by_base_url(request.host) %>
-  <% @details = SiteDetail.find_by_id(@site.site_details_id) %>
 
   <title><%= @site.title %></title>
   <%= stylesheet_link_tag    :application %>
@@ -27,7 +25,7 @@
 <%# Include Google Map code -- needs to be loaded on every page to suppress errors in MapInit.js %>
 <script src="http://maps.google.com/maps/api/js?v=3&amp;sensor=false"></script>
 
-<%= stylesheet_link_tag "/site_styles/" + @details.stylesheet %>
+<%= stylesheet_link_tag "/site_styles/" + @site_details.stylesheet %>
 
 </head>
 
@@ -42,13 +40,13 @@
     </div>
 
     <div style="float:right; margin-top:.6em; margin-right: .7em;">
-      <%= link_to image_tag(@details.logo_img, :border => 1, :alt => @details.logo_alt_text), @details.logo_link_url %>&nbsp;
+      <%= link_to image_tag(@site_details.logo_img, :border => 1, :alt => @site_details.logo_alt_text), @site_details.logo_link_url %>&nbsp;
       <%= link_to image_tag("interreg_logo.png", :border => 0, :alt => "INTERREG IVB"), 'http://www.nweurope.eu/' %>
     </div>
 
     <div style="text-align:center;">
       <div style="font-size: 300%; margin-bottom:-.35em"><%= @site.title %></div>
-      <div style="padding-bottom: .5em"><%= @details.subtitle %></div>
+      <div style="padding-bottom: .5em"><%= @site_details.subtitle %></div>
     </div>
 
     <div id="navbar" style="z-index:10;">
@@ -82,7 +80,7 @@
           <!-- In future, we'll do this more elegantly by placing map chooser in map window itself -->
           <% if (user_signed_in? and current_user.role_id == 2 ) or params[:controller] == "maps"or params[:controller] == "compares" %>
             <select name="cities" id="city-dropdown">
-              <% for city in City.find_all_by_site_details_id(@details.id) %>
+              <% for city in City.find_all_by_site_details_id(@site_details.id) %>
                 <option value="<%= city.id %>" 
                   <% if city.id.to_i == cookies['city'].to_i %>selected<% end %>>
                   <%= city.name %></option>
