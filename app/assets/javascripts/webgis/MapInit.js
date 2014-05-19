@@ -35,6 +35,9 @@ WebGIS.layerList = new Array();
 WebGIS.proxy = "/home/geoproxy?url=";
 OpenLayers.ProxyHost = "/home/geoproxy?url=";
 
+WebGIS.buttDown = "buttDown";
+WebGIS.buttUp = "buttUp;"
+
 
 /**
  * All layers will always use the base layer projection for the request.
@@ -194,29 +197,31 @@ WebGIS.removeLayerFromMap = function(id)
 	}
 };
 
-WebGIS.moveLayer = function(layerName, delta)
+WebGIS.moveLayer = function(layerId, delta)
 {
-	if (layerName == null) return;
+	if (layerId == null) return;
 	
-	var layers = WebGIS.leftMap.getLayersByName(layerName);
-	if (layers.length <= 0) return;
+	var layer = WebGIS.leftMap.getLayer(layerId);
+	if (layer == null) return;
+	var index = WebGIS.leftMap.getLayerIndex(layer);
 	
-	var index = WebGIS.leftMap.getLayerIndex(layers[0]);
 	if ((delta < 0) && (index <= 0)) return;
 	if ((delta > 0) && (index >= (WebGIS.leftMap.layers.length - 1))) return;
 	
-	WebGIS.leftMap.raiseLayer(layers[0], delta);
+	WebGIS.leftMap.raiseLayer(layer, delta);
 	WebGIS.layerTree.root.firstChild.eachChild(WebGIS.addWidgetsToLayerNode);
 };
 
 WebGIS.moveLayerUp = function(butt, event)
 { 
-	WebGIS.moveLayer(butt.container.dom.firstChild.data, 1);
+	var id = butt.id.substring(WebGIS.buttUp.length);
+	WebGIS.moveLayer(id, 1);
 };
 
 WebGIS.moveLayerDown = function(butt, event)
 { 
-	WebGIS.moveLayer(butt.container.dom.firstChild.data, -1);
+	var id = butt.id.substring(WebGIS.buttDown.length);
+	WebGIS.moveLayer(id, -1);
 };
 
 WebGIS.addWidgetsToLayerNode = function(treeNode)
@@ -227,6 +232,7 @@ WebGIS.addWidgetsToLayerNode = function(treeNode)
 		iconCls : 'tinyUp tinyButton',
 		autoWidth : true,
 		cls: 'tinyUp tinyButton',
+		id: WebGIS.buttUp + treeNode.layer.id,
 		handler: WebGIS.moveLayerUp,
 	});
 	
@@ -236,6 +242,7 @@ WebGIS.addWidgetsToLayerNode = function(treeNode)
 		iconCls : 'tinyDown tinyButton',
 		autoWidth : true,
 		cls: 'tinyDown tinyButton',
+		id: WebGIS.buttDown + treeNode.layer.id,
 		handler: WebGIS.moveLayerDown
 	});
 	
