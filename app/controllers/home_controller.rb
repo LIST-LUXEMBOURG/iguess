@@ -7,7 +7,6 @@ class HomeController < ApplicationController
     rawurl = CGI::unescape(params[:url])
     
     fixedurl = rawurl.gsub('\\', '%5C')   # Escape backslashes... why oh why???!?
-    r = nil;
 
     status = 200
     content_type = 'text/html'

@@ -6,6 +6,7 @@ class ApplicationController < ActionController::Base
   # Needed on registered datasets page because Firefox tries to be smart about the checkboxes
   # but just ends up screwing it up
   before_filter :set_cache_buster
+  before_filter :set_template_vars
 
 
   def set_cache_buster
@@ -14,5 +15,11 @@ class ApplicationController < ActionController::Base
     response.headers["Expires"] = "Fri, 01 Jan 1990 00:00:00 GMT"
   end
 
+
+  # Set some universal variables we'll need to render almost every page on the site
+  def set_template_vars
+    @site = Site.find_by_base_url(request.host)
+    @site_details = SiteDetail.find_by_id(@site.site_details_id)
+  end
 
 end
