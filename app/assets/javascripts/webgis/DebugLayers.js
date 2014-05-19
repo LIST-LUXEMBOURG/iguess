@@ -155,3 +155,21 @@ WebGIS.addDebugLayersRO = function() {
 	WebGIS.leftMap.addLayer(dsmIGUESS);
 	
 };
+
+WebGIS.addDebugLayersGent = function() 
+{	
+	var test =  new OpenLayers.Layer.WMS(
+		"Test layer",
+		"http://extragisqa.gent.be/geoserver/ows",
+	    {layers: "GH_BuildingInformation2", 
+	     format: "image/png",
+	     srsName: WebGIS.requestProjection,
+	 	 transparent: "true",
+	 	 projection: new OpenLayers.Projection(WebGIS.requestProjection),
+         sld_body: WebGIS.getStyle("GH_BuildingInformation2", WebGIS.SLD_GEOTH)},
+	    {isBaseLayer: false,  
+	 	 visibility: false}
+	);
+
+	WebGIS.leftMap.addLayer(test);
+};
