@@ -42,12 +42,8 @@ h1, h2, h3, h4, h5, h6 { margin-bottom: 0px; }
 
 /* Body in "normal" mode */
 body.basic {
-
   min-width: 900px;
   width: 100%;
-
-  background-repeat:repeat-x;
-  background-position:bottom;
 }
 
 /* Body when displayed in a popup */
