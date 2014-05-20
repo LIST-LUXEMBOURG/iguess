@@ -47,7 +47,7 @@ class DatasetsController < ApplicationController
     # I really want this, but it returns HTML... respond_with(@datasets)
     respond_to do |format|
       format.json { render json: @datasets.to_json(:include => {:dataset_tags => { :only => :tag }, 
-                                                                :dataset_folder_tags => { :only => :tag } 
+                                                                :dataset_folder_tags => { :only => :folder_tag } 
                                                                } 
                                                   ) 
                   } 
