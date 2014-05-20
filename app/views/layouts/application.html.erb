@@ -35,18 +35,18 @@
 <% if params[:popup].nil? %>
 
   <div id="top_banner">
-    <div style="float:left; margin-top:1.3em; margin-left: .7em;">
+    <div class="owner-logo">
       <%= link_to image_tag("tudor_logo.png", :border => 0, :size => "99x35", :alt => "Henri Tudor Institute"), "http://www.tudor.lu/" %>
     </div>
 
-    <div style="float:right; margin-top:.6em; margin-right: .7em;">
+    <div class="sponsor-logos">
       <%= link_to image_tag(@site_details.logo_img, :border => 1, :alt => @site_details.logo_alt_text), @site_details.logo_link_url %>&nbsp;
       <%= link_to image_tag("interreg_logo.png", :border => 0, :alt => "INTERREG IVB"), 'http://www.nweurope.eu/' %>
     </div>
 
-    <div style="text-align:center;">
-      <div style="font-size: 300%; margin-bottom:-.35em"><%= @site.title %></div>
-      <div style="padding-bottom: .5em"><%= @site_details.subtitle %></div>
+    <div>
+      <div class="site-title"><%= @site.title %></div>
+      <div class="site-subtitle"><%= @site_details.subtitle %></div>
     </div>
 
     <!-- To hide some tabs on a per-application basis, add a style for #nav-2 (for example) with 

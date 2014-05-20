@@ -154,6 +154,34 @@ input, select, textarea {
 }
 
 
+/* Tudor logo, in the upper-left corner */
+.owner-logo {
+  float: left; 
+  margin-top: 1.3em; 
+  margin-left: .7em;
+}
+
+/* Sponsor logs, in the upper-right corner */
+.sponsor-logos {
+  float:right; 
+  margin-top: .6em; 
+  margin-right: .7em;
+}
+
+/* Main title of the site */
+.site-title {
+  text-align: center;
+  font-size: 300%; 
+  margin-bottom: -.35em
+}
+
+/* Subtitle text under main title */
+.site-subtitle {
+  text-align: center;
+  padding-bottom: .5em
+}
+
+
 #wms-failure-message, .error-msg {
   color: red;
 }
