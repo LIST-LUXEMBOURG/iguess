@@ -20,6 +20,7 @@ class ApplicationController < ActionController::Base
   def set_template_vars
     @site = Site.find_by_base_url(request.host)
     @site_details = SiteDetail.find_by_id(@site.site_details_id)
+    @IncludeFooter = true
   end
 
 end

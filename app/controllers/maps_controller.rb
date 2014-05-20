@@ -7,6 +7,8 @@ class MapsController < ApplicationController
 
     @datasets = Dataset.all
 
+    @IncludeFooter = false
+
     # The following will create a transposed list of all the requirements of all our models.
     # The keys are module_requirements objects, and the values are an array of module_configurations where that 
     # key is used.

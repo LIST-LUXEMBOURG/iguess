@@ -1,6 +1,6 @@
 /* Put any iguess specific styles here */
 
-body.basic {
+.footer {
   background-repeat:repeat-x;
   background-position:bottom;
   background-image: url(images/buildings.png);
