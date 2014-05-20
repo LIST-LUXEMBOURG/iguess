@@ -65,6 +65,8 @@ WebGIS.createPanels = function() {
 
   WebGIS.initMap();
   
+  //---- Top bar and widgets ----//
+  
   var bBar = new Ext.Toolbar({
     region: "south",
     height: 24,
@@ -141,33 +143,25 @@ WebGIS.createPanels = function() {
           }]
     }
   });
+  
+  //---- Layer catalogue ----//
    
   WebGIS.treeRoot = new Ext.tree.TreeNode({
-      text        : 'Project',
+      text        : '',
       id          : '0',
-      leaf        :false,
+      leaf        : false,
       expandable  : true,
       expanded    : true
   });
   
-  // Layer list
   WebGIS.layerCatalogue = new Ext.tree.TreePanel({
-    //title: 'Map Layers',
     region: "south",
     width: "100%",
     height: "100%",
-    //collapsible: true,
+    collapsible: false,
     autoScroll: true,
+    scrollable: true,
     enableDD: true,
-    plugins: [{
-      ptype: "gx_treenodecomponent"
-    }],
-    loader: {
-      applyLoader: false,
-      uiProviders: {
-        "custom_ui": LayerNodeUI
-      }
-    },
     root: WebGIS.treeRoot,
     rootVisible: false,
     lines: false
@@ -178,9 +172,12 @@ WebGIS.createPanels = function() {
 	region: "south",
     collapsible: true,
     autoScroll: true,
+    scrollable: true,
     enableDD: true,
     items: [WebGIS.createFilter(), WebGIS.layerCatalogue]
   });
+  
+  //---- Layer display heap ----//
   
   var LayerNodeUI = Ext.extend(
           GeoExt.tree.LayerNodeUI,
@@ -195,8 +192,7 @@ WebGIS.createPanels = function() {
     expanded: true,
     rootVisible: false
   }];
-  
-  // Layer list
+
   WebGIS.layerTree = new Ext.tree.TreePanel({
     title: 'Map Layers',
     region: "North",
@@ -221,6 +217,8 @@ WebGIS.createPanels = function() {
     rootVisible: false,
     lines: false
   });	
+  
+  //---- Main panels ----//
   
   WebGIS.westPanel = new Ext.Panel({
 	region: "west",
