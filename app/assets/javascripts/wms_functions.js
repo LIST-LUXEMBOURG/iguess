@@ -264,7 +264,7 @@ var getJoinChar = function(url) {
 
 
 // Version info
-WMS.version = '1.3.0';
+WMS.version = '1.1.0';    // Christian says 1.3.0 is "weird"
 WFS.version = '1.0.0';    // Still having problems with 1.1.0; use 1.0.0 for now
 WCS.version = '1.1.0';
 WPS.version = '1.0.0';
