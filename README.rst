@@ -101,7 +101,11 @@ the operation of iGUESS.
     When the user unregisters a dataset, deleteDataset gets called.  deleteDataset's primary job is to ensure that any abandoned datasets on the iGUESS server are deleted.
 
 
-
 Support
 -------------------------------------------------------------------------------
 Details to be provided
+
+
+Wiki
+-------------------------------------------------------------------------------
+Be sure to check the project Wiki (hosted here on GitHub) for more detailed instructions and documentation.

@@ -12,9 +12,17 @@ class ModConfigsController < ApplicationController
     @mod_configs  = ModConfig.find_all_by_city_id(@current_city.id)
     @wps_servers  = WpsServer.find_all_by_city_id(@current_city.id)
 
-    @wps_processes = WpsProcess.joins(:wps_server)
-                               .where('wps_servers.city_id' => @current_city.id, :alive => :true)
-                               .order('wps_processes.title, identifier')   # For catalog
+    # Select the processes to show in the Module Catalog.  If you are logged in, you will see only modules
+    # registered for your city.  If you are not logged in, you will see modules registered to all cities in your
+    # instance (i.e. Lamilo or iGUESS).
+    if user_signed_in? then
+      @wps_processes = WpsProcess.joins(:wps_server)
+                                 .where('wps_servers.city_id' => @current_city.id, :alive => :true)
+                                 .order('title, identifier')   # For catalog
+    else
+      binding.pry
+      @wps_processes x = WpsProcess.joins(:wps_server =>[{:}]).where('site_details_id' => @site.site_details_id, :alive => :true) .order('title, identifier')   # For catalog
+    end                               
 
     respond_to do |format|
       format.html # index.html.erb

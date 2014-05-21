@@ -1,7 +1,7 @@
 class WpsServer < ActiveRecord::Base
   has_many :mod_configs
   has_many :wps_processes
-  has_many :process_params, :through => :wps_processes
+  belongs_to :city
 
   after_create { self.deleteable = true }				# Create undeletable servers directly via database
   before_save { self.last_seen = DateTime.now }
@@ -19,11 +19,11 @@ class WpsServer < ActiveRecord::Base
       wpsServer = WpsServer.find_by_url(url)
 
       if wpsServer then
-        if !wpsServer.deleted then
+        if wpsServer.deleted then      # We have a record for this, but was deleted at some point in past
+           wpsServer.update_attributes(server)
+        else   
           render :message => "Server is already registered!", :status => 403
           return false
-        else    # We have a record for this, but was deleted at some point in past
-          wpsServer.update_attributes(server)
         end
       else      # This is a brand new server
         wpsServer = WpsServer.new(server)
@@ -86,6 +86,4 @@ class WpsServer < ActiveRecord::Base
       end
     end   # end transaction
   end
-
-
 end

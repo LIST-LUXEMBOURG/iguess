@@ -8,7 +8,7 @@
 .footer-table td {
     border: 4px solid #B3D335;
     padding: 15px;
-    width: 200px;
+    min-width: 125px;
 }
 
 
@@ -20,9 +20,10 @@
 
 
 .home-page-text {
+	text-align: left;
 	color: #888;
 	font-size: 18px;
-	width: 450px;
+	max-width: 800px;
 }
 
 
@@ -32,12 +33,18 @@
 	background-color: #B3D335;
 	float: right;
 	font-size: 30px;
-	margin: 50px;
 	padding: 20px;
+	margin-left: 20px;
 }
 
 
 /* Hide certain tabs for Lamilo */
-#nav-2, #nav-3, #nav-4, #nav-7 {
+#nav-4, #nav-7 {
   display: none;
+}
+
+
+.main-text {
+	width: 90%;
+	margin: 0 auto;
 }

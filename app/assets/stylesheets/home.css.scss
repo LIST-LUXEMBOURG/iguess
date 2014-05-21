@@ -149,7 +149,6 @@ $lineHeight: $panelHeight / 3 - 1px;
 .headline {
    font-size: 35px;
    color: #3C77B4;
-   width: $totalWidth - 50px; 
    margin-left: 160px;
 }
 
@@ -158,7 +157,7 @@ $lineHeight: $panelHeight / 3 - 1px;
 }
 
 #headline2 {
-   padding-left: 500px;
+   margin-left: 500px;
 }
 
 
