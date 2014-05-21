@@ -20,8 +20,11 @@ class ModConfigsController < ApplicationController
                                  .where('wps_servers.city_id' => @current_city.id, :alive => :true)
                                  .order('title, identifier')   # For catalog
     else
-      binding.pry
-      @wps_processes x = WpsProcess.joins(:wps_server =>[{:}]).where('site_details_id' => @site.site_details_id, :alive => :true) .order('title, identifier')   # For catalog
+      @wps_processes = WpsProcess.joins(:wps_server, {:wps_server => :city})
+                                 .where({:cities => {:site_details_id => @site_details.id }}, 
+                                        :alive => :true)
+                                 .order('title, identifier')
+                                 .uniq_by{|s| s.wps_server.url + s.identifier }
     end                               
 
     respond_to do |format|
@@ -44,7 +47,7 @@ class ModConfigsController < ApplicationController
   def show
     @mod_config = ModConfig.find(params[:id])
 
-    @current_city    = User.getCurrentCity(current_user, cookies)
+    @current_city = User.getCurrentCity(current_user, cookies)
 
     if @mod_config.city_id != @current_city.id 
       showError("Cannot view that module with the currently selected city.  Sorry!")
