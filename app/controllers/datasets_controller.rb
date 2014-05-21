@@ -227,6 +227,13 @@ class DatasetsController < ApplicationController
   # DELETE /datasets/1.json
   # Only called with json
   def destroy
+    if not user_signed_in?    # Should always be true... but if not, return error and bail
+      respond_to do |format|
+        format.json { render :text => "You must be logged in!", :status => 403 }
+      end
+      return
+    end
+    
     if params[:id] == "destroy_by_params" then
       @dataset = Dataset.find_by_identifier_and_server_url(params[:dataset][:identifier], 
                                                            params[:dataset][:server_url])
