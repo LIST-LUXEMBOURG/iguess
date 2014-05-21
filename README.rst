@@ -101,21 +101,11 @@ the operation of iGUESS.
     When the user unregisters a dataset, deleteDataset gets called.  deleteDataset's primary job is to ensure that any abandoned datasets on the iGUESS server are deleted.
 
 
-Adding a new instance to an existing iGUESS installation
--------------------------------------------------------------------------------
-
-1.   Create a new record in site_details that contains information about the new instance.  Note the id number that the database creates for the new record.
-
-2.   Add a record to the sites table, which maps in incoming URL with a title to be displayed and the site_details_id for the record created in the previous step.  Note that if you have multiple incoming URLs for the instance, you will need to create one record for each.
-
-3.   Create a new stylesheet in the public/site_styles folder, using the name specified in the site_details table.  The easiest way is to copy an existing stylesheet for another instance.<P>You can customize this stylesheet as needed, and the styles will only apply to the relevant instance.  If you need to modifiy a style that is not included in the stylesheet, find where that is defined, and move it to the new stylesheet.  Also be sure to copy that style to any other custom stylesheets referred to in the site_details table.
-
-4.   The body_html_file and footer_html_file contain HTML specific to each instance.  body_html_file is used for the main body on the starting page, and footer_html_file is appended to the bottom of every page except the mapping screen.  Those files are currently located in app/views/home folder, and the actual file should have the same name as specified in the database, but with a "_" prepended to the name.  The "_" requirement is due to the way Rails loads included content files.  If either file contains any Rails directives, it should have a .erb extension.
-
-
-5.   Individual tabs can be hidden for your new instance.  Each tab has an id that begins with nav (e.g. nav-4), which you can find by either reviewing the source, or with a document inspector like Firebug.  To make that tab invisible, add the style, #nav-4{ display: none; } to the site-specific stylesheet.
-
-
 Support
 -------------------------------------------------------------------------------
 Details to be provided
+
+
+Wiki
+-------------------------------------------------------------------------------
+Be sure to check the project Wiki (hosted here on GitHub) for more detailed instructions and documentation.
