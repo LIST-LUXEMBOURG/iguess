@@ -1,0 +1,7 @@
+/* Put any iguess specific styles here */
+
+.footer {
+  background-repeat:repeat-x;
+  background-position:bottom;
+  background-image: url(images/buildings.png);
+}

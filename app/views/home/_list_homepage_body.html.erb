@@ -1,0 +1,56 @@
+   <div class="headline" id="headline1">
+      understand your options...
+   </div>
+   <div class="headline" id="headline2">
+      plan your future.
+   </div>
+
+   <p id="headline-spacer"></p>
+
+  <div id="front-page-tabs">
+         <div class="tabs">
+         <ul class="dosomething">
+            <li><a href="#">View Some Data</a></li>
+            <li><a href="#">Run Calculation Module</a></li>
+            <li><a href="#">Check Running Module</a></li>
+         </ul>
+      </div>
+
+      <!-- tab "panes" -->
+      <div class="panes">
+         <div class="front-page-tab-body" id="view-some-data">
+            View your data or register new datasets
+            <p class="intro">iGUESS can show you any registered dataset on an interactive map of your city.</p>
+            <div class="inner-content">
+               <p><%= link_to "Explore maps of my city", :controller => 'maps'%></p>
+               <p><%= link_to "See my datasets", :controller => 'datasets'%></p>
+               <p><%= link_to "Register new data", :controller => 'datasets', :action => 'mass_import', :id => 1 %></p>
+            </div>
+         </div>
+         <div class="front-page-tab-body" id="run-a-module">
+            Configure and run a calculation module
+            <p class="intro">The module catalog shows the calculations that iGUESS can perform.</p>
+            <div class="inner-content">
+               <p><%= link_to "View module catalog", :controller => 'mod_configs', :anchor => 'module_catalog_tab'%></p>
+            </div>
+         </div>
+         <div class="front-page-tab-body" id="check-module">
+            Check on the status of a running module
+            <p class="intro">Logged in users can view the status of modules being run at their city.</p>
+            <div class="inner-content">
+               <p><%= link_to "See running modules", :controller => 'mod_configs'%></p>
+            </div>            
+         </div>
+      </div>
+</div>
+
+<div class="clear"></div>
+
+<script type="text/javascript">  // Activate the tabs with jquerytools>tabs
+  // perform JavaScript after the document is scriptable.
+  $(function() {
+      // setup ul.tabs to work as tabs for each div directly under div.panes
+      $("ul.dosomething").tabs("div.panes > div");
+  });
+</script>
+
