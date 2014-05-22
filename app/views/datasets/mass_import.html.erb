@@ -297,16 +297,17 @@
     // If no layers were loaded, show an intelligble error message and bail
     if(layerCount == 0) {
       $("#results-display").html(
-    '<div class="error-header">Please check the number and dial again</div>' +
-    '<div class="error-body">No data layers could be found on the specified server.<br>' +
-    'Either the URL is not that of a WMS/WFS/WCS data server, or the server is not responding.' +
-    '</div>');
+        '<div class="error-header">Please check the number and dial again</div>' +
+        '<div class="error-body">No data layers could be found on the specified server.<br>' +
+        'Either the URL is not that of a WMS/WFS/WCS data server, or the server is not responding.' +
+        '</div>');
 
       $(".server-info").show();
 
       return;
     };
 
+    // Here we know layerCount > 0
 
     var tagEntryFieldNameCounter = 0;
 
@@ -323,6 +324,7 @@
     // This puts registered items at the top of the screen.
     for(var pass = 0; pass < 2; pass++)
     {
+      // debugger;
       for(var lyrctr = 0, len = discoveredLayerKeys.length; lyrctr < len; lyrctr++)
       {
         var urlId = discoveredLayerKeys[lyrctr];
@@ -334,9 +336,15 @@
         if((pass == 0 && !regLyr) || (pass == 1 && regLyr)) { continue; }
 
         if(first) {
-          $("#results-display").html("<div>Server has <span id='results-display-count'></span> layers.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
-                                     "<span class='proj-list'>SRS required for processing: <span>" + LOCAL_SRS + "</span></span>; " +
-                                     "<span class='proj-list'>SRS required for mapping: <span>" + GOOGLE_SRS + ".</span></span></div><ul id='layer-table'></ul>");
+          $("#results-display").html(
+              "<div>Server has <span id='results-display-count'></span> " + 
+              "layers.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" +
+              "<span class='proj-list'>SRS required for processing: " + 
+              "<span>" + LOCAL_SRS + "</span></span>; " +
+              "<span class='proj-list'>SRS required for mapping: " + 
+              "<span>" + GOOGLE_SRS + ".</span></span></div>" + 
+              "<ul id='layer-table'></ul>");
+
           first = false;
         }
 
@@ -354,7 +362,8 @@
         titleNode.html("<span class='dataset_title' id='dataset-title-" + layer.identifier + "'>" + 
                           (layer.title != "" ? layer.title : layer.identifier) + 
                        "</span>" + 
-                       "<span class='dataset-identifier'>Identifier: <span>" + layer.identifier + "</span>");
+                       "<span class='dataset-identifier'>Identifier: " +
+                       "<span>" + layer.identifier + "</span></span>");
 
 
         var servicesAvailNode = $(document.createElement("div"));
@@ -976,15 +985,14 @@
     this.format      = null;    // Image format for WCS data
     this.resolution  = null;    // Resolution of the WCS dataset
 
-    // If the WCS data is hosted in a projection other than our computing projection, then
-    // the projected bounding box provided will be bogus.  Instead, we'll collect the lat-long 
-    // bounding box, and project it on the server before storing it in the database.  We don't
-    // need the WCS bounding box on the client at this time.
+    // We'll always collect the bounding box in the native CRS.
+    this.dataCrs = CRS.getSimpleFormat(datasetInfo.nativeCRS);
+
     if(datasetInfo.bounds) 
       this.llbbox = datasetInfo.bounds;
+
     
-    this.dataCrs  = datasetInfo.srs || (datasetInfo.supportedCRS  && datasetInfo.supportedCRS[0]) ||
-                                       (datasetInfo.supportedCRSs && datasetInfo.supportedCRSs[0]);
+
     try {
       // Use image/img if it is available... seems to work best
       if(datasetInfo.supportedFormats.hasObject("image/img"))
@@ -1168,7 +1176,7 @@
       if(capabilities && isGoodResponse("WCS", response, capabilities))
         processIncomingWCSLayers(capabilities, self.serverUrl);
       else    // Error:
-        doneProcessing(self.serverUrl, "WCS", null) ; 
+        doneProcessing(self.serverUrl, "WCS", null); 
     };
   }
 
@@ -1217,7 +1225,6 @@
           mergeDatasetIntoLayerList(dataset, "WCS");
         }
     }
-
     else {   // WCSGetCapabilities
       if(capabilities.contentMetadata) {
         var coverageList = capabilities.contentMetadata;
