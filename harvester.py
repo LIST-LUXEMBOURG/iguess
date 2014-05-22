@@ -361,12 +361,14 @@ def prepare_set_datasets_not_alive(server_url):
     )
 
 
+
 def prepare_set_dataservers_not_alive(server_url):
     return (
         "UPDATE " + tables["dataservers"] + " "
         "SET alive = false "
         "WHERE url = '" + server_url + "'"    
     )
+
 
 
 def prepare_update_dataservers(server_url, title, abstract, wms, wfs, wcs):
