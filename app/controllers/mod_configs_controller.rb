@@ -10,7 +10,6 @@ class ModConfigsController < ApplicationController
   def index
     @current_city = User.getCurrentCity(current_user, cookies)
     @mod_configs  = ModConfig.find_all_by_city_id(@current_city.id)
-    @wps_servers  = WpsServer.find_all_by_city_id(@current_city.id)
 
     # Select the processes to show in the Module Catalog.  If you are logged in, you will see only modules
     # registered for your city.  If you are not logged in, you will see modules registered to all cities in your
@@ -19,12 +18,18 @@ class ModConfigsController < ApplicationController
       @wps_processes = WpsProcess.joins(:wps_server)
                                  .where('wps_servers.city_id' => @current_city.id, :alive => :true)
                                  .order('title, identifier')   # For catalog
+
+      @wps_servers   = WpsServer.find_all_by_city_id_and_alive(@current_city.id, :true)
     else
       @wps_processes = WpsProcess.joins(:wps_server, {:wps_server => :city})
                                  .where({:cities => {:site_details_id => @site_details.id }}, 
                                         :alive => :true)
                                  .order('title, identifier')
                                  .uniq_by{|s| s.wps_server.url + s.identifier }
+
+      # Make a list of the servers associated with the processes we selected.
+      # Have to do this this way due to denormalization of wps_servers table.
+      @wps_servers = @wps_processes.map{|p| p.wps_server}.uniq_by{|p| p.id}
     end                               
 
     respond_to do |format|

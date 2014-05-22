@@ -39,17 +39,17 @@
         <%= link_to "Manage WPS Servers", wps_servers_path %>      
       <% else %>
         <% if @mod_configs.empty? %>
-          <div id="mod-list-none">  
-            No modules have been configured yet for <span class="city-name"></span>.  
-            <%= link_to "Click here to create one.", new_mod_config_path %>
+          <div id="mod-list-none">
+            <% if user_signed_in? %>
+              The Module Catalog is empty for <span class="city-name"></span>.  
+              <%= link_to "Click here to create a new module.", new_mod_config_path %>
+            <% else %>
+              The Module Catalog is currently empty.
+            <% end %>
           </div>   
         <% else %>
           <div id="mod-list">      
             These are the calculation modules that have been configured.
-
-
-<!-- For sorting a table with the id sortable_table -->
-
 
             <table id="sortable_table" class="zebra sortable">
               <thead><tr><th>Name</th><th>Based on</th><th>Status</th><th>Notes</th></tr></thead>
@@ -85,43 +85,23 @@
   <% end %>
 
   <div id="module_catalog_tab">
-    <div> 
-      <% if @wps_servers.length > 0 %>
-        Catalog of modules found on the following servers:
-      <% else %>
+    <div id="module-catalog"> 
+      <% if @wps_servers.length == 0 %>
         No process servers have been configured.  You can add one by clicking on the link below.
-      <% end %>
-
-      <ul id="wps-server-list">
-        <% @wps_servers.each do |s| %>
-          <li>
-            <div>
-              <span class="wps-title"><%= s.title %></span> <span class="wps-providerName"><%= s.provider_name %></span><span class="info-icon properties" title="Click for details" rel="#server-infotable-<%= s.id %>"></span>
-            </div>
-            <div class="wps-descr" class="wps-abstr"><%= s.abstract %></div>
-          </li>
-        <% end %>
-      </ul>
-      <% if user_signed_in? %>
-        <div id="catalog-add-new-server-link">
-          <%= link_to "Manage WPS Servers", wps_servers_path %>
-        </div>
-      <% end %>
-    </div>
-
-    <% if @wps_servers.length > 0 %>
-      <div id="module-catalog">
-
+      <% else %>
         <% @wps_processes.each do |p| %>
           <h2 class="process-title"><%= p.title %></h2>
           <div class="catalog-item">
             <div class = "process-identifier">Identifier: <span><%= p.identifier %></span></div>
             <div class="process-descr"><%= p.abstract %></div>
             <div class="process-server-name">
-              <span class="hosted-by">Hosted by:</span><span class="server-name"><%= p.wps_server.title %></span>
-              <span class="info-icon properties" title="Click for details" rel="#server-infotable-<%= p.wps_server.id %>"></span>
+              <span class="hosted-by">Hosted by:</span>
+              <span class="server-name"><%= p.wps_server.title %></span>
+              <span class="info-icon properties" title="Click for details" 
+                    rel="#server-infotable-<%= p.wps_server.id %>"></span>
             </div>
 
+            <!-- Inputs and outputs -->
             <table class="model-descr-table">
               <% inputs  = ProcessParam.find_all_by_wps_process_id_and_is_input_and_alive(p.id, true,  true, :order=>:title) %>
               <% outputs = ProcessParam.find_all_by_wps_process_id_and_is_input_and_alive(p.id, false, true, :order=>:title) %>
@@ -168,46 +148,48 @@
                 <% end %>
               </tbody>
             </table>
+
             <% if user_signed_in? %>
               <a href="/mod_configs/new?template=<%= p.id %>">
-                  <%= image_tag("document_add_24.png", :class => "link-icon") %>Create new configuration for this service</a>
+                <%= image_tag("document_add_24.png", :class => "link-icon") %>Create new configuration for this service</a>
             <% end %>
           </div>  <!-- End of "catalog-item" div -->
         <% end %>
-      </div>
-    <% end %>
-  </div>
-</div>
+      <% end %>
+    </div>  <!-- End of "module-catalog" div-->
+  </div> <!-- End of "module_catalog_tab" div -->
+
 
 <!-- The following will start life hidden, and will only be revealed when the user clicks an info button -->
 <!-- Details (name, descr, etc.) will be populated as we get info from the servers -->
 <% @wps_servers.each do |s| %>
   <div id="server-infotables">
-      <div class="infotable" id="server-infotable-<%= s.id %>">
-        <div class="close"></div>
-        <h1  class="wps-title"><%= s.title %></h1>
-        <div class="wps-abstr"><%= s.abstract %></div>
-        <div style="overflow:hidden">
-          <dl>
-            <dt>Provider:</dt><dd class="wps-providerName"><%= s.provider_name %></dd>
-            <dt>Contact:</dt><dd>
-              <span class="wps-email"><%= mail_to(s.contact_email, s.contact_name, :encode => :javascript) %></span>
-            </dd>
-            <dt>Server URL:</dt><dd><%= s.url %></dd>
-            <dt>GetCapabilities URL:</dt><dd class="wps-describeProcessLink">
-              <%= link_to("WPS", s.url + "?SERVICE=WPS&VERSION=1.1.0&REQUEST=GetCapabilities", :target => "_blank") %>
-            </dd>
-          </dl>
-        </div>
+    <div class="infotable" id="server-infotable-<%= s.id %>">
+      <div class="close"></div>
+      <h1  class="wps-title"><%= s.title %></h1>
+      <div class="wps-abstr"><%= s.abstract %></div>
+      <div style="overflow:hidden">
+        <dl>
+          <dt>Provider:</dt><dd class="wps-providerName"><%= s.provider_name %></dd>
+          <dt>Contact:</dt><dd>
+            <span class="wps-email">
+              <%= mail_to(s.contact_email, s.contact_name, :encode => :javascript) %>
+            </span>
+          </dd>
+          <dt>Server URL:</dt><dd><%= s.url %></dd>
+          <dt>GetCapabilities URL:</dt><dd class="wps-describeProcessLink">
+            <%= link_to("WPS", s.url + "?SERVICE=WPS&VERSION=1.1.0&REQUEST=GetCapabilities", :target => "_blank") %>
+          </dd>
+        </dl>
       </div>
+    </div>
   </div>
 <% end %>
 
-
 <script>
   // Gets run when page is fully loaded
-  $(document).ready(function() {
-
+  $(document).ready(function() 
+  {
     // Activate our jquery tabs 
     if($("ul.tabs").length != 0) {
       $(function() {
@@ -216,13 +198,26 @@
       });
     }
 
-    // Activate layer info overlay popups and such
-    $('span[rel]').overlay();  
+    // var spans = [];
 
+    // // Remove duplicate items from spans
+    // var seen = {};
+    // $('span[rel]').each(function() {
+    //     var rel = $(this).attr('rel');
+    //     if(!seen[rel])
+    //     {
+    //             console.log($(this).attr('rel'));
+
+    //       $(this).overlay();    // Activate layer info overlay popups and such
+    //       seen[rel] = true;     // Flag this item as seen so it won't get activaetd again
+    //     }
+    // });
+
+
+    $('span[rel]').overlay(); 
 
     for(var i = 0; i < <%= @wps_processes.size %>; i++)
       $('.item-' + i + ' span[rel]').overlay();    // Activate layer info overlays
-
 
     initializeAccordion('#module-catalog > h2', '.catalog-item');
 
