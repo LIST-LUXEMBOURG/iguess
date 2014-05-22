@@ -173,6 +173,7 @@ var clearServerDetails = function()
 
 
 // Check response and see if it looks like it is good and requires further parsing
+// Service will be "WFS", "WCS", or "WMS"
 var isGoodResponse = function(service, response, capabilities)
 {
   var code = response.status;   // Standard http response code herein
@@ -185,6 +186,14 @@ var isGoodResponse = function(service, response, capabilities)
       response.responseXML.documentElement.tagName == "ows:ExceptionReport" ||
       response.responseXML.documentElement.tagName == "ExceptionReport"))
     return false;
+
+
+  // Aberdeen sends us an error response that does not get parsed as XML, so responseXML is NULL
+  if(!response.responseXML && response.responseText && 
+     response.responseText.indexOf("<ExceptionReport") > -1 &&
+     response.responseText.indexOf("</ExceptionReport>") > -1)
+    return false;
+    
 
   // Sometimes ESRI software send us data about the wrong service... these responses are invalid
   if(capabilities.requestType.substring(0, 3) != service)
