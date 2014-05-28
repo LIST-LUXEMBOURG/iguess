@@ -27,7 +27,7 @@ from harvester_pwd import dbDatabase, dbName, dbUsername, dbPassword, dbSchema
 # Constants
 
 wpsVersion = '1.0.0'
-wmsVersion = '1.1.1'        # Rotterdam wms doesn't like 1.3.0!
+wmsVersion = '1.1.1'        # Christian says 1.3.0 is "weird", Rotterdam wms doesn't like 1.3.0!
 wfsVersion = '1.0.0'        # Montreuil only works with 1.0.0
 wcsVersion = '1.1.0'        # Rotterdam only works when this is set to 1.1.0
 
