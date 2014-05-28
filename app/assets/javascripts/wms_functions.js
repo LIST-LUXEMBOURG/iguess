@@ -397,7 +397,7 @@ WMS.getCapReq = function(serverUrl) {
 CRS.splitCrsIntoWords = function(crs)
 {
   // First, replace the :: with a single :
-  crsFixed  = crs.replace('::', ':');
+  var crsFixed  = crs.replace('::', ':');
 
   // Now split on a ':', lowercasing to remove case considerations, so we can compare the last two tokens
   return crsFixed.split(':');

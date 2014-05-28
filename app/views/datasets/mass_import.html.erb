@@ -60,7 +60,6 @@
     <div class="server-name" id="server-name"></div>
     <div class="server-descr" id="server-descr"></div>
     <div class="server-owner" id="server-owner"></div>
-
     <div id="results-display"><!-- Search results will be shown here --></div>
   </div>
 
@@ -173,48 +172,6 @@
   };
 
 
-  // We can have bouding box info socked away in several different places, 
-  // depending on which service sent it, and which openLayers component
-  // processed it.  We'll break this out to avoid complexity in the calling 
-  // function.  Returns null if we can't find any good bounding box coords.
-  var getNormalizedBoundingBox = function(layer)
-  {
-    if(layer.wmsCrs && layer.mapBbox && layer.mapBbox.left)
-      return [layer.mapBbox.left, 
-              layer.mapBbox.bottom, 
-              layer.mapBbox.right, 
-              layer.mapBbox.top, 
-              layer.wmsCrs];
-
-
-    if(layer.wmsCrs && layer.mapBbox && layer.mapBbox.bbox)   
-      return [layer.mapBbox.bbox[0], 
-              layer.mapBbox.bbox[1], 
-              layer.mapBbox.bbox[2], 
-              layer.mapBbox.bbox[3], 
-              layer.wmsCrs];
-
-
-    if(layer.wmsCrs && layer.mapBbox && layer.mapBbox.length == 4)
-      return [layer.mapBbox[0], 
-              layer.mapBbox[1], 
-              layer.mapBbox[2], 
-              layer.mapBbox[3], 
-              layer.wmsCrs];
-
-    
-    // See if we can do this in lat/long -- this is very hacky
-    if(layer.llbbox && layer.llbbox.length == 4) 
-      return [layer.llbbox[0], 
-              layer.llbbox[1], 
-              layer.llbbox[2], 
-              layer.llbbox[3], 
-              'EPSG:4326'];
-
-    return null;
-  };
-
-
   // Popup a window for displaying the passed content
   var displayOverflow = function(content)
   {
@@ -324,7 +281,6 @@
     // This puts registered items at the top of the screen.
     for(var pass = 0; pass < 2; pass++)
     {
-      // debugger;
       for(var lyrctr = 0, len = discoveredLayerKeys.length; lyrctr < len; lyrctr++)
       {
         var urlId = discoveredLayerKeys[lyrctr];
@@ -459,10 +415,10 @@
 
         $("#layer-table").append(li_element);
 
-        var bb = getNormalizedBoundingBox(layer);   // Returns an array, or null if we can't figure out what to do
+        var bb = layer.mapBbox;   
 
-        if(!bb) {
-          // I suspect that layer.type.hasObject('WMS') will always be false here...
+        if(!bb || !CRS.hasCRS(layer.wmsCrsList, GOOGLE_SRS)) {
+          // I suspect that layer.type.hasObject('WMS') will always be false here...  Not so!
           $('#' + mapDivId).html(
                 '<div class="map-unavailable">' + 
                     (layer.type.hasObject('WMS') ? 'Map unavailable' : 
@@ -486,11 +442,10 @@
             }
         }
         else {
-          var bounds = new OpenLayers.Bounds(bb[0], bb[1], bb[2], bb[3], bb[4]);  //minx miny maxx maxy
 
           var miniMap = new OpenLayers.Map({
-                  maxExtent:  bounds,
-                  projection: new OpenLayers.Projection(bb[4]),
+                  // maxExtent:  new OpenLayers.SetCenter(),
+                  projection: new OpenLayers.Projection(GOOGLE_SRS),
                   controls: [ new OpenLayers.Control.NavToolbar({zoomWheelEnabled: true}) ]
           });
 
@@ -503,7 +458,10 @@
           );
 
           miniMap.addLayer(lyr);
-          miniMap.zoomToMaxExtent();
+          // miniMap.zoomToMaxExtent();
+          var center = new OpenLayers.LonLat(<%= @current_city.mapx %>, <%= @current_city.mapy %>);
+          miniMap.setCenter(center, <%= @current_city.zoom %>);
+
           miniMap.render(mapDivId);    // Renders to <div id="map#">
         }
       }  // end for loop
@@ -644,7 +602,6 @@
         var title          = $("#dataset-title-"    + sanitizedIdent).text();
         var abstract       = $("#dataset-abstract-" + sanitizedIdent).text();
 
-
         var service  = "";
         if(     layer.type.hasObject("WFS")) { service = "WFS"; }
         else if(layer.type.hasObject("WCS")) { service = "WCS"; }
@@ -664,6 +621,7 @@
                 "&dataset[bbox_right]="      + getCoord(layer, "right") +
                 "&dataset[bbox_top]="        + getCoord(layer, "top") +
                 "&dataset[bbox_bottom]="     + getCoord(layer, "bottom") +
+                "&dataset[bbox_srs]="        + layer.dataCrs +
                 "&dataset[resolution_x]="    + (layer.resolution ? Math.abs(layer.resolution.x) : 0) +
                 "&dataset[resolution_y]="    + (layer.resolution ? Math.abs(layer.resolution.y) : 0) +
                 "&dataset[format]="          + (layer.format ? layer.format : "") +
@@ -671,7 +629,6 @@
                 "&dataset[city_id]="         + "<%= raw @current_city.id %>" +
                 "&dataset[alive]=true"       +
 
-                "&llbbox="                   + layer.llbbox +
                 "&server_title="             + getServerTitle() +
                 "&server_abstract="          + getServerAbstract() +
                 "&tags="                     + taglist +
@@ -699,35 +656,26 @@
   };
 
 
+  // Handles both types of bounding boxes... either a simple array, or a dictionary 
+  // with left/right/top/bottom keys
   // which == "left", "right", "top", or "bottom"
   var getCoord = function(layer, which)
   {
     if(layer.dataBbox)
-      return doGetCoord(layer.dataBbox, which);
+    {
+      if(layer.dataBbox[which])
+        return layer.dataBbox[which];
 
-    if(layer.mapBbox)
-      return doGetCoord(layer.mapBbox, which);
-
+      if(which == "left")
+        return layer.dataBbox[0];
+      if(which == "right")
+        return layer.dataBbox[2];
+      if(which == "top")
+        return layer.dataBbox[3];
+      if(which == "bottom")
+        return layer.dataBbox[1];
+    }
     return "";
-  };
-
-
-  // Helper for above
-  // Handles both types of bounding boxes... either a simple array, or a dictionary 
-  // with left/right/top/bottom keys
-  var doGetCoord = function(obj, which) 
-  {
-    if(obj[which])
-      return obj[which];
-
-    if(which == "left")
-      return obj[0];
-    if(which == "right")
-      return obj[2];
-    if(which == "top")
-      return obj[3];
-    if(which == "bottom")
-      return obj[1];
   };
 
 
@@ -934,7 +882,6 @@
     this.wmsCrs      = null;
     this.wmsCrsList  = [];      // CRSs that the map data is available in
     this.mapBbox     = null;    // Projected bounds of the map
-    this.llbbox      = null;    // Lat-long bounds of the WCS dataset, or if not that, then the map
 
     var localCrs = CRS.getSimpleFormat(LOCAL_SRS);
 
@@ -944,8 +891,8 @@
     for(var key in datasetInfo.srs)
       this.wmsCrsList.push(key);
 
-    this.mapBbox = datasetInfo.bbox[localCrs] && datasetInfo.bbox[localCrs].bbox;
-    this.llbbox  = datasetInfo.llbbox;
+    // For mapping, we always use the llbbox, which should be compatible with the "google projection"
+    this.mapBbox = datasetInfo.llbbox;
   };
 
   WMSDataset.prototype = new Dataset;
@@ -974,24 +921,27 @@
   WFSDataset.prototype.constructor = WFSDataset; // repair the inherited constructor
 
 
-  var WCSDataset = function(serverUrl, datasetInfo)
+  // This gets called in response to both a GetCapabilites and a DescribeCoverage response
+  // request is just a string that we can use for debugging
+  var WCSDataset = function(serverUrl, datasetInfo, request)
   {
     Dataset.call(this, serverUrl, datasetInfo);
 
     this.type = ["WCS"];
 
-    this.dataCrs     = null;    // CRSs that the data is available in (will be a list)
-    this.llbbox      = null;    // Lat-long bounds of the WCS dataset, or if not that, then the map
-    this.format      = null;    // Image format for WCS data
-    this.resolution  = null;    // Resolution of the WCS dataset
+    // Only available on a DescribeCoverage response
+    if(datasetInfo.nativeCRS)
+    {
+      this.dataCrs = CRS.getSimpleFormat(datasetInfo.nativeCRS);
+      try {
+        this.dataBbox = datasetInfo.domain.spatialDomain.boundingBoxes[datasetInfo.nativeCRS];
+      } catch(error) {
+        // Do nothing
+      }
+    }
 
-    // We'll always collect the bounding box in the native CRS.
-    this.dataCrs = CRS.getSimpleFormat(datasetInfo.nativeCRS);
-
-    if(datasetInfo.bounds) 
-      this.llbbox = datasetInfo.bounds;
-
-    
+    if(request == "WCSDescribeCoverage")
+      console.log(this.dataBbox);
 
     try {
       // Use image/img if it is available... seems to work best
@@ -1034,7 +984,6 @@
     }
 
     else {   // Already found this layer, add service to it
-
       // We'll get here twice with service == WCS; we don't want to list it twice in layer.type
       // layer.type is a list of strings: "WCS", "WFS", and/or "WMS"
       if(!layer.type.hasObject(service))
@@ -1045,12 +994,16 @@
         layer.dataBbox = dataset.dataBbox;
       }
       else if(service == "WCS") {
-        layer.dataCrs  = dataset.dataCrs;
-        layer.llbbox   = dataset.llbbox;
-        layer.format   = dataset.format;
-
-        if(dataset.resolution)
+        // We come through here twice... don't overwrite a valid
+        // value with something that may be empty.
+        if(!layer.dataCrs)
+          layer.dataCrs = dataset.dataCrs;
+        if(!layer.format)
+          layer.format = dataset.format;
+        if(!layer.resolution)
           layer.resolution = dataset.resolution;
+        if(!layer.dataBbox)
+          layer.dataBbox = dataset.dataBbox;
       }
 
       else if(service == "WMS")
@@ -1059,10 +1012,6 @@
         layer.wmsCrsList  = dataset.wmsCrsList
         layer.mapBbox     = dataset.mapBbox;
         
-        // If we already have an llbbox from WCS, don't clobber it
-        if(!layer.llbbox)
-          layer.llbbox    = dataset.llbbox;
-
         // Title and abstract from WMS supercede those from other services
         layer.title       = dataset.title;         
         layer["abstract"] = dataset["abstract"];
@@ -1191,19 +1140,19 @@
     var ok = false;
 
     if(capabilities.serviceIdentification) {
-      title = capabilities.serviceIdentification.title;
-      abstr = capabilities.serviceIdentification["abstract"];
+      title = capabilities.serviceIdentification.title || "Just Another Unnamed Server";
+      abstr = capabilities.serviceIdentification["abstract"] || "";
       ok = true;
     }
 
     if(capabilities.serviceProvider)
     {
-      provider = capabilities.serviceProvider.providerName;
+      provider = capabilities.serviceProvider.providerName || "";
       ok = true;
     }
 
     if(ok)
-      new ServerInfo(title, abstr, provider);
+      return new ServerInfo(title, abstr, provider);
     else
       return null;
   };
@@ -1221,7 +1170,7 @@
       // Some servers return a husk of a response with no data in coverageDescriptionKeys
       if(coverageKeys)
         for(var i = 0, len = coverageKeys.length; i < len; i++) {
-          var dataset = new WCSDataset(serverUrl, capabilities.coverageDescriptions[coverageKeys[i]]);
+          var dataset = new WCSDataset(serverUrl, capabilities.coverageDescriptions[coverageKeys[i]], "WCSDescribeCoverage");
           mergeDatasetIntoLayerList(dataset, "WCS");
         }
     }
@@ -1230,12 +1179,10 @@
         var coverageList = capabilities.contentMetadata;
 
         for(var i = 0, len = coverageList.length; i < len; i++) {
-          var dataset = new WCSDataset(serverUrl, coverageList[i]);
+          var dataset = new WCSDataset(serverUrl, coverageList[i], "WCSGetCapabilities");
           mergeDatasetIntoLayerList(dataset, "WCS");
         }
-
         serverInfo = getServerInfo(capabilities);   // Could return null
-
       }
     }
 

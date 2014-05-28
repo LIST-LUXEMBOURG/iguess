@@ -61903,7 +61903,8 @@ OpenLayers.Format.WCSDescribeCoverage.v1_1_0 = OpenLayers.Class(
         wcs: "http://www.opengis.net/wcs/1.1",
         xlink: "http://www.w3.org/1999/xlink",
         xsi: "http://www.w3.org/2001/XMLSchema-instance",
-        ows: "http://www.opengis.net/ows/1.1"
+        ows: "http://www.opengis.net/ows/1.1",
+        owsesri: "http://www.opengis.net/ows"
     },
 
     /**
@@ -62021,7 +62022,8 @@ OpenLayers.Format.WCSDescribeCoverage.v1_1_0 = OpenLayers.Class(
                 description.supportedFormats.push(format);
             }
         }, OpenLayers.Format.WCSDescribeCoverage.v1.prototype.readers["wcs"]),
-        "ows": OpenLayers.Format.OWSCommon.v1_1_0.prototype.readers["ows"]
+        "ows": OpenLayers.Format.OWSCommon.v1_1_0.prototype.readers["ows"],
+        "owsesri": OpenLayers.Format.OWSCommon.v1_1_0.prototype.readers["ows"]
     },
 
     CLASS_NAME: "OpenLayers.Format.WCSDescribeCoverage.v1_1_0" 
@@ -67372,11 +67374,13 @@ OpenLayers.Format.WCSCapabilities.v1_1_0 = OpenLayers.Class(
      * Property: namespaces
      * {Object} Mapping of namespace aliases to namespace URIs.
      */
-    namespaces: {
+        namespaces: {
         wcs: "http://www.opengis.net/wcs/1.1",
         xlink: "http://www.w3.org/1999/xlink",
         xsi: "http://www.w3.org/2001/XMLSchema-instance",
-        ows: "http://www.opengis.net/ows/1.1"
+        ows: "http://www.opengis.net/ows/1.1",
+        owsesri: "http://www.opengis.net/ows",
+        owcsesri: "http://www.opengis.net/wcs/1.1/ows"
     },
 
     /**
@@ -67463,7 +67467,19 @@ OpenLayers.Format.WCSCapabilities.v1_1_0 = OpenLayers.Class(
                 // Append the keyword to the keywords list
                 keywords.push(this.getChildValue(node));   
             }
-        }, OpenLayers.Format.OWSCommon.v1_1_0.prototype.readers["ows"])
+        }, OpenLayers.Format.OWSCommon.v1_1_0.prototype.readers["ows"]),
+        "owsesri": OpenLayers.Util.applyDefaults({
+            // As above, we need to override the standard ows keyword parsing
+            "Keywords": function(node, serviceIdentification) {
+                serviceIdentification.keywords = [];
+                this.readChildNodes(node, serviceIdentification.keywords);
+            },
+            "Keyword": function(node, keywords) {
+                // Append the keyword to the keywords list
+                keywords.push(this.getChildValue(node));   
+            }
+        }, OpenLayers.Format.OWSCommon.v1_1_0.prototype.readers["ows"]),
+        "owcsesri": OpenLayers.Format.OWSCommon.v1.prototype.readers["ows"]
     },
 
     CLASS_NAME: "OpenLayers.Format.WCSCapabilities.v1_1_0" 
