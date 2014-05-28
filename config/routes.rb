@@ -33,6 +33,8 @@ Iguess::Application.routes.draw do
   
   resources :dss
 
+  resources :co2_scenarios
+
   devise_for :users, :controllers => {:registrations => "registrations"}
 
   match 'about', :to => 'about#index'
