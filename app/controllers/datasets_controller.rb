@@ -199,13 +199,20 @@ class DatasetsController < ApplicationController
 
     # User checked or unchecked publish checkbox (NOT the register dataset checkbox!!)
     elsif params[:id] == "publish"   
-      if User.canAccessObject(current_user, @dataset)
-        @dataset.published = params[:checked]
-        @dataset.save
-      else
+      if not User.canAccessObject(current_user, @dataset)
         respond_to do |format|
           format.json { render :text => "You don't have permissions for this object!", :status => 403 }
         end
+        return
+      end
+
+      @dataset.published = params[:checked]
+      @dataset.save
+
+      respond_to do |format|
+        # For some reason, we need to include a json body, otherwise, this gets interpreted by
+        # the browser as an error message.
+        format.json { render :json => [], :status => :ok }     # Send success signal
       end
     end
   end
