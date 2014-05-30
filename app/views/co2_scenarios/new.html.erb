@@ -1,0 +1,63 @@
+<h1>New Scenario!</h1>
+
+<% if flash[:error] %>
+  <div class="error-msg"><%= flash[:error] %></div>
+<% end %>
+
+
+<%= simple_form_for @scenario do |scen| %>
+  <%= scen.error_notification %>
+
+  <%= scen.input :name, 
+        :label => "Scenario Name", 
+        :input_html => { :cols => 80 },
+        :placeholder => "Name" %>
+
+  <%= scen.input :base_year, 
+        :label => "Base Year", 
+        :as => :string,
+        :placeholder => "e.g. 2010" %>
+
+  <%= scen.input :time_step, 
+        :label => "Time step (years)", 
+        :as => :string %>
+
+
+  <hr>
+  <label>&nbsp;</label>
+  <table class="grid-input zebra">
+    <tr>
+      <th class="center">Sector</th>
+      <th class="center">Demand<br>Growth<br>(%/yr)</th>
+      <th class="center">Efficiency<br>Gain<br>(%/yr)</th>
+      <th class="center">Total<br>Demand<br>(GWh)</th>
+    </tr>
+
+    <% index = 0 %>
+
+    <% @sector_scenarios.each do |secscen| %>
+      <tr>
+        <input name="co2_sector_scenarios[<%= index %>][co2_sector_id]" 
+               type="hidden" value="<%= secscen.co2_sector.id %>" />
+        <td><%= secscen.co2_sector.name %></td>
+        <td>
+          <input name="co2_sector_scenarios[<%= index %>][demand]" 
+                 type="text" value="<%= secscen.demand %>" />
+        </td>
+        <td>
+          <input name="co2_sector_scenarios[<%= index %>][efficiency]" 
+                 type="text" value="<%= secscen.efficiency %>" />
+        </td>
+        <td>
+          <input name="co2_sector_scenarios[<%= index %>][base_total]" 
+                 type="text" value="<%= secscen.base_total %>" />
+        </td>
+      </tr>
+      <% index += 1 %>
+    <% end %>
+  </table>
+
+
+  <label>&nbsp;</label><%= scen.submit "Create New Scenario" %>
+        
+<% end %>
