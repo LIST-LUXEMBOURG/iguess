@@ -152,7 +152,7 @@
                  'Content-Type': 'application/json' */},
       success: function(data) {  },
       error:   function(jqXHR, status, error) { 
-              alert('Could not publish dataset! (server says: "' + error.trim() + '")'); 
+                  jsonErrorHandler(jqXHR, status, error, "Could not publish dataset!");
             }
     });
   };

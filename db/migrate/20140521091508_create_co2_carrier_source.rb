@@ -1,6 +1,6 @@
 class CreateCo2Mix < ActiveRecord::Migration
   def change
-    create_table :co2_mix do |t|
+    create_table :co2_mixes do |t|
       t.integer "co2_source_id"
       t.integer "co2_carrier_id"
       t.integer "co2_scenario_id"

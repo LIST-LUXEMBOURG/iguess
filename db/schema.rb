@@ -25,15 +25,6 @@ ActiveRecord::Schema.define(:version => 20140521123325) do
     t.string   "projection_params"
   end
 
-  create_table "co2_carrier", :force => true do |t|
-    t.string   "name"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
-  end
-
-  add_index "co2_carrier", ["id"], :name => "index_co2_carrier_on_id"
-  add_index "co2_carrier", ["name"], :name => "index_co2_carrier_on_name", :unique => true
-
   create_table "co2_carrier_source", :force => true do |t|
     t.integer  "co2_source_id"
     t.integer  "co2_carrier_id"
@@ -49,16 +40,25 @@ ActiveRecord::Schema.define(:version => 20140521123325) do
   add_index "co2_carrier_source", ["co2_source_id", "co2_carrier_id", "period"], :name => "source_carrier_period_index", :unique => true
   add_index "co2_carrier_source", ["id"], :name => "index_co2_carrier_source_on_id"
 
-  create_table "co2_consumption", :force => true do |t|
+  create_table "co2_carriers", :force => true do |t|
+    t.string   "name"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "co2_carriers", ["id"], :name => "index_co2_carriers_on_id"
+  add_index "co2_carriers", ["name"], :name => "index_co2_carriers_on_name", :unique => true
+
+  create_table "co2_consumptions", :force => true do |t|
     t.integer  "period"
     t.float    "value"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
 
-  add_index "co2_consumption", ["id"], :name => "index_co2_consumption_on_id"
+  add_index "co2_consumptions", ["id"], :name => "index_co2_consumptions_on_id"
 
-  create_table "co2_scenario", :force => true do |t|
+  create_table "co2_scenarios", :force => true do |t|
     t.integer  "city_id"
     t.integer  "base_year"
     t.integer  "time_step"
@@ -68,19 +68,10 @@ ActiveRecord::Schema.define(:version => 20140521123325) do
     t.datetime "updated_at",  :null => false
   end
 
-  add_index "co2_scenario", ["id"], :name => "index_co2_scenario_on_id"
-  add_index "co2_scenario", ["name", "city_id"], :name => "index_co2_scenario_on_name_and_city_id", :unique => true
+  add_index "co2_scenarios", ["id"], :name => "index_co2_scenarios_on_id"
+  add_index "co2_scenarios", ["name", "city_id"], :name => "index_co2_scenarios_on_name_and_city_id", :unique => true
 
-  create_table "co2_sector", :force => true do |t|
-    t.string   "name"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
-  end
-
-  add_index "co2_sector", ["id"], :name => "index_co2_sector_on_id"
-  add_index "co2_sector", ["name"], :name => "index_co2_sector_on_name", :unique => true
-
-  create_table "co2_sector_scenario", :force => true do |t|
+  create_table "co2_sector_scenarios", :force => true do |t|
     t.integer  "co2_sector_id"
     t.integer  "co2_scenario_id"
     t.float    "demand"
@@ -90,17 +81,26 @@ ActiveRecord::Schema.define(:version => 20140521123325) do
     t.datetime "updated_at",      :null => false
   end
 
-  add_index "co2_sector_scenario", ["co2_sector_id", "co2_scenario_id"], :name => "index_co2_sector_scenario_on_co2_sector_id_and_co2_scenario_id", :unique => true
-  add_index "co2_sector_scenario", ["id"], :name => "index_co2_sector_scenario_on_id"
+  add_index "co2_sector_scenarios", ["co2_sector_id", "co2_scenario_id"], :name => "index_co2_sector_scenarios_on_co2_sector_id_and_co2_scenario_id", :unique => true
+  add_index "co2_sector_scenarios", ["id"], :name => "index_co2_sector_scenarios_on_id"
 
-  create_table "co2_source", :force => true do |t|
+  create_table "co2_sectors", :force => true do |t|
     t.string   "name"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
   end
 
-  add_index "co2_source", ["id"], :name => "index_co2_source_on_id"
-  add_index "co2_source", ["name"], :name => "index_co2_source_on_name", :unique => true
+  add_index "co2_sectors", ["id"], :name => "index_co2_sectors_on_id"
+  add_index "co2_sectors", ["name"], :name => "index_co2_sectors_on_name", :unique => true
+
+  create_table "co2_sources", :force => true do |t|
+    t.string   "name"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "co2_sources", ["id"], :name => "index_co2_sources_on_id"
+  add_index "co2_sources", ["name"], :name => "index_co2_sources_on_name", :unique => true
 
   create_table "config_datasets", :force => true do |t|
     t.integer "dataset_id",       :null => false

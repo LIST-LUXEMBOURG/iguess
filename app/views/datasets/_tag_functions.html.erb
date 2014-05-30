@@ -181,7 +181,7 @@
       var win = window.open();
       if(win)
       {
-        $(win.document.body).html(jqXHR.responseText);
+        $(win.document.body).html("<h1>Encountered error:</h1>" + jqXHR.responseText);
         return;
       }
 

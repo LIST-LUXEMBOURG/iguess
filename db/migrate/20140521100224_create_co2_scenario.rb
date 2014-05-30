@@ -1,6 +1,6 @@
 class CreateCo2Scenario < ActiveRecord::Migration
   def change
-    create_table :co2_scenario do |t|
+    create_table :co2_scenarios do |t|
       t.integer "city_id"
 
       t.integer "base_year"
@@ -11,8 +11,8 @@ class CreateCo2Scenario < ActiveRecord::Migration
       t.timestamps
     end
 
-    add_index :co2_scenario, :id
-    add_index :co2_scenario, [:name,:city_id], unique: true
+    add_index :co2_scenarios, :id
+    add_index :co2_scenarios, [:name,:city_id], unique: true
 
   end
 end
