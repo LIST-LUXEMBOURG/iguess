@@ -1,0 +1,24 @@
+<h1>Scenario list</h1>
+
+<% if flash[:error] %>
+  <div class="error-msg"><%= flash[:error] %></div>
+<% end %>
+
+
+<div>
+  <% if @co2_scenarios.size == 0 %>
+    No Scenarios!
+  <% else %>
+    <table class="zebra sortable"><tr><th>Name</th><th>Base Year</th><th>Timestep</th></tr>
+      <% @co2_scenarios.each do |s| %>
+        <tr><td><%= s.name %></td><td><%= s.base_year %></td><td><%= s.time_step %></td></tr>
+      <% end %>
+    </table>
+  <% end %> 
+</div>
+
+<div>
+<%= link_to 'New Scenario', new_co2_scenario_path %>
+</div>
+
+

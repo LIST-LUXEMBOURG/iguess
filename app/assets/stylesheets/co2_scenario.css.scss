@@ -1,0 +1,24 @@
+.grid-input {
+ 	width: 200px;
+ 	white-space: nowrap
+}
+
+/* Suppress whitespace around input fields */
+.grid-input div { 
+	display: inline;
+}
+
+/* Center the input fields in their table columns */
+.grid-input td { 
+	text-align: center; 
+}
+
+/* Make first columns, which contain the labels, left-justified */
+.grid-input td:first-of-type { 
+	text-align: left; 
+}
+
+/* Text inputs */
+.grid-input input { 
+	width: 50px; 
+}

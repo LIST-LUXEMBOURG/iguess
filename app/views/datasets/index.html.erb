@@ -148,22 +148,20 @@
       url:     '<%= url_for(:controller => 'datasets', :action => 'publish') %>',
       data:    'dataset[id]=' + datasetId +
                '&checked='    + checked,
-      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
-                 'Content-Type': 'application/json' */},
-      success: function(data) {  },
-      error:   function(jqXHR, status, error) { 
-              alert('Could not publish dataset! (server says: "' + error.trim() + '")'); 
+      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
+      success: function() { /* Do nothing */ },
+      error:   function(data, status, error) { 
+                  jsonErrorHandler(data, status, error, "Could not publish dataset!");
             }
     });
   };
 
 
   addDeleteTagClickHander(true);    // Get ready to delete tags!
-  addDeleteTagClickHander(false);    // Get ready to delete tags!
+  addDeleteTagClickHander(false);   // Get ready to delete tags!
 
-  // Make sure table is sorted
+  // Make sure table is sorted -- sort on the first column
   var sorting = [[1,0], [0,0]]; 
-  // sort on the first column 
 
   $('#sortable_table').trigger("update"); 
   $('#sortable_table').trigger("sorton",[sorting]); 

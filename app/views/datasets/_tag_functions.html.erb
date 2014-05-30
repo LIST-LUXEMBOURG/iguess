@@ -181,7 +181,7 @@
       var win = window.open();
       if(win)
       {
-        $(win.document.body).html(jqXHR.responseText);
+        $(win.document.body).html("<h1>Encountered error:</h1>" + jqXHR.responseText);
         return;
       }
 
@@ -207,11 +207,10 @@
       data:    'dataset[identifier]='  + datasetIdentifier +
                '&dataset[server_url]=' + serverUrl +
                '&tag_val='             + tag,
-      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
-                 'Content-Type': 'application/json' */},
+      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
       success: function(data) { successFunction(serverUrl, datasetIdentifier, eval(data)); },
-      error:   function(jqXHR, status, error) { 
-                  jsonErrorHandler(jqXHR, status, error, "Could not add tag!");
+      error:   function(data, status, error) { 
+                  jsonErrorHandler(data, status, error, "Could not add tag!");
                }
     });
   };
