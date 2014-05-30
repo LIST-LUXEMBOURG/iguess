@@ -27,7 +27,6 @@ gem "rubypython"
 
 
 gem 'puma'      # Experimental multithreaded server -- start with rails s Puma
-gem "haml"
 
 
 # Gems used only for assets and not required
