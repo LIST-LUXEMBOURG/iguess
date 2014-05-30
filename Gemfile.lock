@@ -58,8 +58,6 @@ GEM
     execjs (1.4.0)
       multi_json (~> 1.0)
     ffi (1.9.0)
-    haml (4.0.5)
-      tilt
     hike (1.2.3)
     i18n (0.6.1)
     journey (1.0.4)
@@ -153,7 +151,6 @@ DEPENDENCIES
   coffee-rails (~> 3.2.1)
   devise (~> 2.2.4)
   execjs
-  haml
   jquery-rails
   pg
   pry

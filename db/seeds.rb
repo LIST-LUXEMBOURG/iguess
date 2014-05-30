@@ -24,3 +24,11 @@
 #   c.mapy = v[5]
 #   c.save
 # end
+
+
+# Basic sectors for the CO2 model
+[['Industry'], ['Road Transport'], ['Rail Transport'], ['Navigation Transport'],
+ ['Tertiary'], ['Residential'] ,   ['Agriculture']
+ ].each do |v|
+	sector = Co2Sector.find_or_create_by_name v[0]
+end
