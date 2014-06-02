@@ -58,6 +58,44 @@
   </table>
 
 
+  <% s_ctr = 0 %>
+  <% @sector_scenarios.each do |secscen| %>  <%# One table per sector %>
+    <hr>
+    <label>&nbsp;</label>
+    <h2>Consumptions: <%= secscen.co2_sector.name %></h2>
+
+    <label>&nbsp;</label>
+    <table class="grid-input zebra">
+      <tr>
+        <th class="center">Period</th>
+        <% @carriers.each do |carrier| %>
+          <th class="center"><%= carrier.name %></th>
+        <% end %>
+      </tr>
+
+      <!-- Start with the base year -->
+      <% year = @scenario.base_year %>
+      <% p_ctr = 0 %>
+      <% @periods.each do |period| %>
+        <tr>
+          <td><%= year %></td>
+          <% c_ctr = 0 %>
+          <% @carriers.each do |carrier| %>
+            <td>
+              <input name="co2_consumptions[<%= p_ctr %>][<%= carrier.id %>][<%= s_ctr %>]" 
+                     type="text" value="<%= @consumptions[[p_ctr,c_ctr,s_ctr]].value %>" />
+            </td>
+            <% c_ctr += 1 %>
+          <% end %>
+        </tr>
+
+        <% year += @scenario.time_step %>
+        <% p_ctr += 1 %>
+      <% end %>
+    </table>
+    <% s_ctr += 1 %>
+  <% end %>
+
   <label>&nbsp;</label><%= scen.submit "Create New Scenario" %>
         
 <% end %>

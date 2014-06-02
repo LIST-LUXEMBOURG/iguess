@@ -32,3 +32,14 @@
  ].each do |v|
 	sector = Co2Sector.find_or_create_by_name v[0]
 end
+
+
+# Basic energy carriers for the CO2 model
+[['Electricity'], ['Heat'], ['Gas'], ['Diesel'], 
+ ['Gasoline'],    ['Heating Oil'],  ['LPG'], ['Coal'], 
+ ['Other']
+ ].each do |v|
+	sector = Co2Carrier.find_or_create_by_name v[0]
+end
+
+

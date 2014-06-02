@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140521123325) do
+ActiveRecord::Schema.define(:version => 20140602134247) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -52,10 +52,13 @@ ActiveRecord::Schema.define(:version => 20140521123325) do
   create_table "co2_consumptions", :force => true do |t|
     t.integer  "period"
     t.float    "value"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at",             :null => false
+    t.datetime "updated_at",             :null => false
+    t.integer  "co2_carrier_id"
+    t.integer  "co2_sector_scenario_id"
   end
 
+  add_index "co2_consumptions", ["co2_carrier_id", "co2_sector_scenario_id", "period"], :name => "foreign_key_index", :unique => true
   add_index "co2_consumptions", ["id"], :name => "index_co2_consumptions_on_id"
 
   create_table "co2_scenarios", :force => true do |t|
