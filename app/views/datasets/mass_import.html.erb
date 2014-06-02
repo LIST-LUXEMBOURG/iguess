@@ -553,26 +553,26 @@
                          registeredDataLayers[serverUrl][datasetIdentifier])  ?
                               registeredDataLayers[serverUrl][datasetIdentifier].configCount : 0;
 
-      // When unregistering a data layer that is used in a configuration, show a warning
-      if(configCount > 0) {
-        var c =  (configCount == 1) ? "configuration" : "configurations";
-        var t =  (configCount == 1) ? "this"          : "these";
-        var th = (configCount == 1) ? "it"            : "them";
-
-        if(!confirm("This dataset is in use by " + configCount + " " + c + ". " +
-                    "Unregistering it will cause it to be removed from " + t + " " + c + ".\n\n" +
-                    "Click OK if you are sure you want to unregister this dataset.")) {
-          e.preventDefault();
-          return;
-        }
-      }
-
       var urlId = cssEscape(serverUrl + datasetIdentifier);
 
       var thiiis = $(this);   // Remember "this" for when the ajax requests return
 
       if(checkbox.checked) {
         // ===== Unregister dataset =====
+
+        // When unregistering a data layer that is used in a configuration, show a warning
+        if(configCount > 0) {
+          var c =  (configCount == 1) ? "configuration" : "configurations";
+          var t =  (configCount == 1) ? "this"          : "these";
+          var th = (configCount == 1) ? "it"            : "them";
+
+          if(!confirm("This dataset is in use by " + configCount + " " + c + ". " +
+                      "Unregistering it will cause it to be removed from " + t + " " + c + ".\n\n" +
+                      "Click OK if you are sure you want to unregister this dataset.")) {
+            e.preventDefault();
+            return;
+          }
+        }
 
         // Let the server know this layer is no longer registered -- to do this we delete the corresponding
         // record in the datasets table.
