@@ -35,6 +35,35 @@ class Co2ScenariosController < ApplicationController
       @sector_scenarios.push(ss)
     }
 
+    @carriers = Co2Carrier.all
+
+  
+    @periods = [0,1,2]
+    @consumptions = Hash.new
+
+    p_ctr = 0
+    @periods.each { |period|
+      c_ctr = 0
+      @carriers.each { |carrier| 
+        s_ctr = 0
+        @sector_scenarios.each { |secscen|
+          c = Co2Consumption.new
+          c.period = period
+          c.co2_carrier = carrier
+          c.co2_carrier_id = c_ctr
+          c.co2_sector_scenario = secscen
+          c.value = p_ctr * 100  + c_ctr * 10 + s_ctr
+
+          @consumptions[[p_ctr,c_ctr,s_ctr]] = c
+
+          s_ctr += 1
+        }
+        c_ctr += 1
+      }
+      p_ctr += 1
+    }
+
+
     # Render the form
     respond_to do |format|
       format.html
@@ -49,6 +78,8 @@ class Co2ScenariosController < ApplicationController
         format.json { render :text => "You must be logged in!", :status => 403 }
       end
     end
+
+    binding.pry
 
     @current_city  = User.getCurrentCity(current_user, cookies)
 
