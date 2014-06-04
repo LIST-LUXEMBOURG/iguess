@@ -21,11 +21,18 @@
  * Code for the CO2 calculator.
  **/ 
 
-var co2 = co2 || { };
+var CO2 = CO2 || { };		// Create namespace
 
-co2.updateTotal = function(p, s)
+CO2.updateTotal = function(p, s, size)
 {
 	id = "co2_cons_total_" + p + "_" + s;
-	el = document.getElementbyId(id);
-	el.value = 101;
+	el = $("#" + id);
+	total = 0.0;
+	
+	for(i = 1; i <= size; i++) {
+		name = "co2_consumptions[" + p + "][" + i + "][" + s + "]";
+		total += parseFloat(document.getElementsByName(name)[0].value);
+	}
+	
+	el.val(total);
 };

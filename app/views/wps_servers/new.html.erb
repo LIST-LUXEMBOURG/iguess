@@ -265,29 +265,30 @@
 
   var addRegisterClickHandler = function()
   {
-
     // When the toggle switch is clicked, check off / de-select the associated checkbox
     // Want to find this when we search for "registered_"
+    debugger;
     $(".toggle").click(function(e) 
     {
       var checkboxID = $(this).attr("ref");
       var checkbox   = document.getElementById(checkboxID);
 
-      var serverUrl = getServerUrl();
-
-      if(checkbox.checked && !confirm(
-        "Are you sure you want to unregister this process?\n\n" + 
-        "If you do, none of the functions will be available for new Module Configurations.\n\n" +
-        "Existing configurations will continue to work.")) 
-      {
-        e.preventDefault();
-        return;
-      }
+      var serverUrl  = getServerUrl();
 
       var thiiis = $(this);   // Remember "this" for when the ajax requests return
 
       if(checkbox.checked) {
         // ===== Unregister WPS =====
+
+        // TODO: Check if this module is actually used
+        if(checkbox.checked && !confirm(
+          "Are you sure you want to unregister this process?\n\n" + 
+          "If you do, none of the functions will be available for new Module Configurations.\n\n" +
+          "Existing configurations will continue to work.")) 
+        {
+          e.preventDefault();
+          return;
+        }
 
         // Let the server know this server is no longer registered -- to do this we mark
         // the corresponding record in the wps-servers table as deleted.  We don't actually

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140602134247) do
+ActiveRecord::Schema.define(:version => 20140604160000) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -44,6 +44,7 @@ ActiveRecord::Schema.define(:version => 20140602134247) do
     t.string   "name"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+    t.boolean  "has_mix"
   end
 
   add_index "co2_carriers", ["id"], :name => "index_co2_carriers_on_id"
@@ -60,6 +61,19 @@ ActiveRecord::Schema.define(:version => 20140602134247) do
 
   add_index "co2_consumptions", ["co2_carrier_id", "co2_sector_scenario_id", "period"], :name => "foreign_key_index", :unique => true
   add_index "co2_consumptions", ["id"], :name => "index_co2_consumptions_on_id"
+
+  create_table "co2_mixes", :force => true do |t|
+    t.integer  "co2_source_id"
+    t.integer  "co2_carrier_id"
+    t.integer  "co2_scenario_id"
+    t.integer  "period"
+    t.float    "value"
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+  end
+
+  add_index "co2_mixes", ["co2_source_id", "co2_carrier_id", "co2_scenario_id", "period"], :name => "mix_foreign_key_index", :unique => true
+  add_index "co2_mixes", ["id"], :name => "index_co2_mixes_on_id"
 
   create_table "co2_scenarios", :force => true do |t|
     t.integer  "city_id"

@@ -25,6 +25,7 @@ class Co2ScenariosController < ApplicationController
     @scenario.time_step = 5
 
     @sectors = Co2Sector.all
+    @sources = Co2Source.all
 
     @sector_scenarios = []
 
@@ -35,32 +36,37 @@ class Co2ScenariosController < ApplicationController
       @sector_scenarios.push(ss)
     }
 
-    @carriers = Co2Carrier.all
+    @carriers = Co2Carrier.all.sort_by{|c| c.name}
 
   
     @periods = [0,1,2]
     @consumptions = Hash.new
+    @mixes = Hash.new
 
-    p_ctr = 0
     @periods.each { |period|
-      c_ctr = 0
       @carriers.each { |carrier| 
-        s_ctr = 0
         @sector_scenarios.each { |secscen|
           c = Co2Consumption.new
           c.period = period
           c.co2_carrier = carrier
-          c.co2_carrier_id = c_ctr
           c.co2_sector_scenario = secscen
-          c.value = p_ctr * 100  + c_ctr * 10 + s_ctr
+          c.value = period * 100  + carrier.id * 10 + secscen.co2_sector.id
 
-          @consumptions[[p_ctr,c_ctr,s_ctr]] = c
-
-          s_ctr += 1
+          @consumptions[[period, carrier.id, secscen.co2_sector.id]] = c
         }
-        c_ctr += 1
+
+        if carrier.has_mix 
+          @sources.each { |source|
+            m = Co2Mix.new
+            m.period = period
+            m.co2_carrier = carrier
+            m.co2_source = source
+            m.value = period * 100  + carrier.id * 10 + source.id
+
+            @mixes[[period, carrier.id, source.id]] = m
+          }
+        end
       }
-      p_ctr += 1
     }
 
 
@@ -79,8 +85,6 @@ class Co2ScenariosController < ApplicationController
       end
     end
 
-    binding.pry
-
     @current_city  = User.getCurrentCity(current_user, cookies)
 
     @scenario = Co2Scenario.new(params[:co2_scenario])
@@ -92,6 +96,44 @@ class Co2ScenariosController < ApplicationController
       @sector_scenario.co2_scenario_id = @scenario.id
       @sector_scenario.save
     end
+
+    periods = params[:co2_consumptions].size()
+    @carriers = Co2Carrier.all
+
+    (0..periods-1).each do |p| 
+      @carriers.each do |c|
+        params[:co2_consumptions][p.to_s][c.id.to_s].keys.each do |secscen_sector_id|
+          secscen = Co2SectorScenario.find_by_co2_sector_id_and_co2_scenario_id(
+                secscen_sector_id.to_i, @scenario.id)
+
+          consumption = Co2Consumption.new
+          consumption.period = p
+          consumption.co2_carrier_id = c.id
+          consumption.co2_sector_scenario_id = secscen.id
+          consumption.value = params[:co2_consumptions][p.to_s][c.id.to_s][secscen_sector_id]
+          consumption.save
+        end
+      end
+    end
+
+    periods = params[:co2_consumptions].size()
+    @carriers = Co2Carrier.find_all_by_has_mix(true)
+    @sources  = Co2Source.all
+
+    (0..periods-1).each do |p| 
+      @carriers.each do |c|
+        @sources.each do |s|
+          mix = Co2Mix.new
+          mix.period = p
+          mix.co2_carrier_id = c.id
+          mix.co2_source_id = s.id
+          mix.co2_scenario_id = @scenario.id
+          mix.value = params[:co2_mixes][p.to_s][c.id.to_s][s.id.to_s]
+          mix.save
+        end
+      end
+    end
+
 
     redirect_to action: "index"
   end

@@ -1,22 +1,5 @@
 <script>
 
-var co2 = co2 || { };
-
-co2.updateTotal = function(p, s, size)
-{
-	id = "co2_cons_total_" + p + "_" + s;
-	el = document.getElementById(id);
-	total = 0.0;
-	
-	for(i=1; i <= size; i++)
-	{
-		name = "co2_consumptions[" + p + "][" + i + "][" + s + "]";
-		total += parseFloat(document.getElementsByName(name)[0].value);
-	}
-	
-	el.value = total;
-};
-
 </script/>
 
 <h1>New Scenario!</h1>
@@ -79,11 +62,53 @@ co2.updateTotal = function(p, s, size)
   </table>
 
 
-  <% s_ctr = 0 %>
+
+
+<% @carriers.each do |carrier| %>  <%# One table per carrier with mix %>
+  <% if not carrier.has_mix then next end %>
+    <hr>
+    <label>&nbsp;</label>
+    <h2>Mix: <%= carrier.name %> (<%= carrier.id %>)</h2>
+
+    <label>&nbsp;</label>
+    <table class="grid-input zebra">
+      <tr>
+        <th class="center">Period</th>
+        <% @sources.each do |source| %>
+          <th class="center"><%= source.name %></th>
+        <% end %>
+        <th class="total-header center">Total</th>
+      </tr>
+
+      <% year = @scenario.base_year %>
+      <% @periods.each do |period| %>
+        <tr>
+          <td><%= year %></td>
+          <% @sources.each do |source| %>
+            <td>
+              <input name="co2_mixes[<%= period %>][<%= carrier.id %>][<%= source.id %>]" 
+                     type="text" value="<%= @mixes[[period, carrier.id, source.id]].value %>" 
+                     onchange="CO2.updateTotal(<%= period %>, <%= carrier.id %>, <%= @sources.size %>); return false;"/>
+            </td>
+          <% end %>
+          <td>
+            <input id="co2_cons_total_<%= period %>_<%= carrier.id %>" type="text" value="0" disabled/>
+          </td>
+        </tr>
+        
+        <!-- Invoke Totals function to calculate the sum. -->
+        <script>CO2.updateTotal(<%= period %>, <%= carrier.id %>, <%= @sources.size %>);</script>
+
+        <% year += @scenario.time_step %>
+      <% end %>
+    </table>
+  <% end %>
+
+
   <% @sector_scenarios.each do |secscen| %>  <%# One table per sector %>
     <hr>
     <label>&nbsp;</label>
-    <h2>Consumptions: <%= secscen.co2_sector.name %></h2>
+    <h2>Consumptions: <%= secscen.co2_sector.name %> (<%= secscen.co2_sector.id %>)</h2>
 
     <label>&nbsp;</label>
     <table class="grid-input zebra">
@@ -95,34 +120,28 @@ co2.updateTotal = function(p, s, size)
         <th class="total-header center">Total</th>
       </tr>
 
-      <!-- Start with the base year -->
       <% year = @scenario.base_year %>
-      <% p_ctr = 0 %>
       <% @periods.each do |period| %>
         <tr>
           <td><%= year %></td>
-          <% c_ctr = 0 %>
           <% @carriers.each do |carrier| %>
             <td>
-              <input name="co2_consumptions[<%= p_ctr %>][<%= carrier.id %>][<%= s_ctr %>]" 
-                     type="text" value="<%= @consumptions[[p_ctr,c_ctr,s_ctr]].value %>"
-                     onchange="co2.updateTotal(<%= p_ctr %>, <%= s_ctr %>, <%= @carriers.size %>);" />
+              <input name="co2_consumptions[<%= period %>][<%= carrier.id %>][<%= secscen.co2_sector.id %>]" 
+                     type="text" value="<%= @consumptions[[period, carrier.id, secscen.co2_sector.id]].value %>" 
+                     onchange="CO2.updateTotal(<%= period %>, <%= secscen.co2_sector.id %>, <%= @carriers.size %>); return false;"/>
             </td>
-            <% c_ctr += 1 %>
           <% end %>
           <td>
-          	<input id="co2_cons_total_<%= p_ctr %>_<%= s_ctr %>" type="text" value="0" disabled/>
+          	<input id="co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>" type="text" value="0" disabled/>
           </td>
         </tr>
         
         <!-- Invoke Totals function to calculate the sum. -->
-        <script>co2.updateTotal(<%= p_ctr %>, <%= s_ctr %>, <%= @carriers.size %>);</script>
+        <script>CO2.updateTotal(<%= period %>, <%= secscen.co2_sector.id %>, <%= @carriers.size %>);</script>
 
         <% year += @scenario.time_step %>
-        <% p_ctr += 1 %>
       <% end %>
     </table>
-    <% s_ctr += 1 %>
   <% end %>
 
   <label>&nbsp;</label><%= scen.submit "Create New Scenario" %>
