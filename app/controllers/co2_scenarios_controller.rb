@@ -35,32 +35,24 @@ class Co2ScenariosController < ApplicationController
       @sector_scenarios.push(ss)
     }
 
-    @carriers = Co2Carrier.all
+    @carriers = Co2Carrier.all.sort_by{|c| c.name}
 
   
     @periods = [0,1,2]
     @consumptions = Hash.new
 
-    p_ctr = 0
     @periods.each { |period|
-      c_ctr = 0
       @carriers.each { |carrier| 
-        s_ctr = 0
         @sector_scenarios.each { |secscen|
           c = Co2Consumption.new
           c.period = period
           c.co2_carrier = carrier
-          c.co2_carrier_id = c_ctr
           c.co2_sector_scenario = secscen
-          c.value = p_ctr * 100  + c_ctr * 10 + s_ctr
+          c.value = period * 100  + carrier.id * 10 + secscen.co2_sector.id
 
-          @consumptions[[p_ctr,c_ctr,s_ctr]] = c
-
-          s_ctr += 1
+          @consumptions[[period,c.co2_carrier.id,secscen.co2_sector.id]] = c
         }
-        c_ctr += 1
       }
-      p_ctr += 1
     }
 
 
@@ -79,8 +71,6 @@ class Co2ScenariosController < ApplicationController
       end
     end
 
-    binding.pry
-
     @current_city  = User.getCurrentCity(current_user, cookies)
 
     @scenario = Co2Scenario.new(params[:co2_scenario])
@@ -91,6 +81,25 @@ class Co2ScenariosController < ApplicationController
       @sector_scenario = Co2SectorScenario.new(secscen[1])
       @sector_scenario.co2_scenario_id = @scenario.id
       @sector_scenario.save
+    end
+
+    periods = params[:co2_consumptions].size()
+    @carriers = Co2Carrier.all
+
+    (0..periods-1).each do |p| 
+      @carriers.each do |c|
+        params[:co2_consumptions][p.to_s][c.id.to_s].keys.each do |secscen_sector_id|
+          secscen = Co2SectorScenario.find_by_co2_sector_id_and_co2_scenario_id(
+                secscen_sector_id.to_i, @scenario.id)
+
+          consumption = Co2Consumption.new
+          consumption.period = p
+          consumption.co2_carrier_id = c.id
+          consumption.co2_sector_scenario_id = secscen.id
+          consumption.value = params[:co2_consumptions][p.to_s][c.id.to_s][secscen_sector_id]
+          consumption.save
+        end
+      end
     end
 
     redirect_to action: "index"
