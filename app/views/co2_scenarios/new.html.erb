@@ -1,22 +1,5 @@
 <script>
 
-var co2 = co2 || { };
-
-co2.updateTotal = function(p, s, size)
-{
-	id = "co2_cons_total_" + p + "_" + s;
-	el = document.getElementById(id);
-	total = 0.0;
-	
-	for(i=1; i <= size; i++)
-	{
-		name = "co2_consumptions[" + p + "][" + i + "][" + s + "]";
-		total += parseFloat(document.getElementsByName(name)[0].value);
-	}
-	
-	el.value = total;
-};
-
 </script/>
 
 <h1>New Scenario!</h1>
@@ -95,7 +78,6 @@ co2.updateTotal = function(p, s, size)
         <th class="total-header center">Total</th>
       </tr>
 
-      <!-- Start with the base year -->
       <% year = @scenario.base_year %>
       <% @periods.each do |period| %>
         <tr>
@@ -103,16 +85,17 @@ co2.updateTotal = function(p, s, size)
           <% @carriers.each do |carrier| %>
             <td>
               <input name="co2_consumptions[<%= period %>][<%= carrier.id %>][<%= secscen.co2_sector.id %>]" 
-                     type="text" value="<%= @consumptions[[period,carrier.id,secscen.co2_sector.id]].value %>" />
+                     type="text" value="<%= @consumptions[[period,carrier.id,secscen.co2_sector.id]].value %>" 
+                     onchange="CO2.updateTotal(<%= period %>, <%= secscen.co2_sector.id %>, <%= @carriers.size %>); return false;"/>
             </td>
           <% end %>
           <td>
-          	<input id="co2_cons_total_<%= p_ctr %>_<%= s_ctr %>" type="text" value="0" disabled/>
+          	<input id="co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>" type="text" value="0" disabled/>
           </td>
         </tr>
         
         <!-- Invoke Totals function to calculate the sum. -->
-        <script>co2.updateTotal(<%= p_ctr %>, <%= s_ctr %>, <%= @carriers.size %>);</script>
+        <script>CO2.updateTotal(<%= period %>, <%= secscen.co2_sector.id %>, <%= @carriers.size %>);</script>
 
         <% year += @scenario.time_step %>
       <% end %>
