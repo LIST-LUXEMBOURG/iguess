@@ -188,7 +188,7 @@ if($().jquery.split(".")[0] == "1") {
 
 
   // Dictionary of values for each input on this form
-  var formValues = { <%= raw @formValues %> };
+  var textInputValues = { <%= raw @textInputValues %> };
 
   // Dictionary of selected datasets used for selecting items in selected dataset dropdowns
   var datasetValues = { <%= raw @datasetValues %> };
@@ -324,8 +324,8 @@ if($().jquery.split(".")[0] == "1") {
 
   $(document).ready(function() {
 
-    populateTable(inputs,  true,  formValues, datasetValues);
-    populateTable(outputs, false, formValues);
+    populateTable(inputs,  true,  textInputValues, datasetValues);
+    populateTable(outputs, false, textInputValues);
 
     updateScreen("<%= @mod_config.run_status.status %>", 
                  "<%= @mod_config.run_status.pretty_name %>", 
