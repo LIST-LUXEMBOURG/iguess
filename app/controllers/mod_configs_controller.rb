@@ -76,11 +76,12 @@ class ModConfigsController < ApplicationController
                                     .join(',')
 
 
-    @formValues      = ConfigTextInput.find_all_by_mod_config_id(@mod_config)
-                                      .map{|text| text.column_name + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"'}
+    @textInputValues = ConfigTextInput.find_all_by_mod_config_id(@mod_config)
+                                      .map{ |text| text.column_name + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"' }
                                       .join(',')
-    @input_params    = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(true, true, :order=>:title)
-    @output_params   = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(false, true, :order=>:title)
+
+    @input_params  = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(true,  true, :order=>:title)
+    @output_params = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(false, true, :order=>:title)
 
     respond_to do |format|
       format.html # show.html.erb
@@ -227,16 +228,27 @@ class ModConfigsController < ApplicationController
     @current_city = User.getCurrentCity(current_user, cookies)
 
 
+    # These identifiers are the ones that are still "active".  The database does not store parameters
+    # that are not "alive", so this list will be current as of last harvester run.  To be clear, there
+    # may be come values in config_text_inputs that are associated with @mod_config that are not currently
+    # in use... we want those in case a wps parameter reappears in the future (peraps someone was doing 
+    # maintenance, and temporarily removed a parameter; we don't want to corrupt all our configurations 
+    # by deleting the user's selected inputs).
+    activeParamIdentifiers = @mod_config.wps_process.process_param.map { |p| p.identifier }
+
+
     # Drop downs -- always inputs
     @mod_config.datasets.map { |dataset| 
       dataRequest = dataset.getRequest(@current_city.srs, @aoi)
 
-      configDataset = ConfigDataset.find_by_mod_config_id_and_dataset_id(@mod_config.id, dataset.id)
+      configDataset = ConfigDataset.find_by_mod_config_id_and_dataset_id(@mod_config.id, dataset.id) 
+
       inputs.push("('" + configDataset.input_identifier + "', '" + dataRequest + "')")
     }
 
-    # Text fields -- both inputs and outputs
-    @mod_config.config_text_inputs.map { |d|  
+
+    # Text fields -- both inputs and outputs; only use fields that are still active
+    @mod_config.config_text_inputs.keep_if{ |c| activeParamIdentifiers.include?(c.column_name) }.map { |d|  
           if d.is_input then 
             inputs.push("('" + d.column_name + "', '" + d.value.gsub("&", "&amp;") + "')")
           else

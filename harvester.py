@@ -235,7 +235,11 @@ def clean_datatype(datatype):
 
 
 
+
 def check_wps(serverCursor):
+    '''
+    Check all WPS services, and update the database accordingly
+    '''
     # Get the server list, but ignore servers marked as deleted
     serverCursor.execute("SELECT url, id FROM " + tables["wpsServers"] + " WHERE deleted = false")
 
@@ -244,10 +248,16 @@ def check_wps(serverCursor):
 
     # Mark all our records as dead; we'll mark them as alive as we process them.  Note that the database won't
     # actually be udpated until we commit all our transactions at the end, so we'll never see this value
-    # for a server/process/input that is in fact alive.
-    sqlList.append("UPDATE " + tables["wpsServers"]    + " SET alive = false")
-    sqlList.append("UPDATE " + tables["processes"]     + " SET alive = false")
-    sqlList.append("UPDATE " + tables["processParams"] + " SET alive = false")
+    # for a server/process/input that is in fact alive.  
+    sqlList.append("UPDATE "      + tables["wpsServers"]    + " SET alive = false")
+    sqlList.append("UPDATE "      + tables["processes"]     + " SET alive = false")
+
+    # We'll delete the parameter list completely; There is no benefit of keeping older, but now disused module 
+    # parameters around... it just confuses things.
+    # If the parameters reappaear in the process in the future, they will be added back, and any values 
+    # associated with them will be retained.
+    sqlList.append("DELETE FROM " + tables["processParams"])
+    
 
     for row in serverCursor:
         serverUrl, serverId = row

@@ -116,11 +116,11 @@
 
   var anyDatasetsMissing = false;
 
-  // formValues & datasetValues will only be defined when calling from the main Module Configuration page
+  // textInputValues & datasetValues will only be defined when calling from the main Module Configuration page
   // When mode is output, datasetValues will be undefined
   // items is a list of input/output requirements the module has
   // isInput will be true for input table, false for output table
-  var populateTable = function(items, isInput, formValues, datasetValues)
+  var populateTable = function(items, isInput, textInputValues, datasetValues)
   {
     var itemCount = items.length;
     var modeName = isInput ? 'input' : 'output';
@@ -218,7 +218,7 @@
         // Simple output
         else if(!isInput && item.datatype != "ComplexData") {    // No input required, just display of value
 
-          var value = (formValues == undefined) ? "" : formValues[item.identifier + modeName];
+          var value = (textInputValues == undefined) ? "" : textInputValues[item.identifier + modeName];
 
           if(value) 
             cell.append('<b>' + value + '</b>');
@@ -232,7 +232,7 @@
         else {    
 
           var className = isInput ? "input-field" : "output-field";
-          var value = (formValues == undefined) ? "" : formValues[item.identifier + modeName];
+          var value = (textInputValues == undefined) ? "" : textInputValues[item.identifier + modeName];
           var placeholder = isInput ? item.datatype.capitalize() + " value" : "Output dataset name";
 
           var name = modeName + '[' + item.identifier + ']';
