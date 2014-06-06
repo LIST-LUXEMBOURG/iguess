@@ -17,7 +17,7 @@
       <td><%= @scenario.base_year + period * @scenario.time_step %></td>
       <% @sources.each do |source| %>
         <td>
-          <input name="<%= fieldName %>_emission_factors[<%= period %>][<%= source.id %>]" 
+          <input name="<%= fieldName %>[<%= period %>][<%= source.id %>]" 
                  type="text" value="<%= eval('@emission_factors[[period, source.id]].' + fieldName) %>"/>
         </td>
       <% end %>

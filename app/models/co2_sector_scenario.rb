@@ -4,5 +4,6 @@ class Co2SectorScenario < ActiveRecord::Base
   has_one :co2_scenario
   has_one :co2_consumption
 
-  default_scope joins(:co2_sector).order('co2_sectors.name')
+  # Want to sort these but this line makes the records read only, which is bad
+  # default_scope joins(:co2_sector).order('co2_sectors.name')
 end

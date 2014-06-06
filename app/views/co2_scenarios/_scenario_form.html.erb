@@ -59,8 +59,7 @@
 
 
 <%= render :partial => 'emission_factor.html.erb', 
-            locals: { title: "CO2", fieldName: "
-  co2_factor" } %>
+            locals: { title: "CO2", fieldName: "co2_factor" } %>
 
 <%= render :partial => 'emission_factor.html.erb', 
             locals: { title: "CH4", fieldName: "ch4_factor" } %>
@@ -75,7 +74,7 @@
 
     <hr>
     <label>&nbsp;</label>
-    <h2>Mix: <%= carrier.name %> (<%= carrier.id %>)</h2>
+    <h2>Mix: <%= carrier.name %></h2>
 
     <label>&nbsp;</label>
     <table class="grid-input zebra">
@@ -112,7 +111,7 @@
   <% @sector_scenarios.each do |secscen| %>  <%# One table per sector %>
     <hr>
     <label>&nbsp;</label>
-    <h2>Consumptions: <%= secscen.co2_sector.name %> (<%= secscen.co2_sector.id %>)</h2>
+    <h2>Consumptions: <%= secscen.co2_sector.name %></h2>
 
     <label>&nbsp;</label>
     <table class="grid-input zebra">

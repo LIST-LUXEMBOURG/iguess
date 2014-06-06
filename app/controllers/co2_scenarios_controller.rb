@@ -117,16 +117,16 @@ class Co2ScenariosController < ApplicationController
     periods = params[:co2_consumptions].size()
     @allSources = Co2Source.all
 
-    (0..periods-1).each do |p| 
+    (0..periods-1).each do |period| 
       @allSources.each do |s|
-        params[:co2_consumptions][p.to_s][s.id.to_s].keys.each do |secscen_sector_id|
+        params[:co2_consumptions][period.to_s][s.id.to_s].keys.each do |secscen_sector_id|
           secscen = Co2SectorScenario.find_by_co2_sector_id_and_co2_scenario_id(secscen_sector_id, @scenario.id)
 
           consumption = Co2Consumption.new
-          consumption.period = p
+          consumption.period = period
           consumption.co2_source_id = s.id
           consumption.co2_sector_scenario_id = secscen.id
-          consumption.value = params[:co2_consumptions][p.to_s][s.id.to_s][secscen_sector_id]
+          consumption.value = params[:co2_consumptions][period.to_s][s.id.to_s][secscen_sector_id]
           consumption.save
         end
       end
@@ -135,17 +135,30 @@ class Co2ScenariosController < ApplicationController
     @carriers = Co2Source.find_all_by_is_carrier(true)
     @sources  = Co2Source.find_all_by_is_carrier(false)
 
-    (0..periods-1).each do |p| 
+    (0..periods-1).each do |period| 
       @carriers.each do |c|
         @sources.each do |s|
           mix = Co2Mix.new
-          mix.period = p
+          mix.period = period
           mix.co2_carrier_id = c.id
           mix.co2_source_id = s.id
           mix.co2_scenario_id = @scenario.id
-          mix.value = params[:co2_mixes][p.to_s][s.id.to_s][c.id.to_s]
+          mix.value = params[:co2_mixes][period.to_s][s.id.to_s][c.id.to_s]
           mix.save
         end
+      end
+    end
+
+    (0..periods-1).each do |period| 
+      @sources.each do |source|
+        ef = Co2EmissionFactor.new
+        ef.co2_scenario_id = @scenario.id
+        ef.co2_source_id = source.id
+        ef.period = period
+        ef.co2_factor = params[:co2_factor][period.to_s][source.id.to_s]
+        ef.ch4_factor = params[:ch4_factor][period.to_s][source.id.to_s]
+        ef.n2o_factor = params[:n2o_factor][period.to_s][source.id.to_s]
+        ef.save
       end
     end
 
@@ -168,6 +181,7 @@ class Co2ScenariosController < ApplicationController
     @periods = [0,1,2]  #TODO -- this needs to be dynamic!!
     @consumptions = Hash.new
     @mixes = Hash.new
+    @emission_factors = Hash.new
 
 
     # Pack these into a structure that is the same as we create in the new action above
@@ -186,6 +200,13 @@ class Co2ScenariosController < ApplicationController
                     mix.co2_source_id,
                     mix.co2_carrier_id]] = mix
           }
+
+
+    Co2EmissionFactor.find_all_by_co2_scenario_id(@scenario.id)
+      .each{ |ef| 
+          @emission_factors[[ef.period, ef.co2_source_id]] = ef
+        }
+
 
     # Render the form
     respond_to do |format|
@@ -318,6 +339,39 @@ class Co2ScenariosController < ApplicationController
         end
       end
     end
+
+
+    # Delete all efs with periods higher than the current number of periods in the scenario
+    unusedEFs = Co2EmissionFactor.where("period >= " + periods.to_s)
+                                 .where("co2_scenario_id" => @scenario.id)
+
+    unusedEFs.each do |u|
+      u.delete
+    end
+
+
+    (0..periods-1).each do |period| 
+      @sources.each do |source|
+        ef = Co2EmissionFactor.find_by_co2_scenario_id_and_period_and_co2_source_id(@scenario.id, period, source.id)
+        if not ef
+          ef = Co2EmissionFactor.new
+          ef.co2_scenario_id = @scenario.id
+          ef.co2_source_id = source.id
+          ef.period = period
+        end
+
+        ef.co2_factor = params[:co2_factor][period.to_s][source.id.to_s]
+        ef.ch4_factor = params[:ch4_factor][period.to_s][source.id.to_s]
+        ef.n2o_factor = params[:n2o_factor][period.to_s][source.id.to_s]
+
+        if not ef.save
+          errorUpdating()
+          return
+        end
+      end
+    end
+
+
 
     flash[:notice] = "Successfully updated scenario"  
     
