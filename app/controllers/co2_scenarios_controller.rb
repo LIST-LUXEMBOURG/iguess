@@ -84,8 +84,6 @@ class Co2ScenariosController < ApplicationController
 
           @emission_factors[[period, source.id]] = ef
         end
-
-
       }
     }
 
@@ -96,11 +94,6 @@ class Co2ScenariosController < ApplicationController
   end   
 
  
-  def getConsumption(scenario_id, sector_id, period, source_id)
-    secscen = Co2SectorScenario.find_by_co2_sector_id_and_co2_scenario_id(sector_id, scenario_id)
-    return Co2Consumption.find_by_period_and_co2_source_id_and_co2_sector_scenario_id(period, source_id, secscen.id)
-  end 
-
 
   def create
     if not user_signed_in?    # Should always be true... but if not, return error and bail
@@ -204,6 +197,12 @@ class Co2ScenariosController < ApplicationController
   def errorUpdating
     flash[:notice] = "Encountered a problem updating scenario" 
   end
+
+
+  def getConsumption(scenario_id, sector_id, period, source_id)
+    secscen = Co2SectorScenario.find_by_co2_sector_id_and_co2_scenario_id(sector_id, scenario_id)
+    return Co2Consumption.find_by_period_and_co2_source_id_and_co2_sector_scenario_id(period, source_id, secscen.id)
+  end 
 
 
   # PUT /co2_scenarios/1
