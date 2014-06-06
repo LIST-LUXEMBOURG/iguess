@@ -25,7 +25,9 @@ class Co2ScenariosController < ApplicationController
     @scenario.time_step = 5
 
     @sectors = Co2Sector.all
-    @sources = Co2Source.all
+    @allSources = Co2Source.all  # including heat and electricity!
+    @sources = Co2Source.find_all_by_is_carrier(false)
+    @carriers = Co2Source.find_all_by_is_carrier(true)
 
     @sector_scenarios = []
 
@@ -36,37 +38,42 @@ class Co2ScenariosController < ApplicationController
       @sector_scenarios.push(ss)
     }
 
-    @carriers = Co2Carrier.all.sort_by{|c| c.name}
-
-  
     @periods = [0,1,2]
     @consumptions = Hash.new
     @mixes = Hash.new
 
     @periods.each { |period|
-      @carriers.each { |carrier| 
+      @allSources.each { |source| 
         @sector_scenarios.each { |secscen|
           c = Co2Consumption.new
           c.period = period
-          c.co2_carrier = carrier
+          c.co2_source = source
           c.co2_sector_scenario = secscen
-          c.value = period * 100  + carrier.id * 10 + secscen.co2_sector.id
+          c.value = period * 100  + source.id * 10 + secscen.co2_sector.id
 
           @consumptions[[period, 
-                         carrier.id, 
+                         source.id, 
                          secscen.co2_sector.id]] = c
         }
 
-        if carrier.has_mix 
-          @sources.each { |source|
+        if source.is_carrier # i.e. heat and electricity
+
+          # Skip heat and electricity because we are generating a list of sources of heat 
+          # and electricty, such as coal or solar
+          @allSources.each { |s|
+            if s.is_carrier    
+              next
+            end
+
             m = Co2Mix.new
             m.period = period
-            m.co2_carrier = carrier
+
             m.co2_source = source
-            m.value = period * 100  + carrier.id * 10 + source.id
+            m.co2_carrier = s
+            m.value = period * 100  + s.id * 10 + source.id
 
             @mixes[[period, 
-                    carrier.id, 
+                    s.id, 
                     source.id]] = m
           }
         end
@@ -80,9 +87,9 @@ class Co2ScenariosController < ApplicationController
   end   
 
  
-  def getConsumption(scenario_id, sector_id, period, carrier_id)
+  def getConsumption(scenario_id, sector_id, period, source_id)
     secscen = Co2SectorScenario.find_by_co2_sector_id_and_co2_scenario_id(sector_id, scenario_id)
-    return Co2Consumption.find_by_period_and_co2_carrier_id_and_co2_sector_scenario_id(period, carrier_id, secscen.id)
+    return Co2Consumption.find_by_period_and_co2_source_id_and_co2_sector_scenario_id(period, source_id, secscen.id)
   end 
 
 
@@ -106,25 +113,25 @@ class Co2ScenariosController < ApplicationController
     end
 
     periods = params[:co2_consumptions].size()
-    @carriers = Co2Carrier.all
+    @allSources = Co2Source.all
 
     (0..periods-1).each do |p| 
-      @carriers.each do |c|
-        params[:co2_consumptions][p.to_s][c.id.to_s].keys.each do |secscen_sector_id|
+      @allSources.each do |s|
+        params[:co2_consumptions][p.to_s][s.id.to_s].keys.each do |secscen_sector_id|
           secscen = Co2SectorScenario.find_by_co2_sector_id_and_co2_scenario_id(secscen_sector_id, @scenario.id)
 
           consumption = Co2Consumption.new
           consumption.period = p
-          consumption.co2_carrier_id = c.id
+          consumption.co2_source_id = s.id
           consumption.co2_sector_scenario_id = secscen.id
-          consumption.value = params[:co2_consumptions][p.to_s][c.id.to_s][secscen_sector_id]
+          consumption.value = params[:co2_consumptions][p.to_s][s.id.to_s][secscen_sector_id]
           consumption.save
         end
       end
     end
 
-    @carriers = Co2Carrier.find_all_by_has_mix(true)
-    @sources  = Co2Source.all
+    @carriers = Co2Source.find_all_by_is_carrier(true)
+    @sources  = Co2Source.find_all_by_is_carrier(false)
 
     (0..periods-1).each do |p| 
       @carriers.each do |c|
@@ -134,7 +141,7 @@ class Co2ScenariosController < ApplicationController
           mix.co2_carrier_id = c.id
           mix.co2_source_id = s.id
           mix.co2_scenario_id = @scenario.id
-          mix.value = params[:co2_mixes][p.to_s][c.id.to_s][s.id.to_s]
+          mix.value = params[:co2_mixes][p.to_s][s.id.to_s][c.id.to_s]
           mix.save
         end
       end
@@ -149,11 +156,12 @@ class Co2ScenariosController < ApplicationController
     @scenario = Co2Scenario.find(params[:id])
 
     @sectors = Co2Sector.all
-    @sources = Co2Source.all
+    @sources = Co2Source.find_all_by_is_carrier(false)
+    @carriers = Co2Source.find_all_by_is_carrier(true)
+    @allSources = Co2Source.all  # including heat and electricity!
 
     @sector_scenarios = Co2SectorScenario.find_all_by_co2_scenario_id(params[:id])
-    @carriers = Co2Carrier.all.sort_by{|c| c.name}
-
+    
   
     @periods = [0,1,2]  #TODO -- this needs to be dynamic!!
     @consumptions = Hash.new
@@ -166,15 +174,15 @@ class Co2ScenariosController < ApplicationController
                   .where("co2_sector_scenarios.co2_scenario_id" => params[:id])
                   .each { |consumption|
                     @consumptions[[consumption.period, 
-                                   consumption.co2_carrier_id, 
+                                   consumption.co2_source_id, 
                                    consumption.co2_sector_scenario.co2_sector.id]] = consumption
                   }
 
     Co2Mix.find_all_by_co2_scenario_id(params[:id])
           .each { |mix|
             @mixes[[mix.period, 
-                    mix.co2_carrier_id, 
-                    mix.co2_source_id]] = mix
+                    mix.co2_source_id,
+                    mix.co2_carrier_id]] = mix
           }
 
     # Render the form
@@ -228,7 +236,8 @@ class Co2ScenariosController < ApplicationController
     # And now the Carriers -- these may not all exist if the user added more years... create any missing ones,
     # and delete any extras.
     periods = params[:co2_consumptions].size()
-    @carriers = Co2Carrier.all
+    @allSources = Co2Source.all # including heat and electricity!
+
 
 
     # Delete all consumptions with periods higher than the current number of periods in the scenario
@@ -242,19 +251,19 @@ class Co2ScenariosController < ApplicationController
 
     # Update the remaining consumptions
     (0..periods-1).each do |p| 
-      @carriers.each do |c|
-        params[:co2_consumptions][p.to_s][c.id.to_s].keys.each do |secscen_sector_id|
+      @allSources.each do |s|
+        params[:co2_consumptions][p.to_s][s.id.to_s].keys.each do |secscen_sector_id|
           
-          consumption = getConsumption(@scenario.id, secscen_sector_id, p, c.id)
+          consumption = getConsumption(@scenario.id, secscen_sector_id, p, s.id)
 
           if not consumption 
             consumption = Co2Consumption.new
             consumption.period = p
-            consumption.co2_carrier_id = c.id
+            consumption.co2_source_id = s.id
             consumption.co2_sector_scenario_id = secscen_sector_id
           end
 
-          consumption.value = params[:co2_consumptions][p.to_s][c.id.to_s][secscen_sector_id]
+          consumption.value = params[:co2_consumptions][p.to_s][s.id.to_s][secscen_sector_id]
 
           if not consumption.save
             errorUpdating()
@@ -266,8 +275,9 @@ class Co2ScenariosController < ApplicationController
 
 
     # Finally, update the mixes -- again, the number of periods may have changed!
-    @carriers = Co2Carrier.find_all_by_has_mix(true)
-    @sources  = Co2Source.all
+    @sources = Co2Source.find_all_by_is_carrier(false)
+    @carriers = Co2Source.find_all_by_is_carrier(true)
+
 
     # Delete all mixes with periods higher than the current number of periods in the scenario
     unusedMixes = Co2Mix.includes(:co2_sector_scenario)
@@ -288,9 +298,10 @@ class Co2ScenariosController < ApplicationController
             mix.period = p
             mix.co2_carrier = c
             mix.co2_source = s
+            mix.co2_scenario_id = @scenario.id
           end
 
-          mix.value = params[:co2_mixes][p.to_s][c.id.to_s][s.id.to_s]
+          mix.value = params[:co2_mixes][p.to_s][s.id.to_s][c.id.to_s]
 
           if not mix.save
             errorUpdating()
