@@ -41,6 +41,7 @@ class Co2ScenariosController < ApplicationController
     @periods = [0,1,2]
     @consumptions = Hash.new
     @mixes = Hash.new
+    @emission_factors = Hash.new
 
     @periods.each { |period|
       @allSources.each { |source| 
@@ -60,11 +61,7 @@ class Co2ScenariosController < ApplicationController
 
           # Skip heat and electricity because we are generating a list of sources of heat 
           # and electricty, such as coal or solar
-          @allSources.each { |s|
-            if s.is_carrier    
-              next
-            end
-
+          @sources.each { |s|
             m = Co2Mix.new
             m.period = period
 
@@ -76,7 +73,19 @@ class Co2ScenariosController < ApplicationController
                     s.id, 
                     source.id]] = m
           }
+        else
+          ef = Co2EmissionFactor.new
+          ef.co2_scenario_id = @scenario.id
+          ef.co2_source_id = source.id
+          ef.period = period
+          ef.co2_factor = 0
+          ef.ch4_factor = 1
+          ef.n2o_factor = 2
+
+          @emission_factors[[period, source.id]] = ef
         end
+
+
       }
     }
 
