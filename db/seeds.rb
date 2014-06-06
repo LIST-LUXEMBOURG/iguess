@@ -34,23 +34,16 @@
 end
 
 
-# Basic energy carriers for the CO2 model
-[['Electricity', true], ['Heat', true], ['Gas', false], ['Diesel', false], 
- ['Gasoline', false],    ['Heating Oil', false],  ['LPG', false], ['Coal', false], 
- ['Other', false]
- ].each do |v|
-	sector = Co2Carrier.find_or_create_by_name v[0]
-	sector.has_mix = v[1]
-	sector.save
-end
-
-
-# Basic energy carriers for the CO2 model
-[['Coal'],       ['Gas'],         ['Oil'],     ['Wind'],    
- ['Hydraulic'],  ['Excess Heat'], ['Imports'], ['Solar'],
- ['Geothermal'], ['Waste'],       ['Biogaz'],  ['Wood']
+# Basic energy sources for the CO2 model
+[['Coal', false],       ['Gas', false],         ['Oil', false],     ['Wind', false],    
+ ['Hydraulic', false],  ['Excess Heat', false], ['Imports', false], ['Solar', false],
+ ['Geothermal', false], ['Waste', false],       ['Biogaz', false],  ['Wood', false],
+ ['Heat', true],        ['Electricity', true],  ['LPG', false],     ['Gasoline', false],
+ ['Diesel', false],     ['LPG', false],         ['Other', false]
 ].each do |v|
   sector = Co2Source.find_or_create_by_name v[0]
+  sector.is_carrier = v[1]
+  sector.save
 end
 
 

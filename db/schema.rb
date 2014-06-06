@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140604160000) do
+ActiveRecord::Schema.define(:version => 20140606135355) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -40,27 +40,31 @@ ActiveRecord::Schema.define(:version => 20140604160000) do
   add_index "co2_carrier_source", ["co2_source_id", "co2_carrier_id", "period"], :name => "source_carrier_period_index", :unique => true
   add_index "co2_carrier_source", ["id"], :name => "index_co2_carrier_source_on_id"
 
-  create_table "co2_carriers", :force => true do |t|
-    t.string   "name"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
-    t.boolean  "has_mix"
-  end
-
-  add_index "co2_carriers", ["id"], :name => "index_co2_carriers_on_id"
-  add_index "co2_carriers", ["name"], :name => "index_co2_carriers_on_name", :unique => true
-
   create_table "co2_consumptions", :force => true do |t|
     t.integer  "period"
     t.float    "value"
     t.datetime "created_at",             :null => false
     t.datetime "updated_at",             :null => false
-    t.integer  "co2_carrier_id"
+    t.integer  "co2_source_id"
     t.integer  "co2_sector_scenario_id"
   end
 
-  add_index "co2_consumptions", ["co2_carrier_id", "co2_sector_scenario_id", "period"], :name => "foreign_key_index", :unique => true
+  add_index "co2_consumptions", ["co2_source_id", "co2_sector_scenario_id", "period"], :name => "foreign_key_index", :unique => true
   add_index "co2_consumptions", ["id"], :name => "index_co2_consumptions_on_id"
+
+  create_table "co2_emission_factors", :force => true do |t|
+    t.integer  "co2_scenario_id"
+    t.integer  "co2_source_id"
+    t.integer  "period"
+    t.float    "co2_factor"
+    t.float    "ch4_factor"
+    t.float    "n2o_factor"
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+  end
+
+  add_index "co2_emission_factors", ["co2_source_id", "co2_scenario_id", "period"], :name => "ef_foreign_key_indx", :unique => true
+  add_index "co2_emission_factors", ["id"], :name => "index_co2_emission_factors_on_id"
 
   create_table "co2_mixes", :force => true do |t|
     t.integer  "co2_source_id"
@@ -114,6 +118,7 @@ ActiveRecord::Schema.define(:version => 20140604160000) do
     t.string   "name"
     t.datetime "created_at", :null => false
     t.datetime "updated_at", :null => false
+    t.boolean  "is_carrier"
   end
 
   add_index "co2_sources", ["id"], :name => "index_co2_sources_on_id"
