@@ -244,7 +244,16 @@ class Co2ScenariosController < ApplicationController
     (0..periods-1).each do |p| 
       @carriers.each do |c|
         params[:co2_consumptions][p.to_s][c.id.to_s].keys.each do |secscen_sector_id|
+          
           consumption = getConsumption(@scenario.id, secscen_sector_id, p, c.id)
+
+          if not consumption 
+            consumption = Co2Consumption.new
+            consumption.period = p
+            consumption.co2_carrier_id = c.id
+            consumption.co2_sector_scenario_id = secscen_sector_id
+          end
+
           consumption.value = params[:co2_consumptions][p.to_s][c.id.to_s][secscen_sector_id]
 
           if not consumption.save
@@ -273,6 +282,14 @@ class Co2ScenariosController < ApplicationController
       @carriers.each do |c|
         @sources.each do |s|
           mix = Co2Mix.find_by_co2_scenario_id_and_period_and_co2_carrier_id_and_co2_source_id(@scenario.id, p, c.id, s.id)
+
+          if not mix 
+            mix = Co2Mix.new
+            mix.period = p
+            mix.co2_carrier = c
+            mix.co2_source = s
+          end
+
           mix.value = params[:co2_mixes][p.to_s][c.id.to_s][s.id.to_s]
 
           if not mix.save
