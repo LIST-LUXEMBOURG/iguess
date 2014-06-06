@@ -3,11 +3,11 @@ class ConfigTextInputsController < ApplicationController
   # This is only called with ajax, when a text field tied to an input or output is updated
   def update
 
-    @mod_config = ModConfig.find(params[:id])   # This is the mod_config we're working with
-
     if not user_signed_in?
       return
     end
+
+    @mod_config = ModConfig.find(params[:id])   # This is the mod_config we're working with
 
     # Find the config_text_input that we need to update
     ids = ConfigTextInput.find_all_by_mod_config_id_and_column_name_and_is_input(

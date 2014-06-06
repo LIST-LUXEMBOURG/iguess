@@ -11,7 +11,11 @@
   <% else %>
     <table class="zebra sortable"><tr><th>Name</th><th>Base Year</th><th>Timestep</th></tr>
       <% @co2_scenarios.each do |s| %>
-        <tr><td><%= s.name %></td><td><%= s.base_year %></td><td><%= s.time_step %></td></tr>
+        <tr>
+          <td><%= link_to s.name, [:edit, s] %></td>
+          <td><%= s.base_year %></td>
+          <td><%= s.time_step %></td>
+        </tr>
       <% end %>
     </table>
   <% end %> 

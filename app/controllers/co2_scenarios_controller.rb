@@ -52,7 +52,9 @@ class Co2ScenariosController < ApplicationController
           c.co2_sector_scenario = secscen
           c.value = period * 100  + carrier.id * 10 + secscen.co2_sector.id
 
-          @consumptions[[period, carrier.id, secscen.co2_sector.id]] = c
+          @consumptions[[period, 
+                         carrier.id, 
+                         secscen.co2_sector.id]] = c
         }
 
         if carrier.has_mix 
@@ -63,19 +65,25 @@ class Co2ScenariosController < ApplicationController
             m.co2_source = source
             m.value = period * 100  + carrier.id * 10 + source.id
 
-            @mixes[[period, carrier.id, source.id]] = m
+            @mixes[[period, 
+                    carrier.id, 
+                    source.id]] = m
           }
         end
       }
     }
 
-
     # Render the form
     respond_to do |format|
       format.html
     end
-  end    
+  end   
 
+ 
+  def getConsumption(scenario_id, sector_id, period, carrier_id)
+    secscen = Co2SectorScenario.find_by_co2_sector_id_and_co2_scenario_id(sector_id, scenario_id)
+    return Co2Consumption.find_by_period_and_co2_carrier_id_and_co2_sector_scenario_id(period, carrier_id, secscen.id)
+  end 
 
 
   def create
@@ -91,7 +99,7 @@ class Co2ScenariosController < ApplicationController
     @scenario.city_id = @current_city.id
     @scenario.save
 
-    params["co2_sector_scenarios"].each do |secscen|
+    params[:co2_sector_scenarios].each do |secscen|
       @sector_scenario = Co2SectorScenario.new(secscen[1])
       @sector_scenario.co2_scenario_id = @scenario.id
       @sector_scenario.save
@@ -103,8 +111,7 @@ class Co2ScenariosController < ApplicationController
     (0..periods-1).each do |p| 
       @carriers.each do |c|
         params[:co2_consumptions][p.to_s][c.id.to_s].keys.each do |secscen_sector_id|
-          secscen = Co2SectorScenario.find_by_co2_sector_id_and_co2_scenario_id(
-                secscen_sector_id.to_i, @scenario.id)
+          secscen = Co2SectorScenario.find_by_co2_sector_id_and_co2_scenario_id(secscen_sector_id, @scenario.id)
 
           consumption = Co2Consumption.new
           consumption.period = p
@@ -116,7 +123,6 @@ class Co2ScenariosController < ApplicationController
       end
     end
 
-    periods = params[:co2_consumptions].size()
     @carriers = Co2Carrier.find_all_by_has_mix(true)
     @sources  = Co2Source.all
 
@@ -139,15 +145,148 @@ class Co2ScenariosController < ApplicationController
   end
 
 
+  def edit
+    @scenario = Co2Scenario.find(params[:id])
+
+    @sectors = Co2Sector.all
+    @sources = Co2Source.all
+
+    @sector_scenarios = Co2SectorScenario.find_all_by_co2_scenario_id(params[:id])
+    @carriers = Co2Carrier.all.sort_by{|c| c.name}
+
+  
+    @periods = [0,1,2]  #TODO -- this needs to be dynamic!!
+    @consumptions = Hash.new
+    @mixes = Hash.new
+
+
+    # Pack these into a structure that is the same as we create in the new action above
+    # If we do that, we can use the same UI code for editing as we do for creating
+    Co2Consumption.includes(:co2_sector_scenario)
+                  .where("co2_sector_scenarios.co2_scenario_id" => params[:id])
+                  .each { |consumption|
+                    @consumptions[[consumption.period, 
+                                   consumption.co2_carrier_id, 
+                                   consumption.co2_sector_scenario.co2_sector.id]] = consumption
+                  }
+
+    Co2Mix.find_all_by_co2_scenario_id(params[:id])
+          .each { |mix|
+            @mixes[[mix.period, 
+                    mix.co2_carrier_id, 
+                    mix.co2_source_id]] = mix
+          }
+
+    # Render the form
+    respond_to do |format|
+      format.html
+    end
+  end
+
+
+  def errorUpdating
+    flash[:notice] = "Encountered a problem updating scenario" 
+  end
+
 
   # PUT /co2_scenarios/1
   # PUT /co2_scenarios/1.json
   def update
-    if not user_signed_in?
-      respond_to do |format|
-        format.json { render :text => "You must be logged in!", :status => 403 }
+
+    # if not user_signed_in?
+    #   respond_to do |format|
+    #     format.json { render :text => "You must be logged in!", :status => 403 }
+    #   end
+    # end
+
+
+    @current_city  = User.getCurrentCity(current_user, cookies)
+    @scenario = Co2Scenario.find(params[:id])
+
+    if not @scenario.update_attributes(params[:co2_scenario])
+      errorUpdating()
+      return
+    end
+
+    @scenario.save
+
+
+    # Now cycle through the sector_scenarios -- these should all already exist; the user can't dynamically create more
+    params[:co2_sector_scenarios].each do |secscen|
+      attribs = secscen[1]    
+      sector_scenario = Co2SectorScenario.find_by_co2_scenario_id_and_co2_sector_id(@scenario.id, attribs[:co2_sector_id])
+
+      if not sector_scenario.update_attributes(attribs)
+        errorUpdating()
+        return
+      end
+
+      sector_scenario.save
+    end
+
+
+    # And now the Carriers -- these may not all exist if the user added more years... create any missing ones,
+    # and delete any extras.
+    periods = params[:co2_consumptions].size()
+    @carriers = Co2Carrier.all
+
+
+    # Delete all consumptions with periods higher than the current number of periods in the scenario
+    unusedConsumptions = Co2Consumption.includes(:co2_sector_scenario)
+                                       .where("period >= " + periods.to_s) 
+                                       .where("co2_sector_scenarios.co2_scenario_id" => @scenario.id)
+
+    unusedConsumptions.each do |u|
+      u.delete
+    end
+
+    # Update the remaining consumptions
+    (0..periods-1).each do |p| 
+      @carriers.each do |c|
+        params[:co2_consumptions][p.to_s][c.id.to_s].keys.each do |secscen_sector_id|
+          consumption = getConsumption(@scenario.id, secscen_sector_id, p, c.id)
+          consumption.value = params[:co2_consumptions][p.to_s][c.id.to_s][secscen_sector_id]
+
+          if not consumption.save
+            errorUpdating()
+            return
+          end
+        end
       end
     end
+
+
+    # Finally, update the mixes -- again, the number of periods may have changed!
+    @carriers = Co2Carrier.find_all_by_has_mix(true)
+    @sources  = Co2Source.all
+
+    # Delete all mixes with periods higher than the current number of periods in the scenario
+    unusedMixes = Co2Mix.includes(:co2_sector_scenario)
+                        .where("period >= " + periods.to_s) 
+                        .where("co2_scenario_id" => @scenario.id)
+
+    unusedMixes.each do |u|
+      u.delete
+    end
+
+    (0..periods-1).each do |p| 
+      @carriers.each do |c|
+        @sources.each do |s|
+          mix = Co2Mix.find_by_co2_scenario_id_and_period_and_co2_carrier_id_and_co2_source_id(@scenario.id, p, c.id, s.id)
+          mix.value = params[:co2_mixes][p.to_s][c.id.to_s][s.id.to_s]
+
+          if not mix.save
+            errorUpdating()
+            return
+          end
+        end
+      end
+    end
+
+    flash[:notice] = "Successfully updated scenario"  
+    
+    redirect_to action: "index"
+
   end
 
 
