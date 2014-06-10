@@ -25,8 +25,13 @@ class Co2ScenariosController < ApplicationController
     @scenario.time_step = 5
 
     @sectors = Co2Sector.all
-    @allSources = Co2Source.all  # including heat and electricity!
-    @sources = Co2Source.find_all_by_is_carrier(false)
+    # Sources to use in Emission Factors
+    @sources_factor = Co2Source.find_all_by_has_factor(true)
+    # Sources to use in Electricity Mix
+    @sources_elec = Co2Source.find_all_by_electricity_source(true)
+    # Sources to use in Electricity Mix
+    @sources_heat = Co2Source.find_all_by_heat_source(true)
+    # Sources to use in Consumption
     @carriers = Co2Source.find_all_by_is_carrier(true)
 
     @sector_scenarios = []
@@ -44,7 +49,7 @@ class Co2ScenariosController < ApplicationController
     @emission_factors = Hash.new
 
     @periods.each { |period|
-      @allSources.each { |source| 
+      @carriers.each { |source| 
         @sector_scenarios.each { |secscen|
           c = Co2Consumption.new
           c.period = period
@@ -57,23 +62,7 @@ class Co2ScenariosController < ApplicationController
                          secscen.co2_sector.id]] = c
         }
 
-        if source.is_carrier # i.e. heat and electricity
-
-          # Skip heat and electricity because we are generating a list of sources of heat 
-          # and electricty, such as coal or solar
-          @sources.each { |s|
-            m = Co2Mix.new
-            m.period = period
-
-            m.co2_source = source
-            m.co2_carrier = s
-            m.value = period * 100  + s.id * 10 + source.id
-
-            @mixes[[period, 
-                    s.id, 
-                    source.id]] = m
-          }
-        else
+        if source.has_factor
           ef = Co2EmissionFactor.new
           ef.co2_scenario_id = @scenario.id
           ef.co2_source_id = source.id
@@ -85,6 +74,20 @@ class Co2ScenariosController < ApplicationController
           @emission_factors[[period, source.id]] = ef
         end
       }
+      
+      # Mix array for Electricity
+      @sources_elec.each { |s|
+        m = Co2Mix.new
+        m.period = period
+        m.co2_source = source
+        m.co2_carrier = s
+        m.value = period * 100  + s.id * 10 + source.id
+
+        @mix_elec[[period, 
+                s.id, 
+                source.id]] = m
+      }
+      
     }
 
     # Render the form

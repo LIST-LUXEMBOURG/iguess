@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140610141809) do
+ActiveRecord::Schema.define(:version => 20140610150549) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -52,6 +52,17 @@ ActiveRecord::Schema.define(:version => 20140610141809) do
   add_index "co2_consumptions", ["co2_source_id", "co2_sector_scenario_id", "period"], :name => "foreign_key_index", :unique => true
   add_index "co2_consumptions", ["id"], :name => "index_co2_consumptions_on_id"
 
+  create_table "co2_elec_mixes", :force => true do |t|
+    t.integer  "co2_source_id"
+    t.integer  "co2_scenario_id"
+    t.integer  "period"
+    t.float    "value"
+    t.datetime "created_at",      :null => false
+    t.datetime "updated_at",      :null => false
+  end
+
+  add_index "co2_elec_mixes", ["id"], :name => "index_co2_mixes_on_id"
+
   create_table "co2_emission_factors", :force => true do |t|
     t.integer  "co2_scenario_id"
     t.integer  "co2_source_id"
@@ -66,9 +77,8 @@ ActiveRecord::Schema.define(:version => 20140610141809) do
   add_index "co2_emission_factors", ["co2_source_id", "co2_scenario_id", "period"], :name => "ef_foreign_key_indx", :unique => true
   add_index "co2_emission_factors", ["id"], :name => "index_co2_emission_factors_on_id"
 
-  create_table "co2_mixes", :force => true do |t|
+  create_table "co2_heat_mixes", :force => true do |t|
     t.integer  "co2_source_id"
-    t.integer  "co2_carrier_id"
     t.integer  "co2_scenario_id"
     t.integer  "period"
     t.float    "value"
@@ -76,8 +86,8 @@ ActiveRecord::Schema.define(:version => 20140610141809) do
     t.datetime "updated_at",      :null => false
   end
 
-  add_index "co2_mixes", ["co2_source_id", "co2_carrier_id", "co2_scenario_id", "period"], :name => "mix_foreign_key_index", :unique => true
-  add_index "co2_mixes", ["id"], :name => "index_co2_mixes_on_id"
+  add_index "co2_heat_mixes", ["co2_source_id", "co2_scenario_id", "period"], :name => "heat_mix_foreign_key_index", :unique => true
+  add_index "co2_heat_mixes", ["id"], :name => "index_co2_heat_mixes_on_id"
 
   create_table "co2_scenarios", :force => true do |t|
     t.integer  "city_id"
