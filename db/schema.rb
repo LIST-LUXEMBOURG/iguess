@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140606135355) do
+ActiveRecord::Schema.define(:version => 20140610134902) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -116,9 +116,11 @@ ActiveRecord::Schema.define(:version => 20140606135355) do
 
   create_table "co2_sources", :force => true do |t|
     t.string   "name"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at",         :null => false
+    t.datetime "updated_at",         :null => false
     t.boolean  "is_carrier"
+    t.boolean  "electricity_source"
+    t.boolean  "heat_source"
   end
 
   add_index "co2_sources", ["id"], :name => "index_co2_sources_on_id"

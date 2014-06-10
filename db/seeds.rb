@@ -35,15 +35,32 @@ end
 
 
 # Basic energy sources for the CO2 model
-[['Coal', false],       ['Gas', false],         ['Oil', false],     ['Wind', false],    
- ['Hydraulic', false],  ['Excess Heat', false], ['Imports', false], ['Solar', false],
- ['Geothermal', false], ['Waste', false],       ['Biogaz', false],  ['Wood', false],
- ['Heat', true],        ['Electricity', true],  ['LPG', false],     ['Gasoline', false],
- ['Diesel', false],     ['LPG', false],         ['Other', false]
+[['Biogas',           true,  true,  true],
+ ['CHP',              true,  true,  true],
+ ['Crude Oil',        true,  true,  true],
+ ['Coal',             true,  true,  true], 
+ ['Diesel',           true,  false, false],
+ ['District Heating', true,  true,  true],
+ ['Electricity',      true,  true,  true],     
+ ['Excess Heat',      false, false, true],
+ ['Gas',              true,  true,  true],
+ ['Gasoline',         true,  false, false],
+ ['Geothermal',       true,  true,  true],
+ ['Hydraulic',        false, true,  false],  
+ ['Imports',          false, true,  true],
+ ['LPG',              true,  false, false],    
+ ['Other',            true,  true,  true],
+ ['Other renewables', false, true,  false],
+ ['Solar',            false, true,  true],
+ ['Waste',            false, true,  true],
+ ['Wind',             false, true,  false],  
+ ['Wood',             true,  true,  true]
 ].each do |v|
-  sector = Co2Source.find_or_create_by_name v[0]
-  sector.is_carrier = v[1]
-  sector.save
+  source = Co2Source.find_or_create_by_name v[0]
+  source.is_carrier = v[1]
+  source.electricity_source = v[2]
+  source.heat_source = v[3]
+  source.save
 end
 
 
