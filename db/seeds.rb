@@ -40,8 +40,8 @@ end
  ['Crude Oil',        true,  true,  true,  true],
  ['Coal',             true,  true,  true,  true], 
  ['Diesel',           true,  true,  false, false],
- ['District Heating', true,  false, true,  true],
- ['Electricity',      true,  false, true,  true],     
+ ['District Heating', true,  false, false, false],
+ ['Electricity',      true,  false, false, false],     
  ['Excess Heat',      false, true,  false, true],
  ['Gas',              true,  true,  true,  true],
  ['Gasoline',         true,  true,  false, false],
@@ -58,7 +58,7 @@ end
 ].each do |v|
   source = Co2Source.find_or_create_by_name v[0]
   source.is_carrier = v[1]
-  source.has factor = v[2]
+  source.has_factor = v[2]
   source.electricity_source = v[3]
   source.heat_source = v[4]
   source.save

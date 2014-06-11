@@ -25,14 +25,15 @@ class Co2ScenariosController < ApplicationController
     @scenario.time_step = 5
 
     @sectors = Co2Sector.all
+
     # Sources to use in Emission Factors
     @sources_factor = Co2Source.find_all_by_has_factor(true)
     # Sources to use in Electricity Mix
     @sources_elec = Co2Source.find_all_by_electricity_source(true)
-    # Sources to use in Electricity Mix
+    # Sources to use in Heat Mix
     @sources_heat = Co2Source.find_all_by_heat_source(true)
     # Sources to use in Consumption
-    @carriers = Co2Source.find_all_by_is_carrier(true)
+    @sources_cons = Co2Source.find_all_by_is_carrier(true)
 
     @sector_scenarios = []
 
@@ -45,11 +46,12 @@ class Co2ScenariosController < ApplicationController
 
     @periods = [0,1,2]
     @consumptions = Hash.new
-    @mixes = Hash.new
+    @elec_mixes = Hash.new
+    @heat_mixes = Hash.new
     @emission_factors = Hash.new
 
     @periods.each { |period|
-      @carriers.each { |source| 
+      @sources_cons.each { |source| 
         @sector_scenarios.each { |secscen|
           c = Co2Consumption.new
           c.period = period
@@ -61,31 +63,39 @@ class Co2ScenariosController < ApplicationController
                          source.id, 
                          secscen.co2_sector.id]] = c
         }
+      }
+      
+      # Mix array for Electricity
+      @sources_elec.each { |s|
+        m = Co2ElecMix.new
+        m.period = period
+        m.co2_source = s
+        m.value = period + s.id * 10
 
-        if source.has_factor
+        @elec_mixes[[period, s.id]] = m
+      }
+      
+      # Mix array for Heat
+      @sources_heat.each { |s|
+        m = Co2HeatMix.new
+        m.period = period
+        m.co2_source = s
+        m.value = period + s.id * 10
+
+        @heat_mixes[[period, s.id]] = m
+      }
+      
+      # Emission Factors
+      @sources_factor.each { |s|
           ef = Co2EmissionFactor.new
           ef.co2_scenario_id = @scenario.id
-          ef.co2_source_id = source.id
+          ef.co2_source_id = s.id
           ef.period = period
           ef.co2_factor = 0
           ef.ch4_factor = 1
           ef.n2o_factor = 2
 
-          @emission_factors[[period, source.id]] = ef
-        end
-      }
-      
-      # Mix array for Electricity
-      @sources_elec.each { |s|
-        m = Co2Mix.new
-        m.period = period
-        m.co2_source = source
-        m.co2_carrier = s
-        m.value = period * 100  + s.id * 10 + source.id
-
-        @mix_elec[[period, 
-                s.id, 
-                source.id]] = m
+          @emission_factors[[period, s.id]] = ef
       }
       
     }
@@ -118,10 +128,18 @@ class Co2ScenariosController < ApplicationController
     end
 
     periods = params[:co2_consumptions].size()
-    @allSources = Co2Source.all
+    
+    # Sources to use in Consumption
+    @sources_cons = Co2Source.find_all_by_is_carrier(true)
+    # Sources to use in Electricity Mix
+    @sources_elec = Co2Source.find_all_by_electricity_source(true)
+    # Sources to use in Heat Mix
+    @sources_heat = Co2Source.find_all_by_heat_source(true)
+    # Sources to use in Emission Factors
+    @sources_factor = Co2Source.find_all_by_has_factor(true)
 
     (0..periods-1).each do |period| 
-      @allSources.each do |s|
+      @sources_cons.each do |s|
         params[:co2_consumptions][period.to_s][s.id.to_s].keys.each do |secscen_sector_id|
           secscen = Co2SectorScenario.find_by_co2_sector_id_and_co2_scenario_id(secscen_sector_id, @scenario.id)
 
@@ -135,25 +153,30 @@ class Co2ScenariosController < ApplicationController
       end
     end
 
-    @carriers = Co2Source.find_all_by_is_carrier(true)
-    @sources  = Co2Source.find_all_by_is_carrier(false)
-
     (0..periods-1).each do |period| 
-      @carriers.each do |c|
-        @sources.each do |s|
-          mix = Co2Mix.new
-          mix.period = period
-          mix.co2_carrier_id = c.id
-          mix.co2_source_id = s.id
-          mix.co2_scenario_id = @scenario.id
-          mix.value = params[:co2_mixes][period.to_s][s.id.to_s][c.id.to_s]
-          mix.save
-        end
+      @sources_elec.each do |s|
+        mix = Co2ElecMix.new
+        mix.period = period
+        mix.co2_source_id = s.id
+        mix.co2_scenario_id = @scenario.id
+        mix.value = params[:co2_elec_mixes][period.to_s][s.id.to_s]
+        mix.save
+      end
+    end
+    
+    (0..periods-1).each do |period| 
+      @sources_heat.each do |s|
+        mix = Co2HeatMix.new
+        mix.period = period
+        mix.co2_source_id = s.id
+        mix.co2_scenario_id = @scenario.id
+        mix.value = params[:co2_heat_mixes][period.to_s][s.id.to_s]
+        mix.save
       end
     end
 
     (0..periods-1).each do |period| 
-      @sources.each do |source|
+      @sources_factor.each do |source|
         ef = Co2EmissionFactor.new
         ef.co2_scenario_id = @scenario.id
         ef.co2_source_id = source.id
@@ -171,21 +194,25 @@ class Co2ScenariosController < ApplicationController
 
 
   def edit
-    @scenario = Co2Scenario.find(params[:id])
-
-    @sectors = Co2Sector.all
-    @sources = Co2Source.find_all_by_is_carrier(false)
-    @carriers = Co2Source.find_all_by_is_carrier(true)
-    @allSources = Co2Source.all  # including heat and electricity!
-
-    @sector_scenarios = Co2SectorScenario.find_all_by_co2_scenario_id(params[:id])
     
-  
-    @periods = [0,1,2]  #TODO -- this needs to be dynamic!!
-    @consumptions = Hash.new
-    @mixes = Hash.new
-    @emission_factors = Hash.new
+    @scenario = Co2Scenario.find(params[:id])
+    @sectors = Co2Sector.all
+    @sector_scenarios = Co2SectorScenario.find_all_by_co2_scenario_id(params[:id])
+    @periods = [0,1,2] #TODO -- this needs to be dynamic!!
+    
+    # Sources to use in Consumption
+    @sources_cons = Co2Source.find_all_by_is_carrier(true)
+    # Sources to use in Electricity Mix
+    @sources_elec = Co2Source.find_all_by_electricity_source(true)
+    # Sources to use in Heat Mix
+    @sources_heat = Co2Source.find_all_by_heat_source(true)
+    # Sources to use in Emission Factors
+    @sources_factor = Co2Source.find_all_by_has_factor(true)
 
+    @consumptions = Hash.new
+    @elec_mixes = Hash.new
+    @heat_mixes = Hash.new
+    @emission_factors = Hash.new
 
     # Pack these into a structure that is the same as we create in the new action above
     # If we do that, we can use the same UI code for editing as we do for creating
@@ -197,15 +224,17 @@ class Co2ScenariosController < ApplicationController
                                    consumption.co2_sector_scenario.co2_sector.id]] = consumption
                   }
 
-    Co2Mix.find_all_by_co2_scenario_id(params[:id])
+    Co2ElecMix.find_all_by_co2_scenario_id(params[:id])
           .each { |mix|
-            @mixes[[mix.period, 
-                    mix.co2_source_id,
-                    mix.co2_carrier_id]] = mix
+            @elec_mixes[[mix.period, mix.co2_source_id]] = mix
+          }
+          
+    Co2HeatMix.find_all_by_co2_scenario_id(params[:id])
+          .each { |mix|
+            @heat_mixes[[mix.period, mix.co2_source_id]] = mix
           }
 
-
-    Co2EmissionFactor.find_all_by_co2_scenario_id(@scenario.id)
+    Co2EmissionFactor.find_all_by_co2_scenario_id(params[:id])
       .each{ |ef| 
           @emission_factors[[ef.period, ef.co2_source_id]] = ef
         }
@@ -268,8 +297,15 @@ class Co2ScenariosController < ApplicationController
     # And now the Carriers -- these may not all exist if the user added more years... create any missing ones,
     # and delete any extras.
     periods = params[:co2_consumptions].size()
-    @allSources = Co2Source.all # including heat and electricity!
-
+    
+    # Sources to use in Consumption
+    @sources_cons = Co2Source.find_all_by_is_carrier(true)
+    # Sources to use in Electricity Mix
+    @sources_elec = Co2Source.find_all_by_electricity_source(true)
+    # Sources to use in Heat Mix
+    @sources_heat = Co2Source.find_all_by_heat_source(true)
+    # Sources to use in Emission Factors
+    @sources_factor = Co2Source.find_all_by_has_factor(true)
 
 
     # Delete all consumptions with periods higher than the current number of periods in the scenario
@@ -283,7 +319,7 @@ class Co2ScenariosController < ApplicationController
 
     # Update the remaining consumptions
     (0..periods-1).each do |p| 
-      @allSources.each do |s|
+      @sources_cons.each do |s|
         params[:co2_consumptions][p.to_s][s.id.to_s].keys.each do |secscen_sector_id|
           
           consumption = getConsumption(@scenario.id, secscen_sector_id, p, s.id)
@@ -305,14 +341,9 @@ class Co2ScenariosController < ApplicationController
       end
     end
 
-
-    # Finally, update the mixes -- again, the number of periods may have changed!
-    @sources = Co2Source.find_all_by_is_carrier(false)
-    @carriers = Co2Source.find_all_by_is_carrier(true)
-
-
+    # Electricity -------------
     # Delete all mixes with periods higher than the current number of periods in the scenario
-    unusedMixes = Co2Mix.includes(:co2_sector_scenario)
+    unusedMixes = Co2ElecMix.includes(:co2_sector_scenario)
                         .where("period >= " + periods.to_s) 
                         .where("co2_scenario_id" => @scenario.id)
 
@@ -321,29 +352,55 @@ class Co2ScenariosController < ApplicationController
     end
 
     (0..periods-1).each do |p| 
-      @carriers.each do |c|
-        @sources.each do |s|
-          mix = Co2Mix.find_by_co2_scenario_id_and_period_and_co2_carrier_id_and_co2_source_id(@scenario.id, p, c.id, s.id)
+      @sources_elec.each do |s|
+        mix = Co2ElecMix.find_by_co2_scenario_id_and_period_and_co2_source_id(@scenario.id, p, s.id)
 
-          if not mix 
-            mix = Co2Mix.new
-            mix.period = p
-            mix.co2_carrier = c
-            mix.co2_source = s
-            mix.co2_scenario_id = @scenario.id
-          end
+        if not mix 
+          mix = Co2ElecMix.new
+          mix.period = p
+          mix.co2_source = s
+          mix.co2_scenario_id = @scenario.id
+        end
 
-          mix.value = params[:co2_mixes][p.to_s][s.id.to_s][c.id.to_s]
+        mix.value = params[:elec_mixes][p.to_s][s.id.to_s]
 
-          if not mix.save
-            errorUpdating()
-            return
-          end
+        if not mix.save
+          errorUpdating()
+          return
+        end
+      end
+    end
+    
+    # Heat -------------
+    unusedMixes = Co2HeatMix.includes(:co2_sector_scenario)
+                        .where("period >= " + periods.to_s) 
+                        .where("co2_scenario_id" => @scenario.id)
+
+    unusedMixes.each do |u|
+      u.delete
+    end
+    
+    (0..periods-1).each do |p| 
+      @sources_heat.each do |s|
+        mix = Co2HeatMix.find_by_co2_scenario_id_and_period_and_co2_source_id(@scenario.id, p, s.id)
+
+        if not mix 
+          mix = Co2HeatMix.new
+          mix.period = p
+          mix.co2_source = s
+          mix.co2_scenario_id = @scenario.id
+        end
+
+        mix.value = params[:heat_mixes][p.to_s][s.id.to_s]
+
+        if not mix.save
+          errorUpdating()
+          return
         end
       end
     end
 
-
+    # Emission Factors -----------------
     # Delete all efs with periods higher than the current number of periods in the scenario
     unusedEFs = Co2EmissionFactor.where("period >= " + periods.to_s)
                                  .where("co2_scenario_id" => @scenario.id)
@@ -354,7 +411,7 @@ class Co2ScenariosController < ApplicationController
 
 
     (0..periods-1).each do |period| 
-      @sources.each do |source|
+      @sources_factor.each do |source|
         ef = Co2EmissionFactor.find_by_co2_scenario_id_and_period_and_co2_source_id(@scenario.id, period, source.id)
         if not ef
           ef = Co2EmissionFactor.new
