@@ -59,28 +59,27 @@
 
 
 <%= render :partial => 'emission_factor.html.erb', 
-            locals: { title: "CO2", fieldName: "co2_factor" } %>
+            locals: { title: "CO2 (t/MWh)", fieldName: "co2_factor" } %>
 
 <%= render :partial => 'emission_factor.html.erb', 
-            locals: { title: "CH4", fieldName: "ch4_factor" } %>
+            locals: { title: "CH4 (g/MWh)", fieldName: "ch4_factor" } %>
 
 <%= render :partial => 'emission_factor.html.erb', 
-            locals: { title: "N2O", fieldName: "n2o_factor" } %>
+            locals: { title: "N2O (g/MWh)", fieldName: "n2o_factor" } %>
 
 
-<%# One table per source with carriers; i.e. heat and electricity %>
-<%# Carriers are just sources where is_carrier is true %>
-<% @carriers.each do |carrier| %>  
+
+<%# Electricity Mix table %> 
 
     <hr>
     <label>&nbsp;</label>
-    <h2>Mix: <%= carrier.name %></h2>
+    <h2>Mix: Electricity (%)</h2>
 
     <label>&nbsp;</label>
-    <table class="grid-input zebra">
+    <table class="grid-input zebra" id="tableElecMix">
       <tr>
         <th class="center">Period</th>
-        <% @sources.each do |s| %>
+        <% @sources_elec.each do |s| %>
           <th class="center"><%= s.name %></th>
         <% end %>
         <th class="total-header center">Total</th>
@@ -89,35 +88,87 @@
       <% @periods.each do |period| %>
         <tr>
           <td><%= @scenario.base_year + period * @scenario.time_step %></td>
-          <% @sources.each do |source| %>
+          <% @sources_elec.each do |source| %>
             <td>
-              <input name="co2_mixes[<%= period %>][<%= source.id %>][<%= carrier.id %>]" 
-                     type="text" value="<%= @mixes[[period, source.id, carrier.id]].value %>" 
-                     onchange="CO2.updateTotal(<%= period %>, <%= carrier.id %>, <%= @sources.size %>); return false;"/>
+              <input name="co2_elec_mixes[<%= period %>][<%= source.id %>]" 
+                     type="text" value="<%= @elec_mixes[[period, source.id]].value %>" 
+                     onchange="CO2.updateElecTotals(
+         				<%= period %>, 
+            			'co2_elec_mix_total_<%= period %>',
+            			'tableElecMix'); return false;"/>
             </td>
           <% end %>
           <td>
-            <input id="co2_cons_total_<%= period %>_<%= carrier.id %>" type="text" value="0" disabled/>
+            <input id="co2_elec_mix_total_<%= period %>" type="text" value="0" disabled/>
           </td>
         </tr>
         
         <!-- Invoke Totals function to calculate the sum. -->
-        <script>CO2.updateTotal(<%= period %>, <%= carrier.id %>, <%= @sources.size %>);</script>
+        <script>
+        	CO2.updateTotal(
+         		<%= period %>, 
+            	'co2_elec_mix_total_<%= period %>',
+            	'tableElecMix'); 
+        </script>
       <% end %>
     </table>
-  <% end %>
+
+
+<%# Heat Mix table %> 
+
+    <hr>
+    <label>&nbsp;</label>
+    <h2>Mix: District Heating (%)</h2>
+
+    <label>&nbsp;</label>
+    <table class="grid-input zebra" id="tableHeatMix">
+      <tr>
+        <th class="center">Period</th>
+        <% @sources_heat.each do |s| %>
+          <th class="center"><%= s.name %></th>
+        <% end %>
+        <th class="total-header center">Total</th>
+      </tr>
+
+      <% @periods.each do |period| %>
+        <tr>
+          <td><%= @scenario.base_year + period * @scenario.time_step %></td>
+          <% @sources_heat.each do |source| %>
+            <td>
+              <input name="co2_heat_mixes[<%= period %>][<%= source.id %>]" 
+                     type="text" value="<%= @heat_mixes[[period, source.id]].value %>" 
+                     onchange="CO2.updateHeatTotals(
+		         		<%= period %>, 
+		            	'co2_heat_mix_total_<%= period %>',
+		            	'tableHeatMix');  return false;"/>
+            </td>
+          <% end %>
+          <td>
+            <input id="co2_heat_mix_total_<%= period %>" type="text" value="0" disabled/>
+          </td>
+        </tr>
+        
+        <!-- Invoke Totals function to calculate the sum. -->
+        <script>
+        	CO2.updateTotal(
+         		<%= period %>, 
+            	'co2_heat_mix_total_<%= period %>',
+            	'tableHeatMix'); 
+        </script>
+      <% end %>
+    </table>
 
 
   <% @sector_scenarios.each do |secscen| %>  <%# One table per sector %>
     <hr>
     <label>&nbsp;</label>
-    <h2>Consumptions: <%= secscen.co2_sector.name %></h2>
+    <h2>Consumptions: <%= secscen.co2_sector.name %> (%)</h2>
 
     <label>&nbsp;</label>
-    <table class="grid-input zebra">
+    <table class="grid-input zebra" id="tableCons<%= secscen.co2_sector.id %>">
       <tr>
         <th class="center">Period</th>
-        <% @allSources.each do |source| %>
+        <% @sources_cons.each do |source| %>
           <th class="center"><%= source.name %></th>
         <% end %>
         <th class="total-header center">Total</th>
@@ -127,11 +178,16 @@
       <% @periods.each do |period| %>
         <tr>
           <td><%= year %></td>
-          <% @allSources.each do |source| %>
+          <% @sources_cons.each do |source| %>
             <td>
               <input name="co2_consumptions[<%= period %>][<%= source.id %>][<%= secscen.co2_sector.id %>]" 
                      type="text" value="<%= @consumptions[[period, source.id, secscen.co2_sector.id]].value %>" 
-                     onchange="CO2.updateTotal(<%= period %>, <%= secscen.co2_sector.id %>, <%= @sources.size %>); return false;"/>
+                     onchange="
+                     	CO2.updateTotal(
+                     		<%= period %>, 
+                        	'co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>',
+                        	'tableCons<%= secscen.co2_sector.id %>'); 
+                        return false;"/>
             </td>
           <% end %>
           <td>
@@ -140,7 +196,12 @@
         </tr>
         
         <!-- Invoke Totals function to calculate the sum. -->
-        <script>CO2.updateTotal(<%= period %>, <%= secscen.co2_sector.id %>, <%= @sources.size %>);</script>
+        <script>
+        	CO2.updateTotal(
+         		<%= period %>, 
+            	'co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>',
+            	'tableCons<%= secscen.co2_sector.id %>'); 
+        </script>
 
         <% year += @scenario.time_step %>
       <% end %>

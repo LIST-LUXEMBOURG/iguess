@@ -35,31 +35,32 @@ end
 
 
 # Basic energy sources for the CO2 model
-[['Biogas',           true,  true,  true],
- ['CHP',              true,  true,  true],
- ['Crude Oil',        true,  true,  true],
- ['Coal',             true,  true,  true], 
- ['Diesel',           true,  false, false],
- ['District Heating', true,  true,  true],
- ['Electricity',      true,  true,  true],     
- ['Excess Heat',      false, false, true],
- ['Gas',              true,  true,  true],
- ['Gasoline',         true,  false, false],
- ['Geothermal',       true,  true,  true],
- ['Hydraulic',        false, true,  false],  
- ['Imports',          false, true,  true],
- ['LPG',              true,  false, false],    
- ['Other',            true,  true,  true],
- ['Other renewables', false, true,  false],
- ['Solar',            false, true,  true],
- ['Waste',            false, true,  true],
- ['Wind',             false, true,  false],  
- ['Wood',             true,  true,  true]
+[['Biogas',           true,  true,  true,  true],
+ ['CHP',              true,  true,  true,  true],
+ ['Crude Oil',        true,  true,  true,  true],
+ ['Coal',             true,  true,  true,  true], 
+ ['Diesel',           true,  true,  false, false],
+ ['District Heating', true,  false, false, false],
+ ['Electricity',      true,  false, false, false],     
+ ['Excess Heat',      false, true,  false, true],
+ ['Gas',              true,  true,  true,  true],
+ ['Gasoline',         true,  true,  false, false],
+ ['Geothermal',       true,  true,  true,  true],
+ ['Hydraulic',        false, true,  true,  false],  
+ ['Imports',          false, true,  true,  true],
+ ['LPG',              true,  true,  false, false],    
+ ['Other',            true,  true,  true,  true],
+ ['Other renewables', false, true,  true,  false],
+ ['Solar',            false, true,  true,  true],
+ ['Waste',            false, true,  true,  true],
+ ['Wind',             false, true,  true,  false],  
+ ['Wood',             true,  true,  true,  true]
 ].each do |v|
   source = Co2Source.find_or_create_by_name v[0]
   source.is_carrier = v[1]
-  source.electricity_source = v[2]
-  source.heat_source = v[3]
+  source.has_factor = v[2]
+  source.electricity_source = v[3]
+  source.heat_source = v[4]
   source.save
 end
 

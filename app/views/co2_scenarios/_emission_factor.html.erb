@@ -6,7 +6,7 @@
 <table class="grid-input zebra">
   <tr>
     <th class="center">Period</th>
-    <% @sources.each do |s| %>
+    <% @sources_factor.each do |s| %>
       <th class="center"><%= s.name %></th>
     <% end %>
   </tr>
@@ -15,7 +15,7 @@
   <% @periods.each do |period| %>
     <tr>
       <td><%= @scenario.base_year + period * @scenario.time_step %></td>
-      <% @sources.each do |source| %>
+      <% @sources_factor.each do |source| %>
         <td>
           <input name="<%= fieldName %>[<%= period %>][<%= source.id %>]" 
                  type="text" value="<%= eval('@emission_factors[[period, source.id]].' + fieldName) %>"/>
