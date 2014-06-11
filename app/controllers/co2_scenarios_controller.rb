@@ -362,7 +362,7 @@ class Co2ScenariosController < ApplicationController
           mix.co2_scenario_id = @scenario.id
         end
 
-        mix.value = params[:elec_mixes][p.to_s][s.id.to_s]
+        mix.value = params[:co2_elec_mixes][p.to_s][s.id.to_s]
 
         if not mix.save
           errorUpdating()
@@ -391,7 +391,7 @@ class Co2ScenariosController < ApplicationController
           mix.co2_scenario_id = @scenario.id
         end
 
-        mix.value = params[:heat_mixes][p.to_s][s.id.to_s]
+        mix.value = params[:co2_heat_mixes][p.to_s][s.id.to_s]
 
         if not mix.save
           errorUpdating()
