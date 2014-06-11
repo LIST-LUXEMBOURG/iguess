@@ -59,13 +59,13 @@
 
 
 <%= render :partial => 'emission_factor.html.erb', 
-            locals: { title: "CO2", fieldName: "co2_factor" } %>
+            locals: { title: "CO2 (t/MWh)", fieldName: "co2_factor" } %>
 
 <%= render :partial => 'emission_factor.html.erb', 
-            locals: { title: "CH4", fieldName: "ch4_factor" } %>
+            locals: { title: "CH4 (g/MWh)", fieldName: "ch4_factor" } %>
 
 <%= render :partial => 'emission_factor.html.erb', 
-            locals: { title: "N2O", fieldName: "n2o_factor" } %>
+            locals: { title: "N2O (g/MWh)", fieldName: "n2o_factor" } %>
 
 
 
@@ -73,7 +73,7 @@
 
     <hr>
     <label>&nbsp;</label>
-    <h2>Mix: Electricity</h2> (%)
+    <h2>Mix: Electricity (%)</h2>
 
     <label>&nbsp;</label>
     <table class="grid-input zebra" id="tableElecMix">
@@ -92,7 +92,7 @@
             <td>
               <input name="co2_elec_mixes[<%= period %>][<%= source.id %>]" 
                      type="text" value="<%= @elec_mixes[[period, source.id]].value %>" 
-                     onchange="CO2.updateTotal(
+                     onchange="CO2.updateElecTotals(
          				<%= period %>, 
             			'co2_elec_mix_total_<%= period %>',
             			'tableElecMix'); return false;"/>
@@ -118,7 +118,7 @@
 
     <hr>
     <label>&nbsp;</label>
-    <h2>Mix: District Heating</h2> (%)
+    <h2>Mix: District Heating (%)</h2>
 
     <label>&nbsp;</label>
     <table class="grid-input zebra" id="tableHeatMix">
@@ -137,7 +137,7 @@
             <td>
               <input name="co2_heat_mixes[<%= period %>][<%= source.id %>]" 
                      type="text" value="<%= @heat_mixes[[period, source.id]].value %>" 
-                     onchange="CO2.updateTotal(
+                     onchange="CO2.updateHeatTotals(
 		         		<%= period %>, 
 		            	'co2_heat_mix_total_<%= period %>',
 		            	'tableHeatMix');  return false;"/>
@@ -162,7 +162,7 @@
   <% @sector_scenarios.each do |secscen| %>  <%# One table per sector %>
     <hr>
     <label>&nbsp;</label>
-    <h2>Consumptions: <%= secscen.co2_sector.name %></h2> (share of each carrier in the sector)
+    <h2>Consumptions: <%= secscen.co2_sector.name %> (%)</h2>
 
     <label>&nbsp;</label>
     <table class="grid-input zebra" id="tableCons<%= secscen.co2_sector.id %>">
