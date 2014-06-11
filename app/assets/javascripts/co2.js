@@ -23,41 +23,17 @@
 
 var CO2 = CO2 || { };		// Create namespace
 
-CO2.updateTotal = function(p, s, size)
+CO2.updateTotal = function(p, tot_name, table_name)
 {
-	id = "co2_cons_total_" + p + "_" + s;
-	el = document.getElementById(id);
-	total = 0.0;
-	
-	for(i = 1; i <= size; i++) 
-	{
-		name = "co2_consumptions[" + p + "][" + i + "][" + s + "]";
-		total += parseFloat(document.getElementsByName(name)[0].value);
-	}
-	
-	el.value = total;
-};
-
-CO2.updateMixTotal = function(p, size, tot_name, table_name)
-{
-	id = tot_name + p;
+	id = tot_name;
 	el = document.getElementById(id);
 	total = 0.0;
 	
 	table = document.getElementById(table_name);
 	row = table.rows[p + 1];
-	for(i = 1; i <= row.cells.length - 1; i++) 
+	for(i = 1; i < row.cells.length - 1; i++) 
 		total += parseFloat(row.cells[i].children[0].value);
 
 	el.value = total;
 };
 
-CO2.updateHeatMixTotal = function(p, size)
-{
-	CO2.updateMixTotal(p, size, "co2_heat_mix_total_", "tableHeatMix");
-};
-
-CO2.updateElecMixTotal = function(p, size)
-{
-	CO2.updateMixTotal(p, size, "co2_elec_mix_total_", "tableElecMix");
-};

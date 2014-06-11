@@ -73,7 +73,7 @@
 
     <hr>
     <label>&nbsp;</label>
-    <h2>Mix: Electricity</h2>
+    <h2>Mix: Electricity</h2> (%)
 
     <label>&nbsp;</label>
     <table class="grid-input zebra" id="tableElecMix">
@@ -92,7 +92,10 @@
             <td>
               <input name="co2_elec_mixes[<%= period %>][<%= source.id %>]" 
                      type="text" value="<%= @elec_mixes[[period, source.id]].value %>" 
-                     onchange="CO2.updateElecMixTotal(<%= period %>, <%= @sources_elec.size %>); return false;"/>
+                     onchange="CO2.updateTotal(
+         				<%= period %>, 
+            			'co2_elec_mix_total_<%= period %>',
+            			'tableElecMix'); return false;"/>
             </td>
           <% end %>
           <td>
@@ -101,7 +104,12 @@
         </tr>
         
         <!-- Invoke Totals function to calculate the sum. -->
-        <script>CO2.updateElecMixTotal(<%= period %>, <%= @sources_elec.size %>);</script>
+        <script>
+        	CO2.updateTotal(
+         		<%= period %>, 
+            	'co2_elec_mix_total_<%= period %>',
+            	'tableElecMix'); 
+        </script>
       <% end %>
     </table>
 
@@ -110,7 +118,7 @@
 
     <hr>
     <label>&nbsp;</label>
-    <h2>Mix: District Heating</h2>
+    <h2>Mix: District Heating</h2> (%)
 
     <label>&nbsp;</label>
     <table class="grid-input zebra" id="tableHeatMix">
@@ -129,7 +137,10 @@
             <td>
               <input name="co2_heat_mixes[<%= period %>][<%= source.id %>]" 
                      type="text" value="<%= @heat_mixes[[period, source.id]].value %>" 
-                     onchange="CO2.updateHeatMixTotal(<%= period %>, <%= @sources_heat.size %>); return false;"/>
+                     onchange="CO2.updateTotal(
+		         		<%= period %>, 
+		            	'co2_heat_mix_total_<%= period %>',
+		            	'tableHeatMix');  return false;"/>
             </td>
           <% end %>
           <td>
@@ -138,7 +149,12 @@
         </tr>
         
         <!-- Invoke Totals function to calculate the sum. -->
-        <script>CO2.updateHeatMixTotal(<%= period %>, <%= @sources_heat.size %>);</script>
+        <script>
+        	CO2.updateTotal(
+         		<%= period %>, 
+            	'co2_heat_mix_total_<%= period %>',
+            	'tableHeatMix'); 
+        </script>
       <% end %>
     </table>
 
@@ -146,10 +162,10 @@
   <% @sector_scenarios.each do |secscen| %>  <%# One table per sector %>
     <hr>
     <label>&nbsp;</label>
-    <h2>Consumptions: <%= secscen.co2_sector.name %></h2>
+    <h2>Consumptions: <%= secscen.co2_sector.name %></h2> (share of each carrier in the sector)
 
     <label>&nbsp;</label>
-    <table class="grid-input zebra">
+    <table class="grid-input zebra" id="tableCons<%= secscen.co2_sector.id %>">
       <tr>
         <th class="center">Period</th>
         <% @sources_cons.each do |source| %>
@@ -166,7 +182,12 @@
             <td>
               <input name="co2_consumptions[<%= period %>][<%= source.id %>][<%= secscen.co2_sector.id %>]" 
                      type="text" value="<%= @consumptions[[period, source.id, secscen.co2_sector.id]].value %>" 
-                     onchange="CO2.updateTotal(<%= period %>, <%= secscen.co2_sector.id %>, <%= @sources_cons.size %>); return false;"/>
+                     onchange="
+                     	CO2.updateTotal(
+                     		<%= period %>, 
+                        	'co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>',
+                        	'tableCons<%= secscen.co2_sector.id %>'); 
+                        return false;"/>
             </td>
           <% end %>
           <td>
@@ -175,7 +196,12 @@
         </tr>
         
         <!-- Invoke Totals function to calculate the sum. -->
-        <script>CO2.updateTotal(<%= period %>, <%= secscen.co2_sector.id %>, <%= @sources_cons.size %>);</script>
+        <script>
+        	CO2.updateTotal(
+         		<%= period %>, 
+            	'co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>',
+            	'tableCons<%= secscen.co2_sector.id %>'); 
+        </script>
 
         <% year += @scenario.time_step %>
       <% end %>
