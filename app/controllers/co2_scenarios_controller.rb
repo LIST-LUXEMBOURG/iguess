@@ -34,6 +34,9 @@ class Co2ScenariosController < ApplicationController
     @sources_heat = Co2Source.find_all_by_heat_source(true)
     # Sources to use in Consumption
     @sources_cons = Co2Source.find_all_by_is_carrier(true)
+    
+    @elec_id = Co2Source.find_by_name("Electricity").id;
+    @heat_id = Co2Source.find_by_name("District Heating").id;
 
     @sector_scenarios = []
 
@@ -137,6 +140,9 @@ class Co2ScenariosController < ApplicationController
     @sources_heat = Co2Source.find_all_by_heat_source(true)
     # Sources to use in Emission Factors
     @sources_factor = Co2Source.find_all_by_has_factor(true)
+    
+    @elec_id = Co2Source.find_by_name("Electricity").id;
+    @heat_id = Co2Source.find_by_name("District Heating").id;
 
     (0..periods-1).each do |period| 
       @sources_cons.each do |s|
@@ -208,6 +214,9 @@ class Co2ScenariosController < ApplicationController
     @sources_heat = Co2Source.find_all_by_heat_source(true)
     # Sources to use in Emission Factors
     @sources_factor = Co2Source.find_all_by_has_factor(true)
+    
+    @elec_id = Co2Source.find_by_name("Electricity").id;
+    @heat_id = Co2Source.find_by_name("District Heating").id;
 
     @consumptions = Hash.new
     @elec_mixes = Hash.new
@@ -306,6 +315,9 @@ class Co2ScenariosController < ApplicationController
     @sources_heat = Co2Source.find_all_by_heat_source(true)
     # Sources to use in Emission Factors
     @sources_factor = Co2Source.find_all_by_has_factor(true)
+    
+    @elec_id = Co2Source.find_by_name("Electricity").id;
+    @heat_id = Co2Source.find_by_name("District Heating").id;
 
 
     # Delete all consumptions with periods higher than the current number of periods in the scenario

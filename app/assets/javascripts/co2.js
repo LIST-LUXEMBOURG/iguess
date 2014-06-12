@@ -174,7 +174,7 @@ CO2.calcSectorEmissions = function(p, sector, table_name)
 	sector_demand = CO2.sector_demands[sector][p];
 	CO2.sector_co2[p][sector] = co2_emissions * sector_demand;
 	CO2.sector_ch4[p][sector] = ch4_emissions * sector_demand;
-	CO2.sector_n2o[p][sector]l = n2o_emissions * sector_demand;
+	CO2.sector_n2o[p][sector] = n2o_emissions * sector_demand;
 };
 
 
