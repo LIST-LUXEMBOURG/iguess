@@ -91,9 +91,9 @@ class Co2ScenariosController < ApplicationController
           ef.co2_scenario_id = @scenario.id
           ef.co2_source_id = s.id
           ef.period = period
-          ef.co2_factor = 0
-          ef.ch4_factor = 1
-          ef.n2o_factor = 2
+          ef.co2_factor = s.co2_factor
+          ef.ch4_factor = s.ch4_factor
+          ef.n2o_factor = s.n2o_factor
 
           @emission_factors[[period, s.id]] = ef
       }
