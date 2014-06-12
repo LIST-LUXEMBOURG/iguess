@@ -98,9 +98,9 @@ CO2.calcComposedEmissions = function(table_name, p)
 		input = row.cells[i].children[0];
 		name = input.name;
 		source = name.substring(name.lastIndexOf("[") + 1, name.length - 1);
-		co2_emissions += CO2.calcFactor(input.value, CO2.co2_prefix, source, p);
-		ch4_emissions += CO2.calcFactor(input.value, CO2.ch4_prefix, source, p);
-		n2o_emissions += CO2.calcFactor(input.value, CO2.n2o_prefix, source, p);
+		CO2.co2_emissions += CO2.calcFactor(input.value, CO2.co2_prefix, source, p);
+		CO2.ch4_emissions += CO2.calcFactor(input.value, CO2.ch4_prefix, source, p);
+		CO2.n2o_emissions += CO2.calcFactor(input.value, CO2.n2o_prefix, source, p);
 	}
 
 };
@@ -125,6 +125,12 @@ CO2.updateHeatTotals = function(p, tot_name, table_name)
 	CO2.n2o_heat[p] = CO2.n2o_emissions;
 };
 
+CO2.updateConsTotals = function(p, sector, tot_name, table_name)
+{
+	CO2.updateTotal(p, tot_name, table_name);
+	CO2.calcSectorEmissions(p, sector, table_name);
+};
+
 CO2.calcSectorEmissions = function(p, sector, table_name)
 {	
 	if(CO2.sector_co2[p] == null)
@@ -133,14 +139,12 @@ CO2.calcSectorEmissions = function(p, sector, table_name)
 		CO2.sector_ch4[p] = new Array();
 		CO2.sector_n2o[p] = new Array();
 	}
-	
-	sector_demand = CO2.sector_demands[p][sector];
-	
+
 	table = document.getElementById(table_name);
 	row = table.rows[p + 1];
-	CO2.co2_emissions = 0.0;
-	CO2.ch4_emissions = 0.0;
-	CO2.n2o_emissions = 0.0;
+	co2_emissions = 0.0;
+	ch4_emissions = 0.0;
+	n2o_emissions = 0.0;
 	
 	for(i = 1; i < row.cells.length - 1; i++) 
 	{
@@ -167,6 +171,7 @@ CO2.calcSectorEmissions = function(p, sector, table_name)
 		}
 	}
 	
+	sector_demand = CO2.sector_demands[sector][p];
 	CO2.sector_co2[p][sector] = co2_emissions * sector_demand;
 	CO2.sector_ch4[p][sector] = ch4_emissions * sector_demand;
 	CO2.sector_n2o[p][sector] = n2o_emissions * sector_demand;
