@@ -23,6 +23,14 @@
 
 var CO2 = CO2 || { };		// Create namespace
 
+CO2.sector_emissions = new Array();
+
+CO2.sector_demands = new Array(); // MWh/a
+
+CO2.sector_co2 = new Array(); // t/a
+CO2.sector_ch4 = new Array(); // g/a
+CO2.sector_n2o = new Array(); // g/a
+
 CO2.co2_elec = new Array(); // t/MWh
 CO2.co2_heat = new Array(); // t/MWh
 CO2.ch4_elec = new Array(); // t/MWh
@@ -48,10 +56,26 @@ CO2.updateTotal = function(p, tot_name, table_name)
 	
 	table = document.getElementById(table_name);
 	row = table.rows[p + 1];
-	for(i = 1; i < row.cells.length - 1; i++) 
+	for (i = 1; i < row.cells.length - 1; i++) 
 		total += parseFloat(row.cells[i].children[0].value);
 
 	el.value = total;
+};
+
+CO2.calcSectorDemand = function(sector, input_growth, input_eff, input_demand)
+{
+	if (CO2.sector_demands[sector] == null)
+		CO2.sector_demands[sector] = new Array();
+	
+	efficiency = parseFloat(document.getElementsByName(input_eff)[0].value) / 100;
+	growth = parseFloat(document.getElementsByName(input_growth)[0].value) / 100;
+	
+	prior = parseFloat(document.getElementsByName(input_demand)[0].value);
+	CO2.sector_demands[sector][0] = prior;
+		
+	for (p = 1; p < CO2.numPeriods; p++)
+		CO2.sector_demands[sector][p] = prior * (1 + growth - efficiency);
+		
 };
 
 CO2.calcFactor = function(value, prefix, source, p)
@@ -74,9 +98,9 @@ CO2.calcComposedEmissions = function(table_name, p)
 		input = row.cells[i].children[0];
 		name = input.name;
 		source = name.substring(name.lastIndexOf("[") + 1, name.length - 1);
-		co2_emissions += CO2.calcFactor(input.value, CO2.co2_prefix, source, p);
-		ch4_emissions += CO2.calcFactor(input.value, CO2.ch4_prefix, source, p);
-		n2o_emissions += CO2.calcFactor(input.value, CO2.n2o_prefix, source, p);
+		CO2.co2_emissions += CO2.calcFactor(input.value, CO2.co2_prefix, source, p);
+		CO2.ch4_emissions += CO2.calcFactor(input.value, CO2.ch4_prefix, source, p);
+		CO2.n2o_emissions += CO2.calcFactor(input.value, CO2.n2o_prefix, source, p);
 	}
 
 };
@@ -100,4 +124,58 @@ CO2.updateHeatTotals = function(p, tot_name, table_name)
 	CO2.ch4_heat[p] = CO2.ch4_emissions;
 	CO2.n2o_heat[p] = CO2.n2o_emissions;
 };
+
+CO2.updateConsTotals = function(p, sector, tot_name, table_name)
+{
+	CO2.updateTotal(p, tot_name, table_name);
+	CO2.calcSectorEmissions(p, sector, table_name);
+};
+
+CO2.calcSectorEmissions = function(p, sector, table_name)
+{	
+	if(CO2.sector_co2[p] == null)
+	{
+		CO2.sector_co2[p] = new Array();
+		CO2.sector_ch4[p] = new Array();
+		CO2.sector_n2o[p] = new Array();
+	}
+
+	table = document.getElementById(table_name);
+	row = table.rows[p + 1];
+	co2_emissions = 0.0;
+	ch4_emissions = 0.0;
+	n2o_emissions = 0.0;
+	
+	for(i = 1; i < row.cells.length - 1; i++) 
+	{
+		input = row.cells[i].children[0];
+		name = input.name;
+		source = name.substring(name.lastIndexOf("[") + 1, name.length - 1);
+		if(source == CO2.elec_id)
+		{
+			co2_emissions += input.value * CO2.co2_elec[p];
+			ch4_emissions += input.value * CO2.ch4_elec[p];
+			n2o_emissions += input.value * CO2.n2o_elec[p];
+		}
+		else if(source == CO2.heat_id)
+		{
+			co2_emissions += input.value * CO2.co2_heat[p];
+			ch4_emissions += input.value * CO2.ch4_heat[p];
+			n2o_emissions += input.value * CO2.n2o_heat[p];
+		}
+		else
+		{
+			co2_emissions += CO2.calcFactor(input.value, CO2.co2_prefix, source, p);
+			ch4_emissions += CO2.calcFactor(input.value, CO2.ch4_prefix, source, p);
+			n2o_emissions += CO2.calcFactor(input.value, CO2.n2o_prefix, source, p);
+		}
+	}
+	
+	sector_demand = CO2.sector_demands[sector][p];
+	CO2.sector_co2[p][sector] = co2_emissions * sector_demand;
+	CO2.sector_ch4[p][sector] = ch4_emissions * sector_demand;
+	CO2.sector_n2o[p][sector] = n2o_emissions * sector_demand;
+};
+
+
 

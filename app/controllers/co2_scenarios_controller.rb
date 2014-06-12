@@ -34,6 +34,9 @@ class Co2ScenariosController < ApplicationController
     @sources_heat = Co2Source.find_all_by_heat_source(true)
     # Sources to use in Consumption
     @sources_cons = Co2Source.find_all_by_is_carrier(true)
+    
+    @elec_id = Co2Source.find_by_name("Electricity").id;
+    @heat_id = Co2Source.find_by_name("District Heating").id;
 
     @sector_scenarios = []
 
@@ -91,9 +94,9 @@ class Co2ScenariosController < ApplicationController
           ef.co2_scenario_id = @scenario.id
           ef.co2_source_id = s.id
           ef.period = period
-          ef.co2_factor = 0
-          ef.ch4_factor = 1
-          ef.n2o_factor = 2
+          ef.co2_factor = s.co2_factor
+          ef.ch4_factor = s.ch4_factor
+          ef.n2o_factor = s.n2o_factor
 
           @emission_factors[[period, s.id]] = ef
       }
@@ -137,6 +140,9 @@ class Co2ScenariosController < ApplicationController
     @sources_heat = Co2Source.find_all_by_heat_source(true)
     # Sources to use in Emission Factors
     @sources_factor = Co2Source.find_all_by_has_factor(true)
+    
+    @elec_id = Co2Source.find_by_name("Electricity").id;
+    @heat_id = Co2Source.find_by_name("District Heating").id;
 
     (0..periods-1).each do |period| 
       @sources_cons.each do |s|
@@ -208,6 +214,9 @@ class Co2ScenariosController < ApplicationController
     @sources_heat = Co2Source.find_all_by_heat_source(true)
     # Sources to use in Emission Factors
     @sources_factor = Co2Source.find_all_by_has_factor(true)
+    
+    @elec_id = Co2Source.find_by_name("Electricity").id;
+    @heat_id = Co2Source.find_by_name("District Heating").id;
 
     @consumptions = Hash.new
     @elec_mixes = Hash.new
@@ -306,6 +315,9 @@ class Co2ScenariosController < ApplicationController
     @sources_heat = Co2Source.find_all_by_heat_source(true)
     # Sources to use in Emission Factors
     @sources_factor = Co2Source.find_all_by_has_factor(true)
+    
+    @elec_id = Co2Source.find_by_name("Electricity").id;
+    @heat_id = Co2Source.find_by_name("District Heating").id;
 
 
     # Delete all consumptions with periods higher than the current number of periods in the scenario

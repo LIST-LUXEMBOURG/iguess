@@ -2,6 +2,11 @@
   <div class="error-msg"><%= flash[:error] %></div>
 <% end %>
 
+<script>
+CO2.numPeriods = <%= @periods.size %>;
+CO2.elec_id = 14; //This must be passed on by the controller;
+CO2.heat_id = 22; //This must be passed on by the controller;
+</script>
 
 <%= simple_form_for @scenario do |scen| %>
   <%= scen.error_notification %>
@@ -39,18 +44,43 @@
                type="hidden" value="<%= secscen.co2_sector.id %>" />
         <td><%= secscen.co2_sector.name %></td>
         <td>
-          <input name="co2_sector_scenarios[<%= index %>][demand]" 
-                 type="text" value="<%= secscen.demand %>" />
+          <input name="co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]" 
+                 type="text" value="<%= secscen.demand %>" 
+                 onchange="CO2.calcSectorDemand(
+         				<%= secscen.co2_sector.id %>, 
+            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
+            			'co2_sector_scenarios[<%= index %>][efficiency]',
+            			'co2_sector_scenarios[<%= index %>][base_total]');"/>
         </td>
         <td>
           <input name="co2_sector_scenarios[<%= index %>][efficiency]" 
-                 type="text" value="<%= secscen.efficiency %>" />
+                 type="text" value="<%= secscen.efficiency %>" 
+                 onchange="CO2.calcSectorDemand(
+         				<%= secscen.co2_sector.id %>, 
+            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
+            			'co2_sector_scenarios[<%= index %>][efficiency]',
+            			'co2_sector_scenarios[<%= index %>][base_total]');"/>
         </td>
         <td>
           <input name="co2_sector_scenarios[<%= index %>][base_total]" 
-                 type="text" value="<%= secscen.base_total %>" />
+                 type="text" value="<%= secscen.base_total %>" 
+                 onchange="CO2.calcSectorDemand(
+         				<%= secscen.co2_sector.id %>, 
+            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
+            			'co2_sector_scenarios[<%= index %>][efficiency]',
+            			'co2_sector_scenarios[<%= index %>][base_total]');"/>
         </td>
       </tr>
+      
+	  <!-- Calculate demand values for all periods. -->
+	  <script>
+		CO2.calcSectorDemand(
+			<%= secscen.co2_sector.id %>, 
+			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
+			'co2_sector_scenarios[<%= index %>][efficiency]',
+			'co2_sector_scenarios[<%= index %>][base_total]'); 
+	  </script>
+      
       <% index += 1 %>
     <% end %>
   </table>
@@ -105,7 +135,7 @@
         
         <!-- Invoke Totals function to calculate the sum. -->
         <script>
-        	CO2.updateTotal(
+        	CO2.updateElecTotals(
          		<%= period %>, 
             	'co2_elec_mix_total_<%= period %>',
             	'tableElecMix'); 
@@ -150,7 +180,7 @@
         
         <!-- Invoke Totals function to calculate the sum. -->
         <script>
-        	CO2.updateTotal(
+        	CO2.updateHeatTotals(
          		<%= period %>, 
             	'co2_heat_mix_total_<%= period %>',
             	'tableHeatMix'); 
@@ -180,11 +210,12 @@
           <td><%= year %></td>
           <% @sources_cons.each do |source| %>
             <td>
-              <input name="co2_consumptions[<%= period %>][<%= source.id %>][<%= secscen.co2_sector.id %>]" 
+              <input name="co2_consumptions[<%= period %>][<%= secscen.co2_sector.id %>][<%= source.id %>]" 
                      type="text" value="<%= @consumptions[[period, source.id, secscen.co2_sector.id]].value %>" 
                      onchange="
-                     	CO2.updateTotal(
+                     	CO2.updateConsTotals(
                      		<%= period %>, 
+                     		<%= secscen.co2_sector.id %>,
                         	'co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>',
                         	'tableCons<%= secscen.co2_sector.id %>'); 
                         return false;"/>
@@ -197,10 +228,11 @@
         
         <!-- Invoke Totals function to calculate the sum. -->
         <script>
-        	CO2.updateTotal(
+        	CO2.updateConsTotals(
          		<%= period %>, 
+         		<%= secscen.co2_sector.id %>,
             	'co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>',
-            	'tableCons<%= secscen.co2_sector.id %>'); 
+            	'tableCons<%= secscen.co2_sector.id %>');
         </script>
 
         <% year += @scenario.time_step %>
