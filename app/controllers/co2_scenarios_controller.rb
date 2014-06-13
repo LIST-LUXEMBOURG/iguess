@@ -334,7 +334,6 @@ class Co2ScenariosController < ApplicationController
     # Update the remaining consumptions
     (0..periods-1).each do |p| 
       @sources_cons.each do |s|
-        binding.pry
         params[:co2_consumptions][p.to_s][s.id.to_s].keys.each do |secscen_sector_id|
           
           consumption = getConsumption(@scenario.id, secscen_sector_id, p, s.id)

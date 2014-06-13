@@ -13,20 +13,32 @@ CO2.heat_id = <%= @heat_id %>;
 <%= simple_form_for @scenario do |scen| %>
   <%= scen.error_notification %>
 
-  <%= scen.input :name, 
+  <table border=0 cellpadding=6>
+    <tr><td>
+    <%= scen.input :name, 
         :label => "Scenario Name", 
         :input_html => { :cols => 80 },
         :placeholder => "Name" %>
 
-  <%= scen.input :base_year, 
+    <%= scen.input :base_year, 
         :label => "Base Year", 
         :as => :string,
         :placeholder => "e.g. 2010" %>
 
-  <%= scen.input :time_step, 
+    <%= scen.input :time_step, 
         :label => "Time step (years)", 
         :as => :string %>
 
+    </td><td width=240>  
+    <div align=right>
+	  <%= scen.submit buttonText %>
+	  <br><br>
+	  <button width=100>Add period</button>
+	  <br><br>
+	  <button width=100>Remove period</button>
+    </div>
+    </td></tr>
+  </table>
 
   <hr>
   <label>&nbsp;</label>
@@ -242,8 +254,6 @@ CO2.heat_id = <%= @heat_id %>;
       <% end %>
     </table>
   <% end %>
-
-  <label>&nbsp;</label><%= scen.submit buttonText %>
   
   <hr>
   
