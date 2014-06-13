@@ -265,8 +265,7 @@ class Co2ScenariosController < ApplicationController
     secscen = Co2SectorScenario.find_by_co2_sector_id_and_co2_scenario_id(sector_id, scenario_id)
     return Co2Consumption.find_by_period_and_co2_source_id_and_co2_sector_scenario_id(period, source_id, secscen.id)
   end 
-
-
+  
   # PUT /co2_scenarios/1
   # PUT /co2_scenarios/1.json
   def update
@@ -276,36 +275,9 @@ class Co2ScenariosController < ApplicationController
     #     format.json { render :text => "You must be logged in!", :status => 403 }
     #   end
     # end
-
-
+    
     @current_city  = User.getCurrentCity(current_user, cookies)
     @scenario = Co2Scenario.find(params[:id])
-
-    if not @scenario.update_attributes(params[:co2_scenario])
-      errorUpdating()
-      return
-    end
-
-    @scenario.save
-
-
-    # Now cycle through the sector_scenarios -- these should all already exist; the user can't dynamically create more
-    params[:co2_sector_scenarios].each do |secscen|
-      attribs = secscen[1]    
-      sector_scenario = Co2SectorScenario.find_by_co2_scenario_id_and_co2_sector_id(@scenario.id, attribs[:co2_sector_id])
-
-      if not sector_scenario.update_attributes(attribs)
-        errorUpdating()
-        return
-      end
-
-      sector_scenario.save
-    end
-
-
-    # And now the Carriers -- these may not all exist if the user added more years... create any missing ones,
-    # and delete any extras.
-    periods = params[:co2_consumptions].size()
     
     # Sources to use in Consumption
     @sources_cons = Co2Source.find_all_by_is_carrier(true)
@@ -319,7 +291,37 @@ class Co2ScenariosController < ApplicationController
     @elec_id = Co2Source.find_by_name("Electricity").id;
     @heat_id = Co2Source.find_by_name("District Heating").id;
 
+    if not @scenario.update_attributes(params[:co2_scenario])
+      errorUpdating()
+      return
+    end
 
+    @scenario.save
+    
+    # Now cycle through the sector_scenarios -- these should all already exist; the user can't dynamically create more
+    params[:co2_sector_scenarios].each do |secscen|
+      attribs = secscen[1]
+      sector_scenario = Co2SectorScenario.find_by_co2_scenario_id_and_co2_sector_id(@scenario.id, attribs[:co2_sector_id])
+
+      #binding.pry
+      # The params array seems to be screwed up at this time, why?
+      if sector_scenario == nil then 
+        next 
+      end 
+        
+      if not sector_scenario.update_attributes(attribs)
+        errorUpdating()
+        return
+      end
+      
+      sector_scenario.save
+      
+    end
+    
+    # And now the Carriers -- these may not all exist if the user added more years... create any missing ones,
+    # and delete any extras.
+    periods = params[:co2_consumptions].size()
+    
     # Delete all consumptions with periods higher than the current number of periods in the scenario
     unusedConsumptions = Co2Consumption.includes(:co2_sector_scenario)
                                        .where("period >= " + periods.to_s) 
@@ -328,10 +330,11 @@ class Co2ScenariosController < ApplicationController
     unusedConsumptions.each do |u|
       u.delete
     end
-
+    
     # Update the remaining consumptions
     (0..periods-1).each do |p| 
       @sources_cons.each do |s|
+        binding.pry
         params[:co2_consumptions][p.to_s][s.id.to_s].keys.each do |secscen_sector_id|
           
           consumption = getConsumption(@scenario.id, secscen_sector_id, p, s.id)
@@ -352,7 +355,7 @@ class Co2ScenariosController < ApplicationController
         end
       end
     end
-
+    
     # Electricity -------------
     # Delete all mixes with periods higher than the current number of periods in the scenario
     unusedMixes = Co2ElecMix.includes(:co2_sector_scenario)
@@ -362,7 +365,7 @@ class Co2ScenariosController < ApplicationController
     unusedMixes.each do |u|
       u.delete
     end
-
+    
     (0..periods-1).each do |p| 
       @sources_elec.each do |s|
         mix = Co2ElecMix.find_by_co2_scenario_id_and_period_and_co2_source_id(@scenario.id, p, s.id)
@@ -442,13 +445,11 @@ class Co2ScenariosController < ApplicationController
         end
       end
     end
-
-
-
+    
     flash[:notice] = "Successfully updated scenario"  
     
     redirect_to action: "index"
-
+    
   end
 
 
