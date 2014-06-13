@@ -51,7 +51,7 @@ CO2.n2o_emissions = 0.0;
 CO2.updateTotal = function(p, tot_name, table_name)
 {
 	id = tot_name;
-	el = document.getElementById(id);
+	total_box = document.getElementById(id);
 	total = 0.0;
 	
 	table = document.getElementById(table_name);
@@ -59,7 +59,9 @@ CO2.updateTotal = function(p, tot_name, table_name)
 	for (i = 1; i < row.cells.length - 1; i++) 
 		total += parseFloat(row.cells[i].children[0].value);
 
-	el.value = total;
+	total_box.value = total;
+	if(total >=0 && total <= 100) total_box.className = "percent-green";
+	else total_box.className = "percent-red";
 };
 
 CO2.calcSectorDemand = function(sector, input_growth, input_eff, input_demand)
