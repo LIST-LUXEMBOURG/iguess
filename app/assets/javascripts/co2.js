@@ -133,12 +133,12 @@ CO2.updateConsTotals = function(p, sector, tot_name, table_name)
 
 CO2.calcSectorEmissions = function(p, sector, table_name)
 {	
-	if(CO2.sector_co2[p] == null)
+	/*if(CO2.sector_co2[p] == null)
 	{
 		CO2.sector_co2[p] = new Array();
 		CO2.sector_ch4[p] = new Array();
 		CO2.sector_n2o[p] = new Array();
-	}
+	}*/
 
 	table = document.getElementById(table_name);
 	row = table.rows[p + 1];
@@ -172,9 +172,13 @@ CO2.calcSectorEmissions = function(p, sector, table_name)
 	}
 	
 	sector_demand = CO2.sector_demands[sector][p];
-	CO2.sector_co2[p][sector] = co2_emissions * sector_demand;
-	CO2.sector_ch4[p][sector] = ch4_emissions * sector_demand;
-	CO2.sector_n2o[p][sector] = n2o_emissions * sector_demand;
+	//CO2.sector_co2[p][sector] = co2_emissions * sector_demand;
+	//CO2.sector_ch4[p][sector] = ch4_emissions * sector_demand;
+	//CO2.sector_n2o[p][sector] = n2o_emissions * sector_demand;
+	//debugger;
+	CO2.sector_co2[CO2.sectorIndexes[sector]].data[p] = co2_emissions * sector_demand;
+	CO2.sector_ch4[CO2.sectorIndexes[sector]].data[p] = ch4_emissions * sector_demand;
+	CO2.sector_n2o[CO2.sectorIndexes[sector]].data[p] = n2o_emissions * sector_demand;
 };
 
 
