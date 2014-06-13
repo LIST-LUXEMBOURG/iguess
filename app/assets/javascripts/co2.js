@@ -51,7 +51,7 @@ CO2.n2o_emissions = 0.0;
 CO2.updateTotal = function(p, tot_name, table_name)
 {
 	id = tot_name;
-	el = document.getElementById(id);
+	total_box = document.getElementById(id);
 	total = 0.0;
 	
 	table = document.getElementById(table_name);
@@ -59,7 +59,9 @@ CO2.updateTotal = function(p, tot_name, table_name)
 	for (i = 1; i < row.cells.length - 1; i++) 
 		total += parseFloat(row.cells[i].children[0].value);
 
-	el.value = total;
+	total_box.value = total;
+	if(total >=0 && total <= 100) total_box.className = "percent-green";
+	else total_box.className = "percent-red";
 };
 
 CO2.calcSectorDemand = function(sector, input_growth, input_eff, input_demand)
@@ -133,12 +135,12 @@ CO2.updateConsTotals = function(p, sector, tot_name, table_name)
 
 CO2.calcSectorEmissions = function(p, sector, table_name)
 {	
-	if(CO2.sector_co2[p] == null)
+	/*if(CO2.sector_co2[p] == null)
 	{
 		CO2.sector_co2[p] = new Array();
 		CO2.sector_ch4[p] = new Array();
 		CO2.sector_n2o[p] = new Array();
-	}
+	}*/
 
 	table = document.getElementById(table_name);
 	row = table.rows[p + 1];
@@ -150,7 +152,10 @@ CO2.calcSectorEmissions = function(p, sector, table_name)
 	{
 		input = row.cells[i].children[0];
 		name = input.name;
-		source = name.substring(name.lastIndexOf("[") + 1, name.length - 1);
+		first = name.indexOf("[") + 1;
+		start = name.indexOf("[", first) + 1;
+		end = name.indexOf("]", start);
+		source = name.substring(start, end);
 		if(source == CO2.elec_id)
 		{
 			co2_emissions += input.value * CO2.co2_elec[p];
@@ -172,9 +177,9 @@ CO2.calcSectorEmissions = function(p, sector, table_name)
 	}
 	
 	sector_demand = CO2.sector_demands[sector][p];
-	CO2.sector_co2[p][sector] = co2_emissions * sector_demand;
-	CO2.sector_ch4[p][sector] = ch4_emissions * sector_demand;
-	CO2.sector_n2o[p][sector] = n2o_emissions * sector_demand;
+	CO2.sector_co2[CO2.sectorIndexes[sector]].data[p] = co2_emissions * sector_demand;
+	CO2.sector_ch4[CO2.sectorIndexes[sector]].data[p] = ch4_emissions * sector_demand;
+	CO2.sector_n2o[CO2.sectorIndexes[sector]].data[p] = n2o_emissions * sector_demand;
 };
 
 

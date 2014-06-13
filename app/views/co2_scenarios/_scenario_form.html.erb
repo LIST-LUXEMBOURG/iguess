@@ -3,28 +3,42 @@
 <% end %>
 
 <script>
+var CO2 = CO2 || { };		// Create namespace
+
 CO2.numPeriods = <%= @periods.size %>;
-CO2.elec_id = 14; //This must be passed on by the controller;
-CO2.heat_id = 22; //This must be passed on by the controller;
+CO2.elec_id = <%= @elec_id %>;
+CO2.heat_id = <%= @heat_id %>;
 </script>
 
 <%= simple_form_for @scenario do |scen| %>
   <%= scen.error_notification %>
 
-  <%= scen.input :name, 
+  <table border=0 cellpadding=6>
+    <tr><td>
+    <%= scen.input :name, 
         :label => "Scenario Name", 
         :input_html => { :cols => 80 },
         :placeholder => "Name" %>
 
-  <%= scen.input :base_year, 
+    <%= scen.input :base_year, 
         :label => "Base Year", 
         :as => :string,
         :placeholder => "e.g. 2010" %>
 
-  <%= scen.input :time_step, 
+    <%= scen.input :time_step, 
         :label => "Time step (years)", 
         :as => :string %>
 
+    </td><td width=240>  
+    <div align=right>
+	  <%= scen.submit buttonText %>
+	  <br><br>
+	  <button width=100>Add period</button>
+	  <br><br>
+	  <button width=100>Remove period</button>
+    </div>
+    </td></tr>
+  </table>
 
   <hr>
   <label>&nbsp;</label>
@@ -47,7 +61,7 @@ CO2.heat_id = 22; //This must be passed on by the controller;
           <input name="co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]" 
                  type="text" value="<%= secscen.demand %>" 
                  onchange="CO2.calcSectorDemand(
-         				<%= secscen.co2_sector.id %>, 
+         				'<%= secscen.co2_sector.name %>', 
             			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
             			'co2_sector_scenarios[<%= index %>][efficiency]',
             			'co2_sector_scenarios[<%= index %>][base_total]');"/>
@@ -56,7 +70,7 @@ CO2.heat_id = 22; //This must be passed on by the controller;
           <input name="co2_sector_scenarios[<%= index %>][efficiency]" 
                  type="text" value="<%= secscen.efficiency %>" 
                  onchange="CO2.calcSectorDemand(
-         				<%= secscen.co2_sector.id %>, 
+         				'<%= secscen.co2_sector.name %>', 
             			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
             			'co2_sector_scenarios[<%= index %>][efficiency]',
             			'co2_sector_scenarios[<%= index %>][base_total]');"/>
@@ -65,7 +79,7 @@ CO2.heat_id = 22; //This must be passed on by the controller;
           <input name="co2_sector_scenarios[<%= index %>][base_total]" 
                  type="text" value="<%= secscen.base_total %>" 
                  onchange="CO2.calcSectorDemand(
-         				<%= secscen.co2_sector.id %>, 
+         				'<%= secscen.co2_sector.name %>', 
             			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
             			'co2_sector_scenarios[<%= index %>][efficiency]',
             			'co2_sector_scenarios[<%= index %>][base_total]');"/>
@@ -74,8 +88,9 @@ CO2.heat_id = 22; //This must be passed on by the controller;
       
 	  <!-- Calculate demand values for all periods. -->
 	  <script>
+	  	CO2.addToSectorArrays('<%= secscen.co2_sector.name %>');
 		CO2.calcSectorDemand(
-			<%= secscen.co2_sector.id %>, 
+			'<%= secscen.co2_sector.name %>', 
 			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
 			'co2_sector_scenarios[<%= index %>][efficiency]',
 			'co2_sector_scenarios[<%= index %>][base_total]'); 
@@ -210,12 +225,12 @@ CO2.heat_id = 22; //This must be passed on by the controller;
           <td><%= year %></td>
           <% @sources_cons.each do |source| %>
             <td>
-              <input name="co2_consumptions[<%= period %>][<%= secscen.co2_sector.id %>][<%= source.id %>]" 
+              <input name="co2_consumptions[<%= period %>][<%= source.id %>][<%= secscen.co2_sector.id %>]" 
                      type="text" value="<%= @consumptions[[period, source.id, secscen.co2_sector.id]].value %>" 
                      onchange="
                      	CO2.updateConsTotals(
                      		<%= period %>, 
-                     		<%= secscen.co2_sector.id %>,
+                     		'<%= secscen.co2_sector.name %>',
                         	'co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>',
                         	'tableCons<%= secscen.co2_sector.id %>'); 
                         return false;"/>
@@ -230,7 +245,7 @@ CO2.heat_id = 22; //This must be passed on by the controller;
         <script>
         	CO2.updateConsTotals(
          		<%= period %>, 
-         		<%= secscen.co2_sector.id %>,
+         		'<%= secscen.co2_sector.name %>',
             	'co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>',
             	'tableCons<%= secscen.co2_sector.id %>');
         </script>
@@ -239,7 +254,20 @@ CO2.heat_id = 22; //This must be passed on by the controller;
       <% end %>
     </table>
   <% end %>
+  
+  <hr>
+  
+  <!-- And now for the charts -->
+  
+  <script src="http://code.highcharts.com/highcharts.js"></script>
+  <script src="http://code.highcharts.com/modules/exporting.js"></script>
 
-  <label>&nbsp;</label><%= scen.submit buttonText %>
+  <div id="co2_chart" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+  <br>
+  <div id="ch4_chart" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+  <br>
+  <div id="n2o_chart" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+  
+  <script>CO2.updatePeriodNames();</script>
         
 <% end %>

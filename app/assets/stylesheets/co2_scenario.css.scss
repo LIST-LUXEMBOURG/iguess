@@ -23,7 +23,19 @@
 	width: 50px; 
 }
 
-/* Text inputs */
+/* Totals header */
 .total-header { 
-  background: #FFAACC !important; 
+  background: #CBC100 !important; 
+}
+
+/* Totals inputs */
+.percent-green { 
+  background: #CCFFCC !important; 
+  border-width: thin;
+  border-color: #CCCCCC;
+}
+.percent-red { 
+  background: #FFCCCC !important; 
+  border-width: thin;
+  border-color: #CCCCCC;
 }
