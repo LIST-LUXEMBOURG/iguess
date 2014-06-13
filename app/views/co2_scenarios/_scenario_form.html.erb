@@ -213,7 +213,7 @@ CO2.heat_id = <%= @heat_id %>;
           <td><%= year %></td>
           <% @sources_cons.each do |source| %>
             <td>
-              <input name="co2_consumptions[<%= period %>][<%= secscen.co2_sector.id %>][<%= source.id %>]" 
+              <input name="co2_consumptions[<%= period %>][<%= source.id %>][<%= secscen.co2_sector.id %>]" 
                      type="text" value="<%= @consumptions[[period, source.id, secscen.co2_sector.id]].value %>" 
                      onchange="
                      	CO2.updateConsTotals(

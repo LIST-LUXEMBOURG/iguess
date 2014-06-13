@@ -150,7 +150,10 @@ CO2.calcSectorEmissions = function(p, sector, table_name)
 	{
 		input = row.cells[i].children[0];
 		name = input.name;
-		source = name.substring(name.lastIndexOf("[") + 1, name.length - 1);
+		first = name.indexOf("[") + 1;
+		start = name.indexOf("[", first) + 1;
+		end = name.indexOf("]", start);
+		source = name.substring(start, end);
 		if(source == CO2.elec_id)
 		{
 			co2_emissions += input.value * CO2.co2_elec[p];
@@ -172,10 +175,6 @@ CO2.calcSectorEmissions = function(p, sector, table_name)
 	}
 	
 	sector_demand = CO2.sector_demands[sector][p];
-	//CO2.sector_co2[p][sector] = co2_emissions * sector_demand;
-	//CO2.sector_ch4[p][sector] = ch4_emissions * sector_demand;
-	//CO2.sector_n2o[p][sector] = n2o_emissions * sector_demand;
-	//debugger;
 	CO2.sector_co2[CO2.sectorIndexes[sector]].data[p] = co2_emissions * sector_demand;
 	CO2.sector_ch4[CO2.sectorIndexes[sector]].data[p] = ch4_emissions * sector_demand;
 	CO2.sector_n2o[CO2.sectorIndexes[sector]].data[p] = n2o_emissions * sector_demand;
