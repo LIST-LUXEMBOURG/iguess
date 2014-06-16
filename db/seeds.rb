@@ -64,7 +64,7 @@ end
   source.co2_factor = v[5]
   source.ch4_factor = v[6]
   source.n2o_factor = v[7]
-  source.order = v[8]
+  source.display_order = v[8]
   source.save
 end
 
