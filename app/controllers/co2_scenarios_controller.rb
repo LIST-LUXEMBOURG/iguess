@@ -200,7 +200,6 @@ class Co2ScenariosController < ApplicationController
 
 
   def edit
-    
     @scenario = Co2Scenario.find(params[:id])
     @sectors = Co2Sector.all
     @sector_scenarios = Co2SectorScenario.find_all_by_co2_scenario_id(params[:id])
@@ -302,12 +301,6 @@ class Co2ScenariosController < ApplicationController
     params[:co2_sector_scenarios].each do |secscen|
       attribs = secscen[1]
       sector_scenario = Co2SectorScenario.find_by_co2_scenario_id_and_co2_sector_id(@scenario.id, attribs[:co2_sector_id])
-
-      #binding.pry
-      # The params array seems to be screwed up at this time, why?
-      if sector_scenario == nil then 
-        next 
-      end 
         
       if not sector_scenario.update_attributes(attribs)
         errorUpdating()

@@ -8,6 +8,15 @@ var CO2 = CO2 || { };		// Create namespace
 CO2.numPeriods = <%= @periods.size %>;
 CO2.elec_id = <%= @elec_id %>;
 CO2.heat_id = <%= @heat_id %>;
+
+stub = function(p) 
+{
+	CO2.updateEmissionsForPeriod(p);
+	CO2.drawCharts();
+}
+
+$(function() { $( "#tabs_emiss" ).tabs(); });
+
 </script>
 
 <%= simple_form_for @scenario do |scen| %>
@@ -54,35 +63,41 @@ CO2.heat_id = <%= @heat_id %>;
 
     <% @sector_scenarios.each do |secscen| %>
       <tr>
-        <input name="co2_sector_scenarios[<%= index %>][co2_sector_id]" 
+        <input name="co2_sector_scenarios[<%= secscen.co2_sector.id %>][co2_sector_id]" 
                type="hidden" value="<%= secscen.co2_sector.id %>" />
         <td><%= secscen.co2_sector.name %></td>
         <td>
           <input name="co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]" 
                  type="text" value="<%= secscen.demand %>" 
-                 onchange="CO2.calcSectorDemand(
+                 onchange="
+                 	CO2.calcSectorDemand(
          				'<%= secscen.co2_sector.name %>', 
             			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
-            			'co2_sector_scenarios[<%= index %>][efficiency]',
-            			'co2_sector_scenarios[<%= index %>][base_total]');"/>
+            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][efficiency]',
+            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][base_total]');
+            		CO2.drawCharts();"/>
         </td>
         <td>
-          <input name="co2_sector_scenarios[<%= index %>][efficiency]" 
+          <input name="co2_sector_scenarios[<%= secscen.co2_sector.id %>][efficiency]" 
                  type="text" value="<%= secscen.efficiency %>" 
-                 onchange="CO2.calcSectorDemand(
+                 onchange="
+                 	CO2.calcSectorDemand(
          				'<%= secscen.co2_sector.name %>', 
             			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
-            			'co2_sector_scenarios[<%= index %>][efficiency]',
-            			'co2_sector_scenarios[<%= index %>][base_total]');"/>
+            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][efficiency]',
+            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][base_total]');
+            		CO2.drawCharts();"/>
         </td>
         <td>
-          <input name="co2_sector_scenarios[<%= index %>][base_total]" 
+          <input name="co2_sector_scenarios[<%= secscen.co2_sector.id %>][base_total]" 
                  type="text" value="<%= secscen.base_total %>" 
-                 onchange="CO2.calcSectorDemand(
+                 onchange="
+                 	CO2.calcSectorDemand(
          				'<%= secscen.co2_sector.name %>', 
             			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
-            			'co2_sector_scenarios[<%= index %>][efficiency]',
-            			'co2_sector_scenarios[<%= index %>][base_total]');"/>
+            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][efficiency]',
+            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][base_total]');
+            		CO2.drawCharts();"/>
         </td>
       </tr>
       
@@ -92,8 +107,8 @@ CO2.heat_id = <%= @heat_id %>;
 		CO2.calcSectorDemand(
 			'<%= secscen.co2_sector.name %>', 
 			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
-			'co2_sector_scenarios[<%= index %>][efficiency]',
-			'co2_sector_scenarios[<%= index %>][base_total]'); 
+			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][efficiency]',
+			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][base_total]'); 
 	  </script>
       
       <% index += 1 %>
@@ -101,17 +116,34 @@ CO2.heat_id = <%= @heat_id %>;
   </table>
 
 
+<!--<div id="tabs_emiss">
+  <ul>
+	<li><a href="#tabs_emiss-1">CO2 (t/MWh)</a></li>
+	<li><a href="#tabs_emiss-2">CH4 (g/MWh)</a></li>
+	<li><a href="#tabs_emiss-3">N2O (g/MWh)</a></li>
+  </ul>
+  <div id="tabs_emiss-1">
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "CO2 (t/MWh)", fieldName: "co2_factor" } %>
+  </div>
+  <div id="tabs_emiss-2">
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "CH4 (g/MWh)", fieldName: "ch4_factor" } %>
+  </div>
+  <div id="tabs_emiss-3">
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "N2O (g/MWh)", fieldName: "n2o_factor" } %>
+  </div>
+</div>-->
 
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "CO2 (t/MWh)", fieldName: "co2_factor" } %>
 
-<%= render :partial => 'emission_factor.html.erb', 
-            locals: { title: "CO2 (t/MWh)", fieldName: "co2_factor" } %>
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "CH4 (g/MWh)", fieldName: "ch4_factor" } %>
 
-<%= render :partial => 'emission_factor.html.erb', 
-            locals: { title: "CH4 (g/MWh)", fieldName: "ch4_factor" } %>
-
-<%= render :partial => 'emission_factor.html.erb', 
-            locals: { title: "N2O (g/MWh)", fieldName: "n2o_factor" } %>
-
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "N2O (g/MWh)", fieldName: "n2o_factor" } %>
 
 
 <%# Electricity Mix table %> 
@@ -137,10 +169,13 @@ CO2.heat_id = <%= @heat_id %>;
             <td>
               <input name="co2_elec_mixes[<%= period %>][<%= source.id %>]" 
                      type="text" value="<%= @elec_mixes[[period, source.id]].value %>" 
-                     onchange="CO2.updateElecTotals(
-         				<%= period %>, 
-            			'co2_elec_mix_total_<%= period %>',
-            			'tableElecMix'); return false;"/>
+                     onchange="
+                     	CO2.updateElecTotals(
+         					<%= period %>, 
+            				'co2_elec_mix_total_<%= period %>',
+            				'tableElecMix');
+            			CO2.drawCharts(); 
+            			return false;"/>
             </td>
           <% end %>
           <td>
@@ -182,10 +217,13 @@ CO2.heat_id = <%= @heat_id %>;
             <td>
               <input name="co2_heat_mixes[<%= period %>][<%= source.id %>]" 
                      type="text" value="<%= @heat_mixes[[period, source.id]].value %>" 
-                     onchange="CO2.updateHeatTotals(
-		         		<%= period %>, 
-		            	'co2_heat_mix_total_<%= period %>',
-		            	'tableHeatMix');  return false;"/>
+                     onchange="
+                     	CO2.updateHeatTotals(
+		         			<%= period %>, 
+		            		'co2_heat_mix_total_<%= period %>',
+		            		'tableHeatMix');  
+		            	CO2.drawCharts();
+		            	return false;"/>
             </td>
           <% end %>
           <td>
@@ -210,7 +248,7 @@ CO2.heat_id = <%= @heat_id %>;
     <h2>Consumptions: <%= secscen.co2_sector.name %> (%)</h2>
 
     <label>&nbsp;</label>
-    <table class="grid-input zebra" id="tableCons<%= secscen.co2_sector.id %>">
+    <table class="grid-input zebra" id="tableCons<%= secscen.co2_sector.name %>">
       <tr>
         <th class="center">Period</th>
         <% @sources_cons.each do |source| %>
@@ -232,7 +270,8 @@ CO2.heat_id = <%= @heat_id %>;
                      		<%= period %>, 
                      		'<%= secscen.co2_sector.name %>',
                         	'co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>',
-                        	'tableCons<%= secscen.co2_sector.id %>'); 
+                        	'tableCons<%= secscen.co2_sector.name %>'); 
+                        CO2.drawCharts();
                         return false;"/>
             </td>
           <% end %>
@@ -247,7 +286,7 @@ CO2.heat_id = <%= @heat_id %>;
          		<%= period %>, 
          		'<%= secscen.co2_sector.name %>',
             	'co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>',
-            	'tableCons<%= secscen.co2_sector.id %>');
+            	'tableCons<%= secscen.co2_sector.name %>');
         </script>
 
         <% year += @scenario.time_step %>
@@ -262,12 +301,16 @@ CO2.heat_id = <%= @heat_id %>;
   <script src="http://code.highcharts.com/highcharts.js"></script>
   <script src="http://code.highcharts.com/modules/exporting.js"></script>
 
-  <div id="co2_chart" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+  <div id="co2_chart" class="chart"></div>
   <br>
-  <div id="ch4_chart" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+  <div id="ch4_chart" class="chart"></div>
   <br>
-  <div id="n2o_chart" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+  <div id="n2o_chart" class="chart"></div>
   
-  <script>CO2.updatePeriodNames();</script>
+  <script>
+  	CO2.updatePeriodNames();
+  	CO2.chartsInit();
+  	CO2.drawCharts();
+  </script>
         
 <% end %>

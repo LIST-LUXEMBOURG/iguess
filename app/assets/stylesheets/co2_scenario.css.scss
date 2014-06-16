@@ -1,41 +1,58 @@
-.grid-input {
+.grid-input 
+{
  	width: 200px;
  	white-space: nowrap
 }
 
 /* Suppress whitespace around input fields */
-.grid-input div { 
+.grid-input div 
+{ 
 	display: inline;
 }
 
 /* Center the input fields in their table columns */
-.grid-input td { 
+.grid-input td 
+{ 
 	text-align: center; 
 }
 
 /* Make first columns, which contain the labels, left-justified */
-.grid-input td:first-of-type { 
+.grid-input td:first-of-type 
+{ 
 	text-align: left; 
 }
 
 /* Text inputs */
-.grid-input input { 
+.grid-input input 
+{ 
 	width: 50px; 
 }
 
 /* Totals header */
-.total-header { 
+.total-header 
+{ 
   background: #CBC100 !important; 
 }
 
 /* Totals inputs */
-.percent-green { 
+.percent-green 
+{ 
   background: #CCFFCC !important; 
   border-width: thin;
   border-color: #CCCCCC;
 }
-.percent-red { 
+.percent-red 
+{ 
   background: #FFCCCC !important; 
   border-width: thin;
   border-color: #CCCCCC;
+}
+
+/* Charts */
+.chart 
+{
+  min-width: 310px; 
+  width: 80%; 
+  height: 400px; 
+  margin: 0 auto
 }

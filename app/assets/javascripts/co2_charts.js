@@ -27,6 +27,14 @@ CO2.periodNames = new Array();
 CO2.sectorIndexes = new Array();
 CO2.lastIndex = 0;
 
+CO2.chartsInit = function()
+{
+	Highcharts.setOptions({
+	   lang: {
+	      thousandsSep: ' '
+	   }
+	});
+};
         
 CO2.addToSectorArrays = function(sector)
 {
@@ -46,7 +54,15 @@ CO2.updatePeriodNames = function()
 		CO2.periodNames[i] = (base_year + i * time_step).toString();
 };
 
-$(function () {
+CO2.drawCharts = function()
+{
+	CO2.chartCO2();
+	CO2.chartCH4();
+	CO2.chartN2O();
+};
+
+CO2.chartCO2 = function () 
+{
     $('#co2_chart').highcharts({
         chart: {
             type: 'area'
@@ -83,9 +99,10 @@ $(function () {
         },
         series: CO2.sector_co2
     });
-});
+};
 
-$(function () {
+CO2.chartCH4 = function () 
+{
     $('#ch4_chart').highcharts({
         chart: {
             type: 'area'
@@ -122,9 +139,10 @@ $(function () {
         },
         series: CO2.sector_ch4
     });
-});
+};
 
-$(function () {
+CO2.chartN2O = function () 
+{
     $('#n2o_chart').highcharts({
         chart: {
             type: 'area'
@@ -161,4 +179,4 @@ $(function () {
         },
         series: CO2.sector_n2o
     });
-});
+};
