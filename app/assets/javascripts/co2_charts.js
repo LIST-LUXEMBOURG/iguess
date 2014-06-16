@@ -27,6 +27,14 @@ CO2.periodNames = new Array();
 CO2.sectorIndexes = new Array();
 CO2.lastIndex = 0;
 
+CO2.chartsInit = function()
+{
+	Highcharts.setOptions({
+	   lang: {
+	      thousandsSep: ' '
+	   }
+	});
+};
         
 CO2.addToSectorArrays = function(sector)
 {
