@@ -116,41 +116,11 @@ $(function() { $( "#tabs_emiss" ).tabs(); });
   </table>
 
 
-<!--<div id="tabs_emiss">
-  <ul>
-	<li><a href="#tabs_emiss-1">CO2 (t/MWh)</a></li>
-	<li><a href="#tabs_emiss-2">CH4 (g/MWh)</a></li>
-	<li><a href="#tabs_emiss-3">N2O (g/MWh)</a></li>
-  </ul>
-  <div id="tabs_emiss-1">
-	<%= render :partial => 'emission_factor.html.erb', 
-	            locals: { title: "CO2 (t/MWh)", fieldName: "co2_factor" } %>
-  </div>
-  <div id="tabs_emiss-2">
-	<%= render :partial => 'emission_factor.html.erb', 
-	            locals: { title: "CH4 (g/MWh)", fieldName: "ch4_factor" } %>
-  </div>
-  <div id="tabs_emiss-3">
-	<%= render :partial => 'emission_factor.html.erb', 
-	            locals: { title: "N2O (g/MWh)", fieldName: "n2o_factor" } %>
-  </div>
-</div>-->
-
-	<%= render :partial => 'emission_factor.html.erb', 
-	            locals: { title: "CO2 (t/MWh)", fieldName: "co2_factor" } %>
-
-	<%= render :partial => 'emission_factor.html.erb', 
-	            locals: { title: "CH4 (g/MWh)", fieldName: "ch4_factor" } %>
-
-	<%= render :partial => 'emission_factor.html.erb', 
-	            locals: { title: "N2O (g/MWh)", fieldName: "n2o_factor" } %>
-
-
 <%# Electricity Mix table %> 
 
     <hr>
     <label>&nbsp;</label>
-    <h2>Mix: Electricity (%)</h2>
+    <h2>Electricity Production (%)</h2>
 
     <label>&nbsp;</label>
     <table class="grid-input zebra" id="tableElecMix">
@@ -198,7 +168,7 @@ $(function() { $( "#tabs_emiss" ).tabs(); });
 
     <hr>
     <label>&nbsp;</label>
-    <h2>Mix: District Heating (%)</h2>
+    <h2>District Heating Production (%)</h2>
 
     <label>&nbsp;</label>
     <table class="grid-input zebra" id="tableHeatMix">
@@ -295,6 +265,37 @@ $(function() { $( "#tabs_emiss" ).tabs(); });
   <% end %>
   
   <hr>
+  
+  <!--<div id="tabs_emiss">
+  <ul>
+	<li><a href="#tabs_emiss-1">CO2 (t/MWh)</a></li>
+	<li><a href="#tabs_emiss-2">CH4 (g/MWh)</a></li>
+	<li><a href="#tabs_emiss-3">N2O (g/MWh)</a></li>
+  </ul>
+  <div id="tabs_emiss-1">
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "CO2 (t/MWh)", fieldName: "co2_factor" } %>
+  </div>
+  <div id="tabs_emiss-2">
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "CH4 (g/MWh)", fieldName: "ch4_factor" } %>
+  </div>
+  <div id="tabs_emiss-3">
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "N2O (g/MWh)", fieldName: "n2o_factor" } %>
+  </div>
+</div>-->
+
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "CO2 (t/MWh)", fieldName: "co2_factor" } %>
+
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "CH4 (g/MWh)", fieldName: "ch4_factor" } %>
+
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "N2O (g/MWh)", fieldName: "n2o_factor" } %>
+	            
+	<hr>
   
   <!-- And now for the charts -->
   

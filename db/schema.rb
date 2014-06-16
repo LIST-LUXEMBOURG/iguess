@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140612143626) do
+ActiveRecord::Schema.define(:version => 20140616134806) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -135,6 +135,7 @@ ActiveRecord::Schema.define(:version => 20140612143626) do
     t.float    "co2_factor"
     t.float    "ch4_factor"
     t.float    "n2o_factor"
+    t.integer  "display_order"
   end
 
   add_index "co2_sources", ["id"], :name => "index_co2_sources_on_id"
