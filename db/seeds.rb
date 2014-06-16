@@ -44,17 +44,17 @@ end
  ['LPG',              true,  true,  false, false, 0.227,  18.0,  0.36,  7],  
  ['Biogas',           true,  true,  true,  true,  0.196,  18.0,  0.36,  8],
  ['Excess Heat',      false, true,  false, true,  0.0,     0.0,  0.0,   9],
- ['Wood',             true,  true,  true,  true,  0.0,     0.0,  0.0,  10],
- ['Waste',            false, true,  true,  true,  0.33, 1080.0, 14.4,  11],
+ ['Waste',            false, true,  true,  true,  0.33, 1080.0, 14.4,  10],
+ ['Imports',          false, true,  true,  true,  0.0,     0.0,  0.0,  11],
  ['District Heating', true,  false, false, false, 0.0,     0.0,  0.0,  12],
- ['Electricity',      true,  false, false, false, 0.0,     0.0,  0.0,  13],     
- ['Geothermal',       true,  true,  true,  true,  0.0,     0.0,  0.0,  14],
- ['Hydraulic',        false, true,  true,  false, 0.0,     0.0,  0.0,  15],  
- ['Solar',            false, true,  true,  true,  0.0,     0.0,  0.0,  16],
- ['Wind',             false, true,  true,  false, 0.0,     0.0,  0.0,  17],
- ['Other renewables', false, true,  true,  false, 0.0,     0.0,  0.0,  18],  
- ['Imports',          false, true,  true,  true,  0.0,     0.0,  0.0,  19],
- ['Other',            true,  true,  true,  true,  0.0,     0.0,  0.0,  20]
+ ['Electricity',      true,  false, false, false, 0.0,     0.0,  0.0,  13],
+ ['Other Fossil',     true,  true,  true,  true,  0.0,     0.0,  0.0,  14],
+ ['Geothermal',       true,  true,  true,  true,  0.0,     0.0,  0.0,  15],
+ ['Hydraulic',        false, true,  true,  false, 0.0,     0.0,  0.0,  16],  
+ ['Solar',            false, true,  true,  true,  0.0,     0.0,  0.0,  17],
+ ['Wind',             false, true,  true,  false, 0.0,     0.0,  0.0,  18],
+ ['Wood',             true,  true,  true,  true,  0.0,     0.0,  0.0,  19],
+ ['Other renewables', false, true,  true,  false, 0.0,     0.0,  0.0,  20]
 ].each do |v|
   source = Co2Source.find_or_create_by_name v[0]
   source.is_carrier = v[1]
