@@ -173,6 +173,8 @@ CO2.calcSectorEmissions = function(p, sector, table_name)
 	CO2.sector_co2[CO2.sectorIndexes[sector]].data[p] = co2_emissions * sector_demand;
 	CO2.sector_ch4[CO2.sectorIndexes[sector]].data[p] = ch4_emissions * sector_demand;
 	CO2.sector_n2o[CO2.sectorIndexes[sector]].data[p] = n2o_emissions * sector_demand;
+	
+	CO2.chartCO2();
 };
 
 CO2.updateEmissionsForPeriod = function(p)

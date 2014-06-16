@@ -9,7 +9,11 @@ CO2.numPeriods = <%= @periods.size %>;
 CO2.elec_id = <%= @elec_id %>;
 CO2.heat_id = <%= @heat_id %>;
 
-stub = function(p) {CO2.updateEmissionsForPeriod(p);}
+stub = function(p) 
+{
+	CO2.updateEmissionsForPeriod(p);
+	CO2.drawCharts();
+}
 </script>
 
 <%= simple_form_for @scenario do |scen| %>
@@ -62,29 +66,35 @@ stub = function(p) {CO2.updateEmissionsForPeriod(p);}
         <td>
           <input name="co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]" 
                  type="text" value="<%= secscen.demand %>" 
-                 onchange="CO2.calcSectorDemand(
+                 onchange="
+                 	CO2.calcSectorDemand(
          				'<%= secscen.co2_sector.name %>', 
             			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
             			'co2_sector_scenarios[<%= index %>][efficiency]',
-            			'co2_sector_scenarios[<%= index %>][base_total]');"/>
+            			'co2_sector_scenarios[<%= index %>][base_total]');
+            		CO2.drawCharts();"/>
         </td>
         <td>
           <input name="co2_sector_scenarios[<%= index %>][efficiency]" 
                  type="text" value="<%= secscen.efficiency %>" 
-                 onchange="CO2.calcSectorDemand(
+                 onchange="
+                 	CO2.calcSectorDemand(
          				'<%= secscen.co2_sector.name %>', 
             			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
             			'co2_sector_scenarios[<%= index %>][efficiency]',
-            			'co2_sector_scenarios[<%= index %>][base_total]');"/>
+            			'co2_sector_scenarios[<%= index %>][base_total]');
+            		CO2.drawCharts();"/>
         </td>
         <td>
           <input name="co2_sector_scenarios[<%= index %>][base_total]" 
                  type="text" value="<%= secscen.base_total %>" 
-                 onchange="CO2.calcSectorDemand(
+                 onchange="
+                 	CO2.calcSectorDemand(
          				'<%= secscen.co2_sector.name %>', 
             			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
             			'co2_sector_scenarios[<%= index %>][efficiency]',
-            			'co2_sector_scenarios[<%= index %>][base_total]');"/>
+            			'co2_sector_scenarios[<%= index %>][base_total]');
+            		CO2.drawCharts();"/>
         </td>
       </tr>
       
@@ -139,10 +149,13 @@ stub = function(p) {CO2.updateEmissionsForPeriod(p);}
             <td>
               <input name="co2_elec_mixes[<%= period %>][<%= source.id %>]" 
                      type="text" value="<%= @elec_mixes[[period, source.id]].value %>" 
-                     onchange="CO2.updateElecTotals(
-         				<%= period %>, 
-            			'co2_elec_mix_total_<%= period %>',
-            			'tableElecMix'); return false;"/>
+                     onchange="
+                     	CO2.updateElecTotals(
+         					<%= period %>, 
+            				'co2_elec_mix_total_<%= period %>',
+            				'tableElecMix');
+            			CO2.drawCharts(); 
+            			return false;"/>
             </td>
           <% end %>
           <td>
@@ -184,10 +197,13 @@ stub = function(p) {CO2.updateEmissionsForPeriod(p);}
             <td>
               <input name="co2_heat_mixes[<%= period %>][<%= source.id %>]" 
                      type="text" value="<%= @heat_mixes[[period, source.id]].value %>" 
-                     onchange="CO2.updateHeatTotals(
-		         		<%= period %>, 
-		            	'co2_heat_mix_total_<%= period %>',
-		            	'tableHeatMix');  return false;"/>
+                     onchange="
+                     	CO2.updateHeatTotals(
+		         			<%= period %>, 
+		            		'co2_heat_mix_total_<%= period %>',
+		            		'tableHeatMix');  
+		            	CO2.drawCharts();
+		            	return false;"/>
             </td>
           <% end %>
           <td>
@@ -235,6 +251,7 @@ stub = function(p) {CO2.updateEmissionsForPeriod(p);}
                      		'<%= secscen.co2_sector.name %>',
                         	'co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>',
                         	'tableCons<%= secscen.co2_sector.name %>'); 
+                        CO2.drawCharts();
                         return false;"/>
             </td>
           <% end %>
@@ -270,6 +287,9 @@ stub = function(p) {CO2.updateEmissionsForPeriod(p);}
   <br>
   <div id="n2o_chart" class="chart"></div>
   
-  <script>CO2.updatePeriodNames();</script>
+  <script>
+  	CO2.updatePeriodNames();
+  	CO2.drawCharts();
+  </script>
         
 <% end %>
