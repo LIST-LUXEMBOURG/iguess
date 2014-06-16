@@ -14,6 +14,9 @@ stub = function(p)
 	CO2.updateEmissionsForPeriod(p);
 	CO2.drawCharts();
 }
+
+$(function() { $( "#tabs_emiss" ).tabs(); });
+
 </script>
 
 <%= simple_form_for @scenario do |scen| %>
@@ -113,17 +116,34 @@ stub = function(p)
   </table>
 
 
+<!--<div id="tabs_emiss">
+  <ul>
+	<li><a href="#tabs_emiss-1">CO2 (t/MWh)</a></li>
+	<li><a href="#tabs_emiss-2">CH4 (g/MWh)</a></li>
+	<li><a href="#tabs_emiss-3">N2O (g/MWh)</a></li>
+  </ul>
+  <div id="tabs_emiss-1">
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "CO2 (t/MWh)", fieldName: "co2_factor" } %>
+  </div>
+  <div id="tabs_emiss-2">
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "CH4 (g/MWh)", fieldName: "ch4_factor" } %>
+  </div>
+  <div id="tabs_emiss-3">
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "N2O (g/MWh)", fieldName: "n2o_factor" } %>
+  </div>
+</div>-->
 
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "CO2 (t/MWh)", fieldName: "co2_factor" } %>
 
-<%= render :partial => 'emission_factor.html.erb', 
-            locals: { title: "CO2 (t/MWh)", fieldName: "co2_factor" } %>
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "CH4 (g/MWh)", fieldName: "ch4_factor" } %>
 
-<%= render :partial => 'emission_factor.html.erb', 
-            locals: { title: "CH4 (g/MWh)", fieldName: "ch4_factor" } %>
-
-<%= render :partial => 'emission_factor.html.erb', 
-            locals: { title: "N2O (g/MWh)", fieldName: "n2o_factor" } %>
-
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "N2O (g/MWh)", fieldName: "n2o_factor" } %>
 
 
 <%# Electricity Mix table %> 
