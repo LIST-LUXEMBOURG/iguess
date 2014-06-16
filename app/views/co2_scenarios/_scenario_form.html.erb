@@ -8,6 +8,8 @@ var CO2 = CO2 || { };		// Create namespace
 CO2.numPeriods = <%= @periods.size %>;
 CO2.elec_id = <%= @elec_id %>;
 CO2.heat_id = <%= @heat_id %>;
+CO2.eqCH4 = <%= @eq_ch4 %>;
+CO2.eqN2O = <%= @eq_n20 %>;
 
 stub = function(p) 
 {
@@ -152,14 +154,6 @@ $(function() { $( "#tabs_emiss" ).tabs(); });
             <input id="co2_elec_mix_total_<%= period %>" type="text" value="0" disabled/>
           </td>
         </tr>
-        
-        <!-- Invoke Totals function to calculate the sum. -->
-        <script>
-        	CO2.updateElecTotals(
-         		<%= period %>, 
-            	'co2_elec_mix_total_<%= period %>',
-            	'tableElecMix'); 
-        </script>
       <% end %>
     </table>
 
@@ -200,14 +194,6 @@ $(function() { $( "#tabs_emiss" ).tabs(); });
             <input id="co2_heat_mix_total_<%= period %>" type="text" value="0" disabled/>
           </td>
         </tr>
-        
-        <!-- Invoke Totals function to calculate the sum. -->
-        <script>
-        	CO2.updateHeatTotals(
-         		<%= period %>, 
-            	'co2_heat_mix_total_<%= period %>',
-            	'tableHeatMix'); 
-        </script>
       <% end %>
     </table>
 
@@ -249,16 +235,6 @@ $(function() { $( "#tabs_emiss" ).tabs(); });
           	<input id="co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>" type="text" value="0" disabled/>
           </td>
         </tr>
-        
-        <!-- Invoke Totals function to calculate the sum. -->
-        <script>
-        	CO2.updateConsTotals(
-         		<%= period %>, 
-         		'<%= secscen.co2_sector.name %>',
-            	'co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>',
-            	'tableCons<%= secscen.co2_sector.name %>');
-        </script>
-
         <% year += @scenario.time_step %>
       <% end %>
     </table>
@@ -307,8 +283,32 @@ $(function() { $( "#tabs_emiss" ).tabs(); });
   <div id="ch4_chart" class="chart"></div>
   <br>
   <div id="n2o_chart" class="chart"></div>
+ 
+ 
+  <!-- Update totals and draw graphs -->
   
   <script>
+  <% @periods.each do |period| %>
+	CO2.updateElecTotals(
+ 		<%= period %>, 
+    	'co2_elec_mix_total_<%= period %>',
+    	'tableElecMix'); 
+
+	CO2.updateHeatTotals(
+ 		<%= period %>, 
+    	'co2_heat_mix_total_<%= period %>',
+    	'tableHeatMix'); 
+
+    <% @sector_scenarios.each do |secscen| %>
+  	CO2.updateConsTotals(
+ 		<%= period %>, 
+ 		'<%= secscen.co2_sector.name %>',
+    	'co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>',
+    	'tableCons<%= secscen.co2_sector.name %>');
+    <% end %>
+    	
+  <% end %>
+  
   	CO2.updatePeriodNames();
   	CO2.chartsInit();
   	CO2.drawCharts();

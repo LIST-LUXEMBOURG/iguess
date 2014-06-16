@@ -37,6 +37,9 @@ class Co2ScenariosController < ApplicationController
     
     @elec_id = Co2Source.find_by_name("Electricity").id;
     @heat_id = Co2Source.find_by_name("District Heating").id;
+    
+    @eq_ch4 = Co2Equiv.find_by_name("CH4").value;
+    @eq_n20 = Co2Equiv.find_by_name("N2O").value;
 
     @sector_scenarios = []
 
@@ -144,6 +147,9 @@ class Co2ScenariosController < ApplicationController
     @elec_id = Co2Source.find_by_name("Electricity").id;
     @heat_id = Co2Source.find_by_name("District Heating").id;
 
+    @eq_ch4 = Co2Equiv.find_by_name("CH4").value;
+    @eq_n20 = Co2Equiv.find_by_name("N2O").value;
+
     (0..periods-1).each do |period| 
       @sources_cons.each do |s|
         params[:co2_consumptions][period.to_s][s.id.to_s].keys.each do |secscen_sector_id|
@@ -216,6 +222,9 @@ class Co2ScenariosController < ApplicationController
     
     @elec_id = Co2Source.find_by_name("Electricity").id;
     @heat_id = Co2Source.find_by_name("District Heating").id;
+        
+    @eq_ch4 = Co2Equiv.find_by_name("CH4").value;
+    @eq_n20 = Co2Equiv.find_by_name("N2O").value;
 
     @consumptions = Hash.new
     @elec_mixes = Hash.new
@@ -289,6 +298,9 @@ class Co2ScenariosController < ApplicationController
     
     @elec_id = Co2Source.find_by_name("Electricity").id;
     @heat_id = Co2Source.find_by_name("District Heating").id;
+        
+    @eq_ch4 = Co2Equiv.find_by_name("CH4").value;
+    @eq_n20 = Co2Equiv.find_by_name("N2O").value;
 
     if not @scenario.update_attributes(params[:co2_scenario])
       errorUpdating()
