@@ -8,6 +8,8 @@ var CO2 = CO2 || { };		// Create namespace
 CO2.numPeriods = <%= @periods.size %>;
 CO2.elec_id = <%= @elec_id %>;
 CO2.heat_id = <%= @heat_id %>;
+CO2.eqCH4 = <%= @eq_ch4 %>;
+CO2.eqN2O = <%= @eq_n20 %>;
 
 stub = function(p) 
 {
@@ -307,7 +309,6 @@ $(function() { $( "#tabs_emiss" ).tabs(); });
     	
   <% end %>
   
-
   	CO2.updatePeriodNames();
   	CO2.chartsInit();
   	CO2.drawCharts();
