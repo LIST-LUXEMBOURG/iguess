@@ -35,26 +35,26 @@ end
 
 
 # Basic energy sources for the CO2 model
-[['Biogas',           true,  true,  true,  true,  0.196,  18.0,  0.360],
- ['CHP',              true,  true,  true,  true,  0.0,     0.0,  0.0],
- ['Crude Oil',        true,  true,  true,  true,  0.263,  36.0,  2.160],
- ['Coal',             true,  true,  true,  true,  0.341,  36.0,  5.400], 
- ['Diesel',           true,  true,  false, false, 0.266,  36.0,  2.160],
- ['District Heating', true,  false, false, false, 0.0,     0.0,  0.0],
- ['Electricity',      true,  false, false, false, 0.0,     0.0,  0.0],     
- ['Excess Heat',      false, true,  false, true,  0.0,     0.0,  0.0],
- ['Gas',              true,  true,  true,  true,  0.266,  36.0,  2.160],
- ['Gasoline',         true,  true,  false, false, 0.249,  36.0,  2.160],
- ['Geothermal',       true,  true,  true,  true,  0.0,     0.0,  0.0],
- ['Hydraulic',        false, true,  true,  false, 0.0,     0.0,  0.0],  
- ['Imports',          false, true,  true,  true,  0.0,     0.0,  0.0],
- ['LPG',              true,  true,  false, false, 0.227,  18.0,  0.360],    
- ['Other',            true,  true,  true,  true,  0.0,     0.0,  0.0],
- ['Other renewables', false, true,  true,  false, 0.0,     0.0,  0.0],
- ['Solar',            false, true,  true,  true,  0.0,     0.0,  0.0],
- ['Waste',            false, true,  true,  true,  0.33, 1080.0, 14.400],
- ['Wind',             false, true,  true,  false, 0.0,     0.0,  0.0],  
- ['Wood',             true,  true,  true,  true,  0.0,     0.0,  0.0]
+[['Coal',             true,  true,  true,  true,  0.341,  36.0,  5.4,   1],
+ ['Gas',              true,  true,  true,  true,  0.266,  36.0,  2.16,  2],
+ ['CHP',              true,  true,  true,  true,  0.0,     0.0,  0.0,   3],
+ ['Crude Oil',        true,  true,  true,  true,  0.263,  36.0,  2.16,  4],
+ ['Diesel',           true,  true,  false, false, 0.266,  36.0,  2.16,  5],
+ ['Gasoline',         true,  true,  false, false, 0.249,  36.0,  2.16,  6],
+ ['LPG',              true,  true,  false, false, 0.227,  18.0,  0.36,  7],  
+ ['Biogas',           true,  true,  true,  true,  0.196,  18.0,  0.36,  8],
+ ['Excess Heat',      false, true,  false, true,  0.0,     0.0,  0.0,   9],
+ ['Wood',             true,  true,  true,  true,  0.0,     0.0,  0.0,  10],
+ ['Waste',            false, true,  true,  true,  0.33, 1080.0, 14.4,  11],
+ ['District Heating', true,  false, false, false, 0.0,     0.0,  0.0,  12],
+ ['Electricity',      true,  false, false, false, 0.0,     0.0,  0.0,  13],     
+ ['Geothermal',       true,  true,  true,  true,  0.0,     0.0,  0.0,  14],
+ ['Hydraulic',        false, true,  true,  false, 0.0,     0.0,  0.0,  15],  
+ ['Solar',            false, true,  true,  true,  0.0,     0.0,  0.0,  16],
+ ['Wind',             false, true,  true,  false, 0.0,     0.0,  0.0,  17],
+ ['Other renewables', false, true,  true,  false, 0.0,     0.0,  0.0,  18],  
+ ['Imports',          false, true,  true,  true,  0.0,     0.0,  0.0,  19],
+ ['Other',            true,  true,  true,  true,  0.0,     0.0,  0.0,  20]
 ].each do |v|
   source = Co2Source.find_or_create_by_name v[0]
   source.is_carrier = v[1]
@@ -64,6 +64,7 @@ end
   source.co2_factor = v[5]
   source.ch4_factor = v[6]
   source.n2o_factor = v[7]
+  source.order = v[8]
   source.save
 end
 
