@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140616134806) do
+ActiveRecord::Schema.define(:version => 20140616151756) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -76,6 +76,16 @@ ActiveRecord::Schema.define(:version => 20140616134806) do
 
   add_index "co2_emission_factors", ["co2_source_id", "co2_scenario_id", "period"], :name => "ef_foreign_key_indx", :unique => true
   add_index "co2_emission_factors", ["id"], :name => "index_co2_emission_factors_on_id"
+
+  create_table "co2_equivs", :force => true do |t|
+    t.string   "name"
+    t.float    "value"
+    t.datetime "created_at", :null => false
+    t.datetime "updated_at", :null => false
+  end
+
+  add_index "co2_equivs", ["id"], :name => "index_co2_equiv_on_id"
+  add_index "co2_equivs", ["name"], :name => "index_co2_equiv_on_name", :unique => true
 
   create_table "co2_heat_mixes", :force => true do |t|
     t.integer  "co2_source_id"

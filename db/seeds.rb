@@ -68,5 +68,13 @@ end
   source.save
 end
 
+# Conversion factors to CO2 equivalent
+[['CH4',   25],
+ ['N2O',  298]
+].each do |v|
+  equiv = Co2Equiv.find_or_create_by_name v[0]
+  equiv.value = v[1]
+  equiv.save
+end
 
 
