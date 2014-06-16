@@ -20,12 +20,12 @@ class ModConfigsController < ApplicationController
                                  .order('title, identifier')   # For catalog
 
       @wps_servers   = WpsServer.find_all_by_city_id_and_alive(@current_city.id, :true)
-    else
+    else    # User not signed in!
       @wps_processes = WpsProcess.joins(:wps_server, {:wps_server => :city})
-                                 .where({:cities => {:site_details_id => @site_details.id }}, 
-                                        :alive => :true)
+                                 .where(:cities => {:site_details_id => @site_details.id })
+                                 .where(:alive => :true)
                                  .order('title, identifier')
-                                 .uniq_by{|s| s.wps_server.url + s.identifier }
+                                 .uniq_by{ |s| s.wps_server.url + s.identifier }
 
       # Make a list of the servers associated with the processes we selected.
       # Have to do this this way due to denormalization of wps_servers table.
