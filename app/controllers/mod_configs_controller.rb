@@ -25,7 +25,7 @@ class ModConfigsController < ApplicationController
                                  .where(:cities => {:site_details_id => @site_details.id })
                                  .where(:alive => :true)
                                  .order('title, identifier')
-                                 .uniq_by{ |s| s.wps_server.url + s.identifier }
+                                 .uniq_by{|s| s.wps_server.url + s.identifier }
 
       # Make a list of the servers associated with the processes we selected.
       # Have to do this this way due to denormalization of wps_servers table.
