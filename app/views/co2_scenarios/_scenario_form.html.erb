@@ -8,6 +8,8 @@ var CO2 = CO2 || { };		// Create namespace
 CO2.numPeriods = <%= @periods.size %>;
 CO2.elec_id = <%= @elec_id %>;
 CO2.heat_id = <%= @heat_id %>;
+
+stub = function(p) {CO2.updateEmissionsForPeriod(p);}
 </script>
 
 <%= simple_form_for @scenario do |scen| %>
@@ -210,7 +212,7 @@ CO2.heat_id = <%= @heat_id %>;
     <h2>Consumptions: <%= secscen.co2_sector.name %> (%)</h2>
 
     <label>&nbsp;</label>
-    <table class="grid-input zebra" id="tableCons<%= secscen.co2_sector.id %>">
+    <table class="grid-input zebra" id="tableCons<%= secscen.co2_sector.name %>">
       <tr>
         <th class="center">Period</th>
         <% @sources_cons.each do |source| %>
@@ -232,7 +234,7 @@ CO2.heat_id = <%= @heat_id %>;
                      		<%= period %>, 
                      		'<%= secscen.co2_sector.name %>',
                         	'co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>',
-                        	'tableCons<%= secscen.co2_sector.id %>'); 
+                        	'tableCons<%= secscen.co2_sector.name %>'); 
                         return false;"/>
             </td>
           <% end %>
@@ -247,7 +249,7 @@ CO2.heat_id = <%= @heat_id %>;
          		<%= period %>, 
          		'<%= secscen.co2_sector.name %>',
             	'co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>',
-            	'tableCons<%= secscen.co2_sector.id %>');
+            	'tableCons<%= secscen.co2_sector.name %>');
         </script>
 
         <% year += @scenario.time_step %>
