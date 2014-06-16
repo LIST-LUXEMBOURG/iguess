@@ -29,7 +29,7 @@ class ModConfigsController < ApplicationController
 
       # Make a list of the servers associated with the processes we selected.
       # Have to do this this way due to denormalization of wps_servers table.
-      @wps_servers = @wps_processes.map{|p| p.wps_server}.uniq_by{|p| p.id}
+      @wps_servers = @wps_processes.map{|p| p.wps_server }.uniq_by{|p| p.id }
     end                               
 
     respond_to do |format|
