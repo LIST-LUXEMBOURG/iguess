@@ -277,7 +277,16 @@ div.error-body {
 /* Folder tags look like this */
 .folder-tag {
   color: #0E3D5E;
-  background-color: #C1E9BB;
+  background-color: #C1FFBB;
+}
+
+/* Special styles for special tags */
+.mapping-tag {
+  background-color: #BBF1E0;
+}
+
+.aoi-tag {
+  background-color: #E9BBC1;
 }
 
 /*
