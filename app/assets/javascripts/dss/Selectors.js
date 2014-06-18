@@ -89,8 +89,43 @@ DSS.comboLayerSelected = function()
 	}
 	else
 	{
-		DSS.layerWFS = DSS.addNewWFS(layers[0].params["LAYERS"], layers[0].url, null);
+		DSS.layerWFS = DSS.createWFS(layers[0].params["LAYERS"], layers[0].url, null);
+		
+		/*----- Testing WFS -----*/
+		/*layers[0].setVisibility(false);
+		try
+		{
+			DSS.map.addLayer(DSS.layerWFS);
+		}
+		catch(e)
+		{
+			DSS.map.removeLayer(DSS.layerWFS);
+			DSS.map.addLayer(DSS.layerWFS);
+		}*/
+	
 	}
+};
+
+DSS.createWFS = function(name, address, style)
+{
+	if (style == null) style = DSS.style;
+	
+	var wfs = new OpenLayers.Layer.Vector(name, {
+		strategies: [new OpenLayers.Strategy.Fixed()],
+		styleMap: style,
+		projection: new OpenLayers.Projection(DSS.mapProjection),
+		protocol: new OpenLayers.Protocol.WFS({
+			version: "1.1.0",
+			url: address + "&srsName=" + WebGIS.mapProjection,
+			featureNS: "http://mapserver.gis.umn.edu/mapserver",
+			featureType: name,
+			srsName: DSS.mapProjection
+		})},
+        {isBaseLayer: false,  
+     	 visibility: true}
+	);
+
+	return wfs;
 };
 
 DSS.addNewWFS = function(name, address, style)
@@ -114,7 +149,7 @@ DSS.addNewWFS = function(name, address, style)
 	});
 	
 	var response = DSS.protocol.read({
-	    maxFeatures: 100,
+	    maxFeatures: 2000,
 	    callback: DSS.featuresLoaded
 	});
 
@@ -153,6 +188,7 @@ DSS.comboFieldsSelected = function()
 
 DSS.next = function()
 {
+	debugger;
 	DSS.costField = DSS.comboCost.getValue();
 	DSS.invField  = DSS.comboInvest.getValue();
 	DSS.areaField = DSS.comboArea.getValue();
