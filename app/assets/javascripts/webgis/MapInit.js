@@ -89,7 +89,7 @@ WebGIS.zoomToCity = function ()
 	onLocationChanged(document.getElementById("city-dropdown").value);
 };
 
-// Adds a new layer to the map "on the fly"
+// Adds a new layer to the Layer Catalogue
 WebGIS.addNewLayer = function (title, serviceURL, layerName, type, tag, id)
 {
 	WebGIS.layerList[id] = new Array();

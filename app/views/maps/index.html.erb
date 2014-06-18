@@ -56,6 +56,7 @@
             {
                 var point = new OpenLayers.LonLat(<%= city.mapx %>, <%= city.mapy %>);
                 WebGIS.leftMap.setCenter(point, <%= city.zoom %>);
+                WebGIS.cityCRS = "<%= city.srs %>";
 
                 $('.all-layers').hide();
                 $('.layer-for-city-<%= city.id %>').show();

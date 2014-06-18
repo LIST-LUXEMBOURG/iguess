@@ -197,7 +197,7 @@
     var html = "<span>";
 
     html += (typeof(crsList) == "string" ? crsList : 
-                                           crsList.slice(0, itemCount - 1).join('; '));
+                                           crsList.slice(0, itemCount).join('; '));
 
     // Set up overflow for long lists
     if(len > itemCount)

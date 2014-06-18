@@ -23,8 +23,9 @@
                     ctrl.parent().text().trim());
   };
 
-
   // Take an array or comma-separated list of tags and format them into some presentation quality HTML
+  // tagclass will either be "tag" or "folderTag".  Note that we have Rails code that does something similar 
+  // in index.html.erb
   var createTagList = function(taglist, deletable, serverUrl, datasetIdentifier, tagclass) 
   {
     if(taglist.length == 0)
@@ -33,19 +34,31 @@
     if(typeof(taglist) == "string")
       taglist = taglist.split(",");
 
-    var delBtn = "";
 
     if(deletable)   // or folder-tag-delete-button
-      delBtn = '<span class="' + tagclass + '-delete-button" ' +
-               'data-url="' + serverUrl + '" ' +
-               'data-identifier="' + datasetIdentifier + '"></span>';
+      var delBtn = '<span class="' + tagclass + '-delete-button" ' +
+                   'data-url="' + serverUrl + '" ' +
+                   'data-identifier="' + datasetIdentifier + '"></span>';
+    else
+      var delBtn = "";
+
 
     var renderedList = "";
     var strings = typeof(taglist[0]) == "string";
 
+
     for(var i = 0, len = taglist.length; i < len; i++) 
-      renderedList += '<span class="' + tagclass + '">' + delBtn +
-                       (strings ? taglist[i] : taglist[i].tag) + '</span> ';  // Trailing space required
+    {
+      var tag = strings ? taglist[i] : taglist[i].tag;
+      var classList = tagclass;
+      // Add a special class to special tags
+      if(tag == "Mapping")
+        classList += " mapping-tag";
+      else if(tag == "Area of Interest")
+        classList += " aoi-tag";
+
+      renderedList += '<span class="' + classList + '">' + delBtn + tag + '</span> ';  // Trailing space required
+    }
 
    return renderedList; 
   };

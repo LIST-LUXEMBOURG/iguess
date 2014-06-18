@@ -89,41 +89,41 @@ DSS.comboLayerSelected = function()
 	}
 	else
 	{
-		DSS.layerWFS = DSS.addNewWFS(layers[0].params["LAYERS"], layers[0].url, null);
+		DSS.layerWFS = DSS.createWFS(layers[0].params["LAYERS"], layers[0].url, null);
 	}
 };
 
-DSS.addNewWFS = function(name, address, style)
+DSS.createWFS = function(name, address, style)
 {
 	if (style == null) style = DSS.style;
-	
-	var wfs = new OpenLayers.Layer.Vector(name + "_WFS", {
-		strategies: [new OpenLayers.Strategy.Fixed()], 
-		styleMap: style,
-		projection: new OpenLayers.Projection(WebGIS.mapProjection)},
-        {isBaseLayer: false,  
-     	 visibility: true}
-	);
 	
 	DSS.protocol = new OpenLayers.Protocol.WFS({
 		version: "1.1.0",
 		url: address + "&srsName=" + WebGIS.mapProjection,
 		featureNS: "http://mapserver.gis.umn.edu/mapserver",
 		featureType: name,
-		srsName: WebGIS.mapProjection
+		srsName: WebGIS.cityCRS
 	});
 	
 	var response = DSS.protocol.read({
-	    maxFeatures: 100,
+	    maxFeatures: 2000,
 	    callback: DSS.featuresLoaded
 	});
+	
+	var wfs = new OpenLayers.Layer.Vector(name, {
+		strategies: [new OpenLayers.Strategy.Fixed()],
+		styleMap: style,
+		projection: new OpenLayers.Projection(WebGIS.cityCRS),
+		protocol: DSS.protocol},
+        {isBaseLayer: false,  
+     	 visibility: true}
+	);
 
 	return wfs;
 };
 
 DSS.featuresLoaded = function(resp) 
 {
-	//debugger;
 	/* Check if a WFS service is available for the layer */
 	if((resp.features == null) || (resp.features.length <= 0))
 	{
@@ -136,10 +136,6 @@ DSS.featuresLoaded = function(resp)
 	DSS.layerWFS.addFeatures(resp.features);
 	
 	DSS.populateAtributes();
-	
-   //DSS.map.addLayer(DSS.layerWFS);
-    
-    //DSS.populateAtributes();
 };
 
 DSS.comboFieldsSelected = function()
