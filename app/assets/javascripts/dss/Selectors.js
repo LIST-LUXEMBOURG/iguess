@@ -113,13 +113,13 @@ DSS.createWFS = function(name, address, style)
 	var wfs = new OpenLayers.Layer.Vector(name, {
 		strategies: [new OpenLayers.Strategy.Fixed()],
 		styleMap: style,
-		projection: new OpenLayers.Projection(DSS.mapProjection),
+		projection: new OpenLayers.Projection(WebGIS.cityCRS),
 		protocol: new OpenLayers.Protocol.WFS({
 			version: "1.1.0",
 			url: address + "&srsName=" + WebGIS.mapProjection,
 			featureNS: "http://mapserver.gis.umn.edu/mapserver",
 			featureType: name,
-			srsName: DSS.mapProjection
+			srsName: WebGIS.cityCRS
 		})},
         {isBaseLayer: false,  
      	 visibility: true}
