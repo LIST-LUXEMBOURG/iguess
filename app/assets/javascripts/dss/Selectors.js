@@ -110,17 +110,24 @@ DSS.createWFS = function(name, address, style)
 {
 	if (style == null) style = DSS.style;
 	
+	DSS.protocol = new OpenLayers.Protocol.WFS({
+		version: "1.1.0",
+		url: address + "&srsName=" + WebGIS.mapProjection,
+		featureNS: "http://mapserver.gis.umn.edu/mapserver",
+		featureType: name,
+		srsName: WebGIS.cityCRS
+	});
+	
+	var response = DSS.protocol.read({
+	    maxFeatures: 2000,
+	    callback: DSS.featuresLoaded
+	});
+	
 	var wfs = new OpenLayers.Layer.Vector(name, {
 		strategies: [new OpenLayers.Strategy.Fixed()],
 		styleMap: style,
 		projection: new OpenLayers.Projection(WebGIS.cityCRS),
-		protocol: new OpenLayers.Protocol.WFS({
-			version: "1.1.0",
-			url: address + "&srsName=" + WebGIS.mapProjection,
-			featureNS: "http://mapserver.gis.umn.edu/mapserver",
-			featureType: name,
-			srsName: WebGIS.cityCRS
-		})},
+		protocol: DSS.protocol},
         {isBaseLayer: false,  
      	 visibility: true}
 	);

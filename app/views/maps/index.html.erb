@@ -46,8 +46,6 @@
     var onLocationChanged = function(cityId)
     {
         WebGIS.clearLayers(false);
-        
-        debugger;
 
         // Retrieve all datasets for specified city
         MapUtils.retrieveDatasetsForCity(cityId, function(data){ addLayersToMap(data); });
