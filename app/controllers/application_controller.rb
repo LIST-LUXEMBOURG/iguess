@@ -1,6 +1,17 @@
 
 class ApplicationController < ActionController::Base
-  protect_from_forgery
+  
+  # ###########################################################################
+  # The line below had to be commented out because it was logging users out 
+  # when a POST request was sent through the geoproxy. WFS layers (required in 
+  # the sliders) must loaded through POST, so to keep this functionality this 
+  # protection feature was de-activated. This leaves potential iGUESS 
+  # vulnerable to CSRF attacks, which are not critical for this application.
+  # References:
+  # http://en.wikipedia.org/wiki/Cross-site_request_forgery
+  # http://guides.rubyonrails.org/security.html#cross-site-request-forgery-csrf
+  #
+  # protect_from_forgery
 
   # http://stackoverflow.com/questions/711418/how-to-prevent-browser-page-caching-in-rails
   # Needed on registered datasets page because Firefox tries to be smart about the checkboxes
