@@ -35,7 +35,7 @@ end
 
 
 # Basic energy sources for the CO2 model
-[['Coal',             true,  true,  true,  true,  0.341,  36.0,  5.4,   1],
+[['Coal',             true,  true,  true,  true,  0.3406, 36.0,  5.4,   1],
  ['Gas',              true,  true,  true,  true,  0.266,  36.0,  2.16,  2],
  ['CHP',              true,  true,  true,  true,  0.0,     0.0,  0.0,   3],
  ['Crude Oil',        true,  true,  true,  true,  0.263,  36.0,  2.16,  4],
@@ -45,16 +45,16 @@ end
  ['Biogas',           true,  true,  true,  true,  0.196,  18.0,  0.36,  8],
  ['Excess Heat',      false, true,  false, true,  0.0,     0.0,  0.0,   9],
  ['Waste',            false, true,  true,  true,  0.33, 1080.0, 14.4,  10],
- ['Imports',          false, true,  true,  true,  0.0,     0.0,  0.0,  11],
+ ['Imports',          false, true,  true,  true,  0.24,   34.0, 34.0,  11],
  ['District Heating', true,  false, false, false, 0.0,     0.0,  0.0,  12],
  ['Electricity',      true,  false, false, false, 0.0,     0.0,  0.0,  13],
  ['Other Fossil',     true,  true,  true,  true,  0.0,     0.0,  0.0,  14],
- ['Geothermal',       true,  true,  true,  true,  0.0,     0.0,  0.0,  15],
- ['Hydraulic',        false, true,  true,  false, 0.0,     0.0,  0.0,  16],  
- ['Solar',            false, true,  true,  true,  0.0,     0.0,  0.0,  17],
- ['Wind',             false, true,  true,  false, 0.0,     0.0,  0.0,  18],
- ['Wood',             true,  true,  true,  true,  0.0,     0.0,  0.0,  19],
- ['Other renewables', false, true,  true,  false, 0.0,     0.0,  0.0,  20]
+ ['Geothermal',       true,  true,  true,  true,  0.0,     0.0,  0.0,  55],
+ ['Hydraulic',        false, true,  true,  false, 0.0,     0.0,  0.0,  56],  
+ ['Solar',            false, true,  true,  true,  0.0,     0.0,  0.0,  57],
+ ['Wind',             false, true,  true,  false, 0.0,     0.0,  0.0,  58],
+ ['Wood',             true,  true,  true,  true,  0.0,     0.0,  0.0,  59],
+ ['Other renewables', false, true,  true,  false, 0.0,     0.0,  0.0,  60]
 ].each do |v|
   source = Co2Source.find_or_create_by_name v[0]
   source.is_carrier = v[1]

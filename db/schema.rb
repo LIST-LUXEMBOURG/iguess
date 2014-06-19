@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140616151756) do
+ActiveRecord::Schema.define(:version => 20140619140316) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -39,6 +39,18 @@ ActiveRecord::Schema.define(:version => 20140616151756) do
 
   add_index "co2_carrier_source", ["co2_source_id", "co2_carrier_id", "period"], :name => "source_carrier_period_index", :unique => true
   add_index "co2_carrier_source", ["id"], :name => "index_co2_carrier_source_on_id"
+
+  create_table "co2_city_defaults", :force => true do |t|
+    t.integer  "city_id"
+    t.integer  "co2_source_id"
+    t.integer  "co2_sector_id"
+    t.float    "value"
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
+  end
+
+  add_index "co2_city_defaults", ["city_id", "co2_source_id", "co2_sector_id"], :name => "city_defaults_source_sector_index", :unique => true
+  add_index "co2_city_defaults", ["id"], :name => "index_co2_city_defaults_on_id"
 
   create_table "co2_consumptions", :force => true do |t|
     t.integer  "period"

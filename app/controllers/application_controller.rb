@@ -33,4 +33,9 @@ class ApplicationController < ActionController::Base
     @IncludeFooter = true
   end
 
+
+  def set_active_tab(tab)
+    @activeTab = tab
+  end
+
 end

@@ -1,7 +1,9 @@
 class Co2ScenariosController < ApplicationController
   before_filter :authenticate_user!
+  before_filter {|t| t.set_active_tab("scenarios") }
 
   respond_to :html, :json, :js   # See http://railscasts.com/episodes/224-controllers-in-rails-3, c. min 7:00
+
 
   # GET /co2_scenarios
   # GET /co2_scenarios.json
@@ -40,6 +42,8 @@ class Co2ScenariosController < ApplicationController
     
     @eq_ch4 = Co2Equiv.find_by_name("CH4").value;
     @eq_n20 = Co2Equiv.find_by_name("N2O").value;
+    
+    @city_id = User.getCurrentCity(current_user, cookies).id
 
     @sector_scenarios = []
 
@@ -63,8 +67,19 @@ class Co2ScenariosController < ApplicationController
           c.period = period
           c.co2_source = source
           c.co2_sector_scenario = secscen
-          c.value = period * 100  + source.id * 10 + secscen.co2_sector.id
 
+          default = Co2CityDefault.find_by_city_id_and_co2_sector_id_and_co2_source_id(
+            @city_id,
+            secscen.co2_sector.id,
+            source.id)
+          
+          if default == nil
+            c.value = 0.0
+          else
+            #binding.pry
+            c.value = default.value
+          end  
+            
           @consumptions[[period, 
                          source.id, 
                          secscen.co2_sector.id]] = c

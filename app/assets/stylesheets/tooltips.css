@@ -1,7 +1,7 @@
 /* tooltip styling. by default the element to be styled is .tooltip  */
 .tooltip {
   display: none;
-  background: transparent url(tooltips/black.png);
+  background: transparent url(black.png);
   position: bottom center;
   font-size: 12px;
   height: 60px;

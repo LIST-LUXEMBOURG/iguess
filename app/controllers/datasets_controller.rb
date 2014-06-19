@@ -1,13 +1,13 @@
 
 class DatasetsController < ApplicationController
   before_filter :authenticate_user!, :except => [:get_for_city]
+  before_filter {|t| t.set_active_tab("datamanager") }
 
   respond_to :html, :json, :js   # See http://railscasts.com/episodes/224-controllers-in-rails-3, c. min 7:00
 
   # GET /datasets
   # GET /datasets.json
   def index
-
     # current_user should always be set here
     @current_city = User.getCurrentCity(current_user, cookies)
     @datasets     = Dataset.find_all_by_city_id(@current_city.id, 

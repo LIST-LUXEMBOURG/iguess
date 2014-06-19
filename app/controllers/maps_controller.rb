@@ -1,9 +1,10 @@
 class MapsController < ApplicationController
+  before_filter {|t| t.set_active_tab("maps") }
 
   def index
     @cities = City.all
 
-    @current_city = (City.find_by_name(cookies['city']) or City.first)
+    @current_city = (City.find_by_name(cookies["city"]) or City.first)
 
     @datasets = Dataset.all
 
