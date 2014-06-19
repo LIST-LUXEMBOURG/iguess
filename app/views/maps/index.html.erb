@@ -54,10 +54,12 @@
         <% for city in City.all %>
             if(cityId == "<%= city.id %>")
             {
-                var point = new OpenLayers.LonLat(<%= city.mapx %>, <%= city.mapy %>);
-                WebGIS.leftMap.setCenter(point, <%= city.zoom %>);
+            	 
+                WebGIS.cityCentre = new OpenLayers.LonLat(<%= city.mapx %>, <%= city.mapy %>);
+                WebGIS.cityZoom = <%= city.zoom %>;
                 WebGIS.cityCRS = "<%= city.srs %>";
-
+                WebGIS.leftMap.setCenter(WebGIS.cityCentre, WebGIS.cityZoom);
+                
                 $('.all-layers').hide();
                 $('.layer-for-city-<%= city.id %>').show();
 

@@ -280,7 +280,7 @@ WebGIS.createPanels = function() {
   WebGIS.layerTree.root.firstChild.hidden = true;
   WebGIS.layerTree.root.hidden = true;
 
-  WebGIS.zoomToCity();
+  onLocationChanged(document.getElementById("city-dropdown").value);
   
   //Ext.getCmp('layerCat').el.dom.style.height = '700px';
   //Ext.getCmp('layerCat').el.dom.style.overflow = 'scroll';//'auto';//
