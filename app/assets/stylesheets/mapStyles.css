@@ -82,6 +82,11 @@
     background-image:url(images/mapStyles/tinyDown.png) !important;
 }
 
+.tinyClose 
+{
+    background-image:url(images/mapStyles/tinyCross.png) !important;
+}
+
 .layerNode 
 {
 	height: 36px;
@@ -91,7 +96,7 @@
 .layerSlide 
 {
 	display: block;
-    margin-right: 42px;
+    margin-right: 60px;
     margin-left: 4px;
     margin-bottom: 4px;
 }
