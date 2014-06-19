@@ -1,0 +1,24 @@
+<!-- Insert a properly formatted list of processing tags -->
+
+<!-- Note that we have JS code that does something similar in _tag_functions.html.erb -->
+<!-- Important!  When no datasets, make sure there is no whitespace in the span below -->
+<span class="<%= stem %>-<%= cssEscape(dataset.dataserver.url + dataset.identifier) %> <%= extraClass %>"
+  ><% getAliveTags(dataset).each do |t| %>
+    <% className = "tag" 
+   
+      if t == "Mapping" then 
+        className += " mapping-tag" 
+      elsif t == "Area of Interest" then 
+        className += " aoi-tag"
+      end 
+    %>
+
+    <span class="<%= className %>">
+    	<span 
+        	<%= tagClassAttr %>
+        	data-url="<%= dataset.dataserver.url %>" data-identifier="<%= dataset.identifier %>">
+      </span>
+      <%= t %>
+    </span>
+  <% end %>
+</span>
