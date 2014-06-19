@@ -89,7 +89,7 @@ class Co2ScenariosController < ApplicationController
         m = Co2ElecMix.new
         m.period = period
         m.co2_source = s
-        m.value = period + s.id * 10
+        m.value = 0.0
 
         @elec_mixes[[period, s.id]] = m
       }
@@ -99,7 +99,7 @@ class Co2ScenariosController < ApplicationController
         m = Co2HeatMix.new
         m.period = period
         m.co2_source = s
-        m.value = period + s.id * 10
+        m.value = 0.0
 
         @heat_mixes[[period, s.id]] = m
       }
