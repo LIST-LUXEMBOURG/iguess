@@ -65,7 +65,7 @@ WebGIS.createPanels = function() {
 
   WebGIS.initMap();
   
-  //---- Top bar and widgets ----//
+  //---- Tool bars and widgets ----//
   
   var bBar = new Ext.Toolbar({
     region: "south",
@@ -155,16 +155,19 @@ WebGIS.createPanels = function() {
   });
   
   WebGIS.layerCatalogue = new Ext.tree.TreePanel({
-    region: "south",
+  	id:"layerCat",
+  	region: "south",
     width: "100%",
-    height: "100%",
-    collapsible: false,
+    //height: "700px",
+    collapsible: true,
     autoScroll: true,
-    scrollable: true,
     enableDD: true,
     root: WebGIS.treeRoot,
     rootVisible: false,
-    lines: false
+    lines: false,
+    viewConfig: {
+    	style: { overflow: 'scroll'/*, height: "700px"*/}
+  	},
   });
   
   WebGIS.cataloguePanel = new Ext.Panel({
@@ -172,7 +175,6 @@ WebGIS.createPanels = function() {
 	region: "south",
     collapsible: true,
     autoScroll: true,
-    scrollable: true,
     enableDD: true,
     items: [WebGIS.createFilter(), WebGIS.layerCatalogue]
   });
@@ -199,7 +201,6 @@ WebGIS.createPanels = function() {
     //width: 200,
     collapsible: true,
     autoScroll: false,
-    scrollable: false,
     enableDD: false,
     draggable: false,
     plugins: [{
@@ -222,7 +223,7 @@ WebGIS.createPanels = function() {
   
   WebGIS.westPanel = new Ext.Panel({
 	region: "west",
-	width: 210,
+	width: 250,
     collapsible: true,
     autoScroll: true,
     enableDD: true,
@@ -280,6 +281,10 @@ WebGIS.createPanels = function() {
   WebGIS.layerTree.root.hidden = true;
 
   WebGIS.zoomToCity();
+  
+  //Ext.getCmp('layerCat').el.dom.style.height = '700px';
+  //Ext.getCmp('layerCat').el.dom.style.overflow = 'scroll';//'auto';//
+  //Ext.getCmp('layerCat').el.dom.style.overflowX = 'hidden';
 };
 
 /**
