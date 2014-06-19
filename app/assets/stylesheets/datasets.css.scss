@@ -270,23 +270,22 @@ div.error-body {
 /* Dataset tags look like this */
 .tag {
   color: #0E3D5E;
-  background-color: #E0EAF1;
+  background-color: rgb(251,180,174);
 }
-
 
 /* Folder tags look like this */
 .folder-tag {
   color: #0E3D5E;
-  background-color: #C1FFBB;
+  background-color: rgb(179,205,227);
 }
 
 /* Special styles for special tags */
 .mapping-tag {
-  background-color: #BBF1E0;
+  background-color: rgb(204,235,197);
 }
 
 .aoi-tag {
-  background-color: #E9BBC1;
+  background-color: rgb(222,203,228);
 }
 
 /*
