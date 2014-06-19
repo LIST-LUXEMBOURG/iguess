@@ -220,7 +220,7 @@ WebGIS.createPanelsParallel = function() {
     items: [centralPanel, accordeon]
   });
 
-  WebGIS.zoomToCity();
+  onLocationChanged(document.getElementById("city-dropdown").value);
 };
 
 /**
@@ -274,4 +274,4 @@ WebGIS.createBbarParallel = function() {
 	
 	return ['-', scaleLabel, zoomSelector, '-', '->', 
 	         '-', WebGIS.coordsLongLabel, '-', WebGIS.coordsLatLabel, '-'];
-}
+};
