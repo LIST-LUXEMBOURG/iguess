@@ -35,6 +35,10 @@ WebGIS.layerList = new Array();
 WebGIS.proxy = "/home/geoproxy?url=";
 OpenLayers.ProxyHost = "/home/geoproxy?url=";
 
+WebGIS.cityCentre = null;
+WebGIS.cityZoom = null;
+WebGIS.cityCRS = null;
+
 WebGIS.nodePrefix = "dsid-";
 WebGIS.buttDown = "buttDown";
 WebGIS.buttUp = "buttUp";
@@ -87,7 +91,7 @@ WebGIS.mapMouseMove = function(e)
 
 WebGIS.zoomToCity = function() 
 {
-	onLocationChanged(document.getElementById("city-dropdown").value);
+	WebGIS.leftMap.setCenter(WebGIS.cityCentre, WebGIS.cityZoom);
 };
 
 // Adds a new layer to the Layer Catalogue
