@@ -98,6 +98,7 @@ class Dataset < ActiveRecord::Base
   def insertGetCapabilitiesLinkBlock(wms, wfs, wcs, includeDataLink)
     output = ""
 
+    # serverUrl = dataserver.url.gsub('\\', '%5C')   # Escape backslashes... why oh why???!?
     serverUrl = dataserver.url
 
     if wms then

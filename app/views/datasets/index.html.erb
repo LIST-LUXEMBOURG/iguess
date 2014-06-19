@@ -30,28 +30,16 @@
                          rel="#infotable-<%= d.id %>"></span>
           </td>
           <td> <!-- Tags -->
-            <!-- Note that we have JS code that does something similar 
-                 in _tag_functions.html.erb -->
             <span class="folder-taglist-<%= cssEscape(d.dataserver.url + d.identifier) %>">
               <% d.dataset_folder_tags.each do |t| %>
                 <span class="folder-tag"><%= t.folder_tag %></span>
               <% end %>
             </span>
-            <span class="taglist-<%= cssEscape(d.dataserver.url + d.identifier) %>">
-              <% getAliveTags(d).each do |t| %>
-
-              <% className = "tag" 
-             
-                if t == "Mapping" then 
-                  className += " mapping-tag" 
-                elsif t == "Area of Interest" then 
-                  className += " aoi-tag"
-                end 
-              %>
-
-                <span class="<%= className %>"><%= t %></span>
-              <% end %>
-            </span>
+            <%= render :partial => 'processing_tag_list.html.erb', 
+              locals: { dataset: d, 
+                        stem: "taglist", 
+                        extraClass: "", 
+                        tagClassAttr: "" } %>
           </td>
           <td class="center">
             <%= d.created_at.to_formatted_s(:short_ordinal) %>
