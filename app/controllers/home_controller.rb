@@ -1,4 +1,6 @@
 class HomeController < ApplicationController
+  before_filter {|t| t.set_active_tab("home") }
+
   def geoproxy
 
     require 'net/http'

@@ -1,7 +1,9 @@
 class Co2ScenariosController < ApplicationController
   before_filter :authenticate_user!
+  before_filter {|t| t.set_active_tab("scenarios") }
 
   respond_to :html, :json, :js   # See http://railscasts.com/episodes/224-controllers-in-rails-3, c. min 7:00
+
 
   # GET /co2_scenarios
   # GET /co2_scenarios.json
