@@ -54,7 +54,7 @@ end
  ['Solar',            false, true,  true,  true,  0.0,     0.0,  0.0,  57],
  ['Wind',             false, true,  true,  false, 0.0,     0.0,  0.0,  58],
  ['Wood',             true,  true,  true,  true,  0.0,     0.0,  0.0,  59],
- ['Other renewables', false, true,  true,  false, 0.0,     0.0,  0.0,  60]
+ ['Other renewables', true, true,  true,  false, 0.0,     0.0,  0.0,  60]
 ].each do |v|
   source = Co2Source.find_or_create_by_name v[0]
   source.is_carrier = v[1]
