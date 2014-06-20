@@ -238,6 +238,8 @@ class ModConfigsController < ApplicationController
     activeParamIdentifiers = @mod_config.wps_process.process_param.map { |p| p.identifier }
 
 
+binding.pry
+
     # Drop downs -- always inputs
     @mod_config.datasets.map { |dataset| 
       dataRequest = dataset.getRequest(@current_city.srs, @aoi)
