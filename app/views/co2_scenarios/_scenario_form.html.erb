@@ -258,8 +258,15 @@ stub = function(p)
           <td><%= year %></td>
           <% @sources_cons.each do |source| %>
             <td>
+              <% # Check if the value is not null
+                  if @consumptions[[period, source.id, secscen.co2_sector.id]] == nil
+                  	@value = 0.0
+                  else 
+                    @value = @consumptions[[period, source.id, secscen.co2_sector.id]].value	
+                  end
+              %>	
               <input name="co2_consumptions[<%= period %>][<%= source.id %>][<%= secscen.co2_sector.id %>]" 
-                     type="text" value="<%= @consumptions[[period, source.id, secscen.co2_sector.id]].value %>" 
+                     type="text" value="<%= @value %>" 
                      onchange="
                      	CO2.updateConsTotals(
                      		<%= period %>, 

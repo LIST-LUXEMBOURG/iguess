@@ -63,3 +63,14 @@
   height: 400px; 
   margin: 0 auto
 }
+
+/* Scenarios list */
+a.duplicate:link a.duplicate:visited 
+{
+  color: #0000AA !important;
+}
+
+a.delete:link a.delete:visited 
+{
+  color: #AA0000 !important;
+}
