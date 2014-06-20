@@ -345,7 +345,7 @@ def get_dataset_title(wms, wfs, wcs):
     return convert_encoding(wms and wms.identification.title or
                             wfs and wfs.identification.title or
                             wcs and wcs.identification.title or
-                            "Unnamed server" )
+                            "Unnamed server")
 
 
 
