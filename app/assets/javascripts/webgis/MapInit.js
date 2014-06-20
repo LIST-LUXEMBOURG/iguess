@@ -227,7 +227,6 @@ WebGIS.removeLayerEvent = function(butt, event)
 { 
 	var idCatalogue = butt.id.substring(WebGIS.buttClose.length);
 	WebGIS.removeLayerFromMap(idCatalogue);
-	//WebGIS.treeRoot.getNodeById(idCatalogue).getUI().toggleCheck(false);
 	var fullId = WebGIS.nodePrefix + idCatalogue;
 	WebGIS.layerCatalogue.getNodeById(fullId).getUI().toggleCheck(false);
 };
