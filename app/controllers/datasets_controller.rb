@@ -1,6 +1,6 @@
 
 class DatasetsController < ApplicationController
-  before_filter :authenticate_user!, :except => [:get_for_city]
+  before_filter :authenticate_user!, :except => [:get_for_city_for_mapping]
   before_filter {|t| t.set_active_tab("datamanager") }
 
   respond_to :html, :json, :js   # See http://railscasts.com/episodes/224-controllers-in-rails-3, c. min 7:00
@@ -22,8 +22,8 @@ class DatasetsController < ApplicationController
   end
 
 
-  # Get all datasets for the specified city, only used by ajax queries
-  def get_for_city
+  # Get all datasets for the specified city; only retrieve datasets tagged with "Mapping"; only used by ajax queries
+  def get_for_city_for_mapping
     @current_city = City.find_by_id(params[:cityId])
 
     showOnlyPublished = false
@@ -43,6 +43,9 @@ class DatasetsController < ApplicationController
     else
       @datasets = Dataset.find_all_by_city_id_and_alive(@current_city.id, :true, :order => 'title desc')
     end
+
+    # Get rid of all datasets that don't have the Mapping tag
+    @datasets.keep_if {|d| d.dataset_tags.map{|t| t.tag}.include?("Mapping") }
 
     # I really want this, but it returns HTML... respond_with(@datasets)
     respond_to do |format|
