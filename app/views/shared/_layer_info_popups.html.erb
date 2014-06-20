@@ -48,15 +48,15 @@
             <span class="folder-taglist-deletable-<%= cssEscape(d.dataserver.url + d.identifier) %> show-no-tags-msg-when-empty"><% d.dataset_folder_tags.each do |t| %>
                 <span class="folder-tag">
                   <span <%= folderTagClassAttr %> 
-                    data-url="<%= d.dataserver.url %>" data-identifier="<%= d.identifier %>"></span>
+                    data-url="<%= d.dataserver.url.gsub("\\", "\\\\\\") %>" data-identifier="<%= d.identifier %>"></span>
                     <%= t.folder_tag %>
                   </span>
               <% end %></span>
 <% if fullControls %>
             <script>
               var layer = {};
-              layer.identifier = "<%= d.identifier %>";
-              layer.serverUrl  = "<%= d.server_url %>";
+              layer.identifier = "<%= d.identifier.gsub("\\", "\\\\\\") %>";
+              layer.serverUrl  = "<%= d.server_url.gsub("\\", "\\\\\\") %>";
 
               var tagEntryFieldName  = "tag-entry-<%= d.id %>";
               var tagPickerControlId = "tag-entry-id-<%= d.id %>";
@@ -79,8 +79,8 @@
     <% if fullControls %>
             <script>
               var layer = {};
-              layer.identifier = "<%= d.identifier %>";
-              layer.serverUrl  = "<%= d.server_url %>";
+              layer.identifier = "<%= d.identifier.gsub("\\", "\\\\\\") %>";
+              layer.serverUrl  = "<%= d.server_url.gsub("\\", "\\\\\\") %>";
 
               // var tagEntryFieldName  = "tag-entry-<%= d.id %>";
               var tagPickerControlId = 'data-type-' + layer.identifier;
