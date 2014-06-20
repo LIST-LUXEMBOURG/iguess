@@ -47,7 +47,7 @@
 /* Highlight the active tab in the tab bar */
 #nav a.active-tab {
   /*text-decoration: underline !important;*/
-  color: black !important;
+  color: black;
 }
     
 
