@@ -59,7 +59,7 @@ CO2.updateTotal = function(p, tot_name, table_name)
 	for (i = 1; i < row.cells.length - 1; i++) 
 		total += parseFloat(row.cells[i].children[0].value);
 
-	total_box.value = total;
+	total_box.value = total.toFixed(2);
 	if(total >=0 && total <= 100) total_box.className = "percent-green";
 	else total_box.className = "percent-red";
 };
