@@ -78,9 +78,9 @@ DSS.rule_highlight = new OpenLayers.Rule({
 		value: 0,
 	}),
 	symbolizer: {
-		fillColor: "#FF7144",
+		fillColor: "#00CC33",//"#FF7144",
 		fillOpacity: 0.5,
-		strokeColor: "#FF7144",
+		strokeColor: "#00CC33",//"#FF7144",
 		strokeWidth: 2,
 		strokeDashstyle: "solid",
 	}
