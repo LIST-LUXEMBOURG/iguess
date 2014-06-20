@@ -81,6 +81,9 @@ class ModConfigsController < ApplicationController
                                       .map{ |text| text.column_name + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"' }
                                       .join(',')
 
+
+
+
     @input_params  = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(true,  true, :order=>:title)
     @output_params = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(false, true, :order=>:title)
 
@@ -238,7 +241,6 @@ class ModConfigsController < ApplicationController
     activeParamIdentifiers = @mod_config.wps_process.process_param.map { |p| p.identifier }
 
 
-    # Drop downs -- always inputs
     @mod_config.datasets.map { |dataset| 
       dataRequest = dataset.getRequest(@current_city.srs, @aoi)
 
@@ -260,6 +262,7 @@ class ModConfigsController < ApplicationController
 
     # Assemble our command line
     cmd = assembleCommandLine(@mod_config, inputs, outputFields, outputTitles)
+
 
     print "=============================================\n"
     print cmd
@@ -420,6 +423,7 @@ class ModConfigsController < ApplicationController
   # We get here when a module name or description is updated, or when one of the inputs or outputs is changed.
   # Should always be via json, though, not by normal form submit.
   def update
+
     @mod_config = ModConfig.find(params[:id])
 
     if not User.canAccessObject(current_user, @mod_config)
@@ -471,25 +475,30 @@ class ModConfigsController < ApplicationController
     paramkeys = [:input, :output]
     paramkeys.each do |paramkey|
       if(params[paramkey]) then                 # Iterate over params['input'], params['output']
-        params[paramkey].each { |p| 
+        params[paramkey].each do |p| 
 
-          name = p[0]
+          identifier = p[0]
           val = p[1].strip    # strip off leading and trailing whitespace
+          isInput = (paramkey == :input)
 
           @output = ConfigTextInput.find_by_mod_config_id_and_column_name_and_is_input(
-                        @mod_config.id, name, paramkey == :input)
+                        @mod_config.id, identifier, isInput)
 
-          # TODO: @output can be nil if the wps changed the identifiers it uses
-          if @output != nil then
+          # @output can be nil if the wps changed the identifiers it uses, or perhaps the user cleared
+          # a form field, which can delete the related element in ConfigTextInput
+          if not @output then
+            @output = ConfigTextInput.new
+            @output.mod_config = @mod_config
+            @output.column_name = identifier
             @output.value = val
-
-            ok = ok && @output.save
-          # else... what?
+            @output.is_input = isInput
+          else
+            @output.value = val
           end
-        }
+          ok = ok && @output.save
+        end
       end
     end
-
 
     ok == ok && @mod_config.update_attributes(params[:mod_config])
 

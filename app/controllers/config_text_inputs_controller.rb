@@ -13,12 +13,12 @@ class ConfigTextInputsController < ApplicationController
     ids = ConfigTextInput.find_all_by_mod_config_id_and_column_name_and_is_input(
                                 @mod_config.id, params[:identifier], (params[:mode] == 'input'))
 
+
     # ids should have either 0 or 1 element in it
 
     inputval = params[:inputval].strip
 
     ok = :true
-
 
     if inputval.empty?    # User cleared the textbox: Find and delete ConfigTextInput 
       if ids.length > 0   # If ids.length == 0, we have nothing to delete
