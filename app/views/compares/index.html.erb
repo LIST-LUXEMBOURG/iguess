@@ -4,7 +4,7 @@
  var MapUtils = MapUtils || { };   // Create namespace
  
  MapUtils.retrieveDatasetsForCity = function(cityId, successFunction) {
-  var serverUrl = '<%= url_for(:controller => "datasets", :action => "get_for_city", :format => :json) %>';
+  var serverUrl = '<%= url_for(:controller => "datasets", :action => "get_for_city_for_mapping", :format => :json) %>';
    $.ajax({
        type: 'POST',
        url: serverUrl,

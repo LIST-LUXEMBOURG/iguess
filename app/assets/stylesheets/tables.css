@@ -1,9 +1,9 @@
 /* Standard zebra striping for tables */
 .zebra { border-spacing: .25em; }
 .zebra td { padding: .25em .5em; }
-.zebra tr:nth-child(even) { background: #CCC }
-.zebra tr:nth-child(odd) { background: #EEE }
-.zebra th { background: #EBE300; padding: .25em .5em; font-weight: bold; }
+.zebra tr:nth-child(even) { background: #D0D0D0 }
+.zebra tr:nth-child(odd) { background: #F2F2F2 }
+.zebra th { background: #FAFA7D; padding: .25em .5em; font-weight: bold; }
 
 /* Enable the following for zebra striping 
 /*.x-tree-node-ct li:nth-child(even) { background: #CCC }
