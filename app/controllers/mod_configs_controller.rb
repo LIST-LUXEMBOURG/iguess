@@ -1,5 +1,6 @@
 class ModConfigsController < ApplicationController
   before_filter :authenticate_user!, :except => [:index]
+  before_filter {|t| t.set_active_tab("modules") }
 
   # GET /mod_configs
   # GET /mod_configs.json

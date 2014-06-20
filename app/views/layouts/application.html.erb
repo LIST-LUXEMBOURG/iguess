@@ -1,31 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-
   <title><%= @site.title %></title>
+
   <%= stylesheet_link_tag    :application %>
   <%= javascript_include_tag :application %>
   <%= csrf_meta_tags %>
 
-<script type="text/javascript">
-  /* Script to enable JQuery UI / Themeroller buttons */
-  /* http://www.filamentgroup.com/lab/styling_buttons_and_toolbars_with_the_jquery_ui_css_framework/ */
-  $(document).ready(function(){
-      //hover states on the static widgets
-      $(".button_to").hover(
-          function() { $(this).addClass('ui-state-hover'); },
-          function() { $(this).removeClass('ui-state-hover'); }
-      );
-  });
+  <script type="text/javascript">
+    /* Script to enable JQuery UI / Themeroller buttons */
+    /* http://www.filamentgroup.com/lab/styling_buttons_and_toolbars_with_the_jquery_ui_css_framework/ */
+    $(document).ready(function(){
+        //hover states on the static widgets
+        $(".button_to").hover(
+            function() { $(this).addClass('ui-state-hover'); },
+            function() { $(this).removeClass('ui-state-hover'); }
+        );
+    });
 
-  var isUserLoggedIn = function() { return <%= user_signed_in? ? 'true' : 'false' %>; }
+    var isUserLoggedIn = function() { return <%= user_signed_in? ? 'true' : 'false' %>; }
 
-</script>
+  </script>
 
-<%# Include Google Map code -- needs to be loaded on every page to suppress errors in MapInit.js %>
-<script src="http://maps.google.com/maps/api/js?v=3&amp;sensor=false"></script>
+  <%# Include Google Map code -- needs to be loaded on every page to suppress errors in MapInit.js %>
+  <script src="http://maps.google.com/maps/api/js?v=3&amp;sensor=false"></script>
 
-<%= stylesheet_link_tag "/site_styles/" + @site_details.stylesheet %>
+  <%= stylesheet_link_tag "/site_styles/" + @site_details.stylesheet %>
 
 </head>
 
@@ -55,27 +55,26 @@
     <div id="navbar" style="z-index:10;">
       <ul id="nav">
         <li id="nav-1" title="<u><b>Return to starting screen</b></u>">
-            <a href="/">Home</a></li>
+            <a href="/" <% if @activeTab == "home" %>class="active-tab"<% end %>>Home</a>
+        </li>
         <% if user_signed_in? %>
           <li id="nav-2" title="<u><b>Manage data</b></u><br>Upload new data, and view existing datasets">
-              <%= link_to "Data Manager", datasets_path %></li>
+              <%= link_to "Data Manager", datasets_path, :class => (@activeTab == "datamanager" ? "active-tab" : "") %>
+          </li>
         <% end %>
         <li id="nav-3" title="<u><b>Configure & run modules</b></u><br>Create new datasets by running calculations">
-            <%= link_to "Modules", mod_configs_path %></li>
-        <!--<li id="nav-5" title="<u><b>Decision support tools</b></u><br>Compare scenario results, and access related tools">
-            <%= link_to "Decision Support", dss_path %></li>-->
+            <%= link_to "Modules", mod_configs_path, :class => (@activeTab == "modules" ? "active-tab" : "") %>
+        </li>
         <li id="nav-6" title="<u><b>View maps</b></u><br>Visualize data and model results">
-            <%= link_to "Maps", maps_path %></li>
+            <%= link_to "Maps", maps_path, :class => (@activeTab == "maps" ? "active-tab" : "") %>
+        </li>
         <li id="nav-4" title="<u><b>Define and run scenarios</b></u><br>Scenarios are complex models of potential future situations">
-            <%= link_to "Scenarios", co2_scenarios_path %></li>            
-<!--         <% if user_signed_in? %>            
-          <li id="nav-7" title="<u><b>Compare maps</b></u><br>Compare maps side by side">
-              <%= link_to "Compare", compares_path %></li>
-        <% end %> -->
+            <%= link_to "Scenarios", co2_scenarios_path, :class => (@activeTab == "scenarios" ? "active-tab" : "") %>
+        </li>            
 
         <li id="nav-8" title="<u><b>About</b></u><br>About this site and contact details">
-            <%= link_to "About", about_path %></li>
-
+            <%= link_to "About", about_path, :class => (@activeTab == "about" ? "active-tab" : "") %>
+        </li>
 
         <div>
           <!-- For now, show city dropdown on maps and compares to all users, not on other pages unless user is a super user -->
