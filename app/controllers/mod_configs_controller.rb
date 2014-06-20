@@ -81,6 +81,9 @@ class ModConfigsController < ApplicationController
                                       .map{ |text| text.column_name + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"' }
                                       .join(',')
 
+
+
+
     @input_params  = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(true,  true, :order=>:title)
     @output_params = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(false, true, :order=>:title)
 
@@ -259,6 +262,7 @@ class ModConfigsController < ApplicationController
 
     # Assemble our command line
     cmd = assembleCommandLine(@mod_config, inputs, outputFields, outputTitles)
+
 
     print "=============================================\n"
     print cmd
@@ -482,7 +486,6 @@ class ModConfigsController < ApplicationController
 
           # @output can be nil if the wps changed the identifiers it uses, or perhaps the user cleared
           # a form field, which can delete the related element in ConfigTextInput
-
           if not @output then
             @output = ConfigTextInput.new
             @output.mod_config = @mod_config
