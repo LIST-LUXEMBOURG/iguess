@@ -639,7 +639,7 @@ def check_data_servers(serverCursor):
                                         "bbox_srs = "     + ("NULL" if target_crs  is None else str(adapt(simplify_crs(target_crs))))  + ", "
                                         "resolution_x = " + ("NULL" if resX        is None else str(adapt(resX)))        + ", "
                                         "resolution_y = " + ("NULL" if resY        is None else str(adapt(resY)))        + ", "
-                                        "service = "      + str(adapt(service))
+                                        "service = "      + str(adapt(service)) +
                                     "WHERE id = " + str(adapt(dsid)) 
                                   )
                 else:
