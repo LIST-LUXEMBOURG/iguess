@@ -42,6 +42,13 @@
   color: #666;
   background: #ccc url(images/nav_slant.gif) no-repeat top right;
 }
+
+
+/* Highlight the active tab in the tab bar */
+#nav a.active-tab {
+  /*text-decoration: underline !important;*/
+  color: black !important;
+}
     
 
 #nav #nav-1 a {

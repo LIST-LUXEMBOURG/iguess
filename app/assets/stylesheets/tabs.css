@@ -39,12 +39,6 @@ ul.tabs a:active {
 }
 
 
-/* Highlight the active tab in the tab bar */
-.active-tab {
-  /*text-decoration: underline !important;*/
-  color: black !important;
-}
-
 /* when mouse enters the tab move the background image */
 ul.tabs a:hover {
   background-position: -420px -31px;  
