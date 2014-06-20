@@ -16,6 +16,30 @@ stub = function(p)
 	CO2.updateEmissionsForPeriod(p);
 	CO2.drawCharts();
 }
+
+//------- Tabs ---------//
+
+  $(document).ready(function() 
+  { 
+    if($("#tabs-mix").length != 0) {
+      $(function() {
+        $('#tabs-mix').tabs('#tab-mix-panes > div', { history: true });
+      });
+    }
+    
+     if($("#tabs-cons").length != 0) {
+      $(function() {
+        $('#tabs-cons').tabs('#tab-cons-panes > div', { history: true });
+      });
+     }
+     
+     if($("#tabs-fact").length != 0) {
+      $(function() {
+        $('#tabs-fact').tabs('#tab-fact-panes > div', { history: true });
+      });
+    }   
+  });
+
  
 </script>
 
@@ -51,9 +75,6 @@ stub = function(p)
   
   <hr>
 
-
-
-  <hr>
   <label>&nbsp;</label>
   <table class="grid-input zebra">
     <tr>
@@ -120,20 +141,6 @@ stub = function(p)
   </table>
 
 <hr>
-
-<script>
-//------- Tabs ---------//
-  $(document).ready(function() 
-  {
-    // Activate our jquery tabs 
-    if($("#tabs-mix").length != 0) {
-      $(function() {
-        // setup ul.tabs to work as tabs for each div directly under div.panes
-        $('#tabs-mix').tabs('#tab-mix-panes > div', { history: true });
-      });
-    }
-  });
-</script>
 
 <h4>Energy Production (%)</h4>
 <br>
@@ -218,28 +225,16 @@ stub = function(p)
   </div>
 
 </div>
+<br>
 
-<script>
-//------- Tabs ---------//
-  $(document).ready(function() 
-  {
-    // Activate our jquery tabs 
-    if($("#tabs-cons").length != 0) {
-      $(function() {
-        // setup ul.tabs to work as tabs for each div directly under div.panes
-        $('#tabs-cons').tabs('#tab-cons-panes > div', { history: true });
-      });
-    }
-  });
-</script>
 
 <hr>
-<h2>Energy Consumption per Sector (%)</h2>
-
+<h4>Energy Consumption per Sector (%)</h4>
+<br>
 <ul class="tabs" id="tabs-cons">
 <% @sector_scenarios.each do |secscen| %> 
 	<li><a class="l" id="t1" href="#tabs-fact-<%= secscen.co2_sector.id %>">
-		<%= secscen.co2_sector.name %>
+		<b><%= secscen.co2_sector.name %></b>
 	</a></li>
 <% end %>
 </ul>
@@ -286,26 +281,11 @@ stub = function(p)
   <% end %>
    
 </div> 
-  
-  <hr>
-  
-<script>
-//------- Tabs ---------//
-  $(document).ready(function() 
-  {
-    // Activate our jquery tabs 
-    if($("#tabs-fact").length != 0) {
-      $(function() {
-        // setup ul.tabs to work as tabs for each div directly under div.panes
-        $('#tabs-fact').tabs('#tab-fact-panes > div', { history: true });
-      });
-    }
-  });
-</script>
+<br>  
 
 <hr>
-<h2>Emission Factors</h2>
-
+<h4>Emission Factors</h4>
+<br>
 <ul class="tabs" id="tabs-fact">
 <li><a class="l" id="t4" href="#tabs-fact-4"><b>CO2 (t/MWh)</b></a></li>
 <li><a class="l" id="t5" href="#tabs-fact-5"><b>CH4 (g/MWh)</b></a></li>
@@ -329,7 +309,7 @@ stub = function(p)
   </div>	            
 
 </div>
-	            
+	<br>            
 	<hr>
   
   <!-- And now for the charts -->
