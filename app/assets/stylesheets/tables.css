@@ -3,7 +3,7 @@
 .zebra td { padding: .25em .5em; }
 .zebra tr:nth-child(even) { background: #D0D0D0 }
 .zebra tr:nth-child(odd) { background: #F2F2F2 }
-.zebra th { background: #FFFF55; padding: .25em .5em; font-weight: bold; }
+.zebra th { background: #FAFA7D; padding: .25em .5em; font-weight: bold; }
 
 /* Enable the following for zebra striping 
 /*.x-tree-node-ct li:nth-child(even) { background: #CCC }
