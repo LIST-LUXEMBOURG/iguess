@@ -67,6 +67,9 @@ CO2.chartCO2 = function ()
         chart: {
             type: 'area'
         },
+        credits: {
+        	enabled: false
+        },
         title: {
             text: 'C02 Emissions by Sector'
         },
@@ -107,6 +110,9 @@ CO2.chartCH4 = function ()
         chart: {
             type: 'area'
         },
+        credits: {
+        	enabled: false
+        },
         title: {
             text: 'CH4 Emissions by Sector'
         },
@@ -146,6 +152,9 @@ CO2.chartN2O = function ()
     $('#n2o_chart').highcharts({
         chart: {
             type: 'area'
+        },
+        credits: {
+        	enabled: false
         },
         title: {
             text: 'N2O Emissions by Sector'

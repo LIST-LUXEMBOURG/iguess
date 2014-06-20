@@ -131,14 +131,14 @@ WebGIS.addNewLayer = function(title, serviceURL, layerName, type, tag, id)
 		id : WebGIS.nodePrefix + id,
 		toto : "TOTO"
 	});
-	newNode.on("checkchange", WebGIS.addLayerToMapEvent);
+	newNode.on("checkchange", WebGIS.layerCheckEvent);
 	WebGIS.treeNodes[tag].appendChild(newNode);
 
 };
 
-WebGIS.addLayerToMapEvent = function(node, checked) 
+WebGIS.layerCheckEvent = function(node, checked) 
 {
-	var id = node.id.substring(5, node.id.length);
+	var id = node.id.substring(WebGIS.nodePrefix.length, node.id.length);
 	var layerName = WebGIS.layerList[id]["layerName"];
 
 	if (checked) 
@@ -179,7 +179,7 @@ WebGIS.addLayerToMap = function(id)
 	WebGIS.leftMap.addLayer(layer);
 	layer.events.register("visibilitychanged", this, WebGIS.toggleLayer);
 
-	WebGIS.addWidgetsToLayerNode(WebGIS.layerTree.root.firstChild.firstChild);
+	WebGIS.addWidgetsToLayerNode(WebGIS.layerTree.root.firstChild.firstChild, id);
 };
 
 WebGIS.removeLayerFromMap = function(id) 
@@ -223,14 +223,15 @@ WebGIS.moveLayerDown = function(butt, event)
 	WebGIS.moveLayer(id, -1);
 };
 
-WebGIS.removeLayer = function(butt, event) 
+WebGIS.removeLayerEvent = function(butt, event) 
 { 
-	var id = butt.id.substring(WebGIS.buttClose.length);
-	WebGIS.leftMap.removeLayer(WebGIS.leftMap.getLayer(id));
-	WebGIS.layerTree.root.firstChild.eachChild(WebGIS.addWidgetsToLayerNode);
+	var idCatalogue = butt.id.substring(WebGIS.buttClose.length);
+	WebGIS.removeLayerFromMap(idCatalogue);
+	var fullId = WebGIS.nodePrefix + idCatalogue;
+	WebGIS.layerCatalogue.getNodeById(fullId).getUI().toggleCheck(false);
 };
 
-WebGIS.addWidgetsToLayerNode = function(treeNode) 
+WebGIS.addWidgetsToLayerNode = function(treeNode, idCatalogue) 
 {
 	var buttonUp = new Ext.Button({
 		xtype : 'button',
@@ -258,8 +259,8 @@ WebGIS.addWidgetsToLayerNode = function(treeNode)
 		iconCls : 'tinyClose tinyButton',
 		autoWidth : true,
 		cls : 'tinyClose tinyButton',
-		id : WebGIS.buttClose + treeNode.layer.id,
-		handler : WebGIS.removeLayer
+		id : WebGIS.buttClose + idCatalogue,
+		handler : WebGIS.removeLayerEvent
 	});
 
 	var slider = new GeoExt.LayerOpacitySlider({
