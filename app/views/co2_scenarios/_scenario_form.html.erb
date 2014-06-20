@@ -219,12 +219,35 @@ stub = function(p)
 
 </div>
 
-  <% @sector_scenarios.each do |secscen| %>  <%# One table per sector %>
-    <hr>
-    <label>&nbsp;</label>
-    <h2>Consumptions: <%= secscen.co2_sector.name %> (%)</h2>
+<script>
+//------- Tabs ---------//
+  $(document).ready(function() 
+  {
+    // Activate our jquery tabs 
+    if($("#tabs-cons").length != 0) {
+      $(function() {
+        // setup ul.tabs to work as tabs for each div directly under div.panes
+        $('#tabs-cons').tabs('#tab-cons-panes > div', { history: true });
+      });
+    }
+  });
+</script>
 
-    <label>&nbsp;</label>
+<hr>
+<h2>Energy Consumption per Sector (%)</h2>
+
+<ul class="tabs" id="tabs-cons">
+<% @sector_scenarios.each do |secscen| %> 
+	<li><a class="l" id="t1" href="#tabs-fact-<%= secscen.co2_sector.id %>">
+		<%= secscen.co2_sector.name %>
+	</a></li>
+<% end %>
+</ul>
+
+<div id="tab-cons-panes" class="tab-pane-container">
+
+  <% @sector_scenarios.each do |secscen| %>  <%# One table per sector %>
+   <div id="tabs-fact-<%= secscen.co2_sector.id %>">
     <table class="grid-input zebra" id="tableCons<%= secscen.co2_sector.name %>">
       <tr>
         <th class="center">Period</th>
@@ -259,7 +282,10 @@ stub = function(p)
         <% year += @scenario.time_step %>
       <% end %>
     </table>
+   </div>
   <% end %>
+   
+</div> 
   
   <hr>
   
@@ -281,26 +307,11 @@ stub = function(p)
 <h2>Emission Factors</h2>
 
 <ul class="tabs" id="tabs-fact">
-
-<li><a class="l" id="t1" href="#tabs-fact-1">Nunc tincidunt</a></li>
-<li><a class="l" id="t2" href="#tabs-fact-2">Proin dolor</a></li>
-<li><a class="l" id="t3" href="#tabs-fact-3">Aenean lacinia</a></li>
 <li><a class="l" id="t4" href="#tabs-fact-4"><b>CO2 (t/MWh)</b></a></li>
 <li><a class="l" id="t5" href="#tabs-fact-5"><b>CH4 (g/MWh)</b></a></li>
 <li><a class="l" id="t6" href="#tabs-fact-6"><b>N2O (g/MWh)</b></a></li>
-
 </ul>
 <div id="tab-fact-panes" class="tab-pane-container">
-	<div id="tabs-fact-1">
-	<p>Proin elit arcu, rutrum commodo, vehicula tempus, commodo a, risus. Curabitur nec arcu. Donec sollicitudin mi sit amet mauris. Nam elementum quam ullamcorper ante. Etiam aliquet massa et lorem. Mauris dapibus lacus auctor risus. Aenean tempor ullamcorper leo. Vivamus sed magna quis ligula eleifend adipiscing. Duis orci. Aliquam sodales tortor vitae ipsum. Aliquam nulla. Duis aliquam molestie erat. Ut et mauris vel pede varius sollicitudin. Sed ut dolor nec orci tincidunt interdum. Phasellus ipsum. Nunc tristique tempus lectus.</p>
-	</div>
-	<div id="tabs-fact-2">
-	<p>Morbi tincidunt, dui sit amet facilisis feugiat, odio metus gravida ante, ut pharetra massa metus id nunc. Duis scelerisque molestie turpis. Sed fringilla, massa eget luctus malesuada, metus eros molestie lectus, ut tempus eros massa ut dolor. Aenean aliquet fringilla sem. Suspendisse sed ligula in ligula suscipit aliquam. Praesent in eros vestibulum mi adipiscing adipiscing. Morbi facilisis. Curabitur ornare consequat nunc. Aenean vel metus. Ut posuere viverra nulla. Aliquam erat volutpat. Pellentesque convallis. Maecenas feugiat, tellus pellentesque pretium posuere, felis lorem euismod felis, eu ornare leo nisi vel felis. Mauris consectetur tortor et purus.</p>
-	</div>
-	<div id="tabs-fact-3">
-	<p>Mauris eleifend est et turpis. Duis id erat. Suspendisse potenti. Aliquam vulputate, pede vel vehicula accumsan, mi neque rutrum erat, eu congue orci lorem eget lorem. Vestibulum non ante. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Fusce sodales. Quisque eu urna vel enim commodo pellentesque. Praesent eu risus hendrerit ligula tempus pretium. Curabitur lorem enim, pretium nec, feugiat nec, luctus a, lacus.</p>
-	<p>Duis cursus. Maecenas ligula eros, blandit nec, pharetra at, semper at, magna. Nullam ac lacus. Nulla facilisi. Praesent viverra justo vitae neque. Praesent blandit adipiscing velit. Suspendisse potenti. Donec mattis, pede vel pharetra blandit, magna ligula faucibus eros, id euismod lacus dolor eget odio. Nam scelerisque. Donec non libero sed nulla mattis commodo. Ut sagittis. Donec nisi lectus, feugiat porttitor, tempor ac, tempor vitae, pede. Aenean vehicula velit eu tellus interdum rutrum. Maecenas commodo. Pellentesque nec elit. Fusce in lacus. Vivamus a libero vitae lectus hendrerit hendrerit.</p>
-	</div>
 
   <div id="tabs-fact-4">
 	<%= render :partial => 'emission_factor.html.erb', 
