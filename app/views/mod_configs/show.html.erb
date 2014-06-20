@@ -52,7 +52,9 @@
 
 
 <div class="simple_form">
-  <%= form_for @mod_config, :url => {:action => "update"}, :html=> {:id=>"input-output-form", "data-type" => "json"}, :remote=>true do |f| %>
+  <%= form_for @mod_config, :url => {:action => "update"}, 
+                            :html=> {:id=>"input-output-form", "data-type" => "json"}, 
+                            :remote=>true do |f| %>
 
     <%= render :partial => "show_area_of_interest_control" %>
 
@@ -60,6 +62,8 @@
     <table class="zebra" id="input-table"> <!-- Will be populated via script --></table>
     <label class="simple_form label table-label">Outputs</label>
     <table class="zebra" id="output-table"><!-- Will be populated via script --></table>
+
+    <!-- When these fields are modified, the update method on the controller is called -->
 
     <%= render :partial => "show_associated_parameters_table",
                :locals  => { :mode => :input,  :config => @mod_config } %>

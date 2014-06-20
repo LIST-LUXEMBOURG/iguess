@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140620151400) do
+ActiveRecord::Schema.define(:version => 20140619140316) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -182,7 +182,6 @@ ActiveRecord::Schema.define(:version => 20140620151400) do
     t.text    "column_name",   :null => false
     t.text    "value"
     t.boolean "is_input"
-    t.boolean "alive"
   end
 
   create_table "dataserver_urls", :force => true do |t|
