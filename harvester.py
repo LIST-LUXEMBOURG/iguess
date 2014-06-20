@@ -345,7 +345,7 @@ def get_dataset_title(wms, wfs, wcs):
     return convert_encoding(wms and wms.identification.title or
                             wfs and wfs.identification.title or
                             wcs and wcs.identification.title or
-                            "Unnamed server" )
+                            "Unnamed server")
 
 
 
@@ -518,7 +518,7 @@ def check_data_servers(serverCursor):
             for row in cursor:
                 dsid, identifier, cityId = row
 
-                title = abstract = None
+                title = abstract = service = None
 
                 has_city_crs = False
 
@@ -530,6 +530,7 @@ def check_data_servers(serverCursor):
                 if wfs and identifier in wfs.contents:
                     title    = get_service_title   (wfs, identifier)
                     abstract = get_service_abstract(wfs, identifier)
+                    service = "WFS"
 
                     if wfs.contents[identifier].boundingBoxWGS84:
                         # For WFS 1.0, at least, the boundingBoxWGS84 is actually a local CRS bounding box
@@ -551,6 +552,7 @@ def check_data_servers(serverCursor):
                 if wcs and identifier in wcs.contents:
                     title    = get_service_title   (wcs, identifier)
                     abstract = get_service_abstract(wcs, identifier)
+                    service = "WCS"
 
                     for c in wcs.contents[identifier].supportedCRS:     # crsOptions is available here, but always empty; only exists for OOP
                         if is_equal_crs(c.id, city_crs[cityId]):
@@ -619,8 +621,10 @@ def check_data_servers(serverCursor):
                 if wms and identifier in wms.contents:
                     title    = get_service_title   (wms, identifier)
                     abstract = get_service_abstract(wms, identifier)
+                    if service is None:     # Don't clobber a WFS or WCS service
+                        service = "WMS"
 
-                if title:           # Update the database with the layer info
+                if service:           # Update the database with the layer info
                     sqlList.append( "UPDATE " + tables["datasets"] + " "
                                     "SET title = "        + str(adapt(title))    + ", "
                                         "abstract = "     + str(adapt(abstract))    + ", "
@@ -634,7 +638,8 @@ def check_data_servers(serverCursor):
                                         "bbox_bottom = "  + ("NULL" if bbox_bottom is None else str(adapt(bbox_bottom))) + ", "
                                         "bbox_srs = "     + ("NULL" if target_crs  is None else str(adapt(simplify_crs(target_crs))))  + ", "
                                         "resolution_x = " + ("NULL" if resX        is None else str(adapt(resX)))        + ", "
-                                        "resolution_y = " + ("NULL" if resY        is None else str(adapt(resY)))        + " "
+                                        "resolution_y = " + ("NULL" if resY        is None else str(adapt(resY)))        + ", "
+                                        "service = "      + str(adapt(service))
                                     "WHERE id = " + str(adapt(dsid)) 
                                   )
                 else:
