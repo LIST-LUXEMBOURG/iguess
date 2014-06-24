@@ -56,12 +56,12 @@ CO2.updatePeriodNames = function()
 
 CO2.drawCharts = function()
 {
-	CO2.chartCO2();
+	CO2.chartCO2("C02 Emissions by Sector", "ton/year", CO2.sector_co2);
 	CO2.chartCH4();
 	CO2.chartN2O();
 };
 
-CO2.chartCO2 = function () 
+CO2.chartCO2 = function (title, units, series) 
 {
     $('#co2_chart').highcharts({
         chart: {
@@ -71,7 +71,7 @@ CO2.chartCO2 = function ()
         	enabled: false
         },
         title: {
-            text: 'C02 Emissions by Sector'
+            text: title
         },
         xAxis: {
             categories: CO2.periodNames,
@@ -82,12 +82,12 @@ CO2.chartCO2 = function ()
         },
         yAxis: {
             title: {
-                text: 'ton/year'
+                text: units
             },
         },
         tooltip: {
             shared: true,
-            valueSuffix: ' ton/year'
+            valueSuffix: ' ' + units
         },
         plotOptions: {
             area: {
@@ -100,7 +100,7 @@ CO2.chartCO2 = function ()
                 }
             }
         },
-        series: CO2.sector_co2
+        series: series
     });
 };
 
