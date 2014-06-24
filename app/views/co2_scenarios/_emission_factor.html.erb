@@ -2,7 +2,11 @@
   <tr>
     <th class="center">Period</th>
     <% @sources_factor.each do |s| %>
-      <th class="center"><%= s.name %></th>
+      <% if s.display_order < 50 %>
+        <th class="fossil-header center"><%= s.name %></th>
+      <% else %>
+        <th class="center"><%= s.name %></th>
+      <% end %>
     <% end %>
   </tr>
 
