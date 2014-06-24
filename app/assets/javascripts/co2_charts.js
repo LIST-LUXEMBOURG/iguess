@@ -56,14 +56,14 @@ CO2.updatePeriodNames = function()
 
 CO2.drawCharts = function()
 {
-	CO2.chartCO2("C02 Emissions by Sector", "ton/year", CO2.sector_co2);
-	CO2.chartCH4();
-	CO2.chartN2O();
+	CO2.chartEmissions("co2_chart", "C02 Emissions by Sector", "ton/year", CO2.sector_co2);
+	CO2.chartEmissions("ch4_chart", "CH4 Emissions by Sector", "g/year", CO2.sector_ch4);
+	CO2.chartEmissions("n2o_chart", "N2O Emissions by Sector", "g/year", CO2.sector_n2o);
 };
 
-CO2.chartCO2 = function (title, units, series) 
+CO2.chartEmissions = function (div, title, units, series) 
 {
-    $('#co2_chart').highcharts({
+    $('#' + div).highcharts({
         chart: {
             type: 'area'
         },
@@ -104,88 +104,3 @@ CO2.chartCO2 = function (title, units, series)
     });
 };
 
-CO2.chartCH4 = function () 
-{
-    $('#ch4_chart').highcharts({
-        chart: {
-            type: 'area'
-        },
-        credits: {
-        	enabled: false
-        },
-        title: {
-            text: 'CH4 Emissions by Sector'
-        },
-        xAxis: {
-            categories: CO2.periodNames,
-            tickmarkPlacement: 'on',
-            title: {
-                enabled: false
-            }
-        },
-        yAxis: {
-            title: {
-                text: 'g/year'
-            },
-        },
-        tooltip: {
-            shared: true,
-            valueSuffix: ' g/year'
-        },
-        plotOptions: {
-            area: {
-                stacking: 'normal',
-                lineColor: '#666666',
-                lineWidth: 1,
-                marker: {
-                    lineWidth: 1,
-                    lineColor: '#666666'
-                }
-            }
-        },
-        series: CO2.sector_ch4
-    });
-};
-
-CO2.chartN2O = function () 
-{
-    $('#n2o_chart').highcharts({
-        chart: {
-            type: 'area'
-        },
-        credits: {
-        	enabled: false
-        },
-        title: {
-            text: 'N2O Emissions by Sector'
-        },
-        xAxis: {
-            categories: CO2.periodNames,
-            tickmarkPlacement: 'on',
-            title: {
-                enabled: false
-            }
-        },
-        yAxis: {
-            title: {
-                text: 'g/year'
-            },
-        },
-        tooltip: {
-            shared: true,
-            valueSuffix: ' g/year'
-        },
-        plotOptions: {
-            area: {
-                stacking: 'normal',
-                lineColor: '#666666',
-                lineWidth: 1,
-                marker: {
-                    lineWidth: 1,
-                    lineColor: '#666666'
-                }
-            }
-        },
-        series: CO2.sector_n2o
-    });
-};
