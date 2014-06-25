@@ -174,7 +174,6 @@ WebGIS.createPanels = function() {
   	title: 'Layers Catalogue',
 	region: "south",
     collapsible: true,
-    collapsed: true,
     autoScroll: true,
     enableDD: true,
     items: [WebGIS.createFilter(), WebGIS.layerCatalogue]

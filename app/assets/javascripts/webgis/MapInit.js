@@ -111,7 +111,7 @@ WebGIS.addNewLayer = function(title, serviceURL, layerName, type, tag, id)
 		WebGIS.treeNodes[tag] = new Ext.tree.TreeNode({
 			text : tag,
 			leaf : false,
-			expanded : true
+			expanded : false
 		});
 		WebGIS.treeRoot.appendChild(WebGIS.treeNodes[tag]);
 	}
