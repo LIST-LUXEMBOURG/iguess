@@ -287,6 +287,14 @@ WebGIS.createPanels = function() {
   //Ext.getCmp('layerCat').el.dom.style.overflowX = 'hidden';
 };
 
+
+WebGIS.foldLayerCatalogue = function()
+{
+	nodes = WebGIS.layerCatalogue.root.childNodes;
+	for (var i = 0; i < nodes.length; i++) 
+		nodes[i].collapse();
+};
+
 /**
  * Method: showAllTreeNodes
  * Removes filtering from the layer tree by showing all nodes.
