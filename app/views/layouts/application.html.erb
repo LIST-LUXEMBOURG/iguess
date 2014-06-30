@@ -3,6 +3,39 @@
 <head>
   <title><%= @site.title %></title>
 
+  <%# 
+    meta_keywords and meta_description can either be a string that will be constant on every page, or a
+    json structure that specifies different values for each tab.  Use the active_tab names defined
+    in each controller for the keys when using json.
+  %>
+  <% if @site_details.meta_description.present? %>
+    <% description = "" %>
+    <% begin %>
+      <% description = JSON.parse(@site_details.meta_description)[@activeTab] %>
+    <% rescue %>
+      <% description = @site_details.meta_description %>
+    <% end %>
+
+    <% if description.present? %>
+      <meta name="description" content="<%= description %>" />
+    <% end %>
+  <% end %>
+
+
+  <% if @site_details.meta_keywords.present? %>
+    <% keywords = "" %>
+    <% begin %>
+      <% keywords = JSON.parse(@site_details.meta_keywords)[@activeTab] %>
+    <% rescue %>
+      <% keywords = @site_details.meta_keywords %>
+    <% end %>
+
+    <% if keywords.present? %>
+      <meta name="keywords" content="<%= keywords %>" />
+    <% end %>
+  <% end %>
+ 
+
   <%= stylesheet_link_tag    :application %>
   <%= javascript_include_tag :application %>
   <%= csrf_meta_tags %>
