@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140630130007) do
+ActiveRecord::Schema.define(:version => 20140630164147) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -289,6 +289,7 @@ ActiveRecord::Schema.define(:version => 20140630130007) do
     t.text   "meta_description"
     t.text   "meta_keywords"
     t.text   "top_banner_file"
+    t.text   "tab_list"
   end
 
   create_table "sites", :force => true do |t|
