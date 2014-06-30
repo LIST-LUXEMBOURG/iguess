@@ -82,7 +82,7 @@
         <% tabs.each do |tab| %>
           <% tab.strip! %>
 
-          <% if tab == "home" then %>
+          <% if tab == "home" %>
             <li id="nav-1" title="<u><b>Return to starting screen</b></u>">
                 <a href="/" <% if @activeTab == "home" %>class="active-tab"<% end %>>Home</a>
             </li>
