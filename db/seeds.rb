@@ -27,7 +27,7 @@
 
 
 # Basic sectors for the CO2 model
-[['Industry'], ['Road Transport'], ['Rail Transport'], ['Navigation Transport'],
+[['Industry'], ['Road Transport'], ['Rail Transport'], ['Ship Transport'],
  ['Tertiary'], ['Residential'] ,   ['Agriculture']
  ].each do |v|
 	sector = Co2Sector.find_or_create_by_name v[0]
