@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140630122908) do
+ActiveRecord::Schema.define(:version => 20140630130007) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -283,11 +283,7 @@ ActiveRecord::Schema.define(:version => 20140630122908) do
   end
 
   create_table "site_details", :force => true do |t|
-    t.text   "subtitle"
     t.text   "stylesheet"
-    t.text   "logo_img"
-    t.text   "logo_alt_text"
-    t.text   "logo_link_url"
     t.string "body_html_file"
     t.string "footer_html_file"
     t.text   "meta_description"
