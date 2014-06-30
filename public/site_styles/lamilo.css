@@ -1,6 +1,6 @@
 /* Put any lamilo specific styles here */
 
-#top_banner {
+#top_banner, .footer-table {
     background-color: #B3D335;
 }
 
@@ -13,9 +13,69 @@
 
 
 .footer-table {
-    color: #888;
+    color: #fff;
     border-spacing: 15px;
     border-collapse: separate;
+}
+
+a.footer-graphic {
+    background: url("http://www.lamiloproject.eu/wp-content/themes/rt_gantry_wp/images/footer-graphic.png") repeat scroll 0 0 rgba(0, 0, 0, 0);
+    display: block;
+    float: left;
+    height: 200px;
+    text-decoration: none;
+    width: 150px;
+}
+
+a.footer-graphic:hover {
+    background-position: -150px 0;
+}
+
+.footer-title, .component-content h2 {
+    font-size: 28px;
+    font-weight: normal;
+    letter-spacing: normal;
+    line-height: 30px;
+    margin-bottom: 15px;
+    margin-top: 0;
+    padding-bottom: 15px;
+    border-bottom: 1px solid white;
+}
+
+
+.footer-table {
+	table-layout: fixed;
+	width: 1000px;
+}
+
+.footer-table td {
+    vertical-align: top;
+}
+
+.footer-table a {
+    color: #fff;
+    /*font-size: 11px;*/
+    line-height: 11px;
+    list-style: none outside none;
+    text-shadow: none;
+    text-decoration: none;
+    transition: color 0.2s ease-out 0s;
+}
+
+.footer-table a:hover {
+    color: #000;
+    text-shadow: none;
+}
+
+
+ul.footer-menu li a:before, ul.footer-menu li .item:before, ul.footer-menu li .separator:before {
+    content: "•";
+    display: inline;
+    font-family: FontAwesome;
+    font-size: 1em;
+    font-weight: normal;
+    margin-right: 1px;
+    vertical-align: middle;
 }
 
 
