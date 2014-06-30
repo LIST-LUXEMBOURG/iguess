@@ -158,7 +158,11 @@ stub = function(p)
       <tr>
         <th class="center">Period</th>
         <% @sources_elec.each do |s| %>
-          <th class="center"><%= s.name %></th>
+          <% if s.display_order < 50 %>
+            <th class="fossil-header center"><%= s.name %></th>
+          <% else %>
+            <th class="center"><%= s.name %></th>
+          <% end %>
         <% end %>
         <th class="total-header center">Total</th>
       </tr>
@@ -194,7 +198,11 @@ stub = function(p)
       <tr>
         <th class="center">Period</th>
         <% @sources_heat.each do |s| %>
-          <th class="center"><%= s.name %></th>
+          <% if s.display_order < 50 %>
+            <th class="fossil-header center"><%= s.name %></th>
+          <% else %>
+            <th class="center"><%= s.name %></th>
+          <% end %>
         <% end %>
         <th class="total-header center">Total</th>
       </tr>
@@ -247,7 +255,11 @@ stub = function(p)
       <tr>
         <th class="center">Period</th>
         <% @sources_cons.each do |source| %>
-          <th class="center"><%= source.name %></th>
+          <% if source.display_order < 50 %>
+            <th class="fossil-header center"><%= source.name %></th>
+          <% else %>
+            <th class="center"><%= source.name %></th>
+          <% end %>
         <% end %>
         <th class="total-header center">Total</th>
       </tr>

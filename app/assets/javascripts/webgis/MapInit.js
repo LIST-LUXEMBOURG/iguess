@@ -175,11 +175,12 @@ WebGIS.addLayerToMap = function(id)
 	};
 
 	var layer = new OpenLayers.Layer.WMS(WebGIS.layerList[id]["title"], WebGIS.layerList[id]["serviceURL"], params, options);
+	layer.id = id;
 
 	WebGIS.leftMap.addLayer(layer);
 	layer.events.register("visibilitychanged", this, WebGIS.toggleLayer);
 
-	WebGIS.addWidgetsToLayerNode(WebGIS.layerTree.root.firstChild.firstChild, id);
+	WebGIS.addWidgetsToLayerNode(WebGIS.layerTree.root.firstChild.firstChild);
 };
 
 WebGIS.removeLayerFromMap = function(id) 
@@ -231,7 +232,7 @@ WebGIS.removeLayerEvent = function(butt, event)
 	WebGIS.layerCatalogue.getNodeById(fullId).getUI().toggleCheck(false);
 };
 
-WebGIS.addWidgetsToLayerNode = function(treeNode, idCatalogue) 
+WebGIS.addWidgetsToLayerNode = function(treeNode) 
 {
 	var buttonUp = new Ext.Button({
 		xtype : 'button',
@@ -259,7 +260,7 @@ WebGIS.addWidgetsToLayerNode = function(treeNode, idCatalogue)
 		iconCls : 'tinyClose tinyButton',
 		autoWidth : true,
 		cls : 'tinyClose tinyButton',
-		id : WebGIS.buttClose + idCatalogue,
+		id : WebGIS.buttClose + treeNode.layer.id,
 		handler : WebGIS.removeLayerEvent
 	});
 

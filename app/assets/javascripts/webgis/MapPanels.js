@@ -108,21 +108,16 @@ WebGIS.createPanels = function() {
             '-',
            {
                xtype:'splitbutton',
-               text: 'Open Street Map',
+               text: 'Google Streets',
                menu: [{
-                 text: 'Open Street Map',
+                 text: 'Google Streets',
                  checked: true,
-                 handler  : WebGIS.baseOSM,
+                 handler  : WebGIS.baseGoogleSt,
                  group: 'baseLayer'
                },{
                  text: 'Google Satellite',
                  checked: false,
                  handler  : WebGIS.baseGoogleSat,
-                 group: 'baseLayer'
-               },{
-                 text: 'Google Streets',
-                 checked: false,
-                 handler  : WebGIS.baseGoogleSt,
                  group: 'baseLayer'
                },{
                  text: 'Google Physical',
@@ -133,6 +128,11 @@ WebGIS.createPanels = function() {
                  text: 'Google Hybrid',
                  checked: false,
                  handler  : WebGIS.baseGoogleHy,
+                 group: 'baseLayer'
+               },{
+                 text: 'Open Street Map',
+                 checked: false,
+                 handler  : WebGIS.baseOSM,
                  group: 'baseLayer'
                },{
                  text: 'Country borders',
@@ -285,6 +285,14 @@ WebGIS.createPanels = function() {
   //Ext.getCmp('layerCat').el.dom.style.height = '700px';
   //Ext.getCmp('layerCat').el.dom.style.overflow = 'scroll';//'auto';//
   //Ext.getCmp('layerCat').el.dom.style.overflowX = 'hidden';
+};
+
+
+WebGIS.foldLayerCatalogue = function()
+{
+	nodes = WebGIS.layerCatalogue.root.childNodes;
+	for (var i = 0; i < nodes.length; i++) 
+		nodes[i].collapse();
 };
 
 /**

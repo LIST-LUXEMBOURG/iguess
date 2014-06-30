@@ -132,7 +132,7 @@ WebGIS.getLeftBaseLayers = function(mapProjection) {
      	 visibility: true}
     );
 
-    return [WebGIS.osmLeft, WebGIS.ghybLeft, WebGIS.gphyLeft, WebGIS.gmapLeft, WebGIS.gsatLeft, WebGIS.contriesLeft];
+    return [WebGIS.gmapLeft, WebGIS.ghybLeft, WebGIS.gphyLeft, WebGIS.gsatLeft, WebGIS.osmLeft, WebGIS.contriesLeft];
 };
 
 WebGIS.getRightBaseLayers = function(mapProjection) {
