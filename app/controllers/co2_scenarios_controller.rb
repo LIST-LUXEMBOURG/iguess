@@ -480,5 +480,10 @@ class Co2ScenariosController < ApplicationController
         format.json { render :text => "You must be logged in!", :status => 403 }
       end
     end
+    
+    @scenario = Co2Scenario.find(params[:id])
+    @scenario.destroy
+    
+    redirect_to action: "index"
   end
 end
