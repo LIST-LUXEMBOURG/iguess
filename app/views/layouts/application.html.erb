@@ -73,32 +73,47 @@
     end %>
 
 
+    <div id="navbar" style="z-index:10;">
+      <ul id="nav">
+        <% tablist = "home, datamanager, modules, scenarios, about" %>
+
+        <% tabs = tablist.split(/,/) %>
+
+        <% tabs.each do |tab| %>
+          <% tab.strip! %>
+
+          <% if tab == "home" then %>
+            <li id="nav-1" title="<u><b>Return to starting screen</b></u>">
+                <a href="/" <% if @activeTab == "home" %>class="active-tab"<% end %>>Home</a>
+            </li>
+          <% elsif tab == "datamanager" %>
+            <% if user_signed_in? %>
+              <li id="nav-2" title="<u><b>Manage data</b></u><br>Upload new data, and view existing datasets">
+                <%= link_to "Data Manager", datasets_path, :class => (@activeTab == "datamanager" ? "active-tab" : "") %>
+              </li>
+            <% end %>
+          <% elsif tab == "modules" %>
+            <li id="nav-3" title="<u><b>Configure & run modules</b></u><br>Create new datasets by running calculations">
+              <%= link_to "Modules", mod_configs_path, :class => (@activeTab == "modules" ? "active-tab" : "") %>
+            </li>
+          <% elsif tab == "maps" %>     
+            <li id="nav-6" title="<u><b>View maps</b></u><br>Visualize data and model results">
+              <%= link_to "Maps", maps_path, :class => (@activeTab == "maps" ? "active-tab" : "") %>
+            </li>
+          <% elsif tab == "scenarios" %>
+            <li id="nav-4" title="<u><b>Define and run scenarios</b></u><br>Scenarios are complex models of potential future situations">
+              <%= link_to "Scenarios", co2_scenarios_path, :class => (@activeTab == "scenarios" ? "active-tab" : "") %>
+            </li>    
+          <% elsif tab == "about" %>        
+            <li id="nav-8" title="<u><b>About</b></u><br>About this site and contact details">
+                <%= link_to "About", about_path, :class => (@activeTab == "about" ? "active-tab" : "") %>
+            </li>
+          <% end %>
+        <% end %>
+
     <!-- To hide some tabs on a per-application basis, add a style for #nav-2 (for example) with 
          styling of display:none; -->
 
-    <div id="navbar" style="z-index:10;">
-      <ul id="nav">
-        <li id="nav-1" title="<u><b>Return to starting screen</b></u>">
-            <a href="/" <% if @activeTab == "home" %>class="active-tab"<% end %>>Home</a>
-        </li>
-        <% if user_signed_in? %>
-          <li id="nav-2" title="<u><b>Manage data</b></u><br>Upload new data, and view existing datasets">
-              <%= link_to "Data Manager", datasets_path, :class => (@activeTab == "datamanager" ? "active-tab" : "") %>
-          </li>
-        <% end %>
-        <li id="nav-3" title="<u><b>Configure & run modules</b></u><br>Create new datasets by running calculations">
-            <%= link_to "Modules", mod_configs_path, :class => (@activeTab == "modules" ? "active-tab" : "") %>
-        </li>
-        <li id="nav-6" title="<u><b>View maps</b></u><br>Visualize data and model results">
-            <%= link_to "Maps", maps_path, :class => (@activeTab == "maps" ? "active-tab" : "") %>
-        </li>
-        <li id="nav-4" title="<u><b>Define and run scenarios</b></u><br>Scenarios are complex models of potential future situations">
-            <%= link_to "Scenarios", co2_scenarios_path, :class => (@activeTab == "scenarios" ? "active-tab" : "") %>
-        </li>            
-
-        <li id="nav-8" title="<u><b>About</b></u><br>About this site and contact details">
-            <%= link_to "About", about_path, :class => (@activeTab == "about" ? "active-tab" : "") %>
-        </li>
 
         <div>
           <!-- For now, show city dropdown on maps and compares to all users, not on other pages unless user is a super user -->
