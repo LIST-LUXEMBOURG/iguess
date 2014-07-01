@@ -96,7 +96,9 @@
           <dt>Configurations:</td>
           <dd>
             <% if d.mod_configs.size > 0 %>
-              <% d.mod_configs.each do |m| %><%= m.name %> <% end %>
+              <% d.mod_configs.each do |m| %>
+                <%= link_to m.name, m %>
+              <% end %>
             <% else %>
               Not used in any configurations
             <% end %>
