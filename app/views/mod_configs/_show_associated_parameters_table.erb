@@ -114,6 +114,18 @@
   };
 
 
+  var showIODetails = function(elKey) {
+    $("#" + elKey + "-short").hide();
+    $("#" + elKey + "-long").show();
+  };
+
+
+  var hideIODetails = function(elKey) {
+    $("#" + elKey + "-long").hide();
+    $("#" + elKey + "-short").show();
+  };
+
+
   var anyDatasetsMissing = false;
 
   // textInputValues & datasetValues will only be defined when calling from the main Module Configuration page
@@ -167,7 +179,27 @@
 
         cell.append(item.title ? item.title : item.identifier);
         if(item.abstract)
-          cell.append("<br><i>" + item.abstract + "</i>");
+        {
+          if(item.abstract.length > 50)
+          {
+            var key = modeName + i;
+            cell.append("<br><span class='input-description' id='" + key + "-short'>" + 
+                          item.abstract.substring(0,50) + 
+                          "...&nbsp;&nbsp;<a href='#' onclick='showIODetails(\"" + key + "\");return false;'>" + 
+                            "More&nbsp;&gt;" + 
+                          "</a>" +
+                        "</span>" + 
+                        "<span class='input-description' id='" + key + "-long' style='display:none;'>" + 
+                          item.abstract + 
+                          "&nbsp;&nbsp;<a href='#' onclick='hideIODetails(\"" + key + "\");return false;'>" + 
+                            "&lt;&nbsp;Less" + 
+                          "</a>" +
+                        "</span>");
+          }
+          else
+             cell.append("<br><span class='input-description'>" + item.abstract + "</span>");
+        }
+
 
         // if(item.abstract != undefined && item.abstract != '') {
         //   cell.append('<img src="/assets/small_question_mark.gif" class="info-icon" ' +

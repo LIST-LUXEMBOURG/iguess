@@ -19,10 +19,17 @@
 
 }
 
+
+/* Input abstract, as shown on the mod configs screen */
+.input-description {
+  font-style: italic;
+}
+
+
 .model-descr-table {
-  //font-family:"Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
-  //font-size:12px;
-  //width:80%;
+/*  font-family:"Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+  font-size:12px;
+  width:80%;*/
 
   text-align:left;
   border-collapse:collapse;
@@ -39,12 +46,12 @@
   padding: 8px;
 }
 
-// Hanging outdent of Inputs and Outputs headers
+/* Hanging outdent of Inputs and Outputs headers */
 .outdent {
   margin-left: -30px;
 }
 
-// Model Inputs/Model Outputs header
+/*Model Inputs/Model Outputs header*/
 .model-descr-table .group-header {
   background: none;
   font-size: 130%;
