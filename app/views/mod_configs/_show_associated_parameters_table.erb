@@ -166,11 +166,13 @@
         var cell = $(document.createElement('td'));
 
         cell.append(item.title ? item.title : item.identifier);
+        if(item.abstract)
+          cell.append("<br><i>" + item.abstract + "</i>");
 
-        if(item.abstract != undefined && item.abstract != '') {
-          cell.append('<img src="/assets/small_question_mark.gif" class="info-icon" ' +
-                      'alt="More info" title="' + item.abstract + '">');
-        }
+        // if(item.abstract != undefined && item.abstract != '') {
+        //   cell.append('<img src="/assets/small_question_mark.gif" class="info-icon" ' +
+        //               'alt="More info" title="' + item.abstract + '">');
+        // }
 
         row.append(cell);
 
