@@ -32,6 +32,29 @@ populateSelectBox = function(control, options) {
 }
 
 
+// General handler for ajax requests that return an unexpected error
+var ajaxErrorHandler = function(jqXHR, status, error, msg)
+{
+  // Often, if we encounter a rails error, jqXHR.status will be 500.  Show that error
+  // in a new window because responseText will contain a full HTML document.
+  if(jqXHR.status == 500)
+  {
+    var win = window.open();
+    if(win)
+    {
+      $(win.document.body).html("<h1>Encountered error:</h1>" + jqXHR.responseText);
+      return;
+    }
+
+    // Can't open window... thorow this up as a last ditch effort to report the error
+    alert(msg + "  Can't open window... got error: " + jqXHR.responseText + '")');
+    return;
+  }
+  
+  alert(msg + ' (server says: "' + jqXHR.responseText + '")');
+};
+
+
 // See http://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery
 if(!String.prototype.makeHash) {
   String.prototype.makeHash = function() {

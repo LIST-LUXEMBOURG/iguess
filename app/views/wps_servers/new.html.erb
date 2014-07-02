@@ -66,6 +66,9 @@
       this.serverInfo = {};   // Clear any previous results
       WPS.getCapabilities(self.serverUrl, self.onWpsGetCapabilitiesSucceeded);
       WPS.describeProcess(self.serverUrl, self.onWpsDescribeProcessSucceeded);
+
+      currentServerUrl = self.serverUrl;    // For external access... can we do this a better way?
+      getRegisteredProcessesForServer(self.serverUrl);
     };
 
     // :::private:::
@@ -73,19 +76,19 @@
       if(capabilities && isGoodResponse("WPS", response, capabilities)) {
         self.serverInfo = extractServerInfoVals(capabilities);
 
-        doneProcessing(self.serverUrl, "WPS", self.serverInfo);
+        doneProcessing(self.serverUrl, "WPS");
       }
       else    // Error:
-        doneProcessing(self.serverUrl, "WPS", null);
+        doneProcessing(self.serverUrl, "WPS");
     };
 
     this.onWpsDescribeProcessSucceeded = function(capabilities, response) {
       if(capabilities && isGoodResponse("WPS", response, capabilities)) {
         self.serverInfo.wps_processes = capabilities.processDescriptions;
-        doneProcessing(self.serverUrl, "WPS", self.serverInfo);
+        doneProcessing(self.serverUrl, "WPS");
       }
       else    // Error:
-        doneProcessing(self.serverUrl, "WPS", null);
+        doneProcessing(self.serverUrl, "WPS");
     };
   };
 
@@ -138,26 +141,25 @@
   };
 
 
-  var currentServerInfo = null;
-
   // Called when we've gotten whatever response we're going to get from the server in question
   // i.e. when a WFS response arrives.  More responses might be coming (from WMS, and WCS, for example).
   // If an error has ocurred, serverInfo will be null
-  var doneProcessing = function(url, type, serverInfo) 
+  var doneProcessing = function(url, type) 
   {
     wpsProcessingComplete++;
 
-    // Make sure we've heard from all requests before continuing
-    if(wpsProcessingComplete != 2)  
+    // Make sure we've heard from all requests before continuing -- we expect two calls here from
+    // the WPS probe, and one more from the request for registered processes from iguess
+    if(wpsProcessingComplete < 3)  
       return; 
 
     $(".progress-container").hide();
 
-    if(serverInfo)
+
+    if(CurrentProbe.serverInfo)
     {
-      currentServerInfo = serverInfo;
-      displayServerDetails(serverInfo, type);   // Display this as it comes in
-      displayServices(serverInfo);
+      displayServerDetails(CurrentProbe.serverInfo, type);   // Display this as it comes in
+      displayServices(CurrentProbe.serverInfo);
     }
     else
       noResponse();
@@ -195,7 +197,7 @@
       if(!proc.identifier)
         continue;
 
-       var registered = false; // {P{P}} not false
+      var registered = RegisteredProcessList.hasObject(proc.identifier);
       $("#module-catalog").append(getProcessHtml(proc, registered));
     }
 
@@ -206,6 +208,41 @@
     addSwitchboxHandler();    // Convert all our checkboxes into fancy switchboxes!
     initializeAccordion('#module-catalog > h2', '.catalog-item');
   };
+
+
+  var RegisteredProcessList = null;
+
+  var gotRegisteredProcessList = function(url, processList)
+  {
+    // Make sure this request is for the current URL of interest
+    if(url != currentServerUrl)
+      return;
+
+    RegisteredProcessList = processList;
+
+    // Call doneProcessing in case we're the last request to arrive
+    doneProcessing(url, "WPS", CurrentProbe.serverInfo);
+  }
+
+
+  // Makes ajax request to iGUESS server to see which processes we've already registered from specified URL
+  var getRegisteredProcessesForServer = function(url)
+  {
+    RegisteredProcessList = null;
+
+    $.ajax({
+      type: "GET",
+      url:  "<%= url_for(:controller=>:wps_processes, :action=>:process_query, :format=>:json) %>",
+      data: "server_url=" + url,
+      headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
+      success: function(data, status, jqXHR)  { 
+          gotRegisteredProcessList(url, data.processes);
+        },
+      error: function(jqXHR, textStatus, error) { 
+                 ajaxErrorHandler(jqXHR, status, error, "Could not get registered process list from iGUESS!");
+                }
+    });
+  }
 
 
   var getProcessHtml = function(proc, isRegistered)
@@ -263,17 +300,16 @@
   };
 
 
+  var currentServerUrl = ""
+
   var addRegisterClickHandler = function()
   {
     // When the toggle switch is clicked, check off / de-select the associated checkbox
     // Want to find this when we search for "registered_"
-    debugger;
     $(".toggle").click(function(e) 
     {
       var checkboxID = $(this).attr("ref");
       var checkbox   = document.getElementById(checkboxID);
-
-      var serverUrl  = getServerUrl();
 
       var thiiis = $(this);   // Remember "this" for when the ajax requests return
 
@@ -297,7 +333,7 @@
           type: "PUT",
           url:  "<%= url_for(:controller=>:wps_servers, :action=>:unregister, :format=>:json) %>",
           data: "cityId="      + "<%= raw @current_city.id %>" +
-                "&server_url=" + serverUrl,
+                "&server_url=" + currentServerUrl,
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
           success: function(data, status, jqXHR)  { 
               checkbox.checked = false;
@@ -314,14 +350,14 @@
           type: "PUT",
           url:  "<%= url_for(:controller=>:wps_servers, :action=>:register, :format=>:json) %>",
           data: "cityId="      + "<%= raw @current_city.id %>" +
-                "&server_url="            + serverUrl +
-                "&server[url]="           + serverUrl +
-                "&server[title]="         + currentServerInfo.title +
-                "&server[abstract]="      + currentServerInfo.abstract +
-                "&server[provider_name]=" + currentServerInfo.provider_name +
-                "&server[contact_email]=" + currentServerInfo.contact_email +
-                "&server[contact_name]="  + currentServerInfo.contact_name +
-                "&serverDetails="         + encodeURIComponent(JSON.stringify(currentServerInfo)) +
+                "&server_url="            + currentServerUrl +
+                "&server[url]="           + currentServerUrl +
+                "&server[title]="         + CurrentProbe.serverInfo.title +
+                "&server[abstract]="      + CurrentProbe.serverInfo.abstract +
+                "&server[provider_name]=" + CurrentProbe.serverInfo.provider_name +
+                "&server[contact_email]=" + CurrentProbe.serverInfo.contact_email +
+                "&server[contact_name]="  + CurrentProbe.serverInfo.contact_name +
+                "&serverDetails="         + encodeURIComponent(JSON.stringify(CurrentProbe.serverInfo)) +
                 "&server[city_id]="       + "<%= raw @current_city.id %>",
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
           success: function(data, status, jqXHR)  { 

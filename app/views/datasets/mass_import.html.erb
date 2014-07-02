@@ -588,7 +588,7 @@
               unregisteredDataset(serverUrl, datasetIdentifier, checkbox, thiiis); 
             },
           error: function(jqXHR, status, error) {
-              jsonErrorHandler(jqXHR, status, error, "Could not unregister dataset!");
+              ajaxErrorHandler(jqXHR, status, error, "Could not unregister dataset!");
             }
         });
 
@@ -640,7 +640,7 @@
               registeredDataset(data, serverUrl, datasetIdentifier, checkbox, thiiis); 
             },
           error: function(jqXHR, textStatus, error) { 
-                 jsonErrorHandler(jqXHR, status, error, "Could not register dataset!");
+                 ajaxErrorHandler(jqXHR, status, error, "Could not register dataset!");
                 }
         });
       }

@@ -183,30 +183,6 @@
   };
 
 
-
-  // General handler for json requests that return an unexpected error
-  var jsonErrorHandler = function(jqXHR, status, error, msg)
-  {
-    // Often, if we encounter a rails error, jqXHR.status will be 500.  Show that error
-    // in a new window because responseText will contain a full HTML document.
-    if(jqXHR.status == 500)
-    {
-      var win = window.open();
-      if(win)
-      {
-        $(win.document.body).html("<h1>Encountered error:</h1>" + jqXHR.responseText);
-        return;
-      }
-
-      // Can't open window... thorow this up as a last ditch effort to report the error
-      alert(msg + "  Can't open window... got error: " + jqXHR.responseText + '")');
-      return;
-    }
-    
-    alert(msg + ' (server says: "' + jqXHR.responseText + '")');
-  };
-
-
   // Adds processing and folder tags
   // tagType will be true for regular tags, false for folder-tags
   var doAddTag = function(serverUrl, datasetIdentifier, tag, tagType, successFunction)
@@ -223,7 +199,7 @@
       headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
       success: function(data) { successFunction(serverUrl, datasetIdentifier, eval(data)); },
       error:   function(data, status, error) { 
-                  jsonErrorHandler(data, status, error, "Could not add tag!");
+                  ajaxErrorHandler(data, status, error, "Could not add tag!");
                }
     });
   };
@@ -264,7 +240,7 @@
                  'Content-Type': 'application/json' */},
       success: function(data) { successFunction(serverUrl, datasetIdentifier, eval(data)); },
       error:   function(jqXHR, status, error) { 
-                  jsonErrorHandler(jqXHR, status, error, "Could not delete tag!");
+                  ajaxErrorHandler(jqXHR, status, error, "Could not delete tag!");
                }
     });
   };

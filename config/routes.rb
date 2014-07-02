@@ -16,6 +16,8 @@ Iguess::Application.routes.draw do
     end
   end
 
+  get 'wps_processes/process_query'
+
   get '/datasets/check_name',         to: 'datasets#check_name'
   get '/datasets/find_matching_tags', to: 'datasets#find_matching_tags'
 

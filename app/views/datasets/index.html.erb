@@ -151,7 +151,7 @@
       headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
       success: function() { /* Do nothing */ },
       error:   function(data, status, error) { 
-                  jsonErrorHandler(data, status, error, "Could not publish dataset!");
+                  ajaxErrorHandler(data, status, error, "Could not publish dataset!");
             }
     });
   };

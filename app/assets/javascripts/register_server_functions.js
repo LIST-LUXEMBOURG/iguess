@@ -106,6 +106,8 @@ var discoveredLayers = {};
 var alreadyShownWmsError = false;
 
 
+var CurrentProbe = null;
+
 // This gets called when the Remote Data Server URL is changed
 var loadDataLayers = function()
 {
@@ -131,8 +133,8 @@ var loadDataLayers = function()
 
   resetServiceLoadedStatus();
 
-  var probe = new ServiceProbe(serverUrl);  // ServiceProbe will be a different class on different pages, but will have the same interface
-  probe.startProbing();
+  CurrentProbe = new ServiceProbe(serverUrl);  // ServiceProbe will be a different class on different pages, but will have the same interface
+  CurrentProbe.startProbing();
 };
 
 
