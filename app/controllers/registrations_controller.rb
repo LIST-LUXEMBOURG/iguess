@@ -10,6 +10,11 @@ class RegistrationsController < Devise::RegistrationsController
     super
   end
 
+  def create
+    @cities = City.find_all_by_site_details_id(@site_details.id)
+    super
+  end   
+
   def update
     @cities = City.find_all_by_site_details_id(@site_details.id)
     # super
