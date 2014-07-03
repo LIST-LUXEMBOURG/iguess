@@ -214,7 +214,7 @@
     var enabled = true && regLyr;
 
     return '<div class="tag-control">' +
-             makeTagList(layer, regLyr, urlId, "No tags") +
+             makeTagList(layer, regLyr, urlId) +
              createFolderTagControl(layer, tagEntryFieldName, tagPickerControlClass, enabled) +
              makeTagPickerControl(layer, tagPickerControlClass, service, enabled) +
            '</div>';
