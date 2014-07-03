@@ -27,7 +27,7 @@
       <td>
         <select id="url-preset-select"  style="width: 100%">
           <option value="">Select a preset</option>
-          <%= raw @current_city.dataserver_url
+          <%= raw @current_city.dataserver_bookmark
                                .map { |m| '<option value="' + m.url + '">' + m.url + '</option>' }
                                .join(" ") %>
         </select>
@@ -715,7 +715,7 @@
     var url = getServerUrl();
     $.ajax({
       type: 'POST',      // POST combined with url below triggers "create" action on controller
-      url: '<%= url_for(:controller => 'dataserver_url', :action => 'create', :format=>:json) %>',
+      url: '<%= url_for(:controller => 'dataserver_bookmark', :action => 'create', :format=>:json) %>',
       data: 'city[id]=' + <%= @current_city.id %> +
             '&url=' + url,
       headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
@@ -723,7 +723,10 @@
       success: function(data) { 
         $('#url-preset-select').append('<option value="' + url + '">' + url + '</option>');
         updateButtonVisibility();
-      }
+      },
+      error:   function(jqXHR, status, error) { 
+                  ajaxErrorHandler(jqXHR, status, error, "Could not save preset!");
+               }
     });
   };
 
@@ -737,7 +740,7 @@
     var url = getServerUrl();
     $.ajax({
       type: 'DELETE',      // DELETE combined with url below triggers "destroy" action on controller
-      url: '<%= url_for(:controller => 'dataserver_url', :action => 'destroy', :format=>:json) %>',
+      url: '<%= url_for(:controller => 'dataserver_bookmark', :action => 'destroy', :format=>:json) %>',
       data: 'city[id]=' + <%= @current_city.id %> +
             '&url=' + url,
       headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
@@ -747,7 +750,9 @@
         $('#server_url').val('');                                       // Clear the input box
         updateButtonVisibility();
       },
-      failure: function(data) { alert("Cound not delete preset!" + data); }
+      error: function(jqXHR, status, error) { 
+                  ajaxErrorHandler(jqXHR, status, error, "Could not delete preset!");
+               }
     });
   };
 
