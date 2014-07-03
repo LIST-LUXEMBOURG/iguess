@@ -171,13 +171,15 @@
   // to confirm
   var confirmDeleteTag = function(serverUrl, datasetIdentifier, tagVal) 
   {
-    if(TagIsInUse[tagVal] && TagIsInUse[tagVal][cssEscape(serverUrl + datasetIdentifier)] > 0) {
-      var ct = TagIsInUse[tagVal][cssEscape(serverUrl + datasetIdentifier)];
-      var c  = (ct == 1) ? "configuration" : "configurations";
-      var t  = (ct == 1) ? "this"          : "these";
-      var th = (ct == 1) ? "it"            : "them";
+    var id = cssEscape(serverUrl + datasetIdentifier);
 
-      return confirm("This dataset is in use by " + ct + " " + c + ". " +
+    if(TagIsInUse[tagVal] && TagIsInUse[tagVal][id] > 0) {
+      var useCount = TagIsInUse[tagVal][id];
+      var c        = (useCount == 1) ? "configuration" : "configurations";
+      var t        = (useCount == 1) ? "this"          : "these";
+      var th       = (useCount == 1) ? "it"            : "them";
+
+      return confirm("This dataset is in use by " + useCount + " " + c + ". " +
                      "Changing its type will cause it to be removed from " + t + " " + c + ".\n\n" +
                      "Click OK if you are sure you want to change the type of this dataset.");
     }
