@@ -176,7 +176,7 @@
     if(TagIsInUse[tagVal] && TagIsInUse[tagVal][id] ==  0) 
       return;
 
-    // Tag is un use -- show warning
+    // Tag is in use -- show warning
     var useCount = TagIsInUse[tagVal][id];
     var c        = (useCount == 1) ? "configuration" : "configurations";
     var t        = (useCount == 1) ? "this"          : "these";
