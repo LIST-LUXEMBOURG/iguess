@@ -153,8 +153,8 @@ def jsonBuilder(dataset)
 end
 
 
-# Build some json that looks like this:
-# registeredDataLayers[serverUrl][datasetIdentifier] = {
+# Build some json that looks like this, that will be sent to client in response to ajax request
+# registeredDataLayers[datasetIdentifier] = {
 #       "tags":        ['tag1', 'tag2', ...],
 #       "folder_tags":['first', 'second',...],
 #       "configCount": 3
@@ -165,9 +165,7 @@ def buildRegisteredDataLayersJson(datasets)
   json = datasets.map{|d| jsonBuilder(d)}
 
   hash = Hash.new()
-
-  json.map{|k| hash[k["server_url"]] = Hash.new() }
-  json.map{|k| hash[k["server_url"]][k["identifier"]] = stripServerUrlAndIdentifier(k) }
+  json.map{|k| hash[k["identifier"]] = stripServerUrlAndIdentifier(k) }
 
   return hash.to_json
 end

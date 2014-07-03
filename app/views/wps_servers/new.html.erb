@@ -67,7 +67,7 @@
       WPS.getCapabilities(self.serverUrl, self.onWpsGetCapabilitiesSucceeded);
       WPS.describeProcess(self.serverUrl, self.onWpsDescribeProcessSucceeded);
 
-      currentServerUrl = self.serverUrl;    // For external access... can we do this a better way?
+      CurrentServerUrl = self.serverUrl;    // For external access... can we do this a better way?
       getRegisteredProcessesForServer(self.serverUrl);
     };
 
@@ -76,19 +76,19 @@
       if(capabilities && isGoodResponse("WPS", response, capabilities)) {
         self.serverInfo = extractServerInfoVals(capabilities);
 
-        doneProcessing(self.serverUrl, "WPS");
+        doneProcessing("WPS");
       }
       else    // Error:
-        doneProcessing(self.serverUrl, "WPS");
+        doneProcessing("WPS");
     };
 
     this.onWpsDescribeProcessSucceeded = function(capabilities, response) {
       if(capabilities && isGoodResponse("WPS", response, capabilities)) {
         self.serverInfo.wps_processes = capabilities.processDescriptions;
-        doneProcessing(self.serverUrl, "WPS");
+        doneProcessing("WPS");
       }
       else    // Error:
-        doneProcessing(self.serverUrl, "WPS");
+        doneProcessing("WPS");
     };
   };
 
@@ -144,7 +144,7 @@
   // Called when we've gotten whatever response we're going to get from the server in question
   // i.e. when a WFS response arrives.  More responses might be coming (from WMS, and WCS, for example).
   // If an error has ocurred, serverInfo will be null
-  var doneProcessing = function(url, type) 
+  var doneProcessing = function(type) 
   {
     wpsProcessingComplete++;
 
@@ -215,14 +215,14 @@
   var gotRegisteredProcessList = function(url, processList)
   {
     // Make sure this request is for the current URL of interest
-    if(url != currentServerUrl)
+    if(url != CurrentServerUrl)
       return;
 
     RegisteredProcessList = processList;
 
     // Call doneProcessing in case we're the last request to arrive
-    doneProcessing(url, "WPS", CurrentProbe.serverInfo);
-  }
+    doneProcessing("WPS");
+  };
 
 
   // Makes ajax request to iGUESS server to see which processes we've already registered from specified URL
@@ -242,7 +242,7 @@
                  ajaxErrorHandler(jqXHR, status, error, "Could not get registered process list from iGUESS!");
                 }
     });
-  }
+  };
 
 
   var getProcessHtml = function(proc, isRegistered)
@@ -300,7 +300,7 @@
   };
 
 
-  var currentServerUrl = ""
+  var CurrentServerUrl = "";
 
   var addRegisterClickHandler = function()
   {
@@ -333,7 +333,7 @@
           type: "PUT",
           url:  "<%= url_for(:controller=>:wps_servers, :action=>:unregister, :format=>:json) %>",
           data: "cityId="      + "<%= raw @current_city.id %>" +
-                "&server_url=" + currentServerUrl,
+                "&server_url=" + CurrentServerUrl,
           headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
           success: function(data, status, jqXHR)  { 
               checkbox.checked = false;
@@ -350,8 +350,8 @@
           type: "PUT",
           url:  "<%= url_for(:controller=>:wps_servers, :action=>:register, :format=>:json) %>",
           data: "cityId="      + "<%= raw @current_city.id %>" +
-                "&server_url="            + currentServerUrl +
-                "&server[url]="           + currentServerUrl +
+                "&server_url="            + CurrentServerUrl +
+                "&server[url]="           + CurrentServerUrl +
                 "&server[title]="         + CurrentProbe.serverInfo.title +
                 "&server[abstract]="      + CurrentProbe.serverInfo.abstract +
                 "&server[provider_name]=" + CurrentProbe.serverInfo.provider_name +

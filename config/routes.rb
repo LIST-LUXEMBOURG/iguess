@@ -11,16 +11,16 @@ Iguess::Application.routes.draw do
 
   resources :wps_servers do
     collection do
-      put 'register'
-      put 'unregister'
+      put "register"
+      put "unregister"
     end
   end
 
-  get 'wps_processes/process_query'
-  get 'datasets/dataset_query'
+  get "wps_processes/process_query"
+  get "datasets/dataset_query"
 
-  get '/datasets/check_name',         to: 'datasets#check_name'
-  get '/datasets/find_matching_tags', to: 'datasets#find_matching_tags'
+  get "/datasets/check_name",         to: "datasets#check_name"
+  get "/datasets/find_matching_tags", to: "datasets#find_matching_tags"
 
   resources :datasets 
 
@@ -40,7 +40,7 @@ Iguess::Application.routes.draw do
 
   devise_for :users, :controllers => {:registrations => "registrations"}
 
-  match 'about', :to => 'about#index'
+  match "about", :to => "about#index"
 
   # map.with_options :controller => 'about' do |about|
   #   about.about 'about', :action => 'about'
@@ -109,6 +109,6 @@ Iguess::Application.routes.draw do
   # match ':controller(/:action(/:id))(.:format)'
 
 
-  match ':controller(/:action(/:id(.:format)))'
+  match ":controller(/:action(/:id(.:format)))"
   
 end

@@ -140,6 +140,14 @@ class DatasetsController < ApplicationController
   end
 
 
+  # Returns a list of identifiers of registered datasets for the specified url 
+  # Will only be called via ajax
+  def dataset_query
+    datasets = Dataset.find_all_by_server_url_and_city_id(params["server_url"], User.getCurrentCity(current_user, cookies).id)
+    render :json => { :success => true, :datasets => buildRegisteredDataLayersJson(datasets) }
+  end
+
+
   # PUT /datasets/1
   # PUT /datasets/1.json
   def update
