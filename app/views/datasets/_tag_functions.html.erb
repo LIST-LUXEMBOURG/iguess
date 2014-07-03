@@ -173,8 +173,8 @@
   {
     var id = cssEscape(serverUrl + datasetIdentifier);
 
-    if(TagIsInUse[tagVal] && TagIsInUse[tagVal][id] ==  0) 
-      return;
+    if(!TagIsInUse[tagVal] || !TagIsInUse[tagVal][id]) 
+      return true;    // Delete away!
 
     // Tag is in use -- show warning
     var useCount = TagIsInUse[tagVal][id];
@@ -272,7 +272,7 @@
 
   // Generate a tag list for the specified layer
   // regLyr is an object that has tags and folder_tags fields
-  var makeTagList = function(layer, regLyr, urlId) 
+  var makeTagList = function(layer, regLyr, urlId, placeholder) 
   {
     if(!regLyr)
       return makeTagListContainer(urlId, "", "");    // Layer not registered
