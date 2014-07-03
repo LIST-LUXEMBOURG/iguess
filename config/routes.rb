@@ -19,6 +19,11 @@ Iguess::Application.routes.draw do
   get "wps_processes/process_query"
   get "datasets/dataset_query"
 
+  # Tag handling
+  put "datasets/del_tag"
+  put "datasets/add_data_tag"
+  put "datasets/add_data_folder_tag"
+
   get "/datasets/check_name",         to: "datasets#check_name"
   get "/datasets/find_matching_tags", to: "datasets#find_matching_tags"
 

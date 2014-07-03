@@ -85,6 +85,9 @@
 
     $('.' + id + idAppendage + urlId).html(
           createTagList(tags, deleteable, serverUrl, datasetIdentifier, tagclass));
+
+    if(deleteable)
+      addDeleteTagClickHander(tagclass == 'tag');
   };
 
 
