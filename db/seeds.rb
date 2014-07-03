@@ -77,4 +77,18 @@ end
   equiv.save
 end
 
+# Styles
+[['#abd9e9', '#d7191c', 5],
+ ['#92c5de', '#ca0020', 5],
+ ['#A6D96A', '#D7191C', 5],
+ ['#A6D96A', '#e66101', 5],
+ ['#f7f7f7', '#0571b0', 5]
+].each do |s|
+  style = Style.find_or_create_by_min_colour s[0]
+  style.max_colour = s[1]
+  style.num_classes = s[2]
+  style.save
+end
+
+
 
