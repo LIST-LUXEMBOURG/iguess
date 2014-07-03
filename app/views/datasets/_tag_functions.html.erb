@@ -173,18 +173,18 @@
   {
     var id = cssEscape(serverUrl + datasetIdentifier);
 
-    if(TagIsInUse[tagVal] && TagIsInUse[tagVal][id] > 0) {
-      var useCount = TagIsInUse[tagVal][id];
-      var c        = (useCount == 1) ? "configuration" : "configurations";
-      var t        = (useCount == 1) ? "this"          : "these";
-      var th       = (useCount == 1) ? "it"            : "them";
+    if(TagIsInUse[tagVal] && TagIsInUse[tagVal][id] ==  0) 
+      return;
 
-      return confirm("This dataset is in use by " + useCount + " " + c + ". " +
-                     "Changing its type will cause it to be removed from " + t + " " + c + ".\n\n" +
-                     "Click OK if you are sure you want to change the type of this dataset.");
-    }
-    // else...
-    return true;
+    // Tag is un use -- show warning
+    var useCount = TagIsInUse[tagVal][id];
+    var c        = (useCount == 1) ? "configuration" : "configurations";
+    var t        = (useCount == 1) ? "this"          : "these";
+    var th       = (useCount == 1) ? "it"            : "them";
+
+    return confirm("This dataset is in use by " + useCount + " " + c + ". " +
+                   "Changing its type will cause it to be removed from " + t + " " + c + ".\n\n" +
+                   "Click OK if you are sure you want to change the type of this dataset.");
   };
 
 
