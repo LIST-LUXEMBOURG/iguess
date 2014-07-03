@@ -4,6 +4,7 @@
 
 <script type="text/javascript">
 
+  // User has clicked on the [x] on a tag... remove it!
   var deleteTagClickHandler = function(ctrl)
   {
     var serverUrl         = ctrl.data('url');
@@ -66,7 +67,7 @@
 
   var addDeleteTagClickHander = function(isProcessingTag) 
   {
-    // Add a handler to delete tags when clicked on
+    // Add a handler to delete tags when user clicks on the [x]
     if(isProcessingTag)
       $('.tag-delete-button')       .on('click', function(event){ deleteTagClickHandler($(this)) });
     else
@@ -166,6 +167,8 @@
   %>   
 
 
+  // If the user is removing a tag that will disassociate a dataset with a modconfig, ask the user
+  // to confirm
   var confirmDeleteTag = function(serverUrl, datasetIdentifier, tagVal) 
   {
     if(TagIsInUse[tagVal] && TagIsInUse[tagVal][cssEscape(serverUrl + datasetIdentifier)] > 0) {
