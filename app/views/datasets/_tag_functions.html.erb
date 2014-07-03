@@ -171,13 +171,13 @@
   // to confirm
   var confirmDeleteTag = function(serverUrl, datasetIdentifier, tagVal) 
   {
-    var id = cssEscape(serverUrl + datasetIdentifier);
+    var key = cssEscape(serverUrl + datasetIdentifier);
 
-    if(!TagIsInUse[tagVal] || !TagIsInUse[tagVal][id]) 
+    if(!TagIsInUse[tagVal] || !TagIsInUse[tagVal][key]) 
       return true;    // Delete away!
 
     // Tag is in use -- show warning
-    var useCount = TagIsInUse[tagVal][id];
+    var useCount = TagIsInUse[tagVal][key];
     var c        = (useCount == 1) ? "configuration" : "configurations";
     var t        = (useCount == 1) ? "this"          : "these";
     var th       = (useCount == 1) ? "it"            : "them";
