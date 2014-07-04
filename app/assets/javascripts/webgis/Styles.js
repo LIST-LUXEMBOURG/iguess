@@ -19,6 +19,25 @@
  * Date: 21-02-2013
  *
  * Properties and methods to manage layer styles.
+ * 
+ * Example of a WMS request using an existing SLD:
+ * 
+ * http://maps.iguess.tudor.lu/cgi-bin/mapserv?map=/srv/mapserv/MapFiles/AB_localOWS.map&
+ * LAYERS=ab_irra&
+ * FORMAT=image%2Fpng&
+ * SRSNAME=EPSG%3A3857&
+ * SRS=EPSG%3A3857&
+ * TRANSPARENT=true&
+ * SERVICE=WMS&
+ * VERSION=1.1.1&
+ * REQUEST=GetMap&
+ * STYLES=&
+ * BBOX=-235199.02920116,7789458.9691592,-232289.64481247,7792611.9965756&
+ * WIDTH=1218&
+ * HEIGHT=1320&
+ * SLD=http://maps.iguess.tudor.lu/sampleData/solar.sld
+ * 
+ * 
  */
 
 var WebGIS = WebGIS || { };
@@ -69,7 +88,7 @@ WebGIS.getStyle = function(layerName, type)
 	sld += "  <NamedLayer>\n";
 	sld += "    <Name>" + layerName + "</Name>\n";
 	sld += "     <UserStyle>\n";
-	sld += "      <Title>GeoServer SLD Cook Book: Simple point</Title>\n";
+	sld += "      <Title>A style for a layer</Title>\n";
 	sld += "		<FeatureTypeStyle>\n";
 	sld += "		 <Rule>\n";
 	sld += "		   <RasterSymbolizer>\n";
