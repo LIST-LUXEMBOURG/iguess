@@ -349,34 +349,32 @@ class DatasetsController < ApplicationController
   end
 
 
-  # Find any tags that look like the passed value... called via ajax
+  # Find any tags that look like the passed value... called via ajax -- is this actually used anymore?
 
-  def find_matching_tags
-    prefix = params[:prefix]
-    field_name = params[:field_name]
+  # def find_matching_tags
+  #   prefix = params[:prefix]
+  #   field_name = params[:field_name]
 
-    cityId = User.getCurrentCity(current_user, cookies).id
+  #   cityId = User.getCurrentCity(current_user, cookies).id
 
-    knownTags = DatasetTag.select("distinct tag")
-                          .joins(:dataset)
-                          .merge(Dataset.where(:city_id => cityId))
-                          .where("tag ilike :prefix", prefix: "#{prefix}%")
-                          .map {|d| d.tag }
+  #   knownTags = DatasetTag.select("distinct tag")
+  #                         .joins(:dataset)
+  #                         .merge(Dataset.where(:city_id => cityId))
+  #                         .where("tag ilike :prefix", prefix: "#{prefix}%")
+  #                         .map {|d| d.tag }
 
-    if knownTags.blank? then
-      taglist = '""'
-    else
-      taglist = '["' + knownTags.join('","') + '"]'
-    end
-
-    print "Taglist:", taglist
+  #   if knownTags.blank? then
+  #     taglist = '""'
+  #   else
+  #     taglist = '["' + knownTags.join('","') + '"]'
+  #   end
 
     
-    json = '{"data": [{"fieldname": "' + field_name + '", "matching_tags": ' + taglist + '} ] }'
+  #   json = '{"data": [{"fieldname": "' + field_name + '", "matching_tags": ' + taglist + '} ] }'
 
-    respond_to do |format|
-      format.json { render :json => json, :status => :ok }
-    end
-  end
+  #   respond_to do |format|
+  #     format.json { render :json => json, :status => :ok }
+  #   end
+  # end
 
 end

@@ -24,8 +24,8 @@ Iguess::Application.routes.draw do
   put "datasets/add_data_tag"
   put "datasets/add_data_folder_tag"
 
-  get "/datasets/check_name",         to: "datasets#check_name"
-  get "/datasets/find_matching_tags", to: "datasets#find_matching_tags"
+  get "/datasets/check_name"
+  # get "/datasets/find_matching_tags", to: "datasets#find_matching_tags"
 
   resources :datasets 
 
