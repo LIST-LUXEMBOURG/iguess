@@ -326,7 +326,8 @@ class DatasetsController < ApplicationController
   end
 
 
-  # See if there are any datasets with this name already registered
+  # See if there are any datasets with this name already registered.
+  # Returns "ok" if no other datasets are using the name, or "not ok" if the name is in use.
   def check_name
     requested_name = params[:name]
     field_name = params[:field_name]
@@ -336,9 +337,9 @@ class DatasetsController < ApplicationController
     datasets = Dataset.find_all_by_title_and_city_id(requested_name, @current_city.id).length
 
     if datasets == 0
-      status = 'ok' 
+      status = "ok" 
     else
-      status = 'not ok'
+      status = "not ok"
     end
 
     available = '{"data": [{"fieldname": "' + field_name + '", "status": "' + status + '"} ] }'
