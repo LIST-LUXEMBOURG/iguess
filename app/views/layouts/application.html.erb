@@ -69,7 +69,7 @@
 <% if params[:popup].nil? %>
 
   <div id="top_banner">
-    <%= if @IncludeFooter and not @site_details.top_banner_file.blank? then 
+    <%= if not @site_details.top_banner_file.blank? then 
       render "/home/" + @site_details.top_banner_file 
     end %>
 
