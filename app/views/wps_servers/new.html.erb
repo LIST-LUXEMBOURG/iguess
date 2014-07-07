@@ -1,10 +1,9 @@
 <h1>Register WPS Server</h1>
 
-
 <div id="error-list" class="explanation-problem" style="display: none"></div>
 
 <div class="explanation">
-  <p>blah blah</p>
+  <p>blah blah  http://wps.iguess.tudor.lu/cgi-bin/pywps.cgi </p>
 </div>
 
 <div class="url-form">
@@ -199,13 +198,17 @@
 
       var registered = RegisteredProcessList.hasObject(proc.identifier);
       $("#module-catalog").append(getProcessHtml(proc, registered));
+      console.log(getProcessHtml(proc, registered));
     }
-
-    addRegisterClickHandler();    // Activate the register/unregister controls 
 
     $(".server-info").show();
 
-    addSwitchboxHandler();    // Convert all our checkboxes into fancy switchboxes!
+    // Convert all our checkboxes into fancy switchboxes!
+    addSwitchboxHandler();      
+
+    // Activate the register/unregister controls  -- has to be added after SwitchboxHandler
+    addRegisterClickHandler();  
+
     initializeAccordion('#module-catalog > h2', '.catalog-item');
   };
 
@@ -302,73 +305,111 @@
 
   var CurrentServerUrl = "";
 
+  var registerProcess = function(thiiis, checkbox, process)
+  {
+    var processParams = "";
+
+    for(var i = 0, len = process.dataInputs.length; i < len; i++)
+    {
+      var param = process.dataInputs[i];
+      processParams += 
+        "&process_inputs[" + i + "][identifier]=" + param.identifier +
+        "&process_inputs[" + i + "][title]="      + param.title +
+        "&process_inputs[" + i + "][abstract]="   + param.abstract +
+        "&process_inputs[" + i + "][min_occurs]=" + param.min_occurs +
+        "&process_inputs[" + i + "][max_occurs]=" + param.max_occurs +
+        "&process_inputs[" + i + "][datatype]="   + (param["literalData"] ? param.literalData.dataType : "ComplexData");
+    }
+
+
+    for(var i = 0, len = process.processOutputs.length; i < len; i++)
+    {
+      var param = process.processOutputs[i];
+      processParams += 
+        "&process_outputs[" + i + "][identifier]=" + param.identifier +
+        "&process_outputs[" + i + "][title]="      + param.title +
+        "&process_outputs[" + i + "][abstract]="   + param.abstract +
+        "&process_outputs[" + i + "][datatype]="   + (param["literalData"] ? param.literalData.dataType : "ComplexData");
+    }
+
+
+    $.ajax({
+      type: "PUT",
+      url:  "<%= url_for(:controller=>:wps_processes, :action=>:register, :format=>:json) %>",
+      data: "cityId="      + "<%= raw @current_city.id %>" +
+            "&server_url="            + CurrentServerUrl +
+            "&server[url]="           + CurrentServerUrl +
+            "&server[title]="         + CurrentProbe.serverInfo.title +
+            "&server[abstract]="      + CurrentProbe.serverInfo.abstract +
+            "&server[provider_name]=" + CurrentProbe.serverInfo.provider_name +
+            "&server[contact_email]=" + CurrentProbe.serverInfo.contact_email +
+            "&server[contact_name]="  + CurrentProbe.serverInfo.contact_name +
+            "&process[identifier]="   + process.identifier +
+            "&process[title]="        + process.title +
+            "&process[abstract]="     + process.abstract +
+            processParams + 
+            "&serverDetails="         + encodeURIComponent(JSON.stringify(CurrentProbe.serverInfo)),
+      headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
+      success: function(data, status, jqXHR)  { 
+          checkbox.checked = true;
+          thiiis.toggleClass("checked");
+          console.log(thiiis);
+          alert(jqXHR.responseJSON.message);
+        },
+      error: function(jqXHR, textStatus, error) { alert("Error registering server: " + error); }
+    });
+  };
+
+
+  var unregisterProcess = function(thiiis, checkbox, process)
+  {
+    if(!confirm(
+      "Are you sure you want to unregister this process?\n\n" + 
+      "If you do, none of the functions will be available for new Module Configurations.\n\n" +
+      "Existing configurations will continue to work.")) 
+    {
+      e.preventDefault();
+      return;
+    }
+
+    // Let the server know this server is no longer registered -- to do this we mark
+    // the corresponding record in the wps-servers table as deleted.  We don't actually
+    //  delete it as there may be mod_configs that still depend on it.
+    $.ajax({
+      type: "PUT",
+      url:  "<%= url_for(:controller=>:wps_processes, :action=>:unregister, :format=>:json) %>",
+      data: "cityId="           + "<%= raw @current_city.id %>" +
+            "&server_url="      + CurrentServerUrl +
+            "&proc_identifier=" + process.identifier,
+      headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
+      success: function(data, status, jqXHR)  { 
+          checkbox.checked = false;
+          thiiis.toggleClass("checked");
+          alert(jqXHR.responseJSON.message);
+        },
+      error: function(jqXHR, textStatus, error) { alert("Error unregistering server: " + error); }
+    });
+  };
+
+
   var addRegisterClickHandler = function()
   {
     // When the toggle switch is clicked, check off / de-select the associated checkbox
     // Want to find this when we search for "registered_"
     $(".toggle").click(function(e) 
     {
-      var checkboxID = $(this).attr("ref");
-      var checkbox   = document.getElementById(checkboxID);
+      var checkboxId = $(this).attr("ref");
+      var checkbox   = document.getElementById(checkboxId);
+      var procIdentifier = getIdentifierFromCheckboxId(checkboxId);
+      var process = CurrentProbe.serverInfo.wps_processes[procIdentifier];
 
       var thiiis = $(this);   // Remember "this" for when the ajax requests return
 
-      if(checkbox.checked) {
-        // ===== Unregister WPS =====
+      if(checkbox.checked)
+       unregisterProcess(thiiis, checkbox, process);
 
-        // TODO: Check if this module is actually used
-        if(checkbox.checked && !confirm(
-          "Are you sure you want to unregister this process?\n\n" + 
-          "If you do, none of the functions will be available for new Module Configurations.\n\n" +
-          "Existing configurations will continue to work.")) 
-        {
-          e.preventDefault();
-          return;
-        }
-
-        // Let the server know this server is no longer registered -- to do this we mark
-        // the corresponding record in the wps-servers table as deleted.  We don't actually
-        //  delete it as there may be mod_configs that still depend on it.
-        $.ajax({
-          type: "PUT",
-          url:  "<%= url_for(:controller=>:wps_servers, :action=>:unregister, :format=>:json) %>",
-          data: "cityId="      + "<%= raw @current_city.id %>" +
-                "&server_url=" + CurrentServerUrl,
-          headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
-          success: function(data, status, jqXHR)  { 
-              checkbox.checked = false;
-              thiiis.toggleClass("checked");
-              alert(jqXHR.responseJSON.message);
-            },
-          error: function(jqXHR, textStatus, error) { alert("Error unregistering server: " + error); }
-        });
-
-      } else {
-        // ===== Register WPS =====
-
-        $.ajax({
-          type: "PUT",
-          url:  "<%= url_for(:controller=>:wps_servers, :action=>:register, :format=>:json) %>",
-          data: "cityId="      + "<%= raw @current_city.id %>" +
-                "&server_url="            + CurrentServerUrl +
-                "&server[url]="           + CurrentServerUrl +
-                "&server[title]="         + CurrentProbe.serverInfo.title +
-                "&server[abstract]="      + CurrentProbe.serverInfo.abstract +
-                "&server[provider_name]=" + CurrentProbe.serverInfo.provider_name +
-                "&server[contact_email]=" + CurrentProbe.serverInfo.contact_email +
-                "&server[contact_name]="  + CurrentProbe.serverInfo.contact_name +
-                "&serverDetails="         + encodeURIComponent(JSON.stringify(CurrentProbe.serverInfo)) +
-                "&server[city_id]="       + "<%= raw @current_city.id %>",
-          headers: { "X-CSRF-Token": "<%= form_authenticity_token.to_s %>" },
-          success: function(data, status, jqXHR)  { 
-              checkbox.checked = true;
-              thiiis.toggleClass("checked");
-              console.log(thiiis);
-              alert(jqXHR.responseJSON.message);
-            },
-          error: function(jqXHR, textStatus, error) { alert("Error registering server: " + error); }
-        });
-      }
+      else 
+        registerProcess(thiiis, checkbox, process);
 
       e.preventDefault();
 

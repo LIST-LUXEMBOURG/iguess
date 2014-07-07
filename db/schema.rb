@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140704123155) do
+ActiveRecord::Schema.define(:version => 20140707161907) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -347,6 +347,7 @@ ActiveRecord::Schema.define(:version => 20140704123155) do
     t.text     "abstract"
     t.datetime "last_seen"
     t.boolean  "alive"
+    t.integer  "city_id"
   end
 
   create_table "wps_servers", :force => true do |t|
@@ -365,5 +366,7 @@ ActiveRecord::Schema.define(:version => 20140704123155) do
     t.boolean  "deleteable",    :default => true,  :null => false
     t.boolean  "deleted",       :default => false, :null => false
   end
+
+  add_index "wps_servers", ["url"], :name => "index_wps_servers_on_url", :unique => true
 
 end

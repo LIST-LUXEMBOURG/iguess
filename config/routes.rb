@@ -9,14 +9,11 @@ Iguess::Application.routes.draw do
   resources :cities
 
 
-  resources :wps_servers do
-    collection do
-      put "register"
-      put "unregister"
-    end
-  end
-
+  put "wps_processes/register"
+  put "wps_processes/unregister"
   get "wps_processes/process_query"
+
+  
   get "datasets/dataset_query"
 
   # Tag handling

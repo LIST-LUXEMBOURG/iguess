@@ -94,13 +94,6 @@
   var LOCAL_SRS = '<%= @current_city.srs %>';
 
 
-  var getLayerNameFromCheckboxId = function(id)
-  {
-    // Remove 'registered_' from the front of the string
-  	return id.substring('registered_'.length);	
-  };
-
-
   var wfsProcessingComplete = 0;
   var wmsProcessingComplete = 0;
   var wcsProcessingComplete = 0;  
@@ -541,7 +534,7 @@
     {
       var checkboxID        = $(this).attr("ref");
       var checkbox          = document.getElementById(checkboxID);
-      var datasetIdentifier = getLayerNameFromCheckboxId(checkboxID);
+      var datasetIdentifier = getIdentifierFromCheckboxId(checkboxID);
       
       var serverUrl         = getServerUrl();
 

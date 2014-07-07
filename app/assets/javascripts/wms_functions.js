@@ -454,3 +454,10 @@ CRS.hasCRS = function(crsList, crs)
     
   return false;
 };
+
+
+var getIdentifierFromCheckboxId = function(id)
+{
+  // Remove 'registered_' from the front of the string
+  return id.substring('registered_'.length);  
+};
