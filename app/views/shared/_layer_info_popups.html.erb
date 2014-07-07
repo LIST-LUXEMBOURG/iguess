@@ -141,7 +141,18 @@
       <div>
         <!-- return false; prevents underlying page from scrolling when -->
         <a href="#" class="show-details" onclick="return false;">Technical details >>></a>
-      </div>    
+      </div> 
+      <br>
+      <div style="overflow:hidden" class="styling">
+        <div class="technical-details-header">Styling</div>
+        <dl>
+          <dt>Hello !!!!!!!!11</dt>
+          <dt>Choose a layer style:</dt>
+        </dl>
+      </div>
+      <div>
+        <a href="#" class="show-styling" onclick="return false;">Styling >>></a>
+      </div>   
     </div>
   <% end %>
 </div>
@@ -160,6 +171,16 @@
     el.click(function(){ hideDetails(); });
     el.html('<<< Hide details');
   };
+  
+    var showStyling = function() {
+    $('.styling').show(); 
+
+    var el = $('.show-styling');
+
+    el.unbind("click");
+    el.click(function(){ hideStyling(); });
+    el.html('<<< Hide styling');
+  };
 
 
   var hideDetails = function() {
@@ -171,11 +192,22 @@
     el.click(function(){ showDetails(); });
     el.html('Technical details >>>');
   };
+  
+  var hideStyling = function() {
+    $('.styling').hide();
+
+    var el = $('.show-styling');
+
+    el.unbind("click");
+    el.click(function(){ showStyling(); });
+    el.html('Styling >>>');
+  };
 
 
   var activateOverlays = function() {
     $('span[rel]').overlay();                             // Set up the layer info overlays
     $('span[rel]').click(function(){ hideDetails(); });
+    $('span[rel]').click(function(){ hideStyling(); });
   };
 
 
