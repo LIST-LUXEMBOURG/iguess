@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140703102150) do
+ActiveRecord::Schema.define(:version => 20140704123155) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -211,14 +211,14 @@ ActiveRecord::Schema.define(:version => 20140703102150) do
   end
 
   create_table "datasets", :force => true do |t|
-    t.string   "server_url",                       :null => false
-    t.string   "identifier",                       :null => false
+    t.string   "server_url",                         :null => false
+    t.string   "identifier",                         :null => false
     t.integer  "city_id"
-    t.boolean  "finalized",     :default => true,  :null => false
-    t.datetime "created_at",                       :null => false
-    t.datetime "updated_at",                       :null => false
+    t.boolean  "finalized",       :default => true,  :null => false
+    t.datetime "created_at",                         :null => false
+    t.datetime "updated_at",                         :null => false
     t.text     "service"
-    t.boolean  "published",     :default => false
+    t.boolean  "published",       :default => false
     t.text     "title"
     t.text     "abstract"
     t.datetime "last_seen"
@@ -233,6 +233,9 @@ ActiveRecord::Schema.define(:version => 20140703102150) do
     t.text     "resolution_y"
     t.boolean  "local_srs"
     t.text     "bbox_srs"
+    t.string   "style_attribute"
+    t.float    "style_min"
+    t.float    "style_max"
   end
 
   create_table "geometry_columns", :id => false, :force => true do |t|
@@ -289,6 +292,7 @@ ActiveRecord::Schema.define(:version => 20140703102150) do
     t.text   "meta_keywords"
     t.text   "top_banner_file"
     t.text   "tab_list"
+    t.text   "additional_meta_tags"
   end
 
   create_table "sites", :force => true do |t|
@@ -303,6 +307,14 @@ ActiveRecord::Schema.define(:version => 20140703102150) do
     t.integer "auth_srid"
     t.string  "srtext",    :limit => 2048
     t.string  "proj4text", :limit => 2048
+  end
+
+  create_table "styles", :force => true do |t|
+    t.string   "max_colour"
+    t.string   "min_colour"
+    t.integer  "num_classes"
+    t.datetime "created_at",  :null => false
+    t.datetime "updated_at",  :null => false
   end
 
   create_table "users", :force => true do |t|

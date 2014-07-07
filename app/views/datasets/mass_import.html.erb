@@ -192,6 +192,30 @@
   };
 
 
+   // Only used below
+  var makeTagListContainer = function(urlId, contents1, contents2)
+  {
+    return '<span class="folder-taglist-deletable-' + urlId + ' taglist">' + contents1 + '</span>' +
+           '<span class="taglist-deletable-'        + urlId + ' taglist">' + contents2 + '</span>';
+  };
+
+
+  // Generate a tag list for the specified layer
+  // regLyr is an object that has tags and folder_tags fields
+  var makeTagList = function(layer, regLyr, urlId) 
+  {
+    if(!regLyr)
+      return makeTagListContainer(urlId, "", "");    // Layer not registered
+
+    if(!regLyr.tags && !regLyr.folder_tags)
+      return makeTagListContainer(urlId, "", "");    // Layer registered, but has no tags
+
+    return makeTagListContainer(urlId,
+              createTagList(regLyr.folder_tags, true, layer.serverUrl, layer.identifier, 'folder-tag'),
+              createTagList(regLyr.tags,        true, layer.serverUrl, layer.identifier, 'tag'));
+  };
+
+
   var createTagControl = function(layer, regLyr, urlId, tagEntryFieldName, 
                                   tagPickerControlClass)
   {
@@ -214,7 +238,7 @@
     var enabled = true && regLyr;
 
     return '<div class="tag-control">' +
-             makeTagList(layer, regLyr, urlId, "No tags") +
+             makeTagList(layer, regLyr, urlId) +
              createFolderTagControl(layer, tagEntryFieldName, tagPickerControlClass, enabled) +
              makeTagPickerControl(layer, tagPickerControlClass, service, enabled) +
            '</div>';

@@ -58,13 +58,23 @@ class DatasetsController < ApplicationController
   end
 
 
-  # Called when user registers a dataset by clicking on the "Register" button;
-  #    always called via ajax with json response type
-  def create
+  def check_user_login
     if not user_signed_in?    # Should always be true... but if not, return error and bail
       respond_to do |format|
         format.json { render :text => "You must be logged in!", :status => 403 }
       end
+
+      return false
+    end
+
+      return true
+  end
+
+
+  # Called when user registers a dataset by clicking on the "Register" button;
+  #    always called via ajax with json response type
+  def create
+    if not check_user_login
       return
     end
 
@@ -151,10 +161,7 @@ class DatasetsController < ApplicationController
   # PUT /datasets/1
   # PUT /datasets/1.json
   def update
-    if not user_signed_in?
-      respond_to do |format|
-        format.json { render :text => "You must be logged in!", :status => 403 }
-      end
+    if not check_user_login
       return
     end
 
@@ -174,42 +181,9 @@ class DatasetsController < ApplicationController
       return
     end
 
-    # Add or delete a tag
-    if params[:id] == "add_data_tag"        or params[:id] == "del_tag" or
-       params[:id] == "add_data_folder_tag" then
-      tagVal = params[:tag_val].strip    # Tag we are either adding or deleting
-
-      # Add a processing tag
-      if params[:id] == "add_data_tag" then
-        makeTag(@dataset, tagVal)
-        returnTags = @dataset.getProcessingTagList()
-      # Add a folder tag
-      elsif params[:id] == "add_data_folder_tag" then
-        makeFolderTag(@dataset, tagVal)
-        returnTags = @dataset.getFolderTagList()
-
-      # Delete tag
-      elsif params[:id] == "del_tag" then
-        if params[:tag_type] == "folder"   # Will be "proc" or "folder"
-          tags = @dataset ? @dataset.dataset_folder_tags.find_all_by_folder_tag(tagVal) : nil
-        else
-          tags = @dataset ? @dataset.dataset_tags.find_all_by_tag(tagVal) : nil
-        end
-
-        if tags then
-          tags.map {|t| t.delete }    # Handles tag in db more than once as result of bug elsewhere
-        end
-
-        returnTags = params[:tag_type] == "folder" ? @dataset.getFolderTagList() :
-                                                     @dataset.getProcessingTagList()
-      end
-
-      respond_to do |format|
-        format.json { render :json => returnTags, :status => :ok }
-      end
 
     # User checked or unchecked publish checkbox (NOT the register dataset checkbox!!)
-    elsif params[:id] == "publish"   
+    if params[:id] == "publish"   
       if not User.canAccessObject(current_user, @dataset)
         respond_to do |format|
           format.json { render :text => "You don't have permissions for this object!", :status => 403 }
@@ -283,19 +257,89 @@ class DatasetsController < ApplicationController
   end
 
 
+  # User is deleting a tag
+  def del_tag
+    if not check_user_login
+      return
+    end
+
+    @current_city = User.getCurrentCity(current_user, cookies)
+    @dataset = Dataset.find_by_identifier_and_server_url_and_city_id(params[:dataset][:identifier], 
+                                                                 params[:dataset][:server_url], 
+                                                                 @current_city.id)
+
+    tagVal = params[:tag_val].strip    # Tag we are deleting
+
+    if params[:tag_type] == "folder"   # Will be "proc" or "folder"
+      tags = @dataset ? @dataset.dataset_folder_tags.find_all_by_folder_tag(tagVal) : nil
+    else
+      tags = @dataset ? @dataset.dataset_tags.find_all_by_tag(tagVal) : nil
+    end
+
+    if tags then
+      tags.map {|t| t.delete }    # Handles tag in db more than once as result of bug elsewhere
+    end
+
+    returnTags = params[:tag_type] == "folder" ? @dataset.getFolderTagList() :
+                                                 @dataset.getProcessingTagList()
+
+    respond_to do |format|
+      format.json { render :json => returnTags, :status => :ok }
+    end                                                 
+  end
+
+
+  # Add a processing tag
+  def add_data_tag
+    if not check_user_login
+      return
+    end
+
+    @current_city = User.getCurrentCity(current_user, cookies)
+    @dataset = Dataset.find_by_identifier_and_server_url_and_city_id(params[:dataset][:identifier], 
+                                                                 params[:dataset][:server_url], 
+                                                                 @current_city.id)
+
+    makeTag(@dataset, params[:tag_val].strip)
+
+    respond_to do |format|
+      format.json { render :json => @dataset.getProcessingTagList(), :status => :ok }
+    end
+  end
+
+
+  # Add a folder tag
+  def add_data_folder_tag
+    if not check_user_login
+      return
+    end
+
+    @current_city = User.getCurrentCity(current_user, cookies)
+    @dataset = Dataset.find_by_identifier_and_server_url_and_city_id(params[:dataset][:identifier], 
+                                                                 params[:dataset][:server_url], 
+                                                                 @current_city.id)
+    makeFolderTag(@dataset, params[:tag_val].strip)
+
+    respond_to do |format|
+      format.json { render :json => @dataset.getFolderTagList(), :status => :ok }
+    end
+  end
+
+
+  # See if there are any datasets with this name already registered.
+  # Returns "ok" if no other datasets are using the name, or "not ok" if the name is in use.
   def check_name
     requested_name = params[:name]
     field_name = params[:field_name]
 
     @current_city = User.getCurrentCity(current_user, cookies)
 
-    # See if there are any datasets with this name already registered
     datasets = Dataset.find_all_by_title_and_city_id(requested_name, @current_city.id).length
 
     if datasets == 0
-      status = 'ok' 
+      status = "ok" 
     else
-      status = 'not ok'
+      status = "not ok"
     end
 
     available = '{"data": [{"fieldname": "' + field_name + '", "status": "' + status + '"} ] }'
@@ -306,34 +350,32 @@ class DatasetsController < ApplicationController
   end
 
 
-  # Find any tags that look like the passed value... called via ajax
+  # Find any tags that look like the passed value... called via ajax -- is this actually used anymore?
 
-  def find_matching_tags
-    prefix = params[:prefix]
-    field_name = params[:field_name]
+  # def find_matching_tags
+  #   prefix = params[:prefix]
+  #   field_name = params[:field_name]
 
-    cityId = User.getCurrentCity(current_user, cookies).id
+  #   cityId = User.getCurrentCity(current_user, cookies).id
 
-    knownTags = DatasetTag.select("distinct tag")
-                          .joins(:dataset)
-                          .merge(Dataset.where(:city_id => cityId))
-                          .where("tag ilike :prefix", prefix: "#{prefix}%")
-                          .map {|d| d.tag }
+  #   knownTags = DatasetTag.select("distinct tag")
+  #                         .joins(:dataset)
+  #                         .merge(Dataset.where(:city_id => cityId))
+  #                         .where("tag ilike :prefix", prefix: "#{prefix}%")
+  #                         .map {|d| d.tag }
 
-    if knownTags.blank? then
-      taglist = '""'
-    else
-      taglist = '["' + knownTags.join('","') + '"]'
-    end
-
-    print "Taglist:", taglist
+  #   if knownTags.blank? then
+  #     taglist = '""'
+  #   else
+  #     taglist = '["' + knownTags.join('","') + '"]'
+  #   end
 
     
-    json = '{"data": [{"fieldname": "' + field_name + '", "matching_tags": ' + taglist + '} ] }'
+  #   json = '{"data": [{"fieldname": "' + field_name + '", "matching_tags": ' + taglist + '} ] }'
 
-    respond_to do |format|
-      format.json { render :json => json, :status => :ok }
-    end
-  end
+  #   respond_to do |format|
+  #     format.json { render :json => json, :status => :ok }
+  #   end
+  # end
 
 end

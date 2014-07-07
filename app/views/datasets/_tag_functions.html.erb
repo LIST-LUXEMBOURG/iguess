@@ -4,6 +4,7 @@
 
 <script type="text/javascript">
 
+  // User has clicked on the [x] on a tag... remove it!
   var deleteTagClickHandler = function(ctrl)
   {
     var serverUrl         = ctrl.data('url');
@@ -66,7 +67,7 @@
 
   var addDeleteTagClickHander = function(isProcessingTag) 
   {
-    // Add a handler to delete tags when clicked on
+    // Add a handler to delete tags when user clicks on the [x]
     if(isProcessingTag)
       $('.tag-delete-button')       .on('click', function(event){ deleteTagClickHandler($(this)) });
     else
@@ -74,43 +75,33 @@
   };
 
 
-  // This will update any tag lists composed of tags that do have a delete control, such as 
-  // the tags entries on the dataset info popups.  Note that we do not combine folder tags and
-  // processing tags, and do want to add a 'No Tags' placeholder if the list is empty.
-  var doUpdateDeleteableTags = function(serverUrl, datasetIdentifier, id, tags, tagclass)
+  // This will update any tag lists, such as the Tags column of the Registered Datasets screen.  
+  // Note that we combine folder tags and // processing tags, and do not want to add a 'No Tags' 
+  // placeholder if the list is empty.
+  var doUpdateTags = function(serverUrl, datasetIdentifier, id, tags, tagclass, deleteable)
   {
     var urlId = cssEscape(serverUrl + datasetIdentifier);
+    var idAppendage = deleteable ? "-deletable-" : "-";
 
-    $('.' + id + '-deletable-' + urlId).html(
-          createTagList(tags, true, serverUrl, datasetIdentifier, tagclass));
+    $('.' + id + idAppendage + urlId).html(
+          createTagList(tags, deleteable, serverUrl, datasetIdentifier, tagclass));
 
-    addDeleteTagClickHander(tagclass == 'tag');
-  };
-
-
-  // This will update any tag lists composed of tags that do not have a delete control, such as 
-  // the Tags column of the Registered Datasets screen.  Note that we combine folder tags and
-  // processing tags, and do not want to add a 'No Tags' placeholder if the list is empty.
-  var doUpdateNonDeleteableTags = function(serverUrl, datasetIdentifier, id, tags, tagclass)
-  {
-    var urlId = cssEscape(serverUrl + datasetIdentifier);
-
-    $('.' + id + '-' + urlId).html(
-          createTagList(tags, false, serverUrl, datasetIdentifier, tagclass));
+    if(deleteable)
+      addDeleteTagClickHander(tagclass == 'tag');
   };
 
 
   var updateTags = function(serverUrl, datasetIdentifier, tags)
   {
-    doUpdateDeleteableTags   (serverUrl, datasetIdentifier, 'taglist', tags, 'tag');
-    doUpdateNonDeleteableTags(serverUrl, datasetIdentifier, 'taglist', tags, 'tag');
+    doUpdateTags(serverUrl, datasetIdentifier, 'taglist', tags, 'tag', true);
+    doUpdateTags(serverUrl, datasetIdentifier, 'taglist', tags, 'tag', false);
   };
 
 
   var updateFolderTags = function(serverUrl, datasetIdentifier, tags)
   {
-    doUpdateDeleteableTags   (serverUrl, datasetIdentifier, 'folder-taglist', tags, 'folder-tag');
-    doUpdateNonDeleteableTags(serverUrl, datasetIdentifier, 'folder-taglist', tags, 'folder-tag');
+    doUpdateTags(serverUrl, datasetIdentifier, 'folder-taglist', tags, 'folder-tag', true);
+    doUpdateTags(serverUrl, datasetIdentifier, 'folder-taglist', tags, 'folder-tag', false);
   };
 
 
@@ -166,20 +157,25 @@
   %>   
 
 
+  // If the user is removing a tag that will disassociate a dataset with a modconfig, ask the user
+  // to confirm.  Note to improve things, we do have the databaseId of each dataset on the registerDataset 
+  // screen in RegisteredDatasetList[datasetIdentifier].id.  Maybe that will help.
   var confirmDeleteTag = function(serverUrl, datasetIdentifier, tagVal) 
   {
-    if(TagIsInUse[tagVal] && TagIsInUse[tagVal][cssEscape(serverUrl + datasetIdentifier)] > 0) {
-      var ct = TagIsInUse[tagVal][cssEscape(serverUrl + datasetIdentifier)];
-      var c  = (ct == 1) ? "configuration" : "configurations";
-      var t  = (ct == 1) ? "this"          : "these";
-      var th = (ct == 1) ? "it"            : "them";
+    var key = cssEscape(serverUrl + datasetIdentifier);
 
-      return confirm("This dataset is in use by " + ct + " " + c + ". " +
-                     "Changing its type will cause it to be removed from " + t + " " + c + ".\n\n" +
-                     "Click OK if you are sure you want to change the type of this dataset.");
-    }
-    // else...
-    return true;
+    if(!TagIsInUse[tagVal] || !TagIsInUse[tagVal][key]) 
+      return true;    // Delete away!
+
+    // Tag is in use -- show warning
+    var useCount = TagIsInUse[tagVal][key];
+    var c        = (useCount == 1) ? "configuration" : "configurations";
+    var t        = (useCount == 1) ? "this"          : "these";
+    var th       = (useCount == 1) ? "it"            : "them";
+
+    return confirm("This dataset is in use by " + useCount + " " + c + ". " +
+                   "Changing its type will cause it to be removed from " + t + " " + c + ".\n\n" +
+                   "Click OK if you are sure you want to change the type of this dataset.");
   };
 
 
