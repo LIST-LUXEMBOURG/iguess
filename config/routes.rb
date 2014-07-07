@@ -13,7 +13,9 @@ Iguess::Application.routes.draw do
   put "wps_processes/unregister"
   get "wps_processes/process_query"
 
-  
+  resources :wps_servers
+
+
   get "datasets/dataset_query"
 
   # Tag handling
