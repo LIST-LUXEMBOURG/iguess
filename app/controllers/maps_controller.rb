@@ -7,6 +7,8 @@ class MapsController < ApplicationController
     @current_city = (City.find_by_name(cookies["city"]) or City.first)
 
     @datasets = Dataset.all
+    
+    @styles = Style.all
 
     @IncludeFooter = false
 

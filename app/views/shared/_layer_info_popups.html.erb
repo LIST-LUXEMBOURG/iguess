@@ -146,8 +146,14 @@
       <div style="overflow:hidden" class="styling">
         <div class="technical-details-header">Styling</div>
         <dl>
-          <dt>Hello !!!!!!!!11</dt>
-          <dt>Choose a layer style:</dt>
+          <dt>Select a choropleth:</dt>
+          <dd>
+          <table cellspacing=16px><tr>
+          <% @styles.each do |s| %>
+          	<td><%=	raw s.getProto(s) %></td>
+          <% end %>
+          </tr></table>
+          </dd>
         </dl>
       </div>
       <div>
