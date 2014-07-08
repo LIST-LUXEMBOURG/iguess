@@ -23,12 +23,16 @@ Iguess::Application.routes.draw do
   put "datasets/add_data_tag"
   put "datasets/add_data_folder_tag"
 
+  # Bookmark management
+  put "dataserver_bookmarks/create"
+  put "dataserver_bookmarks/destroy"
+
   get "/datasets/check_name"
   # get "/datasets/find_matching_tags", to: "datasets#find_matching_tags"
 
   resources :datasets 
 
-  resources :dataserver_bookmarks
+  # resources :dataserver_bookmarks
   
   resources :config_datasets
   

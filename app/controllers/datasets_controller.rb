@@ -246,6 +246,9 @@ class DatasetsController < ApplicationController
     # current_user should always be set here
     @current_city = User.getCurrentCity(current_user, cookies)
 
+    @bookmark_type = 1    # 1 ==> Dataserver bookmarks
+    @bookmarks = DataserverBookmark.find_all_by_bookmark_type_and_city_id(@bookmark_type, @current_city.id)
+
     # Only used for generating a list of registered datasets
     @datasets = Dataset.find_all_by_city_id_and_finalized(@current_city.id, true)
 

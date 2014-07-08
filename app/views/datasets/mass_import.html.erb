@@ -15,31 +15,7 @@
 </div>
 
 
-<div class="url-form">
-  <table class="url-form">
-      <tr>
-      <td>
-        <input id="server_url" type="text" name="format" 
-               value="" placeholder="Enter data-server URL or select a preset"/>
-        <button type="button" id="load_services">Load</button>
-      </td>
-    </tr><tr>
-      <td>
-        <select id="url-preset-select"  style="width: 100%">
-          <option value="">Select a preset</option>
-          <%= raw @current_city.dataserver_bookmark
-                               .map { |m| '<option value="' + m.url + '">' + m.url + '</option>' }
-                               .join(" ") %>
-        </select>
-      </td>
-    </tr><tr>
-    <td colspan=2>
-      <a href="#" id="save-preset" onclick="return false;">Save As Preset</a>
-      <a href="#" id="delete-preset" onclick="return false;">Delete From Presets</a>
-    </td>
-    </tr>
-  </table>
-</div>
+<%= render :partial => 'shared/server_url_entry_control.html.erb' %>
 
 
 <div class="services-display">
@@ -446,7 +422,7 @@
 
           var lyr = new OpenLayers.Layer.WMS(
                   layer.title,
-                  getServerUrl(),
+                  Presets.getServerUrl(),
                   { layers:  layer.identifier,
                     format:  "image/gif" 
                   }
@@ -536,7 +512,7 @@
       var checkbox          = document.getElementById(checkboxID);
       var datasetIdentifier = getIdentifierFromCheckboxId(checkboxID);
       
-      var serverUrl         = getServerUrl();
+      var serverUrl         = Presets.getServerUrl();
 
       var configCount = RegisteredDatasetList[datasetIdentifier] ?
                               RegisteredDatasetList[datasetIdentifier].configCount : 0;
@@ -694,54 +670,6 @@
     });
 
     return tags;
-  };
-
-
-  // Save current value of text box to database
-  var savePreset = function()
-  {
-    var url = getServerUrl();
-    $.ajax({
-      type: 'POST',      // POST combined with url below triggers "create" action on controller
-      url: '<%= url_for(:controller => 'dataserver_bookmark', :action => 'create', :format=>:json) %>',
-      data: 'city[id]=' + <%= @current_city.id %> +
-            '&url=' + url,
-      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
-                 'Content-Type': 'application/json' */},
-      success: function(data) { 
-        $('#url-preset-select').append('<option value="' + url + '">' + url + '</option>');
-        updateButtonVisibility();
-      },
-      error:   function(jqXHR, status, error) { 
-                  ajaxErrorHandler(jqXHR, status, error, "Could not save preset!");
-               }
-    });
-  };
-
-
-  // Delete current value of text box to database
-  var deletePreset = function()
-  {
-    if(!confirm('Do really want to permanently delete this preset?'))
-      return;
-
-    var url = getServerUrl();
-    $.ajax({
-      type: 'DELETE',      // DELETE combined with url below triggers "destroy" action on controller
-      url: '<%= url_for(:controller => 'dataserver_bookmark', :action => 'destroy', :format=>:json) %>',
-      data: 'city[id]=' + <%= @current_city.id %> +
-            '&url=' + url,
-      headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
-                 'Content-Type': 'application/json' */},
-      success: function(data) { 
-        $('#url-preset-select option[value="' + url + '"]').remove();   // Delete the option
-        $('#server_url').val('');                                       // Clear the input box
-        updateButtonVisibility();
-      },
-      error: function(jqXHR, status, error) { 
-                  ajaxErrorHandler(jqXHR, status, error, "Could not delete preset!");
-               }
-    });
   };
 
 

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140707161907) do
+ActiveRecord::Schema.define(:version => 20140708133428) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -187,6 +187,7 @@ ActiveRecord::Schema.define(:version => 20140707161907) do
   create_table "dataserver_bookmarks", :force => true do |t|
     t.integer "city_id"
     t.text    "url"
+    t.integer "bookmark_type"
   end
 
   create_table "dataservers", :force => true do |t|
