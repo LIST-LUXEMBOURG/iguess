@@ -57,8 +57,11 @@
                 <% @mod_configs.each do |m| %> 
                   <% ok = (m.wps_process && m.wps_process.alive) %>
                   <tr> 
-                    <td><%= link_to(m.name, m) %>
-                      <% if not ok %>
+                    <td>
+                      <% if ok %>
+                        <%= link_to(m.name, m) %>
+                      <% else %>
+                        <%= m.name %>
                         <div class="error-msg module-not-found">Process not found on server -- It is either offline or has been deleted or renamed</div>
                         <%= link_to m, 
                                     :method => :delete,

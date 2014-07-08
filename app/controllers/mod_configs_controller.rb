@@ -17,10 +17,10 @@ class ModConfigsController < ApplicationController
     # instance (i.e. Lamilo or iGUESS).
     if user_signed_in? then
       @wps_processes = WpsProcess.joins(:wps_server)
-                                 .where('wps_servers.city_id' => @current_city.id, :alive => :true)
+                                 .where('city_id' => @current_city.id, :alive => :true)
                                  .order('title, identifier')   # For catalog
 
-      @wps_servers   = WpsServer.find_all_by_city_id_and_alive(@current_city.id, :true)
+      @wps_servers   = WpsServer.find_all_by_alive_and_deleted(:true, :false)
     else    # User not signed in!
       @wps_processes = WpsProcess.joins(:wps_server, {:wps_server => :city})
                                  .where(:cities => {:site_details_id => @site_details.id })
