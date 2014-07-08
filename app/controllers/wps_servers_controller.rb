@@ -32,8 +32,9 @@ class WpsServersController < ApplicationController
       return
     end
 
-    @current_city    = User.getCurrentCity(current_user, cookies)
-    @wps_server = WpsServer.new
+    @current_city  = User.getCurrentCity(current_user, cookies)
+    @bookmark_type = 2    # 2 ==> WPS bookmarks
+    @bookmarks = DataserverBookmark.find_all_by_bookmark_type_and_city_id(@bookmark_type, @current_city.id)
 
     respond_to do |format|
       format.html # new.html.erb

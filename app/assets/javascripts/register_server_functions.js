@@ -2,12 +2,6 @@
 // RegisterDatasets page and the RegisterWpsServer page
 
 
-var pageHasPresets = function()
-{
-  return $("#url-preset-select").length > 0;
-};
-
-
 // Called by ready functions on parent pages 
 var onLoadServicesPageReady = function()
 {
@@ -18,88 +12,14 @@ var onLoadServicesPageReady = function()
   // Register some event handlers for our controls
 
   // What happens when URL entry box changes or loses focus?
-  $('#server_url').keyup(updateButtonVisibility);
   $('#server_url').focus(function() { $('#load_services').html('Load'); });
 
   // User clicked the Load button
   $('#load_services').click(loadDataLayers);    
 
-
-  if(pageHasPresets()) {
-    $('#save-preset').hide();     
-    $('#delete-preset').hide();
-
-    $('#save-preset').click(savePreset);
-    $('#delete-preset').click(deletePreset);
-
-    // What to do if the user selects a preset
-    $('#url-preset-select').change(function() { $("#server_url").val($(this).val()); 
-                                                $(this).val(""); 
-                                                updateButtonVisibility();
-                                              });
-  }
 };
 
 
-// Grabs the server URL from the URL input entry box
-var getServerUrl = function() 
-{ 
-  return $("#server_url").val().trim(); 
-};
-
-
-var updatePresetVisibility = function(serverUrl)
-{
-  // Nothing to do if this page has no presets
-  if(!pageHasPresets())
-    return;
-
-  if(serverUrl === "") {
-    $("#save-preset").hide();
-    $("#delete-preset").hide();
-  } 
-  else {
-    var found = false;
-
-    // Check if url is already on the preset list.  If not, add a save preset button.
-    $("#url-preset-select > option").each(function() {
-      if(this.value.trim() == serverUrl) 
-        found = true;
-    });
-
-
-    if(found) {    
-      $('#save-preset').hide();
-      $('#delete-preset').show();
-    }
-    else {
-      $('#save-preset').show();
-      $('#delete-preset').hide();
-    }
-  }
-};
-
-
-var updateButtonVisibility = function()
-{
-  var serverUrl = getServerUrl();
-
-  updatePresetVisibility(serverUrl);
-
-  if(serverUrl === "") 
-    $('#load_services').attr('disabled', true);
-
-  else if(serverUrl === currentlyLoadedUrl) {
-    $('#load_services').html('Reload')
-                       .attr('disabled', false);
-  }
-  else {
-    $('#load_services').html('Load')
-                       .attr('disabled', false);
-  }
-};
-
-var currentlyLoadedUrl = "";
 var discoveredLayers = {};
 
 // Prevent us from being swamped by the same error message over and over when working with WMS
@@ -108,15 +28,13 @@ var alreadyShownWmsError = false;
 
 var CurrentProbe = null;
 
-// This gets called when the Remote Data Server URL is changed
+// This gets called when the Remote Data Server URL is changed or the Load button is clicked
 var loadDataLayers = function()
 {
-  var serverUrl = getServerUrl();
-  currentlyLoadedUrl = serverUrl;
+  var serverUrl = Presets.getServerUrl();
+  Presets.setCurrentlyLoadedUrl(serverUrl);
 
-  updateButtonVisibility();
-
-  if(serverUrl === "")  // No URL -- nothing more to do!
+  if(serverUrl == "")  // No URL -- nothing more to do!
     return;   
 
   // Reset various displays

@@ -1,0 +1,174 @@
+<div class="url-form">
+  <table class="url-form">
+      <tr>
+      <td>
+        <input id="server_url" type="text" name="format" 
+               value="" placeholder="Enter data-server URL or select a preset"/>
+        <button type="button" id="load_services">Load</button>
+      </td>
+    </tr><tr>
+      <td>
+        <select id="url-preset-select"  style="width: 100%">
+          <option value="">Select a preset</option>
+          <%= raw @bookmarks.map {|m| 
+                '<option value="' + m.url + '">' + m.url + '</option>'
+              }             .join(" ") %>
+        </select>
+      </td>
+    </tr><tr>
+    <td colspan=2>
+      <a href="#" id="save-preset"   onclick="return false;">Save As Preset</a>
+      <a href="#" id="delete-preset" onclick="return false;">Delete From Presets</a>
+    </td>
+    </tr>
+  </table>
+</div>  
+
+<script>
+  // Put all the preset related code into the Presets namespace
+  Presets = {
+    currentlyLoadedUrl: "",
+
+    updatePresetVisibility: function(serverUrl) {
+      // Nothing to do if this page has no presets
+      if(!Presets.pageHasPresets())
+        return;
+
+      if(serverUrl == "") {
+        $("#save-preset").hide();
+        $("#delete-preset").hide();
+      } 
+      else {
+        var found = false;
+
+        // Check if url is already on the preset list.  If not, add a save preset button.
+        $("#url-preset-select > option").each(function() {
+          if(this.value.trim() == serverUrl) 
+            found = true;
+        });
+
+
+        if(found) {    
+          $('#save-preset').hide();
+          $('#delete-preset').show();
+        }
+        else {
+          $('#save-preset').show();
+          $('#delete-preset').hide();
+        }
+      }
+    },
+
+    updateButtonVisibility: function() {
+      var serverUrl = Presets.getServerUrl();
+
+      Presets.updatePresetVisibility(serverUrl);
+
+      if(serverUrl == "") 
+        $('#load_services').attr('disabled', true);
+
+      else if(serverUrl == Presets.currentlyLoadedUrl) {
+        $('#load_services').html('Reload')
+                           .attr('disabled', false);
+      }
+      else {
+        $('#load_services').html('Load')
+                           .attr('disabled', false);
+      }
+    },
+
+    // The value of this could change as presets are added and removed
+    pageHasPresets: function() {
+      return $("#url-preset-select").length > 0;
+    },
+
+    setCurrentlyLoadedUrl: function(url) {
+      Presets.currentlyLoadedUrl = url;
+      Presets.updateButtonVisibility();
+    },
+
+    addPreset: function(url) {
+      $('#url-preset-select').append('<option value="' + url + '">' + url + '</option>');
+      Presets.updateButtonVisibility();
+    },
+
+    removePreset: function(url) {
+      $('#url-preset-select option[value="' + url + '"]').remove();   // Delete the option
+      $('#server_url').val('');                                       // Clear the input box
+      Presets.updateButtonVisibility();
+    },
+
+    // Save current URL to database as a bookmark
+    savePreset:function() {
+      var url = Presets.getServerUrl();
+      $.ajax({
+        type: 'POST',      // POST combined with url below triggers "create" action on controller
+        url: '<%= url_for(:controller => "dataserver_bookmark", 
+                          :action => "create", 
+                          :format=>:json) %>',
+        data: 'city_id='        + <%= @current_city.id %> +
+              '&bookmark_type=' + <%= @bookmark_type %> + 
+              '&url='           + url,
+        headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
+        success: function(data) { 
+                    Presets.addPreset(url); 
+                 },
+        error:   function(jqXHR, status, error) { 
+                    ajaxErrorHandler(jqXHR, status, error, "Could not save preset!");
+                 }
+      });
+
+      return false;
+    },
+
+    // Delete any bookmarks referring to the current URL
+    deletePreset:function() {
+      if(!confirm('Do really want to permanently delete this preset?'))
+        return;
+
+      var url = Presets.getServerUrl();
+      $.ajax({
+        type: 'DELETE',      // DELETE combined with url below triggers "destroy" action on controller
+        url: '<%= url_for(:controller => 'dataserver_bookmark', :action => 'destroy', :format=>:json) %>',
+        data: 'city_id='        + <%= @current_city.id %> +
+              '&bookmark_type=' + <%= @bookmark_type %> +
+              '&url='           + url,
+        headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
+                   'Content-Type': 'application/json' */},
+        success: function(data) { 
+                    Presets.removePreset(url);
+                 },
+        error: function(jqXHR, status, error) { 
+                    ajaxErrorHandler(jqXHR, status, error, "Could not delete preset!");
+                 }
+      });
+
+      return false;
+    },
+
+    // Grabs the server URL from the URL input entry box
+    getServerUrl: function() {
+      return $("#server_url").val().trim(); 
+    }
+  };
+
+
+  $(document).ready(function() {
+    $('#save-preset').hide();     
+    $('#delete-preset').hide();
+
+    // Link click handlers
+    $('#save-preset').click(Presets.savePreset);
+    $('#delete-preset').click(Presets.deletePreset);
+
+    $('#server_url').keyup(Presets.updateButtonVisibility);
+
+    // What to do if the user selects a preset
+    $('#url-preset-select').change(function() { $("#server_url").val($(this).val()); 
+                                                $(this).val(""); 
+                                                Presets.updateButtonVisibility();
+                                              });
+  });
+
+
+</script>
