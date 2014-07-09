@@ -15,6 +15,10 @@
         error: function(jqXHR, textStatus, error) { alert("Error retrieving datasets for city: " + error); }
       });
     }
+    
+  <% if @site_details.dss %>
+    WebGIS.showDSS = true;    
+  <% end %>
 
     // Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
     var addLayersToMap = function(datasets)

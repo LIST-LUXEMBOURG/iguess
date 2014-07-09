@@ -40,6 +40,8 @@ WebGIS.coordsLongLabel = null;
 
 WebGIS.filterBox = null;
 
+WebGIS.showDSS = false;
+
 WebGIS.createPanels = function() {
 
   // Skip this stuff if the BroadMap div does not exist
@@ -467,7 +469,8 @@ WebGIS.createTbarItems = function(map) {
     tooltip: "<b>Print</b><br>Still in development",
     disabled: true
   }));
-  if(isUserLoggedIn())
+  
+  if(isUserLoggedIn() && WebGIS.showDSS)
   {
     actions.push("-");
     actions.push(new Ext.Button({
@@ -475,7 +478,7 @@ WebGIS.createTbarItems = function(map) {
       handler: DSS.init,
       tooltip: "<b>Decision Support</b><br>Preview the application of an energy potential.",
      pressed: false
-  }));
+  	}));
   }
   return actions;
 };
