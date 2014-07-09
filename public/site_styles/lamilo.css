@@ -1,5 +1,6 @@
 /* Put any lamilo specific styles here */
 
+
 #top_banner, .footer-table {
   background-color: #B3D335;
 }
@@ -31,11 +32,11 @@ a.footer-graphic:hover {
   background-position: -150px 0;
 }
 
-.footer-title, .component-content h2 {
-  font-size: 28px;
+.footer-title {
+  font-size: 22px;
   font-weight: normal;
   letter-spacing: normal;
-  line-height: 30px;
+  line-height: 24px;
   margin-bottom: 15px;
   margin-top: 0;
   padding-bottom: 15px;
@@ -88,7 +89,7 @@ ul.footer-menu li a:before, ul.footer-menu li .item:before, ul.footer-menu li .s
 
 
 .side-links {
-	color:white;
+	color: white;
 	width: 200px;
 	background-color: #B3D335;
 	float: right;
@@ -104,10 +105,26 @@ ul.footer-menu li a:before, ul.footer-menu li .item:before, ul.footer-menu li .s
 }
 
 
+.footer {
+  width: 500px !important;
+  float: right;
+
+  position: relative;
+  left: -50%; /* or right 50% */
+  text-align: left;
+}
+
+/*.footer > .child {
+  position: relative;
+  left: 50%;
+}*/
+
+
 .main-text {
   width: 90%;
   margin: 0 auto;
 }
+
 
 .map-link-image {
   border: 1px solid #666;
