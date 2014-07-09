@@ -15,16 +15,17 @@ class ModConfigsController < ApplicationController
     # Select the processes to show in the Module Catalog.  If you are logged in, you will see only modules
     # registered for your city.  If you are not logged in, you will see modules registered to all cities in your
     # instance (i.e. Lamilo or iGUESS).
-    if user_signed_in? then
+    if user_signed_in?    # Get all servers associated with this city
       @wps_processes = WpsProcess.joins(:wps_server)
-                                 .where('city_id' => @current_city.id, :alive => :true)
+                                 .where('city_id' => @current_city.id, :alive => true)
                                  .order('title, identifier')   # For catalog
 
-      @wps_servers   = WpsServer.find_all_by_alive(:true)
-    else    # User not signed in!
+      @wps_servers   = WpsServer.find_all_by_city_id_and_alive(@current_city.id, true)
+
+    else    # User not signed in -- get all servers for all cityies attached to this instance
       @wps_processes = WpsProcess.joins(:wps_server, {:wps_server => :city})
                                  .where(:cities => {:site_details_id => @site_details.id })
-                                 .where(:alive => :true)
+                                 .where(:alive => true)
                                  .order('title, identifier')
                                  .uniq_by{|s| s.wps_server.url + s.identifier }
 
@@ -78,10 +79,8 @@ class ModConfigsController < ApplicationController
 
 
     @textInputValues = ConfigTextInput.find_all_by_mod_config_id(@mod_config)
-                                      .map{ |text| text.column_name + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"' }
+                                      .map{ |text| text.identifier + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"' }
                                       .join(',')
-
-
 
 
     @input_params  = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(true,  true, :order=>:title)
@@ -139,14 +138,14 @@ class ModConfigsController < ApplicationController
         FROM iguess_dev.mod_configs AS mc 
         LEFT JOIN iguess_dev.process_params     AS pp  ON mc.wps_process_id = pp.wps_process_id
         LEFT JOIN iguess_dev.config_datasets    AS cd  ON pp.identifier = cd.input_identifier AND cd.mod_config_id = mc.id
-        LEFT JOIN iguess_dev.config_text_inputs AS cti ON pp.identifier = cti.column_name AND cti.mod_config_id = mc.id
+        LEFT JOIN iguess_dev.config_text_inputs AS cti ON pp.identifier = cti.identifier AND cti.mod_config_id = mc.id
         WHERE mc.id = " + id + " AND pp.alive = TRUE AND pp.is_input = TRUE AND cd.dataset_id IS NULL AND (cti.value IS NULL OR cti.value = '')
 
         UNION
 
         SELECT count(*) AS c FROM iguess_dev.mod_configs AS mc 
         LEFT JOIN iguess_dev.process_params AS pp ON mc.wps_process_id = pp.wps_process_id
-        LEFT JOIN iguess_dev.config_text_inputs AS cti ON pp.identifier = cti.column_name AND cti.mod_config_id = mc.id
+        LEFT JOIN iguess_dev.config_text_inputs AS cti ON pp.identifier = cti.identifier AND cti.mod_config_id = mc.id
         WHERE mc.id = " + id + " AND pp.alive = TRUE AND pp.is_input = false AND (cti.value IS NULL OR cti.value = '')
       ) 
 
@@ -251,11 +250,11 @@ class ModConfigsController < ApplicationController
 
 
     # Text fields -- both inputs and outputs; only use fields that are still active
-    @mod_config.config_text_inputs.keep_if{ |c| activeParamIdentifiers.include?(c.column_name) }.map { |d|  
+    @mod_config.config_text_inputs.keep_if{ |c| activeParamIdentifiers.include?(c.identifier) }.map { |d|  
           if d.is_input then 
-            inputs.push("('" + d.column_name + "', '" + d.value.gsub("&", "&amp;") + "')")
+            inputs.push("('" + d.identifier + "', '" + d.value.gsub("&", "&amp;") + "')")
           else
-            outputFields.push(d.column_name)
+            outputFields.push(d.identifier)
             outputTitles.push(d.value)
           end
     }
@@ -358,7 +357,7 @@ class ModConfigsController < ApplicationController
             if(success) then 
               textval = ConfigTextInput.new()
               textval.mod_config = @mod_config
-              textval.column_name = key
+              textval.identifier = key
               textval.value = params[paramkey][key]
               textval.is_input = (paramkey == 'input')
 
@@ -481,7 +480,7 @@ class ModConfigsController < ApplicationController
           val = p[1].strip    # strip off leading and trailing whitespace
           isInput = (paramkey == :input)
 
-          @output = ConfigTextInput.find_by_mod_config_id_and_column_name_and_is_input(
+          @output = ConfigTextInput.find_by_mod_config_id_and_identifier_and_is_input(
                         @mod_config.id, identifier, isInput)
 
           # @output can be nil if the wps changed the identifiers it uses, or perhaps the user cleared
@@ -489,7 +488,7 @@ class ModConfigsController < ApplicationController
           if not @output then
             @output = ConfigTextInput.new
             @output.mod_config = @mod_config
-            @output.column_name = identifier
+            @output.identifier = identifier
             @output.value = val
             @output.is_input = isInput
           else

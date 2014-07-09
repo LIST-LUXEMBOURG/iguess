@@ -10,7 +10,7 @@ class ConfigTextInputsController < ApplicationController
     @mod_config = ModConfig.find(params[:id])   # This is the mod_config we're working with
 
     # Find the config_text_input that we need to update
-    ids = ConfigTextInput.find_all_by_mod_config_id_and_column_name_and_is_input(
+    ids = ConfigTextInput.find_all_by_mod_config_id_and_identifier_and_is_input(
                                 @mod_config.id, params[:identifier], (params[:mode] == 'input'))
 
 
@@ -37,7 +37,7 @@ class ConfigTextInputsController < ApplicationController
       @config_text_input.value = inputval
       @config_text_input.is_input = (params[:mode] == 'input')
       @config_text_input.mod_config = @mod_config
-      @config_text_input.column_name = params[:identifier]
+      @config_text_input.identifier = params[:identifier]
 
       ok = @config_text_input.save
     end

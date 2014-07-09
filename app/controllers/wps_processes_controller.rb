@@ -28,11 +28,12 @@ class WpsProcessesController < ApplicationController
     end
 
     # See if server is already in the database
+    city_id = User.getCurrentCity(current_user, cookies).id
+    server = WpsServer.find_by_url_and_city_id(params[:server_url], city_id)
 
-    server = WpsServer.find_by_url(params[:server_url])
 
-
-    # If it doesn't exist, add it
+    # If it doesn't exist, add it.  Note that we'll have one copy for each city.  This is lame,
+    # but necessary to show the proper catalog entries when users are not logged in.
     if(!server)
       server = WpsServer.new
       server.url = params[:server_url]
@@ -41,7 +42,7 @@ class WpsProcessesController < ApplicationController
     server.update_attributes(params["server"])
     server.last_seen = DateTime.now
     server.alive = true
-    server.city_id = 999  # delete this, not used, but required by the database
+    server.city_id = city_id
     server.save
 
 
@@ -52,7 +53,7 @@ class WpsProcessesController < ApplicationController
     process.wps_server_id = server.id 
     process.last_seen = DateTime.now
     process.alive = true
-    process.city_id = User.getCurrentCity(current_user, cookies).id
+    process.city_id = city_id
     process.save
 
 
@@ -83,8 +84,11 @@ class WpsProcessesController < ApplicationController
     end
 
 
+    city_id = User.getCurrentCity(current_user, cookies).id
+
+
     process = WpsProcess.find_by_wps_server_id_and_identifier_and_city_id(
-                server.id, params[:proc_identifier], User.getCurrentCity(current_user, cookies).id)
+                server.id, params[:proc_identifier], city_id)
 
     if process
       process.delete
@@ -95,7 +99,7 @@ class WpsProcessesController < ApplicationController
     end
 
     # Mark server as "deleted" if there are no remaining processes associated with it
-    processes = WpsProcess.find_by_wps_server_id(server.id)
+    processes = WpsProcess.find_by_wps_server_id_and_city_id(server.id, city_id)
     if not processes
       server.delete
     end

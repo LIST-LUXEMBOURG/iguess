@@ -158,7 +158,7 @@ def get_output_identifiers(recordId):
     identifiers = {}
 
     try:
-        cur.execute("SELECT column_name, value FROM " + dbSchema + ".config_text_inputs "
+        cur.execute("SELECT identifier, value FROM " + dbSchema + ".config_text_inputs "
                     "WHERE mod_config_id = %s AND is_input = False",
                     (recordId,))     # Trailing comma required
     except:
@@ -235,7 +235,7 @@ def insert_new_dataset(dataset, recordId, url, serverId, city_id, epsg):
                       "VALUES(                                                                      "
                       "  (                                                                          "
                       "      SELECT value FROM " + dbSchema + ".config_text_inputs                  "
-                      "      WHERE mod_config_id = %s AND column_name = %s AND is_input = FALSE     "
+                      "      WHERE mod_config_id = %s AND identifier = %s AND is_input = FALSE     "
                       "  ),                                                                         "
                       " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
                       "RETURNING id")
@@ -272,12 +272,12 @@ def insert_literal_value_in_database(recordId, dataset):
 
     # Clean out any old results
     cur.execute("DELETE FROM " + dbSchema + ".config_text_inputs "
-                "WHERE mod_config_id = %s AND column_name = %s AND is_input = %s",
+                "WHERE mod_config_id = %s AND identifier = %s AND is_input = %s",
                 (recordId, dataset.name, False))      
 
     # Insert fresh ones
     cur.execute("INSERT INTO " + dbSchema + ".config_text_inputs "
-                "     (mod_config_id, column_name, value, is_input) "
+                "     (mod_config_id, identifier, value, is_input) "
                 "VALUES(%s, %s, %s, %s)",
                 (recordId, dataset.name, dataset.value, False))
 
