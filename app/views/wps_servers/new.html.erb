@@ -64,7 +64,7 @@
     // :::private:::
     this.onWpsGetCapabilitiesSucceeded = function(capabilities, response) {
       if(capabilities && isGoodResponse("WPS", response, capabilities)) {
-        self.serverInfo = extractServerInfoVals(capabilities);
+        self.serverInfo = extractServerInfoVals(self.serverInfo, capabilities);
 
         doneProcessing("WPS");
       }
@@ -84,10 +84,8 @@
 
 
   // Wrap all these assignments in try/catch to ensure no crashes if values are missing
-  var extractServerInfoVals = function(capabilities)
+  var extractServerInfoVals = function(serverInfo, capabilities)
   {
-    var serverInfo = {};
-
     try {
       serverInfo.title = capabilities.serviceIdentification.title;
     } catch(error) {
@@ -118,6 +116,8 @@
       serverInfo.contact_name = null;
     }
 
+    serverInfo.readyToDisplay = true;   // Signals that we've populated our serverInfo
+
     return serverInfo;
   };
 
@@ -138,6 +138,9 @@
   {
     wpsProcessingComplete++;
 
+    if(CurrentProbe.serverInfo && CurrentProbe.serverInfo.readyToDisplay)
+      displayServerDetails(CurrentProbe.serverInfo, type);   // Display this as it comes in
+
     // Make sure we've heard from all requests before continuing -- we expect two calls here from
     // the WPS probe, and one more from the request for registered processes from iguess
     if(wpsProcessingComplete < 3)  
@@ -145,12 +148,8 @@
 
     $(".progress-container").hide();
 
-
     if(CurrentProbe.serverInfo)
-    {
-      displayServerDetails(CurrentProbe.serverInfo, type);   // Display this as it comes in
       displayServices(CurrentProbe.serverInfo);
-    }
     else
       noResponse();
   };
