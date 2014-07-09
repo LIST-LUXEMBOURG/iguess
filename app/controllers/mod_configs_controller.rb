@@ -82,9 +82,8 @@ class ModConfigsController < ApplicationController
                                       .map{ |text| text.identifier + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"' }
                                       .join(',')
 
-
-    @input_params  = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(true,  true, :order=>:title)
-    @output_params = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(false, true, :order=>:title)
+    @input_params  = @mod_config.wps_process.process_params.find_all_by_is_input(true,  :order=>:title)
+    @output_params = @mod_config.wps_process.process_params.find_all_by_is_input(false, :order=>:title)
 
     respond_to do |format|
       format.html # show.html.erb
