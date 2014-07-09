@@ -1,5 +1,16 @@
 /* Put any iguess specific styles here */
 
+#navbar {
+  width: 100%;
+  height: 30px;
+  background: #ccc;
+}
+
+#nav a {
+  background: url(images/nav_slant.gif) no-repeat top right;
+}
+
+
 .footer {
   background-repeat:repeat-x;
   background-position:bottom;
