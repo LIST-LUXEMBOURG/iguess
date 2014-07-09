@@ -7,7 +7,7 @@ class WpsProcessesController < ApplicationController
                                                 User.getCurrentCity(current_user, cookies).id)
 
     if @server   
-      @processes = @server.wps_processes.map{ |p| p.identifier }
+      @processes = @server.wps_processes.map{|p| p.identifier }
     else
       @processes = []
     end
