@@ -106,7 +106,9 @@ class ModConfigsController < ApplicationController
     @mod_config = ModConfig.new
     @wps_servers = WpsServer.find_all_by_alive(:true)
 
-    @wps_processes = WpsProcess.joins(:wps_server).where('wps_servers.city_id' => @current_city.id, :alive => :true).order('title, identifier')   # For catalog
+    @wps_processes = WpsProcess.joins(:wps_server)
+                               .where('wps_servers.city_id' => @current_city.id, :alive => :true)
+                               .order('title, identifier')   # For catalog
 
     @datasets = Dataset.all
 
