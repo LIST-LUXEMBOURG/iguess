@@ -4,6 +4,7 @@ class ProcessParam < ActiveRecord::Base
   # before_save { self.last_seen = DateTime.now }
 
 
+  # Create a series of process parameters, as specified in the params object
   def self.createAll(params, id, input)
     if(input)
       key = :process_inputs
