@@ -35,8 +35,7 @@
   <% if user_signed_in? %>
     <div id="configured_modules_tab">
       <% if @wps_servers.empty? %>
-        No module servers have been configured.  You can add one by clicking on the link below.<br>
-        <%= link_to "Manage WPS Servers", wps_servers_path %>      
+        No process servers have been configured.  You can add one by clicking on the link below.<br>
       <% else %>
         <% if @mod_configs.empty? %>
           <div id="mod-list-none">
@@ -93,10 +92,11 @@
   <% end %>
 
   <div id="module_catalog_tab">
-    <div id="module-catalog"> 
-      <% if @wps_servers.length == 0 %>
-        No process servers have been configured.  You can add one by clicking on the link below.
-      <% else %>
+     
+    <% if @wps_servers.length == 0 %>
+      No process servers have been configured.  You can add one by clicking on the link below.
+    <% else %>
+      <div id="module-catalog">
         <% @wps_processes.each do |p| %>
           <h2 class="process-title"><%= p.title %></h2>
           <div class="catalog-item">
@@ -167,6 +167,9 @@
     </div>  <!-- End of "module-catalog" div-->
   </div> <!-- End of "module_catalog_tab" div -->
 
+  <% if user_signed_in? %>
+    <%= link_to "Manage WPS Servers", wps_servers_path %>
+  <% end %>
 
 <!-- The following will start life hidden, and will only be revealed when the user clicks an info button -->
 <!-- Details (name, descr, etc.) will be populated as we get info from the servers -->

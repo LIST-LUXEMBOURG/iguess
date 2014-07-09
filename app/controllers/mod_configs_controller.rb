@@ -94,7 +94,6 @@ class ModConfigsController < ApplicationController
   # GET /mod_configs/new
   # GET /mod_configs/new.json
   def new
-
     if not user_signed_in?    # Should always be true
       showError("Insufficient permissions -- you are not logged in!")
       return
