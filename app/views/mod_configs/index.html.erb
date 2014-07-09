@@ -83,10 +83,6 @@
         <%= link_to new_mod_config_path do %>
           <%= image_tag("document_add_24.png", :class => "link-icon") %>New Module Configuration
         <% end %>
-        &nbsp;&nbsp;&nbsp;
-        <%= link_to new_wps_server_path do %>
-          Register New Process
-        <% end %>
       <% end %>
     </div>
   <% end %>
@@ -168,7 +164,7 @@
   </div> <!-- End of "module_catalog_tab" div -->
 
   <% if user_signed_in? %>
-    <%= link_to "Manage WPS Servers", wps_servers_path %>
+    <%= link_to "Manage Processes", new_wps_server_path %>
   <% end %>
 
 <!-- The following will start life hidden, and will only be revealed when the user clicks an info button -->
