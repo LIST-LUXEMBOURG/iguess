@@ -41,7 +41,7 @@ class WpsProcessesController < ApplicationController
     server.update_attributes(params["server"])
     server.last_seen = DateTime.now
     server.alive = true
-    server.city_id = 999  # delete this, not used
+    server.city_id = 999  # delete this, not used, but required by the database
     server.save
 
 
