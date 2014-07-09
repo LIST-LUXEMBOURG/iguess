@@ -3,8 +3,8 @@ class ApplicationController < ActionController::Base
   # ###########################################################################
   # The line below had to be commented out because it was logging users out 
   # when a POST request was sent through the geoproxy. WFS layers (required in 
-  # the sliders) must loaded through POST, so to keep this functionality this 
-  # protection feature was de-activated. This leaves potential iGUESS 
+  # the sliders) must be loaded through POST, so to keep this functionality, 
+  # this protection feature was de-activated. This leaves iGUESS potentially 
   # vulnerable to CSRF attacks, which are not critical for this application.
   # References:
   # http://en.wikipedia.org/wiki/Cross-site_request_forgery

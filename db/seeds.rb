@@ -77,4 +77,14 @@ end
   equiv.save
 end
 
+# Decision support - present or not the DSS button in the maps tab 
+[['iguess.css',   true],
+ ['lamilo.css',  false],
+ ['list.css',    false]  
+].each do |v|
+  equiv = SiteDetail.find_or_create_by_stylesheet v[0]
+  equiv.dss = v[1]
+  equiv.save
+end
+
 

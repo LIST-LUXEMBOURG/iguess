@@ -1,6 +1,9 @@
 [submodule "WPSClient"]
 	path = WPSClient
 	url = https://github.com/iguess/wpsclient.git
+	branch = master
 [submodule "OWSLib"]
 	path = OWSLib
 	url = https://github.com/ldesousa/OWSLib.git
+[submodule "WPSClient/WPSClient/MapFileText"]
+	branch = master
