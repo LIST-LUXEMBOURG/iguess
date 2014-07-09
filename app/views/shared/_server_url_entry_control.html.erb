@@ -49,12 +49,12 @@
 
 
         if(found) {    
-          $('#save-preset').hide();
-          $('#delete-preset').show();
+          $("#save-preset").hide();
+          $("#delete-preset").show();
         }
         else {
-          $('#save-preset').show();
-          $('#delete-preset').hide();
+          $("#save-preset").show();
+          $("#delete-preset").hide();
         }
       }
     },
@@ -65,15 +65,15 @@
       Presets.updatePresetVisibility(serverUrl);
 
       if(serverUrl == "") 
-        $('#load_services').attr('disabled', true);
+        $("#load_services").attr("disabled", true);
 
       else if(serverUrl == Presets.currentlyLoadedUrl) {
-        $('#load_services').html('Reload')
-                           .attr('disabled', false);
+        $("#load_services").html("Reload")
+                           .attr("disabled", false);
       }
       else {
-        $('#load_services').html('Load')
-                           .attr('disabled', false);
+        $("#load_services").html("Load")
+                           .attr("disabled", false);
       }
     },
 
@@ -94,7 +94,7 @@
 
     removePreset: function(url) {
       $('#url-preset-select option[value="' + url + '"]').remove();   // Delete the option
-      $('#server_url').val('');                                       // Clear the input box
+      $("#server_url").val("");                                       // Clear the input box
       Presets.updateButtonVisibility();
     },
 
@@ -153,25 +153,25 @@
 
 
   $(document).ready(function() {
-    $('#save-preset').hide();     
-    $('#delete-preset').hide();
+    $("#save-preset").hide();     
+    $("#delete-preset").hide();
 
-    $('#load_services').attr('disabled', true);
+    $("#load_services").attr("disabled", true);
 
 
     // What happens when URL entry box changes or loses focus?
-    $('#server_url').focus(function() { $('#load_services').html('Load'); });
+    $("#server_url").focus(function() { $("#load_services").html("Load"); });
 
-    $('#load_services').click(onLoadButtonClicked);   
+    $("#load_services").click(onLoadButtonClicked);   
 
     // Link click handlers
-    $('#save-preset').click(Presets.savePreset);
-    $('#delete-preset').click(Presets.deletePreset);
+    $("#save-preset").click(Presets.savePreset);
+    $("#delete-preset").click(Presets.deletePreset);
 
-    $('#server_url').keyup(Presets.updateButtonVisibility);
+    $("#server_url").keyup(Presets.updateButtonVisibility);
 
     // What to do if the user selects a preset
-    $('#url-preset-select').change(function() { $("#server_url").val($(this).val()); 
+    $("#url-preset-select").change(function() { $("#server_url").val($(this).val()); 
                                                 $(this).val(""); 
                                                 Presets.updateButtonVisibility();
                                               });
