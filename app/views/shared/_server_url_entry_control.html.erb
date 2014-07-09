@@ -133,8 +133,7 @@
         data: 'city_id='        + <%= @current_city.id %> +
               '&bookmark_type=' + <%= @bookmark_type %> +
               '&url='           + url,
-        headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' /*,
-                   'Content-Type': 'application/json' */},
+        headers: { 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>' },
         success: function(data) { 
                     Presets.removePreset(url);
                  },
@@ -156,6 +155,14 @@
   $(document).ready(function() {
     $('#save-preset').hide();     
     $('#delete-preset').hide();
+
+    $('#load_services').attr('disabled', true);
+
+
+    // What happens when URL entry box changes or loses focus?
+    $('#server_url').focus(function() { $('#load_services').html('Load'); });
+
+    $('#load_services').click(onLoadButtonClicked);   
 
     // Link click handlers
     $('#save-preset').click(Presets.savePreset);

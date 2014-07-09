@@ -2,24 +2,6 @@
 // RegisterDatasets page and the RegisterWpsServer page
 
 
-// Called by ready functions on parent pages 
-var onLoadServicesPageReady = function()
-{
-  hideProbingIndicators();
-  $('#load_services').attr('disabled', true);
-
-
-  // Register some event handlers for our controls
-
-  // What happens when URL entry box changes or loses focus?
-  $('#server_url').focus(function() { $('#load_services').html('Load'); });
-
-  // User clicked the Load button
-  $('#load_services').click(loadDataLayers);    
-
-};
-
-
 var discoveredLayers = {};
 
 // Prevent us from being swamped by the same error message over and over when working with WMS
@@ -29,7 +11,7 @@ var alreadyShownWmsError = false;
 var CurrentProbe = null;
 
 // This gets called when the Remote Data Server URL is changed or the Load button is clicked
-var loadDataLayers = function()
+var onLoadButtonClicked = function()
 {
   var serverUrl = Presets.getServerUrl();
   Presets.setCurrentlyLoadedUrl(serverUrl);
