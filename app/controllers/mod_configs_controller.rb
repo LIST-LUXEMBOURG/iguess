@@ -20,7 +20,7 @@ class ModConfigsController < ApplicationController
                                  .where('city_id' => @current_city.id, :alive => :true)
                                  .order('title, identifier')   # For catalog
 
-      @wps_servers   = WpsServer.find_all_by_alive_and_deleted(:true, :false)
+      @wps_servers   = WpsServer.find_all_by_alive(:true)
     else    # User not signed in!
       @wps_processes = WpsProcess.joins(:wps_server, {:wps_server => :city})
                                  .where(:cities => {:site_details_id => @site_details.id })

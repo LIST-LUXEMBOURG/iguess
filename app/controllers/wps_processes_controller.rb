@@ -3,11 +3,11 @@ class WpsProcessesController < ApplicationController
   # Returns a list of identifiers of registered processes for the specified url 
   # Will only be called via ajax
   def process_query
-    @server = WpsServer.find_by_url_and_city_id(params["server_url"], 
-                                                User.getCurrentCity(current_user, cookies).id)
+    @server = WpsServer.find_by_url(params["server_url"])
+    @current_city  = User.getCurrentCity(current_user, cookies)
 
     if @server   
-      @processes = @server.wps_processes.map{|p| p.identifier }
+      @processes = @server.wps_processes.find_all_by_city_id(@current_city.id).map{|p| p.identifier }
     else
       @processes = []
     end
@@ -42,7 +42,6 @@ class WpsProcessesController < ApplicationController
     server.last_seen = DateTime.now
     server.alive = true
     server.city_id = 999  # delete this, not used
-    server.deleted = false
     server.save
 
 
@@ -93,14 +92,12 @@ class WpsProcessesController < ApplicationController
       # :dependent => :destroy not doing what we want, so we'll do it manually
       params = ProcessParam.find_all_by_wps_process_id(process.id)      
       params.each {|p| p.delete }
-
     end
 
     # Mark server as "deleted" if there are no remaining processes associated with it
     processes = WpsProcess.find_by_wps_server_id(server.id)
     if not processes
-      server.deleted = true
-      server.save
+      server.delete
     end
 
     render :json => { :success => true, :message => "Server has been unregistered!" }

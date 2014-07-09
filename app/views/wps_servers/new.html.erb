@@ -188,7 +188,6 @@
 
       var registered = RegisteredProcessList.hasObject(proc.identifier);
       $("#module-catalog").append(getProcessHtml(proc, registered));
-      console.log(getProcessHtml(proc, registered));
     }
 
     $(".server-info").show();
@@ -343,7 +342,6 @@
       success: function(data, status, jqXHR)  { 
           checkbox.checked = true;
           thiiis.toggleClass("checked");
-          console.log(thiiis);
           alert(jqXHR.responseJSON.message);
         },
       error: function(jqXHR, textStatus, error) { alert("Error registering server: " + error); }

@@ -241,7 +241,7 @@ def check_wps(serverCursor):
     Check all WPS services, and update the database accordingly
     '''
     # Get the server list, but ignore servers marked as deleted
-    serverCursor.execute("SELECT url, id FROM " + tables["wpsServers"] + " WHERE deleted = false")
+    serverCursor.execute("SELECT url, id FROM " + tables["wpsServers"])
 
     upsert_list = []
     sqlList = []

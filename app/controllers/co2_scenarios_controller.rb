@@ -76,7 +76,6 @@ class Co2ScenariosController < ApplicationController
           if default == nil
             c.value = 0.0
           else
-            #binding.pry
             c.value = default.value
           end  
             
