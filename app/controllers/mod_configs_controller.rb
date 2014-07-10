@@ -236,7 +236,7 @@ class ModConfigsController < ApplicationController
     # in use... we want those in case a wps parameter reappears in the future (peraps someone was doing 
     # maintenance, and temporarily removed a parameter; we don't want to corrupt all our configurations 
     # by deleting the user's selected inputs).
-    activeParamIdentifiers = @mod_config.wps_process.process_param.map { |p| p.identifier }
+    activeParamIdentifiers = @mod_config.wps_process.process_params.map { |p| p.identifier }
 
 
     @mod_config.datasets.map { |dataset| 
