@@ -22,7 +22,8 @@ class ModConfigsController < ApplicationController
 
       @wps_servers   = WpsServer.find_all_by_city_id_and_alive(@current_city.id, true)
 
-    else    # User not signed in -- get all servers for all cityies attached to this instance
+    else    # User not signed in -- get all servers for all cities attached to this instance
+
       @wps_processes = WpsProcess.joins(:wps_server, {:wps_server => :city})
                                  .where(:cities => {:site_details_id => @site_details.id })
                                  .where(:alive => true)
