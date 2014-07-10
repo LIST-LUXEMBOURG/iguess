@@ -53,6 +53,7 @@ WebGIS.toggleLayer = function(e)
 WebGIS.showInfo = function(evt) 
 {
 	var itemSet = [];
+	var message = "";
     Ext.each(evt.features, function(feature) 
     {
     	grid = new Ext.grid.PropertyGrid();
@@ -63,16 +64,21 @@ WebGIS.showInfo = function(evt)
     	itemSet.push(grid);
     });
     
+    if(itemSet.length <= 0)
+    	message = "<br><br><br><br><br><br><br><br>" + 
+    		"<p align=center><i>No data found in this area.</i></p>";
+
     if(WebGIS.infoPopUp != null) WebGIS.infoPopUp.close();
 
     WebGIS.infoPopUp = new GeoExt.Popup({
         title: "Feature Info",
-        width: 300,
-        height: 450,
+        width: 270,
+        height: 320,
         layout: "accordion",
         map: WebGIS.leftPanel,
 		location: evt.xy,
-        items: itemSet
+        items: itemSet,
+        html: message
     });
     
     WebGIS.infoPopUp.show();
