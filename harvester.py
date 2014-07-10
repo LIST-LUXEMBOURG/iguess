@@ -164,13 +164,15 @@ def get_process_datatype(obj):
 
 
 
-def get_update_wps_param_sql(proc_id, identifier, title, abstract, datatype, is_input):
+def get_update_wps_param_sql(proc_id, identifier, title, abstract, datatype, is_input, minOccurs, maxOccurs):
     return (
         "UPDATE " + tables["processParams"] + " "
-        "SET title = "    + str(adapt(title))    + ","
-            "abstract = " + str(adapt(abstract)) + ", "
-            "datatype = " + str(adapt(datatype)) + ", "
-            "is_input = " + str(adapt(is_input)) + ", "
+        "SET title = "      + str(adapt(title))    + ","
+            "abstract = "   + str(adapt(abstract)) + ", "
+            "datatype = "   + str(adapt(datatype)) + ", "
+            "is_input = "   + str(adapt(is_input)) + ", "
+            "min_occurs = " + str(adapt(minOccurs)) + ", "
+            "max_occurs = " + str(adapt(maxOccurs)) + ", "
             "alive = TRUE, "
             "last_seen = NOW() "
         "WHERE wps_process_id = " + str(adapt(proc_id)) + " "
@@ -182,8 +184,16 @@ def get_update_wps_param_sql(proc_id, identifier, title, abstract, datatype, is_
 def prepare_update_wps_param(procId, obj, is_input):
     abstract = get_process_abstract(obj)
     datatype = get_process_datatype(obj)
-
-    return get_update_wps_param_sql(procId, obj.identifier, obj.title, abstract, datatype, is_input)
+    
+    # Even though occurrences do no make sense for outputs, they must be inserted in the database.
+    minOcc = 1
+    maxOcc = 1
+    
+    if is_input:
+        minOcc = obj.minOccurs
+        maxOcc = obj.maxOccurs
+    
+    return get_update_wps_param_sql(procId, obj.identifier, obj.title, abstract, datatype, is_input, minOcc, maxOcc)
 
 
 
