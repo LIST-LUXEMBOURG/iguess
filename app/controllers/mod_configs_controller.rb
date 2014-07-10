@@ -82,9 +82,8 @@ class ModConfigsController < ApplicationController
                                       .map{ |text| text.identifier + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"' }
                                       .join(',')
 
-
-    @input_params  = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(true,  true, :order=>:title)
-    @output_params = @mod_config.wps_process.process_param.find_all_by_is_input_and_alive(false, true, :order=>:title)
+    @input_params  = @mod_config.wps_process.process_params.find_all_by_is_input(true,  :order=>:title)
+    @output_params = @mod_config.wps_process.process_params.find_all_by_is_input(false, :order=>:title)
 
     respond_to do |format|
       format.html # show.html.erb
@@ -95,7 +94,6 @@ class ModConfigsController < ApplicationController
   # GET /mod_configs/new
   # GET /mod_configs/new.json
   def new
-
     if not user_signed_in?    # Should always be true
       showError("Insufficient permissions -- you are not logged in!")
       return
@@ -107,8 +105,9 @@ class ModConfigsController < ApplicationController
     @mod_config = ModConfig.new
     @wps_servers = WpsServer.find_all_by_alive(:true)
 
-    @wps_processes = WpsProcess.joins(:wps_server).where('wps_servers.city_id' => @current_city.id, :alive => :true).order('title, identifier')   # For catalog
-
+    @wps_processes = WpsProcess.joins(:wps_server)
+                               .where('wps_servers.city_id' => @current_city.id, :alive => :true)
+                               .order('title, identifier')   # For catalog
     @datasets = Dataset.all
 
     @textinputs = [ ]

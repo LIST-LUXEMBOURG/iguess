@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140709112522) do
+ActiveRecord::Schema.define(:version => 20140709140157) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -179,7 +179,7 @@ ActiveRecord::Schema.define(:version => 20140709112522) do
 
   create_table "config_text_inputs", :force => true do |t|
     t.integer "mod_config_id", :null => false
-    t.text    "column_name",   :null => false
+    t.text    "identifier",    :null => false
     t.text    "value"
     t.boolean "is_input"
   end
@@ -356,8 +356,8 @@ ActiveRecord::Schema.define(:version => 20140709112522) do
   create_table "wps_servers", :force => true do |t|
     t.string   "url"
     t.text     "descr"
-    t.datetime "created_at",                       :null => false
-    t.datetime "updated_at",                       :null => false
+    t.datetime "created_at",    :null => false
+    t.datetime "updated_at",    :null => false
     t.text     "title"
     t.text     "abstract"
     t.datetime "last_seen"
@@ -365,11 +365,7 @@ ActiveRecord::Schema.define(:version => 20140709112522) do
     t.text     "provider_name"
     t.text     "contact_name"
     t.text     "contact_email"
-    t.integer  "city_id",                          :null => false
-    t.boolean  "deleteable",    :default => true,  :null => false
-    t.boolean  "deleted",       :default => false, :null => false
+    t.integer  "city_id",       :null => false
   end
-
-  add_index "wps_servers", ["url"], :name => "index_wps_servers_on_url", :unique => true
 
 end

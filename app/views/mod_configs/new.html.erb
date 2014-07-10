@@ -16,7 +16,8 @@
     <label class="simple_form label">Module Type</label>
     <span>
       <select class="process-dropdown-control" id="processControl">
-        <%= options_for_select(@wps_processes.map { |p| [p.title, p.id] }, { :selected => params[:template] }) %>
+        <%= options_for_select(@wps_processes.map{|p| [p.title, p.id] }, 
+                               { :selected => params[:template] }) %>
       </select>
     </span>
   </div>
