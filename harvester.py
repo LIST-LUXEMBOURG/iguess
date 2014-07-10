@@ -243,9 +243,10 @@ def prepare_mark_wps_processes_alive(server_url):
     return (
         "UPDATE " + tables["processes"] + " "
         "SET alive = true "
-        "WHERE wps_server_id IN "
-            "(SELECT id FROM " + tables["wpsServers"] + " "
-            " WHERE url = " + str(adapt(server_url)) + ")"
+        "WHERE wps_server_id IN ("
+            "SELECT id FROM " + tables["wpsServers"] + " "
+            "WHERE url = " + str(adapt(server_url)) + " "
+        ")"
     )
   
 
