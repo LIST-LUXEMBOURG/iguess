@@ -228,7 +228,7 @@ def prepare_update_wps_process(server_url, identifier, title, abstract):
 
 
 
-def prepare_select_process(server_url, identifier):
+def prepare_select_processes(server_url, identifier):
     return (
         "SELECT id FROM " + tables["processes"] + " "
         "WHERE wps_server_id IN ("
@@ -318,23 +318,25 @@ def check_wps(serverCursor):
             upsert_list = []
             sqlList = []
 
-            update_cursor.execute(prepare_select_process(server_url, proc.identifier))
+            # Get all processes associated with server that match the specified identifier -- could be more than one
+            update_cursor.execute(prepare_select_processes(server_url, proc.identifier))
 
-            procId = update_cursor.fetchone()[0]
+            for procrow in update_cursor: 
+                procId = procrow[0]
 
-            try:
-                procDescr = wps.describeprocess(proc.identifier)        # Call to OWSLib
-            except:
-                print "Could not describe process ", proc.identifier, " on server ", server_url
+                try:
+                    procDescr = wps.describeprocess(proc.identifier)        # Call to OWSLib
+                except:
+                    print "Could not describe process ", proc.identifier, " on server ", server_url
 
 
-            for input in procDescr.dataInputs:
-                upsert_list.append((tables["processParams"], "wps_process_id", procId, input.identifier))
-                sqlList.append(prepare_update_wps_param(procId, input, True))
+                for input in procDescr.dataInputs:
+                    upsert_list.append((tables["processParams"], "wps_process_id", procId, input.identifier))
+                    sqlList.append(prepare_update_wps_param(procId, input, True))
 
-            for output in procDescr.processOutputs:
-                upsert_list.append((tables["processParams"], "wps_process_id", procId, output.identifier))
-                sqlList.append(prepare_update_wps_param(procId, output, False))
+                for output in procDescr.processOutputs:
+                    upsert_list.append((tables["processParams"], "wps_process_id", procId, output.identifier))
+                    sqlList.append(prepare_update_wps_param(procId, output, False))
 
     # Run and commit WPS transactions
     run_queries(db_conn, upsert_list, sqlList)
