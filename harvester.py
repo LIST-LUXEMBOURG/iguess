@@ -207,7 +207,7 @@ def prepare_update_wps_server_info(server_url, wps):
             "contact_email = " + str(adapt(wps.provider.contact.email))  + ", "
             "last_seen = NOW(), "
             "alive = TRUE "
-        "WHERE url = " + server_url
+        "WHERE url = " + str(adapt(server_url))
     )
 
 
@@ -221,7 +221,7 @@ def prepare_update_wps_process(server_url, identifier, title, abstract):
             "alive = TRUE " +
         "WHERE wps_server_id IN ("
                 "SELECT id FROM " + tables["wpsServers"] + " "
-                "WHERE url = " + adapt(server_url) + " "
+                "WHERE url = " + str(adapt(server_url)) + " "
             ")"
             "AND identifier = "  + str(adapt(identifier))
     )
@@ -233,7 +233,7 @@ def prepare_select_process(server_url, identifier):
         "SELECT id FROM " + tables["processes"] + " "
         "WHERE wps_server_id IN ("
                 "SELECT id FROM " + tables["wpsServers"] + " "
-                "WHERE url = " + adapt(server_url) + " "
+                "WHERE url = " + str(adapt(server_url)) + " "
             ")"
             "AND identifier = "  + str(adapt(identifier))    
     )
@@ -245,7 +245,7 @@ def prepare_mark_wps_processes_alive(server_url):
         "SET alive = true "
         "WHERE wps_server_id IN "
             "(SELECT id FROM " + tables["wpsServers"] + " "
-            " WHERE url = " + adapt(server_url) + ")"
+            " WHERE url = " + str(adapt(server_url)) + ")"
     )
   
 
