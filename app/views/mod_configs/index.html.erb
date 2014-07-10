@@ -206,22 +206,6 @@
       });
     }
 
-    // var spans = [];
-
-    // // Remove duplicate items from spans
-    // var seen = {};
-    // $('span[rel]').each(function() {
-    //     var rel = $(this).attr('rel');
-    //     if(!seen[rel])
-    //     {
-    //             console.log($(this).attr('rel'));
-
-    //       $(this).overlay();    // Activate layer info overlay popups and such
-    //       seen[rel] = true;     // Flag this item as seen so it won't get activaetd again
-    //     }
-    // });
-
-
     $('span[rel]').overlay(); 
 
     for(var i = 0; i < <%= @wps_processes.size %>; i++)
@@ -231,7 +215,5 @@
 
 
     $('#sortable_table').tablesorter({ sortList: [[0,0]], headers: { 3: {sorter: false}}, sortMultiSortKey: 'ctrlKey' });   
-    
   });
-
 </script>
