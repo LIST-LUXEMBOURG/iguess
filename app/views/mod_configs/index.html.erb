@@ -40,7 +40,7 @@
         <% if @mod_configs.empty? %>
           <div id="mod-list-none">
             <% if user_signed_in? %>
-              The Module Catalog is empty for <span class="city-name"></span>.  
+              The Module Catalog is empty for <span class="city-name"><%= @current_city.name %></span>.  
               <%= link_to "Click here to create a new configuration.", new_mod_config_path %>
             <% else %>
               The Module Catalog is currently empty.
