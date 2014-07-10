@@ -16,3 +16,25 @@
   background-position:bottom;
   background-image: url(images/buildings.png);
 }
+
+.home-page-text {
+  text-align: left;
+  color: #888;
+  font-size: 18px;
+  max-width: 800px;
+}
+
+
+.home-page-text p {
+  padding-bottom: 12px;
+}
+
+
+.home-page-text h2 {
+  padding-top: 20px;
+}
+
+
+.home-page-text ul {
+  padding-left: 20px;
+}
