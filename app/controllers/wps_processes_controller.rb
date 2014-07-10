@@ -39,10 +39,11 @@ class WpsProcessesController < ApplicationController
       server.url = params[:server_url]
     end
 
+    server.city_id = city_id    # Before the update_attributes to avoid a null constraint violation
     server.update_attributes(params["server"])
     server.last_seen = DateTime.now
     server.alive = true
-    server.city_id = city_id
+    
     server.save
 
 
