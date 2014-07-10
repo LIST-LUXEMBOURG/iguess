@@ -338,15 +338,11 @@ def update_finished_module(client, recordId, city_id):
         # Retrieve and save the data locally to disk, creating a mapfile in the process
         mapfile = client.generateMapFile()
 
-        if mapfile is None:
-            log_error_msg(recordId, "Error: Got None back from generateMapFile()")
-            return
-
     except Exception as ex:
         log_error_msg(recordId, "Error: generateMapFile() call failed - " + str(ex))
         return
 
-    url = baseMapServerUrl + mapfile
+    url = baseMapServerUrl + str(mapfile)
 
     update_run_status_in_database(recordId, FINISHED, client.processErrorText)
 
