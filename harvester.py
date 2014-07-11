@@ -19,6 +19,7 @@ from psycopg2.extensions import adapt   # adapt: secure qutoing e.g. adapt('LL\L
 import time
 import datetime
 import traceback
+import re
 
 from harvester_pwd import dbDatabase, dbName, dbUsername, dbPassword, dbSchema
 
@@ -213,9 +214,11 @@ def prepare_update_wps_server_info(server_url, wps):
 
 
 def prepare_update_wps_process(server_url, identifier, title, abstract):
+    # Note that we do some regex stuff below to fix a problem with adapt that doesn't quote certain
+    # combinations of unicode and single quotes.  It's ugly.  I can't help it.  I'm sorry.
     return (
         "UPDATE " + tables["processes"] + " "
-        "SET title = "    + str(adapt(title))    + ", "
+        "SET title = "    + re.sub("([^'])'([^'])", "\1''\2", str(adapt(title))) + ", "
             "abstract = " + str(adapt(abstract)) + ", "
             "last_seen = NOW(), "
             "alive = TRUE " +
