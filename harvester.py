@@ -239,6 +239,7 @@ def prepare_select_processes(server_url, identifier):
     )
 
 
+
 def prepare_mark_wps_processes_alive(server_url):
     return (
         "UPDATE " + tables["processes"] + " "
@@ -248,7 +249,6 @@ def prepare_mark_wps_processes_alive(server_url):
             "WHERE url = " + str(adapt(server_url)) + " "
         ")"
     )
-  
 
 
 
@@ -260,7 +260,6 @@ def clean_datatype(datatype):
         return datatype.replace("//www.w3.org/TR/xmlschema-2/#", "")
 
     return datatype
-
 
 
 
@@ -323,6 +322,7 @@ def check_wps(serverCursor):
 
             for procrow in update_cursor: 
                 procId = procrow[0]
+                import pudb; pu.db
 
                 try:
                     procDescr = wps.describeprocess(proc.identifier)        # Call to OWSLib
