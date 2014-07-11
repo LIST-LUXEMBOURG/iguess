@@ -79,8 +79,9 @@ class ModConfigsController < ApplicationController
                                     .join(',')
 
 
+    # Note that some inputs have been known to begin with problematic chars like "-"                      
     @textInputValues = ConfigTextInput.find_all_by_mod_config_id(@mod_config)
-                                      .map{ |text| text.identifier + (text.is_input ? 'input' : 'output') + ': "' + text.value + '"' }
+                                      .map{|t| "'" + t.identifier + (t.is_input ? 'input' : 'output') + "'" + ': "' + t.value + '"' }
                                       .join(',')
 
     @input_params  = @mod_config.wps_process.process_params.find_all_by_is_input(true,  :order=>:title)
