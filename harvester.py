@@ -322,7 +322,6 @@ def check_wps(serverCursor):
 
             for procrow in update_cursor: 
                 procId = procrow[0]
-                import pudb; pu.db
 
                 try:
                     procDescr = wps.describeprocess(proc.identifier)        # Call to OWSLib
