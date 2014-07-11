@@ -221,7 +221,7 @@ def prepare_update_wps_process(server_url, identifier, title, abstract):
             "alive = TRUE " +
         "WHERE wps_server_id IN ("
                 "SELECT id FROM " + tables["wpsServers"] + " "
-                "WHERE url = " + str(adapt(server_url)) + " "
+                "WHERE url = " + str(adapt(server_url))  + " "
             ")"
             "AND identifier = "  + str(adapt(identifier))
     )
@@ -276,8 +276,8 @@ def check_wps(serverCursor):
     # Mark all our records as dead; we'll mark them as alive as we process them.  Note that the database won't
     # actually be udpated until we commit all our transactions at the end, so we'll never see this value
     # for a server/process/input that is in fact alive.  
-    sqlList.append("UPDATE "      + tables["wpsServers"]    + " SET alive = false")
-    sqlList.append("UPDATE "      + tables["processes"]     + " SET alive = false")
+    sqlList.append("UPDATE " + tables["wpsServers"] + " SET alive = false")
+    sqlList.append("UPDATE " + tables["processes"]  + " SET alive = false")
 
     # We'll delete the parameter list completely; There is no benefit of keeping older, but now disused module 
     # parameters around... it just confuses things.
@@ -654,7 +654,7 @@ def check_data_servers(serverCursor):
                 if service:           # Update the database with the layer info
                     sqlList.append( "UPDATE " + tables["datasets"] + " "
                                     "SET title = "        + str(adapt(title))    + ", "
-                                        "abstract = "     + str(adapt(abstract))    + ", "
+                                        "abstract = "     + str(adapt(abstract)) + ", "
                                         "alive = TRUE, "
                                         "last_seen = NOW(), "
                                         "local_srs = "    + str(adapt(has_city_crs)) + ", "
