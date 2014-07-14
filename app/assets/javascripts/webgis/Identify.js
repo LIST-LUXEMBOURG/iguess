@@ -54,9 +54,19 @@ WebGIS.showInfo = function(evt)
 {
 	var itemSet = [];
 	var message = "";
+	
     Ext.each(evt.features, function(feature) 
     {
-    	grid = new Ext.grid.PropertyGrid();
+    	// This custom redered is for the LaMiLo project alone
+    	// Ideally it would created at run-time, but this is the only way it works.
+    	grid = new Ext.grid.PropertyGrid({
+	   		customRenderers: {
+		   		"picture": function(v)
+			    {
+			         return "<img src=\"" + feature.attributes["picture"] + "\" />";
+			    }
+		   	}
+		});		
     	delete grid.getStore().sortInfo; // Remove default sorting
     	grid.getColumnModel().getColumnById('name').sortable = false; // set sorting of first column to false
     	grid.setSource(feature.attributes); // Now load data
