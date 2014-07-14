@@ -19,6 +19,7 @@ from psycopg2.extensions import adapt   # adapt: secure qutoing e.g. adapt('LL\L
 import time
 import datetime
 import traceback
+import re
 
 from harvester_pwd import dbDatabase, dbName, dbUsername, dbPassword, dbSchema
 
@@ -197,7 +198,7 @@ def prepare_update_wps_param(procId, obj, is_input):
 
 
 
-def prepare_update_wps_server_info(server_id, wps):
+def prepare_update_wps_server_info(server_url, wps):
     return (
         "UPDATE " + tables["wpsServers"] + " "
         "SET title = "         + str(adapt(wps.identification.title))    + ", "
@@ -207,29 +208,49 @@ def prepare_update_wps_server_info(server_id, wps):
             "contact_email = " + str(adapt(wps.provider.contact.email))  + ", "
             "last_seen = NOW(), "
             "alive = TRUE "
-        "WHERE id = " + str(adapt(server_id))
+        "WHERE url = " + str(adapt(server_url))
     )
 
 
 
-def prepare_update_wps_process(server_id, identifier, title, abstract):
+def prepare_update_wps_process(server_url, identifier, title, abstract):
+    # Note that we do some regex stuff below to fix a problem with adapt that doesn't quote certain
+    # combinations of unicode and single quotes.  It's ugly.  I can't help it.  I'm sorry.
     return (
         "UPDATE " + tables["processes"] + " "
-        "SET title = "    + str(adapt(title))    + ", "
+        "SET title = "    + re.sub("([^'])'([^'])", "\1''\2", str(adapt(title))) + ", "
             "abstract = " + str(adapt(abstract)) + ", "
             "last_seen = NOW(), "
             "alive = TRUE " +
-        "WHERE wps_server_id = " + str(adapt(server_id)) + " "
+        "WHERE wps_server_id IN ("
+                "SELECT id FROM " + tables["wpsServers"] + " "
+                "WHERE url = " + str(adapt(server_url))  + " "
+            ")"
             "AND identifier = "  + str(adapt(identifier))
     )
 
 
 
-def prepare_select_process(server_id, identifier):
+def prepare_select_processes(server_url, identifier):
     return (
         "SELECT id FROM " + tables["processes"] + " "
-        "WHERE wps_server_id = " + str(adapt(server_id)) + " " 
-            "AND identifier = " + str(adapt(identifier))    
+        "WHERE wps_server_id IN ("
+                "SELECT id FROM " + tables["wpsServers"] + " "
+                "WHERE url = " + str(adapt(server_url)) + " "
+            ")"
+            "AND identifier = "  + str(adapt(identifier))    
+    )
+
+
+
+def prepare_mark_wps_processes_alive(server_url):
+    return (
+        "UPDATE " + tables["processes"] + " "
+        "SET alive = true "
+        "WHERE wps_server_id IN ("
+            "SELECT id FROM " + tables["wpsServers"] + " "
+            "WHERE url = " + str(adapt(server_url)) + " "
+        ")"
     )
 
 
@@ -245,13 +266,12 @@ def clean_datatype(datatype):
 
 
 
-
 def check_wps(serverCursor):
     '''
     Check all WPS services, and update the database accordingly
     '''
     # Get the server list, but ignore servers marked as deleted
-    serverCursor.execute("SELECT url, id FROM " + tables["wpsServers"])
+    serverCursor.execute("SELECT DISTINCT url FROM " + tables["wpsServers"])
 
     upsert_list = []
     sqlList = []
@@ -259,8 +279,8 @@ def check_wps(serverCursor):
     # Mark all our records as dead; we'll mark them as alive as we process them.  Note that the database won't
     # actually be udpated until we commit all our transactions at the end, so we'll never see this value
     # for a server/process/input that is in fact alive.  
-    sqlList.append("UPDATE "      + tables["wpsServers"]    + " SET alive = false")
-    sqlList.append("UPDATE "      + tables["processes"]     + " SET alive = false")
+    sqlList.append("UPDATE " + tables["wpsServers"] + " SET alive = false")
+    sqlList.append("UPDATE " + tables["processes"]  + " SET alive = false")
 
     # We'll delete the parameter list completely; There is no benefit of keeping older, but now disused module 
     # parameters around... it just confuses things.
@@ -270,55 +290,55 @@ def check_wps(serverCursor):
     
 
     for row in serverCursor:
-        serverUrl, serverId = row
+        server_url = row[0]
 
         # Run a GetCapabilities query on the WPS server -- could fail if URL is bogus
         try:
-            wps = WebProcessingService(serverUrl, version = wpsVersion)
+            wps = WebProcessingService(server_url, version = wpsVersion)
         except:  
-            print "Could not load WPS data from url " + serverUrl
+            print "Could not load WPS data from url " + server_url
             # If URL is bogus, will raise a URLError... but whatever... no errors are reoverable at this point
             continue
 
         # Update the server title and abstract
-        sqlList.append(prepare_update_wps_server_info(serverId, wps))
+        sqlList.append(prepare_update_wps_server_info(server_url, wps))
 
         # Iterate over the processes available on this server
         for proc in wps.processes: 
 
-            # Do an upsert to establish the row, so we can update it. Not totally correct, 
-            # but this will not be run where race conditions can develop.
-            upsert_list.append((tables["processes"], "wps_server_id", serverId, proc.identifier))
+            sqlList.append(prepare_mark_wps_processes_alive(server_url))
 
             # Now we know that our row exists, and we can do a simple update to get the rest of the info in
             # We'll return the record id so that we can use it below.
             
             abstract = get_process_abstract(proc)
 
-            sqlList.append(prepare_update_wps_process(serverId, proc.identifier, proc.title, abstract))
+            sqlList.append(prepare_update_wps_process(server_url, proc.identifier, proc.title, abstract))
 
             # Need to do this here so that the SELECT below will find a record if the upsert inserts... a little messy
             run_queries(db_conn, upsert_list, sqlList)
             upsert_list = []
             sqlList = []
 
-            update_cursor.execute(prepare_select_process(serverId, proc.identifier))
+            # Get all processes associated with server that match the specified identifier -- could be more than one
+            update_cursor.execute(prepare_select_processes(server_url, proc.identifier))
 
-            procId = update_cursor.fetchone()[0]
+            for procrow in update_cursor: 
+                procId = procrow[0]
 
-            try:
-                procDescr = wps.describeprocess(proc.identifier)        # Call to OWSLib
-            except:
-                print "Could not describe process ", proc.identifier, " on server ", serverUrl
+                try:
+                    procDescr = wps.describeprocess(proc.identifier)        # Call to OWSLib
+                except:
+                    print "Could not describe process ", proc.identifier, " on server ", server_url
 
 
-            for input in procDescr.dataInputs:
-                upsert_list.append((tables["processParams"], "wps_process_id", procId, input.identifier))
-                sqlList.append(prepare_update_wps_param(procId, input, True))
+                for input in procDescr.dataInputs:
+                    upsert_list.append((tables["processParams"], "wps_process_id", procId, input.identifier))
+                    sqlList.append(prepare_update_wps_param(procId, input, True))
 
-            for output in procDescr.processOutputs:
-                upsert_list.append((tables["processParams"], "wps_process_id", procId, output.identifier))
-                sqlList.append(prepare_update_wps_param(procId, output, False))
+                for output in procDescr.processOutputs:
+                    upsert_list.append((tables["processParams"], "wps_process_id", procId, output.identifier))
+                    sqlList.append(prepare_update_wps_param(procId, output, False))
 
     # Run and commit WPS transactions
     run_queries(db_conn, upsert_list, sqlList)
@@ -494,13 +514,13 @@ def check_data_servers(serverCursor):
         upsert_list = []
         sqlList = []
         
-        serverUrl = row[0]
+        server_url = row[0]
 
         # Marking all datasets and dataservers as defunct; will mark non-defunct as we go
-        sqlList.append(prepare_set_datasets_not_alive(serverUrl))
-        sqlList.append(prepare_set_dataservers_not_alive(serverUrl))
+        sqlList.append(prepare_set_datasets_not_alive(server_url))
+        sqlList.append(prepare_set_dataservers_not_alive(server_url))
 
-        wms, wfs, wcs = get_ows_objects(serverUrl)
+        wms, wfs, wcs = get_ows_objects(server_url)
 
         if not (wms or wfs or wcs):    # No data services available?  Time to move on!
             continue
@@ -516,14 +536,14 @@ def check_data_servers(serverCursor):
         # wcs.contents: ['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_checkChildAndParent', '_elem', '_getGrid', '_getTimeLimits', '_getTimePositions', '_parent', '_service', 'abstract', 'boundingBox', 'boundingBoxWGS84', 'boundingboxes', 'crsOptions', 'description', 'grid', 'id', 'keywords', 'styles', 'supportedCRS', 'supportedFormats', 'timelimits', 'timepositions', 'title']
 
         try:
-            sqlList.append(prepare_update_dataservers(serverUrl, title, abstract, wms, wfs, wcs))
+            sqlList.append(prepare_update_dataservers(server_url, title, abstract, wms, wfs, wcs))
 
             sql = ( "SELECT d.id, d.identifier, d.city_id "
                     "FROM " + tables["datasets"] + " AS d " 
                     "LEFT JOIN " + tables["dataservers"] + " AS ds ON d.dataserver_id = ds.id "
                     "WHERE ds.url = %s" )
 
-            cursor.execute(sql, (serverUrl,))        # Trailing comma required
+            cursor.execute(sql, (server_url,))        # Trailing comma required
 
             for row in cursor:
                 dsid, identifier, cityId = row
@@ -572,7 +592,7 @@ def check_data_servers(serverCursor):
                     try:
                         dc = wcs.getDescribeCoverage(identifier)
                     except:
-                        print "Can't do DescribeCoverage for WCS dataset " + serverUrl + " >>> " + identifier
+                        print "Can't do DescribeCoverage for WCS dataset " + server_url + " >>> " + identifier
                         continue
 
                     # Check for error
@@ -584,36 +604,36 @@ def check_data_servers(serverCursor):
                         if len(errorMsgs) > 0:
                             errorText = errorMsgs[0].text
 
-                        print "Error with " + identifier + " on " + serverUrl + ": " + errorText
+                        print "Error with " + identifier + " on " + server_url + ": " + errorText
                         continue
 
 
                     resX, resY = get_image_resolution(dc)
                     if resX is None:
-                        print "Can't find GridOffsets for WCS dataset " + serverUrl + " >>> " + identifier
+                        print "Can't find GridOffsets for WCS dataset " + server_url + " >>> " + identifier
                         continue
 
 
                     target_crs = get_target_crs(dc)
                     if target_crs is None:
-                        print "Can't find GridBaseCRS for WCS dataset " + serverUrl + " >>> " + identifier
+                        print "Can't find GridBaseCRS for WCS dataset " + server_url + " >>> " + identifier
                         continue
 
 
                     bbox_left, bbox_bottom, bbox_right, bbox_top = get_bounding_box(dc, target_crs)
 
                     if bbox_left is None:
-                        print "Could not find a bbox for WCS dataset " + serverUrl + " >>> " + identifier
+                        print "Could not find a bbox for WCS dataset " + server_url + " >>> " + identifier
                         continue
 
                     if(len(wcs.contents[identifier].supportedFormats[0]) == 0):
-                        print "Cannot get a supported format for WCS dataset " + serverUrl + " >>> " + identifier
+                        print "Cannot get a supported format for WCS dataset " + server_url + " >>> " + identifier
                         continue
                     
                     # All else being equal, we'd prefer to work with img datasets; second choice is tiff,
                     # otherwise, we'll just take what is offered first
                     if len(wcs.contents[identifier].supportedFormats) == 0:
-                        print "Cannot find valid image format for WCS dataset " + serverUrl + " >>> " + identifier
+                        print "Cannot find valid image format for WCS dataset " + server_url + " >>> " + identifier
                         continue
 
                     if 'image/img' in wcs.contents[identifier].supportedFormats:
@@ -637,7 +657,7 @@ def check_data_servers(serverCursor):
                 if service:           # Update the database with the layer info
                     sqlList.append( "UPDATE " + tables["datasets"] + " "
                                     "SET title = "        + str(adapt(title))    + ", "
-                                        "abstract = "     + str(adapt(abstract))    + ", "
+                                        "abstract = "     + str(adapt(abstract)) + ", "
                                         "alive = TRUE, "
                                         "last_seen = NOW(), "
                                         "local_srs = "    + str(adapt(has_city_crs)) + ", "
@@ -653,10 +673,10 @@ def check_data_servers(serverCursor):
                                     "WHERE id = " + str(adapt(dsid)) 
                                   )
                 else:
-                     print "Not found: " + identifier + " (on server " +  serverUrl + ")"
+                     print "Not found: " + identifier + " (on server " +  server_url + ")"
 
         except Exception as e:
-            print "Error scanning server " + serverUrl
+            print "Error scanning server " + server_url
             print type(e)
             print e.args
             print e
