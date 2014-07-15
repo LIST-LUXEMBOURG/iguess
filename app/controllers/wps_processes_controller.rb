@@ -7,7 +7,8 @@ class WpsProcessesController < ApplicationController
     @current_city  = User.getCurrentCity(current_user, cookies)
 
     if @server   
-      @processes = @server.wps_processes.find_all_by_city_id(@current_city.id).map{|p| p.identifier }
+      @processes = WpsProcess.find_all_by_city_id_and_alive(@current_city.id, true)
+                             .map{|p| p.identifier }
     else
       @processes = []
     end
