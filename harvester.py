@@ -306,7 +306,7 @@ def check_wps(serverCursor):
         # Iterate over the processes available on this server
         for proc in wps.processes: 
 
-            sqlList.append(prepare_mark_wps_processes_alive(server_url))
+            # sqlList.append(prepare_mark_wps_processes_alive(server_url))
 
             # Now we know that our row exists, and we can do a simple update to get the rest of the info in
             # We'll return the record id so that we can use it below.
