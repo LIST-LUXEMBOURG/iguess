@@ -343,7 +343,6 @@ def check_wps(serverCursor):
     # Run and commit WPS transactions
     run_queries(db_conn, upsert_list, sqlList)
     upsert_list = []
-    sqlList = []
 
 
 
