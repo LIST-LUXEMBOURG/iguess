@@ -348,25 +348,36 @@ class ModConfigsController < ApplicationController
       end
     end
 
-
     # Save any text inputs and outputs the user provided
     if(success) then
-      paramkeys = ['input', 'output']
-      paramkeys.each { |paramkey|
-        if(params[paramkey]) then                 # Iterate over params['input'], params['output']
-          params[paramkey].each_key do |key|
+        if(params['output']) then                 # Iterate over params['input'], params['output']
+          params['output'].each_key do |key|
             if(success) then 
               textval = ConfigTextInput.new()
               textval.mod_config = @mod_config
               textval.identifier = key
               textval.value = params[paramkey][key]
-              textval.is_input = (paramkey == 'input')
+              textval.is_input = false
+
+              success &= textval.save()
+            end
+          end  
+        end
+        
+        if(params['input']) then
+          params['input'].each_key do |key|
+            params['input'][key].each do |input|
+              textval = ConfigTextInput.new()
+              textval.mod_config = @mod_config
+              textval.identifier = key
+              textval.value = input[1]
+              textval.is_input = true
 
               success &= textval.save()
             end
           end
-        end
-      }
+        end  
+      #}
     end
 
     success &= @mod_config.save
