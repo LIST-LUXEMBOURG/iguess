@@ -254,7 +254,7 @@
 	
 	        // Simple output
 	        else if(!isInput && item.datatype != "ComplexData") {    // No input required, just display of value
-	
+	        	
 	          var value = (textInputValues == undefined) ? "" : textInputValues[item.identifier + modeName];
 	
 	          if(value) 
@@ -267,9 +267,9 @@
 	
 	        // Simple input or complex output -- we'll need to show a text field here
 	        else {    
-	
+				
 	          var className = isInput ? "input-field" : "output-field";
-	          var value = (textInputValues == undefined) ? "" : textInputValues[item.identifier + modeName];
+	          var value = (textInputValues == undefined) ? "" : textInputValues[n + item.identifier + modeName];
 	          var placeholder = isInput ? item.datatype.capitalize() + " value" : "Output dataset name";
 	
 	          var name = modeName + '[' + item.identifier + '][' + n + ']';
