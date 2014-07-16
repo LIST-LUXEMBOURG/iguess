@@ -142,13 +142,6 @@ class ModConfigsController < ApplicationController
         LEFT JOIN iguess_dev.config_datasets    AS cd  ON pp.identifier = cd.input_identifier AND cd.mod_config_id = mc.id
         LEFT JOIN iguess_dev.config_text_inputs AS cti ON pp.identifier = cti.identifier AND cti.mod_config_id = mc.id
         WHERE mc.id = " + id + " AND pp.alive = TRUE AND pp.is_input = TRUE AND cd.dataset_id IS NULL AND (cti.value IS NULL OR cti.value = '')
-
-        UNION
-
-        SELECT count(*) AS c FROM iguess_dev.mod_configs AS mc 
-        LEFT JOIN iguess_dev.process_params AS pp ON mc.wps_process_id = pp.wps_process_id
-        LEFT JOIN iguess_dev.config_text_inputs AS cti ON pp.identifier = cti.identifier AND cti.mod_config_id = mc.id
-        WHERE mc.id = " + id + " AND pp.alive = TRUE AND pp.is_input = false AND (cti.value IS NULL OR cti.value = '')
       ) 
 
       SELECT sum(c) FROM missing
