@@ -54,7 +54,7 @@ class Co2ScenariosController < ApplicationController
       @sector_scenarios.push(ss)
     }
 
-    @periods = [0,1,2]
+    @periods = [0,1,2,3,4,5,6,7,8]
     @consumptions = Hash.new
     @elec_mixes = Hash.new
     @heat_mixes = Hash.new
