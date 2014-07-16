@@ -223,7 +223,7 @@ class Co2ScenariosController < ApplicationController
     @scenario = Co2Scenario.find(params[:id])
     @sectors = Co2Sector.all
     @sector_scenarios = Co2SectorScenario.find_all_by_co2_scenario_id(params[:id])
-    @periods = [] #TODO -- this needs to be dynamic!!
+    @periods = []
     
     # Sources to use in Consumption
     @sources_cons = Co2Source.find_all_by_is_carrier(true)
@@ -262,8 +262,6 @@ class Co2ScenariosController < ApplicationController
     (0..max_period-1).each do |n|
       @periods << n
     end
-    
-    binding.pry
 
     Co2ElecMix.find_all_by_co2_scenario_id(params[:id])
           .each { |mix|
@@ -386,7 +384,7 @@ class Co2ScenariosController < ApplicationController
     
     # Electricity -------------
     # Delete all mixes with periods higher than the current number of periods in the scenario
-    unusedMixes = Co2ElecMix.includes(:co2_sector_scenario)
+    unusedMixes = Co2ElecMix.includes(:co2_scenario)
                         .where("period >= " + periods.to_s) 
                         .where("co2_scenario_id" => @scenario.id)
 
@@ -415,7 +413,7 @@ class Co2ScenariosController < ApplicationController
     end
     
     # Heat -------------
-    unusedMixes = Co2HeatMix.includes(:co2_sector_scenario)
+    unusedMixes = Co2HeatMix.includes(:co2_scenario)
                         .where("period >= " + periods.to_s) 
                         .where("co2_scenario_id" => @scenario.id)
 
