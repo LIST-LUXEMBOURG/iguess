@@ -243,18 +243,6 @@ def prepare_select_processes(server_url, identifier):
 
 
 
-def prepare_mark_wps_processes_alive(server_url):
-    return (
-        "UPDATE " + tables["processes"] + " "
-        "SET alive = true "
-        "WHERE wps_server_id IN ("
-            "SELECT id FROM " + tables["wpsServers"] + " "
-            "WHERE url = " + str(adapt(server_url)) + " "
-        ")"
-    )
-
-
-
 def clean_datatype(datatype):
     '''
     Strip extraneous prefix from datatype
@@ -305,12 +293,6 @@ def check_wps(serverCursor):
 
         # Iterate over the processes available on this server
         for proc in wps.processes: 
-
-            sqlList.append(prepare_mark_wps_processes_alive(server_url))
-
-            # Now we know that our row exists, and we can do a simple update to get the rest of the info in
-            # We'll return the record id so that we can use it below.
-            
             abstract = get_process_abstract(proc)
 
             sqlList.append(prepare_update_wps_process(server_url, proc.identifier, proc.title, abstract))
@@ -343,7 +325,6 @@ def check_wps(serverCursor):
     # Run and commit WPS transactions
     run_queries(db_conn, upsert_list, sqlList)
     upsert_list = []
-    sqlList = []
 
 
 
