@@ -250,7 +250,6 @@ class ModConfigsController < ApplicationController
       inputs.push("('" + configDataset.input_identifier + "', '" + dataRequest + "')")
     }
 
-
     # Text fields -- both inputs and outputs; only use fields that are still active
     @mod_config.config_text_inputs.keep_if{ |c| activeParamIdentifiers.include?(c.identifier) }.map { |d|  
           if d.is_input then 
