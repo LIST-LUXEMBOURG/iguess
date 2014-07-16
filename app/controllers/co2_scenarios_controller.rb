@@ -351,10 +351,11 @@ class Co2ScenariosController < ApplicationController
     
     # Delete all consumptions with periods higher than the current number of periods in the scenario
     unusedConsumptions = Co2Consumption.includes(:co2_sector_scenario)
-                                       .where("period >= " + periods.to_s) 
+                                       .where("period > " + periods.to_s) 
                                        .where("co2_sector_scenarios.co2_scenario_id" => @scenario.id)
 
     unusedConsumptions.each do |u|
+      binding.pry
       u.delete
     end
     
@@ -385,7 +386,7 @@ class Co2ScenariosController < ApplicationController
     # Electricity -------------
     # Delete all mixes with periods higher than the current number of periods in the scenario
     unusedMixes = Co2ElecMix.includes(:co2_scenario)
-                        .where("period >= " + periods.to_s) 
+                        .where("period > " + periods.to_s) 
                         .where("co2_scenario_id" => @scenario.id)
 
     unusedMixes.each do |u|
@@ -414,7 +415,7 @@ class Co2ScenariosController < ApplicationController
     
     # Heat -------------
     unusedMixes = Co2HeatMix.includes(:co2_scenario)
-                        .where("period >= " + periods.to_s) 
+                        .where("period > " + periods.to_s) 
                         .where("co2_scenario_id" => @scenario.id)
 
     unusedMixes.each do |u|
@@ -443,7 +444,7 @@ class Co2ScenariosController < ApplicationController
 
     # Emission Factors -----------------
     # Delete all efs with periods higher than the current number of periods in the scenario
-    unusedEFs = Co2EmissionFactor.where("period >= " + periods.to_s)
+    unusedEFs = Co2EmissionFactor.where("period > " + periods.to_s)
                                  .where("co2_scenario_id" => @scenario.id)
 
     unusedEFs.each do |u|
