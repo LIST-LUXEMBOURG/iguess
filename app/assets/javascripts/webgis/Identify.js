@@ -50,10 +50,6 @@ WebGIS.toggleLayer = function(e)
     }
 };
 
-WebGIS.picField = "picture";
-
-var toto = "picturezzz";
-
 WebGIS.showInfo = function(evt) 
 {
 	var itemSet = [];
@@ -61,35 +57,13 @@ WebGIS.showInfo = function(evt)
 	
     Ext.each(evt.features, function(feature) 
     {
-    	// This custom redered is for the LaMiLo project alone
-    	// Ideally it would created at run-time, but this is the only way it works.
-
 		grid = new Ext.grid.PropertyGrid();
 		for (var key in feature.attributes)
-		{
-			
+		{	
 			value = feature.attributes[key];
-			//toto = WebGIS.picField;
 			if ((value != null) && (value.substring(0, 4) == "http"))	
-			{
-				//debugger;
-				/*grid.customRenderers[key] = function(v)
-			    {
-			    	alert("Here's the string: " + toto);
-			    	alert("Here's the value: " + feature.attributes[toto]);
-			        ;
-			    };*/
-			    
-			    grid.customRenderers[key] = Function("v", "return \"<img src=\\\"" + value + "\\\" />\";");
-			}	
+			    grid.customRenderers[key] = Function("v", "return \"<img src=\\\"" + value + "\\\" />\";");	
 		}
-
-		
-		/*grid.customRenderers[WebGIS.picField] = function(v)
-	    {
-	         return "<img src=\"" + feature.attributes[WebGIS.picField] + "\" />";
-	    };*/
-		debugger;
     	delete grid.getStore().sortInfo; // Remove default sorting
     	grid.getColumnModel().getColumnById('name').sortable = false; // set sorting of first column to false
     	grid.setSource(feature.attributes); // Now load data
