@@ -50,6 +50,8 @@ WebGIS.toggleLayer = function(e)
     }
 };
 
+WebGIS.picField = "picture";
+
 WebGIS.showInfo = function(evt) 
 {
 	var itemSet = [];
@@ -59,14 +61,20 @@ WebGIS.showInfo = function(evt)
     {
     	// This custom redered is for the LaMiLo project alone
     	// Ideally it would created at run-time, but this is the only way it works.
-    	grid = new Ext.grid.PropertyGrid({
+    	/*grid = new Ext.grid.PropertyGrid({
 	   		customRenderers: {
 		   		"picture": function(v)
 			    {
 			         return "<img src=\"" + feature.attributes["picture"] + "\" />";
 			    }
 		   	}
-		});		
+		});	*/
+		grid = new Ext.grid.PropertyGrid();
+		grid.customRenderers[WebGIS.picField] = function(v)
+	    {
+	         return "<img src=\"" + feature.attributes[WebGIS.picField] + "\" />";
+	    };
+		debugger;
     	delete grid.getStore().sortInfo; // Remove default sorting
     	grid.getColumnModel().getColumnById('name').sortable = false; // set sorting of first column to false
     	grid.setSource(feature.attributes); // Now load data
