@@ -223,7 +223,7 @@ class Co2ScenariosController < ApplicationController
     @scenario = Co2Scenario.find(params[:id])
     @sectors = Co2Sector.all
     @sector_scenarios = Co2SectorScenario.find_all_by_co2_scenario_id(params[:id])
-    @periods = [0,1,2] #TODO -- this needs to be dynamic!!
+    @periods = [] #TODO -- this needs to be dynamic!!
     
     # Sources to use in Consumption
     @sources_cons = Co2Source.find_all_by_is_carrier(true)
@@ -247,13 +247,23 @@ class Co2ScenariosController < ApplicationController
 
     # Pack these into a structure that is the same as we create in the new action above
     # If we do that, we can use the same UI code for editing as we do for creating
+    max_period = 0
     Co2Consumption.includes(:co2_sector_scenario)
                   .where("co2_sector_scenarios.co2_scenario_id" => params[:id])
                   .each { |consumption|
                     @consumptions[[consumption.period, 
                                    consumption.co2_source_id, 
                                    consumption.co2_sector_scenario.co2_sector.id]] = consumption
+                    if (max_period < consumption.period) 
+                      max_period = consumption.period 
+                    end
                   }
+
+    (0..max_period-1).each do |n|
+      @periods << n
+    end
+    
+    binding.pry
 
     Co2ElecMix.find_all_by_co2_scenario_id(params[:id])
           .each { |mix|
