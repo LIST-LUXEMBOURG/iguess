@@ -499,9 +499,10 @@ class Co2ScenariosController < ApplicationController
   def replicate
     
     @scenario = Co2Scenario.find(params[:id])
+    r = Random.new
     
     new_scenario = Co2Scenario.new
-    new_scenario.name = @scenario.name + " replica"
+    new_scenario.name = @scenario.name + " replica " + r.rand(1...1000).to_s
     new_scenario.city_id = @scenario.city_id
     new_scenario.base_year = @scenario.base_year
     new_scenario.time_step = @scenario.time_step
