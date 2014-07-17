@@ -44,7 +44,14 @@ Iguess::Application.routes.draw do
   
   resources :dss
 
-  resources :co2_scenarios
+  resources :co2_scenarios do
+   # match '/replicate/:id' => 'co2_scenarios#replicate', :as => :replicate
+   member do
+    get 'replicate'
+   end
+  end
+  
+  
 
   devise_for :users, :controllers => {:registrations => "registrations"}
 
