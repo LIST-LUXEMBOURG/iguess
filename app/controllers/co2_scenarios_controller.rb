@@ -494,4 +494,70 @@ class Co2ScenariosController < ApplicationController
     
     redirect_to action: "index"
   end
+  
+  
+  def replicate
+    
+    @scenario = Co2Scenario.find(params[:id])
+    
+    new_scenario = Co2Scenario.new
+    new_scenario.name = @scenario.name + " replica"
+    new_scenario.city_id = @scenario.city_id
+    new_scenario.base_year = @scenario.base_year
+    new_scenario.time_step = @scenario.time_step
+    new_scenario.description = @scenario.description
+    new_scenario.save
+    
+    @scenario.co2_elec_mixes.each do |elec|
+      new_elec = Co2ElecMix.new
+      new_elec.co2_scenario_id = new_scenario.id
+      new_elec.co2_source_id = elec.co2_source_id
+      new_elec.period = elec.period
+      new_elec.value = elec.value
+      new_elec.save
+    end
+    
+    @scenario.co2_heat_mixes.each do |heat|
+      new_heat = Co2ElecMix.new
+      new_heat.co2_scenario_id = new_scenario.id
+      new_heat.co2_source_id = heat.co2_source_id
+      new_heat.period = heat.period
+      new_heat.value = heat.value
+      new_heat.save
+    end
+    
+    @scenario.co2_emission_factors do |factor|
+      new_factor = Co2EmissionFactor.new
+      new_factor.co2_scenario_id = new_scenario.id
+      new_factor.co2_source_id = factor.co2_source_id
+      new_factor.period = factor.period
+      new_factor.co2_factor = factor.co2_factor
+      new_factor.ch4_factor = factor.ch4_factor
+      new_factor.n2o_factor = factor.n2o_factor
+      new_factor.save
+    end
+    
+    @scenario.co2_sector_scenarios do |sec_scen|
+      new_sec_scen = Co2SectorScenario.new
+      new_sec_scen.co2_scenario_id = new_scenario.id
+      new_sec_scen.co2_sector_id = sec_scen.co2_sector_id
+      new_sec_scen.demand = sec_scen.demand
+      new_sec_scen.efficiency = sec_scen.efficiency
+      new_sec_scen.base_total = sec_scen.base_total
+      new_sec_scen.save 
+      
+      sec_scen.co2_consumptions do |con|
+        new_con = Co2Consumption.new
+        new_con.co2_sector_scenario_id = new_sec_scen.id
+        new_con.period = con.period
+        new_con.value = con.value
+        new_con.co2_source_id = con.co2_source_id
+        new_con.save
+      end 
+    end
+    
+    redirect_to action: "index"
+    
+  end
+  
 end
