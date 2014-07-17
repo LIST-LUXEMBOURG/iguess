@@ -507,7 +507,7 @@ class Co2ScenariosController < ApplicationController
     new_scenario.time_step = @scenario.time_step
     new_scenario.description = @scenario.description
     new_scenario.save
-    
+     
     @scenario.co2_elec_mixes.each do |elec|
       new_elec = Co2ElecMix.new
       new_elec.co2_scenario_id = new_scenario.id
@@ -518,7 +518,7 @@ class Co2ScenariosController < ApplicationController
     end
     
     @scenario.co2_heat_mixes.each do |heat|
-      new_heat = Co2ElecMix.new
+      new_heat = Co2HeatMix.new
       new_heat.co2_scenario_id = new_scenario.id
       new_heat.co2_source_id = heat.co2_source_id
       new_heat.period = heat.period
@@ -526,7 +526,7 @@ class Co2ScenariosController < ApplicationController
       new_heat.save
     end
     
-    @scenario.co2_emission_factors do |factor|
+    @scenario.co2_emission_factors.each do |factor|
       new_factor = Co2EmissionFactor.new
       new_factor.co2_scenario_id = new_scenario.id
       new_factor.co2_source_id = factor.co2_source_id
@@ -537,7 +537,7 @@ class Co2ScenariosController < ApplicationController
       new_factor.save
     end
     
-    @scenario.co2_sector_scenarios do |sec_scen|
+    @scenario.co2_sector_scenarios.each do |sec_scen|
       new_sec_scen = Co2SectorScenario.new
       new_sec_scen.co2_scenario_id = new_scenario.id
       new_sec_scen.co2_sector_id = sec_scen.co2_sector_id
@@ -546,7 +546,7 @@ class Co2ScenariosController < ApplicationController
       new_sec_scen.base_total = sec_scen.base_total
       new_sec_scen.save 
       
-      sec_scen.co2_consumptions do |con|
+      sec_scen.co2_consumptions.each do |con|
         new_con = Co2Consumption.new
         new_con.co2_sector_scenario_id = new_sec_scen.id
         new_con.period = con.period
