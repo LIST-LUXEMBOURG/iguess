@@ -355,18 +355,18 @@ class Co2ScenariosController < ApplicationController
     # Update the remaining consumptions
     (0..periods-1).each do |p| 
       @sources_cons.each do |s|
-        params[:co2_consumptions][p.to_s][s.id.to_s].keys.each do |secscen_sector_id|
+        params[:co2_consumptions][p.to_s][s.id.to_s].keys.each do |secscen_id|
           
-          consumption = Co2Consumption.find_by_period_and_co2_source_id_and_co2_sector_scenario_id(p, s.id, secscen_sector_id)
+          consumption = Co2Consumption.find_by_period_and_co2_source_id_and_co2_sector_scenario_id(p, s.id, secscen_id)
 
           if not consumption 
             consumption = Co2Consumption.new
             consumption.period = p
             consumption.co2_source_id = s.id
-            consumption.co2_sector_scenario_id = secscen_sector_id
+            consumption.co2_sector_scenario_id = secscen_id
           end
 
-          consumption.value = params[:co2_consumptions][p.to_s][s.id.to_s][secscen_sector_id]
+          consumption.value = params[:co2_consumptions][p.to_s][s.id.to_s][secscen_id]
 
           if not consumption.save
             errorUpdating()
