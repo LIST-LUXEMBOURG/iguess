@@ -289,12 +289,6 @@ class Co2ScenariosController < ApplicationController
   def errorUpdating
     flash[:notice] = "Encountered a problem updating scenario" 
   end
-
-
-  def getConsumption(scenario_id, sector_id, period, source_id)
-    secscen = Co2SectorScenario.find_by_co2_sector_id_and_co2_scenario_id(sector_id, scenario_id)
-    return Co2Consumption.find_by_period_and_co2_source_id_and_co2_sector_scenario_id(period, source_id, secscen.id)
-  end 
   
   # PUT /co2_scenarios/1
   # PUT /co2_scenarios/1.json
@@ -355,7 +349,6 @@ class Co2ScenariosController < ApplicationController
                                        .where("co2_sector_scenarios.co2_scenario_id" => @scenario.id)
 
     unusedConsumptions.each do |u|
-      binding.pry
       u.delete
     end
     
@@ -364,7 +357,7 @@ class Co2ScenariosController < ApplicationController
       @sources_cons.each do |s|
         params[:co2_consumptions][p.to_s][s.id.to_s].keys.each do |secscen_sector_id|
           
-          consumption = getConsumption(@scenario.id, secscen_sector_id, p, s.id)
+          consumption = Co2Consumption.find_by_period_and_co2_source_id_and_co2_sector_scenario_id(p, s.id, secscen_sector_id)
 
           if not consumption 
             consumption = Co2Consumption.new
