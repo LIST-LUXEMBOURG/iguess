@@ -82,11 +82,14 @@ class ModConfigsController < ApplicationController
     # Note that some inputs have been known to begin with problematic chars like "-"      
     n = -1                
     @textInputValues = ConfigTextInput.find_all_by_mod_config_id(@mod_config)
-                                      .map{|t| "'" + (n = n + 1).to_s + t.identifier + (t.is_input ? 'input' : 'output') + "'" + ': "' + t.value + '"' }
+                                      .map{|t| "'" + t.id.to_s + ":" + t.identifier + 
+                                        (t.is_input ? 'input' : 'output') + "'" + ': "' + t.value + '"' }
                                       .join(',')
-
+                                      
     @input_params  = @mod_config.wps_process.process_params.find_all_by_is_input(true,  :order=>:title)
     @output_params = @mod_config.wps_process.process_params.find_all_by_is_input(false, :order=>:title)
+    
+    binding.pry
 
     respond_to do |format|
       format.html # show.html.erb
@@ -482,23 +485,26 @@ class ModConfigsController < ApplicationController
         params[paramkey].each do |p| 
 
           identifier = p[0]
-          val = p[1].strip    # strip off leading and trailing whitespace
-          isInput = (paramkey == :input)
-
-          @output = ConfigTextInput.find_by_mod_config_id_and_identifier_and_is_input(
-                        @mod_config.id, identifier, isInput)
-
-          # @output can be nil if the wps changed the identifiers it uses, or perhaps the user cleared
-          # a form field, which can delete the related element in ConfigTextInput
-          if not @output then
-            @output = ConfigTextInput.new
-            @output.mod_config = @mod_config
-            @output.identifier = identifier
-            @output.value = val
-            @output.is_input = isInput
-          else
-            @output.value = val
-          end
+          
+          p[1].each do |val_array|
+            val = val_array[1].strip    # strip off leading and trailing whitespace
+            isInput = (paramkey == :input)
+  
+            @output = ConfigTextInput.find_by_mod_config_id_and_identifier_and_is_input(
+                          @mod_config.id, identifier, isInput)
+  
+            # @output can be nil if the wps changed the identifiers it uses, or perhaps the user cleared
+            # a form field, which can delete the related element in ConfigTextInput
+            if not @output then
+              @output = ConfigTextInput.new
+              @output.mod_config = @mod_config
+              @output.identifier = identifier
+              @output.value = val
+              @output.is_input = isInput
+            else
+              @output.value = val
+            end
+          end 
           ok = ok && @output.save
         end
       end

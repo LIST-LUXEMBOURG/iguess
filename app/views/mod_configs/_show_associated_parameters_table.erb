@@ -266,13 +266,14 @@
 	        }
 	
 	        // Simple input or complex output -- we'll need to show a text field here
-	        else {    
-				
+	        else 
+	        {    
+			  debugger;	
 	          var className = isInput ? "input-field" : "output-field";
-	          var value = (textInputValues == undefined) ? "" : textInputValues[n + item.identifier + modeName];
+	          var value = (textInputValues == undefined) ? "" : textInputValues[item.id + ":" + item.identifier + modeName];
 	          var placeholder = isInput ? item.datatype.capitalize() + " value" : "Output dataset name";
 	
-	          var name = modeName + '[' + item.identifier + '][' + n + ']';
+	          var name = modeName + '[' + item.identifier + '][' + item.id + ']';
 	
 	          cell.html('<input type="text" name="' + name + '" placeholder="' + placeholder + '" ' +
 	                           'value="' + value + '" class="' + className + ' disableable" onchange="onInputOutputTextEntryChanged(this)">');
@@ -287,6 +288,117 @@
 	   }
     }
   };
+  
+  
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  // This method must transform into something that creates a specific
+  // structure only containing valus for this identifier
+  var countValues(identifier, textInputValues)
+  {
+  	count = 0;
+  	if (textInputValues == null) return count;
+  	
+  	for (var key in textInputValues)	
+		if (key.substring(key.indexOf(":")).indexOf(identifier) == 0) count++;
+		value = feature.attributes[key];
+  	
+  	return count;
+  }
+  
+  // There is some redundancy between this method and populateTable.
+  // This must be solved later on
+  var populateTableInputs = function(items, textInputValues)
+  {
+    var itemCount = items.length;
+    var modeName = 'input'
+
+    // Find the exsiting table called input-table or output-table
+    var table = $('#' + modeName + '-table');
+
+    if(itemCount == 0) 
+        table.html("<span class='no-inputs-ouputs'>This module configuration requires no inputs.</span>");
+
+    else 
+    {
+      table.empty();
+
+      var text       = "Selected Dataset or Value";
+      var extraField = "<th class='center'>Parameter Tag</th>";
+
+      table.append("<tr><th>Parameter Name</th>" + extraField + "<th class='center'>" + text + "</th></tr>");
+
+
+      for(var i = 0; i < itemCount; i++)
+      {
+      	item = items[i];
+      	
+      	//Create at least as many input fields as minimum occurrences.
+      	
+      	valueCount = countValues(item.identifier, textInputValues);
+      	if (valueCount < item.min_occurs) valueCount = item.min_occurs;
+      	
+      	for(var n = 0; n < valueCount; n++)
+      	{
+	        var row = $(document.createElement("tr"));
+
+	        // Parameter Name column
+	        var cell = $(document.createElement('td'));
+	
+	        cell.append(item.title ? item.title : item.identifier);
+	        if(item.abstract)
+	        {
+	          if(item.abstract.length > 50)
+	          {
+	            var key = modeName + i;
+	            cell.append("<br><span class='input-description' id='" + key + "-short'>" + 
+	                          item.abstract.substring(0,50) + 
+	                          "...&nbsp;&nbsp;<a href='#' onclick='showIODetails(\"" + key + "\");return false;'>" + 
+	                            "More&nbsp;&gt;" + 
+	                          "</a>" +
+	                        "</span>" + 
+	                        "<span class='input-description' id='" + key + "-long' style='display:none;'>" + 
+	                          item.abstract + 
+	                          "&nbsp;&nbsp;<a href='#' onclick='hideIODetails(\"" + key + "\");return false;'>" + 
+	                            "&lt;&nbsp;Less" + 
+	                          "</a>" +
+	                        "</span>");
+	          }
+	          else
+	             cell.append("<br><span class='input-description'>" + item.abstract + "</span>");
+	        }
+	
+	        row.append(cell);
+	
+	        if(isInput) {
+	          row.append("<td align='center'>[" + item.identifier + "]</td>");
+	        }
+	
+	        // Parameter Value column
+	        cell = $(document.createElement('td'));   // Dataset
+	        cell.attr("nowrap", true);
+	
+	        // Create text inputs
+		    debugger;	
+            var className = "input-field";
+            var value = (textInputValues == undefined) ? "" : textInputValues[n];
+            var placeholder = item.datatype.capitalize() + " value";
+
+            var name = modeName + '[' + item.identifier + '][' + item.id + ']';
+
+            cell.html('<input type="text" name="' + name + '" placeholder="' + placeholder + '" ' +
+                           'value="' + value + '" class="' + className + ' disableable" onchange="onInputOutputTextEntryChanged(this)">');
+            row.append(cell);
+
+            row.append('<td class="message-cell" name="' + name + '"></td>' );   // Place for messages and such
+
+	
+	        table.append(row);
+	
+	      }
+	   }
+    }
+  };
+
 
 
   var nameVerified = function(jqXHR)

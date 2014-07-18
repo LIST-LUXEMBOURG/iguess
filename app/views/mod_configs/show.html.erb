@@ -328,7 +328,8 @@ if($().jquery.split(".")[0] == "1") {
 
   $(document).ready(function() {
 
-    populateTable(inputs,  true,  textInputValues, datasetValues);
+    //populateTable(inputs,  true,  textInputValues, datasetValues);
+    populateTableInputs(inputs,  textInputValues);
     populateTable(outputs, false, textInputValues);
 
     updateScreen("<%= @mod_config.run_status.status %>", 
