@@ -478,8 +478,11 @@ class ModConfigsController < ApplicationController
     end
 
     # Update any text inputs/outputs.  Since we don't know the ids of the items, we'll need to do a little hunting
+    
+    
 
-    paramkeys = [:input, :output]
+    #paramkeys = [:input, :output]
+    paramkeys = [:output]
     paramkeys.each do |paramkey|
       if(params[paramkey]) then                 # Iterate over params['input'], params['output']
         params[paramkey].each do |p| 
@@ -507,6 +510,18 @@ class ModConfigsController < ApplicationController
           end 
           ok = ok && @output.save
         end
+      end
+    end
+       
+    params[:input].keys.each do |key|
+      
+      #binding.pry
+      params[:input][key].keys.each do |input_id|
+        
+        @input = ConfigTextInput.find_by_id(input_id)
+        @input.value = params[:input][key][input_id]
+        #binding.pry
+        ok = ok && @input.save       
       end
     end
 

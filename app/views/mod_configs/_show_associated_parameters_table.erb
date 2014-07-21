@@ -299,7 +299,6 @@
   	
   	for (var key in textInputValues)	
   	{
-  		alert("The identifier: " + identifier + "\nThis key: " + key + "\nThe index: " + key.substring(key.indexOf(":")).indexOf(identifier));
 		if (key.substring(key.indexOf(":")).indexOf(identifier) == 1)
 			keys.push(key);
 	}
@@ -376,8 +375,7 @@
 	        cell = $(document.createElement('td'));   // Dataset
 	        cell.attr("nowrap", true);
 	
-	        // Create text inputs
-		    debugger;	
+	        // Create text inputs	
             var className = "input-field";
             
             value = "";
