@@ -291,19 +291,21 @@
   
   
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  // This method must transform into something that creates a specific
-  // structure only containing valus for this identifier
-  var countValues(identifier, textInputValues)
+
+  var getRelevantKeys = function(identifier, textInputValues)
   {
-  	count = 0;
-  	if (textInputValues == null) return count;
+  	keys = new Array();
+  	if (textInputValues == null) return values;
   	
   	for (var key in textInputValues)	
-		if (key.substring(key.indexOf(":")).indexOf(identifier) == 0) count++;
-		value = feature.attributes[key];
+  	{
+  		alert("The identifier: " + identifier + "\nThis key: " + key + "\nThe index: " + key.substring(key.indexOf(":")).indexOf(identifier));
+		if (key.substring(key.indexOf(":")).indexOf(identifier) == 1)
+			keys.push(key);
+	}
   	
-  	return count;
-  }
+  	return keys;
+  };
   
   // There is some redundancy between this method and populateTable.
   // This must be solved later on
@@ -333,8 +335,8 @@
       	item = items[i];
       	
       	//Create at least as many input fields as minimum occurrences.
-      	
-      	valueCount = countValues(item.identifier, textInputValues);
+      	keys = getRelevantKeys(item.identifier, textInputValues);
+      	valueCount = keys.length;
       	if (valueCount < item.min_occurs) valueCount = item.min_occurs;
       	
       	for(var n = 0; n < valueCount; n++)
@@ -368,10 +370,7 @@
 	        }
 	
 	        row.append(cell);
-	
-	        if(isInput) {
-	          row.append("<td align='center'>[" + item.identifier + "]</td>");
-	        }
+	        row.append("<td align='center'>[" + item.identifier + "]</td>");
 	
 	        // Parameter Value column
 	        cell = $(document.createElement('td'));   // Dataset
@@ -380,15 +379,24 @@
 	        // Create text inputs
 		    debugger;	
             var className = "input-field";
-            var value = (textInputValues == undefined) ? "" : textInputValues[n];
+            
+            value = "";
+            item_id = "";
+            if((textInputValues != null) && (keys.length > n))
+            {
+            	value = textInputValues[keys[n]];
+            	item_id = keys[n].substring(0, keys[n].indexOf(":"));
+            }
+            
+            //var value = (textInputValues == undefined) ? "" : textInputValues[n];
+    
             var placeholder = item.datatype.capitalize() + " value";
 
-            var name = modeName + '[' + item.identifier + '][' + item.id + ']';
+            var name = modeName + '[' + item.identifier + '][' + item_id + ']';
 
             cell.html('<input type="text" name="' + name + '" placeholder="' + placeholder + '" ' +
                            'value="' + value + '" class="' + className + ' disableable" onchange="onInputOutputTextEntryChanged(this)">');
             row.append(cell);
-
             row.append('<td class="message-cell" name="' + name + '"></td>' );   // Place for messages and such
 
 	
