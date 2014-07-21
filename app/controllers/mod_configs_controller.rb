@@ -515,12 +515,10 @@ class ModConfigsController < ApplicationController
        
     params[:input].keys.each do |key|
       
-      #binding.pry
       params[:input][key].keys.each do |input_id|
         
         @input = ConfigTextInput.find_by_id(input_id)
         @input.value = params[:input][key][input_id]
-        #binding.pry
         ok = ok && @input.save       
       end
     end

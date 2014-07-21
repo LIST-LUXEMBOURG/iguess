@@ -268,18 +268,17 @@
 	        // Simple input or complex output -- we'll need to show a text field here
 	        else 
 	        {    
-			  debugger;	
 	          var className = isInput ? "input-field" : "output-field";
-	          var value = (textInputValues == undefined) ? "" : textInputValues[item.id + ":" + item.identifier + modeName];
-	          var placeholder = isInput ? item.datatype.capitalize() + " value" : "Output dataset name";
-	
-	          var name = modeName + '[' + item.identifier + '][' + item.id + ']';
-	
-	          cell.html('<input type="text" name="' + name + '" placeholder="' + placeholder + '" ' +
-	                           'value="' + value + '" class="' + className + ' disableable" onchange="onInputOutputTextEntryChanged(this)">');
-	          row.append(cell);
-	
-	          row.append('<td class="message-cell" name="' + name + '"></td>' );   // Place for messages and such
+		      var value = (textInputValues == undefined) ? "" : textInputValues[item.identifier + modeName];
+		      var placeholder = isInput ? item.datatype.capitalize() + " value" : "Output dataset name";
+		
+		      var name = modeName + '[' + item.identifier + '][' + n + ']';
+		
+		      cell.html('<input type="text" name="' + name + '" placeholder="' + placeholder + '" ' +
+		                       'value="' + value + '" class="' + className + ' disableable" onchange="onInputOutputTextEntryChanged(this)">');
+		      row.append(cell);
+		
+		      row.append('<td class="message-cell" name="' + name + '"></td>' );   // Place for messages and such
 	        }
 	
 	        table.append(row);
