@@ -297,16 +297,25 @@
   	var lastRow = document.getElementById(lastRowId);
   	var table = lastRow.parentNode.parentNode;
   	var newRow = lastRow.cloneNode(true);
+  	newRow.id = lastRow.id + Math.floor(Math.random());
   	lastRow.parentNode.insertBefore(newRow, lastRow);
 	var input = newRow.cells[2].firstChild;
 	input.name = input.name.substring(0, input.name.lastIndexOf("[")) + "[-1]";
 	lastRow.cells[2].firstChild.value = "";
-	newRow.deleteCell(4);
+	if(newRow.cells.length > 4) newRow.deleteCell(4);
+  };
+  
+  var removeInputLine = function(lastRowId)
+  {
+  	debugger;
+  	var lastRow = document.getElementById(lastRowId);
+  	var table = lastRow.parentNode.parentNode;
+  	lastRow.cells[2].firstChild.value = lastRow.previousSibling.cells[2].firstChild.value;
+  	table.deleteRow(lastRow.previousSibling.rowIndex);
   };
   
   
   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
   var getRelevantKeys = function(identifier, textInputValues)
   {
   	keys = new Array();
@@ -421,10 +430,16 @@
 	      }
 	   }
 	   
-	   cell = $(document.createElement('td'));
-	   cell.html("<a href=# onclick='addInputLine(\"" + lastRow.id + "\");'>Add another input</a><br>" + 
-	   			 "<a href=# onclick='removeInputLine(\"" + lastRow.id + "\");'>Remove input</a>");
-	   row.append(cell);
+	   if(item.max_occurs > 1)
+	   {
+		   cell = $(document.createElement('td'));
+		   cell.html(
+		   	"<a href=# onclick='addInputLine(\"" + lastRow.id + "\");'>Add [" + item.identifier + "] input</a><br>" + 
+		   	"<a href=# onclick='removeInputLine(\"" + lastRow.id + "\");'>Remove [" + item.identifier + "] input</a>"
+		   	);
+		   cell.css('background-color', '#aaa !important');
+		   row.append(cell);
+	   }
 
     }
   };
