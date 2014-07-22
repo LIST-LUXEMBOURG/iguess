@@ -284,8 +284,24 @@
 	        table.append(row);
 	
 	      }
+	      
+	      
 	   }
     }
+  };
+  
+  
+  var addInputLine = function(lastRowId)
+  {
+  	debugger;
+  	var lastRow = document.getElementById(lastRowId);
+  	var table = lastRow.parentNode.parentNode;
+  	var newRow = lastRow.cloneNode(true);
+  	lastRow.parentNode.insertBefore(newRow, lastRow);
+	var input = newRow.cells[2].firstChild;
+	input.name = input.name.substring(0, input.name.lastIndexOf("[")) + "[-1]";
+	lastRow.cells[2].firstChild.value = "";
+	newRow.deleteCell(4);
   };
   
   
@@ -324,6 +340,7 @@
 
       var text       = "Selected Dataset or Value";
       var extraField = "<th class='center'>Parameter Tag</th>";
+      var lastRowName = "";
 
       table.append("<tr><th>Parameter Name</th>" + extraField + "<th class='center'>" + text + "</th></tr>");
 
@@ -340,6 +357,9 @@
       	for(var n = 0; n < valueCount; n++)
       	{
 	        var row = $(document.createElement("tr"));
+	        row.id = item.identifier + n;
+	        
+	        row.attr('id', item.identifier + n);
 
 	        // Parameter Name column
 	        var cell = $(document.createElement('td'));
@@ -396,11 +416,16 @@
             row.append(cell);
             row.append('<td class="message-cell" name="' + name + '"></td>' );   // Place for messages and such
 
-	
 	        table.append(row);
-	
+	        lastRow = row;
 	      }
 	   }
+	   
+	   cell = $(document.createElement('td'));
+	   cell.html("<a href=# onclick='addInputLine(\"" + lastRow.id + "\");'>Add another input</a><br>" + 
+	   			 "<a href=# onclick='removeInputLine(\"" + lastRow.id + "\");'>Remove input</a>");
+	   row.append(cell);
+
     }
   };
 
