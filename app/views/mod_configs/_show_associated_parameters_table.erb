@@ -293,7 +293,6 @@
   
   var addInputLine = function(lastRowId)
   {
-  	debugger;
   	var lastRow = document.getElementById(lastRowId);
   	var table = lastRow.parentNode.parentNode;
   	var newRow = lastRow.cloneNode(true);
@@ -308,7 +307,6 @@
   
   var removeInputLine = function(lastRowId)
   {
-  	debugger;
   	var lastRow = document.getElementById(lastRowId);
   	var table = lastRow.parentNode.parentNode;
   	lastRow.cells[2].firstChild.value = lastRow.previousSibling.cells[2].firstChild.value;
