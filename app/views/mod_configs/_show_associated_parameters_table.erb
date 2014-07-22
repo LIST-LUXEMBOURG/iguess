@@ -313,6 +313,7 @@
   	var table = lastRow.parentNode.parentNode;
   	lastRow.cells[2].firstChild.value = lastRow.previousSibling.cells[2].firstChild.value;
   	table.deleteRow(lastRow.previousSibling.rowIndex);
+  	onInputOutputTextEntryChanged(lastRow.cells[2].firstChild);
   };
   
   
