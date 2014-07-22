@@ -515,10 +515,20 @@ class ModConfigsController < ApplicationController
        
     params[:input].keys.each do |key|
       
+      # First delete old values
+      ConfigTextInput.find_all_by_mod_config_id_and_identifier(@mod_config.id, key).each do |old_input|
+        old_input.delete
+      end
+      
+      # Save new values
       params[:input][key].keys.each do |input_id|
         
-        @input = ConfigTextInput.find_by_id(input_id)
+        @input = ConfigTextInput.new()
+        @input.mod_config = @mod_config
+        @input.identifier = key
+        @input.is_input = true
         @input.value = params[:input][key][input_id]
+        binding.pry
         ok = ok && @input.save       
       end
     end

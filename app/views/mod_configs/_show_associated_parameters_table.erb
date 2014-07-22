@@ -297,10 +297,11 @@
   	var lastRow = document.getElementById(lastRowId);
   	var table = lastRow.parentNode.parentNode;
   	var newRow = lastRow.cloneNode(true);
-  	newRow.id = lastRow.id + Math.floor(Math.random());
+  	var id = Math.floor(Math.random() * -1000);
+  	newRow.id = lastRow.id + id;
   	lastRow.parentNode.insertBefore(newRow, lastRow);
 	var input = newRow.cells[2].firstChild;
-	input.name = input.name.substring(0, input.name.lastIndexOf("[")) + "[-1]";
+	input.name = input.name.substring(0, input.name.lastIndexOf("[")) + "[" + id + "]";
 	lastRow.cells[2].firstChild.value = "";
 	if(newRow.cells.length > 4) newRow.deleteCell(4);
   };
