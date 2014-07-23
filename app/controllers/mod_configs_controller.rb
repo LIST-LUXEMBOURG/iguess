@@ -528,7 +528,6 @@ class ModConfigsController < ApplicationController
         @input.identifier = key
         @input.is_input = true
         @input.value = params[:input][key][input_id]
-        binding.pry
         ok = ok && @input.save       
       end
     end
