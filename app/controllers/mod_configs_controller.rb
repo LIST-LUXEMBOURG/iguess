@@ -441,7 +441,7 @@ class ModConfigsController < ApplicationController
 
     if(params[:datasets]) then        # Not every module has input datasets
 
-      @config_datasets = ConfigDataset.find_all_by_mod_config_id(@mod_config.id)
+      @config_datasets = ConfigDataset.find_all_by_mod_config_id_and_is_input(@mod_config.id, true)
       @config_datasets.each { |cd| 
         ok == ok && cd.delete()
       }
