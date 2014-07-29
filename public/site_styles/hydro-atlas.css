@@ -1,0 +1,150 @@
+/* Put any lamilo specific styles here */
+
+#navbar {
+  width: 100%;
+  height: 30px;
+  background: white;
+}
+
+#nav a {
+  background: url(images/nav_vert.gif) no-repeat top right;
+}
+
+
+#top_banner, .footer-table {
+  background-color: #B3D1FF;
+}
+
+.footer-table {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+.footer-table td {
+  border: 4px solid #B3D1FF;
+  padding: 5px 15px 0px 15px;
+  min-width: 125px;
+  vertical-align: top;
+}
+
+
+.footer-table {
+  color: #fff;
+  /*border-spacing: 15px;*/
+  border-collapse: separate;
+  table-layout: fixed;
+  width: 1000px;
+}
+
+a.footer-graphic {
+  background: url("http://www.lamiloproject.eu/wp-content/themes/rt_gantry_wp/images/footer-graphic.png") repeat scroll 0 0 rgba(0, 0, 0, 0);
+  display: block;
+  float: left;
+  height: 200px;
+  text-decoration: none;
+  width: 150px;
+}
+
+a.footer-graphic:hover {
+  background-position: -150px 0;
+}
+
+.footer-title {
+  font-size: 16px;
+  font-weight: normal;
+  letter-spacing: normal;
+  line-height: 24px;
+  margin-bottom: 10px;
+  margin-top: 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid white;
+}
+
+
+.footer-table a {
+  color: #fff;
+  /*font-size: 11px;*/
+  line-height: 10px;
+  list-style: none outside none;
+  text-shadow: none;
+  text-decoration: none;
+  transition: color 0.2s ease-out 0s;
+}
+
+.footer-table a:hover {
+  color: #000;
+  text-shadow: none;
+}
+
+
+ul.footer-menu li a:before, ul.footer-menu li .item:before, ul.footer-menu li .separator:before {
+  content: "•";
+  display: inline;
+  font-family: FontAwesome;
+  font-size: 1em;
+  font-weight: normal;
+  margin-right: 1px;
+  vertical-align: middle;
+}
+
+
+.home-page-text {
+  text-align: left;
+  color: #888;
+  font-size: 18px;
+  max-width: 800px;
+}
+
+
+.home-page-text p {
+  padding-bottom: 12px;
+  text-align: justify;
+}
+
+
+.home-page-text h2 {
+  padding-top: 20px;
+}
+
+
+.home-page-text ul {
+  padding-left: 20px;
+}
+
+
+.side-links {
+  float: right; 
+  clear: right; 
+
+	color: white;
+	width: 200px;
+	background-color: #B3D1FF;
+	font-size: 30px;
+	padding: 20px;
+	margin-left: 20px;
+}
+
+
+/* Hide certain tabs for Lamilo */
+#nav-4, #nav-7 {
+  display: none;
+}
+
+
+div.footer {
+  width: 100%; 
+  background-color: #B3D1FF;
+  display: block;
+}
+
+
+.main-text {
+  width: 800px;
+  margin: 0 auto;
+}
+
+
+.map-link-image {
+  border: 1px solid #666;
+}
