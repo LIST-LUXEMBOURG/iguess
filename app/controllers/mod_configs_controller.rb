@@ -89,7 +89,7 @@ class ModConfigsController < ApplicationController
     @input_params  = @mod_config.wps_process.process_params.find_all_by_is_input(true,  :order=>:title)
     @output_params = @mod_config.wps_process.process_params.find_all_by_is_input(false, :order=>:title)
     
-    #binding.pry
+    binding.pry
 
     respond_to do |format|
       format.html # show.html.erb
