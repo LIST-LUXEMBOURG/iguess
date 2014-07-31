@@ -86,7 +86,12 @@ class ModConfigsController < ApplicationController
                                         (t.is_input ? 'input' : 'output') + "'" + ': "' + t.value + '"' }
                                       .join(',')
                                       
-    @input_params  = @mod_config.wps_process.process_params.find_all_by_is_input(true,  :order=>:title)
+    @complexInputValues = ConfigDataset.find_all_by_mod_config_id(@mod_config)
+                                      
+    #@text_input_params  = @mod_config.wps_process.process_params.find_all_by_is_input(true, :order=>:title)
+    #@text_input_params  = @mod_config.wps_process.process_params.Topic.find(:all, :conditions => ['datatype not equal (?)', ])
+    @text_input_params  = @mod_config.wps_process.process_params.where("datatype != 'ComplexData' AND is_input IS TRUE", :order=>:title)
+    @complex_input_params  = @mod_config.wps_process.process_params.find_all_by_is_input_and_datatype(true, "ComplexData", :order=>:title)
     @output_params = @mod_config.wps_process.process_params.find_all_by_is_input(false, :order=>:title)
     
     binding.pry

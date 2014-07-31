@@ -202,10 +202,8 @@
         // "title":"Time delay in miliseconds.",
         // "wps_process_id":4
         
-        // Before this, count how many values are registered for the item.
-        count = item.min_occurs;
-        
-        for(var n = 0; n < count; n++)
+        //Create at least as many input fields as minimum occurrences.
+        for(var n = 0; n < item.min_occurs; n++)
       	{
 
 	        var row = $(document.createElement("tr"));
@@ -319,7 +317,7 @@
   var getRelevantKeys = function(identifier, textInputValues)
   {
   	keys = new Array();
-  	if (textInputValues == null) return values;
+  	if (textInputValues == null) return keys;
   	
   	for (var key in textInputValues)	
   	{
@@ -332,8 +330,9 @@
   
   // There is some redundancy between this method and populateTable.
   // This must be solved later on
-  var populateTableInputs = function(items, textInputValues)
+  var populateTableTextInputs = function(items, textInputValues)
   {
+  	debugger;
     var itemCount = items.length;
     var modeName = 'input'
 
@@ -417,6 +416,101 @@
     }
   };
 
+  // There is some redundancy between this method and populateTable.
+  // This must be solved later on
+  var populateTableComplexInputs = function(items, complexInputValues)
+  {
+  	debugger;
+    var itemCount = items.length;
+    var modeName = 'input'
+
+    // Find the exsiting table called input-table or output-table
+    var table = $('#' + modeName + '-table');
+
+    if(itemCount == 0) 
+        table.html("<span class='no-inputs-ouputs'>This module configuration requires no inputs.</span>");
+
+    else 
+    {
+      table.empty();
+
+      var text       = "Selected Dataset or Value";
+      var extraField = "<th class='center'>Parameter Tag</th>";
+      var lastRowName = "";
+
+      table.append("<tr><th>Parameter Name</th>" + extraField + "<th class='center'>" + text + "</th></tr>");
+
+
+      for(var i = 0; i < itemCount; i++)
+      {
+      	item = items[i];
+      	
+      	//Create at least as many input fields as minimum occurrences.
+      	keys = getRelevantKeys(item.identifier, complexInputValues);
+      	valueCount = keys.length;
+      	if (valueCount < item.min_occurs) valueCount = item.min_occurs;
+      	
+      	for(var n = 0; n < valueCount; n++)
+      	{
+	        var row = $(document.createElement("tr"));
+	        row.id = item.identifier + n;
+	        row.attr('id', item.identifier + n);
+
+			addParamNameCell(row, item);
+			
+	        row.append("<td align='center'>[" + item.identifier + "]</td>");
+	
+	        // Parameter Value column
+	        cell = $(document.createElement('td'));   // Dataset
+	        cell.attr("nowrap", true);
+	
+	        var controls = createDatasetSelectionControls(item.identifier, modeName, n);
+	
+	        control = controls[0];
+	        control.attr('class', 'disableable');
+	
+	        if(control.children().length == 0) 
+	        {
+	            cell.text('No registered datasets of type "' + item.identifier + '"');
+	            cell.append('<img src="/assets/small_question_mark.gif" class="info-icon" ' +
+	                  'alt="More info" title="Don\'t panic!  You can register new datasets in the Data Manager when you are done here.">');
+	              anyDatasetsMissing = true;
+	        }
+	        else 
+	        {
+	            control.prepend("<option value=-1>No dataset selected</option>");
+	            control.change(onSelectedDatasetChanged);
+	            control.attr('class', 'req-select disableable');
+	
+	            cell.html(control);
+	
+	            if(datasetValues && datasetValues[item.identifier])
+	              control.val(datasetValues[item.identifier]);
+	            else 
+	              control.val(-1);
+	        }
+	
+	        // Add any other (hidden) controls returned by createDatasetSelectionControls()
+	        for(var j = 1, len = controls.length; j < len; j++) 
+	        cell.append(controls[j]);
+	
+	        row.append(cell);
+	        lastRow = row;
+	      }
+	   }
+	   
+	   if(item.max_occurs > 1)
+	   {
+		   cell = $(document.createElement('td'));
+		   cell.html(
+		   	"<a href=# onclick='addInputLine(\"" + lastRow.id + "\");'>Add [" + item.identifier + "] input</a><br>" + 
+		   	"<a href=# onclick='removeInputLine(\"" + lastRow.id + "\");'>Remove [" + item.identifier + "] input</a>"
+		   	);
+		   cell.css('background-color', '#aaa !important');
+		   row.append(cell);
+	   }
+    }
+  };
 
 
   var nameVerified = function(jqXHR)
