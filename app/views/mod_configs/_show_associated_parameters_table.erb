@@ -45,8 +45,8 @@
   var createDatasetSelectionControls = function(parameterIdentifier, modeName, itemNum)
   {
     var ctrl = $(document.createElement('select'))
-            .attr('name', 'datasets[' + parameterIdentifier + itemNum + ']')
-            .attr('id', parameterIdentifier + itemNum + modeName);
+            .attr('name', 'datasets[' + parameterIdentifier + ":" + itemNum + ']')
+            .attr('id', parameterIdentifier + ":"  + itemNum + ":"  + modeName);
 
     // Make sure we have at least an empty list for this identifier
     if(!registeredDataLayersByTag[parameterIdentifier])
@@ -72,42 +72,42 @@
 
     ctrl.change(function() {
       if(datasets[+this.value]) {   // The "+" coerces this.value into a number
-        updateHiddenFields(parameterIdentifier + itemNum, datasets[+this.value]);
+        updateHiddenFields(parameterIdentifier + ":" + itemNum, datasets[+this.value]);
       }
     });
 
     return [ ctrl,
              $('<input>').attr('type','hidden')
-                        .attr('name', 'srs['          + parameterIdentifier + itemNum + ']')
-                        .attr('id',   'hidden-field-' + parameterIdentifier + itemNum + '-srs')
+                        .attr('name', 'srs['          + parameterIdentifier + ":" + itemNum + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + ":" + itemNum + '-srs')
                         .val('<%= @current_city.srs %>'),
              $('<input>').attr('type','hidden')
-                        .attr('name', 'dformat['      + parameterIdentifier + itemNum + ']')
-                        .attr('id',   'hidden-field-' + parameterIdentifier + itemNum + '-dformat')
+                        .attr('name', 'dformat['      + parameterIdentifier + ":" + itemNum + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + ":" + itemNum + '-dformat')
                         .val(dataset ? dataset.format : ""),
              $('<input>').attr('type','hidden')
-                        .attr('name', 'bbox-left['    + parameterIdentifier + itemNum + ']')
-                        .attr('id',   'hidden-field-' + parameterIdentifier + itemNum + '-bbox-left')
+                        .attr('name', 'bbox-left['    + parameterIdentifier + ":" + itemNum + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + ":" + itemNum + '-bbox-left')
                         .val(dataset ? dataset.bbox_left : ""),
              $('<input>').attr('type','hidden')
-                        .attr('name', 'bbox-right['   + parameterIdentifier + itemNum + ']')
-                        .attr('id',   'hidden-field-' + parameterIdentifier + itemNum + '-bbox-right')
+                        .attr('name', 'bbox-right['   + parameterIdentifier + ":" + itemNum + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + ":" + itemNum + '-bbox-right')
                         .val(dataset ? dataset.bbox_right : ""),
              $('<input>').attr('type','hidden')
-                        .attr('name', 'bbox-top['     + parameterIdentifier + itemNum + ']')
-                        .attr('id',   'hidden-field-' + parameterIdentifier + itemNum + '-bbox-top')
+                        .attr('name', 'bbox-top['     + parameterIdentifier + ":" + itemNum + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + ":" + itemNum + '-bbox-top')
                         .val(dataset ? dataset.bbox_top : ""),
              $('<input>').attr('type','hidden')
-                        .attr('name', 'bbox-bottom['  + parameterIdentifier + itemNum + ']')
-                        .attr('id',   'hidden-field-' + parameterIdentifier + itemNum + '-bbox-bottom')
+                        .attr('name', 'bbox-bottom['  + parameterIdentifier + ":" + itemNum + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + ":" + itemNum + '-bbox-bottom')
                         .val(dataset ? dataset.bbox_bottom : ""),
              $('<input>').attr('type','hidden')
-                        .attr('name', 'res-x['        + parameterIdentifier + itemNum + ']')
-                        .attr('id',   'hidden-field-' + parameterIdentifier + itemNum + '-res-x')
+                        .attr('name', 'res-x['        + parameterIdentifier + ":" + itemNum + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + ":" + itemNum + '-res-x')
                         .val(dataset ? dataset.resolution_x : ""),
              $('<input>').attr('type','hidden')
-                        .attr('name', 'res-y['        + parameterIdentifier + itemNum + ']')
-                        .attr('id',   'hidden-field-' + parameterIdentifier + itemNum + '-res-y')
+                        .attr('name', 'res-y['        + parameterIdentifier + ":" + itemNum + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + ":" + itemNum + '-res-y')
                         .val(dataset ? dataset.resolution_y : ""),
            ];                             
   };

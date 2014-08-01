@@ -444,11 +444,11 @@ class ModConfigsController < ApplicationController
 
     if(params[:datasets]) then        # Not every module has input datasets
 
-      @config_datasets = ConfigDataset.find_all_by_mod_config_id_and_is_input(@mod_config.id, true)
+      @config_datasets = ConfigDataset.find_all_by_mod_config_id(@mod_config.id)
       @config_datasets.each { |cd| 
         ok == ok && cd.delete()
       }
-    
+          
       # params[:datasets] is a list of pairs of identifiers and dataset_ids, like this:
       # {"roof_training_area"=>"235", "building_footprints"=>"222", "dsm"=>"301"}
       params[:datasets].each do |d|
@@ -462,7 +462,7 @@ class ModConfigsController < ApplicationController
 
             confds.mod_config = @mod_config
             confds.dataset    = dataset
-            confds.input_identifier = identifier
+            confds.input_identifier = identifier.split(":")[0]
             confds.format     = params["dformat"][identifier]
             confds.crs        = params["srs"]    [identifier]
 
@@ -481,8 +481,6 @@ class ModConfigsController < ApplicationController
     end
 
     # Update any text inputs/outputs.  Since we don't know the ids of the items, we'll need to do a little hunting
-    
-    
 
     #paramkeys = [:input, :output]
     paramkeys = [:output]
@@ -516,22 +514,24 @@ class ModConfigsController < ApplicationController
       end
     end
        
-    params[:input].keys.each do |key|
-      
-      # First delete old values
-      ConfigTextInput.find_all_by_mod_config_id_and_identifier(@mod_config.id, key).each do |old_input|
-        old_input.delete
-      end
-      
-      # Save new values
-      params[:input][key].keys.each do |input_id|
+    if params[:inputs] != nil 
+      params[:input].keys.each do |key|
         
-        @input = ConfigTextInput.new()
-        @input.mod_config = @mod_config
-        @input.identifier = key
-        @input.is_input = true
-        @input.value = params[:input][key][input_id]
-        ok = ok && @input.save       
+        # First delete old values
+        ConfigTextInput.find_all_by_mod_config_id_and_identifier(@mod_config.id, key).each do |old_input|
+          old_input.delete
+        end
+        
+        # Save new values
+        params[:input][key].keys.each do |input_id|
+          
+          @input = ConfigTextInput.new()
+          @input.mod_config = @mod_config
+          @input.identifier = key
+          @input.is_input = true
+          @input.value = params[:input][key][input_id]
+          ok = ok && @input.save       
+        end
       end
     end
 
