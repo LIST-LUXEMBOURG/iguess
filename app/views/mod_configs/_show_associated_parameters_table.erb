@@ -332,7 +332,6 @@
   // This must be solved later on
   var populateTableTextInputs = function(items, textInputValues)
   {
-  	debugger;
     var itemCount = items.length;
     var modeName = 'input'
 
@@ -484,8 +483,8 @@
 	
 	            cell.html(control);
 	
-	            if(datasetValues && datasetValues[item.identifier])
-	              control.val(datasetValues[item.identifier]);
+	            if(datasetValues && datasetValues[keys[n]])
+	              control.val(datasetValues[keys[n]]);
 	            else 
 	              control.val(-1);
 	        }
@@ -495,6 +494,7 @@
 	        cell.append(controls[j]);
 	
 	        row.append(cell);
+	        table.append(row);
 	        lastRow = row;
 	      }
 	   }

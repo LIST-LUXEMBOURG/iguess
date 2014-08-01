@@ -74,10 +74,10 @@ class ModConfigsController < ApplicationController
     # removed from config_datasets, the if-then clause in the map statement will give protection
     @datasetValues   = ConfigDataset.find_all_by_mod_config_id(params[:id])
                                     .map{|d| if d.dataset then 
-                                                d.input_identifier + ': "' + d.dataset.id.to_s + '"' 
+                                                "'" + d.id.to_s + ":" + d.input_identifier + 
+                                                "'" + ': "' + d.dataset.id.to_s + '"' 
                                             end }
                                     .join(',')
-
 
     # Note that some inputs have been known to begin with problematic chars like "-"      
     n = -1                
@@ -86,15 +86,13 @@ class ModConfigsController < ApplicationController
                                         (t.is_input ? 'input' : 'output') + "'" + ': "' + t.value + '"' }
                                       .join(',')
                                       
-    @complexInputValues = ConfigDataset.find_all_by_mod_config_id(@mod_config)
-                                      
     #@text_input_params  = @mod_config.wps_process.process_params.find_all_by_is_input(true, :order=>:title)
     #@text_input_params  = @mod_config.wps_process.process_params.Topic.find(:all, :conditions => ['datatype not equal (?)', ])
     @text_input_params  = @mod_config.wps_process.process_params.where("datatype != 'ComplexData' AND is_input IS TRUE", :order=>:title)
     @complex_input_params  = @mod_config.wps_process.process_params.find_all_by_is_input_and_datatype(true, "ComplexData", :order=>:title)
     @output_params = @mod_config.wps_process.process_params.find_all_by_is_input(false, :order=>:title)
     
-    binding.pry
+    #binding.pry
 
     respond_to do |format|
       format.html # show.html.erb
