@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140709140157) do
+ActiveRecord::Schema.define(:version => 20140801152303) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -296,6 +296,7 @@ ActiveRecord::Schema.define(:version => 20140709140157) do
     t.text    "additional_meta_tags"
     t.boolean "dss"
     t.text    "about_html_file"
+    t.text    "legal_html_file"
   end
 
   create_table "sites", :force => true do |t|
