@@ -289,19 +289,44 @@
     }
   };
   
-  
-  var addInputLine = function(lastRowId)
+  var createNewRow = function(lastRow)
   {
-  	var lastRow = document.getElementById(lastRowId);
-  	var table = lastRow.parentNode.parentNode;
-  	var newRow = lastRow.cloneNode(true);
-  	var id = Math.floor(Math.random() * -1000);
-  	newRow.id = lastRow.id + id;
-  	lastRow.parentNode.insertBefore(newRow, lastRow);
+  	var newRow = lastRow.clone(true);
+  	var id = Math.floor(Math.random() * 10000);
+  	newRow.id = id;
+  	lastRow.parent().parent().append(newRow);
+  	return newRow;
+  };
+  
+  
+  var addTextInputLine = function(lastRowId)
+  {
+	var lastRow = $('#' + lastRowId);
+	var newRow = createNewRow(lastRow);
 	var input = newRow.cells[2].firstChild;
-	input.name = input.name.substring(0, input.name.lastIndexOf("[")) + "[" + id + "]";
+	input.name = input.name.substring(0, input.name.lastIndexOf("[")) + "[" + newRow.id + "]";
 	lastRow.cells[2].firstChild.value = "";
 	if(newRow.cells.length > 4) newRow.deleteCell(4);
+  };
+  
+  var addComplexInputLine = function(lastRowId)
+  {
+  	debugger;
+  	var identifier = lastRowId.split("-")[0];
+  	var lastRow = $('#' + lastRowId);
+	var newRow = createNewRow(lastRow);
+	var controls = createDatasetSelectionControls(identifier, 'input', newRow.id);
+	control = controls[0];
+	control.attr('class', 'disableable');
+	var cell = $('#' + newRow.id + ' td:eq(2)');
+	cell.html("Hellllloooo!!!");
+	//newRow.children()[2].html(control);
+	//newRow.cells[2].append(control);
+	//newRow.cells[2].innerHTML = controls[0][0].outerHTML;
+    for(var j = 1, len = controls.length; j < len; j++)
+    	//newRow.cells[2].appendChild(controls[j]); 
+    	newRow.cells[2].append(controls[j]);
+    //if(newRow.cells.length > 4) newRow.deleteCell(4);
   };
   
   var removeInputLine = function(lastRowId)
@@ -364,8 +389,8 @@
       	for(var n = 0; n < valueCount; n++)
       	{
 	        var row = $(document.createElement("tr"));
-	        row.id = item.identifier + n;
-	        row.attr('id', item.identifier + n);
+	        row.id = item.identifier + "-" + n;
+	        row.attr('id', item.identifier + "-" + n);
 
 			addParamNameCell(row, item);
 			
@@ -406,7 +431,7 @@
 	   {
 		   cell = $(document.createElement('td'));
 		   cell.html(
-		   	"<a href=# onclick='addInputLine(\"" + lastRow.id + "\");'>Add [" + item.identifier + "] input</a><br>" + 
+		   	"<a href=# onclick='addTextInputLine(\"" + lastRow.id + "\");'>Add [" + item.identifier + "] input</a><br>" + 
 		   	"<a href=# onclick='removeInputLine(\"" + lastRow.id + "\");'>Remove [" + item.identifier + "] input</a>"
 		   	);
 		   cell.css('background-color', '#aaa !important');
@@ -419,7 +444,6 @@
   // This must be solved later on
   var populateTableComplexInputs = function(items, complexInputValues)
   {
-  	debugger;
     var itemCount = items.length;
     var modeName = 'input'
 
@@ -452,8 +476,8 @@
       	for(var n = 0; n < valueCount; n++)
       	{
 	        var row = $(document.createElement("tr"));
-	        row.id = item.identifier + n;
-	        row.attr('id', item.identifier + n);
+	        row.id = item.identifier + "-" + n;
+	        row.attr('id', item.identifier + "-" + n);
 
 			addParamNameCell(row, item);
 			
@@ -503,7 +527,7 @@
 	   {
 		   cell = $(document.createElement('td'));
 		   cell.html(
-		   	"<a href=# onclick='addInputLine(\"" + lastRow.id + "\");'>Add [" + item.identifier + "] input</a><br>" + 
+		   	"<a href=# onclick='addComplexInputLine(\"" + lastRow.id + "\");'>Add [" + item.identifier + "] input</a><br>" + 
 		   	"<a href=# onclick='removeInputLine(\"" + lastRow.id + "\");'>Remove [" + item.identifier + "] input</a>"
 		   	);
 		   cell.css('background-color', '#aaa !important');
