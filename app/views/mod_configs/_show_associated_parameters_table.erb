@@ -299,22 +299,12 @@
    	}
   };
   
-  var createNewRow = function(lastRow)
-  {
-  	var newRow = lastRow.clone(true);
-  	var id = Math.floor(Math.random() * 10000);
-  	newRow.id = id;
-  	lastRow.parent().parent().append(newRow);
-  	return newRow;
-  };
-  
-  
   var addOccurControls = function(row, id, identifier, funcName)
   {
   	var cell = $(document.createElement('td'));
 	cell.html(
-	   	"<a href=# onclick='add" + funcName + "(\"" + id + "\");'>Add [" + identifier + "] input</a><br>" + 
-	   	"<a href=# onclick='removeInputLine(\"" + id + "\");'>Remove [" + identifier + "] input</a>"
+	   	"<a href=# onclick='add" + funcName + "InputLine(\"" + id + "\");'>Add [" + identifier + "] input</a><br>" + 
+	   	"<a href=# onclick='removeInputLine(\"" + id + "\", \"" + funcName + "\");'>Remove [" + identifier + "] input</a>"
 	   	);
 	cell.css('background-color', '#aaa !important');
 	row.append(cell);
@@ -323,12 +313,19 @@
   
   var addTextInputLine = function(lastRowId)
   {
+  	debugger;
 	var lastRow = $('#' + lastRowId);
-	var newRow = createNewRow(lastRow);
-	var input = newRow.cells[2].firstChild;
-	input.name = input.name.substring(0, input.name.lastIndexOf("[")) + "[" + newRow.id + "]";
-	lastRow.cells[2].firstChild.value = "";
-	if(newRow.cells.length > 4) newRow.deleteCell(4);
+	var identifier = lastRowId.split("-")[0];
+  	var num = parseInt(lastRowId.split("-")[1]);
+  	
+	var newRow = lastRow.clone(true);
+	newRow.id = identifier + "-" + (num + 1);
+	var input = newRow.children()[2].firstChild;
+	input.name = input.name.substring(0, input.name.lastIndexOf("[")) + "[" + (num + 1) + "]";
+	newRow.children()[2].firstChild.value = "";
+	addOccurControls(newRow, newRow.id, identifier, "Text");
+	
+	if(lastRow.children().length > 4) lastRow.children()[4].remove();
   };
   
   var addComplexInputLine = function(lastRowId)
@@ -339,19 +336,26 @@
   	var lastRow = $('#' + lastRowId);
   	var table = $('#' + modeName + '-table');
   	
-  	var newRow = createComplexInputRow(identifier, null, table, modeName, num + 1);
-  	addOccurControls(newRow, newRow.id, identifier, "ComplexInputLine");
+  	var newRow = createComplexInputRow(identifier, null, table, modeName, (num + 1));
+  	addOccurControls(newRow, newRow.id, identifier, "Complex");
   	
   	lastRow.children()[3].remove();
   };
   
-  var removeInputLine = function(lastRowId)
-  {
-  	var lastRow = document.getElementById(lastRowId);
-  	var table = lastRow.parentNode.parentNode;
-  	lastRow.cells[2].firstChild.value = lastRow.previousSibling.cells[2].firstChild.value;
-  	table.deleteRow(lastRow.previousSibling.rowIndex);
-  	onInputOutputTextEntryChanged(lastRow.cells[2].firstChild);
+  var removeInputLine = function(lastRowId, name)
+  {  	
+  	debugger;
+  	var identifier = lastRowId.split("-")[0];
+  	var num = parseInt(lastRowId.split("-")[1]);
+  	if (num <= 0) return null;
+  	
+  	var lastRow = $('#' + lastRowId);
+  	lastRow.remove();
+  	
+  	var previousRow = $('#' + identifier + "-" + (num - 1));
+  	addOccurControls(previousRow, previousRow[0].id, identifier, name);
+  	
+  	onInputOutputTextEntryChanged(previousRow.children()[2].firstChild);
   };
   
   
@@ -407,31 +411,27 @@
 		    var className = "input-field";
 		    
 		    value = "";
-		    item_id = "";
 		    if((textInputValues != null) && (keys.length > n))
-		    {
 		    	value = textInputValues[keys[n]];
-		    	item_id = keys[n].substring(0, keys[n].indexOf(":"));
-		    }
-		    
-		    //var value = (textInputValues == undefined) ? "" : textInputValues[n];
 		
 		    var placeholder = item.datatype.capitalize() + " value";
 		
-		    var name = modeName + '[' + item.identifier + '][' + item_id + ']';
+		    var name = modeName + '[' + item.identifier + '][' + n + ']';
 		
 		    cell.html('<input type="text" name="' + name + '" placeholder="' + placeholder + '" ' +
 		                   'value="' + value + '" class="' + className + ' disableable" onchange="onInputOutputTextEntryChanged(this)">');
 		    row.append(cell);
 		    row.append('<td class="message-cell" name="' + name + '"></td>' );   // Place for messages and such
 		
-		        table.append(row);
-		        lastRow = row;
+		    table.append(row);
+		    lastRow = row;
 	    }
+	    
+	    if(item.max_occurs > 1)
+			addOccurControls(lastRow, lastRow.id, item.identifier, "Text");
 	 }
 	   
-	 if(item.max_occurs > 1)
-		addOccurControls(lastRow, lastRow.id, item.identifier, "TextInputLine");
+
   };
   
   var createComplexInputRow = function(identifier, value, table, modeName, n)
@@ -514,7 +514,7 @@
 	    }
 	     
 	    if(item.max_occurs > 1)
-	   	   addOccurControls(lastRow, lastRow.id, item.identifier, "ComplexInputLine");
+	   	   addOccurControls(lastRow, lastRow.id, item.identifier, "Complex");
 	  } 
   };
   
