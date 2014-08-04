@@ -289,6 +289,17 @@
     }
   };
   
+  var initTable = function(table)
+  {
+  	debugger;
+  	if (table.children().length <= 0)
+	{
+	    var text       = "Selected Dataset or Value";
+	    var extraField = "<th class='center'>Parameter Tag</th>";
+	    table.append("<tr><th>Parameter Name</th>" + extraField + "<th class='center'>" + text + "</th></tr>");
+   	}
+  };
+  
   var createNewRow = function(lastRow)
   {
   	var newRow = lastRow.clone(true);
@@ -323,7 +334,6 @@
   
   var addComplexInputLine = function(lastRowId)
   {
-  	debugger;
   	var modeName = 'input';
   	var identifier = lastRowId.split("-")[0];
   	var num = parseInt(lastRowId.split("-")[1]);
@@ -364,79 +374,65 @@
   // This must be solved later on
   var populateTableTextInputs = function(items, textInputValues)
   {
-    var itemCount = items.length;
-    var modeName = 'input'
-
-    // Find the exsiting table called input-table or output-table
-    var table = $('#' + modeName + '-table');
-
-    if(itemCount == 0) 
-        table.html("<span class='no-inputs-ouputs'>This module configuration requires no inputs.</span>");
-
-    else 
-    {
-      table.empty();
-
-      var text       = "Selected Dataset or Value";
-      var extraField = "<th class='center'>Parameter Tag</th>";
-      var lastRowName = "";
-
-      table.append("<tr><th>Parameter Name</th>" + extraField + "<th class='center'>" + text + "</th></tr>");
-
-
-      for(var i = 0; i < itemCount; i++)
-      {
-      	item = items[i];
-      	
-      	//Create at least as many input fields as minimum occurrences.
-      	keys = getRelevantKeys(item.identifier, textInputValues);
-      	valueCount = keys.length;
-      	if (valueCount < item.min_occurs) valueCount = item.min_occurs;
-      	
-      	for(var n = 0; n < valueCount; n++)
-      	{
-	        var row = $(document.createElement("tr"));
-	        row.id = item.identifier + "-" + n;
-	        row.attr('id', item.identifier + "-" + n);
-
+	var itemCount = items.length;
+	var modeName = 'input'
+	
+	// Find the exsiting table called input-table or output-table
+	var table = $('#' + modeName + '-table');
+	initTable(table);
+	
+	for(var i = 0; i < itemCount; i++)
+	{
+	 	item = items[i];
+	  	
+		  	//Create at least as many input fields as minimum occurrences.
+		keys = getRelevantKeys(item.identifier, textInputValues);
+		valueCount = keys.length;
+		if (valueCount < item.min_occurs) valueCount = item.min_occurs;
+		
+		for(var n = 0; n < valueCount; n++)
+		{
+		    var row = $(document.createElement("tr"));
+		    row.id = item.identifier + "-" + n;
+		    row.attr('id', item.identifier + "-" + n);
+		
 			addParamNameCell(row, item);
 			
-	        row.append("<td align='center'>[" + item.identifier + "]</td>");
-	
-	        // Parameter Value column
-	        cell = $(document.createElement('td'));   // Dataset
-	        cell.attr("nowrap", true);
-	
-	        // Create text inputs	
-            var className = "input-field";
-            
-            value = "";
-            item_id = "";
-            if((textInputValues != null) && (keys.length > n))
-            {
-            	value = textInputValues[keys[n]];
-            	item_id = keys[n].substring(0, keys[n].indexOf(":"));
-            }
-            
-            //var value = (textInputValues == undefined) ? "" : textInputValues[n];
-    
-            var placeholder = item.datatype.capitalize() + " value";
-
-            var name = modeName + '[' + item.identifier + '][' + item_id + ']';
-
-            cell.html('<input type="text" name="' + name + '" placeholder="' + placeholder + '" ' +
-                           'value="' + value + '" class="' + className + ' disableable" onchange="onInputOutputTextEntryChanged(this)">');
-            row.append(cell);
-            row.append('<td class="message-cell" name="' + name + '"></td>' );   // Place for messages and such
-
-	        table.append(row);
-	        lastRow = row;
-	      }
-	   }
+		    row.append("<td align='center'>[" + item.identifier + "]</td>");
+		
+		    // Parameter Value column
+		    cell = $(document.createElement('td'));   // Dataset
+		    cell.attr("nowrap", true);
+		
+		    // Create text inputs	
+		    var className = "input-field";
+		    
+		    value = "";
+		    item_id = "";
+		    if((textInputValues != null) && (keys.length > n))
+		    {
+		    	value = textInputValues[keys[n]];
+		    	item_id = keys[n].substring(0, keys[n].indexOf(":"));
+		    }
+		    
+		    //var value = (textInputValues == undefined) ? "" : textInputValues[n];
+		
+		    var placeholder = item.datatype.capitalize() + " value";
+		
+		    var name = modeName + '[' + item.identifier + '][' + item_id + ']';
+		
+		    cell.html('<input type="text" name="' + name + '" placeholder="' + placeholder + '" ' +
+		                   'value="' + value + '" class="' + className + ' disableable" onchange="onInputOutputTextEntryChanged(this)">');
+		    row.append(cell);
+		    row.append('<td class="message-cell" name="' + name + '"></td>' );   // Place for messages and such
+		
+		        table.append(row);
+		        lastRow = row;
+	    }
+	 }
 	   
-	   if(item.max_occurs > 1)
-			addOccurControls(lastRow, lastRow.id, item.identifier, "TextInputLine");
-    }
+	 if(item.max_occurs > 1)
+		addOccurControls(lastRow, lastRow.id, item.identifier, "TextInputLine");
   };
   
   var createComplexInputRow = function(identifier, value, table, modeName, n)
@@ -446,7 +442,6 @@
     row.attr('id', identifier + "-" + n);
 
 	addParamNameCell(row, item);
-	
     row.append("<td align='center'>[" + identifier + "]</td>");
 
     // Parameter Value column
@@ -494,49 +489,43 @@
   // This must be solved later on
   var populateTableComplexInputs = function(items, complexInputValues)
   {
-    var itemCount = items.length;
-    var modeName = 'input'
-
-    // Find the exsiting table called input-table or output-table
-    var table = $('#' + modeName + '-table');
-
-    if(itemCount == 0) 
-        table.html("<span class='no-inputs-ouputs'>This module configuration requires no inputs.</span>");
-
-    else 
-    {
-      table.empty();
-
-      var text       = "Selected Dataset or Value";
-      var extraField = "<th class='center'>Parameter Tag</th>";
-      var lastRowName = "";
-
-      table.append("<tr><th>Parameter Name</th>" + extraField + "<th class='center'>" + text + "</th></tr>");
-
-
-      for(var i = 0; i < itemCount; i++)
-      {
-      	item = items[i];
-      	
-      	//Create at least as many input fields as minimum occurrences.
-      	keys = getRelevantKeys(item.identifier, complexInputValues);
-      	valueCount = keys.length;
-      	if (valueCount < item.min_occurs) valueCount = item.min_occurs;
-      	
-      	for(var n = 0; n < valueCount; n++)
-      	{
-      		var value = null;
+	  var itemCount = items.length;
+	  var modeName = 'input'
+	
+	  // Find the exsiting table called input-table or output-table
+	  var table = $('#' + modeName + '-table');
+	  initTable(table);
+	
+	  for(var i = 0; i < itemCount; i++)
+	  {
+	  	item = items[i];
+	  	
+	  	//Create at least as many input fields as minimum occurrences.
+	  	keys = getRelevantKeys(item.identifier, complexInputValues);
+	  	valueCount = keys.length;
+	  	if (valueCount < item.min_occurs) valueCount = item.min_occurs;
+	  	
+	  	for(var n = 0; n < valueCount; n++)
+	  	{
+	  		var value = null;
 	    	if(datasetValues && datasetValues[keys[n]])
-          		value = datasetValues[keys[n]];
-          
+	      		value = datasetValues[keys[n]];
+	      
 	        lastRow = createComplexInputRow(item.identifier, value, table, modeName, n);
 	     }
 	   }
 	   
 	   if(item.max_occurs > 1)
-	   	addOccurControls(lastRow, lastRow.id, item.identifier, "ComplexInputLine");
-    }
+	   	   addOccurControls(lastRow, lastRow.id, item.identifier, "ComplexInputLine");
   };
+  
+  
+  var checkInputs = function(modeName)
+  {
+  	var table = $('#' + modeName + '-table');
+  	if(table.children().length <= 0) 
+        table.html("<span class='no-inputs-ouputs'>This module configuration requires no inputs.</span>");
+  }
 
 
   var nameVerified = function(jqXHR)
