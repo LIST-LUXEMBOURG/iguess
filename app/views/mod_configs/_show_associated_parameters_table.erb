@@ -314,16 +314,27 @@
   var addTextInputLine = function(lastRowId)
   {
   	debugger;
+  	var modeName = 'input';
 	var lastRow = $('#' + lastRowId);
 	var identifier = lastRowId.split("-")[0];
   	var num = parseInt(lastRowId.split("-")[1]);
+  	var table = $('#' + modeName + '-table');
   	
 	var newRow = lastRow.clone(true);
-	newRow.id = identifier + "-" + (num + 1);
+	newRow.attr("id", identifier + "-" + (num + 1));
+	
+	/*var input = $(newRow[0].id, '[name = "' + newRow.children()[2].firstChild.name + '"]');
+	input.attr("name", "input[" + identifier + "]["  + (num + 1) + "]");
+	input.attr("value", "");*/
+	// At this time there two inputs with the same name.
+	// Must use JS to set the correct name, JQuery fails.
 	var input = newRow.children()[2].firstChild;
-	input.name = input.name.substring(0, input.name.lastIndexOf("[")) + "[" + (num + 1) + "]";
-	newRow.children()[2].firstChild.value = "";
-	addOccurControls(newRow, newRow.id, identifier, "Text");
+	input.setAttribute("name", "input[" + identifier + "]["  + (num + 1) + "]");
+	input.setAttribute("value", "");
+	
+	newRow.children()[4].remove();
+	addOccurControls(newRow, newRow[0].id, identifier, "Text");
+	table.append(newRow);
 	
 	if(lastRow.children().length > 4) lastRow.children()[4].remove();
   };
