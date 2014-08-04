@@ -514,7 +514,7 @@ class ModConfigsController < ApplicationController
       end
     end
        
-    if params[:inputs] != nil 
+    if params[:input] != nil 
       params[:input].keys.each do |key|
         
         # First delete old values
