@@ -291,7 +291,6 @@
   
   var initTable = function(table)
   {
-  	debugger;
   	if (table.children().length <= 0)
 	{
 	    var text       = "Selected Dataset or Value";
@@ -512,11 +511,11 @@
 	      		value = datasetValues[keys[n]];
 	      
 	        lastRow = createComplexInputRow(item.identifier, value, table, modeName, n);
-	     }
-	   }
-	   
-	   if(item.max_occurs > 1)
+	    }
+	     
+	    if(item.max_occurs > 1)
 	   	   addOccurControls(lastRow, lastRow.id, item.identifier, "ComplexInputLine");
+	  } 
   };
   
   
