@@ -313,7 +313,6 @@
   
   var addTextInputLine = function(lastRowId)
   {
-  	debugger;
   	var modeName = 'input';
 	var lastRow = $('#' + lastRowId);
 	var identifier = lastRowId.split("-")[0];
@@ -323,9 +322,6 @@
 	var newRow = lastRow.clone(true);
 	newRow.attr("id", identifier + "-" + (num + 1));
 	
-	/*var input = $(newRow[0].id, '[name = "' + newRow.children()[2].firstChild.name + '"]');
-	input.attr("name", "input[" + identifier + "]["  + (num + 1) + "]");
-	input.attr("value", "");*/
 	// At this time there two inputs with the same name.
 	// Must use JS to set the correct name, JQuery fails.
 	var input = newRow.children()[2].firstChild;
@@ -355,7 +351,6 @@
   
   var removeInputLine = function(lastRowId, name)
   {  	
-  	debugger;
   	var identifier = lastRowId.split("-")[0];
   	var num = parseInt(lastRowId.split("-")[1]);
   	if (num <= 0) return null;
