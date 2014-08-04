@@ -299,6 +299,18 @@
   };
   
   
+  var addOccurControls = function(row, id, identifier, funcName)
+  {
+  	var cell = $(document.createElement('td'));
+	cell.html(
+	   	"<a href=# onclick='add" + funcName + "(\"" + id + "\");'>Add [" + identifier + "] input</a><br>" + 
+	   	"<a href=# onclick='removeInputLine(\"" + id + "\");'>Remove [" + identifier + "] input</a>"
+	   	);
+	cell.css('background-color', '#aaa !important');
+	row.append(cell);
+  }
+  
+  
   var addTextInputLine = function(lastRowId)
   {
 	var lastRow = $('#' + lastRowId);
@@ -312,21 +324,16 @@
   var addComplexInputLine = function(lastRowId)
   {
   	debugger;
+  	var modeName = 'input';
   	var identifier = lastRowId.split("-")[0];
+  	var num = parseInt(lastRowId.split("-")[1]);
   	var lastRow = $('#' + lastRowId);
-	var newRow = createNewRow(lastRow);
-	var controls = createDatasetSelectionControls(identifier, 'input', newRow.id);
-	control = controls[0];
-	control.attr('class', 'disableable');
-	var cell = $('#' + newRow.id + ' td:eq(2)');
-	cell.html("Hellllloooo!!!");
-	//newRow.children()[2].html(control);
-	//newRow.cells[2].append(control);
-	//newRow.cells[2].innerHTML = controls[0][0].outerHTML;
-    for(var j = 1, len = controls.length; j < len; j++)
-    	//newRow.cells[2].appendChild(controls[j]); 
-    	newRow.cells[2].append(controls[j]);
-    //if(newRow.cells.length > 4) newRow.deleteCell(4);
+  	var table = $('#' + modeName + '-table');
+  	
+  	var newRow = createComplexInputRow(identifier, null, table, modeName, num + 1);
+  	addOccurControls(newRow, newRow.id, identifier, "ComplexInputLine");
+  	
+  	lastRow.children()[3].remove();
   };
   
   var removeInputLine = function(lastRowId)
@@ -428,17 +435,60 @@
 	   }
 	   
 	   if(item.max_occurs > 1)
-	   {
-		   cell = $(document.createElement('td'));
-		   cell.html(
-		   	"<a href=# onclick='addTextInputLine(\"" + lastRow.id + "\");'>Add [" + item.identifier + "] input</a><br>" + 
-		   	"<a href=# onclick='removeInputLine(\"" + lastRow.id + "\");'>Remove [" + item.identifier + "] input</a>"
-		   	);
-		   cell.css('background-color', '#aaa !important');
-		   row.append(cell);
-	   }
+			addOccurControls(lastRow, lastRow.id, item.identifier, "TextInputLine");
     }
   };
+  
+  var createComplexInputRow = function(identifier, value, table, modeName, n)
+  {
+  	var row = $(document.createElement("tr"));
+    row.id = identifier + "-" + n;
+    row.attr('id', identifier + "-" + n);
+
+	addParamNameCell(row, item);
+	
+    row.append("<td align='center'>[" + identifier + "]</td>");
+
+    // Parameter Value column
+    cell = $(document.createElement('td'));   // Dataset
+    cell.attr("nowrap", true);
+
+    var controls = createDatasetSelectionControls(identifier, modeName, n);
+
+    control = controls[0];
+    control.attr('class', 'disableable');
+
+    if(control.children().length == 0) 
+    {
+        cell.text('No registered datasets of type "' + identifier + '"');
+        cell.append('<img src="/assets/small_question_mark.gif" class="info-icon" ' +
+              'alt="More info" title="Don\'t panic!  You can register new datasets in the Data Manager when you are done here.">');
+          anyDatasetsMissing = true;
+    }
+    else 
+    {
+        control.prepend("<option value=-1>No dataset selected</option>");
+        control.change(onSelectedDatasetChanged);
+        control.attr('class', 'req-select disableable');
+
+        cell.html(control);
+          
+        if(value != null)
+          control.val(value);
+        else 
+          control.val(-1);
+    }
+
+    // Add any other (hidden) controls returned by createDatasetSelectionControls()
+    for(var j = 1, len = controls.length; j < len; j++) 
+    cell.append(controls[j]);
+
+    row.append(cell);
+    table.append(row);
+    return row;
+  }
+  
+
 
   // There is some redundancy between this method and populateTable.
   // This must be solved later on
@@ -475,64 +525,16 @@
       	
       	for(var n = 0; n < valueCount; n++)
       	{
-	        var row = $(document.createElement("tr"));
-	        row.id = item.identifier + "-" + n;
-	        row.attr('id', item.identifier + "-" + n);
-
-			addParamNameCell(row, item);
-			
-	        row.append("<td align='center'>[" + item.identifier + "]</td>");
-	
-	        // Parameter Value column
-	        cell = $(document.createElement('td'));   // Dataset
-	        cell.attr("nowrap", true);
-	
-	        var controls = createDatasetSelectionControls(item.identifier, modeName, n);
-	
-	        control = controls[0];
-	        control.attr('class', 'disableable');
-	
-	        if(control.children().length == 0) 
-	        {
-	            cell.text('No registered datasets of type "' + item.identifier + '"');
-	            cell.append('<img src="/assets/small_question_mark.gif" class="info-icon" ' +
-	                  'alt="More info" title="Don\'t panic!  You can register new datasets in the Data Manager when you are done here.">');
-	              anyDatasetsMissing = true;
-	        }
-	        else 
-	        {
-	            control.prepend("<option value=-1>No dataset selected</option>");
-	            control.change(onSelectedDatasetChanged);
-	            control.attr('class', 'req-select disableable');
-	
-	            cell.html(control);
-	
-	            if(datasetValues && datasetValues[keys[n]])
-	              control.val(datasetValues[keys[n]]);
-	            else 
-	              control.val(-1);
-	        }
-	
-	        // Add any other (hidden) controls returned by createDatasetSelectionControls()
-	        for(var j = 1, len = controls.length; j < len; j++) 
-	        cell.append(controls[j]);
-	
-	        row.append(cell);
-	        table.append(row);
-	        lastRow = row;
-	      }
+      		var value = null;
+	    	if(datasetValues && datasetValues[keys[n]])
+          		value = datasetValues[keys[n]];
+          
+	        lastRow = createComplexInputRow(item.identifier, value, table, modeName, n);
+	     }
 	   }
 	   
 	   if(item.max_occurs > 1)
-	   {
-		   cell = $(document.createElement('td'));
-		   cell.html(
-		   	"<a href=# onclick='addComplexInputLine(\"" + lastRow.id + "\");'>Add [" + item.identifier + "] input</a><br>" + 
-		   	"<a href=# onclick='removeInputLine(\"" + lastRow.id + "\");'>Remove [" + item.identifier + "] input</a>"
-		   	);
-		   cell.css('background-color', '#aaa !important');
-		   row.append(cell);
-	   }
+	   	addOccurControls(lastRow, lastRow.id, item.identifier, "ComplexInputLine");
     }
   };
 
