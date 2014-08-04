@@ -74,18 +74,25 @@ class ModConfigsController < ApplicationController
     # removed from config_datasets, the if-then clause in the map statement will give protection
     @datasetValues   = ConfigDataset.find_all_by_mod_config_id(params[:id])
                                     .map{|d| if d.dataset then 
-                                                d.input_identifier + ': "' + d.dataset.id.to_s + '"' 
+                                                "'" + d.id.to_s + ":" + d.input_identifier + 
+                                                "'" + ': "' + d.dataset.id.to_s + '"' 
                                             end }
                                     .join(',')
 
-
-    # Note that some inputs have been known to begin with problematic chars like "-"                      
+    # Note that some inputs have been known to begin with problematic chars like "-"      
+    n = -1                
     @textInputValues = ConfigTextInput.find_all_by_mod_config_id(@mod_config)
-                                      .map{|t| "'" + t.identifier + (t.is_input ? 'input' : 'output') + "'" + ': "' + t.value + '"' }
+                                      .map{|t| "'" + t.id.to_s + ":" + t.identifier + 
+                                        (t.is_input ? 'input' : 'output') + "'" + ': "' + t.value + '"' }
                                       .join(',')
-
-    @input_params  = @mod_config.wps_process.process_params.find_all_by_is_input(true,  :order=>:title)
+                                      
+    #@text_input_params  = @mod_config.wps_process.process_params.find_all_by_is_input(true, :order=>:title)
+    #@text_input_params  = @mod_config.wps_process.process_params.Topic.find(:all, :conditions => ['datatype not equal (?)', ])
+    @text_input_params  = @mod_config.wps_process.process_params.where("datatype != 'ComplexData' AND is_input IS TRUE", :order=>:title)
+    @complex_input_params  = @mod_config.wps_process.process_params.find_all_by_is_input_and_datatype(true, "ComplexData", :order=>:title)
     @output_params = @mod_config.wps_process.process_params.find_all_by_is_input(false, :order=>:title)
+    
+    #binding.pry
 
     respond_to do |format|
       format.html # show.html.erb
@@ -141,13 +148,6 @@ class ModConfigsController < ApplicationController
         LEFT JOIN iguess_dev.config_datasets    AS cd  ON pp.identifier = cd.input_identifier AND cd.mod_config_id = mc.id
         LEFT JOIN iguess_dev.config_text_inputs AS cti ON pp.identifier = cti.identifier AND cti.mod_config_id = mc.id
         WHERE mc.id = " + id + " AND pp.alive = TRUE AND pp.is_input = TRUE AND cd.dataset_id IS NULL AND (cti.value IS NULL OR cti.value = '')
-
-        UNION
-
-        SELECT count(*) AS c FROM iguess_dev.mod_configs AS mc 
-        LEFT JOIN iguess_dev.process_params AS pp ON mc.wps_process_id = pp.wps_process_id
-        LEFT JOIN iguess_dev.config_text_inputs AS cti ON pp.identifier = cti.identifier AND cti.mod_config_id = mc.id
-        WHERE mc.id = " + id + " AND pp.alive = TRUE AND pp.is_input = false AND (cti.value IS NULL OR cti.value = '')
       ) 
 
       SELECT sum(c) FROM missing
@@ -249,7 +249,6 @@ class ModConfigsController < ApplicationController
       inputs.push("('" + configDataset.input_identifier + "', '" + dataRequest + "')")
     }
 
-
     # Text fields -- both inputs and outputs; only use fields that are still active
     @mod_config.config_text_inputs.keep_if{ |c| activeParamIdentifiers.include?(c.identifier) }.map { |d|  
           if d.is_input then 
@@ -348,25 +347,36 @@ class ModConfigsController < ApplicationController
       end
     end
 
-
     # Save any text inputs and outputs the user provided
     if(success) then
-      paramkeys = ['input', 'output']
-      paramkeys.each { |paramkey|
-        if(params[paramkey]) then                 # Iterate over params['input'], params['output']
-          params[paramkey].each_key do |key|
+        if(params['output']) then                 # Iterate over params['input'], params['output']
+          params['output'].each_key do |key|
             if(success) then 
               textval = ConfigTextInput.new()
               textval.mod_config = @mod_config
               textval.identifier = key
               textval.value = params[paramkey][key]
-              textval.is_input = (paramkey == 'input')
+              textval.is_input = false
+
+              success &= textval.save()
+            end
+          end  
+        end
+        
+        if(params['input']) then
+          params['input'].each_key do |key|
+            params['input'][key].each do |input|
+              textval = ConfigTextInput.new()
+              textval.mod_config = @mod_config
+              textval.identifier = key
+              textval.value = input[1]
+              textval.is_input = true
 
               success &= textval.save()
             end
           end
-        end
-      }
+        end  
+      #}
     end
 
     success &= @mod_config.save
@@ -438,7 +448,7 @@ class ModConfigsController < ApplicationController
       @config_datasets.each { |cd| 
         ok == ok && cd.delete()
       }
-    
+          
       # params[:datasets] is a list of pairs of identifiers and dataset_ids, like this:
       # {"roof_training_area"=>"235", "building_footprints"=>"222", "dsm"=>"301"}
       params[:datasets].each do |d|
@@ -452,7 +462,7 @@ class ModConfigsController < ApplicationController
 
             confds.mod_config = @mod_config
             confds.dataset    = dataset
-            confds.input_identifier = identifier
+            confds.input_identifier = identifier.split(":")[0]
             confds.format     = params["dformat"][identifier]
             confds.crs        = params["srs"]    [identifier]
 
@@ -472,30 +482,55 @@ class ModConfigsController < ApplicationController
 
     # Update any text inputs/outputs.  Since we don't know the ids of the items, we'll need to do a little hunting
 
-    paramkeys = [:input, :output]
+    #paramkeys = [:input, :output]
+    paramkeys = [:output]
     paramkeys.each do |paramkey|
       if(params[paramkey]) then                 # Iterate over params['input'], params['output']
         params[paramkey].each do |p| 
 
           identifier = p[0]
-          val = p[1].strip    # strip off leading and trailing whitespace
-          isInput = (paramkey == :input)
-
-          @output = ConfigTextInput.find_by_mod_config_id_and_identifier_and_is_input(
-                        @mod_config.id, identifier, isInput)
-
-          # @output can be nil if the wps changed the identifiers it uses, or perhaps the user cleared
-          # a form field, which can delete the related element in ConfigTextInput
-          if not @output then
-            @output = ConfigTextInput.new
-            @output.mod_config = @mod_config
-            @output.identifier = identifier
-            @output.value = val
-            @output.is_input = isInput
-          else
-            @output.value = val
-          end
+          
+          p[1].each do |val_array|
+            val = val_array[1].strip    # strip off leading and trailing whitespace
+            isInput = (paramkey == :input)
+  
+            @output = ConfigTextInput.find_by_mod_config_id_and_identifier_and_is_input(
+                          @mod_config.id, identifier, isInput)
+  
+            # @output can be nil if the wps changed the identifiers it uses, or perhaps the user cleared
+            # a form field, which can delete the related element in ConfigTextInput
+            if not @output then
+              @output = ConfigTextInput.new
+              @output.mod_config = @mod_config
+              @output.identifier = identifier
+              @output.value = val
+              @output.is_input = isInput
+            else
+              @output.value = val
+            end
+          end 
           ok = ok && @output.save
+        end
+      end
+    end
+       
+    if params[:input] != nil 
+      params[:input].keys.each do |key|
+        
+        # First delete old values
+        ConfigTextInput.find_all_by_mod_config_id_and_identifier(@mod_config.id, key).each do |old_input|
+          old_input.delete
+        end
+        
+        # Save new values
+        params[:input][key].keys.each do |input_id|
+          
+          @input = ConfigTextInput.new()
+          @input.mod_config = @mod_config
+          @input.identifier = key
+          @input.is_input = true
+          @input.value = params[:input][key][input_id]
+          ok = ok && @input.save       
         end
       end
     end

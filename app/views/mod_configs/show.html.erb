@@ -187,7 +187,8 @@ if($().jquery.split(".")[0] == "1") {
 
 
   // My... this is UGLY!
-  var inputs  = [<% @input_params.each  { |x|%><%= raw x.to_json %>,<% } %>];
+  var text_inputs  = [<% @text_input_params.each  { |x|%><%= raw x.to_json %>,<% } %>];
+  var complex_inputs  = [<% @complex_input_params.each  { |x|%><%= raw x.to_json %>,<% } %>];
   var outputs = [<% @output_params.each { |x|%><%= raw x.to_json %>,<% } %>];
 
 
@@ -328,7 +329,11 @@ if($().jquery.split(".")[0] == "1") {
 
   $(document).ready(function() {
 
-    populateTable(inputs,  true,  textInputValues, datasetValues);
+    //populateTable(inputs,  true,  textInputValues, datasetValues);
+    populateTableTextInputs(text_inputs,  textInputValues);
+    populateTableComplexInputs(complex_inputs,  datasetValues);
+    checkInputs('input');
+    
     populateTable(outputs, false, textInputValues);
 
     updateScreen("<%= @mod_config.run_status.status %>", 
