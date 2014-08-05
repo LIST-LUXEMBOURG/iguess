@@ -40,6 +40,10 @@ stub = function(p)
     }   
   });
 
+var rollEmissionFactors = function()
+{
+	$('#emiss-factors').slideToggle();
+}
  
 </script>
 
@@ -303,31 +307,34 @@ stub = function(p)
 <br>  
 
 <hr>
-<h4>Emission Factors</h4>
+<div onclick="rollEmissionFactors();"><h4>+ Emission Factors</h4></div>
 <br>
-<ul class="tabs" id="tabs-fact">
-<li><a class="l" id="t4" href="#tabs-fact-4"><b>CO2 (t/MWh)</b></a></li>
-<li><a class="l" id="t5" href="#tabs-fact-5"><b>CH4 (g/MWh)</b></a></li>
-<li><a class="l" id="t6" href="#tabs-fact-6"><b>N2O (g/MWh)</b></a></li>
-</ul>
-<div id="tab-fact-panes" class="tab-pane-container">
-
-  <div id="tabs-fact-4">
-	<%= render :partial => 'emission_factor.html.erb', 
-	            locals: { title: "CO2 (t/MWh)", fieldName: "co2_factor" } %>
-  </div>	            
-
-  <div id="tabs-fact-5">
-	<%= render :partial => 'emission_factor.html.erb', 
-	            locals: { title: "CH4 (g/MWh)", fieldName: "ch4_factor" } %>
-  </div>	            
-
-  <div id="tabs-fact-6">
-	<%= render :partial => 'emission_factor.html.erb', 
-	            locals: { title: "N2O (g/MWh)", fieldName: "n2o_factor" } %>
-  </div>	            
-
+<div id="emiss-factors">
+	<ul class="tabs" id="tabs-fact">
+	<li><a class="l" id="t4" href="#tabs-fact-4"><b>CO2 (t/MWh)</b></a></li>
+	<li><a class="l" id="t5" href="#tabs-fact-5"><b>CH4 (g/MWh)</b></a></li>
+	<li><a class="l" id="t6" href="#tabs-fact-6"><b>N2O (g/MWh)</b></a></li>
+	</ul>
+	<div id="tab-fact-panes" class="tab-pane-container">
+	
+	  <div id="tabs-fact-4">
+		<%= render :partial => 'emission_factor.html.erb', 
+		            locals: { title: "CO2 (t/MWh)", fieldName: "co2_factor" } %>
+	  </div>	            
+	
+	  <div id="tabs-fact-5">
+		<%= render :partial => 'emission_factor.html.erb', 
+		            locals: { title: "CH4 (g/MWh)", fieldName: "ch4_factor" } %>
+	  </div>	            
+	
+	  <div id="tabs-fact-6">
+		<%= render :partial => 'emission_factor.html.erb', 
+		            locals: { title: "N2O (g/MWh)", fieldName: "n2o_factor" } %>
+	  </div>	            
+	
+	</div>
 </div>
+
 	<br>            
 	<hr>
   
