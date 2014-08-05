@@ -42,11 +42,11 @@
 
 
   // modeName will be "input" or "output"
-  var createDatasetSelectionControls = function(parameterIdentifier, modeName)
+  var createDatasetSelectionControls = function(parameterIdentifier, modeName, itemNum)
   {
     var ctrl = $(document.createElement('select'))
-            .attr('name', 'datasets[' + parameterIdentifier + ']')
-            .attr('id', parameterIdentifier + modeName);
+            .attr('name', 'datasets[' + parameterIdentifier + ":" + itemNum + ']')
+            .attr('id', parameterIdentifier + ":"  + itemNum + ":"  + modeName);
 
     // Make sure we have at least an empty list for this identifier
     if(!registeredDataLayersByTag[parameterIdentifier])
@@ -58,7 +58,6 @@
       // Here we create our dropdown of possible datasets.  All datasets presented have already been registered with the server.
       // Note that the value here will be the id of this layer as stored in the database on the server.
       var datasetId = registeredDataLayersByTag[parameterIdentifier][i].datasetId;
-
 
       var dataset = datasets[datasetId];
 
@@ -73,42 +72,42 @@
 
     ctrl.change(function() {
       if(datasets[+this.value]) {   // The "+" coerces this.value into a number
-        updateHiddenFields(parameterIdentifier, datasets[+this.value]);
+        updateHiddenFields(parameterIdentifier + ":" + itemNum, datasets[+this.value]);
       }
     });
 
     return [ ctrl,
              $('<input>').attr('type','hidden')
-                        .attr('name', 'srs['          + parameterIdentifier + ']')
-                        .attr('id',   'hidden-field-' + parameterIdentifier + '-srs')
+                        .attr('name', 'srs['          + parameterIdentifier + ":" + itemNum + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + ":" + itemNum + '-srs')
                         .val('<%= @current_city.srs %>'),
              $('<input>').attr('type','hidden')
-                        .attr('name', 'dformat['      + parameterIdentifier + ']')
-                        .attr('id',   'hidden-field-' + parameterIdentifier + '-dformat')
+                        .attr('name', 'dformat['      + parameterIdentifier + ":" + itemNum + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + ":" + itemNum + '-dformat')
                         .val(dataset ? dataset.format : ""),
              $('<input>').attr('type','hidden')
-                        .attr('name', 'bbox-left['    + parameterIdentifier + ']')
-                        .attr('id',   'hidden-field-' + parameterIdentifier + '-bbox-left')
+                        .attr('name', 'bbox-left['    + parameterIdentifier + ":" + itemNum + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + ":" + itemNum + '-bbox-left')
                         .val(dataset ? dataset.bbox_left : ""),
              $('<input>').attr('type','hidden')
-                        .attr('name', 'bbox-right['   + parameterIdentifier + ']')
-                        .attr('id',   'hidden-field-' + parameterIdentifier + '-bbox-right')
+                        .attr('name', 'bbox-right['   + parameterIdentifier + ":" + itemNum + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + ":" + itemNum + '-bbox-right')
                         .val(dataset ? dataset.bbox_right : ""),
              $('<input>').attr('type','hidden')
-                        .attr('name', 'bbox-top['     + parameterIdentifier + ']')
-                        .attr('id',   'hidden-field-' + parameterIdentifier + '-bbox-top')
+                        .attr('name', 'bbox-top['     + parameterIdentifier + ":" + itemNum + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + ":" + itemNum + '-bbox-top')
                         .val(dataset ? dataset.bbox_top : ""),
              $('<input>').attr('type','hidden')
-                        .attr('name', 'bbox-bottom['  + parameterIdentifier + ']')
-                        .attr('id',   'hidden-field-' + parameterIdentifier + '-bbox-bottom')
+                        .attr('name', 'bbox-bottom['  + parameterIdentifier + ":" + itemNum + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + ":" + itemNum + '-bbox-bottom')
                         .val(dataset ? dataset.bbox_bottom : ""),
              $('<input>').attr('type','hidden')
-                        .attr('name', 'res-x['        + parameterIdentifier + ']')
-                        .attr('id',   'hidden-field-' + parameterIdentifier + '-res-x')
+                        .attr('name', 'res-x['        + parameterIdentifier + ":" + itemNum + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + ":" + itemNum + '-res-x')
                         .val(dataset ? dataset.resolution_x : ""),
              $('<input>').attr('type','hidden')
-                        .attr('name', 'res-y['        + parameterIdentifier + ']')
-                        .attr('id',   'hidden-field-' + parameterIdentifier + '-res-y')
+                        .attr('name', 'res-y['        + parameterIdentifier + ":" + itemNum + ']')
+                        .attr('id',   'hidden-field-' + parameterIdentifier + ":" + itemNum + '-res-y')
                         .val(dataset ? dataset.resolution_y : ""),
            ];                             
   };
@@ -127,6 +126,37 @@
 
 
   var anyDatasetsMissing = false;
+  
+  var addParamNameCell = function(row, item)
+  {
+        // Parameter Name column
+    var cell = $(document.createElement('td'));
+
+    cell.append(item.title ? item.title : item.identifier);
+    if(item.abstract)
+    {
+      if(item.abstract.length > 50)
+      {
+        var key = modeName + i;
+        cell.append("<br><span class='input-description' id='" + key + "-short'>" + 
+                      item.abstract.substring(0,50) + 
+                      "...&nbsp;&nbsp;<a href='#' onclick='showIODetails(\"" + key + "\");return false;'>" + 
+                        "More&nbsp;&gt;" + 
+                      "</a>" +
+                    "</span>" + 
+                    "<span class='input-description' id='" + key + "-long' style='display:none;'>" + 
+                      item.abstract + 
+                      "&nbsp;&nbsp;<a href='#' onclick='hideIODetails(\"" + key + "\");return false;'>" + 
+                        "&lt;&nbsp;Less" + 
+                      "</a>" +
+                    "</span>");
+      }
+      else
+         cell.append("<br><span class='input-description'>" + item.abstract + "</span>");
+    }
+
+    row.append(cell);
+  };
 
   // textInputValues & datasetValues will only be defined when calling from the main Module Configuration page
   // When mode is output, datasetValues will be undefined
@@ -140,14 +170,15 @@
     // Find the exsiting table called input-table or output-table
     var table = $('#' + modeName + '-table');
 
-    if(itemCount == 0) {
+    if(itemCount == 0) 
+    {
       if(isInput) 
         table.html("<span class='no-inputs-ouputs'>This module configuration requires no inputs.</span>");
       else 
         table.html("<span class='no-inputs-ouputs'>This module configuration produces no outputs.</span>");
     }
-    else {
-
+    else 
+    {
       table.empty();
 
       var text       = isInput ? "Selected Dataset or Value" : "Output Dataset Identifier";
@@ -158,11 +189,9 @@
 
       for(var i = 0; i < itemCount; i++)
       {
-        var row = $(document.createElement("tr"));
-
-        item = items[i];   
-
-        // Item looks like this:
+      	//debugger;
+      	item = items[i];
+  		// Item looks like this:
         // "abstract":"Field of type INTEGER specifying a time delay in miliseconds.",
         // "alive":true,
         // "datatype":"float",
@@ -172,117 +201,336 @@
         // "last_seen":"2013-04-08T15:12:04Z",
         // "title":"Time delay in miliseconds.",
         // "wps_process_id":4
+        
+        //Create at least as many input fields as minimum occurrences.
+        for(var n = 0; n < item.min_occurs; n++)
+      	{
 
-
-        // Parameter Name column
-        var cell = $(document.createElement('td'));
-
-        cell.append(item.title ? item.title : item.identifier);
-        if(item.abstract)
-        {
-          if(item.abstract.length > 50)
-          {
-            var key = modeName + i;
-            cell.append("<br><span class='input-description' id='" + key + "-short'>" + 
-                          item.abstract.substring(0,50) + 
-                          "...&nbsp;&nbsp;<a href='#' onclick='showIODetails(\"" + key + "\");return false;'>" + 
-                            "More&nbsp;&gt;" + 
-                          "</a>" +
-                        "</span>" + 
-                        "<span class='input-description' id='" + key + "-long' style='display:none;'>" + 
-                          item.abstract + 
-                          "&nbsp;&nbsp;<a href='#' onclick='hideIODetails(\"" + key + "\");return false;'>" + 
-                            "&lt;&nbsp;Less" + 
-                          "</a>" +
-                        "</span>");
-          }
-          else
-             cell.append("<br><span class='input-description'>" + item.abstract + "</span>");
-        }
-
-
-        // if(item.abstract != undefined && item.abstract != '') {
-        //   cell.append('<img src="/assets/small_question_mark.gif" class="info-icon" ' +
-        //               'alt="More info" title="' + item.abstract + '">');
-        // }
-
-        row.append(cell);
-
-        if(isInput) {
-          row.append("<td align='center'>[" + item.identifier + "]</td>");
-        }
-
-        // Parameter Value column
-        cell = $(document.createElement('td'));   // Dataset
-        cell.attr("nowrap", true);
-
-        // Complex input
-        if(isInput && item.datatype == 'ComplexData') {      // Dropdown showing existing datasets of proper type
-          var controls = createDatasetSelectionControls(item.identifier, modeName);
-
-          control = controls[0];
-          control.attr('class', 'disableable');
-
-          if(control.children().length == 0) {
-              cell.text('No registered datasets of type "' + item.identifier + '"');
-              cell.append('<img src="/assets/small_question_mark.gif" class="info-icon" ' +
-                  'alt="More info" title="Don\'t panic!  You can register new datasets in the Data Manager when you are done here.">');
-              anyDatasetsMissing = true;
-          }
-          else {
-            control.prepend("<option value=-1>No dataset selected</option>");
-            control.change(onSelectedDatasetChanged);
-            control.attr('class', 'req-select disableable');
-
-            cell.html(control);
-
-            if(datasetValues && datasetValues[item.identifier])
-              control.val(datasetValues[item.identifier]);
-            else 
-              control.val(-1);
-          }
-
-          // Add any other (hidden) controls returned by createDatasetSelectionControls()
-          for(var j = 1, len = controls.length; j < len; j++) 
-            cell.append(controls[j]);
-
-          row.append(cell);
-        }
-
-        // Simple output
-        else if(!isInput && item.datatype != "ComplexData") {    // No input required, just display of value
-
-          var value = (textInputValues == undefined) ? "" : textInputValues[item.identifier + modeName];
-
-          if(value) 
-            cell.append('<b>' + value + '</b>');
-          else 
-            cell.append('<i>Will be computed</i>');
-
-          row.append(cell);
-        }
-
-        // Simple input or complex output -- we'll need to show a text field here
-        else {    
-
-          var className = isInput ? "input-field" : "output-field";
-          var value = (textInputValues == undefined) ? "" : textInputValues[item.identifier + modeName];
-          var placeholder = isInput ? item.datatype.capitalize() + " value" : "Output dataset name";
-
-          var name = modeName + '[' + item.identifier + ']';
-
-          cell.html('<input type="text" name="' + name + '" placeholder="' + placeholder + '" ' +
-                           'value="' + value + '" class="' + className + ' disableable" onchange="onInputOutputTextEntryChanged(this)">');
-          row.append(cell);
-
-          row.append('<td class="message-cell" name="' + name + '"></td>' );   // Place for messages and such
-        }
-
-        table.append(row);
-
-      }
+	        var row = $(document.createElement("tr"));
+	
+			addParamNameCell(row, item);
+	
+	        if(isInput) {
+	          row.append("<td align='center'>[" + item.identifier + "]</td>");
+	        }
+	
+	        // Parameter Value column
+	        cell = $(document.createElement('td'));   // Dataset
+	        cell.attr("nowrap", true);
+	
+	        // Complex input
+	        if(isInput && item.datatype == 'ComplexData') 
+	        {      // Dropdown showing existing datasets of proper type
+	          var controls = createDatasetSelectionControls(item.identifier, modeName, n);
+	
+	          control = controls[0];
+	          control.attr('class', 'disableable');
+	
+	          if(control.children().length == 0) {
+	              cell.text('No registered datasets of type "' + item.identifier + '"');
+	              cell.append('<img src="/assets/small_question_mark.gif" class="info-icon" ' +
+	                  'alt="More info" title="Don\'t panic!  You can register new datasets in the Data Manager when you are done here.">');
+	              anyDatasetsMissing = true;
+	          }
+	          else {
+	            control.prepend("<option value=-1>No dataset selected</option>");
+	            control.change(onSelectedDatasetChanged);
+	            control.attr('class', 'req-select disableable');
+	
+	            cell.html(control);
+	
+	            if(datasetValues && datasetValues[item.identifier])
+	              control.val(datasetValues[item.identifier]);
+	            else 
+	              control.val(-1);
+	          }
+	
+	          // Add any other (hidden) controls returned by createDatasetSelectionControls()
+	          for(var j = 1, len = controls.length; j < len; j++) 
+	            cell.append(controls[j]);
+	
+	          row.append(cell);
+	        }
+	
+	        // Simple output
+	        else if(!isInput && item.datatype != "ComplexData") {    // No input required, just display of value
+	        	
+	          var value = (textInputValues == undefined) ? "" : textInputValues[item.identifier + modeName];
+	
+	          if(value) 
+	            cell.append('<b>' + value + '</b>');
+	          else 
+	            cell.append('<i>Will be computed</i>');
+	
+	          row.append(cell);
+	        }
+	
+	        // Simple input or complex output -- we'll need to show a text field here
+	        else 
+	        {    
+	          var className = isInput ? "input-field" : "output-field";
+		      var value = (textInputValues == undefined) ? "" : textInputValues[item.identifier + modeName];
+		      var placeholder = isInput ? item.datatype.capitalize() + " value" : "Output dataset name";
+		
+		      var name = modeName + '[' + item.identifier + ']';
+		
+		      cell.html('<input type="text" name="' + name + '" placeholder="' + placeholder + '" ' +
+		                       'value="' + value + '" class="' + className + ' disableable" onchange="onInputOutputTextEntryChanged(this)">');
+		      row.append(cell);
+		
+		      row.append('<td class="message-cell" name="' + name + '"></td>' );   // Place for messages and such
+	        }
+	
+	        table.append(row);
+        
+       }
+	
+	  }
     }
   };
+  
+  var initTable = function(table)
+  {
+  	if (table.children().length <= 0)
+	{
+	    var text       = "Selected Dataset or Value";
+	    var extraField = "<th class='center'>Parameter Tag</th>";
+	    table.append("<tr><th>Parameter Name</th>" + extraField + "<th class='center'>" + text + "</th></tr>");
+   	}
+  };
+  
+  var addOccurControls = function(row, id, identifier, funcName)
+  {
+  	var cell = $(document.createElement('td'));
+	cell.html(
+	   	"<a href=# onclick='add" + funcName + "InputLine(\"" + id + "\");'>Add [" + identifier + "] input</a><br>" + 
+	   	"<a href=# onclick='removeInputLine(\"" + id + "\", \"" + funcName + "\");'>Remove [" + identifier + "] input</a>"
+	   	);
+	cell.css('background-color', '#aaa !important');
+	row.append(cell);
+  }
+  
+  
+  var addTextInputLine = function(lastRowId)
+  {
+  	var modeName = 'input';
+	var lastRow = $('#' + lastRowId);
+	var identifier = lastRowId.split("-")[0];
+  	var num = parseInt(lastRowId.split("-")[1]);
+  	var table = $('#' + modeName + '-table');
+  	
+	var newRow = lastRow.clone(true);
+	newRow.attr("id", identifier + "-" + (num + 1));
+	
+	// At this time there two inputs with the same name.
+	// Must use JS to set the correct name, JQuery fails.
+	var input = newRow.children()[2].firstChild;
+	input.setAttribute("name", "input[" + identifier + "]["  + (num + 1) + "]");
+	input.setAttribute("value", "");
+	
+	newRow.children()[4].remove();
+	addOccurControls(newRow, newRow[0].id, identifier, "Text");
+	table.append(newRow);
+	
+	if(lastRow.children().length > 4) lastRow.children()[4].remove();
+  };
+  
+  var addComplexInputLine = function(lastRowId)
+  {
+  	var modeName = 'input';
+  	var identifier = lastRowId.split("-")[0];
+  	var num = parseInt(lastRowId.split("-")[1]);
+  	var lastRow = $('#' + lastRowId);
+  	var table = $('#' + modeName + '-table');
+  	
+  	var newRow = createComplexInputRow(identifier, null, table, modeName, (num + 1));
+  	addOccurControls(newRow, newRow.id, identifier, "Complex");
+  	
+  	lastRow.children()[3].remove();
+  };
+  
+  var removeInputLine = function(lastRowId, name)
+  {  	
+  	var identifier = lastRowId.split("-")[0];
+  	var num = parseInt(lastRowId.split("-")[1]);
+  	if (num <= 0) return null;
+  	
+  	var lastRow = $('#' + lastRowId);
+  	lastRow.remove();
+  	
+  	var previousRow = $('#' + identifier + "-" + (num - 1));
+  	addOccurControls(previousRow, previousRow[0].id, identifier, name);
+  	
+  	onInputOutputTextEntryChanged(previousRow.children()[2].firstChild);
+  };
+  
+  
+  var getRelevantKeys = function(identifier, textInputValues)
+  {
+  	keys = new Array();
+  	if (textInputValues == null) return keys;
+  	
+  	for (var key in textInputValues)	
+  	{
+		if (key.substring(key.indexOf(":")).indexOf(identifier) == 1)
+			keys.push(key);
+	}
+  	
+  	return keys;
+  };
+  
+  // There is some redundancy between this method and populateTable.
+  // This must be solved later on
+  var populateTableTextInputs = function(items, textInputValues)
+  {
+	var itemCount = items.length;
+	var modeName = 'input'
+	
+	// Find the exsiting table called input-table or output-table
+	var table = $('#' + modeName + '-table');
+	initTable(table);
+	
+	for(var i = 0; i < itemCount; i++)
+	{
+	 	item = items[i];
+	  	
+		  	//Create at least as many input fields as minimum occurrences.
+		keys = getRelevantKeys(item.identifier, textInputValues);
+		valueCount = keys.length;
+		if (valueCount < item.min_occurs) valueCount = item.min_occurs;
+		
+		for(var n = 0; n < valueCount; n++)
+		{
+		    var row = $(document.createElement("tr"));
+		    row.id = item.identifier + "-" + n;
+		    row.attr('id', item.identifier + "-" + n);
+		
+			addParamNameCell(row, item);
+			
+		    row.append("<td align='center'>[" + item.identifier + "]</td>");
+		
+		    // Parameter Value column
+		    cell = $(document.createElement('td'));   // Dataset
+		    cell.attr("nowrap", true);
+		
+		    // Create text inputs	
+		    var className = "input-field";
+		    
+		    value = "";
+		    if((textInputValues != null) && (keys.length > n))
+		    	value = textInputValues[keys[n]];
+		
+		    var placeholder = item.datatype.capitalize() + " value";
+		
+		    var name = modeName + '[' + item.identifier + '][' + n + ']';
+		
+		    cell.html('<input type="text" name="' + name + '" placeholder="' + placeholder + '" ' +
+		                   'value="' + value + '" class="' + className + ' disableable" onchange="onInputOutputTextEntryChanged(this)">');
+		    row.append(cell);
+		    row.append('<td class="message-cell" name="' + name + '"></td>' );   // Place for messages and such
+		
+		    table.append(row);
+		    lastRow = row;
+	    }
+	    
+	    if(item.max_occurs > 1)
+			addOccurControls(lastRow, lastRow.id, item.identifier, "Text");
+	 }
+	   
+
+  };
+  
+  var createComplexInputRow = function(identifier, value, table, modeName, n)
+  {
+  	var row = $(document.createElement("tr"));
+    row.id = identifier + "-" + n;
+    row.attr('id', identifier + "-" + n);
+
+	addParamNameCell(row, item);
+    row.append("<td align='center'>[" + identifier + "]</td>");
+
+    // Parameter Value column
+    cell = $(document.createElement('td'));   // Dataset
+    cell.attr("nowrap", true);
+
+    var controls = createDatasetSelectionControls(identifier, modeName, n);
+
+    control = controls[0];
+    control.attr('class', 'disableable');
+
+    if(control.children().length == 0) 
+    {
+        cell.text('No registered datasets of type "' + identifier + '"');
+        cell.append('<img src="/assets/small_question_mark.gif" class="info-icon" ' +
+              'alt="More info" title="Don\'t panic!  You can register new datasets in the Data Manager when you are done here.">');
+          anyDatasetsMissing = true;
+    }
+    else 
+    {
+        control.prepend("<option value=-1>No dataset selected</option>");
+        control.change(onSelectedDatasetChanged);
+        control.attr('class', 'req-select disableable');
+
+        cell.html(control);
+          
+        if(value != null)
+          control.val(value);
+        else 
+          control.val(-1);
+    }
+
+    // Add any other (hidden) controls returned by createDatasetSelectionControls()
+    for(var j = 1, len = controls.length; j < len; j++) 
+    cell.append(controls[j]);
+
+    row.append(cell);
+    table.append(row);
+    return row;
+  }
+  
+
+
+  // There is some redundancy between this method and populateTable.
+  // This must be solved later on
+  var populateTableComplexInputs = function(items, complexInputValues)
+  {
+	  var itemCount = items.length;
+	  var modeName = 'input'
+	
+	  // Find the exsiting table called input-table or output-table
+	  var table = $('#' + modeName + '-table');
+	  initTable(table);
+	
+	  for(var i = 0; i < itemCount; i++)
+	  {
+	  	item = items[i];
+	  	
+	  	//Create at least as many input fields as minimum occurrences.
+	  	keys = getRelevantKeys(item.identifier, complexInputValues);
+	  	valueCount = keys.length;
+	  	if (valueCount < item.min_occurs) valueCount = item.min_occurs;
+	  	
+	  	for(var n = 0; n < valueCount; n++)
+	  	{
+	  		var value = null;
+	    	if(datasetValues && datasetValues[keys[n]])
+	      		value = datasetValues[keys[n]];
+	      
+	        lastRow = createComplexInputRow(item.identifier, value, table, modeName, n);
+	    }
+	     
+	    if(item.max_occurs > 1)
+	   	   addOccurControls(lastRow, lastRow.id, item.identifier, "Complex");
+	  } 
+  };
+  
+  
+  var checkInputs = function(modeName)
+  {
+  	var table = $('#' + modeName + '-table');
+  	if(table.children().length <= 0) 
+        table.html("<span class='no-inputs-ouputs'>This module configuration requires no inputs.</span>");
+  }
 
 
   var nameVerified = function(jqXHR)
