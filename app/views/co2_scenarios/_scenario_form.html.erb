@@ -38,26 +38,20 @@ stub = function(p)
         $('#tabs-fact').tabs('#tab-fact-panes > div', { history: true });
       });
     }   
+    
+    $('#emiss-factors').slideUp('fast');
   });
-
-var EmissFactorsTitle = "+ Emission Factors";
+  
 
 var rollEmissionFactors = function()
 {
 	$('#emiss-factors').slideToggle();
 	
 	title = document.getElementById("emiss-factors-title");
-	if (EmissFactorsTitle[0] == "+")
+	if (title.innerHTML[0] == "+")
 		title.innerHTML = "- Emission Factors";
 	else
 		title.innerHTML = "+ Emission Factors";
-	
-	
-	/*if (EmissFactorsTitle[0] == "+")
-		EmissFactorsTitle = "- Emission Factors";
-	else
-		EmissFactorsTitle = "+ Emission Factors";
-	$('#emiss-factors-title').attr("innerHTML", EmissFactorsTitle);*/
 }
  
 </script>
@@ -322,7 +316,7 @@ var rollEmissionFactors = function()
 <br>  
 
 <hr>
-<div onclick="rollEmissionFactors();"><h4 id="emiss-factors-title">+ Emission Factors</h4></div>
+<div onclick="rollEmissionFactors();"><h4 id="emiss-factors-title" class="emiss-factors-title">+ Emission Factors</h4></div>
 <br>
 <div id="emiss-factors">
 	<ul class="tabs" id="tabs-fact">
