@@ -504,6 +504,7 @@ def check_data_servers(serverCursor):
         wms, wfs, wcs = get_ows_objects(server_url)
 
         if not (wms or wfs or wcs):    # No data services available?  Time to move on!
+            run_queries(db_conn, upsert_list, sqlList)
             continue
 
         title    = get_dataserver_title   (wms, wfs, wcs)
