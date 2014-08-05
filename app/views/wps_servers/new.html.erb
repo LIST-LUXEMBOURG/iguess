@@ -343,7 +343,7 @@
       success: function(data, status, jqXHR)  { 
           checkbox.checked = true;
           thiiis.toggleClass("checked");
-          alert(jqXHR.responseJSON.message);
+          // alert(jqXHR.responseJSON.message);
         },
       error: function(jqXHR, textStatus, error) { alert("Error registering server: " + error); }
     });
@@ -374,7 +374,7 @@
       success: function(data, status, jqXHR)  { 
           checkbox.checked = false;
           thiiis.toggleClass("checked");
-          alert(jqXHR.responseJSON.message);
+          // alert(jqXHR.responseJSON.message);
         },
       error: function(jqXHR, textStatus, error) { alert("Error unregistering server: " + error); }
     });
