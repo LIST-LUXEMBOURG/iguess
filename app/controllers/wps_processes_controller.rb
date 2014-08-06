@@ -63,7 +63,7 @@ class WpsProcessesController < ApplicationController
     ProcessParam.createAll(params, process.id, true)
     ProcessParam.createAll(params, process.id, false)
 
-    render :json => { :success => true, :message => "Process has been registered!" }
+    render :json => { :success => true, :message => "Process registered!" }
   end
 
 
@@ -106,7 +106,7 @@ class WpsProcessesController < ApplicationController
       server.delete
     end
 
-    render :json => { :success => true, :message => "Server has been unregistered!" }
+    render :json => { :success => true, :message => "Process unregistered!" }
   end
 
 

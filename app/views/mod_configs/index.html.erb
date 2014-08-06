@@ -170,25 +170,23 @@
   <!-- The following will start life hidden, and will only be revealed when the user clicks an info button -->
   <!-- Details (name, descr, etc.) will be populated as we get info from the servers -->
   <% @wps_servers.each do |s| %>
-    <div id="server-infotables">
-      <div class="infotable" id="server-infotable-<%= s.id %>">
-        <div class="close"></div>
-        <h1  class="wps-title"><%= s.title %></h1>
-        <div class="wps-abstr"><%= s.abstract %></div>
-        <div style="overflow:hidden">
-          <dl>
-            <dt>Provider:</dt><dd class="wps-providerName"><%= s.provider_name %></dd>
-            <dt>Contact:</dt><dd>
-              <span class="wps-email">
-                <%= mail_to(s.contact_email, s.contact_name, :encode => :javascript) %>
-              </span>
-            </dd>
-            <dt>Server URL:</dt><dd><%= s.url %></dd>
-            <dt>GetCapabilities URL:</dt><dd class="wps-describeProcessLink">
-              <%= link_to("WPS", s.url + "?SERVICE=WPS&VERSION=1.1.0&REQUEST=GetCapabilities", :target => "_blank") %>
-            </dd>
-          </dl>
-        </div>
+    <div class="infotable" id="server-infotable-<%= s.id %>">
+      <div class="close"></div>
+      <h1  class="wps-title"><%= s.title %></h1>
+      <div class="wps-abstr"><%= s.abstract %></div>
+      <div style="overflow:hidden">
+        <dl>
+          <dt>Provider:</dt><dd class="wps-providerName"><%= s.provider_name %></dd>
+          <dt>Contact:</dt><dd>
+            <span class="wps-email">
+              <%= mail_to(s.contact_email, s.contact_name, :encode => :javascript) %>
+            </span>
+          </dd>
+          <dt>Server URL:</dt><dd><%= s.url %></dd>
+          <dt>GetCapabilities URL:</dt><dd class="wps-describeProcessLink">
+            <%= link_to("WPS", s.url + "?SERVICE=WPS&VERSION=1.1.0&REQUEST=GetCapabilities", :target => "_blank") %>
+          </dd>
+        </dl>
       </div>
     </div>
   <% end %>
