@@ -250,7 +250,11 @@ var rollEmissionFactors = function()
 
 
 <hr>
-<h4>Energy Consumption per Sector (%)</h4>
+<table cellspacing=20><tr><td>
+<h4 id="consump-title">Energy Consumption per Sector (%)</h4>
+</td><td valign="middle"> 
+<div id="butt-units" class="toggle" onclick="CO2.toggleUnits();">Toggle units to MWh</div>
+</td></tr></table>
 <br>
 <ul class="tabs" id="tabs-cons">
 <% @sector_scenarios.each do |secscen| %> 
