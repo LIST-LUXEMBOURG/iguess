@@ -25,11 +25,10 @@ var CO2 = CO2 || { };		// Create namespace
 
 CO2.showMWh = false;
 
+CO2.consPrefix = "tableCons";
+
 CO2.sector_emissions = new Array();
-
 CO2.sector_demands = new Array(); // MWh/a
-
-CO2.consumptionTables = new Array();
 
 CO2.sector_co2 = new Array(); // t/a
 CO2.sector_ch4 = new Array(); // g/a
@@ -65,7 +64,6 @@ CO2.calcSectorDemand = function(sector, input_growth, input_eff, input_demand)
 		
 	for (p = 1; p < CO2.numPeriods; p++)
 		CO2.sector_demands[sector][p] = prior * (1 + growth - efficiency);
-		
 };
 
 CO2.calcFactor = function(value, prefix, source, p)
@@ -92,7 +90,6 @@ CO2.calcComposedEmissions = function(table_name, p)
 		CO2.ch4_emissions += CO2.calcFactor(input.value, CO2.ch4_prefix, source, p);
 		CO2.n2o_emissions += CO2.calcFactor(input.value, CO2.n2o_prefix, source, p);
 	}
-
 };
 
 CO2.updateTotal = function(p, tot_name, table_name)
@@ -119,8 +116,8 @@ CO2.setTotalColourPercent = function(total_box)
 
 CO2.updateElecTotals = function(p, tot_name, table_name)
 {
-	CO2.updateTotal(p, tot_name, table_name);
-	CO2.setTotalColourPercent(CO2.calcComposedEmissions(table_name, p));
+	CO2.setTotalColourPercent(CO2.updateTotal(p, tot_name, table_name));
+	CO2.calcComposedEmissions(table_name, p);
 		
 	CO2.co2_elec[p] = CO2.co2_emissions;
 	CO2.ch4_elec[p] = CO2.ch4_emissions;
@@ -129,17 +126,28 @@ CO2.updateElecTotals = function(p, tot_name, table_name)
 
 CO2.updateHeatTotals = function(p, tot_name, table_name)
 {
-	CO2.updateTotal(p, tot_name, table_name);
-	CO2.setTotalColourPercent(CO2.calcComposedEmissions(table_name, p));
+	CO2.setTotalColourPercent(CO2.updateTotal(p, tot_name, table_name));
+	CO2.calcComposedEmissions(table_name, p);
 		
 	CO2.co2_heat[p] = CO2.co2_emissions;
 	CO2.ch4_heat[p] = CO2.ch4_emissions;
 	CO2.n2o_heat[p] = CO2.n2o_emissions;
 };
 
+CO2.setTotalColourCons = function(total_box, p, sector)
+{
+	if(CO2.showMWh)
+	{
+		if(total_box.value >=0 && total_box.value <= CO2.sector_demands[sector][p])
+			total_box.className = "percent-green";
+		else total_box.className = "percent-red";
+	}
+	else CO2.setTotalColourPercent(total_box);
+};
+
 CO2.updateConsTotals = function(p, sector, tot_name, table_name)
 {
-	CO2.updateTotal(p, tot_name, table_name);
+	CO2.setTotalColourCons(CO2.updateTotal(p, tot_name, table_name), p, sector);
 	CO2.calcSectorEmissions(p, sector, table_name);
 };
 
@@ -189,7 +197,7 @@ CO2.updateEmissionsForPeriod = function(p)
 {
 	for (i = 0; i < CO2.sector_co2.length; i++)
 		CO2.calcSectorEmissions(p, CO2.sector_co2[i].name,
-			"tableCons" + CO2.sector_co2[i].name);
+			CO2.consPrefix + CO2.sector_co2[i].name);
 }; 
 
 CO2.toggleUnits = function()
@@ -199,43 +207,31 @@ CO2.toggleUnits = function()
 		CO2.showMWh = false;
 		document.getElementById("consump-title").innerHTML = "Energy Consumption per Sector (%)";
 		document.getElementById("butt-units").innerHTML = "Toggle units to MWh";
-		
-		for (var sector in CO2.sector_demands)
-		{
-			table = document.getElementById("tableCons" + sector);
-			for(p = 0; p < table.rows.length; p++)
-			{
-				row = table.rows[p + 1];
-				for(i = 1; i < row.cells.length - 1; i++)
-				{
-					input = row.cells[i].children[0];
-					input.value = parseFloat(input.value) / CO2.sector_demands[sector][p] * 100.0;
-				}
-			}
-		}
 	}
 	else
 	{
 		CO2.showMWh = true;
 		document.getElementById("consump-title").innerHTML = "Energy Consumption per Sector (MWh)";
 		document.getElementById("butt-units").innerHTML = "Toggle units to %";
+	}
 		
-		//for(t = 0; t < CO2.consumptionTables.length; t++)
-		for (var sector in CO2.sector_demands)
+	for (var sector in CO2.sector_demands)
+	{
+		table = document.getElementById(CO2.consPrefix + sector);
+		for(p = 0; table != null && p < table.rows.length - 1; p++)
 		{
-			table = document.getElementById("tableCons" + sector);
-			for(p = 0; p < table.rows.length - 1; p++)
+			row = table.rows[p + 1];
+			if(row == null) debugger;
+			for(i = 1; i < row.cells.length; i++)
 			{
-				row = table.rows[p + 1];
-				for(i = 1; i < row.cells.length; i++)
-				{
-					input = row.cells[i].children[0];
+				input = row.cells[i].children[0];
+				if(CO2.showMWh)
 					input.value = parseFloat(input.value) * CO2.sector_demands[sector][p] / 100.0;
-				}
+				else
+					input.value = (parseFloat(input.value) / CO2.sector_demands[sector][p] * 100.0).toFixed(1);
 			}
 		}
 	}
-	
 	return false;
 };
 
