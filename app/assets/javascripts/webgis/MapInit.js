@@ -113,7 +113,6 @@ WebGIS.addNewLayer = function(title, serviceURL, layerName, type, tag, id)
 			leaf : false,
 			expanded : true
 		});
-		WebGIS.treeRoot.appendChild(WebGIS.treeNodes[tag]);
 	}
 
 	if (sessionStorage.getItem(layerName) != null) 
@@ -133,7 +132,16 @@ WebGIS.addNewLayer = function(title, serviceURL, layerName, type, tag, id)
 	});
 	newNode.on("checkchange", WebGIS.layerCheckEvent);
 	WebGIS.treeNodes[tag].appendChild(newNode);
+};
 
+WebGIS.attachTreeNodes = function()
+{
+	tags = new Array();
+	for (tag in WebGIS.treeNodes) tags.push(tag);
+	tags.sort();
+	// Ignore "remove" and "hasObject"
+	for (i = 0; i < tags.length - 2; i++)
+		WebGIS.treeRoot.appendChild(WebGIS.treeNodes[tags[i]]);
 };
 
 WebGIS.layerCheckEvent = function(node, checked) 

@@ -36,12 +36,11 @@ class DatasetsController < ApplicationController
     else
       showOnlyPublished = true    # User is in foreign city
     end
-
-
+    
     if showOnlyPublished   
-      @datasets = Dataset.find_all_by_city_id_and_published_and_alive(@current_city.id, :true, :true, :order => 'title desc')
+      @datasets = Dataset.find_all_by_city_id_and_published_and_alive(@current_city.id, :true, :true, :order => 'title')
     else
-      @datasets = Dataset.find_all_by_city_id_and_alive(@current_city.id, :true, :order => 'title desc')
+      @datasets = Dataset.find_all_by_city_id_and_alive(@current_city.id, :true, :order => 'title')
     end
 
     # Get rid of all datasets that don't have the Mapping tag
