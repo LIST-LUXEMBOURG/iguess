@@ -3,6 +3,7 @@
 /* Form element is required */
 .required abbr {
   color: red;
+  text-decoration: none;
 }
 
 .simple_form {
@@ -12,7 +13,7 @@
 
 .simple_form label {
   float: left;
-  width: 100px;
+  width: 120px;      /* If you change this, also change the margin-left attr of .error and .hint, below */
   text-align: right;
   margin-left: 10px;
   margin-right: 10px;
@@ -20,16 +21,13 @@
   font-weight: bold;
 }
 
-
 .simple_form div.input {
   margin-bottom: 15px;
 }
 
-
 .simple_form div.boolean, .simple_form input[type='submit'] {
   /*margin-left: 15px;*/
 }
-
 
 .simple_form div.boolean label, .simple_form label.collection_radio {
   float: none;
@@ -41,20 +39,19 @@
   margin-left: 2px;
 }
 
-.simple_form .error {
+.simple_form .error, .simple_form .hint {
+  margin-left: 140px;
   clear: left;
-  margin-left: 120px;
   font-size: 12px;
-  color: #D00;
   display: block;
 }
 
+.simple_form .error {
+  color: #D00;
+}
+
 .simple_form .hint {
-  clear: left;
-  margin-left: 120px;
-  font-size: 12px;
   color: #555;
-  display: block;
   font-style: italic;
 }
 
@@ -68,11 +65,9 @@
   margin-right: 3px;
 }
 
-
 .shared_links {
   margin-top: 15px;
 }
-
 
 .output-field {
   width: 300px;

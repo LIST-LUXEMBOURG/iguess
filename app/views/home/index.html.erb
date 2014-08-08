@@ -1,11 +1,4 @@
 <!-- Show a list of users pending approval -->
-
-<% if flash[:error] %>
-  <div class="flash" %><%= flash[:error] %></div>
-<% elsif flash[:alert] %>
-  <div class="flash" %><%= flash[:alert] %></div>
-<% end %>
-
 <% if user_signed_in? and @user.is_admin and @unapproved_users.length > 0%>
   <table class="zebra">
     <tr><th colspan=2 class="center"><%= @current_city.name %> users waiting for approval</th></tr>

@@ -32,19 +32,4 @@ class UsersController < ApplicationController
     end
   end
 
-
-  # Gets called when user signs in
-  def show
-    
-  end
-
-
-  # Gets called when user logs out
-  def destroy
-    reset_session
-
-    redirect_to "/"
-  end
-
-
 end

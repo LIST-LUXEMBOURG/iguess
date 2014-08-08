@@ -1,0 +1,9 @@
+<% if flash[:error] %>
+  <div class="flash"><%= flash[:error] %></div>
+<% elsif flash[:alert] %>
+  <div class="flash"><%= flash[:alert] %></div>  
+<% elsif flash[:notice] %>
+  <div class="flash"><%= flash[:notice] %></div>
+<% elsif devise_error_messages! && devise_error_messages! != "" %>
+  <div class="flash"><%= devise_error_messages! %></div>
+<% end %>

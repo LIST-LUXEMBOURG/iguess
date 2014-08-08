@@ -37,6 +37,10 @@ Iguess::Application.routes.draw do
   
   resources :maps
 
+
+  # Handle user logins... remember that this needs to be BEFORE declaring the :users resources
+  devise_for :users, :controllers => {:registrations => "registrations"}
+
   resources :users
   
   resources :compares
@@ -51,9 +55,8 @@ Iguess::Application.routes.draw do
    end
   end
   
-  
 
-  devise_for :users, :controllers => {:registrations => "registrations"}
+  
 
   match "about", :to => "about#index"
 
