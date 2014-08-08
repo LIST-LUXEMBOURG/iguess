@@ -28,7 +28,6 @@ Iguess::Application.routes.draw do
   put "dataserver_bookmarks/destroy"
 
   get "/datasets/check_name"
-  # get "/datasets/find_matching_tags", to: "datasets#find_matching_tags"
 
   resources :datasets 
 
@@ -37,6 +36,8 @@ Iguess::Application.routes.draw do
   resources :config_datasets
   
   resources :maps
+
+  resources :users
   
   resources :compares
 

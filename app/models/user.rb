@@ -12,10 +12,28 @@ class User < ActiveRecord::Base
 
   # Setup accessible (or protected) attributes for your model
   attr_accessible :username, :email, :password, :password_confirmation, :remember_me, :city_id, :login, :first_name, :last_name
+  after_create :send_admin_mail
 
   # Virtual attribute for authenticating by either username or email
   # This is in addition to a real persisted field like 'username'
   attr_accessor :login
+
+
+  def send_admin_mail
+    AdminMailer.new_user_waiting_for_approval(self).deliver
+  end
+
+
+  def self.send_reset_password_instructions(attributes={})
+    recoverable = find_or_initialize_with_errors(reset_password_keys, attributes, :not_found)
+    if !recoverable.approved?
+      recoverable.errors[:base] << I18n.t("devise.failure.not_approved")
+    elsif recoverable.persisted?
+      recoverable.send_reset_password_instructions
+    end
+    recoverable
+  end
+
 
   # Allow authentication against email addr or username 
   # (from https://github.com/plataformatec/devise/wiki/How-To:-Allow-users-to-sign-in-using-their-username-or-email-address)
@@ -27,6 +45,22 @@ class User < ActiveRecord::Base
       where(conditions).first
     end
   end
+
+
+  # See https://github.com/plataformatec/devise/wiki/How-To%3a-Require-admin-to-activate-account-before-sign_in
+  def active_for_authentication? 
+    super && approved? 
+  end 
+
+
+  def inactive_message
+    if not approved? 
+      :not_approved 
+    else 
+      super # Use whatever other message 
+    end 
+  end
+
 
   # Returns true if user is logged in, and either has global permissions or belongs to specified city
   def self.canAccessObject(current_user, object)
@@ -45,5 +79,17 @@ class User < ActiveRecord::Base
   def self.getCurrentCity(current_user, cookies)
     return (current_user and current_user.role_id == 1) ? (City.find_by_id(current_user.city_id)) : 
                                                           (City.find_by_id(cookies['city']) or City.first)
+  end
+end
+
+
+class AdminMailer < ActionMailer::Base
+  default to: Proc.new { "christopher.eykamp@tudor.lu" },
+          from: 'noresponse@iguess.tudor.lu'
+
+
+  def new_user_waiting_for_approval(user)
+    @user = user
+    mail(subject: "New User Awaiting Approval: #{@user.email}")
   end
 end

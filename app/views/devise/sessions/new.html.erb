@@ -1,3 +1,9 @@
+<% if flash[:error] %>
+  <div class="flash" %><%= flash[:error] %></div>
+<% elsif flash[:alert] %>
+  <div class="flash" %><%= flash[:alert] %></div>
+<% end %>
+
 <h1>Log in</h1>
 
 <%= simple_form_for(resource, :as => resource_name, :url => session_path(resource_name)) do |f| %>

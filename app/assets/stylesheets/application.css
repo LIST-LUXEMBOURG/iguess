@@ -358,4 +358,13 @@ input, select, textarea {
 .show-no-tags-msg-when-empty:empty:after {
   content: "No tags";
   width: 20px;
-};
+}
+
+
+.flash {
+  color: red;
+  background: #FF8;
+  padding: 10px;
+  width: 50%;
+  border: 1px solid black;
+}
