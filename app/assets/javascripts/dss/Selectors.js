@@ -165,10 +165,6 @@ DSS.next = function()
 		DSS.map.addLayer(DSS.layerWFS);
 	}
 	catch(e) {}
-	/*{
-		DSS.map.removeLayer(DSS.layerWFS);
-		DSS.map.addLayer(DSS.layerWFS);
-	}*/
 	
 	//----- Populate Feature Array -----//
 	DSS.featureArray = new DSS.FeatureArray();
