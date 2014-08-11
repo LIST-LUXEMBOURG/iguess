@@ -156,15 +156,19 @@ DSS.next = function()
 	DSS.winSelect.hide();
 	if(DSS.winPanel == null) DSS.initWinPanel();
 	DSS.winPanel.show();
+	
+	// With some services the addLayer method is throwing an exception, 
+	// for unknown reasons, but it is correctly adding the new layer to the map. 
+	// The try block avoids execution to halt.
 	try
 	{
 		DSS.map.addLayer(DSS.layerWFS);
 	}
-	catch(e)
-	{
+	catch(e) {}
+	/*{
 		DSS.map.removeLayer(DSS.layerWFS);
 		DSS.map.addLayer(DSS.layerWFS);
-	}
+	}*/
 	
 	//----- Populate Feature Array -----//
 	DSS.featureArray = new DSS.FeatureArray();
