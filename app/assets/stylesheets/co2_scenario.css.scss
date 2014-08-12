@@ -76,7 +76,31 @@ a.delete:link a.delete:visited
 }
 
 /* Emission Factors */
-
-.emiss-factors-title:hover {
+.emiss-factors-title:hover 
+{
   color: #7777EE !important;
+  cursor:pointer;
+  cursor:hand;
+}
+
+/* Toggle button */
+.toggle
+{
+  text-align: center;
+  vertical-align: middle;
+  color: #444444 !important;
+  background: #FAFA7D !important;
+  border-color: #777777  !important;
+  border-style: outset;
+  border-width: 1px;
+  border-radius: 4px;
+  width: 150px !important;
+}
+
+.toggle:hover 
+{
+  color: #000033 !important;
+  border-color: #333366  !important;
+  cursor:pointer;
+  cursor:hand;
 }

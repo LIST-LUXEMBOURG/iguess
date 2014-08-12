@@ -22,7 +22,7 @@
 
     // Note that for the status div, all rows from the same server share the same class.  Each has a unique id.
     var addLayersToMap = function(datasets)
-    {
+    {	
     	WebGIS.clearLayers(false);
         for (var i = 0, len = datasets.length; i < len; i++)
         {
@@ -34,13 +34,14 @@
                               datasets[i].identifier, 
                               null,
                               tag,
-                              datasets[i].id);   
+                              i);   
 
-            $('div[ext\\:tree-node-id="dsid-' + datasets[i].id + '"]')
+            $('div[ext\\:tree-node-id="dsid-' + i + '"]')
                 .append('<span class="info-icon properties" title="Click for details" ' + 
-                        'rel="#infotable-' + datasets[i].id + '"></span>');
+                        'rel="#infotable-' + i + '"></span>');
         }
-        
+
+        WebGIS.attachTreeNodes();
 
         // Activate the gear popup menus
         activateOverlays();

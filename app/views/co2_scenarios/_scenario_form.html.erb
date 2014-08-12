@@ -13,6 +13,25 @@ stub = function(p)
 	CO2.drawCharts();
 }
 
+var rollEmissionFactors = function()
+{
+	$('#emiss-factors').slideToggle();
+	
+	title = document.getElementById("emiss-factors-title");
+	if (title.innerHTML[0] == "+")
+		title.innerHTML = "- Emission Factors";
+	else
+		title.innerHTML = "+ Emission Factors";
+}
+
+submitForm = function()
+{
+	if(CO2.showMWh) CO2.toggleUnits();
+	$('form').submit();
+	return false;
+}
+ 
+
 //------- Tabs ---------//
 
   $(document).ready(function() 
@@ -37,19 +56,7 @@ stub = function(p)
     
     $('#emiss-factors').slideUp('fast');
   });
-  
 
-var rollEmissionFactors = function()
-{
-	$('#emiss-factors').slideToggle();
-	
-	title = document.getElementById("emiss-factors-title");
-	if (title.innerHTML[0] == "+")
-		title.innerHTML = "- Emission Factors";
-	else
-		title.innerHTML = "+ Emission Factors";
-}
- 
 </script>
 
 <%= simple_form_for @scenario do |scen| %>
@@ -73,11 +80,11 @@ var rollEmissionFactors = function()
 
     </td><td width=240>  
     <div align=right>
-	  <%= scen.submit buttonText %>
-	  <br><br>
-	  <button width=100>Add period</button>
-	  <br><br>
-	  <button width=100>Remove period</button>
+	  <div id="butt-submit" class="toggle" onclick="submitForm();">Save scenario</div>
+	  <br>
+	  <div id="butt-submit" class="toggle" onclick="">Add period</div>
+	  <br>
+	  <div id="butt-submit" class="toggle" onclick="">Remove period</div>
     </div>
     </td></tr>
   </table>
@@ -246,7 +253,11 @@ var rollEmissionFactors = function()
 
 
 <hr>
-<h4>Energy Consumption per Sector (%)</h4>
+<table cellspacing=20><tr><td>
+<h4 id="consump-title">Energy Consumption per Sector (%)</h4>
+</td><td valign="middle"> 
+<div id="butt-units" class="toggle" onclick="CO2.toggleUnits();">Toggle units to MWh</div>
+</td></tr></table>
 <br>
 <ul class="tabs" id="tabs-cons">
 <% @sector_scenarios.each do |secscen| %> 
