@@ -14,7 +14,22 @@ Iguess::Application.configure do
   config.action_controller.perform_caching = false
 
   # Don't care if the mailer can't send
-  config.action_mailer.raise_delivery_errors = false
+  config.action_mailer.raise_delivery_errors = true
+
+  # You may need to restart the server after changing the settings; will
+  # need the mail gem installed for mail sending to work!
+  config.action_mailer.delivery_method = :smtp 
+  config.action_mailer.smtp_settings = {
+  address:              'xxx',
+  port:                 25,
+  domain:               'tudor.lu',
+  user_name:            'xxx',
+  password:             'xxx',
+  authentication:       'plain',
+  enable_starttls_auto: false  }
+
+ # Devise authentication
+  config.action_mailer.default_url_options = { :host => 'localhost:3000' }
 
   # Print deprecation notices to the Rails logger
   config.active_support.deprecation = :log
@@ -34,7 +49,4 @@ Iguess::Application.configure do
 
   # Expands the lines which load the assets
   config.assets.debug = true
-
-  # Devise authentication
-  config.action_mailer.default_url_options = { :host => 'localhost:3000' }
 end
