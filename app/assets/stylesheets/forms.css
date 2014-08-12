@@ -13,7 +13,7 @@
 
 .simple_form label {
   float: left;
-  width: 120px;      /* If you change this, also change the margin-left attr of .error and .hint, below */
+  width: 140px;      /* If you change this, also change the margin-left attr of .error and .hint, below */
   text-align: right;
   margin-left: 10px;
   margin-right: 10px;
@@ -40,7 +40,7 @@
 }
 
 .simple_form .error, .simple_form .hint {
-  margin-left: 140px;
+  margin-left: 160px;
   clear: left;
   font-size: 12px;
   display: block;
