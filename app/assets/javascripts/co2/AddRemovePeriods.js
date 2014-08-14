@@ -47,7 +47,8 @@ CO2.processConsInput = function(input, inputName, newPeriod, sourceId)
 CO2.addPeriodToTable = function(tableName, inputName, newYear, newPeriod, processInput)
 {
 	var newRow = $('#' + tableName + ' tr:last').clone();
-	newRow.children()[0].firstChild.innerHTML = newYear;
+	//newRow.children()[0].firstChild.setAttribute("textContent", newYear);
+	newRow.children()[0].firstChild.textContent = newYear;
 	for(i = 1; i < newRow.children().length - 1; i++)
 	{
 		var input = newRow.children()[i].children[0];
@@ -55,6 +56,7 @@ CO2.addPeriodToTable = function(tableName, inputName, newYear, newPeriod, proces
 		sourceId = input.name.split("[")[2].split("]")[0];
 		processInput(input, inputName, newPeriod, sourceId);
 	}
+	$('#' + tableName).append(newRow);
 };
 
 CO2.addPeriod = function()
@@ -77,6 +79,8 @@ CO2.addPeriod = function()
 		newYear, newPeriod, CO2.processNormalInput);
 	CO2.addPeriodToTable("table_n2o_factor", "n2o_factor", 
 		newYear, newPeriod, CO2.processNormalInput);
+	
+	return;
 	
 	// Consumptions
 	for (var sector in CO2.sector_demands)
