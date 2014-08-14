@@ -26,39 +26,62 @@ var CO2 = CO2 || { };		// Create namespace
 /***************************************************
  * This method is still missing the onChange event
  */
-CO2.addPeriodTable = function(tableName, inputName, newPeriod)
+CO2.processNormalInput = function(input, inputName, newPeriod, sourceId)
+{
+	input.setAttribute("name", 
+		inputName + "["  + 
+		newPeriod + "][" + 
+		sourceId  + "]"   );
+};
+
+CO2.processConsInput = function(input, inputName, newPeriod, sourceId)
+{
+	secscenId = input.name.split("[")[3].split("]")[0];
+	input.setAttribute("name", 
+	    inputName + "["  + 
+		newPeriod + "][" + 
+		sourceId  + "][" + 
+		secscenId + "]"    );
+};
+
+CO2.addPeriodToTable = function(tableName, inputName, newYear, newPeriod, processInput)
 {
 	var newRow = $('#' + tableName + ' tr:last').clone();
-	newRow.children()[i].firstChild.innerHTML = newPeriod;
-	for(i = 1; i < newRow.children.length; i++)
+	newRow.children()[0].firstChild.innerHTML = newYear;
+	for(i = 1; i < newRow.children().length - 1; i++)
 	{
-		var input = newRow.children()[i].firstChild;
+		var input = newRow.children()[i].children[0];
 		input.setAttribute("value", "0.0");
-		sourceId = input.name.split("[")[1].split("]")[0];
-		input.setAttribute("name", inputName + "[" + newPeriod + "][" + sourceId + "]");
+		sourceId = input.name.split("[")[2].split("]")[0];
+		processInput(input, inputName, newPeriod, sourceId);
 	}
 };
 
 CO2.addPeriod = function()
 {
-	numPeriods = $('#tableElecMix tr').length;
-	baseYear   = $('co2_scenario[base_year]').val();
-	timeStep   = $('co2_scenario[time_step]').val();
-	newPeriod  = baseYear + timeStep * numPeriods;
+	newPeriod = $('#tableElecMix tr').length;
+	baseYear  = $('#co2_scenario_base_year').val();
+	timeStep  = $('#co2_scenario_time_step').val();
+	newYear   = parseInt(baseYear) + timeStep * (newPeriod - 1);
 	
 	//Electricity Mix
-	CO2.addPeriodTable("tableElecMix", "co2_elec_mixes", newPeriod);
+	CO2.addPeriodToTable("tableElecMix", "co2_elec_mixes", 
+		newYear, newPeriod, CO2.processNormalInput);
 	//Heat Mix
-	CO2.addPeriodTable("tableHeatMix", "co2_heat_mixes", newPeriod);
+	CO2.addPeriodToTable("tableHeatMix", "co2_heat_mixes", 
+		newYear, newPeriod, CO2.processNormalInput);
 	//Factors
-	CO2.addPeriodTable("table_co2_factor", "co2_factor", newPeriod);
-	CO2.addPeriodTable("table_ch4_factor", "ch4_factor", newPeriod);
-	CO2.addPeriodTable("table_n2o_factor", "n2o_factor", newPeriod);
+	CO2.addPeriodToTable("table_co2_factor", "co2_factor", 
+		newYear, newPeriod, CO2.processNormalInput);
+	CO2.addPeriodToTable("table_ch4_factor", "ch4_factor", 
+		newYear, newPeriod, CO2.processNormalInput);
+	CO2.addPeriodToTable("table_n2o_factor", "n2o_factor", 
+		newYear, newPeriod, CO2.processNormalInput);
 	
 	// Consumptions
-	//"tableCons" + sectorName
-	
-
+	for (var sector in CO2.sector_demands)
+		CO2.addPeriodToTable("tableCons" + sector, "co2_consumptions", 
+			newYear, newPeriod, CO2.processConsInput);
 };
 
 CO2.removePeriod = function()
@@ -69,5 +92,4 @@ CO2.removePeriod = function()
 	$('#table_co2_factor tr:last').remove();
 	$('#table_ch4_factor tr:last').remove();
 	$('#table_n20_factor tr:last').remove();
-
 };
