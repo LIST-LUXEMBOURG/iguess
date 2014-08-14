@@ -44,18 +44,24 @@ CO2.processConsInput = function(input, inputName, newPeriod, sourceId)
 		secscenId + "]"    );
 };
 
-CO2.addPeriodToTable = function(tableName, inputName, newYear, newPeriod, processInput)
+CO2.addPeriodToTable = function(tableName, inputName, totals, newYear, newPeriod, processInput)
 {
 	var newRow = $("[id='" + tableName + "'] tr:last").clone();
 	if(newRow.children()[0] == null) return;
 	newRow.children()[0].firstChild.textContent = newYear;
-	for(i = 1; i < newRow.children().length - 1; i++)
-	{
+	
+	// First change all values to zero. Is this what the user is expecting?
+	for(i = 1; i < newRow.children().length; i++)
+		newRow.children()[i].children[0].value = "0.0";
+		
+	// Second change input ids, except for totals
+	for(i = 1; i < newRow.children().length - totals; i++)
+	{	
 		var input = newRow.children()[i].children[0];
-		input.setAttribute("value", "0.0");
 		sourceId = input.name.split("[")[2].split("]")[0];
 		processInput(input, inputName, newPeriod, sourceId);
 	}
+	
 	$("[id='" + tableName + "']").append(newRow);
 };
 
@@ -67,22 +73,22 @@ CO2.addPeriod = function()
 	newYear   = parseInt(baseYear) + timeStep * (newPeriod - 1);
 	
 	//Electricity Mix
-	CO2.addPeriodToTable("tableElecMix", "co2_elec_mixes", 
+	CO2.addPeriodToTable("tableElecMix", "co2_elec_mixes", 1,
 		newYear, newPeriod, CO2.processNormalInput);
 	//Heat Mix
-	CO2.addPeriodToTable("tableHeatMix", "co2_heat_mixes", 
+	CO2.addPeriodToTable("tableHeatMix", "co2_heat_mixes", 1,
 		newYear, newPeriod, CO2.processNormalInput);
 	//Factors
-	CO2.addPeriodToTable("table_co2_factor", "co2_factor", 
+	CO2.addPeriodToTable("table_co2_factor", "co2_factor", 0,
 		newYear, newPeriod, CO2.processNormalInput);
-	CO2.addPeriodToTable("table_ch4_factor", "ch4_factor", 
+	CO2.addPeriodToTable("table_ch4_factor", "ch4_factor", 0,
 		newYear, newPeriod, CO2.processNormalInput);
-	CO2.addPeriodToTable("table_n2o_factor", "n2o_factor", 
+	CO2.addPeriodToTable("table_n2o_factor", "n2o_factor", 0,
 		newYear, newPeriod, CO2.processNormalInput);
 	
 	// Consumptions
 	for (var sector in CO2.sector_demands)
-		CO2.addPeriodToTable("tableCons" + sector, "co2_consumptions", 
+		CO2.addPeriodToTable("tableCons" + sector, "co2_consumptions", 1, 
 			newYear, newPeriod, CO2.processConsInput);
 };
 
