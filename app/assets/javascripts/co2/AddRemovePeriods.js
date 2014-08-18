@@ -23,15 +23,43 @@
  
 var CO2 = CO2 || { };		// Create namespace
 
-/***************************************************
- * This method is still missing the onChange event
- */
-CO2.processNormalInput = function(input, inputName, newPeriod, sourceId)
-{
+CO2.updateNormalInputName = function(input, inputName, newPeriod, sourceId)
+{	
 	input.setAttribute("name", 
 		inputName + "["  + 
 		newPeriod + "][" + 
 		sourceId  + "]"   );
+};
+
+CO2.processNormalInput = function(input, inputName, newPeriod, sourceId)
+{
+	CO2.updateNormalInputName(input, inputName, newPeriod, sourceId);		
+};
+
+CO2.processHeatInput = function(input, inputName, newPeriod, sourceId)
+{
+	CO2.updateNormalInputName(input, inputName, newPeriod, sourceId);		
+	input.setAttribute("onchange",
+		"CO2.updateHeatTotals(" +
+			newPeriod + ", " +
+			"'co2_heat_mix_total_" + newPeriod + "', " +
+		    "'tableHeatMix');" +  
+		"CO2.drawCharts();" + 
+		"return false;"
+		);
+};
+
+CO2.processElecInput = function(input, inputName, newPeriod, sourceId)
+{
+	CO2.updateNormalInputName(input, inputName, newPeriod, sourceId);		
+	input.setAttribute("onchange",
+		"CO2.updateElecTotals(" +
+			newPeriod + ", " +
+			"'co2_elec_mix_total_" + newPeriod + "', " +
+		    "'tableElecMix');" +  
+		"CO2.drawCharts();" + 
+		"return false;"
+		);
 };
 
 CO2.processConsInput = function(input, inputName, newPeriod, sourceId, tableName)
@@ -54,6 +82,18 @@ CO2.processConsInput = function(input, inputName, newPeriod, sourceId, tableName
 		"CO2.drawCharts(); " + 
 		"return false;"
 		);
+};
+
+CO2.processElecTotals = function(newRow, newPeriod)
+{
+	var input = newRow.children()[newRow.children().length - 1].children[0];
+	input.setAttribute("id", "co2_elec_mix_total_" + newPeriod);
+};
+
+CO2.processHeatTotals = function(newRow, newPeriod)
+{
+	var input = newRow.children()[newRow.children().length - 1].children[0];
+	input.setAttribute("id", "co2_heat_mix_total_" + newPeriod);
 };
 
 CO2.processConsTotals = function(newRow, newPeriod)
@@ -100,10 +140,10 @@ CO2.addPeriod = function()
 	
 	//Electricity Mix
 	CO2.addPeriodToTable("tableElecMix", "co2_elec_mixes", 1,
-		newYear, newPeriod, CO2.processNormalInput, CO2.empty);
+		newYear, newPeriod, CO2.processElecInput, CO2.processElecTotals);
 	//Heat Mix
 	CO2.addPeriodToTable("tableHeatMix", "co2_heat_mixes", 1,
-		newYear, newPeriod, CO2.processNormalInput, CO2.empty);
+		newYear, newPeriod, CO2.processHeatInput, CO2.processHeatTotals);
 	//Factors
 	CO2.addPeriodToTable("table_co2_factor", "co2_factor", 0,
 		newYear, newPeriod, CO2.processNormalInput, null);
