@@ -259,7 +259,7 @@ class Co2ScenariosController < ApplicationController
                     end
                   }
 
-    (0..max_period-1).each do |n|
+    (0..max_period).each do |n|
       @periods << n
     end
 
@@ -341,6 +341,7 @@ class Co2ScenariosController < ApplicationController
     
     # And now the Carriers -- these may not all exist if the user added more years... create any missing ones,
     # and delete any extras.
+    
     periods = params[:co2_consumptions].size()
     
     # Delete all consumptions with periods higher than the current number of periods in the scenario
@@ -355,8 +356,15 @@ class Co2ScenariosController < ApplicationController
     # Update the remaining consumptions
     (0..periods-1).each do |p| 
       @sources_cons.each do |s|
-        params[:co2_consumptions][p.to_s][s.id.to_s].keys.each do |secscen_id|
+        params[:co2_consumptions][p.to_s][s.id.to_s].keys.each do |sector_id|
           
+          #binding.pry
+          
+          secscen_id = Co2SectorScenario.find_by_co2_sector_id_and_co2_scenario_id(sector_id, @scenario).id
+          if not secscen_id
+            errorUpdating()
+            return
+          end
           consumption = Co2Consumption.find_by_period_and_co2_source_id_and_co2_sector_scenario_id(p, s.id, secscen_id)
 
           if not consumption 
@@ -366,7 +374,7 @@ class Co2ScenariosController < ApplicationController
             consumption.co2_sector_scenario_id = secscen_id
           end
 
-          consumption.value = params[:co2_consumptions][p.to_s][s.id.to_s][secscen_id]
+          consumption.value = params[:co2_consumptions][p.to_s][s.id.to_s][sector_id]
 
           if not consumption.save
             errorUpdating()
