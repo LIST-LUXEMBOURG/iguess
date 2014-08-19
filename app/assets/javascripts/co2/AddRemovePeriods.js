@@ -103,10 +103,6 @@ CO2.processConsTotals = function(newRow, newPeriod)
 	input.setAttribute("id", "co2_cons_total_" + newPeriod + "_" + split[4]);
 };
 
-CO2.empty = function(newRow, newPeriod)
-{
-};
-
 CO2.addPeriodToTable = function(tableName, inputName, totals, newYear, newPeriod, 
 	processInput, processTotals)
 {
@@ -156,6 +152,9 @@ CO2.addPeriod = function()
 	for (var sector in CO2.sector_demands)
 		CO2.addPeriodToTable(CO2.consPrefix + sector, "co2_consumptions", 1, 
 			newYear, newPeriod, CO2.processConsInput, CO2.processConsTotals);
+			
+	CO2.periodNames.push(newYear.toString());
+	CO2.drawCharts();
 };
 
 CO2.removePeriod = function()
@@ -166,4 +165,13 @@ CO2.removePeriod = function()
 	$('#table_co2_factor tr:last').remove();
 	$('#table_ch4_factor tr:last').remove();
 	$('#table_n20_factor tr:last').remove();
+	
+	for(i = 0; i < CO2.sector_n2o.length; i++)
+	{
+		CO2.sector_n2o[i].data.pop();
+		CO2.sector_ch4[i].data.pop();
+		CO2.sector_co2[i].data.pop();	
+	}
+	CO2.periodNames.pop();
+	CO2.drawCharts();
 };
