@@ -1,4 +1,4 @@
-/**
+CO2.sector_co2/**
  *  Copyright (C) 2010 - 2014 CRP Henri Tudor
  *
  * This program is free software: you can redistribute it and/or modify
@@ -59,11 +59,11 @@ CO2.calcSectorDemand = function(sector, input_growth, input_eff, input_demand)
 	efficiency = parseFloat(document.getElementsByName(input_eff)[0].value) / 100;
 	growth = parseFloat(document.getElementsByName(input_growth)[0].value) / 100;
 	
-	prior = parseFloat(document.getElementsByName(input_demand)[0].value);
-	CO2.sector_demands[sector][0] = prior;
+	CO2.sector_demands[sector][0] = parseFloat(document.getElementsByName(input_demand)[0].value);
 		
 	for (p = 1; p < CO2.numPeriods; p++)
-		CO2.sector_demands[sector][p] = prior * (1 + growth - efficiency);
+		CO2.sector_demands[sector][p] = 
+			CO2.sector_demands[sector][p - 1] * (1 + growth - efficiency);
 };
 
 CO2.calcFactor = function(value, prefix, source, p)

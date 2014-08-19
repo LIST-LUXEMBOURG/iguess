@@ -82,9 +82,9 @@ submitForm = function()
     <div align=right>
 	  <div id="butt-submit" class="toggle" onclick="submitForm();">Save scenario</div>
 	  <br>
-	  <div id="butt-submit" class="toggle" onclick="">Add period</div>
+	  <div id="butt-submit" class="toggle" onclick="CO2.addPeriod();">Add period</div>
 	  <br>
-	  <div id="butt-submit" class="toggle" onclick="">Remove period</div>
+	  <div id="butt-submit" class="toggle" onclick="CO2.removePeriod();">Remove period</div>
     </div>
     </td></tr>
   </table>
@@ -92,7 +92,7 @@ submitForm = function()
   <hr>
 
   <label>&nbsp;</label>
-  <table class="grid-input zebra">
+  <table class="grid-input zebra" id="tableSectors">
     <tr>
       <th class="center">Sector</th>
       <th class="center">Demand<br>Growth<br>(%/yr)</th>
