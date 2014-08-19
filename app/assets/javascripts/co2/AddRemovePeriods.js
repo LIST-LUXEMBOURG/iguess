@@ -129,6 +129,8 @@ CO2.addPeriodToTable = function(tableName, inputName, totals, newYear, newPeriod
 
 CO2.addPeriod = function()
 {
+	CO2.numPeriods = CO2.numPeriods + 1;
+	
 	newPeriod = $('#tableElecMix tr').length - 1;
 	baseYear  = $('#co2_scenario_base_year').val();
 	timeStep  = $('#co2_scenario_time_step').val();
@@ -151,14 +153,30 @@ CO2.addPeriod = function()
 	// Consumptions
 	for (var sector in CO2.sector_demands)
 		CO2.addPeriodToTable(CO2.consPrefix + sector, "co2_consumptions", 1, 
-			newYear, newPeriod, CO2.processConsInput, CO2.processConsTotals);
-			
+			newYear, newPeriod, CO2.processConsInput, CO2.processConsTotals);	
+	
+	// Trigger re-calculation of demands
+	$('#tableSectors tr').each(function(i, row)
+	{
+		//if (i > 0) row.children()[1].firstChild.onchange();
+		if (i > 0) row.children[2].firstElementChild.onchange();
+	});
+	
+		
+	for(i = 0; i < CO2.sector_n2o.length; i++)
+	{
+		CO2.sector_n2o[i].data.push(0.0);
+		CO2.sector_ch4[i].data.push(0.0);
+		CO2.sector_co2[i].data.push(0.0);	
+	}
 	CO2.periodNames.push(newYear.toString());
 	CO2.drawCharts();
 };
 
 CO2.removePeriod = function()
 {
+	CO2.numPeriods = CO2.numPeriods - 1;
+	
 	// Remove last row of a table
 	$('#tableElecMix tr:last').remove();
 	$('#tableHeatMix tr:last').remove();
