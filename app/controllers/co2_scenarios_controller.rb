@@ -358,8 +358,6 @@ class Co2ScenariosController < ApplicationController
       @sources_cons.each do |s|
         params[:co2_consumptions][p.to_s][s.id.to_s].keys.each do |sector_id|
           
-          #binding.pry
-          
           secscen_id = Co2SectorScenario.find_by_co2_sector_id_and_co2_scenario_id(sector_id, @scenario).id
           if not secscen_id
             errorUpdating()
