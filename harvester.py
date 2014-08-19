@@ -349,7 +349,7 @@ def is_equal_crs(first, second):
 
 
 
-def get_dataserver_title(wms, wfs, wcs):
+def get_dataset_title(wms, wfs, wcs):
     '''
     Get the title for this data service; if multiple services are defined, prioritize WMS
     '''
@@ -360,7 +360,7 @@ def get_dataserver_title(wms, wfs, wcs):
 
 
 
-def get_dataserver_abstract(wms, wfs, wcs):
+def get_dataset_abstract(wms, wfs, wcs):
     '''
     Get the abstract for this data service; if multiple services are defined, prioritize WMS
     '''
@@ -507,8 +507,8 @@ def check_data_servers(serverCursor):
             run_queries(db_conn, upsert_list, sqlList)
             continue
 
-        title    = get_dataserver_title   (wms, wfs, wcs)
-        abstract = get_dataserver_abstract(wms, wfs, wcs)
+        title    = get_dataset_title   (wms, wfs, wcs)
+        abstract = get_dataset_abstract(wms, wfs, wcs)
         
         
         # wms: ['__class__', '__delattr__', '__dict__', '__doc__', '__format__', '__getattribute__', '__getitem__', '__hash__', '__init__', '__module__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', '__weakref__', '_buildMetadata', '_capabilities', '_getcapproperty', 'contents', 'exceptions', 'getOperationByName', 'getServiceXML', 'getcapabilities', 'getfeatureinfo', 'getmap', 'identification', 'items', 'operations', 'password', 'provider', 'url', 'username', 'version']

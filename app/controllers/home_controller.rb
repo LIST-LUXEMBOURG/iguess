@@ -1,6 +1,14 @@
 class HomeController < ApplicationController
   before_filter {|t| t.set_active_tab("home") }
 
+  def index
+    if user_signed_in?
+      @user = User.find(current_user.id)
+      @current_city  = User.getCurrentCity(current_user, cookies)
+      @unapproved_users = User.find_all_by_approved_and_city_id(false, @current_city.id)
+    end
+  end
+
   def geoproxy
 
     require 'net/http'

@@ -28,7 +28,6 @@ Iguess::Application.routes.draw do
   put "dataserver_bookmarks/destroy"
 
   get "/datasets/check_name"
-  # get "/datasets/find_matching_tags", to: "datasets#find_matching_tags"
 
   resources :datasets 
 
@@ -37,6 +36,12 @@ Iguess::Application.routes.draw do
   resources :config_datasets
   
   resources :maps
+
+
+  # Handle user logins... remember that this needs to be BEFORE declaring the :users resources
+  devise_for :users, :controllers => {:registrations => "registrations"}
+
+  resources :users
   
   resources :compares
 
@@ -50,9 +55,8 @@ Iguess::Application.routes.draw do
    end
   end
   
-  
 
-  devise_for :users, :controllers => {:registrations => "registrations"}
+  
 
   match "about", :to => "about#index"
 

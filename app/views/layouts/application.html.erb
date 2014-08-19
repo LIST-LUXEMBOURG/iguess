@@ -179,6 +179,10 @@
 <% end %>
 
 <div id="main_body">
+
+  <!-- Show any error messages that we might have -->
+  <%= render :partial => 'shared/show_error_messages.html.erb' %>
+
   <%= yield %>
 </div>
 
