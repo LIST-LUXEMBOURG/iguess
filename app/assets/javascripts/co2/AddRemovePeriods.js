@@ -34,6 +34,7 @@ CO2.updateNormalInputName = function(input, inputName, newPeriod, sourceId)
 CO2.processNormalInput = function(input, inputName, newPeriod, sourceId)
 {
 	CO2.updateNormalInputName(input, inputName, newPeriod, sourceId);		
+	input.setAttribute("onchange", "stub(" + newPeriod + "); return false;");
 };
 
 CO2.processHeatInput = function(input, inputName, newPeriod, sourceId)
@@ -158,7 +159,6 @@ CO2.addPeriod = function()
 	// Trigger re-calculation of demands
 	$('#tableSectors tr').each(function(i, row)
 	{
-		//if (i > 0) row.children()[1].firstChild.onchange();
 		if (i > 0) row.children[2].firstElementChild.onchange();
 	});
 	
@@ -169,6 +169,12 @@ CO2.addPeriod = function()
 		CO2.sector_ch4[i].data.push(0.0);
 		CO2.sector_co2[i].data.push(0.0);	
 	}
+	CO2.co2_elec.push(0.0);
+	CO2.ch4_elec.push(0.0);
+	CO2.n2o_elec.push(0.0);
+	CO2.co2_heat.push(0.0);
+	CO2.ch4_heat.push(0.0);
+	CO2.n2o_heat.push(0.0);
 	CO2.periodNames.push(newYear.toString());
 	CO2.drawCharts();
 };
