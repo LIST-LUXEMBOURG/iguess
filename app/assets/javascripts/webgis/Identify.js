@@ -65,7 +65,7 @@ WebGIS.showInfo = function(evt)
 			    grid.customRenderers[key] = Function("v", "return \"<img src=\\\"" + value + "\\\" />\";");	
 		}
     	delete grid.getStore().sortInfo; // Remove default sorting
-    	grid.getColumnModel().getColumnById('name').sortable = false; // set sorting of first column to false
+    	grid.getColumnModel().getColumnById('name').sortable = true;
     	grid.setSource(feature.attributes); // Now load data
     	grid.title = feature.fid;
     	itemSet.push(grid);

@@ -1,4 +1,4 @@
-for /**
+/**
  *  Copyright (C) 2010 - 2014 CRP Henri Tudor
  *
  * This program is free software: you can redistribute it and/or modify
