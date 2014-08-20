@@ -162,8 +162,8 @@ submitForm = function()
 <br>
 
 <ul class="tabs" id="tabs-mix">
-<li><a class="l" id="t4" href="#tabs-mix-4"><b>Electricity</b></a></li>
-<li><a class="l" id="t5" href="#tabs-mix-5"><b>District Heating</b></a></li>
+<li><a class="lco2" id="t4" href="#tabs-mix-4"><b>Electricity</b></a></li>
+<li><a class="lco2" id="t5" href="#tabs-mix-5"><b>District Heating</b></a></li>
 </ul>
 
 <div id="tab-mix-panes" class="tab-pane-container">
@@ -261,7 +261,7 @@ submitForm = function()
 <br>
 <ul class="tabs" id="tabs-cons">
 <% @sector_scenarios.each do |secscen| %> 
-	<li><a class="l" id="t1" href="#tabs-fact-<%= secscen.co2_sector.id %>">
+	<li><a class="lco2" id="t1" href="#tabs-fact-<%= secscen.co2_sector.id %>">
 		<b><%= secscen.co2_sector.name %></b>
 	</a></li>
 <% end %>
@@ -327,9 +327,9 @@ submitForm = function()
 <br>
 <div id="emiss-factors">
 	<ul class="tabs" id="tabs-fact">
-	<li><a class="l" id="t4" href="#tabs-fact-4"><b>CO2 (t/MWh)</b></a></li>
-	<li><a class="l" id="t5" href="#tabs-fact-5"><b>CH4 (g/MWh)</b></a></li>
-	<li><a class="l" id="t6" href="#tabs-fact-6"><b>N2O (g/MWh)</b></a></li>
+	<li><a class="lco2" id="t4" href="#tabs-fact-4"><b>CO2 (t/MWh)</b></a></li>
+	<li><a class="lco2" id="t5" href="#tabs-fact-5"><b>CH4 (g/MWh)</b></a></li>
+	<li><a class="lco2" id="t6" href="#tabs-fact-6"><b>N2O (g/MWh)</b></a></li>
 	</ul>
 	<div id="tab-fact-panes" class="tab-pane-container">
 	

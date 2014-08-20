@@ -104,3 +104,10 @@ a.delete:link a.delete:visited
   cursor:pointer;
   cursor:hand;
 }
+
+
+/* Tabs */
+
+ul.tabs a.lco2          { width:134px; }
+ul.tabs a.lco2:hover    {  }
+ul.tabs a.lco2.current  {  }
