@@ -12,7 +12,7 @@
 
 
 #top_banner, .footer-table {
-  background-color: #B3D1FF;
+  background-color: #80B2FF;
 }
 
 .footer-table {
@@ -22,7 +22,7 @@
 
 
 .footer-table td {
-  border: 4px solid #B3D1FF;
+  border: 4px solid #80B2FF;
   padding: 5px 15px 0px 15px;
   min-width: 125px;
   vertical-align: top;
@@ -119,7 +119,7 @@ ul.footer-menu li a:before, ul.footer-menu li .item:before, ul.footer-menu li .s
 
 	color: white;
 	width: 200px;
-	background-color: #B3D1FF;
+	background-color: #80B2FF;
 	font-size: 30px;
 	padding: 20px;
 	margin-left: 20px;
@@ -134,7 +134,7 @@ ul.footer-menu li a:before, ul.footer-menu li .item:before, ul.footer-menu li .s
 
 div.footer {
   width: 100%; 
-  background-color: #B3D1FF;
+  background-color: #80B2FF;
   display: block;
 }
 
