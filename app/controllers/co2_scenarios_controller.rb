@@ -278,7 +278,6 @@ class Co2ScenariosController < ApplicationController
           @emission_factors[[ef.period, ef.co2_source_id]] = ef
         }
 
-
     # Render the form
     respond_to do |format|
       format.html

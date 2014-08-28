@@ -17,7 +17,13 @@
       <% @sources_factor.each do |source| %>
         <td>
           <input name="<%= fieldName %>[<%= period %>][<%= source.id %>]" 
-                 type="text" value="<%= eval('@emission_factors[[period, source.id]].' + fieldName) %>"
+                 type="text" value="<%= 
+                 	if eval('@emission_factors[[period, source.id]]') == nil
+                 		0.0
+                 	else
+                 		eval('@emission_factors[[period, source.id]].' + fieldName) 
+                 	end
+                 %>"
                  onchange="stub(<%= period %>); return false;"/>
         </td>
       <% end %>
