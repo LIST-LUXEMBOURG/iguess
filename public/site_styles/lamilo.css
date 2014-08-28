@@ -136,6 +136,8 @@ div.footer {
   width: 100%; 
   background-color: #B3D335;
   display: block;
+  //position:fixed;
+  bottom:0;
 }
 
 
@@ -147,4 +149,17 @@ div.footer {
 
 .map-link-image {
   border: 1px solid #666;
+}
+
+.wrapper
+{
+  margin: 1em;
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
+  //padding-bottom:200px;
+  background-color: #97D5F5;
+  float:none;
+  display:inline-block;
+  vertical-align:top;
 }
