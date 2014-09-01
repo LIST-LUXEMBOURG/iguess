@@ -341,7 +341,7 @@ class Co2ScenariosController < ApplicationController
     # And now the Carriers -- these may not all exist if the user added more years... create any missing ones,
     # and delete any extras.
     
-    periods = params[:co2_consumptions].size()
+    periods = params[:co2_consumptions].size() - 1
     
     # Delete all consumptions with periods higher than the current number of periods in the scenario
     unusedConsumptions = Co2Consumption.includes(:co2_sector_scenario)
@@ -353,7 +353,7 @@ class Co2ScenariosController < ApplicationController
     end
     
     # Update the remaining consumptions
-    (0..periods-1).each do |p| 
+    (0..periods).each do |p| 
       @sources_cons.each do |s|
         params[:co2_consumptions][p.to_s][s.id.to_s].keys.each do |sector_id|
           
@@ -391,7 +391,7 @@ class Co2ScenariosController < ApplicationController
       u.delete
     end
     
-    (0..periods-1).each do |p| 
+    (0..periods).each do |p| 
       @sources_elec.each do |s|
         mix = Co2ElecMix.find_by_co2_scenario_id_and_period_and_co2_source_id(@scenario.id, p, s.id)
 
@@ -420,7 +420,7 @@ class Co2ScenariosController < ApplicationController
       u.delete
     end
     
-    (0..periods-1).each do |p| 
+    (0..periods).each do |p| 
       @sources_heat.each do |s|
         mix = Co2HeatMix.find_by_co2_scenario_id_and_period_and_co2_source_id(@scenario.id, p, s.id)
 
@@ -450,7 +450,7 @@ class Co2ScenariosController < ApplicationController
     end
 
 
-    (0..periods-1).each do |period| 
+    (0..periods).each do |period| 
       @sources_factor.each do |source|
         ef = Co2EmissionFactor.find_by_co2_scenario_id_and_period_and_co2_source_id(@scenario.id, period, source.id)
         if not ef

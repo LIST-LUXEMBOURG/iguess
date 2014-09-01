@@ -183,12 +183,16 @@ CO2.removePeriod = function()
 {
 	CO2.numPeriods = CO2.numPeriods - 1;
 	
-	// Remove last row of a table
+	// Remove last row of Mix and Factor tables
 	$('#tableElecMix tr:last').remove();
 	$('#tableHeatMix tr:last').remove();
 	$('#table_co2_factor tr:last').remove();
 	$('#table_ch4_factor tr:last').remove();
 	$('#table_n20_factor tr:last').remove();
+	
+	// Remove last row of Consumptions
+	for (var sector in CO2.sector_demands)
+		$("[id='" + CO2.consPrefix + sector + "'] tr:last").remove();
 	
 	for(i = 0; i < CO2.sector_n2o.length; i++)
 	{
