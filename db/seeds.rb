@@ -54,7 +54,7 @@ end
  ['Solar',            false, true,  true,  true,  0.0,     0.0,  0.0,  57],
  ['Wind',             false, true,  true,  false, 0.0,     0.0,  0.0,  58],
  ['Wood',             true,  true,  true,  true,  0.0,     0.0,  0.0,  59],
- ['Other renewables', true, true,   true,  false, 0.0,     0.0,  0.0,  60]
+ ['Other renewables', true,  true,  true,  false, 0.0,     0.0,  0.0,  60]
 ].each do |v|
   source = Co2Source.find_or_create_by_name v[0]
   source.is_carrier = v[1]
@@ -86,5 +86,32 @@ end
   equiv.dss = v[1]
   equiv.save
 end
+
+# Replicate the country of Luxembourg
+[['GD Luxembourg',  10, 'EPSG:2169', 682574,  6415000, 4, '+proj=tmerc +lat_0=49.83333333333334 +lon_0=6.166666666666667 +k=1 +x_0=80000 +y_0=100000 +ellps=intl +towgs84=-193,13.7,-39.3,-0.41,-2.933,2.688,0.43 +units=m +no_defs '],
+ ['GD Luxembourg',  10, 'EPSG:2169', 682574,  6415000, 5, '+proj=tmerc +lat_0=49.83333333333334 +lon_0=6.166666666666667 +k=1 +x_0=80000 +y_0=100000 +ellps=intl +towgs84=-193,13.7,-39.3,-0.41,-2.933,2.688,0.43 +units=m +no_defs ']
+].each do |v|
+  c = City.find_by_name_and_site_details_id(v[0],v[5])
+  if c == nil
+    c = City.new
+  end
+  c.name = v[0]
+  c.zoom = v[1]
+  c.srs  = v[2]
+  c.mapx = v[3]
+  c.mapy = v[4]
+  c.site_details_id = v[5]
+  c.projection_params = v[6]
+  c.save
+end
+
+
+
+
+
+
+
+
+
 
 
