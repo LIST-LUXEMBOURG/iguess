@@ -185,18 +185,16 @@
 
   <%= yield %>
 </div>
-
 <script>
   $('#navbar li[title]').tooltip({ position: 'bottom center', offset: [0,55], predelay: 500 });   // Activate our tooltips
 </script>
 
 <% if params[:popup].nil? %>
-  <br><br><br>
+  <!--<br><br><br>-->
 <% end %>
 
 <%= if @IncludeFooter and not @site_details.footer_html_file.blank? then 
       render "/home/" + @site_details.footer_html_file 
     end %>
-
 </body>
 </html>

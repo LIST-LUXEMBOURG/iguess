@@ -355,7 +355,7 @@ class ModConfigsController < ApplicationController
               textval = ConfigTextInput.new()
               textval.mod_config = @mod_config
               textval.identifier = key
-              textval.value = params[paramkey][key]
+              textval.value = params['output'][key]
               textval.is_input = false
 
               success &= textval.save()
@@ -365,15 +365,13 @@ class ModConfigsController < ApplicationController
         
         if(params['input']) then
           params['input'].each_key do |key|
-            params['input'][key].each do |input|
               textval = ConfigTextInput.new()
               textval.mod_config = @mod_config
               textval.identifier = key
-              textval.value = input[1]
+              textval.value = params['input'][key]
               textval.is_input = true
 
               success &= textval.save()
-            end
           end
         end  
       #}
@@ -481,8 +479,7 @@ class ModConfigsController < ApplicationController
     end
 
     # Update any text inputs/outputs.  Since we don't know the ids of the items, we'll need to do a little hunting
-
-    #paramkeys = [:input, :output]
+    
     paramkeys = [:output]
     paramkeys.each do |paramkey|
       if(params[paramkey]) then                 # Iterate over params['input'], params['output']
@@ -490,8 +487,7 @@ class ModConfigsController < ApplicationController
 
           identifier = p[0]
           
-          p[1].each do |val_array|
-            val = val_array[1].strip    # strip off leading and trailing whitespace
+            val = p[1].strip    # strip off leading and trailing whitespace
             isInput = (paramkey == :input)
   
             @output = ConfigTextInput.find_by_mod_config_id_and_identifier_and_is_input(
@@ -508,7 +504,6 @@ class ModConfigsController < ApplicationController
             else
               @output.value = val
             end
-          end 
           ok = ok && @output.save
         end
       end

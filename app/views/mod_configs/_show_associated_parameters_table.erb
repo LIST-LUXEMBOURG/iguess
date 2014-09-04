@@ -157,6 +157,17 @@
 
     row.append(cell);
   };
+  
+  
+  var getOutputValue = function(textInputValues, identifier, modeName)
+  {
+  	for (var key in textInputValues)
+  		if(key.split(":")[1] == identifier + modeName)
+  			return textInputValues[key];
+
+  	return null;
+  }
+
 
   // textInputValues & datasetValues will only be defined when calling from the main Module Configuration page
   // When mode is output, datasetValues will be undefined
@@ -255,7 +266,7 @@
 	        // Simple output
 	        else if(!isInput && item.datatype != "ComplexData") {    // No input required, just display of value
 	        	
-	          var value = (textInputValues == undefined) ? "" : textInputValues[item.identifier + modeName];
+	          var value = (textInputValues == undefined) ? "" : getOutputValue(textInputValues,item.identifier,modeName);
 	
 	          if(value) 
 	            cell.append('<b>' + value + '</b>');
@@ -269,7 +280,7 @@
 	        else 
 	        {    
 	          var className = isInput ? "input-field" : "output-field";
-		      var value = (textInputValues == undefined) ? "" : textInputValues[item.identifier + modeName];
+		      var value = (textInputValues == undefined) ? "" : getOutputValue(textInputValues,item.identifier,modeName);
 		      var placeholder = isInput ? item.datatype.capitalize() + " value" : "Output dataset name";
 		
 		      var name = modeName + '[' + item.identifier + ']';
@@ -288,6 +299,7 @@
 	  }
     }
   };
+  
   
   var initTable = function(table)
   {
