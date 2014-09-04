@@ -214,9 +214,9 @@
         // "wps_process_id":4
         
         //Create at least as many input fields as minimum occurrences.
-        for(var n = 0; n < item.min_occurs; n++)
+        var num_fields = item.min_occurs > 0 ? item.min_occurs : 1 ;
+        for(var n = 0; n < num_fields; n++)
       	{
-
 	        var row = $(document.createElement("tr"));
 	
 			addParamNameCell(row, item, modeName, n);
@@ -406,11 +406,12 @@
 	{
 	 	item = items[i];
 	  	
-		  	//Create at least as many input fields as minimum occurrences.
+		//Create at least as many input fields as minimum occurrences.
 		keys = getRelevantKeys(item.identifier, textInputValues);
 		valueCount = keys.length;
-		if (valueCount < item.min_occurs) valueCount = item.min_occurs;
-		
+		if (valueCount < item.min_occurs)
+			 valueCount = item.min_occurs > 0 ? item.min_occurs : 1 ;
+			 
 		for(var n = 0; n < valueCount; n++)
 		{
 		    var row = $(document.createElement("tr"));
@@ -520,7 +521,8 @@
 	  	//Create at least as many input fields as minimum occurrences.
 	  	keys = getRelevantKeys(item.identifier, complexInputValues);
 	  	valueCount = keys.length;
-	  	if (valueCount < item.min_occurs) valueCount = item.min_occurs;
+	  	if (valueCount < item.min_occurs) 
+	  		valueCount = item.min_occurs > 0 ? item.min_occurs : 1 ;
 	  	
 	  	for(var n = 0; n < valueCount; n++)
 	  	{

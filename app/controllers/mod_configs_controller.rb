@@ -120,6 +120,8 @@ class ModConfigsController < ApplicationController
     @datasets = Dataset.all
 
     @textinputs = [ ]
+    
+    #binding.pry
 
     respond_to do |format|
       format.html
