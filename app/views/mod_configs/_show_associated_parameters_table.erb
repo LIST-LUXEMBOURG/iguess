@@ -127,9 +127,9 @@
 
   var anyDatasetsMissing = false;
   
-  var addParamNameCell = function(row, item)
+  var addParamNameCell = function(row, item, modeName, i)
   {
-        // Parameter Name column
+    // Parameter Name column
     var cell = $(document.createElement('td'));
 
     cell.append(item.title ? item.title : item.identifier);
@@ -219,7 +219,7 @@
 
 	        var row = $(document.createElement("tr"));
 	
-			addParamNameCell(row, item);
+			addParamNameCell(row, item, modeName, n);
 	
 	        if(isInput) {
 	          row.append("<td align='center'>[" + item.identifier + "]</td>");
@@ -417,7 +417,7 @@
 		    row.id = item.identifier + "-" + n;
 		    row.attr('id', item.identifier + "-" + n);
 		
-			addParamNameCell(row, item);
+			addParamNameCell(row, item, modeName, n);
 			
 		    row.append("<td align='center'>[" + item.identifier + "]</td>");
 		
@@ -458,7 +458,7 @@
     row.id = identifier + "-" + n;
     row.attr('id', identifier + "-" + n);
 
-	addParamNameCell(row, item);
+	addParamNameCell(row, item, modeName, n);
     row.append("<td align='center'>[" + identifier + "]</td>");
 
     // Parameter Value column
