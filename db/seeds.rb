@@ -89,7 +89,9 @@ end
 
 # Replicate the country of Luxembourg
 [['GD Luxembourg',  10, 'EPSG:2169', 682574,  6415000, 4, '+proj=tmerc +lat_0=49.83333333333334 +lon_0=6.166666666666667 +k=1 +x_0=80000 +y_0=100000 +ellps=intl +towgs84=-193,13.7,-39.3,-0.41,-2.933,2.688,0.43 +units=m +no_defs '],
- ['GD Luxembourg',  10, 'EPSG:2169', 682574,  6415000, 5, '+proj=tmerc +lat_0=49.83333333333334 +lon_0=6.166666666666667 +k=1 +x_0=80000 +y_0=100000 +ellps=intl +towgs84=-193,13.7,-39.3,-0.41,-2.933,2.688,0.43 +units=m +no_defs ']
+ ['GD Luxembourg',  10, 'EPSG:2169', 682574,  6415000, 5, '+proj=tmerc +lat_0=49.83333333333334 +lon_0=6.166666666666667 +k=1 +x_0=80000 +y_0=100000 +ellps=intl +towgs84=-193,13.7,-39.3,-0.41,-2.933,2.688,0.43 +units=m +no_defs '],
+ ["Luxembourg",     13, "EPSG:2169", 682574,  6379134, 4, "+proj=tmerc +lat_0=49.83333333333334 +lon_0=6.166666666666667 +k=1 +x_0=80000 +y_0=100000 +ellps=intl +towgs84=-193,13.7,-39.3,-0.41,-2.933,2.688,0.43 +units=m +no_defs"],
+ ["Luxembourg",     13, "EPSG:2169", 682574,  6379134, 5, "+proj=tmerc +lat_0=49.83333333333334 +lon_0=6.166666666666667 +k=1 +x_0=80000 +y_0=100000 +ellps=intl +towgs84=-193,13.7,-39.3,-0.41,-2.933,2.688,0.43 +units=m +no_defs"],  
 ].each do |v|
   c = City.find_by_name_and_site_details_id(v[0],v[5])
   if c == nil
