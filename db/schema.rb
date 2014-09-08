@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140808094127) do
+ActiveRecord::Schema.define(:version => 20140908092520) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -250,7 +250,7 @@ ActiveRecord::Schema.define(:version => 20140808094127) do
   end
 
   create_table "mod_configs", :force => true do |t|
-    t.integer  "wps_server_id"
+    t.integer  "wps_server_id",                  :null => false
     t.text     "identifier"
     t.text     "name"
     t.text     "descr"
