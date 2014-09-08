@@ -25,6 +25,7 @@ var WebGIS = WebGIS || { };
 
 WebGIS.ctrlIdentify = null;
 WebGIS.infoPopUp = null;
+WebGIS.regExpImages = "http://(.)*(.jpg|.png)";
 
 WebGIS.registerIdentify = function(map, ref) {
 
@@ -61,7 +62,7 @@ WebGIS.showInfo = function(evt)
 		for (var key in feature.attributes)
 		{	
 			value = feature.attributes[key];
-			if ((value != null) && (value.substring(0, 4) == "http"))	
+			if ((value != null) && (value.match(WebGIS.regExpImages)))	
 			    grid.customRenderers[key] = Function("v", "return \"<img src=\\\"" + value + "\\\" />\";");	
 		}
     	delete grid.getStore().sortInfo; // Remove default sorting
