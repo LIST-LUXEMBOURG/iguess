@@ -51,6 +51,16 @@ WebGIS.toggleLayer = function(e)
     }
 };
 
+WebGIS.searchLayerName = function(type)
+{
+	for (i = 0; i < WebGIS.leftMap.layers.length; i++)
+		if((WebGIS.leftMap.layers[i].params) &&
+		   (WebGIS.leftMap.layers[i].params.LAYERS == type))
+			return WebGIS.leftMap.layers[i].name;
+			
+	return type;
+};
+
 WebGIS.showInfo = function(evt) 
 {
 	var itemSet = [];
@@ -68,7 +78,7 @@ WebGIS.showInfo = function(evt)
     	delete grid.getStore().sortInfo; // Remove default sorting
     	grid.getColumnModel().getColumnById('name').sortable = true;
     	grid.setSource(feature.attributes); // Now load data
-    	grid.title = feature.fid;
+    	grid.title = WebGIS.searchLayerName(feature.type);
     	itemSet.push(grid);
     });
     
