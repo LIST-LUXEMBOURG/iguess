@@ -137,7 +137,7 @@
     {
       if(item.abstract.length > 50)
       {
-        var key = modeName + i;
+        var key = item.identifier + i;
         cell.append("<br><span class='input-description' id='" + key + "-short'>" + 
                       item.abstract.substring(0,50) + 
                       "...&nbsp;&nbsp;<a href='#' onclick='showIODetails(\"" + key + "\");return false;'>" + 
