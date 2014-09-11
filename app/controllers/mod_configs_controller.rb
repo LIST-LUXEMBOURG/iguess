@@ -329,9 +329,9 @@ class ModConfigsController < ApplicationController
     @mod_config.city = @current_city
 
     @mod_config.wps_process_id = params[:wps_process_id]
+    @mod_config.wps_server_id = WpsProcess.find_by_id(@mod_config.wps_process_id).wps_server_id;
 
     success = true
-
 
     # Move on to save all the selected datasets
     if(params[:datasets]) then        # Not every module has input datasets
@@ -379,7 +379,6 @@ class ModConfigsController < ApplicationController
       #}
     end
 
-    success &= @mod_config.save
 
     @mod_config.run_status_id = getStatus(@mod_config)
 
