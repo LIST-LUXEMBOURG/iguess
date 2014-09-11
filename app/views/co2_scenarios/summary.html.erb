@@ -1,0 +1,58 @@
+<h1>Scenario Summary</h1>
+
+<%= simple_form_for @scenario do |scen| %>
+  <%= scen.error_notification %>
+
+    <%= scen.input :name, 
+        :label => "City", 
+        :input_html => { :cols => 80 } %>
+        
+    <%= scen.input :name, 
+        :label => "Scenario Name", 
+        :input_html => { :cols => 80 },
+        :placeholder => "Name" %>
+        
+    <%= scen.input :user, 
+        :label => "Last author", 
+        :input_html => { :cols => 80 } %>
+        
+    <%= scen.input :date, 
+        :label => "Date", 
+        :input_html => { :cols => 80 } %>
+
+    <%= scen.input :base_year, 
+        :label => "Base Year", 
+        :as => :string,
+        :placeholder => "e.g. 2010" %>
+
+    <%= scen.input :time_step, 
+        :label => "Time step (years)", 
+        :as => :string %>
+        
+	<%= scen.input :period_num, 
+        :label => "Number of Periods", 
+        :as => :string %>
+        
+    <%= scen.input :sectors, 
+        :label => "Sectors Involved", 
+        :input_html => { :cols => 80 } %>
+ 
+    <%= scen.input :assumptions, 
+        :label => "Main Assumptions", 
+        :input_html => { :cols => 80 } %>
+        
+    <%= scen.input :assumptions, 
+        :label => "Key Policies Modelled", 
+        :input_html => { :cols => 80 } %>
+        
+    <%= scen.input :conclusion, 
+        :label => "Conclusion", 
+        :input_html => { :cols => 80 } %>        
+
+    <%= scen.input :notes, 
+        :label => "Notes", 
+        :input_html => { :cols => 80 } %>
+
+
+
+

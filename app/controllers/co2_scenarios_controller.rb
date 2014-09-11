@@ -559,4 +559,37 @@ class Co2ScenariosController < ApplicationController
     
   end
   
+  def summary_view
+    if not user_signed_in?    # Should always be true... but if not, return error and bail
+      respond_to do |format|
+        format.json { render :text => "You must be logged in!", :status => 403 }
+      end
+    end
+    
+    @data = []
+    @scenario = Co2Scenario.find(params[:id])
+    
+    # User name
+    @data[0] = User.find_by_id(@scenario.user_id)
+    
+    # Number of periods    
+    secscens = Co2SectorScenario.find_by_co2_scenario_id(@scenario)
+    consumptions = Co2Consumption.find_by_co2_source_id_and_co2_sector_scenario_id(secscens[0].sector_id, secscens[0].id)
+    @data[1] = consumptions.length
+    
+    
+
+  end
+  
+  def summary_save
+    if not user_signed_in?    # Should always be true... but if not, return error and bail
+      respond_to do |format|
+        format.json { render :text => "You must be logged in!", :status => 403 }
+      end
+    end
+    
+
+    redirect_to action: "index"
+  end
+  
 end
