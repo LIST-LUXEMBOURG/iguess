@@ -110,10 +110,6 @@ CO2.addPeriodToTable = function(tableName, inputName, totals, newYear, newPeriod
 	var newRow = $("[id='" + tableName + "'] tr:last").clone();
 	if(newRow.children()[0] == null) return;
 	newRow.children()[0].firstChild.textContent = newYear;
-	
-	// First change all values to zero. Is this what the user is expecting?
-	for(i = 1; i < newRow.children().length; i++)
-		newRow.children()[i].children[0].value = "0.0";
 		
 	// Second change input ids, except for totals
 	for(i = 1; i < newRow.children().length - totals; i++)
