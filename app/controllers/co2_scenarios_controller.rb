@@ -559,25 +559,36 @@ class Co2ScenariosController < ApplicationController
     
   end
   
-  def summary_view
+  def summary
     if not user_signed_in?    # Should always be true... but if not, return error and bail
       respond_to do |format|
         format.json { render :text => "You must be logged in!", :status => 403 }
       end
     end
     
-    @data = []
     @scenario = Co2Scenario.find(params[:id])
     
-    # User name
-    @data[0] = User.find_by_id(@scenario.user_id)
+    #City name
+    @city_name = City.find_by_id(@scenario.city_id).name
     
     # Number of periods    
-    secscens = Co2SectorScenario.find_by_co2_scenario_id(@scenario)
-    consumptions = Co2Consumption.find_by_co2_source_id_and_co2_sector_scenario_id(secscens[0].sector_id, secscens[0].id)
-    @data[1] = consumptions.length
+    secscens = Co2SectorScenario.find_all_by_co2_scenario_id(@scenario)
+    sources = Co2Source.all
+    consumptions = Co2Consumption.find_all_by_co2_source_id_and_co2_sector_scenario_id(sources[0].id, secscens[0].id)
+    @num_periods = consumptions.length
     
+    # Sectors involved
+    @sectors = ""
+    secscens.each do |ss|
+      @sectors += Co2Sector.find_by_id(ss.co2_sector_id).name + "                                                      "
+    end
     
+    @toto = "Toto"
+    
+    # Render the form
+    respond_to do |format|
+      format.html
+    end
 
   end
   

@@ -3,20 +3,20 @@
 <%= simple_form_for @scenario do |scen| %>
   <%= scen.error_notification %>
 
-    <%= scen.input :name, 
-        :label => "City", 
-        :input_html => { :cols => 80 } %>
+    <div class="input string optional co">
+      <label class="string optional control-label" for="co2_scenario_city">
+        City
+      </label>
+      <input id="co2_scenario_city" class="string optional" type="text" disabled="disabled" 
+      	value="<%= @city_name %>" size="50" name="co2_scenario[city]" cols="80"></input>
+    </div>
         
     <%= scen.input :name, 
         :label => "Scenario Name", 
         :input_html => { :cols => 80 },
         :placeholder => "Name" %>
         
-    <%= scen.input :user, 
-        :label => "Last author", 
-        :input_html => { :cols => 80 } %>
-        
-    <%= scen.input :date, 
+    <%= scen.input :updated_at, 
         :label => "Date", 
         :input_html => { :cols => 80 } %>
 
@@ -29,19 +29,30 @@
         :label => "Time step (years)", 
         :as => :string %>
         
-	<%= scen.input :period_num, 
-        :label => "Number of Periods", 
-        :as => :string %>
+    <div class="input string optional co">
+      <label class="string optional control-label" for="co2_scenario_num_periods">
+        Number of Periods
+      </label>
+      <input id="co2_scenario_num_periods" class="string optional" type="text" disabled="disabled" 
+      	value="<%= @num_periods %>" size="50" name="co2_scenario[num_periods]" cols="80"></input>
+    </div>
         
-    <%= scen.input :sectors, 
-        :label => "Sectors Involved", 
-        :input_html => { :cols => 80 } %>
+    <div class="input string optional co">
+      <label class="string optional control-label" for="co2_scenario_sectors">
+        Sectors Involved
+      </label>
+      <textarea id="co2_scenario_sectors" class="string optional" type="text" disabled="disabled" 
+      	value="" name="co2_scenario[sectors]" cols="62" rows="10">
+      	<%= @sectors %>
+      </textarea>
+    </div>        
+
  
     <%= scen.input :assumptions, 
         :label => "Main Assumptions", 
         :input_html => { :cols => 80 } %>
         
-    <%= scen.input :assumptions, 
+    <%= scen.input :policies, 
         :label => "Key Policies Modelled", 
         :input_html => { :cols => 80 } %>
         
@@ -53,6 +64,6 @@
         :label => "Notes", 
         :input_html => { :cols => 80 } %>
 
-
+<% end -%>
 
 
