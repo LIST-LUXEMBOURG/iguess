@@ -14,20 +14,24 @@
     <%= scen.input :name, 
         :label => "Scenario Name", 
         :input_html => { :cols => 80 },
-        :placeholder => "Name" %>
+        :placeholder => "Name", 
+        :disabled => true %>
         
     <%= scen.input :updated_at, 
         :label => "Date", 
-        :input_html => { :cols => 80 } %>
+        :input_html => { :cols => 80 }, 
+        :disabled => true %>
 
     <%= scen.input :base_year, 
         :label => "Base Year", 
         :as => :string,
-        :placeholder => "e.g. 2010" %>
+        :placeholder => "e.g. 2010", 
+        :disabled => true %>
 
     <%= scen.input :time_step, 
         :label => "Time step (years)", 
-        :as => :string %>
+        :as => :string, 
+        :disabled => true %>
         
     <div class="input string optional co">
       <label class="string optional control-label" for="co2_scenario_num_periods">
