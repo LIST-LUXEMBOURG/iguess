@@ -89,14 +89,15 @@ DSS.comboLayerSelected = function()
 	}
 	else
 	{
-		DSS.layerWFS = DSS.createWFS(layers[0].params["LAYERS"], layers[0].url, null);
+		DSS.createProtocol(layers[0].params["LAYERS"], layers[0].url);
+		if (DSS.layerWFS == null) DSS.layerWFS = DSS.createWFS(layers[0].params["LAYERS"], null);	
+		else DSS.layerWFS.protocol = DSS.protocol;
+		
 	}
 };
 
-DSS.createWFS = function(name, address, style)
+DSS.createProtocol = function(name, address)
 {
-	if (style == null) style = DSS.style;
-	
 	DSS.protocol = new OpenLayers.Protocol.WFS({
 		version: "1.1.0",
 		url: address + "&srsName=" + WebGIS.mapProjection,
@@ -109,6 +110,11 @@ DSS.createWFS = function(name, address, style)
 	    maxFeatures: 2000,
 	    callback: DSS.featuresLoaded
 	});
+};
+
+DSS.createWFS = function(name, style)
+{
+	if (style == null) style = DSS.createStyle(); 
 	
 	var wfs = new OpenLayers.Layer.Vector(name, {
 		strategies: [new OpenLayers.Strategy.Fixed()],
@@ -124,6 +130,7 @@ DSS.createWFS = function(name, address, style)
 
 DSS.featuresLoaded = function(resp) 
 {
+	debugger;
 	/* Check if a WFS service is available for the layer */
 	if((resp.features == null) || (resp.features.length <= 0))
 	{
@@ -164,7 +171,10 @@ DSS.next = function()
 	{
 		DSS.map.addLayer(DSS.layerWFS);
 	}
-	catch(e) {}
+	catch(e) 
+	{
+		alert("The exception");
+	}
 	
 	//----- Populate Feature Array -----//
 	DSS.featureArray = new DSS.FeatureArray();

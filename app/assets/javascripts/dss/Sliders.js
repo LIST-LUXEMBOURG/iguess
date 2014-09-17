@@ -59,34 +59,43 @@ DSS.controlWidth = 258;
 
 DSS.featureArray = null;
 
-//create a style object
-DSS.style = new OpenLayers.Style();
-//rule used for all polygons
-DSS.rule_fsa = new OpenLayers.Rule({
-	symbolizer: {
-		fillColor: "#DDDD00",
-		fillOpacity: 0.6,
-		strokeColor: "#DDDD00",
-		strokeWidth: 1,
-	}
-});
+DSS.style = null;
+DSS.rule_fsa = null;
+DSS.rule_highlight = null;
 
-DSS.rule_highlight = new OpenLayers.Rule({
-	filter: new OpenLayers.Filter.Comparison({
-		type: OpenLayers.Filter.Comparison.LESS_THAN,
-		property: "cum_multi",
-		value: 0,
-	}),
-	symbolizer: {
-		fillColor: "#00CC33",
-		fillOpacity: 0.5,
-		strokeColor: "#00CC33",
-		strokeWidth: 2,
-		strokeDashstyle: "solid",
-	}
-});
-
-DSS.style.addRules([DSS.rule_fsa, DSS.rule_highlight]);
+DSS.createStyle = function()
+{
+	//create a style object
+	DSS.style = new OpenLayers.Style();
+	//rule used for all polygons
+	DSS.rule_fsa = new OpenLayers.Rule({
+		symbolizer: {
+			fillColor: "#DDDD00",
+			fillOpacity: 0.6,
+			strokeColor: "#DDDD00",
+			strokeWidth: 1,
+		}
+	});
+	
+	DSS.rule_highlight = new OpenLayers.Rule({
+		filter: new OpenLayers.Filter.Comparison({
+			type: OpenLayers.Filter.Comparison.LESS_THAN,
+			property: "cum_multi",
+			value: 0,
+		}),
+		symbolizer: {
+			fillColor: "#00CC33",
+			fillOpacity: 0.5,
+			strokeColor: "#00CC33",
+			strokeWidth: 2,
+			strokeDashstyle: "solid",
+		}
+	});
+	
+	DSS.style.addRules([DSS.rule_fsa, DSS.rule_highlight]);
+	
+	return DSS.style;
+};
 
 DSS.showWindow = function() 
 {	
@@ -98,7 +107,22 @@ DSS.quit = function()
 	DSS.winPanel.hide();
 	DSS.winSelect.hide();
 	//DSS.winSelect.close();
-	DSS.map.removeLayer(DSS.layerWFS);	
+	
+	//DSS.map.removeLayer(DSS.layerWFS);	
+	//DSS.layerWFS.destroy();
+	DSS.layerWFS.removeAllFeatures();
+	
+	DSS.costSlider.destroy();
+	DSS.costSlider = null;
+	DSS.invSlider.destroy();
+	DSS.invSlider = null;
+	DSS.genSlider.destroy();
+	DSS.genSlider = null;
+	DSS.areaSlider.destroy();
+	DSS.areaSlider = null;
+	
+	DSS.rule_highlight.filter.value = null;
+	DSS.rule_highlight.filter.property = null;
 };
 
 DSS.initWinPanel = function()
@@ -132,11 +156,13 @@ DSS.initSliders = function()
 	    DSS.costSlider = new Ext.Slider({
 	        renderTo: 'slider-cost',
 	        width: DSS.controlWidth,
-	        value: 0,
+	        value: (first.cost * DSS.costFactor).toFixed(0),
 	        minValue: (first.cost * DSS.costFactor).toFixed(0),
 	        maxValue: (last.cost * DSS.costFactor).toFixed(0),
 	        plugins: new Ext.ux.SliderTip()
 	    });
+	//else DSS.costSlider.value = DSS.costSlider.minValue;
+	   
     
 	if(DSS.invSlider == null)
 	    DSS.invSlider = new Ext.Slider({
@@ -232,9 +258,12 @@ DSS.invDragged = function(ed, value, oldValue)
 		DSS.setArea(feature.area);
 		document.getElementById(DSS.invEl).innerHTML = DSS.invLabel + value + DSS.invUnits;
 		
+		//DSS.map.removeLayer(DSS.layerWFS);
 		DSS.rule_highlight.filter.value = value * DSS.invFactor;
 		DSS.rule_highlight.filter.property = DSS.invField;
+		//DSS.map.addLayer(DSS.layerWFS);
 		DSS.layerWFS.redraw();
+		
 		DSS.lock = false;
 	}
 };
