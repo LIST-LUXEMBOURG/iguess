@@ -10,15 +10,17 @@
     <%= f.input :first_name, :required => true %>
     <%= f.input :last_name, :required => true %>
 
-    <span>
-      <label>&nbsp;</label>
-      <%= f.input :approved, :label => "&nbsp;Approved&nbsp;<span class='field-note'>&lt;== This box must be checked before user can login!</span>".html_safe %>
-    </span>
-
   </div>
 
   <div class="form-actions">
     <label>&nbsp;</label>
-    <%= f.button :submit, "Update" %>
-  </div>
+    <%= f.button :submit, "Approve", :class => "linkbutton" %>
+    
 <% end %>
+
+&nbsp;&nbsp;
+ <%= button_to "Reject", { :action => "reject", :controller => "users", :id => @user.id}, 
+                           :remote => true, :id => "reject-user-button", :class => "linkbutton", 
+                            form: { :id => "reject-user-form", "data-type" => "json" }  %>
+
+  </div>
