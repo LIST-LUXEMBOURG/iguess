@@ -164,14 +164,20 @@ DSS.next = function()
 	if(DSS.winPanel == null) DSS.initWinPanel();
 	DSS.winPanel.show();
 	
-	// With some services the addLayer method is throwing an exception, 
-	// for unknown reasons, but it is correctly adding the new layer to the map. 
-	// The try block avoids execution to halt.
-	try
+	if(DSS.layerWFS.map == null)
 	{
-		DSS.map.addLayer(DSS.layerWFS);
+		// With some services the addLayer method is throwing an exception, 
+		// for unknown reasons, but it is correctly adding the new layer to the map. 
+		// The try block avoids execution to halt.
+		try
+		{
+			DSS.map.addLayer(DSS.layerWFS);
+		}
+		catch(e) {}
+		
+		// Remove layer from layer tree
+		WebGIS.layerTree.root.firstChild.firstChild.remove();
 	}
-	catch(e) {}
 	
 	//----- Populate Feature Array -----//
 	DSS.featureArray = new DSS.FeatureArray();
@@ -185,6 +191,8 @@ DSS.next = function()
 		);
 		DSS.featureArray.add(feat);
 	}
+	
+
 
 	DSS.initSliders();
 };
