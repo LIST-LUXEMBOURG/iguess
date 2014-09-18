@@ -240,48 +240,55 @@ class Co2ScenariosController < ApplicationController
     @eq_ch4 = Co2Equiv.find_by_name("CH4").value;
     @eq_n20 = Co2Equiv.find_by_name("N2O").value;
 
-    @consumptions = Hash.new
-    @elec_mixes = Hash.new
-    @heat_mixes = Hash.new
-    @emission_factors = Hash.new
-
-    # Pack these into a structure that is the same as we create in the new action above
-    # If we do that, we can use the same UI code for editing as we do for creating
-    max_period = 0
-    Co2Consumption.includes(:co2_sector_scenario)
-                  .where("co2_sector_scenarios.co2_scenario_id" => params[:id])
-                  .each { |consumption|
-                    @consumptions[[consumption.period, 
-                                   consumption.co2_source_id, 
-                                   consumption.co2_sector_scenario.co2_sector.id]] = consumption
-                    if (max_period < consumption.period) 
-                      max_period = consumption.period 
-                    end
-                  }
-
-    (0..max_period).each do |n|
+    loadData(params[:id])
+    
+    (0..@max_period).each do |n|
       @periods << n
     end
-
-    Co2ElecMix.find_all_by_co2_scenario_id(params[:id])
-          .each { |mix|
-            @elec_mixes[[mix.period, mix.co2_source_id]] = mix
-          }
-          
-    Co2HeatMix.find_all_by_co2_scenario_id(params[:id])
-          .each { |mix|
-            @heat_mixes[[mix.period, mix.co2_source_id]] = mix
-          }
-
-    Co2EmissionFactor.find_all_by_co2_scenario_id(params[:id])
-      .each{ |ef| 
-          @emission_factors[[ef.period, ef.co2_source_id]] = ef
-        }
 
     # Render the form
     respond_to do |format|
       format.html
     end
+  end
+  
+  def loadData(id)
+    
+    @consumptions = Hash.new
+    @elec_mixes = Hash.new
+    @heat_mixes = Hash.new
+    @emission_factors = Hash.new
+    
+    # Pack these into a structure that is the same as we create in the new action above
+    # If we do that, we can use the same UI code for editing as we do for creating
+    
+    @max_period = 0
+    Co2Consumption.includes(:co2_sector_scenario)
+                  .where("co2_sector_scenarios.co2_scenario_id" => id)
+                  .each { |consumption|
+                    @consumptions[[consumption.period, 
+                                   consumption.co2_source_id, 
+                                   consumption.co2_sector_scenario.co2_sector.id]] = consumption
+                    if (@max_period < consumption.period) 
+                      @max_period = consumption.period 
+                    end
+                  }
+
+    Co2ElecMix.find_all_by_co2_scenario_id(id)
+          .each { |mix|
+            @elec_mixes[[mix.period, mix.co2_source_id]] = mix
+          }
+
+    Co2HeatMix.find_all_by_co2_scenario_id(id)
+          .each { |mix|
+            @heat_mixes[[mix.period, mix.co2_source_id]] = mix
+          }
+ 
+    Co2EmissionFactor.find_all_by_co2_scenario_id(id)
+      .each{ |ef| 
+          @emission_factors[[ef.period, ef.co2_source_id]] = ef
+        }
+
   end
 
 
