@@ -71,20 +71,7 @@ CO2.eqN2O = <%= @eq_n20 %>;
         :label => "Key Policies Modelled", 
         :input_html => { :cols => 80 } %>
         
-    <%= scen.input :conclusion, 
-        :label => "Conclusion", 
-        :input_html => { :cols => 80 } %>        
-
-    <%= scen.input :notes, 
-        :label => "Notes", 
-        :input_html => { :cols => 80 } %>
-        
-    <div class="form-actions">
-      <label>&nbsp;</label>
-      <%= scen.button :submit, "Save Summary" %>
-    </div>
-
-<% end -%>
+<!-- Data tables for the charts -->
 
 <table class="grid-input zebra" id="tableSectors" style="display: none">
 	<%= render :partial => 'table_sectors.html.erb' %>
@@ -151,5 +138,23 @@ CO2.eqN2O = <%= @eq_n20 %>;
   	CO2.chartsInit();
   	CO2.drawCharts();
   </script>
+
+<br>
+        
+    <%= scen.input :conclusion, 
+        :label => "Conclusion", 
+        :input_html => { :cols => 80 } %>        
+
+    <%= scen.input :notes, 
+        :label => "Notes", 
+        :input_html => { :cols => 80 } %>
+        
+    <div class="form-actions">
+      <label>&nbsp;</label>
+      <%= scen.button :submit, "Save Summary", :class => "linkbutton" %>
+    </div>
+
+<% end -%>
+
 
 
