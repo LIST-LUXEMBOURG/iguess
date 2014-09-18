@@ -610,15 +610,8 @@ class Co2ScenariosController < ApplicationController
       end
     end
     
-    binding.pry
-    
     @scenario = Co2Scenario.find(params[:id])
-    #@scenario.assumptions = params[:scenario][:assumptions]
-    #@scenario.policies = params[:scenario][:policies]
-    #@scenario.conclusion = params[:scenario][:conclusion]
-    #@scenario.notes = params[:scenario][:notes]
-    
-    #if @scenario.save
+
     if @scenario.update_attributes(params[:co2_scenario], :without_protection => true) then
       flash[:notice] = "Successfully updated Scenario summary"
       redirect_to action: "index"
