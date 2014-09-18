@@ -55,7 +55,7 @@ DSS.getOverlays = function()
 	overlays = new Array(); 
 	
 	for(i=0; i < DSS.map.layers.length; i++)
-		if (!DSS.map.layers[i].isBaseLayer)
+		if (!DSS.map.layers[i].isBaseLayer && DSS.map.layers[i].visibility)
 			overlays.push(DSS.map.layers[i].name);
 	
 	return overlays;
@@ -130,7 +130,6 @@ DSS.createWFS = function(name, style)
 
 DSS.featuresLoaded = function(resp) 
 {
-	debugger;
 	/* Check if a WFS service is available for the layer */
 	if((resp.features == null) || (resp.features.length <= 0))
 	{
@@ -141,6 +140,7 @@ DSS.featuresLoaded = function(resp)
 	
 	DSS.layerWFS.protocol = DSS.protocol;
 	DSS.layerWFS.addFeatures(resp.features);
+	DSS.layerWFS.setVisibility(true);
 	
 	DSS.populateAtributes();
 };
@@ -171,10 +171,7 @@ DSS.next = function()
 	{
 		DSS.map.addLayer(DSS.layerWFS);
 	}
-	catch(e) 
-	{
-		alert("The exception");
-	}
+	catch(e) {}
 	
 	//----- Populate Feature Array -----//
 	DSS.featureArray = new DSS.FeatureArray();

@@ -106,10 +106,8 @@ DSS.quit = function()
 {
 	DSS.winPanel.hide();
 	DSS.winSelect.hide();
-	//DSS.winSelect.close();
-	
-	//DSS.map.removeLayer(DSS.layerWFS);	
-	//DSS.layerWFS.destroy();
+
+	DSS.layerWFS.setVisibility(false);
 	DSS.layerWFS.removeAllFeatures();
 	
 	DSS.costSlider.destroy();
