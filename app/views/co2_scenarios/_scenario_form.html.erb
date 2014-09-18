@@ -144,57 +144,7 @@ submitForm = function()
 </ul>
 
 <div id="tab-cons-panes" class="tab-pane-container">
-
-  <% @sector_scenarios.each do |secscen| %>  <%# One table per sector %>
-   <div id="tabs-fact-<%= secscen.co2_sector.id %>">
-    <table class="grid-input zebra" id="tableCons<%= secscen.co2_sector.name %>">
-      <tr>
-        <th class="center">Period</th>
-        <% @sources_cons.each do |source| %>
-          <% if source.display_order < 50 %>
-            <th class="fossil-header center"><%= source.name %></th>
-          <% else %>
-            <th class="center"><%= source.name %></th>
-          <% end %>
-        <% end %>
-        <th class="total-header center">Total</th>
-      </tr>
-
-      <% year = @scenario.base_year %>
-      <% @periods.each do |period| %>
-        <tr>
-          <td><%= year %></td>
-          <% @sources_cons.each do |source| %>
-            <td>
-              <% # Check if the value is not null
-                  if @consumptions[[period, source.id, secscen.co2_sector.id]] == nil
-                  	@value = 0.0
-                  else 
-                    @value = @consumptions[[period, source.id, secscen.co2_sector.id]].value	
-                  end
-              %>	
-              <input name="co2_consumptions[<%= period %>][<%= source.id %>][<%= secscen.co2_sector.id %>]" 
-                     type="text" value="<%= @value %>" 
-                     onchange="
-                     	CO2.updateConsTotals(
-                     		<%= period %>, 
-                     		'<%= secscen.co2_sector.name %>',
-                        	'co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>',
-                        	'tableCons<%= secscen.co2_sector.name %>'); 
-                        CO2.drawCharts();
-                        return false;"/>
-            </td>
-          <% end %>
-          <td>
-          	<input id="co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>" type="text" value="0" disabled/>
-          </td>
-        </tr>
-        <% year += @scenario.time_step %>
-      <% end %>
-    </table>
-   </div>
-  <% end %>
-   
+	<%= render :partial => 'table_consumptions.html.erb' %>   
 </div> 
 <br>  
 
