@@ -55,7 +55,7 @@ DSS.getOverlays = function()
 	overlays = new Array(); 
 	
 	for(i=0; i < DSS.map.layers.length; i++)
-		if (!DSS.map.layers[i].isBaseLayer)
+		if (!DSS.map.layers[i].isBaseLayer && DSS.map.layers[i].visibility)
 			overlays.push(DSS.map.layers[i].name);
 	
 	return overlays;
@@ -89,14 +89,15 @@ DSS.comboLayerSelected = function()
 	}
 	else
 	{
-		DSS.layerWFS = DSS.createWFS(layers[0].params["LAYERS"], layers[0].url, null);
+		DSS.createProtocol(layers[0].params["LAYERS"], layers[0].url);
+		if (DSS.layerWFS == null) DSS.layerWFS = DSS.createWFS(layers[0].params["LAYERS"], null);	
+		else DSS.layerWFS.protocol = DSS.protocol;
+		
 	}
 };
 
-DSS.createWFS = function(name, address, style)
+DSS.createProtocol = function(name, address)
 {
-	if (style == null) style = DSS.style;
-	
 	DSS.protocol = new OpenLayers.Protocol.WFS({
 		version: "1.1.0",
 		url: address + "&srsName=" + WebGIS.mapProjection,
@@ -109,6 +110,11 @@ DSS.createWFS = function(name, address, style)
 	    maxFeatures: 2000,
 	    callback: DSS.featuresLoaded
 	});
+};
+
+DSS.createWFS = function(name, style)
+{
+	if (style == null) style = DSS.createStyle(); 
 	
 	var wfs = new OpenLayers.Layer.Vector(name, {
 		strategies: [new OpenLayers.Strategy.Fixed()],
@@ -134,6 +140,7 @@ DSS.featuresLoaded = function(resp)
 	
 	DSS.layerWFS.protocol = DSS.protocol;
 	DSS.layerWFS.addFeatures(resp.features);
+	DSS.layerWFS.setVisibility(true);
 	
 	DSS.populateAtributes();
 };
@@ -157,14 +164,20 @@ DSS.next = function()
 	if(DSS.winPanel == null) DSS.initWinPanel();
 	DSS.winPanel.show();
 	
-	// With some services the addLayer method is throwing an exception, 
-	// for unknown reasons, but it is correctly adding the new layer to the map. 
-	// The try block avoids execution to halt.
-	try
+	if(DSS.layerWFS.map == null)
 	{
-		DSS.map.addLayer(DSS.layerWFS);
+		// With some services the addLayer method is throwing an exception, 
+		// for unknown reasons, but it is correctly adding the new layer to the map. 
+		// The try block avoids execution to halt.
+		try
+		{
+			DSS.map.addLayer(DSS.layerWFS);
+		}
+		catch(e) {}
+		
+		// Remove layer from layer tree
+		WebGIS.layerTree.root.firstChild.firstChild.remove();
 	}
-	catch(e) {}
 	
 	//----- Populate Feature Array -----//
 	DSS.featureArray = new DSS.FeatureArray();
@@ -178,6 +191,8 @@ DSS.next = function()
 		);
 		DSS.featureArray.add(feat);
 	}
+	
+
 
 	DSS.initSliders();
 };
