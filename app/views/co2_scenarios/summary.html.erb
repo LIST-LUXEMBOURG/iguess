@@ -78,6 +78,11 @@ CO2.eqN2O = <%= @eq_n20 %>;
     <%= scen.input :notes, 
         :label => "Notes", 
         :input_html => { :cols => 80 } %>
+        
+    <div class="form-actions">
+      <label>&nbsp;</label>
+      <%= scen.button :submit, "Save Summary" %>
+    </div>
 
 <% end -%>
 

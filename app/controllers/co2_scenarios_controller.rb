@@ -307,6 +307,11 @@ class Co2ScenariosController < ApplicationController
     #   end
     # end
     
+    if params[:commit] == "Save Summary"
+      summarySave(params)
+      return
+    end
+    
     @current_city  = User.getCurrentCity(current_user, cookies)
     @scenario = Co2Scenario.find(params[:id])
     
@@ -598,15 +603,29 @@ class Co2ScenariosController < ApplicationController
 
   end
   
-  def summary_save
+  def summarySave(params)
     if not user_signed_in?    # Should always be true... but if not, return error and bail
       respond_to do |format|
         format.json { render :text => "You must be logged in!", :status => 403 }
       end
     end
     
-
-    redirect_to action: "index"
+    binding.pry
+    
+    @scenario = Co2Scenario.find(params[:id])
+    #@scenario.assumptions = params[:scenario][:assumptions]
+    #@scenario.policies = params[:scenario][:policies]
+    #@scenario.conclusion = params[:scenario][:conclusion]
+    #@scenario.notes = params[:scenario][:notes]
+    
+    #if @scenario.save
+    if @scenario.update_attributes(params[:co2_scenario], :without_protection => true) then
+      flash[:notice] = "Successfully updated Scenario summary"
+      redirect_to action: "index"
+    else
+      errorUpdating()
+    end
+    
   end
   
 end
