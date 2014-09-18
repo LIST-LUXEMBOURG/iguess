@@ -93,67 +93,7 @@ submitForm = function()
 
   <label>&nbsp;</label>
   <table class="grid-input zebra" id="tableSectors">
-    <tr>
-      <th class="center">Sector</th>
-      <th class="center">Demand<br>Growth<br>(%/yr)</th>
-      <th class="center">Efficiency<br>Gain<br>(%/yr)</th>
-      <th class="center">Total<br>Demand<br>(GWh)</th>
-    </tr>
-
-    <% index = 0 %>
-
-    <% @sector_scenarios.each do |secscen| %>
-      <tr>
-        <input name="co2_sector_scenarios[<%= secscen.co2_sector.id %>][co2_sector_id]" 
-               type="hidden" value="<%= secscen.co2_sector.id %>" />
-        <td><%= secscen.co2_sector.name %></td>
-        <td>
-          <input name="co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]" 
-                 type="text" value="<%= secscen.demand %>" 
-                 onchange="
-                 	CO2.calcSectorDemand(
-         				'<%= secscen.co2_sector.name %>', 
-            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
-            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][efficiency]',
-            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][base_total]');
-            		CO2.drawCharts();"/>
-        </td>
-        <td>
-          <input name="co2_sector_scenarios[<%= secscen.co2_sector.id %>][efficiency]" 
-                 type="text" value="<%= secscen.efficiency %>" 
-                 onchange="
-                 	CO2.calcSectorDemand(
-         				'<%= secscen.co2_sector.name %>', 
-            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
-            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][efficiency]',
-            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][base_total]');
-            		CO2.drawCharts();"/>
-        </td>
-        <td>
-          <input name="co2_sector_scenarios[<%= secscen.co2_sector.id %>][base_total]" 
-                 type="text" value="<%= secscen.base_total %>" 
-                 onchange="
-                 	CO2.calcSectorDemand(
-         				'<%= secscen.co2_sector.name %>', 
-            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
-            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][efficiency]',
-            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][base_total]');
-            		CO2.drawCharts();"/>
-        </td>
-      </tr>
-      
-	  <!-- Calculate demand values for all periods. -->
-	  <script>
-	  	CO2.addToSectorArrays('<%= secscen.co2_sector.name %>');
-		CO2.calcSectorDemand(
-			'<%= secscen.co2_sector.name %>', 
-			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
-			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][efficiency]',
-			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][base_total]'); 
-	  </script>
-      
-      <% index += 1 %>
-    <% end %>
+    	<%= render :partial => 'table_sectors.html.erb' %>
   </table>
 
 <hr>
@@ -171,45 +111,7 @@ submitForm = function()
   <div id="tabs-mix-4"> <%# Electricity Mix table %> 
  
     <table class="grid-input zebra" id="tableElecMix">
-      <tr>
-        <th class="center">Period</th>
-        <% @sources_elec.each do |s| %>
-          <% if s.display_order < 50 %>
-            <th class="fossil-header center"><%= s.name %></th>
-          <% else %>
-            <th class="center"><%= s.name %></th>
-          <% end %>
-        <% end %>
-        <th class="total-header center">Total</th>
-      </tr>
-
-      <% @periods.each do |period| %>
-        <tr>
-          <td><%= @scenario.base_year + period * @scenario.time_step %></td>
-          <% @sources_elec.each do |source| %>
-            <td>
-              <input name="co2_elec_mixes[<%= period %>][<%= source.id %>]" 
-                     type="text" value="<%= 
-                     	if @elec_mixes[[period, source.id]] == nil
-                     		0.0
-                     	else
-                     		@elec_mixes[[period, source.id]].value
-                     	end
-                     %>" 
-                     onchange="
-                     	CO2.updateElecTotals(
-         					<%= period %>, 
-            				'co2_elec_mix_total_<%= period %>',
-            				'tableElecMix');
-            			CO2.drawCharts(); 
-            			return false;"/>
-            </td>
-          <% end %>
-          <td>
-            <input id="co2_elec_mix_total_<%= period %>" type="text" value="0" disabled/>
-          </td>
-        </tr>
-      <% end %>
+      <%= render :partial => 'table_elec_mixes.html.erb' %>
     </table>
 
   </div>
@@ -217,45 +119,7 @@ submitForm = function()
   <div id="tabs-mix-5"> <%# Heat Mix table %> 
 
     <table class="grid-input zebra" id="tableHeatMix">
-      <tr>
-        <th class="center">Period</th>
-        <% @sources_heat.each do |s| %>
-          <% if s.display_order < 50 %>
-            <th class="fossil-header center"><%= s.name %></th>
-          <% else %>
-            <th class="center"><%= s.name %></th>
-          <% end %>
-        <% end %>
-        <th class="total-header center">Total</th>
-      </tr>
-
-      <% @periods.each do |period| %>
-        <tr>
-          <td><%= @scenario.base_year + period * @scenario.time_step %></td>
-          <% @sources_heat.each do |source| %>
-            <td>
-              <input name="co2_heat_mixes[<%= period %>][<%= source.id %>]" 
-                     type="text" value="<%= 
-                     	if @heat_mixes[[period, source.id]] == nil
-                     		0.0
-                     	else
-                     		@heat_mixes[[period, source.id]].value
-                     	end
-                     %>"
-                     onchange="
-                     	CO2.updateHeatTotals(
-		         			<%= period %>, 
-		            		'co2_heat_mix_total_<%= period %>',
-		            		'tableHeatMix');  
-		            	CO2.drawCharts();
-		            	return false;"/>
-            </td>
-          <% end %>
-          <td>
-            <input id="co2_heat_mix_total_<%= period %>" type="text" value="0" disabled/>
-          </td>
-        </tr>
-      <% end %>
+      <%= render :partial => 'table_heat_mixes.html.erb' %>
     </table>
 
   </div>
@@ -280,57 +144,7 @@ submitForm = function()
 </ul>
 
 <div id="tab-cons-panes" class="tab-pane-container">
-
-  <% @sector_scenarios.each do |secscen| %>  <%# One table per sector %>
-   <div id="tabs-fact-<%= secscen.co2_sector.id %>">
-    <table class="grid-input zebra" id="tableCons<%= secscen.co2_sector.name %>">
-      <tr>
-        <th class="center">Period</th>
-        <% @sources_cons.each do |source| %>
-          <% if source.display_order < 50 %>
-            <th class="fossil-header center"><%= source.name %></th>
-          <% else %>
-            <th class="center"><%= source.name %></th>
-          <% end %>
-        <% end %>
-        <th class="total-header center">Total</th>
-      </tr>
-
-      <% year = @scenario.base_year %>
-      <% @periods.each do |period| %>
-        <tr>
-          <td><%= year %></td>
-          <% @sources_cons.each do |source| %>
-            <td>
-              <% # Check if the value is not null
-                  if @consumptions[[period, source.id, secscen.co2_sector.id]] == nil
-                  	@value = 0.0
-                  else 
-                    @value = @consumptions[[period, source.id, secscen.co2_sector.id]].value	
-                  end
-              %>	
-              <input name="co2_consumptions[<%= period %>][<%= source.id %>][<%= secscen.co2_sector.id %>]" 
-                     type="text" value="<%= @value %>" 
-                     onchange="
-                     	CO2.updateConsTotals(
-                     		<%= period %>, 
-                     		'<%= secscen.co2_sector.name %>',
-                        	'co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>',
-                        	'tableCons<%= secscen.co2_sector.name %>'); 
-                        CO2.drawCharts();
-                        return false;"/>
-            </td>
-          <% end %>
-          <td>
-          	<input id="co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>" type="text" value="0" disabled/>
-          </td>
-        </tr>
-        <% year += @scenario.time_step %>
-      <% end %>
-    </table>
-   </div>
-  <% end %>
-   
+	<%= render :partial => 'table_consumptions.html.erb' %>   
 </div> 
 <br>  
 

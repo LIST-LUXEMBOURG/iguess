@@ -10,6 +10,8 @@
           <td><%= link_to s.name, [:edit, s] %></td>
           <td><%= s.base_year %></td>
           <td><%= s.time_step %></td>
+          <td><%= link_to 'summary', summary_co2_scenario_path(s) %></td>
+          
           <td>
           	<%= link_to 'replicate', replicate_co2_scenario_path(s),
      			confirm: "Are you sure you want to replicate this Scenario?\n\n" %>

@@ -52,6 +52,7 @@ Iguess::Application.routes.draw do
   resources :co2_scenarios do
    member do
     get 'replicate'
+    get 'summary'
    end
   end
   

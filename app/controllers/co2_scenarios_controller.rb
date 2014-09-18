@@ -220,8 +220,19 @@ class Co2ScenariosController < ApplicationController
 
 
   def edit
-    @scenario = Co2Scenario.find(params[:id])
+    
     @sectors = Co2Sector.all
+    loadData(params[:id])    
+
+    # Render the form
+    respond_to do |format|
+      format.html
+    end
+  end
+  
+  def loadData(id)
+    
+    @scenario = Co2Scenario.find(params[:id])
     @sector_scenarios = Co2SectorScenario.find_all_by_co2_scenario_id(params[:id])
     @periods = []
     
@@ -239,49 +250,46 @@ class Co2ScenariosController < ApplicationController
         
     @eq_ch4 = Co2Equiv.find_by_name("CH4").value;
     @eq_n20 = Co2Equiv.find_by_name("N2O").value;
-
+    
     @consumptions = Hash.new
     @elec_mixes = Hash.new
     @heat_mixes = Hash.new
     @emission_factors = Hash.new
-
+    
     # Pack these into a structure that is the same as we create in the new action above
     # If we do that, we can use the same UI code for editing as we do for creating
-    max_period = 0
+    
+    @max_period = 0
     Co2Consumption.includes(:co2_sector_scenario)
-                  .where("co2_sector_scenarios.co2_scenario_id" => params[:id])
+                  .where("co2_sector_scenarios.co2_scenario_id" => id)
                   .each { |consumption|
                     @consumptions[[consumption.period, 
                                    consumption.co2_source_id, 
                                    consumption.co2_sector_scenario.co2_sector.id]] = consumption
-                    if (max_period < consumption.period) 
-                      max_period = consumption.period 
+                    if (@max_period < consumption.period) 
+                      @max_period = consumption.period 
                     end
                   }
 
-    (0..max_period).each do |n|
-      @periods << n
-    end
-
-    Co2ElecMix.find_all_by_co2_scenario_id(params[:id])
+    Co2ElecMix.find_all_by_co2_scenario_id(id)
           .each { |mix|
             @elec_mixes[[mix.period, mix.co2_source_id]] = mix
           }
-          
-    Co2HeatMix.find_all_by_co2_scenario_id(params[:id])
+
+    Co2HeatMix.find_all_by_co2_scenario_id(id)
           .each { |mix|
             @heat_mixes[[mix.period, mix.co2_source_id]] = mix
           }
-
-    Co2EmissionFactor.find_all_by_co2_scenario_id(params[:id])
+ 
+    Co2EmissionFactor.find_all_by_co2_scenario_id(id)
       .each{ |ef| 
           @emission_factors[[ef.period, ef.co2_source_id]] = ef
         }
-
-    # Render the form
-    respond_to do |format|
-      format.html
+        
+    (0..@max_period).each do |n|
+      @periods << n
     end
+
   end
 
 
@@ -298,6 +306,11 @@ class Co2ScenariosController < ApplicationController
     #     format.json { render :text => "You must be logged in!", :status => 403 }
     #   end
     # end
+    
+    if params[:commit] == "Save Summary"
+      summarySave(params)
+      return
+    end
     
     @current_city  = User.getCurrentCity(current_user, cookies)
     @scenario = Co2Scenario.find(params[:id])
@@ -556,6 +569,55 @@ class Co2ScenariosController < ApplicationController
     end
     
     redirect_to action: "index"
+    
+  end
+  
+  def summary
+    if not user_signed_in?    # Should always be true... but if not, return error and bail
+      respond_to do |format|
+        format.json { render :text => "You must be logged in!", :status => 403 }
+      end
+    end
+    
+    loadData(params[:id])
+    
+    #City name
+    @city_name = City.find_by_id(@scenario.city_id).name
+    
+    # Number of periods    
+    secscens = Co2SectorScenario.find_all_by_co2_scenario_id(@scenario)
+    sources = Co2Source.all
+    consumptions = Co2Consumption.find_all_by_co2_source_id_and_co2_sector_scenario_id(sources[0].id, secscens[0].id)
+    @num_periods = consumptions.length
+    
+    # Sectors involved
+    @sectors = ""
+    secscens.each do |ss|
+      @sectors += Co2Sector.find_by_id(ss.co2_sector_id).name + "                                                      "
+    end
+    
+    # Render the form
+    respond_to do |format|
+      format.html
+    end
+
+  end
+  
+  def summarySave(params)
+    if not user_signed_in?    # Should always be true... but if not, return error and bail
+      respond_to do |format|
+        format.json { render :text => "You must be logged in!", :status => 403 }
+      end
+    end
+    
+    @scenario = Co2Scenario.find(params[:id])
+
+    if @scenario.update_attributes(params[:co2_scenario], :without_protection => true) then
+      flash[:notice] = "Successfully updated Scenario summary"
+      redirect_to action: "index"
+    else
+      errorUpdating()
+    end
     
   end
   

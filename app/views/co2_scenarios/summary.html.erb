@@ -1,0 +1,160 @@
+<script>
+var CO2 = CO2 || { };		// Create namespace
+
+CO2.numPeriods = <%= @periods.size %>;
+CO2.elec_id = <%= @elec_id %>;
+CO2.heat_id = <%= @heat_id %>;
+CO2.eqCH4 = <%= @eq_ch4 %>;
+CO2.eqN2O = <%= @eq_n20 %>;
+
+</script>
+
+<h1>Scenario Summary</h1>
+
+<%= simple_form_for @scenario do |scen| %>
+  <%= scen.error_notification %>
+
+    <div class="input string optional co">
+      <label class="string optional control-label" for="co2_scenario_city">
+        City
+      </label>
+      <input id="co2_scenario_city" class="string optional" type="text" disabled="disabled" 
+      	value="<%= @city_name %>" size="50" name="co2_scenario[city]" cols="80"></input>
+    </div>
+        
+    <%= scen.input :name, 
+        :label => "Scenario Name", 
+        :input_html => { :cols => 80 },
+        :placeholder => "Name", 
+        :disabled => true %>
+        
+    <%= scen.input :updated_at, 
+        :label => "Date", 
+        :input_html => { :cols => 80 }, 
+        :disabled => true %>
+
+    <%= scen.input :base_year, 
+        :label => "Base Year", 
+        :as => :string,
+        :placeholder => "e.g. 2010", 
+        :disabled => true %>
+
+    <%= scen.input :time_step, 
+        :label => "Time step (years)", 
+        :as => :string, 
+        :disabled => true %>
+        
+    <div class="input string optional co">
+      <label class="string optional control-label" for="co2_scenario_num_periods">
+        Number of Periods
+      </label>
+      <input id="co2_scenario_num_periods" class="string optional" type="text" disabled="disabled" 
+      	value="<%= @num_periods %>" size="50" name="co2_scenario[num_periods]" cols="80"></input>
+    </div>
+        
+    <div class="input string optional co">
+      <label class="string optional control-label" for="co2_scenario_sectors">
+        Sectors Involved
+      </label>
+      <textarea id="co2_scenario_sectors" class="string optional" type="text" disabled="disabled" 
+      	value="" name="co2_scenario[sectors]" cols="62" rows="10">
+      	<%= @sectors %>
+      </textarea>
+    </div>        
+
+ 
+    <%= scen.input :assumptions, 
+        :label => "Main Assumptions", 
+        :input_html => { :cols => 80 } %>
+        
+    <%= scen.input :policies, 
+        :label => "Key Policies Modelled", 
+        :input_html => { :cols => 80 } %>
+        
+<!-- Data tables for the charts -->
+
+<table class="grid-input zebra" id="tableSectors" style="display: none">
+	<%= render :partial => 'table_sectors.html.erb' %>
+</table>
+
+<table class="grid-input zebra" id="tableElecMix" style="display: none">
+	<%= render :partial => 'table_elec_mixes.html.erb' %>
+</table>
+
+<table class="grid-input zebra" id="tableHeatMix" style="display: none">
+	<%= render :partial => 'table_heat_mixes.html.erb' %>
+</table>
+
+<div id="tab-cons-panes" class="tab-pane-container" style="display: none">
+	<%= render :partial => 'table_consumptions.html.erb' %>
+</div> 
+ 
+<div id="tab-fact-panes" class="tab-pane-container" style="display: none">
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "CO2 (t/MWh)", fieldName: "co2_factor" } %>
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "CH4 (g/MWh)", fieldName: "ch4_factor" } %>
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "N2O (g/MWh)", fieldName: "n2o_factor" } %>
+</div>
+
+<!-- And now for the charts -->
+  
+  <script src="http://code.highcharts.com/highcharts.js"></script>
+  <script src="http://code.highcharts.com/modules/exporting.js"></script>
+
+  <div id="co2_chart" class="chart"></div>
+  <br>
+  <div id="ch4_chart" class="chart"></div>
+  <br>
+  <div id="n2o_chart" class="chart"></div>
+ 
+ 
+  <!-- Update totals and draw graphs -->
+  
+  <script>
+  <% @periods.each do |period| %>
+	CO2.updateElecTotals(
+ 		<%= period %>, 
+    	'co2_elec_mix_total_<%= period %>',
+    	'tableElecMix'); 
+
+	CO2.updateHeatTotals(
+ 		<%= period %>, 
+    	'co2_heat_mix_total_<%= period %>',
+    	'tableHeatMix'); 
+
+    <% @sector_scenarios.each do |secscen| %>
+  	CO2.updateConsTotals(
+ 		<%= period %>, 
+ 		'<%= secscen.co2_sector.name %>',
+    	'co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>',
+    	'tableCons<%= secscen.co2_sector.name %>');
+    <% end %>
+    	
+  <% end %>
+  
+  	CO2.updatePeriodNames();
+  	CO2.chartsInit();
+  	CO2.drawCharts();
+  </script>
+
+<br>
+        
+    <%= scen.input :conclusion, 
+        :label => "Conclusion", 
+        :input_html => { :cols => 80 } %>        
+
+    <%= scen.input :notes, 
+        :label => "Notes", 
+        :input_html => { :cols => 80 } %>
+        
+    <div class="form-actions">
+      <label>&nbsp;</label>
+      <%= scen.button :submit, "Save Summary", :class => "linkbutton" %>
+    </div>
+
+<% end -%>
+
+
+

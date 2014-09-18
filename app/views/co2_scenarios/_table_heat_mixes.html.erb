@@ -1,0 +1,39 @@
+	<tr>
+        <th class="center">Period</th>
+        <% @sources_heat.each do |s| %>
+          <% if s.display_order < 50 %>
+            <th class="fossil-header center"><%= s.name %></th>
+          <% else %>
+            <th class="center"><%= s.name %></th>
+          <% end %>
+        <% end %>
+        <th class="total-header center">Total</th>
+      </tr>
+
+      <% @periods.each do |period| %>
+        <tr>
+          <td><%= @scenario.base_year + period * @scenario.time_step %></td>
+          <% @sources_heat.each do |source| %>
+            <td>
+              <input name="co2_heat_mixes[<%= period %>][<%= source.id %>]" 
+                     type="text" value="<%= 
+                     	if @heat_mixes[[period, source.id]] == nil
+                     		0.0
+                     	else
+                     		@heat_mixes[[period, source.id]].value
+                     	end
+                     %>"
+                     onchange="
+                     	CO2.updateHeatTotals(
+		         			<%= period %>, 
+		            		'co2_heat_mix_total_<%= period %>',
+		            		'tableHeatMix');  
+		            	CO2.drawCharts();
+		            	return false;"/>
+            </td>
+          <% end %>
+          <td>
+            <input id="co2_heat_mix_total_<%= period %>" type="text" value="0" disabled/>
+          </td>
+        </tr>
+      <% end %>
