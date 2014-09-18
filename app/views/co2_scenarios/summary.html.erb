@@ -81,72 +81,11 @@ CO2.eqN2O = <%= @eq_n20 %>;
 
 <% end -%>
 
-<label>&nbsp;</label>
-  <table class="grid-input zebra" id="tableSectors">
-    <tr>
-      <th class="center">Sector</th>
-      <th class="center">Demand<br>Growth<br>(%/yr)</th>
-      <th class="center">Efficiency<br>Gain<br>(%/yr)</th>
-      <th class="center">Total<br>Demand<br>(GWh)</th>
-    </tr>
+<table class="grid-input zebra" id="tableSectors" style="display: none">
+	<%= render :partial => 'table_sectors.html.erb' %>
+</table>
 
-    <% index = 0 %>
 
-    <% @sector_scenarios.each do |secscen| %>
-      <tr>
-        <input name="co2_sector_scenarios[<%= secscen.co2_sector.id %>][co2_sector_id]" 
-               type="hidden" value="<%= secscen.co2_sector.id %>" />
-        <td><%= secscen.co2_sector.name %></td>
-        <td>
-          <input name="co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]" 
-                 type="text" value="<%= secscen.demand %>" 
-                 onchange="
-                 	CO2.calcSectorDemand(
-         				'<%= secscen.co2_sector.name %>', 
-            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
-            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][efficiency]',
-            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][base_total]');
-            		CO2.drawCharts();"/>
-        </td>
-        <td>
-          <input name="co2_sector_scenarios[<%= secscen.co2_sector.id %>][efficiency]" 
-                 type="text" value="<%= secscen.efficiency %>" 
-                 onchange="
-                 	CO2.calcSectorDemand(
-         				'<%= secscen.co2_sector.name %>', 
-            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
-            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][efficiency]',
-            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][base_total]');
-            		CO2.drawCharts();"/>
-        </td>
-        <td>
-          <input name="co2_sector_scenarios[<%= secscen.co2_sector.id %>][base_total]" 
-                 type="text" value="<%= secscen.base_total %>" 
-                 onchange="
-                 	CO2.calcSectorDemand(
-         				'<%= secscen.co2_sector.name %>', 
-            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
-            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][efficiency]',
-            			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][base_total]');
-            		CO2.drawCharts();"/>
-        </td>
-      </tr>
-      
-	  <!-- Calculate demand values for all periods. -->
-	  <script>
-	  	CO2.addToSectorArrays('<%= secscen.co2_sector.name %>');
-		CO2.calcSectorDemand(
-			'<%= secscen.co2_sector.name %>', 
-			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][demand]',
-			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][efficiency]',
-			'co2_sector_scenarios[<%= secscen.co2_sector.id %>][base_total]'); 
-	  </script>
-      
-      <% index += 1 %>
-    <% end %>
-  </table>
-
-<hr>
 
 <h4>Energy Production (%)</h4>
 <br>
