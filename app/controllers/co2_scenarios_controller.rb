@@ -220,8 +220,19 @@ class Co2ScenariosController < ApplicationController
 
 
   def edit
-    @scenario = Co2Scenario.find(params[:id])
+    
     @sectors = Co2Sector.all
+    loadData(params[:id])    
+
+    # Render the form
+    respond_to do |format|
+      format.html
+    end
+  end
+  
+  def loadData(id)
+    
+    @scenario = Co2Scenario.find(params[:id])
     @sector_scenarios = Co2SectorScenario.find_all_by_co2_scenario_id(params[:id])
     @periods = []
     
@@ -239,20 +250,6 @@ class Co2ScenariosController < ApplicationController
         
     @eq_ch4 = Co2Equiv.find_by_name("CH4").value;
     @eq_n20 = Co2Equiv.find_by_name("N2O").value;
-
-    loadData(params[:id])
-    
-    (0..@max_period).each do |n|
-      @periods << n
-    end
-
-    # Render the form
-    respond_to do |format|
-      format.html
-    end
-  end
-  
-  def loadData(id)
     
     @consumptions = Hash.new
     @elec_mixes = Hash.new
@@ -288,6 +285,10 @@ class Co2ScenariosController < ApplicationController
       .each{ |ef| 
           @emission_factors[[ef.period, ef.co2_source_id]] = ef
         }
+        
+    (0..@max_period).each do |n|
+      @periods << n
+    end
 
   end
 
@@ -573,7 +574,7 @@ class Co2ScenariosController < ApplicationController
       end
     end
     
-    @scenario = Co2Scenario.find(params[:id])
+    loadData(params[:id])
     
     #City name
     @city_name = City.find_by_id(@scenario.city_id).name
@@ -589,8 +590,6 @@ class Co2ScenariosController < ApplicationController
     secscens.each do |ss|
       @sectors += Co2Sector.find_by_id(ss.co2_sector_id).name + "                                                      "
     end
-    
-    @toto = "Toto"
     
     # Render the form
     respond_to do |format|
