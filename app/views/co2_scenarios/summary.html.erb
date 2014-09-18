@@ -93,43 +93,18 @@ CO2.eqN2O = <%= @eq_n20 %>;
 	<%= render :partial => 'table_heat_mixes.html.erb' %>
 </table>
 
-<div id="tab-cons-panes" class="tab-pane-container"  style="display: none">
+<div id="tab-cons-panes" class="tab-pane-container" style="display: none">
 	<%= render :partial => 'table_consumptions.html.erb' %>
 </div> 
  
-
-<hr>
-<div onclick="rollEmissionFactors();"><h4 id="emiss-factors-title" class="emiss-factors-title">+ Emission Factors</h4></div>
-<br>
-<div id="emiss-factors">
-	<ul class="tabs" id="tabs-fact">
-	<li><a class="lco2" id="t4" href="#tabs-fact-4"><b>CO2 (t/MWh)</b></a></li>
-	<li><a class="lco2" id="t5" href="#tabs-fact-5"><b>CH4 (g/MWh)</b></a></li>
-	<li><a class="lco2" id="t6" href="#tabs-fact-6"><b>N2O (g/MWh)</b></a></li>
-	</ul>
-	<div id="tab-fact-panes" class="tab-pane-container">
-	
-	  <div id="tabs-fact-4">
-		<%= render :partial => 'emission_factor.html.erb', 
-		            locals: { title: "CO2 (t/MWh)", fieldName: "co2_factor" } %>
-	  </div>	            
-	
-	  <div id="tabs-fact-5">
-		<%= render :partial => 'emission_factor.html.erb', 
-		            locals: { title: "CH4 (g/MWh)", fieldName: "ch4_factor" } %>
-	  </div>	            
-	
-	  <div id="tabs-fact-6">
-		<%= render :partial => 'emission_factor.html.erb', 
-		            locals: { title: "N2O (g/MWh)", fieldName: "n2o_factor" } %>
-	  </div>	            
-	
-	</div>
+<div id="tab-fact-panes" class="tab-pane-container" style="display: none">
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "CO2 (t/MWh)", fieldName: "co2_factor" } %>
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "CH4 (g/MWh)", fieldName: "ch4_factor" } %>
+	<%= render :partial => 'emission_factor.html.erb', 
+	            locals: { title: "N2O (g/MWh)", fieldName: "n2o_factor" } %>
 </div>
-
-	<br>            
-	<hr>
-
 
 <!-- And now for the charts -->
   
