@@ -90,60 +90,11 @@ CO2.eqN2O = <%= @eq_n20 %>;
 <h4>Energy Production (%)</h4>
 <br>
 
-<ul class="tabs" id="tabs-mix">
-<li><a class="lco2" id="t4" href="#tabs-mix-4"><b>Electricity</b></a></li>
-<li><a class="lco2" id="t5" href="#tabs-mix-5"><b>District Heating</b></a></li>
-</ul>
-
-<div id="tab-mix-panes" class="tab-pane-container">
-
-  <div id="tabs-mix-4"> <%# Electricity Mix table %> 
  
-    <table class="grid-input zebra" id="tableElecMix">
-      <tr>
-        <th class="center">Period</th>
-        <% @sources_elec.each do |s| %>
-          <% if s.display_order < 50 %>
-            <th class="fossil-header center"><%= s.name %></th>
-          <% else %>
-            <th class="center"><%= s.name %></th>
-          <% end %>
-        <% end %>
-        <th class="total-header center">Total</th>
-      </tr>
+<table class="grid-input zebra" id="tableElecMix" style="display: none">
+	<%= render :partial => 'table_elec_mixes.html.erb' %>
+</table>
 
-      <% @periods.each do |period| %>
-        <tr>
-          <td><%= @scenario.base_year + period * @scenario.time_step %></td>
-          <% @sources_elec.each do |source| %>
-            <td>
-              <input name="co2_elec_mixes[<%= period %>][<%= source.id %>]" 
-                     type="text" value="<%= 
-                     	if @elec_mixes[[period, source.id]] == nil
-                     		0.0
-                     	else
-                     		@elec_mixes[[period, source.id]].value
-                     	end
-                     %>" 
-                     onchange="
-                     	CO2.updateElecTotals(
-         					<%= period %>, 
-            				'co2_elec_mix_total_<%= period %>',
-            				'tableElecMix');
-            			CO2.drawCharts(); 
-            			return false;"/>
-            </td>
-          <% end %>
-          <td>
-            <input id="co2_elec_mix_total_<%= period %>" type="text" value="0" disabled/>
-          </td>
-        </tr>
-      <% end %>
-    </table>
-
-  </div>
-
-  <div id="tabs-mix-5"> <%# Heat Mix table %> 
 
     <table class="grid-input zebra" id="tableHeatMix">
       <tr>
@@ -187,10 +138,7 @@ CO2.eqN2O = <%= @eq_n20 %>;
       <% end %>
     </table>
 
-  </div>
 
-</div>
-<br>
 
 
 <hr>
