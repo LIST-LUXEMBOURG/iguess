@@ -187,8 +187,20 @@ WebGIS.addLayerToMap = function(id)
 
 	WebGIS.leftMap.addLayer(layer);
 	layer.events.register("visibilitychanged", this, WebGIS.toggleLayer);
-
-	WebGIS.addWidgetsToLayerNode(WebGIS.layerTree.root.firstChild.firstChild);
+	
+	if(WebGIS.layerTree.root.firstChild.firstChild == null || 
+	   WebGIS.layerTree.root.firstChild.firstChild.layer.id != layer.id)
+	{
+		// The automatic Layer tree management has failed
+		node = new GeoExt.tree.LayerNode({
+			layer : layer,
+			layerStore : "auto"
+		});
+		WebGIS.layerTree.root.firstChild.appendChild(node);
+		WebGIS.addWidgetsToLayerNode(node);
+	}
+	else
+		WebGIS.addWidgetsToLayerNode(WebGIS.layerTree.root.firstChild.firstChild);
 };
 
 WebGIS.removeLayerFromMap = function(id) 
@@ -197,6 +209,15 @@ WebGIS.removeLayerFromMap = function(id)
 	if (array.length > 0) 
 	{
 		WebGIS.leftMap.removeLayer(array[0]);
+		// Check if layer node was removed from the layer tree
+		for (i = 0; i < WebGIS.layerTree.root.firstChild.childNodes.length; i++)
+		{
+			if (id == WebGIS.layerTree.root.firstChild.childNodes[i].layer.id) 
+			{
+				WebGIS.layerTree.root.firstChild.childNodes[i].remove();
+				return;
+			}
+		}
 		WebGIS.layerTree.root.firstChild.eachChild(WebGIS.addWidgetsToLayerNode);
 	}
 };
