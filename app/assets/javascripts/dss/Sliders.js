@@ -110,10 +110,26 @@ DSS.quit = function()
 	DSS.layerWFS.setVisibility(false);
 	DSS.layerWFS.removeAllFeatures();
 	
-	if(DSS.costSlider != null) DSS.costSlider.destroy();
-	if(DSS.invSlider  != null) DSS.invSlider.destroy();
-	if(DSS.genSlider  != null) DSS.genSlider.destroy();
-	if(DSS.areaSlider != null) DSS.areaSlider.destroy();
+	if(DSS.costSlider != null)
+	{
+		DSS.costSlider.destroy();
+		DSS.costSlider = null;
+	} 
+	if(DSS.invSlider  != null)
+	{
+		DSS.invSlider.destroy();
+		DSS.invSlider = null;
+	} 
+	if(DSS.genSlider  != null)
+	{
+		DSS.genSlider.destroy();
+		DSS.genSlider = null;
+	} 
+	if(DSS.areaSlider != null) 
+	{
+		DSS.areaSlider.destroy();
+		DSS.areaSlider = null;
+	}
 	
 	DSS.rule_highlight.filter.value = null;
 	DSS.rule_highlight.filter.property = null;

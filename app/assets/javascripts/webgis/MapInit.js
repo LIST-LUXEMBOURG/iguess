@@ -205,6 +205,7 @@ WebGIS.addLayerToMap = function(id)
 
 WebGIS.removeLayerFromMap = function(id) 
 {
+	if (WebGIS.layerList[id] == null) return;
 	var array = WebGIS.leftMap.getLayersByName(WebGIS.layerList[id]["title"]);
 	if (array.length > 0) 
 	{

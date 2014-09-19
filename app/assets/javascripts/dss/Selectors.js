@@ -122,7 +122,8 @@ DSS.createWFS = function(name, style)
 		projection: new OpenLayers.Projection(WebGIS.cityCRS),
 		protocol: DSS.protocol},
         {isBaseLayer: false,  
-     	 visibility: true}
+     	 visibility: true,
+     	 displayInLayerSwitcher: false}
 	);
 
 	return wfs;
