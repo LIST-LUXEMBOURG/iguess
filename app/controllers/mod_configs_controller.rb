@@ -340,7 +340,7 @@ class ModConfigsController < ApplicationController
         id = d[1]
         if(identifier != "" && id != "-1") then
           confds = ConfigDataset.new()
-          confds.input_identifier = identifier
+          confds.input_identifier = identifier.split(":")[0]
           confds.mod_config = @mod_config
           confds.dataset = Dataset.find(id)
           
@@ -372,7 +372,7 @@ class ModConfigsController < ApplicationController
               textval.identifier = key
               textval.value = params['input'][key]
               textval.is_input = true
-
+              
               success &= textval.save()
           end
         end  
