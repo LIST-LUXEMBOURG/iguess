@@ -7,6 +7,26 @@ Iguess::Application.configure do
   # Full error reports are disabled and caching is turned on
   config.consider_all_requests_local       = false
   config.action_controller.perform_caching = true
+  
+  # You may need to restart the server after changing the settings; will
+  # need the mail gem installed for mail sending to work!
+
+  # DON'T CHECK THESE CREDENTIALS INTO GIT PLEASE!!!
+  # Instead, do what it says here:
+  # http://stackoverflow.com/questions/6161768/rails-3-email-password-in-environment-rb-push-to-git-safe
+  config.action_mailer.raise_delivery_errors = false
+  # config.action_mailer.delivery_method = :smtp 
+  # config.action_mailer.smtp_settings = {
+  # address:              'arthur.tudor.lu',
+  # port:                 25,
+  # domain:               'tudor.lu',
+  # user_name:            'xxx',
+  # password:             'xxx',
+  # authentication:       'plain',    # One of ==> :plain, :login, :cram_md5
+  # enable_starttls_auto: false  }
+
+  # Devise authentication
+  config.action_mailer.default_url_options = { :host => 'localhost:2000' }
 
   # Disable Rails's static asset server (Apache or nginx will already do this)
   config.serve_static_assets = true
