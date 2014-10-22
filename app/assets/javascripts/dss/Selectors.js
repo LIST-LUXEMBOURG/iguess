@@ -99,7 +99,7 @@ DSS.comboLayerSelected = function()
 DSS.createProtocol = function(name, address)
 {
 	DSS.protocol = new OpenLayers.Protocol.WFS({
-		version: "1.1.0",
+		version: "1.0.0",
 		url: address + "&srsName=" + WebGIS.mapProjection,
 		featureNS: "http://mapserver.gis.umn.edu/mapserver",
 		featureType: name,
