@@ -5,6 +5,8 @@
 
 # If any of these values need to be updated, please do so directly in the Cities table in the database!
 
+# Why are the seeds for the cities table commented out?
+
 # Note that the bounding box data below appear to be incorrect.  Don't rely on them unless they are corrected and this comment removed -CE
 # [['Aberdeen',    '', 13, 'EPSG:27700', -235500, 7790000],
 #  ['Gent',        'http://gentgis2.gent.be/arcgisserver/services/G_WIS/testIvago/MapServer/WFSServer', 12, 'EPSG:31370',  415000,  6632500],
@@ -27,10 +29,23 @@
 
 
 # Basic sectors for the CO2 model
-[['Industry'], ['Road Transport'], ['Rail Transport'], ['Ship Transport'],
- ['Tertiary'], ['Residential'] ,   ['Agriculture']
+[# MUSIC site_details_id: 1
+ ['Industry', 1], 
+ ['Road Transport', 1], 
+ ['Rail Transport', 1], 
+ ['Ship Transport', 1],
+ ['Tertiary', 1], 
+ ['Residential', 1],   
+ ['Agriculture', 1],
+ # LaMiLo"  site_details_id: 2
+ ['Cars', 2],
+ ['Trucks', 2],
+ ['Vans', 2],
+ ['Lorries', 2]
  ].each do |v|
 	sector = Co2Sector.find_or_create_by_name v[0]
+	sector.site_details_id = v[1]
+	sector.save
 end
 
 
