@@ -26,7 +26,7 @@ class Co2ScenariosController < ApplicationController
     @scenario.base_year = 2010
     @scenario.time_step = 5
 
-    @sectors = Co2Sector.all
+    @sectors = Co2Sector.find_all_by_site_details_id(@site_details.id)
 
     # Sources to use in Emission Factors
     @sources_factor = Co2Source.find_all_by_has_factor(true)
@@ -221,7 +221,7 @@ class Co2ScenariosController < ApplicationController
 
   def edit
     
-    @sectors = Co2Sector.all
+    @sectors = Co2Sector.find_all_by_site_details_id(@site_details.id)
     loadData(params[:id])    
 
     # Render the form
