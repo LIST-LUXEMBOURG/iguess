@@ -122,8 +122,13 @@ end
   c.save
 end
 
-
-
+# LaMiLo - set the tab list 
+[['lamilo.css',  'home, maps, datamanager, modules, scenarios, about']  
+].each do |v|
+  equiv = SiteDetail.find_by_stylesheet v[0]
+  equiv.tab_list = v[1]
+  equiv.save
+end
 
 
 

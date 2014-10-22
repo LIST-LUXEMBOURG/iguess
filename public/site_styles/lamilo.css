@@ -127,7 +127,7 @@ ul.footer-menu li a:before, ul.footer-menu li .item:before, ul.footer-menu li .s
 
 
 /* Hide certain tabs for Lamilo */
-#nav-4, #nav-7 {
+#nav-7 {
   display: none;
 }
 
