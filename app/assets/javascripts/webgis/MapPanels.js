@@ -189,12 +189,13 @@ WebGIS.createPanels = function() {
   );
 
   var treeConfig = [{
-    nodeType: "gx_overlaylayercontainer",
-    text: "",
-    iconCls: "emptyIcon",
-    cls: "hiddenRoot",
-    expanded: true,
-    rootVisible: false
+    nodeType    : "gx_overlaylayercontainer",
+    text        : "",
+    iconCls     : "emptyIcon",
+    cls         : "hiddenRoot",
+    expanded    : true,
+    expandable  : false,
+    rootVisible : false
   }];
 
   WebGIS.layerTree = new Ext.tree.TreePanel({

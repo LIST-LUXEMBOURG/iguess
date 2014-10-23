@@ -104,6 +104,7 @@
 .emptyIcon
 {
 	background-image:url(images/mapStyles/empty.png) !important;
+	width: 3px; !important;
 }
 
 .hiddenRoot 
@@ -120,9 +121,9 @@
     border-bottom: 1px solid #ddd;
     padding-bottom: 3px;
 }
-.x-tree-ec-icon {
+/*.x-tree-ec-icon {
     width: 3px;
-}
+}*/
 .gx-tree-layer-icon {
     display: none;
 }
