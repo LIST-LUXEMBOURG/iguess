@@ -111,7 +111,6 @@ WebGIS.addNewLayer = function(title, serviceURL, layerName, type, tag, id)
 
 	var selected = false;
 
-	// Call OpenLayers.Layer.WMS.initialize()
 	if (WebGIS.treeNodes[tag] == null) 
 	{
 		WebGIS.treeNodes[tag] = new Ext.tree.TreeNode({
@@ -134,7 +133,6 @@ WebGIS.addNewLayer = function(title, serviceURL, layerName, type, tag, id)
 		iconCls : "treeIcon",
 		children : [],
 		id : WebGIS.nodePrefix + id,
-		toto : "TOTO"
 	});
 	newNode.on("checkchange", WebGIS.layerCheckEvent);
 	WebGIS.treeNodes[tag].appendChild(newNode);
