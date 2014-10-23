@@ -41,7 +41,8 @@
  ['Cars', 2],
  ['Trucks', 2],
  ['Vans', 2],
- ['Lorries', 2]
+ ['Lorries', 2],
+ ['Bikes', 2]
  ].each do |v|
 	sector = Co2Sector.find_or_create_by_name v[0]
 	sector.site_details_id = v[1]
