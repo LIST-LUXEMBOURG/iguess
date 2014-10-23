@@ -89,6 +89,13 @@ Co2Source.find_each do |s|
   Co2SourceSiteDetail.find_or_create_by_co2_source_id_and_site_detail_id(s.id, detail.id)
 end
 
+# Sources for LaMiLo
+detail = SiteDetail.find_by_stylesheet("lamilo.css")
+['Gas','Diesel','Gasoline','LPG','Biogas','Electricity'].each do |name|
+  s = Co2Source.find_by_name(name)
+  Co2SourceSiteDetail.find_or_create_by_co2_source_id_and_site_detail_id(s.id, detail.id)
+end
+
 # Conversion factors to CO2 equivalent
 [['CH4',   25],
  ['N2O',  298]
