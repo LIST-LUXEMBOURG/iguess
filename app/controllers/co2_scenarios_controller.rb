@@ -5,6 +5,47 @@ class Co2ScenariosController < ApplicationController
   respond_to :html, :json, :js   # See http://railscasts.com/episodes/224-controllers-in-rails-3, c. min 7:00
 
 
+  def loadSources
+
+    # Sources to use in Emission Factors
+    @sources_factor = Co2Source.find(
+      :all,
+      :joins => [:co2_source_site_details],
+      :conditions => {:co2_sources => {:has_factor => true},
+                      :co2_source_site_details => {:site_detail_id => @site_details.id}})
+    
+    # Sources to use in Electricity Mix
+    # @sources_elec = Co2Source.find_all_by_electricity_source(true)
+    @sources_elec = Co2Source.find(
+      :all,
+      :joins => [:co2_source_site_details],
+      :conditions => {:co2_sources => {:electricity_source => true},
+                      :co2_source_site_details => {:site_detail_id => @site_details.id}})
+                      
+    # Sources to use in Heat Mix
+    # @sources_heat = Co2Source.find_all_by_heat_source(true)
+    @sources_heat = Co2Source.find(
+      :all,
+      :joins => [:co2_source_site_details],
+      :conditions => {:co2_sources => {:heat_source => true},
+                      :co2_source_site_details => {:site_detail_id => @site_details.id}})
+                      
+    # Sources to use in Consumption
+    # @sources_cons = Co2Source.find_all_by_is_carrier(true)
+    @sources_cons = Co2Source.find(
+      :all,
+      :joins => [:co2_source_site_details],
+      :conditions => {:co2_sources => {:is_carrier => true},
+                      :co2_source_site_details => {:site_detail_id => @site_details.id}})
+    
+    @elec_id = Co2Source.find_by_name("Electricity").id;
+    @heat_id = Co2Source.find_by_name("District Heating").id;
+    
+    @eq_ch4 = Co2Equiv.find_by_name("CH4").value;
+    @eq_n20 = Co2Equiv.find_by_name("N2O").value;
+  
+  end
+
   # GET /co2_scenarios
   # GET /co2_scenarios.json
   def index
@@ -27,23 +68,9 @@ class Co2ScenariosController < ApplicationController
     @scenario.time_step = 5
 
     @sectors = Co2Sector.find_all_by_site_details_id(@site_details.id)
-
-    # Sources to use in Emission Factors
-    @sources_factor = Co2Source.find_all_by_has_factor(true)
-    # Sources to use in Electricity Mix
-    @sources_elec = Co2Source.find_all_by_electricity_source(true)
-    # Sources to use in Heat Mix
-    @sources_heat = Co2Source.find_all_by_heat_source(true)
-    # Sources to use in Consumption
-    @sources_cons = Co2Source.find_all_by_is_carrier(true)
-    
-    @elec_id = Co2Source.find_by_name("Electricity").id;
-    @heat_id = Co2Source.find_by_name("District Heating").id;
-    
-    @eq_ch4 = Co2Equiv.find_by_name("CH4").value;
-    @eq_n20 = Co2Equiv.find_by_name("N2O").value;
-    
     @city_id = User.getCurrentCity(current_user, cookies).id
+
+    loadSources()
 
     @sector_scenarios = []
 
@@ -149,20 +176,7 @@ class Co2ScenariosController < ApplicationController
 
     periods = params[:co2_consumptions].size()
     
-    # Sources to use in Consumption
-    @sources_cons = Co2Source.find_all_by_is_carrier(true)
-    # Sources to use in Electricity Mix
-    @sources_elec = Co2Source.find_all_by_electricity_source(true)
-    # Sources to use in Heat Mix
-    @sources_heat = Co2Source.find_all_by_heat_source(true)
-    # Sources to use in Emission Factors
-    @sources_factor = Co2Source.find_all_by_has_factor(true)
-    
-    @elec_id = Co2Source.find_by_name("Electricity").id;
-    @heat_id = Co2Source.find_by_name("District Heating").id;
-
-    @eq_ch4 = Co2Equiv.find_by_name("CH4").value;
-    @eq_n20 = Co2Equiv.find_by_name("N2O").value;
+    loadSources()
 
     (0..periods-1).each do |period| 
       @sources_cons.each do |s|
@@ -236,20 +250,7 @@ class Co2ScenariosController < ApplicationController
     @sector_scenarios = Co2SectorScenario.find_all_by_co2_scenario_id(params[:id])
     @periods = []
     
-    # Sources to use in Consumption
-    @sources_cons = Co2Source.find_all_by_is_carrier(true)
-    # Sources to use in Electricity Mix
-    @sources_elec = Co2Source.find_all_by_electricity_source(true)
-    # Sources to use in Heat Mix
-    @sources_heat = Co2Source.find_all_by_heat_source(true)
-    # Sources to use in Emission Factors
-    @sources_factor = Co2Source.find_all_by_has_factor(true)
-    
-    @elec_id = Co2Source.find_by_name("Electricity").id;
-    @heat_id = Co2Source.find_by_name("District Heating").id;
-        
-    @eq_ch4 = Co2Equiv.find_by_name("CH4").value;
-    @eq_n20 = Co2Equiv.find_by_name("N2O").value;
+    loadSources()
     
     @consumptions = Hash.new
     @elec_mixes = Hash.new
@@ -315,20 +316,7 @@ class Co2ScenariosController < ApplicationController
     @current_city  = User.getCurrentCity(current_user, cookies)
     @scenario = Co2Scenario.find(params[:id])
     
-    # Sources to use in Consumption
-    @sources_cons = Co2Source.find_all_by_is_carrier(true)
-    # Sources to use in Electricity Mix
-    @sources_elec = Co2Source.find_all_by_electricity_source(true)
-    # Sources to use in Heat Mix
-    @sources_heat = Co2Source.find_all_by_heat_source(true)
-    # Sources to use in Emission Factors
-    @sources_factor = Co2Source.find_all_by_has_factor(true)
-    
-    @elec_id = Co2Source.find_by_name("Electricity").id;
-    @heat_id = Co2Source.find_by_name("District Heating").id;
-        
-    @eq_ch4 = Co2Equiv.find_by_name("CH4").value;
-    @eq_n20 = Co2Equiv.find_by_name("N2O").value;
+    loadSources()
 
     if not @scenario.update_attributes(params[:co2_scenario])
       errorUpdating()
