@@ -83,6 +83,12 @@ end
   source.save
 end
 
+# Sources for MUSIC
+detail = SiteDetail.find_by_stylesheet("iguess.css")
+Co2Source.find_each do |s|
+  Co2SourceSiteDetail.find_or_create_by_co2_source_id_and_site_detail_id(s.id, detail.id)
+end
+
 # Conversion factors to CO2 equivalent
 [['CH4',   25],
  ['N2O',  298]
