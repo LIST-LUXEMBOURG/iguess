@@ -41,7 +41,8 @@
  ['Cars', 2],
  ['Trucks', 2],
  ['Vans', 2],
- ['Lorries', 2]
+ ['Lorries', 2],
+ ['Bikes', 2]
  ].each do |v|
 	sector = Co2Sector.find_or_create_by_name v[0]
 	sector.site_details_id = v[1]
@@ -81,6 +82,19 @@ end
   source.n2o_factor = v[7]
   source.display_order = v[8]
   source.save
+end
+
+# Sources for MUSIC
+detail = SiteDetail.find_by_stylesheet("iguess.css")
+Co2Source.find_each do |s|
+  Co2SourceSiteDetail.find_or_create_by_co2_source_id_and_site_detail_id(s.id, detail.id)
+end
+
+# Sources for LaMiLo
+detail = SiteDetail.find_by_stylesheet("lamilo.css")
+['Gas','Diesel','Gasoline','LPG','Biogas','Electricity'].each do |name|
+  s = Co2Source.find_by_name(name)
+  Co2SourceSiteDetail.find_or_create_by_co2_source_id_and_site_detail_id(s.id, detail.id)
 end
 
 # Conversion factors to CO2 equivalent
