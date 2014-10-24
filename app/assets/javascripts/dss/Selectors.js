@@ -99,7 +99,7 @@ DSS.comboLayerSelected = function()
 DSS.createProtocol = function(name, address)
 {
 	DSS.protocol = new OpenLayers.Protocol.WFS({
-		version: "1.0.0",
+		version: "1.1.0",
 		url: address + "&srsName=" + WebGIS.mapProjection,
 		featureNS: "http://mapserver.gis.umn.edu/mapserver",
 		featureType: name,
@@ -173,7 +173,11 @@ DSS.next = function()
 		{
 			DSS.map.addLayer(DSS.layerWFS);
 		}
-		catch(e) {}
+		catch(e) 
+		{
+			//debugger;
+			DSS.map.addLayer(DSS.layerWFS);
+		}
 		
 		// Remove layer from layer tree
 		WebGIS.layerTree.root.firstChild.firstChild.remove();

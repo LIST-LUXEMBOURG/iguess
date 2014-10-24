@@ -266,7 +266,8 @@ WebGIS.removeLayerEvent = function(butt, event)
 	var idCatalogue = butt.id.substring(WebGIS.buttClose.length);
 	WebGIS.removeLayerFromMap(idCatalogue);
 	var fullId = WebGIS.nodePrefix + idCatalogue;
-	WebGIS.layerCatalogue.getNodeById(fullId).getUI().toggleCheck(false);
+	node = WebGIS.layerCatalogue.getNodeById(fullId);
+	if(node != null) node.getUI().toggleCheck(false);
 };
 
 WebGIS.addWidgetsToLayerNode = function(treeNode) 
@@ -314,7 +315,7 @@ WebGIS.addWidgetsToLayerNode = function(treeNode)
 	});
 
 	treeNode.setCls("layerNode");
-	treeNode.getUI().checkbox.hidden = true;
+	if(treeNode.getUI().checkbox != null) treeNode.getUI().checkbox.hidden = true;
 	treeNode.getUI().elNode.childNodes[0].hidden = true;
 	buttonClose.render(treeNode.getUI().getTextEl());
 	buttonUp.render(treeNode.getUI().getTextEl());
