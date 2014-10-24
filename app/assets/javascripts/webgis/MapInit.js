@@ -207,12 +207,7 @@ WebGIS.addLayerToMap = function(id)
 		WebGIS.addWidgetsToLayerNode(node);
 	}
 	else
-	{
-		Ext.apply(WebGIS.layerTree.root.firstChild.firstChild, {expandable: false});
-		Ext.apply(WebGIS.layerTree.root.firstChild, {expandable: false});
-		Ext.apply(WebGIS.layerTree.root, {expandable: false});
 		WebGIS.addWidgetsToLayerNode(WebGIS.layerTree.root.firstChild.firstChild);
-	}
 };
 
 WebGIS.removeLayerFromMap = function(id) 

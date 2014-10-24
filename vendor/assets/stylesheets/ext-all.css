@@ -6230,7 +6230,8 @@ td.grid-hd-group-cell {
 }
 
 .x-tree-no-lines .x-tree-elbow-end-minus{
-	background-image:url(ext-images/default/tree/elbow-end-minus-nl.gif);
+	/* Removed reference to this image because it was being shown without being invoked */
+	/*background-image:url(ext-images/gray/tree/elbow-end-minus-nl.gif);*/
 }
 
 .x-tree-arrows .x-tree-elbow-plus{
