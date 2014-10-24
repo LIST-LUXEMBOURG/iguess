@@ -911,7 +911,8 @@ td.x-grid3-hd-over .x-grid3-hd-inner, td.sort-desc .x-grid3-hd-inner, td.sort-as
 }
 
 .x-tree-no-lines .x-tree-elbow-end-minus{
-	background-image:url(ext-images/gray/tree/elbow-end-minus-nl.gif);
+	/* Removed reference to this image because it was being shown without being invoked */
+	/*background-image:url(ext-images/gray/tree/elbow-end-minus-nl.gif);*/
 }
 
 .x-tree-arrows .x-tree-elbow-plus{

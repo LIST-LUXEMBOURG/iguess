@@ -114,11 +114,11 @@ WebGIS.addNewLayer = function(title, serviceURL, layerName, type, tag, id)
 	if (WebGIS.treeNodes[tag] == null) 
 	{
 		WebGIS.treeNodes[tag] = new Ext.tree.TreeNode({
-			text : tag,
-			leaf : false,
-			expanded : false,
+			text       : tag,
+			leaf       : false,
+			expanded   : false,
 			expandable : true,
-			loaded:true
+			loaded     : true
 		});
 	}
 
@@ -129,12 +129,13 @@ WebGIS.addNewLayer = function(title, serviceURL, layerName, type, tag, id)
 	}
 
 	var newNode = new Ext.tree.TreeNode({
-		text : title,
-		leaf : true,
-		checked : selected,
-		iconCls : "treeIcon",
-		children : [],
-		id : WebGIS.nodePrefix + id,
+		text       : title,
+		leaf       : true,
+		checked    : selected,
+		expandable : false,
+		iconCls    : "treeIcon",
+		children   : [],
+		id         : WebGIS.nodePrefix + id,
 	});
 	newNode.on("checkchange", WebGIS.layerCheckEvent);
 	WebGIS.treeNodes[tag].appendChild(newNode);
@@ -170,10 +171,10 @@ WebGIS.layerCheckEvent = function(node, checked)
 WebGIS.addLayerToMap = function(id) 
 {
 	var params = {
-		layers : WebGIS.layerList[id]["layerName"],
-		format : "image/png",
-		srsName : WebGIS.requestProjection,
-		srs : WebGIS.requestProjection,
+		layers      : WebGIS.layerList[id]["layerName"],
+		format      : "image/png",
+		srsName     : WebGIS.requestProjection,
+		srs         : WebGIS.requestProjection,
 		transparent : "true"
 	};
 
@@ -182,9 +183,9 @@ WebGIS.addLayerToMap = function(id)
 		params["sld_body"] = sldBody;
 
 	var options = {
-		isBaseLayer : false,
-		visibility : true,
-		singleTile : true,
+		isBaseLayer      : false,
+		visibility       : true,
+		singleTile       : true,
 		transitionEffect : 'resize'
 	};
 

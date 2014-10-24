@@ -150,7 +150,7 @@ WebGIS.createPanels = function() {
    
   WebGIS.treeRoot = new Ext.tree.TreeNode({
       text        : '',
-      id          : '0',
+      id          : 'treeRoot',
       leaf        : false,
       expandable  : true,
       expanded    : true
@@ -189,36 +189,32 @@ WebGIS.createPanels = function() {
   );
 
   var treeConfig = [{
-    nodeType: "gx_overlaylayercontainer",
-    text: "",
-    iconCls: "emptyIcon",
-    cls: "hiddenRoot",
-    expanded: true,
-    rootVisible: false
+    nodeType    : "gx_overlaylayercontainer",
+    text        : "",
+    iconCls     : "emptyIcon",
+    cls         : "hiddenRoot",
+    expanded    : true,
+    expandable  : false,
+    rootVisible : false
   }];
 
   WebGIS.layerTree = new Ext.tree.TreePanel({
-    title: 'Map Layers',
-    region: "North",
-    //width: 200,
-    collapsible: true,
-    autoScroll: false,
-    enableDD: false,
-    draggable: false,
-    plugins: [{
-      ptype: "gx_treenodecomponent"
-    }],
-    loader: {
-      applyLoader: false,
-      uiProviders: {
-        "custom_ui": LayerNodeUI
-      }
-    },
-    root: {
-      children: treeConfig
-    },
-    rootVisible: false,
-    lines: false
+    title       : "Map Layers",
+    region      : "North",
+    id          : "layerTree",
+    //width     : 200,
+    collapsible : true,
+    autoScroll  : false,
+    enableDD    : false,
+    draggable   : false,
+    plugins     : [{ptype : "gx_treenodecomponent"}],
+    loader      : {
+			      applyLoader: false,
+			      uiProviders: {"custom_ui": LayerNodeUI}
+                  },
+    root        : {children: treeConfig},
+    rootVisible : false,
+    lines       : false
   });	
   
   //---- Main panels ----//
