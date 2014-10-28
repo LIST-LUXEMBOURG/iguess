@@ -316,7 +316,7 @@ WebGIS.addWidgetsToLayerNode = function(treeNode)
 
 	treeNode.setCls("layerNode");
 	if(treeNode.getUI().checkbox != null) treeNode.getUI().checkbox.hidden = true;
-	treeNode.getUI().elNode.childNodes[0].hidden = true;
+	if(treeNode.getUI().elNode != null) treeNode.getUI().elNode.childNodes[0].hidden = true;
 	buttonClose.render(treeNode.getUI().getTextEl());
 	buttonUp.render(treeNode.getUI().getTextEl());
 	buttonDown.render(treeNode.getUI().getTextEl());
