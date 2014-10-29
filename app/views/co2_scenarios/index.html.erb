@@ -10,7 +10,17 @@
   <% if @co2_scenarios.size == 0 %>
     No Scenarios!
   <% else %>
-    <table id="sortable_table" class="zebra sortable"><tr><th>Name</th><th>Base Year</th><th>Timestep</th></tr>
+    <table id="sortable_table" class="zebra sortable">
+      <thead>
+    	<tr>
+    		<th>Name</th>
+    		<th>Base Year</th>
+    		<th>Timestep</th>
+    		<th></th>
+    		<th></th>
+    		<th></th>
+    	</tr>
+   	  </thead>
       <% @co2_scenarios.each do |s| %>
         <tr>
           <td><%= link_to s.name, [:edit, s] %></td>
