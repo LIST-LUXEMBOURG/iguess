@@ -69,86 +69,98 @@ WebGIS.createPanels = function() {
   
   //---- Tool bars and widgets ----//
   
-  var bBar = new Ext.Toolbar({
-    region: "south",
-    height: 24,
-    border: 0,
-    collapsible: false,
-    floatable: false,
-    autoScroll: false,
-    enableDD: false,
-    items: WebGIS.createBbar()
+  var bBar = new Ext.Toolbar
+  ({
+    region      : "south",
+    height      : 24,
+    border      : 0,
+    collapsible : false,
+    floatable   : false,
+    autoScroll  : false,
+    enableDD    : false,
+    items       : WebGIS.createBbar()
   });
 
-  var leftZoomSlider = new GeoExt.ZoomSlider({
-    xtype: "gx_zoomslider",
-    aggressive: true,
-    vertical: true,
-    height: 100,
-    x: 10,
-    y: 20,
-    plugins: new GeoExt.ZoomSliderTip({
-      template: "Scale: 1 : {scale}<br>Resolution: {resolution}"
-    })
+  var leftZoomSlider = new GeoExt.ZoomSlider
+  ({
+    xtype      : "gx_zoomslider",
+    aggressive : true,
+    vertical   : true,
+    height     : 100,
+    x          : 10,
+    y          : 20,
+    plugins    : new GeoExt.ZoomSliderTip
+			    ({
+			      template: "Scale: 1 : {scale}<br>Resolution: {resolution}"
+			    })
   });
 
-  WebGIS.leftPanel = new GeoExt.MapPanel({
+  WebGIS.leftPanel = new GeoExt.MapPanel
+  ({
     region: "center",
-    collapsible: false,
-    floatable: false,
-    xtype: "gx_mappanel",
-    map: WebGIS.leftMap,
-    items: [leftZoomSlider],
-    bbar: WebGIS.createBbar(),
+    collapsible : false,
+    floatable   : false,
+    xtype       : "gx_mappanel",
+    map         : WebGIS.leftMap,
+    items       : [leftZoomSlider],
+    bbar        : WebGIS.createBbar(),
     tbar: {
-        height: 100,
-        items:[
-            '-',
+        height : 100,
+        items  :
+        [
+        	'-',
+        	{
+               xtype   : 'splitbutton',
+               text    : 'Google Streets',
+               pressed : true,
+               tooltip : '<b>Base layer</b><br>Click to select an alternative',
+               width   : 120,
+               iconCls : 'baseLayer',
+               menu: 
+               [{
+                 text    : 'Google Streets',
+                 checked : true,
+                 handler : WebGIS.baseGoogleSt,
+                 group   : 'baseLayer'
+               },{
+                 text    : 'Google Satellite',
+                 checked : false,
+                 handler : WebGIS.baseGoogleSat,
+                 group   : 'baseLayer'
+               },{
+                 text    : 'Google Physical',
+                 checked : false,
+                 handler : WebGIS.baseGooglePhy,
+                 group   : 'baseLayer'
+               },{
+                 text    : 'Google Hybrid',
+                 checked : false,
+                 handler : WebGIS.baseGoogleHy,
+                 group   : 'baseLayer'
+               },{
+                 text    : 'Open Street Map',
+                 checked : false,
+                 handler : WebGIS.baseOSM,
+                 group   : 'baseLayer'
+               },{
+                 text    : 'Country borders',
+                 checked : false,
+                 handler : WebGIS.baseCountries,
+                 group   : 'baseLayer'
+               }]
+          	},
+          	'-',
             WebGIS.createTbarItems(WebGIS.leftMap),
             '-',
-            '->',
-            '-',
-           {
-               xtype:'splitbutton',
-               text: 'Google Streets',
-               menu: [{
-                 text: 'Google Streets',
-                 checked: true,
-                 handler  : WebGIS.baseGoogleSt,
-                 group: 'baseLayer'
-               },{
-                 text: 'Google Satellite',
-                 checked: false,
-                 handler  : WebGIS.baseGoogleSat,
-                 group: 'baseLayer'
-               },{
-                 text: 'Google Physical',
-                 checked: false,
-                 handler  : WebGIS.baseGooglePhy,
-                 group: 'baseLayer'
-               },{
-                 text: 'Google Hybrid',
-                 checked: false,
-                 handler  : WebGIS.baseGoogleHy,
-                 group: 'baseLayer'
-               },{
-                 text: 'Open Street Map',
-                 checked: false,
-                 handler  : WebGIS.baseOSM,
-                 group: 'baseLayer'
-               },{
-                 text: 'Country borders',
-                 checked: false,
-                 handler  : WebGIS.baseCountries,
-                 group: 'baseLayer'
-               }]
-          }]
+            '->'
+        ]
     }
   });
   
   //---- Layer catalogue ----//
    
-  WebGIS.treeRoot = new Ext.tree.TreeNode({
+  WebGIS.treeRoot = new Ext.tree.TreeNode
+  ({
       text        : '',
       id          : 'treeRoot',
       leaf        : false,
@@ -156,29 +168,28 @@ WebGIS.createPanels = function() {
       expanded    : true
   });
   
-  WebGIS.layerCatalogue = new Ext.tree.TreePanel({
-  	id:"layerCat",
-  	region: "south",
-    width: "100%",
-    //height: "700px",
-    collapsible: true,
-    autoScroll: true,
-    enableDD: true,
-    root: WebGIS.treeRoot,
-    rootVisible: false,
-    lines: false,
-    viewConfig: {
-    	style: { overflow: 'scroll'/*, height: "700px"*/}
-  	},
+  WebGIS.layerCatalogue = new Ext.tree.TreePanel
+  ({
+  	id          :"layerCat",
+  	region      : "south",
+    width       : "100%",
+    collapsible : true,
+    autoScroll  : true,
+    enableDD    : true,
+    root        : WebGIS.treeRoot,
+    rootVisible : false,
+    lines       : false,
+    viewConfig  : {style : {overflow : 'scroll'}},
   });
   
-  WebGIS.cataloguePanel = new Ext.Panel({
-  	title: 'Layers Catalogue',
-	region: "south",
-    collapsible: true,
-    autoScroll: true,
-    enableDD: true,
-    items: [WebGIS.createFilter(), WebGIS.layerCatalogue]
+  WebGIS.cataloguePanel = new Ext.Panel
+  ({
+  	title       : 'Layers Catalogue',
+	region      : "south",
+    collapsible : true,
+    autoScroll  : true,
+    enableDD    : true,
+    items       : [WebGIS.createFilter(), WebGIS.layerCatalogue]
   });
   
   //---- Layer display heap ----//
