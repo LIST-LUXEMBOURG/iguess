@@ -7,56 +7,72 @@
 
 /* ----------- Toolbar ----------- */
 
-.x-panel-tbar {
+.x-panel-tbar 
+{
 	height:30px !important;
 }
         	
 /* ----------- Buttons ----------- */
 
-.maxExtent {
+.maxExtent 
+{
     background-image:url(images/mapStyles/icon_zoomfull.png) !important;
     height:20px !important;
     width:20px !important;
 }
-.zoomin {
+.zoomin 
+{
     background-image:url(images/mapStyles/icon_zoomin.png) !important;
     height:20px !important;
     width:20px !important;
 }
-.zoomout {
+.zoomout 
+{
     background-image:url(images/mapStyles/icon_zoomout.png) !important;
     height:20px !important;
     width:20px !important;
 }
-.pan {
+.pan 
+{
     background-image:url(images/mapStyles/icon_pan.png) !important;
     height:20px !important;
     width:20px !important;
 }
-.identify {
+.identify 
+{
     background-image:url(images/mapStyles/icon_info.png) !important;
     height:20px !important;
     width:20px !important;
 }
-.back {
+.back 
+{
     background-image:url(images/mapStyles/resultset_previous.png) !important;
     height:20px !important;
     width:20px !important;
 }
-.next {
+.next 
+{
     background-image:url(images/mapStyles/resultset_next.png) !important;
     height:20px !important;
     width:20px !important;
 }
-.print {
+.print 
+{
     background-image:url(images/mapStyles/printer_color.png) !important;
     height:20px !important;
     width:20px !important;
 }
-.dss {
+.dss 
+{
     background-image:url(images/mapStyles/sliders04.png) !important;
     height:20px !important;
     width:20px !important;
+}
+
+.baseLayer
+{
+    background-image:url(images/mapStyles/layers.png) !important;
+    width:110px !important;
 }
 
 /* ----------- Layer Tree ----------- */
