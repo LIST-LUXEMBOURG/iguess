@@ -77,9 +77,25 @@ submitForm = function()
     <%= scen.input :time_step, 
         :label => "Time step (years)", 
         :as => :string %>
+        
+    <div class="input string optional co">
+      <label class="string optional control-label" for="co2_scenario_author">
+        Author
+      </label>
+      <input id="co2_scenario_author" class="string optional" type="text" disabled="disabled" 
+      	value="<%= @author %>" size="50" name="co2_scenario[author]" cols="80"></input>
+    </div>
+        
+    <div class="input string optional co">
+      <label class="string optional control-label" for="co2_scenario_last_edit">
+        Last edit
+      </label>
+      <input id="co2_scenario_author" class="string optional" type="text" disabled="disabled" 
+      	value="<%= @last_edit %>" size="50" name="co2_scenario[last_edit]" cols="80"></input>
+    </div>
 
     </td><td width=240>  
-    <div align=right>
+    <div align=right style="left: 550px; top: 240px; position: absolute">
 	  <div id="butt-submit" class="co2-button" onclick="submitForm();">Save scenario</div>
 	  <br>
 	  <div id="butt-submit" class="co2-button" onclick="CO2.addPeriod();">Add period</div>

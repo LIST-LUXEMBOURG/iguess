@@ -28,10 +28,21 @@ CO2.eqN2O = <%= @eq_n20 %>;
         :placeholder => "Name", 
         :disabled => true %>
         
-    <%= scen.input :updated_at, 
-        :label => "Date", 
-        :input_html => { :cols => 80 }, 
-        :disabled => true %>
+    <div class="input string optional co">
+      <label class="string optional control-label" for="co2_scenario_author">
+        Author
+      </label>
+      <input id="co2_scenario_author" class="string optional" type="text" disabled="disabled" 
+      	value="<%= @author %>" size="50" name="co2_scenario[author]" cols="80"></input>
+    </div>
+        
+    <div class="input string optional co">
+      <label class="string optional control-label" for="co2_scenario_last_edit">
+        Last edit
+      </label>
+      <input id="co2_scenario_author" class="string optional" type="text" disabled="disabled" 
+      	value="<%= @last_edit %>" size="50" name="co2_scenario[last_edit]" cols="80"></input>
+    </div>
 
     <%= scen.input :base_year, 
         :label => "Base Year", 

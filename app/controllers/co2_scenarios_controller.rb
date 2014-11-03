@@ -166,6 +166,7 @@ class Co2ScenariosController < ApplicationController
 
     @scenario = Co2Scenario.new(params[:co2_scenario])
     @scenario.city_id = @current_city.id
+    @scenario.user_id = current_user.id
     @scenario.save
 
     params[:co2_sector_scenarios].each do |secscen|
@@ -249,6 +250,9 @@ class Co2ScenariosController < ApplicationController
     @scenario = Co2Scenario.find(params[:id])
     @sector_scenarios = Co2SectorScenario.find_all_by_co2_scenario_id(params[:id])
     @periods = []
+    user = User.find_by_id(@scenario.user_id)
+    @author = user.first_name + " " + user.last_name
+    @last_edit = @scenario.updated_at.strftime("%d-%m-%Y")
     
     loadSources()
     

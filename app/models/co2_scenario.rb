@@ -1,4 +1,6 @@
 class Co2Scenario < ActiveRecord::Base
+  belongs_to :user  
+  
   has_many :co2_sectors, through: :co2_sector_scenario
   has_many :co2_heat_mixes,  :dependent => :destroy
   has_many :co2_elec_mixes,  :dependent => :destroy
