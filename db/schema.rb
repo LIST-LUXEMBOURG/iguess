@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20141023135246) do
+ActiveRecord::Schema.define(:version => 20141104100351) do
 
   create_table "cities", :force => true do |t|
     t.string   "name"
@@ -124,6 +124,7 @@ ActiveRecord::Schema.define(:version => 20141023135246) do
     t.text     "policies"
     t.text     "conclusion"
     t.text     "notes"
+    t.integer  "last_editor"
   end
 
   add_index "co2_scenarios", ["id"], :name => "index_co2_scenarios_on_id"
