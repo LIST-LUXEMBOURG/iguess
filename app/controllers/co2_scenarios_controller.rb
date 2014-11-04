@@ -613,4 +613,16 @@ class Co2ScenariosController < ApplicationController
     
   end
   
+  
+  def overview
+      if not user_signed_in?    # Should always be true... but if not, return error and bail
+      respond_to do |format|
+        format.json { render :text => "You must be logged in!", :status => 403 }
+      end
+    end
+    
+    loadData(params[:id])
+    
+  end
+  
 end

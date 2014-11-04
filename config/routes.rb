@@ -53,6 +53,7 @@ Iguess::Application.routes.draw do
    member do
     get 'replicate'
     get 'summary'
+    get 'overview'
    end
   end
   

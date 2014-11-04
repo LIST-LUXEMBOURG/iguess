@@ -14,8 +14,7 @@
       <thead>
     	<tr>
     		<th>Name</th>
-    		<th>Base Year</th>
-    		<th>Timestep</th>
+    		<th></th>
     		<th></th>
     		<th></th>
     		<th></th>
@@ -23,11 +22,9 @@
    	  </thead>
       <% @co2_scenarios.each do |s| %>
         <tr>
-          <td><%= link_to s.name, [:edit, s] %></td>
-          <td><%= s.base_year %></td>
-          <td><%= s.time_step %></td>
-          <td><%= link_to 'summary', summary_co2_scenario_path(s) %></td>
-          
+          <td><%= link_to s.name, overview_co2_scenario_path(s) %></td>
+          <td valign=bottom><%= link_to image_tag("/assets/small_gear.png"), summary_co2_scenario_path(s) %></td>
+          <td><%= link_to 'edit', [:edit, s] %></td>
           <td>
           	<%= link_to 'replicate', replicate_co2_scenario_path(s),
      			confirm: "Are you sure you want to replicate this Scenario?\n\n" %>
