@@ -14,12 +14,9 @@
       <thead>
     	<tr>
     		<th>Name</th>
-    		<th></th>
-    		<th></th>
-    		<th></th>
-    		<th></th>
     	</tr>
    	  </thead>
+   	  <tbody>
       <% @co2_scenarios.each do |s| %>
         <tr>
           <td><%= link_to s.name, overview_co2_scenario_path(s) %></td>
@@ -36,6 +33,7 @@
           	</td>
         </tr>
       <% end %>
+      </tbody>
     </table>
   <% end %> 
 </div>
@@ -45,6 +43,13 @@
 </div>
 
 <script type="text/javascript">
+
+	//Sorting
+	$(document).ready(function() 
+	    { 
+	        $("#sortable_table").tablesorter(); 
+	    } 
+	);
 
   $(function() 
   {
