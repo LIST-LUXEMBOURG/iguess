@@ -62,7 +62,8 @@ CO2.eqN2O = <%= @eq_n20 %>;
   <script src="http://code.highcharts.com/highcharts.js"></script>
   <script src="http://code.highcharts.com/modules/exporting.js"></script>
 
-  <div id="co2_chart" class="chart" style="width: 46%; align: left;"></div>
+  <div id="co2_chart" class="chart" style="width: 48%; float: left;"></div>
+  <div id="pie_chart" class="chart" style="width: 48%; float: right;"></div>
   <br>
   <div id="ch4_chart" class="chart"></div>
   <br>
@@ -99,7 +100,7 @@ CO2.eqN2O = <%= @eq_n20 %>;
   	CO2.updatePeriodNames();
   	CO2.chartsInit();
   	CO2.chartEmissions("co2_chart", "C02 Emissions by Sector", "ton/year", CO2.sector_co2);
-  	
+  	CO2.pieChart();
   </script>
 
 <br>
