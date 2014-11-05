@@ -225,7 +225,6 @@ CO2.toggleUnits = function()
 		for(p = 0; table != null && p < table.rows.length - 1; p++)
 		{
 			row = table.rows[p + 1];
-			if(row == null) debugger;
 			for(i = 1; i < row.cells.length; i++)
 			{
 				input = row.cells[i].children[0];

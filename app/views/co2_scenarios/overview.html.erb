@@ -9,41 +9,16 @@ CO2.eqN2O = <%= @eq_n20 %>;
 
 </script>
 
-<h1>Scenario Overview</h1>
+
 
 <%= simple_form_for @scenario do |scen| %>
   <%= scen.error_notification %>
+  
+  <h1 align=center><%= @scenario.name %></h1>
+  
+  <i><p align=center id="subtitle" style="font-size:14px;"></p></i>
 
-    <div class="input string optional co">
-      <label class="string optional control-label" for="co2_scenario_city">
-        City
-      </label>
-      <input id="co2_scenario_city" class="string optional" type="text" disabled="disabled" 
-      	value="<%= @city_name %>" size="50" name="co2_scenario[city]" cols="80"></input>
-    </div>
-        
-    <%= scen.input :name, 
-        :label => "Scenario Name", 
-        :input_html => { :cols => 80 },
-        :placeholder => "Name", 
-        :disabled => true %>
-        
-    <div class="input string optional co">
-      <label class="string optional control-label" for="co2_scenario_author">
-        Author
-      </label>
-      <input id="co2_scenario_author" class="string optional" type="text" disabled="disabled" 
-      	value="<%= @author %>" size="50" name="co2_scenario[author]" cols="80"></input>
-    </div>
-        
-    <div class="input string optional co">
-      <label class="string optional control-label" for="co2_scenario_last_edit">
-        Last edit
-      </label>
-      <input id="co2_scenario_author" class="string optional" type="text" disabled="disabled" 
-      	value="<%= @last_edit %>" size="50" name="co2_scenario[last_edit]" cols="80"></input>
-    </div>
-
+  <div class="hidden">
     <%= scen.input :base_year, 
         :label => "Base Year", 
         :as => :string,
@@ -53,26 +28,8 @@ CO2.eqN2O = <%= @eq_n20 %>;
     <%= scen.input :time_step, 
         :label => "Time step (years)", 
         :as => :string, 
-        :disabled => true %>
-        
-    <div class="input string optional co">
-      <label class="string optional control-label" for="co2_scenario_num_periods">
-        Number of Periods
-      </label>
-      <input id="co2_scenario_num_periods" class="string optional" type="text" disabled="disabled" 
-      	value="<%= @num_periods %>" size="50" name="co2_scenario[num_periods]" cols="80"></input>
-    </div>
-        
-    <div class="input string optional co">
-      <label class="string optional control-label" for="co2_scenario_sectors">
-        Sectors Involved
-      </label>
-      <textarea id="co2_scenario_sectors" class="string optional" type="text" disabled="disabled" 
-      	value="" name="co2_scenario[sectors]" cols="62" rows="10">
-      	<%= @sectors %>
-      </textarea>
-    </div>        
-        
+        :disabled => true %>       
+  </div>     
 <!-- Data tables for the charts -->
 
 <table class="grid-input zebra" id="tableSectors" style="display: none">
@@ -105,7 +62,7 @@ CO2.eqN2O = <%= @eq_n20 %>;
   <script src="http://code.highcharts.com/highcharts.js"></script>
   <script src="http://code.highcharts.com/modules/exporting.js"></script>
 
-  <div id="co2_chart" class="chart"></div>
+  <div id="co2_chart" class="chart" style="width: 46%; align: left;"></div>
   <br>
   <div id="ch4_chart" class="chart"></div>
   <br>
@@ -115,6 +72,9 @@ CO2.eqN2O = <%= @eq_n20 %>;
   <!-- Update totals and draw graphs -->
   
   <script>
+  
+  $("#subtitle").html("<%= @scenario.base_year %> - <%= @scenario.base_year + @scenario.time_step * @periods.size %>");
+  
   <% @periods.each do |period| %>
 	CO2.updateElecTotals(
  		<%= period %>, 
@@ -138,7 +98,8 @@ CO2.eqN2O = <%= @eq_n20 %>;
   
   	CO2.updatePeriodNames();
   	CO2.chartsInit();
-  	CO2.drawCharts();
+  	CO2.chartEmissions("co2_chart", "C02 Emissions by Sector", "ton/year", CO2.sector_co2);
+  	
   </script>
 
 <br>
