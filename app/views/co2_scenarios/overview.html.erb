@@ -110,8 +110,10 @@ CO2.eqN2O = <%= @eq_n20 %>;
   	CO2.updatePeriodNames();
   	CO2.chartsInit();
   	CO2.chartArea("co2_chart", "CO2 Emissions by Sector", null, "ton/a", CO2.sector_co2);
-  	CO2.chartPie();
   	CO2.chartArea("energy_chart", "Consumption", "Final energy consumption per sector", "MWh/a", CO2.sector_demands);
+  	CO2.chartPie ("pie_chart", "Reference Year Analysis", "Carbon balance and areas of consumption", 
+  		CO2.calcPieSeries(<%= @scenario.base_year %>));
+  	
   </script>
 
 <br>

@@ -27,6 +27,8 @@ CO2.periodNames = new Array();
 CO2.sectorIndexes = new Array();
 CO2.lastIndex = 0;
 
+CO2.referenceYear = 2020;
+
 CO2.chartsInit = function()
 {
 	Highcharts.setOptions({
@@ -53,6 +55,26 @@ CO2.updatePeriodNames = function()
 	CO2.periodNames[0] = base_year.toString();
 	for (i = 1; i < CO2.numPeriods; i++)
 		CO2.periodNames[i] = (base_year + i * time_step).toString();
+};
+
+CO2.calcPieSeries = function(baseYear)
+{
+	pieSeries = new Array();
+	numPeriods = CO2.referenceYear - baseYear;
+
+	for (sector = 0; sector < CO2.sector_demands.length; sector++)
+	{
+		interest = CO2.sector_demands[sector].growth - 
+			       CO2.sector_demands[sector].efficiency;
+			   
+		pieSeries.push
+		({
+			name: CO2.sector_demands[sector].name, 
+			y: CO2.sector_demands[sector].data[0] * Math.pow((1 + interest), numPeriods)
+		});
+	}
+			
+	return pieSeries;
 };
 
 CO2.drawCharts = function()
@@ -108,19 +130,25 @@ CO2.chartArea = function (div, title, subtitle, units, series)
     });
 };
 
-CO2.chartPie = function()
+CO2.chartPie = function(div, title, subtitle, series)
 {
-    $('#pie_chart').highcharts({
+    $('#' + div).highcharts({
         chart: {
             plotBackgroundColor: null,
             plotBorderWidth: 1,//null,
             plotShadow: false
         },
         title: {
-            text: 'Browser market shares at a specific website, 2014'
+            text: title
+        },
+        subtitle: {
+            text: subtitle
         },
         tooltip: {
             pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+        },
+        credits: {
+        	enabled: false
         },
         plotOptions: {
             pie: {
@@ -137,8 +165,8 @@ CO2.chartPie = function()
         },
         series: [{
             type: 'pie',
-            name: 'Browser share',
-            data: [
+            name: 'Sector share',
+            data: series/*[
                 ['Firefox',   45.0],
                 ['IE',       26.8],
                 {
@@ -150,7 +178,7 @@ CO2.chartPie = function()
                 ['Safari',    8.5],
                 ['Opera',     6.2],
                 ['Others',   0.7]
-            ]
+            ]*/
         }]
     });
 };

@@ -53,14 +53,19 @@ CO2.n2o_emissions = 0.0;
 
 CO2.calcSectorDemand = function(sector, input_growth, input_eff, input_demand)
 {
-	efficiency = parseFloat(document.getElementsByName(input_eff)[0].value) / 100;
-	growth = parseFloat(document.getElementsByName(input_growth)[0].value) / 100;
+	CO2.sector_demands[CO2.sectorIndexes[sector]].efficiency = 
+		parseFloat(document.getElementsByName(input_eff)[0].value) / 100;
+	CO2.sector_demands[CO2.sectorIndexes[sector]].growth = 
+		parseFloat(document.getElementsByName(input_growth)[0].value) / 100;
+	
+	interest = CO2.sector_demands[CO2.sectorIndexes[sector]].growth - 
+			   CO2.sector_demands[CO2.sectorIndexes[sector]].efficiency;
 	
 	CO2.sector_demands[CO2.sectorIndexes[sector]].data[0] = parseFloat(document.getElementsByName(input_demand)[0].value);
 		
 	for (p = 1; p < CO2.numPeriods; p++)
 		CO2.sector_demands[CO2.sectorIndexes[sector]].data[p] = 
-			CO2.sector_demands[CO2.sectorIndexes[sector]].data[p- 1] * (1 + growth - efficiency);
+			CO2.sector_demands[CO2.sectorIndexes[sector]].data[p- 1] * (1 + interest);
 };
 
 CO2.calcFactor = function(value, prefix, source, p)
