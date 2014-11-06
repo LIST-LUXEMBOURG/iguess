@@ -8,7 +8,9 @@ CO2.eqCH4 = <%= @eq_ch4 %>;
 CO2.eqN2O = <%= @eq_n20 %>;
 
 </script>
-
+  
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="http://code.highcharts.com/modules/exporting.js"></script>
 
 
 <%= simple_form_for @scenario do |scen| %>
@@ -17,6 +19,24 @@ CO2.eqN2O = <%= @eq_n20 %>;
   <h1 align=center><%= @scenario.name %></h1>
   
   <i><p align=center id="subtitle" style="font-size:14px;"></p></i>
+
+
+<!-- The charts -->
+
+  
+  <br>
+  <h2 align=center>Emissions</h2>
+  <br>
+
+  <div id="co2_chart" class="chart" style="width: 49%; float: left; margin: 1px;"></div>
+  <div id="pie_chart" class="chart" style="width: 49%; float: right; margin: 1px;"></div>
+  <br><hr style="border-top-width: 10px; border-color: #FFFFFF;">
+  <h2 align=center style="margin-top: 10px;">Energy</h2>
+  <br>
+  <div id="energy_chart" class="chart" style="width: 49%; float: left;"></div>
+  <div id="prod_chart"   class="chart" style="width: 49%; float: right;"></div>
+
+<!-- Hidden data fields for the charts -->
 
   <div class="hidden">
     <%= scen.input :base_year, 
@@ -29,7 +49,9 @@ CO2.eqN2O = <%= @eq_n20 %>;
         :label => "Time step (years)", 
         :as => :string, 
         :disabled => true %>       
-  </div>     
+  </div>  
+  
+     
 <!-- Data tables for the charts -->
 
 <table class="grid-input zebra" id="tableSectors" style="display: none">
@@ -56,17 +78,6 @@ CO2.eqN2O = <%= @eq_n20 %>;
 	<%= render :partial => 'emission_factor.html.erb', 
 	            locals: { title: "N2O (g/MWh)", fieldName: "n2o_factor" } %>
 </div>
-
-<!-- And now for the charts -->
-  
-  <script src="http://code.highcharts.com/highcharts.js"></script>
-  <script src="http://code.highcharts.com/modules/exporting.js"></script>
-
-  <div id="co2_chart" class="chart" style="width: 48%; float: left;"></div>
-  <div id="pie_chart" class="chart" style="width: 48%; float: right;"></div>
-  <br>  <br>  <br>
-  <div id="energy_chart" class="chart" style="width: 48%; float: left;"></div>
-  <div id="prod_chart"   class="chart" style="width: 48%; float: right;"></div>
  
  
   <!-- Update totals and draw graphs -->
@@ -98,10 +109,9 @@ CO2.eqN2O = <%= @eq_n20 %>;
   
   	CO2.updatePeriodNames();
   	CO2.chartsInit();
-  	debugger;
-  	CO2.chartEmissions("co2_chart", "C02 Emissions by Sector", "ton/a", CO2.sector_co2);
-  	CO2.pieChart();
-  	CO2.chartEmissions("energy_chart", "Energy consumption", "MWh/a", CO2.sector_demands);
+  	CO2.chartArea("co2_chart", "CO2 Emissions by Sector", null, "ton/a", CO2.sector_co2);
+  	CO2.chartPie();
+  	CO2.chartArea("energy_chart", "Consumption", "Final energy consumption per sector", "MWh/a", CO2.sector_demands);
   </script>
 
 <br>

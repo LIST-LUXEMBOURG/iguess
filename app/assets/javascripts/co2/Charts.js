@@ -57,12 +57,12 @@ CO2.updatePeriodNames = function()
 
 CO2.drawCharts = function()
 {
-	CO2.chartEmissions("co2_chart", "C02 Emissions by Sector", "ton/year", CO2.sector_co2);
-	CO2.chartEmissions("ch4_chart", "CH4 Emissions by Sector", "g/year", CO2.sector_ch4);
-	CO2.chartEmissions("n2o_chart", "N2O Emissions by Sector", "g/year", CO2.sector_n2o);
+	CO2.chartArea("co2_chart", "C02 Emissions by Sector", null, "ton/year", CO2.sector_co2);
+	CO2.chartArea("ch4_chart", "CH4 Emissions by Sector", null, "g/year", CO2.sector_ch4);
+	CO2.chartArea("n2o_chart", "N2O Emissions by Sector", null, "g/year", CO2.sector_n2o);
 };
 
-CO2.chartEmissions = function (div, title, units, series) 
+CO2.chartArea = function (div, title, subtitle, units, series) 
 {
     $('#' + div).highcharts({
         chart: {
@@ -75,7 +75,7 @@ CO2.chartEmissions = function (div, title, units, series)
             text: title
         },
 		subtitle: {
-		    text: 'My custom subtitle'
+		    text: subtitle
 		},
 		xAxis: {
             categories: CO2.periodNames,
@@ -108,7 +108,7 @@ CO2.chartEmissions = function (div, title, units, series)
     });
 };
 
-CO2.pieChart = function()
+CO2.chartPie = function()
 {
     $('#pie_chart').highcharts({
         chart: {
