@@ -40,6 +40,7 @@ CO2.addToSectorArrays = function(sector)
 {
 	CO2.sectorIndexes[sector] = CO2.lastIndex++;
 	
+	CO2.sector_demands.push({name: sector, data: new Array()});
 	CO2.sector_co2.push({name: sector, data: new Array()});
 	CO2.sector_ch4.push({name: sector, data: new Array()});
 	CO2.sector_n2o.push({name: sector, data: new Array()});
@@ -73,7 +74,10 @@ CO2.chartEmissions = function (div, title, units, series)
         title: {
             text: title
         },
-        xAxis: {
+		subtitle: {
+		    text: 'My custom subtitle'
+		},
+		xAxis: {
             categories: CO2.periodNames,
             tickmarkPlacement: 'on',
             title: {
