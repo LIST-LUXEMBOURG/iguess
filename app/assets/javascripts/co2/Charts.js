@@ -70,7 +70,8 @@ CO2.calcPieSeries = function(baseYear)
 		pieSeries.push
 		({
 			name: CO2.sector_demands[sector].name, 
-			y: CO2.sector_demands[sector].data[0] * Math.pow((1 + interest), numPeriods)
+			y: CO2.sector_demands[sector].data[0] * Math.pow((1 + interest), numPeriods),
+			sliced: true,
 		});
 	}
 			
@@ -132,10 +133,21 @@ CO2.chartArea = function (div, title, subtitle, units, series)
 
 CO2.chartPie = function(div, title, subtitle, series)
 {
+	// Radialize the colors
+    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
+        return {
+            radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
+            stops: [
+                [0, color],
+                [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
+            ]
+        };
+    });
+    
     $('#' + div).highcharts({
         chart: {
             plotBackgroundColor: null,
-            plotBorderWidth: 1,//null,
+            plotBorderWidth: null,
             plotShadow: false
         },
         title: {
