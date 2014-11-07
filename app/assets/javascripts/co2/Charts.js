@@ -212,7 +212,7 @@ CO2.chartColumnsPercent = function(div, title, subtitle, categories, series)
         yAxis: {
             min: 0,
             title: {
-                text: 'Total fruit consumption'
+                text: '%'
             },
             stackLabels: {
                 enabled: true,
@@ -221,15 +221,6 @@ CO2.chartColumnsPercent = function(div, title, subtitle, categories, series)
                     color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
                 }
             }
-        },
-        legend: {
-            align: 'center',
-            verticalAlign: 'bottom',
-            floating: false,
-            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
-            borderColor: '#CCC',
-            borderWidth: 0,
-            shadow: false
         },
         tooltip: {
             formatter: function () {

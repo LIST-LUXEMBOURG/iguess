@@ -61,11 +61,12 @@ CO2.calcSectorDemand = function(sector, input_growth, input_eff, input_demand)
 	interest = CO2.sector_demands[CO2.sectorIndexes[sector]].growth - 
 			   CO2.sector_demands[CO2.sectorIndexes[sector]].efficiency;
 	
-	CO2.sector_demands[CO2.sectorIndexes[sector]].data[0] = parseFloat(document.getElementsByName(input_demand)[0].value);
+	CO2.sector_demands[CO2.sectorIndexes[sector]].data[0] = 
+		parseFloat(document.getElementsByName(input_demand)[0].value);
 		
 	for (p = 1; p < CO2.numPeriods; p++)
 		CO2.sector_demands[CO2.sectorIndexes[sector]].data[p] = 
-			CO2.sector_demands[CO2.sectorIndexes[sector]].data[p- 1] * (1 + interest);
+			parseFloat((CO2.sector_demands[CO2.sectorIndexes[sector]].data[p- 1] * (1 + interest)).toFixed(1));
 };
 
 CO2.calcFactor = function(value, prefix, source, p)
