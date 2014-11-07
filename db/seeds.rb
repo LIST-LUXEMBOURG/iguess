@@ -1,11 +1,34 @@
 # This file should contain all the record creation needed to seed the database with its default values.
 # The data can then be loaded with the rake db:seed (or created alongside the db with db:setup).
 
+# Sites
+
+[['smartcitylog-agadir.css',
+  'smartcitylog-agadir_homepage_body.html.erb',
+  'smartcitylog-agadir_footer_html.erb',
+  'smartcitylog-agadir_banner.html.erb',
+  'home, maps, datamanager, modules, about',
+  false,
+  'smartcitylog-agadir_about.html.erb',
+  'smartcitylog-agadir_legal.html.erb']
+].each do |v|
+    d = SiteDetail.find_or_create_by_stylesheet v[0]
+    d.body_html_file = v[1]
+    d.footer_html_file = v[2]
+    d.top_banner_file = v[3]
+    d.tab_list = v[4]
+    d.dss = v[5]
+    d.about_html_file = v[6]
+    d.legal_html_file = v[7]
+    d.save
+end
+
+
 # I believe we should no longer be storing this data in the seeds file -CE
 
 # If any of these values need to be updated, please do so directly in the Cities table in the database!
 
-# Why are the seeds for the cities table commented out?
+# Luís: Why are the seeds for the cities table commented out?
 
 # Note that the bounding box data below appear to be incorrect.  Don't rely on them unless they are corrected and this comment removed -CE
 # [['Aberdeen',    '', 13, 'EPSG:27700', -235500, 7790000],
