@@ -32,7 +32,6 @@ CO2.referenceYear = 2020;
 CO2.elecCategories = new Array();
 CO2.elecSeries = new Array();
 
-
 CO2.chartsInit = function()
 {
 	Highcharts.setOptions({
@@ -40,6 +39,17 @@ CO2.chartsInit = function()
 	      thousandsSep: ' '
 	   }
 	});
+	
+	// Radialize the colors
+    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
+        return {
+            radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
+            stops: [
+                [0, color],
+                [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
+            ]
+        };
+    });
 };
         
 CO2.addToSectorArrays = function(sector)
@@ -141,18 +151,7 @@ CO2.chartArea = function (div, title, subtitle, units, series)
 };
 
 CO2.chartPie = function(div, title, subtitle, series)
-{
-	// Radialize the colors
-    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
-        return {
-            radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
-            stops: [
-                [0, color],
-                [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
-            ]
-        };
-    });
-    
+{    
     $('#' + div).highcharts({
         chart: {
             plotBackgroundColor: null,
@@ -192,7 +191,7 @@ CO2.chartPie = function(div, title, subtitle, series)
     });
 };
 
-CO2.chartColumns = function(div, title, subtitle, categories, series)
+CO2.chartColumnsPercent = function(div, title, subtitle, categories, series)
 {
     $('#' + div).highcharts({
         chart: {
@@ -224,14 +223,12 @@ CO2.chartColumns = function(div, title, subtitle, categories, series)
             }
         },
         legend: {
-            align: 'right',
-            x: -70,
-            verticalAlign: 'top',
-            y: 20,
-            floating: true,
+            align: 'center',
+            verticalAlign: 'bottom',
+            floating: false,
             backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
             borderColor: '#CCC',
-            borderWidth: 1,
+            borderWidth: 0,
             shadow: false
         },
         tooltip: {
@@ -243,7 +240,7 @@ CO2.chartColumns = function(div, title, subtitle, categories, series)
         },
         plotOptions: {
             column: {
-                stacking: 'normal',
+                stacking: 'percent',
                 dataLabels: {
                     enabled: true,
                     color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
