@@ -26,7 +26,10 @@ end
 [['smartcitylog-agadir.tudor.lu', 'Smart City Logistics', 'smartcitylog-agadir.css'],
  ['test.smartcitylog-agadir.tudor.lu', 'Smart City Logistics [Test]', 'smartcitylog-agadir.css']
 ].each do |v|
-    s.Site.find_or_create_by_base_url v[0]
+    s = Site.find_by_base_url v[0]
+    if s == nil
+      s = Site.new
+    end
     s.title = v[1]
     s.site_details_id = SiteDetail.find_by_stylesheet(v[2]).id
     s.save
@@ -36,7 +39,7 @@ end
 
 # If any of these values need to be updated, please do so directly in the Cities table in the database!
 
-# Luís: Why are the seeds for the cities table commented out?
+# Luís: Why were the seeds for the cities table commented out?
 
 # Note that the bounding box data below appear to be incorrect.  Don't rely on them unless they are corrected and this comment removed -CE
 [
@@ -49,17 +52,19 @@ end
 #  ['London',      '', 13, 'EPSG:27700', -8468,  6711661],
 #  ['Luxembourg',  '', 13, 'EPSG:2169', 682574,  6379134],
 #  ['Esch-sur-Alzette', '', 14, 'EPSG:2169', 665606,  6359849]
-  ['Agadir', '', 13, 'EPSG:26191', -1066445.16, 3557501.74, 'smartcitylog-agadir.css', '+proj=lcc +lat_1=33.3 +lat_0=33.3 +lon_0=-5.4 +k_0=0.999625769 +x_0=500000 +y_0=300000 +a=6378249.2 +b=6356515 +towgs84=31,146,47,0,0,0,0 +units=m +no_defs '],
-  ['Marroco', '', 6, 'EPSG:26191',  -800000.00, 3557501.74, 'smartcitylog-agadir.css', '+proj=lcc +lat_1=33.3 +lat_0=33.3 +lon_0=-5.4 +k_0=0.999625769 +x_0=500000 +y_0=300000 +a=6378249.2 +b=6356515 +towgs84=31,146,47,0,0,0,0 +units=m +no_defs ']
+  ['Agadir', 13, 'EPSG:26191', -1066445.16, 3557501.74, 'smartcitylog-agadir.css', '+proj=lcc +lat_1=33.3 +lat_0=33.3 +lon_0=-5.4 +k_0=0.999625769 +x_0=500000 +y_0=300000 +a=6378249.2 +b=6356515 +towgs84=31,146,47,0,0,0,0 +units=m +no_defs '],
+  ['Marroco', 6, 'EPSG:26191',  -800000.00, 3557501.74, 'smartcitylog-agadir.css', '+proj=lcc +lat_1=33.3 +lat_0=33.3 +lon_0=-5.4 +k_0=0.999625769 +x_0=500000 +y_0=300000 +a=6378249.2 +b=6356515 +towgs84=31,146,47,0,0,0,0 +units=m +no_defs ']
 ].each do |v|
-   c = City.find_or_create_by_name v[0]
-   c.url =  v[1]
-   c.zoom = v[2]
-   c.srs =  v[3]
-   c.mapx = v[4]
-   c.mapy = v[5]
-   c.site_details_id = SiteDetail.find_by_stylesheet(v[6]).id
-   c.projection_params = v[7]
+   c = City.find_by_name v[0]
+   if c == nil
+     c = City.new
+   end
+   c.zoom = v[1]
+   c.srs  = v[2]
+   c.mapx = v[3]
+   c.mapy = v[4]
+   c.site_details_id = SiteDetail.find_by_stylesheet(v[5]).id
+   c.projection_params = v[6]
    c.save
 end
 
