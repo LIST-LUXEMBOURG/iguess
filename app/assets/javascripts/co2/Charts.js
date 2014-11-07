@@ -29,6 +29,10 @@ CO2.lastIndex = 0;
 
 CO2.referenceYear = 2020;
 
+CO2.elecCategories = new Array();
+CO2.elecSeries = new Array();
+
+
 CO2.chartsInit = function()
 {
 	Highcharts.setOptions({
@@ -46,6 +50,11 @@ CO2.addToSectorArrays = function(sector)
 	CO2.sector_co2.push({name: sector, data: new Array()});
 	CO2.sector_ch4.push({name: sector, data: new Array()});
 	CO2.sector_n2o.push({name: sector, data: new Array()});
+};
+
+CO2.addToElecSeries = function(source, period, value)
+{
+	
 };
 
 CO2.updatePeriodNames = function()
@@ -192,6 +201,80 @@ CO2.chartPie = function(div, title, subtitle, series)
                 ['Others',   0.7]
             ]*/
         }]
+    });
+};
+
+CO2.chartColumns = function(div, title, subtitle, categories, series)
+{
+    $('#' + div).highcharts({
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: title
+        },
+        subtitle: {
+            text: subtitle
+        },
+        credits: {
+        	enabled: false
+        },
+        xAxis: {
+            categories: categories//['Apples', 'Oranges', 'Pears', 'Grapes', 'Bananas']
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: 'Total fruit consumption'
+            },
+            stackLabels: {
+                enabled: true,
+                style: {
+                    fontWeight: 'bold',
+                    color: (Highcharts.theme && Highcharts.theme.textColor) || 'gray'
+                }
+            }
+        },
+        legend: {
+            align: 'right',
+            x: -70,
+            verticalAlign: 'top',
+            y: 20,
+            floating: true,
+            backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || 'white',
+            borderColor: '#CCC',
+            borderWidth: 1,
+            shadow: false
+        },
+        tooltip: {
+            formatter: function () {
+                return '<b>' + this.x + '</b><br/>' +
+                    this.series.name + ': ' + this.y + '<br/>' +
+                    'Total: ' + this.point.stackTotal;
+            }
+        },
+        plotOptions: {
+            column: {
+                stacking: 'normal',
+                dataLabels: {
+                    enabled: true,
+                    color: (Highcharts.theme && Highcharts.theme.dataLabelsColor) || 'white',
+                    style: {
+                        textShadow: '0 0 3px black, 0 0 3px black'
+                    }
+                }
+            }
+        },
+        series: series/*[{
+            name: 'John',
+            data: [5, 3, 4, 7, 2]
+        }, {
+            name: 'Jane',
+            data: [2, 2, 3, 2, 1]
+        }, {
+            name: 'Joe',
+            data: [3, 4, 4, 2, 5]
+        }]*/
     });
 };
 
