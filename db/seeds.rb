@@ -28,7 +28,7 @@ end
 ].each do |v|
     s.Site.find_or_create_by_base_url v[0]
     s.title = v[1]
-    s.site_details = SiteDetail.find_by_stylesheet(v[2]).id
+    s.site_details_id = SiteDetail.find_by_stylesheet(v[2]).id
     s.save
 end
 
@@ -39,7 +39,8 @@ end
 # Luís: Why are the seeds for the cities table commented out?
 
 # Note that the bounding box data below appear to be incorrect.  Don't rely on them unless they are corrected and this comment removed -CE
-# [['Aberdeen',    '', 13, 'EPSG:27700', -235500, 7790000],
+[
+#  ['Aberdeen',    '', 13, 'EPSG:27700', -235500, 7790000],
 #  ['Gent',        'http://gentgis2.gent.be/arcgisserver/services/G_WIS/testIvago/MapServer/WFSServer', 12, 'EPSG:31370',  415000,  6632500],
 #  ['Ludwigsburg', 'http://logis.ludwigsburg.de/mapguide2011/mapagent/mapagent.fcgi', 14, 'EPSG:31467', 497500, 6257200]
 #  ['Montreuil',   'http://montreuil.dynmap.com/carte_pour_iguess/carteWS.php', 14, 'EPSG:2154',  272000,  6250800],
@@ -48,15 +49,19 @@ end
 #  ['London',      '', 13, 'EPSG:27700', -8468,  6711661],
 #  ['Luxembourg',  '', 13, 'EPSG:2169', 682574,  6379134],
 #  ['Esch-sur-Alzette', '', 14, 'EPSG:2169', 665606,  6359849]
-# ].each do |v|
-#   c = City.find_or_create_by_name v[0]
-#   c.url =  v[1]
-#   c.zoom = v[2]
-#   c.srs =  v[3]
-#   c.mapx = v[4]
-#   c.mapy = v[5]
-#   c.save
-# end
+  ['Agadir', '', 13, 'EPSG:26191', -1066445.16, 3557501.74, 'smartcitylog-agadir.css', '+proj=lcc +lat_1=33.3 +lat_0=33.3 +lon_0=-5.4 +k_0=0.999625769 +x_0=500000 +y_0=300000 +a=6378249.2 +b=6356515 +towgs84=31,146,47,0,0,0,0 +units=m +no_defs '],
+  ['Marroco', '', 6, 'EPSG:26191',  -800000.00, 3557501.74, 'smartcitylog-agadir.css', '+proj=lcc +lat_1=33.3 +lat_0=33.3 +lon_0=-5.4 +k_0=0.999625769 +x_0=500000 +y_0=300000 +a=6378249.2 +b=6356515 +towgs84=31,146,47,0,0,0,0 +units=m +no_defs ']
+].each do |v|
+   c = City.find_or_create_by_name v[0]
+   c.url =  v[1]
+   c.zoom = v[2]
+   c.srs =  v[3]
+   c.mapx = v[4]
+   c.mapy = v[5]
+   c.site_details_id = SiteDetail.find_by_stylesheet(v[6]).id
+   c.projection_params = v[7]
+   c.save
+end
 
 
 # Basic sectors for the CO2 model
