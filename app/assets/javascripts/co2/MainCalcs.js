@@ -179,15 +179,15 @@ CO2.calcSectorEmissions = function(p, sector, table_name)
 		
 		if(source == CO2.elec_id)
 		{
-			co2_emissions += value * CO2.co2_elec[p];
-			ch4_emissions += value * CO2.ch4_elec[p];
-			n2o_emissions += value * CO2.n2o_elec[p];
+			co2_emissions += value * CO2.co2_elec[p] / 100;
+			ch4_emissions += value * CO2.ch4_elec[p] / 100;
+			n2o_emissions += value * CO2.n2o_elec[p] / 100;
 		}
 		else if(source == CO2.heat_id)
 		{
-			co2_emissions += value * CO2.co2_heat[p];
-			ch4_emissions += value * CO2.ch4_heat[p];
-			n2o_emissions += value * CO2.n2o_heat[p];
+			co2_emissions += value * CO2.co2_heat[p] / 100;
+			ch4_emissions += value * CO2.ch4_heat[p] / 100;
+			n2o_emissions += value * CO2.n2o_heat[p] / 100;
 		}
 		else
 		{
