@@ -149,7 +149,7 @@ CO2.addPeriod = function()
 	
 	// Consumptions
 	for (var sector in CO2.sector_demands)
-		CO2.addPeriodToTable(CO2.consPrefix + sector, "co2_consumptions", 1, 
+		CO2.addPeriodToTable(CO2.consPrefix + sector.name, "co2_consumptions", 1, 
 			newYear, newPeriod, CO2.processConsInput, CO2.processConsTotals);	
 	
 	// Trigger re-calculation of demands
@@ -188,7 +188,7 @@ CO2.removePeriod = function()
 	
 	// Remove last row of Consumptions
 	for (var sector in CO2.sector_demands)
-		$("[id='" + CO2.consPrefix + sector + "'] tr:last").remove();
+		$("[id='" + CO2.consPrefix + sector.name + "'] tr:last").remove();
 	
 	for(i = 0; i < CO2.sector_n2o.length; i++)
 	{

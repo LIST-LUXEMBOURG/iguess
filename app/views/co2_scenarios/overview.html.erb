@@ -8,42 +8,37 @@ CO2.eqCH4 = <%= @eq_ch4 %>;
 CO2.eqN2O = <%= @eq_n20 %>;
 
 </script>
+  
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script src="http://code.highcharts.com/modules/exporting.js"></script>
 
-<h1>Scenario Overview</h1>
 
 <%= simple_form_for @scenario do |scen| %>
   <%= scen.error_notification %>
+  
+  <h1 align=center><%= @scenario.name %></h1>
+  
+  <i><p align=center id="subtitle" style="font-size:14px;"></p></i>
 
-    <div class="input string optional co">
-      <label class="string optional control-label" for="co2_scenario_city">
-        City
-      </label>
-      <input id="co2_scenario_city" class="string optional" type="text" disabled="disabled" 
-      	value="<%= @city_name %>" size="50" name="co2_scenario[city]" cols="80"></input>
-    </div>
-        
-    <%= scen.input :name, 
-        :label => "Scenario Name", 
-        :input_html => { :cols => 80 },
-        :placeholder => "Name", 
-        :disabled => true %>
-        
-    <div class="input string optional co">
-      <label class="string optional control-label" for="co2_scenario_author">
-        Author
-      </label>
-      <input id="co2_scenario_author" class="string optional" type="text" disabled="disabled" 
-      	value="<%= @author %>" size="50" name="co2_scenario[author]" cols="80"></input>
-    </div>
-        
-    <div class="input string optional co">
-      <label class="string optional control-label" for="co2_scenario_last_edit">
-        Last edit
-      </label>
-      <input id="co2_scenario_author" class="string optional" type="text" disabled="disabled" 
-      	value="<%= @last_edit %>" size="50" name="co2_scenario[last_edit]" cols="80"></input>
-    </div>
 
+<!-- The charts -->
+
+  
+  <br>
+  <h2 align=center>Emissions</h2>
+  <br>
+
+  <div id="co2_chart" class="chart" style="width: 49%; float: left; margin: 1px;"></div>
+  <div id="pie_chart" class="chart" style="width: 49%; float: right; margin: 1px;"></div>
+  <br><hr style="border-top-width: 10px; border-color: #FFFFFF;">
+  <h2 align=center style="margin-top: 10px;">Energy</h2>
+  <br>
+  <div id="energy_chart" class="chart" style="width: 49%; float: left; margin: 1px;"></div>
+  <div id="prod_chart"   class="chart" style="width: 49%; float: right; margin: 1px;"></div>
+
+<!-- Hidden data fields for the charts -->
+
+  <div class="hidden">
     <%= scen.input :base_year, 
         :label => "Base Year", 
         :as => :string,
@@ -53,26 +48,10 @@ CO2.eqN2O = <%= @eq_n20 %>;
     <%= scen.input :time_step, 
         :label => "Time step (years)", 
         :as => :string, 
-        :disabled => true %>
-        
-    <div class="input string optional co">
-      <label class="string optional control-label" for="co2_scenario_num_periods">
-        Number of Periods
-      </label>
-      <input id="co2_scenario_num_periods" class="string optional" type="text" disabled="disabled" 
-      	value="<%= @num_periods %>" size="50" name="co2_scenario[num_periods]" cols="80"></input>
-    </div>
-        
-    <div class="input string optional co">
-      <label class="string optional control-label" for="co2_scenario_sectors">
-        Sectors Involved
-      </label>
-      <textarea id="co2_scenario_sectors" class="string optional" type="text" disabled="disabled" 
-      	value="" name="co2_scenario[sectors]" cols="62" rows="10">
-      	<%= @sectors %>
-      </textarea>
-    </div>        
-        
+        :disabled => true %>       
+  </div>  
+  
+     
 <!-- Data tables for the charts -->
 
 <table class="grid-input zebra" id="tableSectors" style="display: none">
@@ -99,22 +78,34 @@ CO2.eqN2O = <%= @eq_n20 %>;
 	<%= render :partial => 'emission_factor.html.erb', 
 	            locals: { title: "N2O (g/MWh)", fieldName: "n2o_factor" } %>
 </div>
-
-<!-- And now for the charts -->
-  
-  <script src="http://code.highcharts.com/highcharts.js"></script>
-  <script src="http://code.highcharts.com/modules/exporting.js"></script>
-
-  <div id="co2_chart" class="chart"></div>
-  <br>
-  <div id="ch4_chart" class="chart"></div>
-  <br>
-  <div id="n2o_chart" class="chart"></div>
  
  
   <!-- Update totals and draw graphs -->
   
   <script>
+  
+  <% @sources_elec.each do |source| %>
+  
+	var values_<%= source.id %> = new Array();
+	<% @periods.each do |period| %>
+	values_<%= source.id %>.push(<%= 
+     	if @elec_mixes[[period, source.id]] == nil
+     		0.0
+     	else
+     		@elec_mixes[[period, source.id]].value
+     	end
+    %>);
+	<% end %>
+	
+	CO2.elecSeries.push({name: "<%= source.name %>", data: values_<%= source.id %>});
+  <% end %>
+
+  <% @periods.each do |period| %>           	
+    CO2.elecCategories.push(<%= period %> * <%= @scenario.time_step %> + <%= @scenario.base_year %>);
+  <% end %>
+  
+  $("#subtitle").html("<%= @scenario.base_year %> - <%= @scenario.base_year + @scenario.time_step * @periods.size %>");
+  
   <% @periods.each do |period| %>
 	CO2.updateElecTotals(
  		<%= period %>, 
@@ -138,7 +129,12 @@ CO2.eqN2O = <%= @eq_n20 %>;
   
   	CO2.updatePeriodNames();
   	CO2.chartsInit();
-  	CO2.drawCharts();
+  	CO2.chartArea("co2_chart", "CO2 Emissions by Sector", null, "ton/a", CO2.sector_co2);
+  	CO2.chartArea("energy_chart", "Consumption", "Final energy consumption per sector", "MWh/a", CO2.sector_demands);
+  	CO2.chartPie ("pie_chart", "Reference Year Analysis", "Carbon balance and areas of consumption", 
+  		CO2.calcPieSeries(<%= @scenario.base_year %>));
+  	CO2.chartColumnsPercent("prod_chart", "Electricity Production", null, CO2.elecCategories, CO2.elecSeries);
+  	
   </script>
 
 <br>
