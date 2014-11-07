@@ -4,7 +4,7 @@
 # Site details
 [['smartcitylog-agadir.css',
   'smartcitylog-agadir_homepage_body.html.erb',
-  'smartcitylog-agadir_footer_html.erb',
+  'smartcitylog-agadir_footer.html.erb',
   'smartcitylog-agadir_banner.html.erb',
   'home, maps, datamanager, modules, about',
   false,
@@ -29,6 +29,7 @@ end
     s = Site.find_by_base_url v[0]
     if s == nil
       s = Site.new
+      s.base_url = v[0]
     end
     s.title = v[1]
     s.site_details_id = SiteDetail.find_by_stylesheet(v[2]).id
@@ -58,6 +59,7 @@ end
    c = City.find_by_name v[0]
    if c == nil
      c = City.new
+     c.name = v[0]
    end
    c.zoom = v[1]
    c.srs  = v[2]
