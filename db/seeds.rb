@@ -1,8 +1,7 @@
 # This file should contain all the record creation needed to seed the database with its default values.
 # The data can then be loaded with the rake db:seed (or created alongside the db with db:setup).
 
-# Sites
-
+# Site details
 [['smartcitylog-agadir.css',
   'smartcitylog-agadir_homepage_body.html.erb',
   'smartcitylog-agadir_footer_html.erb',
@@ -23,6 +22,15 @@
     d.save
 end
 
+# Sites
+[['smartcitylog-agadir.tudor.lu', 'Smart City Logistics', 'smartcitylog-agadir.css'],
+ ['test.smartcitylog-agadir.tudor.lu', 'Smart City Logistics [Test]', 'smartcitylog-agadir.css']
+].each do |v|
+    s.Site.find_or_create_by_base_url v[0]
+    s.title = v[1]
+    s.site_details = SiteDetail.find_by_stylesheet(v[2]).id
+    s.save
+end
 
 # I believe we should no longer be storing this data in the seeds file -CE
 
