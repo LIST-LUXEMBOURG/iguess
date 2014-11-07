@@ -511,6 +511,8 @@ class Co2ScenariosController < ApplicationController
     new_scenario = Co2Scenario.new
     new_scenario.name = @scenario.name + " replica " + r.rand(1...1000).to_s
     new_scenario.city_id = @scenario.city_id
+    new_scenario.user_id = current_user.id
+    new_scenario.last_editor = current_user.id
     new_scenario.base_year = @scenario.base_year
     new_scenario.time_step = @scenario.time_step
     new_scenario.description = @scenario.description
