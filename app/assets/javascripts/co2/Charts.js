@@ -187,19 +187,7 @@ CO2.chartPie = function(div, title, subtitle, series)
         series: [{
             type: 'pie',
             name: 'Sector share',
-            data: series/*[
-                ['Firefox',   45.0],
-                ['IE',       26.8],
-                {
-                    name: 'Chrome',
-                    y: 12.8,
-                    sliced: true,
-                    selected: true
-                },
-                ['Safari',    8.5],
-                ['Opera',     6.2],
-                ['Others',   0.7]
-            ]*/
+            data: series
         }]
     });
 };
@@ -220,7 +208,7 @@ CO2.chartColumns = function(div, title, subtitle, categories, series)
         	enabled: false
         },
         xAxis: {
-            categories: categories//['Apples', 'Oranges', 'Pears', 'Grapes', 'Bananas']
+            categories: categories
         },
         yAxis: {
             min: 0,
@@ -265,16 +253,7 @@ CO2.chartColumns = function(div, title, subtitle, categories, series)
                 }
             }
         },
-        series: series/*[{
-            name: 'John',
-            data: [5, 3, 4, 7, 2]
-        }, {
-            name: 'Jane',
-            data: [2, 2, 3, 2, 1]
-        }, {
-            name: 'Joe',
-            data: [3, 4, 4, 2, 5]
-        }]*/
+        series: series
     });
 };
 
