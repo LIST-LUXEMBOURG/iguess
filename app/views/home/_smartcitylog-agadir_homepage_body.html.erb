@@ -1,0 +1,24 @@
+ <div class="main-text"> 
+ 
+   <div class="headline" id="headline1">
+      Understand your options...
+   </div>
+   <div class="headline" id="headline2">
+      plan your future.
+   </div>
+
+   <p id="headline-spacer"></p>
+    
+    <a href="<%= maps_path %>"><div class="side-links">Maps Preview</div></a>
+    <div class="home-page-text">
+		<p>Smart City Logistics is a decision support platform for urban logistics of cities. Smart City Logistics provides decision makers with a wide range of easy to understand information to support the development of urban freight transportation plans.</p>
+
+		<p>Addressing urban logistics requires an integrated understanding of transport, environmental and socio-economic aspects to arrive at sustainable solutions. The Smart City Logistics platform maps information on transportation networks, access restrictions, traffic measures, delivery and transport facilities, administrative units, population, land use and emission situations.</p>
+
+		<p>Smart City Logistics allows users to assess trends and relationships from different perspectives and identify innovative and strong sustainable solutions.</p>
+
+		<p>Users will need to register to access the data. Please log in via the link at the top right of this site.</p>
+		<br>
+      <%= link_to image_tag("maps-preview.png", :class=>"map-link-image"), :action => 'index', :controller => 'maps' %>
+    </div>
+ </div>
