@@ -76,22 +76,25 @@ CO2.updatePeriodNames = function()
 		CO2.periodNames[i] = (base_year + i * time_step).toString();
 };
 
-CO2.calcPieSeries = function(baseYear)
+CO2.calcPieSeries = function(baseYear, timeStep)
 {
+	// this whole method is wrong, it must use emissions, not consumption
+	// The data per period is stored in this structure:
+	// CO2.sector_co2[CO2.sectorIndexes[sector]].data[p]
+	// An interpolation might be needed to find the data for 2020
+	
+	factor = Math.floor((CO2.referenceYear - baseYear) / timeStep);
+	factor_rest = (CO2.referenceYear - baseYear) % timeStep;
+	
 	pieSeries = new Array();
-	numPeriods = CO2.referenceYear - baseYear;
 
-	for (sector = 0; sector < CO2.sector_demands.length; sector++)
+	for (sector = 0; sector < CO2.sector_co2.length; sector++)
 	{
-		interest = CO2.sector_demands[sector].growth - 
-			       CO2.sector_demands[sector].efficiency;
+		base = CO2.sector_co2[sector].data[factor];
+		end  = CO2.sector_co2[sector].data[factor + 1];
+		value = base + (end - base) * factor_rest;
 			   
-		pieSeries.push
-		({
-			name: CO2.sector_demands[sector].name, 
-			y: CO2.sector_demands[sector].data[0] * Math.pow((1 + interest), numPeriods),
-			sliced: true,
-		});
+		pieSeries.push({name: CO2.sector_co2[sector].name, y: value, sliced: true,});
 	}
 			
 	return pieSeries;
