@@ -227,7 +227,7 @@ CO2.toggleUnits = function()
 		
 	for (var sector in CO2.sector_demands)
 	{
-		table = document.getElementById(CO2.consPrefix + sector.name);
+		table = document.getElementById(CO2.consPrefix + CO2.sector_demands[sector].name);
 		for(p = 0; table != null && p < table.rows.length - 1; p++)
 		{
 			row = table.rows[p + 1];
@@ -235,11 +235,11 @@ CO2.toggleUnits = function()
 			{
 				input = row.cells[i].children[0];
 				if(CO2.showMWh)
-					input.value = parseFloat(input.value) * 
-						CO2.sector_demands[CO2.sectorIndexes[sector]].data[p] / 100.0;
+					input.value = (parseFloat(input.value) * 
+						CO2.sector_demands[sector].data[p] / 100.0).toFixed(1);
 				else
 					input.value = (parseFloat(input.value) / 
-						CO2.sector_demands[CO2.sectorIndexes[sector]].data[p] * 100.0).toFixed(1);
+						CO2.sector_demands[sector].data[p] * 100.0).toFixed(1);
 			}
 		}
 	}
