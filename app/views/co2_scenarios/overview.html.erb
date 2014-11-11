@@ -104,7 +104,7 @@ CO2.eqN2O = <%= @eq_n20 %>;
     CO2.elecCategories.push(<%= period %> * <%= @scenario.time_step %> + <%= @scenario.base_year %>);
   <% end %>
   
-  $("#subtitle").html("<%= @scenario.base_year %> - <%= @scenario.base_year + @scenario.time_step * @periods.size %>");
+  $("#subtitle").html("<%= @scenario.base_year %> - <%= @scenario.base_year + @scenario.time_step * (@periods.size - 1) %>");
   
   <% @periods.each do |period| %>
 	CO2.updateElecTotals(
