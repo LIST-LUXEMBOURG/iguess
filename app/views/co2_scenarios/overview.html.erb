@@ -40,7 +40,7 @@ CO2.baseYear = <%= @scenario.base_year %>;
   
 <!-- Digest table -->
 <br><br><br><br><br><br>
-<table align=center border=1>
+<table align=center border=1 cellpadding="8" cellspacing="4">
 <tr>
  <th colspan=3 align=center><b align=center>Goal Year (2025)</b></th>
 </tr>
@@ -48,12 +48,12 @@ CO2.baseYear = <%= @scenario.base_year %>;
   <tr>
    <td>CO2</td>
    <td id="declinePrct" align=right></td>
-   <td>CO2.calcTotalAtYear(CO2.sector_co2);</td>
+   <td id="declineMWh" align=right></td>
   </tr>
   <tr>
    <td>CO2 eq</td>
-   <td>CO2.calcTotalEquivDeclineAtYear();</td>
-   <td>CO2.calcTotalEquivAtYear(CO2.sector_co2);</td>
+   <td id="declineEquivPrct" align=right></td>
+   <td id="declineEquivMWh" align=right></td>
   </tr>
   <tr>
    <td>Energy Savings</td>
@@ -159,7 +159,11 @@ CO2.baseYear = <%= @scenario.base_year %>;
     	
   <% end %>
   
-  $("#declinePrct").html(CO2.calcTotalDeclineAtYear(CO2.sector_co2));
+    $("#declinePrct").html(CO2.calcTotalDeclineAtYear(CO2.sector_co2).toFixed(2) + " %");
+    $("#declineMWh").html(CO2.calcTotalAtYear(CO2.sector_co2, CO2.goalYear).toFixed(0) + " MWh");
+    $("#declineEquivPrct").html(CO2.calcTotalEquivDeclineAtYear().toFixed(2) + " %");
+    $("#declineEquivMWh").html(CO2.calcTotalEquivAtYear(CO2.goalYear).toFixed(0) + " ton");
+  
   
   	CO2.updatePeriodNames();
   	CO2.chartsInit();
