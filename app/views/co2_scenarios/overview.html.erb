@@ -7,6 +7,9 @@ CO2.heat_id = <%= @heat_id %>;
 CO2.eqCH4 = <%= @eq_ch4 %>;
 CO2.eqN2O = <%= @eq_n20 %>;
 
+CO2.timeStep = <%= @scenario.time_step %>;
+CO2.baseYear = <%= @scenario.base_year %>;
+
 </script>
   
 <script src="http://code.highcharts.com/highcharts.js"></script>
@@ -23,7 +26,6 @@ CO2.eqN2O = <%= @eq_n20 %>;
 
 <!-- The charts -->
 
-  
   <br>
   <h2 align=center>Emissions</h2>
   <br>
@@ -35,6 +37,36 @@ CO2.eqN2O = <%= @eq_n20 %>;
   <br>
   <div id="energy_chart" class="chart" style="width: 49%; float: left; margin: 1px;"></div>
   <div id="prod_chart"   class="chart" style="width: 49%; float: right; margin: 1px;"></div>
+  
+<!-- Digest table -->
+<br><br><br><br><br><br>
+<table align=center border=1>
+<tr>
+ <th colspan=3 align=center><b align=center>Goal Year (2025)</b></th>
+</tr>
+ <tbody>
+  <tr>
+   <td>CO2</td>
+   <td id="declinePrct" align=right></td>
+   <td>CO2.calcTotalAtYear(CO2.sector_co2);</td>
+  </tr>
+  <tr>
+   <td>CO2 eq</td>
+   <td>CO2.calcTotalEquivDeclineAtYear();</td>
+   <td>CO2.calcTotalEquivAtYear(CO2.sector_co2);</td>
+  </tr>
+  <tr>
+   <td>Energy Savings</td>
+   <td>CO2.calcTotalCO2DeclineAtYear(CO2.sector_demands);</td>
+   <td>CO2.calcTotalAtYear(CO2.sector_demands);</td>
+  </tr>
+  <tr>
+   <td>Share of Renewables</td>
+   <td><i>under development</i></td>
+   <td><i>under development</i></td>
+  </tr>
+ </tbody>
+</table>
 
 <!-- Hidden data fields for the charts -->
 
@@ -101,10 +133,10 @@ CO2.eqN2O = <%= @eq_n20 %>;
   <% end %>
 
   <% @periods.each do |period| %>           	
-    CO2.elecCategories.push(<%= period %> * <%= @scenario.time_step %> + <%= @scenario.base_year %>);
+    CO2.elecCategories.push(<%= period %> * CO2.timeStep + CO2.baseYear);
   <% end %>
   
-  $("#subtitle").html("<%= @scenario.base_year %> - <%= @scenario.base_year + @scenario.time_step * (@periods.size - 1) %>");
+  $("#subtitle").html("CO2.baseYear - <%= @scenario.base_year + @scenario.time_step * (@periods.size - 1) %>");
   
   <% @periods.each do |period| %>
 	CO2.updateElecTotals(
@@ -127,12 +159,14 @@ CO2.eqN2O = <%= @eq_n20 %>;
     	
   <% end %>
   
+  $("#declinePrct").html(CO2.calcTotalDeclineAtYear(CO2.sector_co2));
+  
   	CO2.updatePeriodNames();
   	CO2.chartsInit();
   	CO2.chartArea("co2_chart", "CO2 Emissions by Sector", null, "ton/a", CO2.sector_co2);
   	CO2.chartArea("energy_chart", "Consumption", "Final energy consumption per sector", "MWh/a", CO2.sector_demands);
   	CO2.chartPie ("pie_chart", "Reference Year Analysis", "Carbon balance and areas of consumption", 
-  		CO2.calcPieSeries(<%= @scenario.base_year %>, <%= @scenario.time_step %>));
+  		CO2.calcPieSeries(CO2.baseYear, CO2.timeStep));
   	CO2.chartColumnsPercent("prod_chart", "Electricity Production", null, CO2.elecCategories, CO2.elecSeries);
   	
   </script>

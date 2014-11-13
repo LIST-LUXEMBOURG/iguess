@@ -78,11 +78,6 @@ CO2.updatePeriodNames = function()
 
 CO2.calcPieSeries = function(baseYear, timeStep)
 {
-	// this whole method is wrong, it must use emissions, not consumption
-	// The data per period is stored in this structure:
-	// CO2.sector_co2[CO2.sectorIndexes[sector]].data[p]
-	// An interpolation might be needed to find the data for 2020
-	
 	factor = Math.floor((CO2.referenceYear - baseYear) / timeStep);
 	factor_rest = (CO2.referenceYear - baseYear) % timeStep;
 	
