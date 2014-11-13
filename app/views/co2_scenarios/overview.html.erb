@@ -42,28 +42,36 @@ CO2.baseYear = <%= @scenario.base_year %>;
 <br><hr style="border-top-width: 10px; border-color: #FFFFFF;">
 <table align=center class="overview-table">
 <tr>
- <th id="tableHead" colspan=3><b align=center></b></th>
+ <th id="tableHead" colspan=5><b align=center></b></th>
 </tr>
  <tbody>
   <tr>
    <td>CO2</td>
    <td id="declinePrct" align=right></td>
+   <td class="overview-table-units">%</td>
    <td id="declineMWh" align=right></td>
+   <td class="overview-table-units" width="40">MWh</td>
   </tr>
   <tr>
    <td>CO2 eq</td>
    <td id="declineEquivPrct" align=right></td>
+   <td class="overview-table-units">%</td>
    <td id="declineEquivMWh" align=right></td>
+   <td class="overview-table-units">ton</td>
   </tr>
   <tr>
    <td>Energy Savings</td>
    <td id="declineDemandPrct" align=right></td>
+   <td class="overview-table-units">%</td>
    <td id="declineDemandMWh" align=right></td>
+   <td class="overview-table-units">MWh</td>
   </tr>
   <tr>
    <td>Share of Renewables</td>
    <td class="param-name"><i>under development</i></td>
+   <td class="overview-table-units">%</td>
    <td class="param-name"><i>under development</i></td>
+   <td class="overview-table-units">MWh</td>
   </tr>
  </tbody>
 </table>
@@ -162,12 +170,12 @@ CO2.baseYear = <%= @scenario.base_year %>;
   
     $("#tableHead").html("Goal Year (" + CO2.goalYear + ")");
   
-    $("#declinePrct").html(CO2.calcTotalDeclineAtEndPeriod(CO2.sector_co2).toFixed(2) + " %");
-    $("#declineMWh").html(CO2.calcTotalAtPeriod(CO2.sector_co2, CO2.numPeriods - 1).toFixed(0) + " MWh");
-    $("#declineEquivPrct").html(CO2.calcTotalEquivDeclineAtEndPeriod().toFixed(2) + " %");
-    $("#declineEquivMWh").html(CO2.calcTotalEquivAtPeriod(CO2.numPeriods - 1).toFixed(0) + " ton");
-    $("#declineDemandPrct").html(CO2.calcTotalDeclineAtEndPeriod(CO2.sector_demands).toFixed(2) + " %");
-    $("#declineDemandMWh").html(CO2.calcTotalAtPeriod(CO2.sector_demands, CO2.numPeriods - 1).toFixed(0) + " MWh");
+    $("#declinePrct").html(CO2.calcTotalDeclineAtEndPeriod(CO2.sector_co2).toFixed(2));
+    $("#declineMWh").html(CO2.calcTotalAtPeriod(CO2.sector_co2, CO2.numPeriods - 1).toFixed(0));
+    $("#declineEquivPrct").html(CO2.calcTotalEquivDeclineAtEndPeriod().toFixed(2));
+    $("#declineEquivMWh").html(CO2.calcTotalEquivAtPeriod(CO2.numPeriods - 1).toFixed(0));
+    $("#declineDemandPrct").html(CO2.calcTotalDeclineAtEndPeriod(CO2.sector_demands).toFixed(2));
+    $("#declineDemandMWh").html(CO2.calcTotalAtPeriod(CO2.sector_demands, CO2.numPeriods - 1).toFixed(0));
      
   	CO2.updatePeriodNames();
   	CO2.chartsInit();
