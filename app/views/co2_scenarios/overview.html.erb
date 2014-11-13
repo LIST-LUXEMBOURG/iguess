@@ -68,7 +68,7 @@ CO2.baseYear = <%= @scenario.base_year %>;
   </tr>
   <tr>
    <td>Share of Renewables</td>
-   <td class="param-name"><i>under development</i></td>
+   <td class="renewShare"></td>
    <td class="overview-table-units">%</td>
    <td class="param-name"><i>under development</i></td>
    <td class="overview-table-units">MWh</td>
@@ -176,6 +176,7 @@ CO2.baseYear = <%= @scenario.base_year %>;
     $("#declineEquivMWh").html(CO2.calcTotalEquivAtPeriod(CO2.numPeriods - 1).toFixed(0));
     $("#declineDemandPrct").html(CO2.calcTotalDeclineAtEndPeriod(CO2.sector_demands).toFixed(2));
     $("#declineDemandMWh").html(CO2.calcTotalAtPeriod(CO2.sector_demands, CO2.numPeriods - 1).toFixed(0));
+    $("#renewShare").html(CO2.calcShareRenewablesAtPeriod(CO2.numPeriods - 1).toFixed(2));
      
   	CO2.updatePeriodNames();
   	CO2.chartsInit();

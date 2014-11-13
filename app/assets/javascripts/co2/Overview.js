@@ -55,3 +55,29 @@ CO2.calcTotalEquivDeclineAtEndPeriod = function()
 	
 	return (target / base - 1) * 100;
 };
+
+CO2.calcShareRenewablesAtPeriod = function(period)
+{
+	var total = 0.0;
+	var totalRen = 0.0;
+	for (sector = 0; sector < CO2.sector_demands.length; sector++)
+	{
+		table = document.getElementById(CO2.consPrefix + CO2.sector_demands[sector].name);
+		row = table.rows[period + 1];	
+		
+		for(i = 1; i < row.cells.length - 1; i++) 
+			if(table.rows[0].cells[i].classList[0] == "center")
+			{
+				value = parseFloat(row.cells[i].children[0].value); 
+			
+				if(!CO2.showMWh) 
+					value = value / 100 * CO2.sector_demands[sector].data[period];
+					
+				totalRen += value;
+			}
+			
+		total += CO2.sector_demands[sector].data[period];
+	}
+	
+	return totalRen / total * 100;
+};
