@@ -111,3 +111,31 @@ a.delete:link a.delete:visited
 ul.tabs a.lco2          { width:134px; }
 ul.tabs a.lco2:hover    {  }
 ul.tabs a.lco2.current  {  }
+
+
+/* ------- Overview ------- */
+
+.overview-table 
+{
+  border-collapse:collapse;
+  margin-left:auto; 
+  margin-right:auto;
+}
+
+.overview-table th 
+{
+  font-weight: bold;
+  text-align: center;
+  background: #b9c9fe;
+  border-top: 4px solid #aabcfe;
+  border-bottom: 1px solid #fff;
+  padding: 8px;
+}
+
+.overview-table td 
+{
+  background:#e8edff;
+  border-bottom:1px solid #fff;
+  border-top:1px solid transparent;
+  padding:8px;
+}

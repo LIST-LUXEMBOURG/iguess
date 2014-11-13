@@ -56,14 +56,7 @@ CO2.calcTotalEquivAtYear = function(year)
 };
 
 CO2.calcTotalEquivDeclineAtYear = function()
-{
-	/*base    = CO2.calcTotalAtYear(CO2.sector_co2, CO2.goalYear);
-	base   += CO2.calcTotalAtYear(CO2.sector_no2, CO2.goalYear) * CO2.eqN2O;
-	base   += CO2.calcTotalAtYear(CO2.sector_ch4, CO2.goalYear) * CO2.eqCH4;
-	target  = CO2.calcTotalAtYear(CO2.sector_co2, year);
-	target += CO2.calcTotalAtYear(CO2.sector_no2, year) * CO2.eqN2O;
-	target += CO2.calcTotalAtYear(CO2.sector_ch4, year) * CO2.eqCH4;*/
-	
+{	
 	var base   = CO2.calcTotalEquivAtYear(CO2.baseYear);
 	var target = CO2.calcTotalEquivAtYear(CO2.goalYear);
 	
