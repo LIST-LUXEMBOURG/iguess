@@ -57,8 +57,8 @@ CO2.baseYear = <%= @scenario.base_year %>;
   </tr>
   <tr>
    <td>Energy Savings</td>
-   <td>CO2.calcTotalCO2DeclineAtYear(CO2.sector_demands);</td>
-   <td>CO2.calcTotalAtYear(CO2.sector_demands);</td>
+   <td id="declineDemandPrct" align=right></td>
+   <td id="declineDemandMWh" align=right></td>
   </tr>
   <tr>
    <td>Share of Renewables</td>
@@ -163,8 +163,9 @@ CO2.baseYear = <%= @scenario.base_year %>;
     $("#declineMWh").html(CO2.calcTotalAtYear(CO2.sector_co2, CO2.goalYear).toFixed(0) + " MWh");
     $("#declineEquivPrct").html(CO2.calcTotalEquivDeclineAtYear().toFixed(2) + " %");
     $("#declineEquivMWh").html(CO2.calcTotalEquivAtYear(CO2.goalYear).toFixed(0) + " ton");
-  
-  
+    $("#declineDemandPrct").html(CO2.calcTotalDeclineAtYear(CO2.sector_demands).toFixed(2) + " %");
+    $("#declineDemandMWh").html(CO2.calcTotalAtYear(CO2.sector_demands, CO2.goalYear).toFixed(0) + " MWh");
+     
   	CO2.updatePeriodNames();
   	CO2.chartsInit();
   	CO2.chartArea("co2_chart", "CO2 Emissions by Sector", null, "ton/a", CO2.sector_co2);
