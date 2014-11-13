@@ -42,7 +42,7 @@ CO2.baseYear = <%= @scenario.base_year %>;
 <br><hr style="border-top-width: 10px; border-color: #FFFFFF;">
 <table align=center class="overview-table">
 <tr>
- <th colspan=3 align=center><b align=center>Goal Year (2025)</b></th>
+ <th id="tableHead" colspan=3><b align=center></b></th>
 </tr>
  <tbody>
   <tr>
@@ -136,7 +136,8 @@ CO2.baseYear = <%= @scenario.base_year %>;
     CO2.elecCategories.push(<%= period %> * CO2.timeStep + CO2.baseYear);
   <% end %>
   
-  $("#subtitle").html("CO2.baseYear - <%= @scenario.base_year + @scenario.time_step * (@periods.size - 1) %>");
+  CO2.goalYear = CO2.baseYear + (CO2.numPeriods - 1) * CO2.timeStep;
+  $("#subtitle").html(CO2.baseYear + " - " + CO2.goalYear);
   
   <% @periods.each do |period| %>
 	CO2.updateElecTotals(
@@ -159,12 +160,14 @@ CO2.baseYear = <%= @scenario.base_year %>;
     	
   <% end %>
   
-    $("#declinePrct").html(CO2.calcTotalDeclineAtYear(CO2.sector_co2).toFixed(2) + " %");
-    $("#declineMWh").html(CO2.calcTotalAtYear(CO2.sector_co2, CO2.goalYear).toFixed(0) + " MWh");
-    $("#declineEquivPrct").html(CO2.calcTotalEquivDeclineAtYear().toFixed(2) + " %");
-    $("#declineEquivMWh").html(CO2.calcTotalEquivAtYear(CO2.goalYear).toFixed(0) + " ton");
-    $("#declineDemandPrct").html(CO2.calcTotalDeclineAtYear(CO2.sector_demands).toFixed(2) + " %");
-    $("#declineDemandMWh").html(CO2.calcTotalAtYear(CO2.sector_demands, CO2.goalYear).toFixed(0) + " MWh");
+    $("#tableHead").html("Goal Year (" + CO2.goalYear + ")");
+  
+    $("#declinePrct").html(CO2.calcTotalDeclineAtEndPeriod(CO2.sector_co2).toFixed(2) + " %");
+    $("#declineMWh").html(CO2.calcTotalAtPeriod(CO2.sector_co2, CO2.numPeriods - 1).toFixed(0) + " MWh");
+    $("#declineEquivPrct").html(CO2.calcTotalEquivDeclineAtEndPeriod().toFixed(2) + " %");
+    $("#declineEquivMWh").html(CO2.calcTotalEquivAtPeriod(CO2.numPeriods - 1).toFixed(0) + " ton");
+    $("#declineDemandPrct").html(CO2.calcTotalDeclineAtEndPeriod(CO2.sector_demands).toFixed(2) + " %");
+    $("#declineDemandMWh").html(CO2.calcTotalAtPeriod(CO2.sector_demands, CO2.numPeriods - 1).toFixed(0) + " MWh");
      
   	CO2.updatePeriodNames();
   	CO2.chartsInit();

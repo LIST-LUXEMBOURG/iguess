@@ -23,42 +23,34 @@
 
 var CO2 = CO2 || { };		// Create namespace
 
-CO2.goalYear = 2025;
+CO2.goalYear = 0;
 
-CO2.calcTotalAtYear = function(vector, year)
+CO2.calcTotalAtPeriod = function(vector, period)
 {
-	var total = 0.0;
-	factor = Math.floor((year - CO2.baseYear) / CO2.timeStep);
-	factor_rest = (year - CO2.baseYear) % CO2.timeStep;
-	
 	for (sector = 0; sector < vector.length; sector++)
-	{
-		var base = vector[sector].data[factor];
-		var end  = vector[sector].data[factor + 1];
-		total += base + (end - base) * factor_rest;
-	}
+		total += vector[sector].data[period];
 	return total;
 };
 
-CO2.calcTotalDeclineAtYear = function(vector)
+CO2.calcTotalDeclineAtEndPeriod = function(vector)
 {
-	var base   = CO2.calcTotalAtYear(vector, CO2.baseYear);
-	var target = CO2.calcTotalAtYear(vector, CO2.goalYear);
+	var base   = CO2.calcTotalAtPeriod(vector, 0);
+	var target = CO2.calcTotalAtPeriod(vector, CO2.numPeriods - 1);
 	
 	return (target / base - 1) * 100;
 };
 
-CO2.calcTotalEquivAtYear = function(year)
+CO2.calcTotalEquivAtPeriod = function(period)
 {
-	return CO2.calcTotalAtYear(CO2.sector_co2, year)
-	     + CO2.calcTotalAtYear(CO2.sector_n2o, year) * CO2.eqN2O
-	     + CO2.calcTotalAtYear(CO2.sector_ch4, year) * CO2.eqCH4;
+	return CO2.calcTotalAtPeriod(CO2.sector_co2, period)
+	     + CO2.calcTotalAtPeriod(CO2.sector_n2o, period) * CO2.eqN2O
+	     + CO2.calcTotalAtPeriod(CO2.sector_ch4, period) * CO2.eqCH4;
 };
 
-CO2.calcTotalEquivDeclineAtYear = function()
+CO2.calcTotalEquivDeclineAtEndPeriod = function()
 {	
-	var base   = CO2.calcTotalEquivAtYear(CO2.baseYear);
-	var target = CO2.calcTotalEquivAtYear(CO2.goalYear);
+	var base   = CO2.calcTotalEquivAtPeriod(0);
+	var target = CO2.calcTotalEquivAtPeriod(CO2.numPeriods - 1);
 	
 	return (target / base - 1) * 100;
 };
