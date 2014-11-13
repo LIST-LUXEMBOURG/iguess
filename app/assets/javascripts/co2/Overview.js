@@ -27,6 +27,7 @@ CO2.goalYear = 0;
 
 CO2.calcTotalAtPeriod = function(vector, period)
 {
+    var total = 0.0;
 	for (sector = 0; sector < vector.length; sector++)
 		total += vector[sector].data[period];
 	return total;
