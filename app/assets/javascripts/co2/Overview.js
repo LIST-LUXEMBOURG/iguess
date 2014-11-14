@@ -112,3 +112,16 @@ CO2.calcShareRenewablesAtPeriod = function(period)
 	}
 	return CO2.totalRenMWh / CO2.totalMWhEndPeriod * 100;
 };
+
+CO2.addThousandsSeparator = function(input) 
+{
+    var output = input;
+    if (parseFloat(input)) 
+    {
+        input = new String(input); // so you can perform string operations
+        var parts = input.split("."); // remove the decimal part
+        parts[0] = parts[0].split("").reverse().join("").replace(/(\d{3})(?!$)/g, "$1 ").split("").reverse().join("");
+        output = parts.join(".");
+    }
+    return output;
+};
