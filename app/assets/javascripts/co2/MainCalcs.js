@@ -154,6 +154,15 @@ CO2.updateConsTotals = function(p, sector, tot_name, table_name)
 	CO2.calcSectorEmissions(p, sector, table_name);
 };
 
+CO2.getSourceId = function(input)
+{
+	name = input.name;
+	first = name.indexOf("[") + 1;
+	start = name.indexOf("[", first) + 1;
+	end = name.indexOf("]", start);
+	return name.substring(start, end);
+};
+
 CO2.calcSectorEmissions = function(p, sector, table_name)
 {	
 	table = document.getElementById(table_name);
@@ -165,11 +174,7 @@ CO2.calcSectorEmissions = function(p, sector, table_name)
 	for(i = 1; i < row.cells.length - 1; i++) 
 	{
 		input = row.cells[i].children[0];
-		name = input.name;
-		first = name.indexOf("[") + 1;
-		start = name.indexOf("[", first) + 1;
-		end = name.indexOf("]", start);
-		source = name.substring(start, end);
+		source = CO2.getSourceId(input);
 		
 		if(CO2.showMWh) 
 			value = parseFloat(input.value) / 

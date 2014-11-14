@@ -24,6 +24,8 @@
 var CO2 = CO2 || { };		// Create namespace
 
 CO2.goalYear = 0;
+CO2.totalRenMWh = 0.0;
+CO2.totalMWhEndPeriod = 0.0;
 
 CO2.calcTotalAtPeriod = function(vector, period)
 {
@@ -56,28 +58,57 @@ CO2.calcTotalEquivDeclineAtEndPeriod = function()
 	return (target / base - 1) * 100;
 };
 
+CO2.addRenewableToTotal = function(sector, period, input, share)
+{
+	value = parseFloat(input.value);
+	value = value * share / 100;
+	if(!CO2.showMWh) 
+		value = value / 100 * CO2.sector_demands[sector].data[period];
+	CO2.totalRenMWh += value;
+};
+
+CO2.calcShareRenewablesInSource = function(period, tableName)
+{
+	var totalRen = 0.0;
+	var table = document.getElementById(tableName);
+	var row = table.rows[period + 1];	
+		
+	for(var i = 1; i < row.cells.length - 1; i++) 
+		if(table.rows[0].cells[i].classList[0] == "center")
+			totalRen += parseFloat(row.cells[i].children[0].value);
+			
+	return totalRen;
+};
+
 CO2.calcShareRenewablesAtPeriod = function(period)
 {
 	var total = 0.0;
 	var totalRen = 0.0;
 	for (sector = 0; sector < CO2.sector_demands.length; sector++)
 	{
-		table = document.getElementById(CO2.consPrefix + CO2.sector_demands[sector].name);
-		row = table.rows[period + 1];	
+		var table = document.getElementById(CO2.consPrefix + CO2.sector_demands[sector].name);
+		var row = table.rows[period + 1];	
 		
-		for(i = 1; i < row.cells.length - 1; i++) 
+		for(var i = 1; i < row.cells.length - 1; i++) 
+		{
+			// The style class applied indicates if the source is renewable or not
 			if(table.rows[0].cells[i].classList[0] == "center")
 			{
-				value = parseFloat(row.cells[i].children[0].value); 
-			
-				if(!CO2.showMWh) 
-					value = value / 100 * CO2.sector_demands[sector].data[period];
-					
-				totalRen += value;
+				CO2.addRenewableToTotal(sector, period, row.cells[i].children[0], 100);
 			}
-			
-		total += CO2.sector_demands[sector].data[period];
+			// For Electricity the share of renewables in the mix must be calculated
+			else if (CO2.getSourceId(row.cells[i].children[0]) == CO2.elec_id)
+			{
+				share = CO2.calcShareRenewablesInSource(period, "tableElecMix");
+				CO2.addRenewableToTotal(sector, period, row.cells[i].children[0], share);
+			}
+			// For Heat the share of renewables in the mix must be calculated
+			else if (CO2.getSourceId(row.cells[i].children[0]) == CO2.heat_id)
+			{
+				share = CO2.calcShareRenewablesInSource(period, "tableHeatMix");
+				CO2.addRenewableToTotal(sector, period, row.cells[i].children[0], share);
+			}
+		}
 	}
-	
-	return totalRen / total * 100;
+	return CO2.totalRenMWh / CO2.totalMWhEndPeriod * 100;
 };
