@@ -31,7 +31,11 @@ CO2.calcTotalAtPeriod = function(vector, period)
 {
     var total = 0.0;
 	for (sector = 0; sector < vector.length; sector++)
-		total += vector[sector].data[period];
+	{
+		var value = vector[sector].data[period];
+		if (value == null || isNaN(value)) value = 0.0;
+		total += value;
+	}
 	return total;
 };
 
@@ -63,7 +67,11 @@ CO2.addRenewableToTotal = function(sector, period, input, share)
 	value = parseFloat(input.value);
 	value = value * share / 100;
 	if(!CO2.showMWh) 
-		value = value / 100 * CO2.sector_demands[sector].data[period];
+	{
+		var demand = CO2.sector_demands[sector].data[period];
+		if (demand == null || isNaN(demand)) demand = 0.0;
+		value = value / 100 * demand;
+	}
 	CO2.totalRenMWh += value;
 };
 
