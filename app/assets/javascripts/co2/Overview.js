@@ -49,9 +49,10 @@ CO2.calcTotalDeclineAtEndPeriod = function(vector)
 
 CO2.calcTotalEquivAtPeriod = function(period)
 {
+	// Divided by 1 million to convert to tones
 	return CO2.calcTotalAtPeriod(CO2.sector_co2, period)
-	     + CO2.calcTotalAtPeriod(CO2.sector_n2o, period) * CO2.eqN2O
-	     + CO2.calcTotalAtPeriod(CO2.sector_ch4, period) * CO2.eqCH4;
+	     + CO2.calcTotalAtPeriod(CO2.sector_n2o, period) * CO2.eqN2O / 1000000
+	     + CO2.calcTotalAtPeriod(CO2.sector_ch4, period) * CO2.eqCH4 / 1000000;
 };
 
 CO2.calcTotalEquivDeclineAtEndPeriod = function()
