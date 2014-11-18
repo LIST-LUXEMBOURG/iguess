@@ -217,6 +217,7 @@ WebGIS.removeLayerFromMap = function(id)
 	if (array.length > 0) 
 	{
 		WebGIS.leftMap.removeLayer(array[0]);
+		sessionStorage.removeItem(array[0].params.LAYERS);
 		// Check if layer node was removed from the layer tree
 		for (i = 0; i < WebGIS.layerTree.root.firstChild.childNodes.length; i++)
 		{
