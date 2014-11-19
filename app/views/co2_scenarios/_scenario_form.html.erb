@@ -66,23 +66,25 @@ submitForm = function()
     <tr><td>
     <%= scen.input :name, 
         :label => "Scenario Name", 
-        :input_html => { :cols => 80 },
+        :input_html => { :cols => 80 ,  :class => "co2-input"},
         :placeholder => "Name" %>
 
     <%= scen.input :base_year, 
         :label => "Base Year", 
+        :input_html => { :class => "co2-input"},
         :as => :string,
         :placeholder => "e.g. 2010" %>
 
     <%= scen.input :time_step, 
-        :label => "Time step (years)", 
+        :label => "Time step (years)",
+        :input_html => { :class => "co2-input"}, 
         :as => :string %>
         
     <div class="input string optional co">
       <label class="string optional control-label" for="co2_scenario_author">
         Author
       </label>
-      <input id="co2_scenario_author" class="string optional" type="text" disabled="disabled" 
+      <input id="co2_scenario_author" class="string optional co2-input" type="text" disabled="disabled" 
       	value="<%= @author %>" size="50" name="co2_scenario[author]" cols="80"></input>
     </div>
         
@@ -90,7 +92,7 @@ submitForm = function()
       <label class="string optional control-label" for="co2_scenario_last_editor">
         Last edited by
       </label>
-      <input id="co2_scenario_last_editor" class="string optional" type="text" disabled="disabled" 
+      <input id="co2_scenario_last_editor" class="string optional co2-input" type="text" disabled="disabled" 
       	value="<%= @last_editor %>" size="50" name="co2_scenario[last_editor]" cols="80"></input>
     </div>
             
@@ -98,12 +100,12 @@ submitForm = function()
       <label class="string optional control-label" for="co2_scenario_last_edit">
         Last edit
       </label>
-      <input id="co2_scenario_author" class="string optional" type="text" disabled="disabled" 
+      <input id="co2_scenario_author" class="string optional co2-input" type="text" disabled="disabled" 
       	value="<%= @last_edit %>" size="50" name="co2_scenario[last_edit]" cols="80"></input>
     </div>
 
     </td><td width=240>  
-    <div align=right style="left: 550px; top: 272px; position: absolute">
+    <div align=right class="co2-button-group">
 	  <div id="butt-submit" class="co2-button" onclick="submitForm();">Save scenario</div>
 	  <br>
 	  <div id="butt-submit" class="co2-button" onclick="CO2.addPeriod();">Add period</div>

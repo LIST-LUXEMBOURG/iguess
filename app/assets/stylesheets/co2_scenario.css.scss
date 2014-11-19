@@ -83,6 +83,20 @@ a.delete:link a.delete:visited
   cursor:hand;
 }
 
+/* Inputs in Edit page */
+.co2-input
+{
+  width: 320px;
+}
+
+/* Button group in edit page */
+.co2-button-group
+{
+  left: 540px; 
+  top: 246px; 
+  position: absolute
+}
+
 /* Toggle button */
 .co2-button
 {
