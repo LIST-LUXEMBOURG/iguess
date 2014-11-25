@@ -68,8 +68,6 @@ WebGIS.initMap = function()
 	var mapProjection = new OpenLayers.Projection(WebGIS.mapProjection);
 
 	// Nothing will be displayed outside these bounds (Poland - Ireland)
-	// var boundsMap = new OpenLayers.Bounds(-1015000, 5845000, 1100000, 8000000);
-	
 	var boundsMap = new OpenLayers.Bounds(-82469714.955, -20037477.4207, 82469714.955, 20037477.4207);
 
 	WebGIS.leftMap = new OpenLayers.Map("leftMap", {
