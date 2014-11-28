@@ -1,0 +1,20 @@
+<h1>Support requests</h1>
+<br> 
+<table id="sortable_table" class="zebra sortable">
+  <thead>
+  <tr>
+    <th>Title</th>
+    <th>Type</th>
+    <th>Description</th>
+  </tr>
+  </thead>
+  <tbody> 
+  <% @tickets.each do |ticket| %>
+    <tr>
+      <td><%= ticket.title %></td>
+      <td><%= ticket.tycket_type.value %></td>
+      <td><%= ticket.description %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
