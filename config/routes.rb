@@ -57,7 +57,7 @@ Iguess::Application.routes.draw do
    end
   end
   
-
+  resources :tickets
   
 
   match "about", :to => "about#index"
