@@ -187,9 +187,17 @@ end
   equiv.save
 end
 
+# ---------- Tickets ---------- #
 
+# Types
+['Information',  'Bug', 'New feature'].each do |v|
+  TicketType.find_or_create_by_value v
+end
 
-
+# Statuses
+['Open',  'Processing', 'Closed'].each do |v|
+  TicketStatus.find_or_create_by_value v
+end
 
 
 
