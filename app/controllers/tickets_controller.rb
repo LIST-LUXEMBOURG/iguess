@@ -19,7 +19,6 @@ class TicketsController < ApplicationController
   
   def show
     @ticket = Ticket.find(params[:id])
-    @ticket_types = TicketType.all
   end
   
   def index

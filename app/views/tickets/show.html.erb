@@ -1,9 +1,9 @@
-<p>
-  <strong>Title:</strong>
-  <%= @ticket.title %>
-</p>
+  <h3><%= @ticket.id %> - <%= @ticket.title %></h3>
+
+  Author: <b><%= @ticket.user.first_name %> <%= @ticket.user.last_name %></b> &nbsp; | &nbsp; 
+  Type:   <b><%= @ticket.ticket_type.value %></b> &nbsp; | &nbsp;
+  Status: <b><%= @ticket.ticket_status.value %></b>
  
-<p>
-  <strong>Description:</strong>
+<p class="ticket_desc">
   <%= @ticket.description %>
 </p>
