@@ -7,3 +7,14 @@
 <p class="ticket_desc">
   <%= @ticket.description %>
 </p>
+
+ <%= simple_form_for @ticket_follow_up, :validate => true do |f| %>
+  <%= f.error_notification %>
+
+  <%= f.input :description, :as => :string, :placeholder => 'Follow up' %>
+
+  <%= button_to "Submit Follow up", { :action => "create_follow_up", :controller => "tickets", :id => @mod_config.id }, 
+                                      :remote => true,  
+                                      form: { :id => "follow_up", "data-type" => "json" }  %>
+                                       
+ <% end %>
