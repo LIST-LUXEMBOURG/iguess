@@ -13,8 +13,15 @@
     <%= f.label :description %><br>
     <%= f.text_area :description %>
   </p>
+  
+  <p>
+    Attach an image:<br>
+    <%= f.file_field :image_file %>
+  </p>
+ 
+ <br>
  
   <p>
-    <%= f.submit %>
+    <%= f.submit 'Submit request' %>
   </p>
 <% end %>
