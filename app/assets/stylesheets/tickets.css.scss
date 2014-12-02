@@ -1,11 +1,3 @@
-.ticket_desc
-{
-  background: #DDDDDD;
-  min-height: 40px;
-  padding: 4px;
-  margin-top: 6px;
-}
-
 .ticket_author_tab
 {
   padding: 0em !important;
@@ -28,11 +20,19 @@
 .ticket_tab td
 {
   padding: .25em .5em; 
-  background: #DDDDDD;
+  background: #CCCC66;
 } 
 
 .even_row
 {
   background-color: #D0D0D0 !important;
+}
+
+.ticket_title
+{
+  background-color: #FAFA7D;
+  margin-left: 3px;
+  margin-right: 3px;
+  padding-left: 4px;
 }
 
