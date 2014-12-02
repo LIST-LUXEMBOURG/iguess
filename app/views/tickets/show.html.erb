@@ -8,13 +8,28 @@
   <%= @ticket.description %>
 </p>
 
- <%= simple_form_for @ticket_follow_up, :validate => true do |f| %>
-  <%= f.error_notification %>
+<h3>Follow ups</h3>
+<% @ticket.ticket_follow_ups.each do |follow_up| %>
+  <p>
+    <strong>Author:</strong>
+    <%= follow_up.user.first_name %> <%= follow_up.user.last_name %>
+  </p>
+ 
+  <p>
+    <strong>Comment:</strong>
+    <%= follow_up.description %>
+  </p>
+<% end %>
 
-  <%= f.input :description, :as => :string, :placeholder => 'Follow up' %>
-
-  <%= button_to "Submit Follow up", { :action => "create_follow_up", :controller => "tickets", :id => @mod_config.id }, 
-                                      :remote => true,  
-                                      form: { :id => "follow_up", "data-type" => "json" }  %>
-                                       
- <% end %>
+<h4>Add a follow up:</h4>
+<%= form_for([@ticket, @ticket.ticket_follow_ups.build]) do |f| %>
+  <p>
+    <%= f.label :description %><br>
+    <%= f.text_area :description %>
+  </p>
+  <p>
+    <%= f.submit %>
+  </p>
+<% end %>
+ 
+<%= link_to 'Back', tickets_path %>

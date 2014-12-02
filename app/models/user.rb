@@ -2,6 +2,9 @@ class User < ActiveRecord::Base
   belongs_to :city
   
   has_many :co2_cenarios
+  
+  has_many :tickets
+  has_many :ticket_follow_ups
 
   validates_presence_of :username, :city_id, :first_name, :last_name, :email
   validates_uniqueness_of :username, :email
