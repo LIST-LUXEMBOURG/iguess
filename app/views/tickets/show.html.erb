@@ -1,35 +1,57 @@
   <h3><%= @ticket.id %> - <%= @ticket.title %></h3>
 
-  Author: <b><%= @ticket.user.first_name %> <%= @ticket.user.last_name %></b> &nbsp; | &nbsp; 
-  Type:   <b><%= @ticket.ticket_type.value %></b> &nbsp; | &nbsp;
-  Status: <b><%= @ticket.ticket_status.value %></b>
- 
-<p class="ticket_desc">
-  <%= @ticket.description %>
-</p>
+  <table class="ticket_tab" width=100%>
+  <tr>
+  <td width=180px>
+    <table class="ticket_author_tab" width=180px>
+      <tr><td align=right> Author: </td> <td width=140px> <b><%= @ticket.user.first_name %> <%= @ticket.user.last_name %></b> </td> </tr>
+      <tr><td align=right> Type:   </td> <td width=140px> <b><%= @ticket.ticket_type.value %></b> </td> </tr>
+      <tr><td align=right> Status: </td> <td width=140px> <b><%= @ticket.ticket_status.value %></b> </td> </tr>
+    </table>
+  </td>
+  <td valign=top>
+   <p>
+     <%= @ticket.description %>
+    </p>
+  </td>
+  </tr>  
+ </table>
 
-<h3>Follow ups</h3>
+<!--<h4>Follow ups</h4>-->
+  <table class="zebra" width=100%>
+<% even = false %>  
 <% @ticket.ticket_follow_ups.each do |follow_up| %>
-  <p>
-    <strong>Author:</strong>
-    <%= follow_up.user.first_name %> <%= follow_up.user.last_name %>
+  <tr>
+  <td width=180px  >
+    <table class="ticket_author_tab">
+      <tr class=" <%= if(even) then "even_row" end %>">
+      <td width=40px align=right> Author: </td> <td width=140px>
+      <b><%= follow_up.user.first_name %> <%= follow_up.user.last_name %></b> </td> </tr>
+    </table>
   </p>
- 
+  </td>
+  <td> 
   <p>
-    <strong>Comment:</strong>
     <%= follow_up.description %>
   </p>
-<% end %>
+  </td>
+  </tr>  
+<%   even = !even
+   end %>
+   </table>
+   
+    <br> <br>
 
-<h4>Add a follow up:</h4>
+<h4>Add a comment:</h4>
 <%= form_for([@ticket, @ticket.ticket_follow_ups.build]) do |f| %>
   <p>
-    <%= f.label :description %><br>
-    <%= f.text_area :description %>
-  </p>
+    <%= f.text_area :description, :cols => "100", :rows => "10" %>
+  </p> 
   <p>
-    <%= f.submit %>
+    <%= f.submit 'Submit' %>
   </p>
 <% end %>
  
-<%= link_to 'Back', tickets_path %>
+   <br>
+ 
+<%= link_to 'Back to request list', tickets_path %>
