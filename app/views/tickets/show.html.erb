@@ -5,6 +5,7 @@
   <td width=180px>
     <table class="ticket_author_tab" width=180px>
       <tr><td align=right> Author: </td> <td width=140px> <b><%= @ticket.user.first_name %> <%= @ticket.user.last_name %></b> </td> </tr>
+      <tr><td align=right> Date:   </td> <td width=140px> <b><%= @ticket.created_at.strftime("%d-%m-%Y") %> </b> </td> </tr>
       <tr><td align=right> Type:   </td> <td width=140px> <b><%= @ticket.ticket_type.value %></b> </td> </tr>
       <tr><td align=right> Status: </td> <td width=140px> <b><%= @ticket.ticket_status.value %></b> </td> </tr>
     </table>
@@ -24,9 +25,10 @@
   <tr>
   <td width=180px  >
     <table class="ticket_author_tab">
-      <tr class=" <%= if(even) then "even_row" end %>">
-      <td width=40px align=right> Author: </td> <td width=140px>
-      <b><%= follow_up.user.first_name %> <%= follow_up.user.last_name %></b> </td> </tr>
+      <tr class=" <%= if(even) then "even_row" else "odd_row" end %>">
+      <td width=40px align=right> Author: </td> <td width=140px> <b><%= follow_up.user.first_name %> <%= follow_up.user.last_name %></b> </td> </tr>
+      <tr class=" <%= if(even) then "even_row" else "odd_row" end %>">
+      <td width=40px align=right> Date: </td> <td width=140px> <b><%= @ticket.created_at.strftime("%d-%m-%Y") %></b> </td> </tr>
     </table>
   </p>
   </td>
