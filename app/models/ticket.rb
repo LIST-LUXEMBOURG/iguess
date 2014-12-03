@@ -5,11 +5,12 @@ class Ticket < ActiveRecord::Base
   
   has_many   :ticket_follow_ups
   
-  # Image storage tutorial:
-  # http://archive.railsforum.com/viewtopic.php?id=4642
-  def image_file=(input_data)
-    #self.filename = input_data.original_filename
-    #self.content_type = input_data.content_type.chomp
-    self.image = input_data.read
-  end
+  # File attachment with Papperclip:
+  # http://vernsconsciousness.blogspot.com/2014/01/using-paperclip-to-upload-and-display.html
+  has_attached_file :image, 
+    :styles => { 
+      :larger => '400x400', 
+      :medium => "200x200>", 
+      :thumb => "100x100>" }
+
 end

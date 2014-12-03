@@ -13,7 +13,9 @@
   <td valign=top>
    <p>
      <%= @ticket.description %>
-    </p>
+     <br><br>
+     <%= image_tag @ticket.image(:larger) %>
+   </p>
   </td>
   </tr>  
  </table>
