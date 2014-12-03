@@ -11,16 +11,6 @@ class TicketsController < ApplicationController
  
   def create
     @ticket = Ticket.new(params[:ticket])
-    #binding.pry
-    #@ticket = Ticket.new(
-    #  params.require(:ticket).permit(
-    #    :title, 
-    #    :user_id, 
-    #    :description, 
-    #    :ticket_type_id, 
-    #    :ticket_status_id, 
-    #    :image
-    #  ))
     @ticket.ticket_status_id = TicketStatus.find_by_value("Open").id
     @ticket.user_id = current_user.id
     @ticket.save
@@ -35,16 +25,4 @@ class TicketsController < ApplicationController
     @tickets = Ticket.all
   end
   
-#  def code_image 
-#    @image_data = Ticket.find(params[:id])
-#    @image = @image_data.binary_data
-#    send_data (@image), :type     => @image_data.content_type, 
-#                       :filename => "Ticket_" + params[:id] + "_attachment", 
-#                       :disposition => 'inline')
-#  end
-  
-#  private
-#  def ticket_params
-#    params.require(:ticket).permit(:title, :user_id, :description, :ticket_type_id, :ticket_status_id, :image)
-#  end
 end

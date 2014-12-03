@@ -2,7 +2,7 @@
 
   <table class="ticket_tab" width=100%>
   <tr>
-  <td width=180px>
+  <td width=180px valign=top>
     <table class="ticket_author_tab" width=180px>
       <tr><td align=right> Author: </td> <td width=140px> <b><%= @ticket.user.first_name %> <%= @ticket.user.last_name %></b> </td> </tr>
       <tr><td align=right> Date:   </td> <td width=140px> <b><%= @ticket.created_at.strftime("%d-%m-%Y") %> </b> </td> </tr>
@@ -14,7 +14,7 @@
    <p>
      <%= @ticket.description %>
      <br><br>
-     <%= image_tag @ticket.image(:larger) %>
+     <a href=<%= @ticket.image.url() %> target=blank><%= image_tag(@ticket.image.url(:larger)) %></a>
    </p>
   </td>
   </tr>  
