@@ -12,7 +12,13 @@ class TicketFollowUpsController < ApplicationController
     @follow_up.user_id = current_user.id
     @follow_up.description = params[:ticket_follow_up][:description]
     @follow_up.save 
-    redirect_to ticket_path(@ticket)
+    if(!params[:close].nil?) then
+      @ticket.ticket_status_id = TicketStatus.find_by_value("Closed").id
+      @ticket.save
+      redirect_to @ticket
+    else
+      redirect_to ticket_path(@ticket)
+    end
   end
 
 end
