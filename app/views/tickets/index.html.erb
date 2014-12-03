@@ -6,7 +6,7 @@
 <table id="sortable_table" class="zebra sortable">
   <thead>
   <tr>
-    <th>Number</th>
+    <th>ID</th>
     <th>Title</th>
     <th>Type</th>
     <th>Description</th>
@@ -16,11 +16,9 @@
   <% @tickets.each do |ticket| %>
     <tr>
       <td><%= ticket.id %></td>
-      <td><%= ticket.title %></td>
+      <td><%= link_to ticket.title, ticket %></td>
       <td><%= ticket.ticket_type.value %></td>
       <td><%= ticket.description %></td>
-
-      <td><%= link_to 'Show', ticket %></td>
     </tr>
   <% end %>
   </tbody>
