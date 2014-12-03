@@ -14,7 +14,9 @@
    <p>
      <%= @ticket.description %>
      <br><br>
-     <a href=<%= @ticket.image.url() %> target=blank><%= image_tag(@ticket.image.url(:larger)) %></a>
+     <a href="<%= @ticket.image.url() %>" target=blank>
+     <%= if @ticket.image.exists? then image_tag(@ticket.image.url(:larger)) end %>
+     </a>
    </p>
   </td>
   </tr>  
