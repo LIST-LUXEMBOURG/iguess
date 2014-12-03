@@ -18,7 +18,8 @@
       <td><%= ticket.id %></td>
       <td><%= link_to ticket.title, ticket %></td>
       <td><%= ticket.ticket_type.value %></td>
-      <td><%= ticket.description %></td>
+      <td><%= ticket.description[0..99] %>
+          <%= if (ticket.description.size > 100) then "..." end %></td>
     </tr>
   <% end %>
   </tbody>
