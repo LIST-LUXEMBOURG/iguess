@@ -22,7 +22,11 @@ class TicketsController < ApplicationController
   end
   
   def index
-    @tickets = Ticket.all
+    if current_user.is_admin then
+      @tickets = Ticket.all
+    else
+      @tickets = current_user.tickets
+    end
   end
   
 end
