@@ -64,7 +64,7 @@
 
 <%= form_for :ticket, url: tickets_path do |f| %>
   <%= f.hidden_field :id, {:value => @ticket.id} %>
-  <%= if @closed then f.submit 'Reopen', :name => 'reopen', :class => 'tickets_button' end %>
+  <%= if (@closed && current_user.is_admin) then f.submit 'Reopen', :name => 'reopen', :class => 'tickets_button' end %>
 <% end %>
 
 <br> 
