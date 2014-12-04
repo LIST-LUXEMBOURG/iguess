@@ -56,7 +56,7 @@
   <p>
     <%= f.submit 'Comment' %>
     &nbsp;&nbsp;&nbsp;&nbsp;
-    <%= f.submit 'Close and comment', :name => 'close' %>
+    <%= if current_user.is_admin then f.submit 'Close and comment', :name => 'close' end %>
   </p>
 <% end %>
  
