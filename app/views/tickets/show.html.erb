@@ -48,6 +48,7 @@
    
     <br> <br>
 
+<div id="comment_area">
 <h4>Add a comment:</h4>
 <%= form_for([@ticket, @ticket.ticket_follow_ups.build]) do |f| %>
   <p>
@@ -59,7 +60,12 @@
     <%= if current_user.is_admin then f.submit 'Close and comment', :name => 'close' end %>
   </p>
 <% end %>
- 
+</div> 
    <br>
  
 <%= link_to 'Back to request list', tickets_path %>
+
+<script>
+	var hideCommentArea = function() {$("#comment_area").hide();}
+	<%= if @closed then "hideCommentArea();" end %>
+</script>

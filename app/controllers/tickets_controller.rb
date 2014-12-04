@@ -19,6 +19,7 @@ class TicketsController < ApplicationController
   
   def show
     @ticket = Ticket.find(params[:id])
+    @closed = (@ticket.ticket_status_id == TicketStatus.getClosedId())
   end
   
   def index
