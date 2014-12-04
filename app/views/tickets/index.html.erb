@@ -1,7 +1,7 @@
 <h1>Support requests</h1>
 <br>
 <div>
-<button id="closed_toggle" title="Show/hide closed tickets" class="tickets_button toggle_button">Closed</button>
+<button id="closed_toggle" title="Show/hide closed tickets" class="tickets_button">Show closed</button>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <%= button_to 'New request', new_ticket_path, :class => "tickets_button" %>
 &nbsp;&nbsp;&nbsp;
@@ -68,15 +68,17 @@
    			{
    				$("#closed_table").hide();
    				$("#open_table").show();
-   				$(this).removeClass("toggle_button_down");
-   				$(this).addClass("toggle_button");
+   				//$(this).removeClass("toggle_button_down");
+   				//$(this).addClass("toggle_button");
+   				$(this).text("Show closed");
    			}
    			else
    			{
    				$("#closed_table").show();
    				$("#open_table").hide();
-   				$(this).removeClass("toggle_button");
-   				$(this).addClass("toggle_button_down");
+   				//$(this).removeClass("toggle_button");
+   				//$(this).addClass("toggle_button_down");
+   				$(this).text("Show open");
    			}
 		});
 		$("#closed_table").hide();
