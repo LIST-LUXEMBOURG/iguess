@@ -55,13 +55,19 @@
     <%= f.text_area :description, :cols => "100", :rows => "10" %>
   </p> 
   <p>
-    <%= f.submit 'Comment' %>
-    &nbsp;&nbsp;&nbsp;&nbsp;
-    <%= if current_user.is_admin then f.submit 'Close and comment', :name => 'close' end %>
+    <%= f.submit 'Comment', :class => 'tickets_button' %>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <%= if current_user.is_admin then f.submit 'Close and comment', :name => 'close', :class => 'tickets_button' end %>    
   </p>
-<% end %>
 </div> 
-   <br>
+<% end %>
+
+<%= form_for :ticket, url: tickets_path do |f| %>
+  <%= f.hidden_field :id, {:value => @ticket.id} %>
+  <%= if @closed then f.submit 'Reopen', :name => 'reopen', :class => 'tickets_button' end %>
+<% end %>
+
+<br> 
  
 <%= link_to 'Back to request list', tickets_path %>
 

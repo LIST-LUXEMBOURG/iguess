@@ -10,9 +10,14 @@ class TicketsController < ApplicationController
   end
  
   def create
-    @ticket = Ticket.new(params[:ticket])
+    if(params[:reopen].nil?) then
+      @ticket = Ticket.new(params[:ticket])
+      @ticket.user_id = current_user.id
+    else
+      binding.pry
+      @ticket = Ticket.find_by_id(params[:ticket][:id])
+    end
     @ticket.ticket_status_id = TicketStatus.getOpenId()
-    @ticket.user_id = current_user.id
     @ticket.save
     redirect_to @ticket
   end
@@ -30,6 +35,12 @@ class TicketsController < ApplicationController
       @tickets = current_user.tickets.find_all_by_ticket_status_id(TicketStatus.getOpenId(), :order => "id DESC")
       @tickets_closed = current_user.tickets.find_all_by_ticket_status_id(TicketStatus.getClosedId(), :order => "id DESC")
     end
+  end
+  
+  def reopen
+    @ticket.ticket_status_id = TicketStatus.getOpenId()
+    @ticket.save
+    redirect_to @ticket
   end
   
 end
