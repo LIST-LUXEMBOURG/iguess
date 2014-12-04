@@ -11,7 +11,7 @@ class TicketsController < ApplicationController
  
   def create
     @ticket = Ticket.new(params[:ticket])
-    @ticket.ticket_status_id = TicketStatus.find_by_value("Open").id
+    @ticket.ticket_status_id = TicketStatus.getOpenId()
     @ticket.user_id = current_user.id
     @ticket.save
     redirect_to @ticket
@@ -23,9 +23,11 @@ class TicketsController < ApplicationController
   
   def index
     if current_user.is_admin then
-      @tickets = Ticket.all(:order => "id DESC")
+      @tickets = Ticket.find_all_by_ticket_status_id(TicketStatus.getOpenId(), :order => "id DESC")
+      @tickets_closed = Ticket.find_all_by_ticket_status_id(TicketStatus.getClosedId(), :order => "id DESC")
     else
-      @tickets = current_user.tickets
+      @tickets = current_user.tickets.find_all_by_ticket_status_id(TicketStatus.getOpenId(), :order => "id DESC")
+      @tickets_closed = current_user.tickets.find_all_by_ticket_status_id(TicketStatus.getClosedId(), :order => "id DESC")
     end
   end
   

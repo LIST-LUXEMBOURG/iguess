@@ -41,3 +41,21 @@
   padding-left: 4px;
 }
 
+/* ------------- Toggle button ------------- */
+
+.toggle_button 
+{
+  width: 100px;
+  color: #999999;
+  border-color: #AAAAAA;
+  border-width: thin;           
+}
+
+.toggle_button_down 
+{
+    width: 100px;
+    color: #000000;
+    background: #DDDDDD;
+    border-width: thin;
+}
+

@@ -1,9 +1,16 @@
 <h1>Support requests</h1>
+<br>
 <div>
+<button id="closed_toggle" title="Show/hide closed tickets" class="toggle_button">Closed</button>
+&nbsp;&nbsp;&nbsp;
 <%= link_to 'New request', new_ticket_path %>
+&nbsp;&nbsp;&nbsp;
+
+
 </div>
+
 <br> 
-<table id="sortable_table" class="zebra sortable">
+<table id="open_table" class="zebra sortable">
   <thead>
   <tr>
     <th>ID</th>
@@ -25,14 +32,55 @@
   </tbody>
 </table>
 
+<table id="closed_table" class="zebra sortable">
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Title</th>
+    <th>Type</th>
+    <th>Description</th>
+  </tr>
+  </thead>
+  <tbody> 
+  <% @tickets_closed.each do |ticket| %>
+    <tr>
+      <td><%= ticket.id %></td>
+      <td><%= link_to ticket.title, ticket %></td>
+      <td><%= ticket.ticket_type.value %></td>
+      <td><%= ticket.description[0..99] %>
+          <%= if (ticket.description.size > 100) then "..." end %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>
+
 <script type="text/javascript">
 
 	//Sorting
 	$(document).ready(function() 
-	    { 
-	        $("#sortable_table").tablesorter(); 
-	    } 
-	);
+    { 
+        $("#open_table").tablesorter();
+        $("#closed_table").tablesorter();  
+        $('#closed_toggle').click(function()
+        {
+        	//$(this).toggleClass("toggle_button.down");
+   			if($("#closed_table").is(":visible"))  
+   			{
+   				$("#closed_table").hide();
+   				$("#open_table").show();
+   				$(this).removeClass("toggle_button_down");
+   				$(this).addClass("toggle_button");
+   			}
+   			else
+   			{
+   				$("#closed_table").show();
+   				$("#open_table").hide();
+   				$(this).removeClass("toggle_button");
+   				$(this).addClass("toggle_button_down");
+   			}
+		});
+		$("#closed_table").hide();
+    });
 
   $(function() 
   {
