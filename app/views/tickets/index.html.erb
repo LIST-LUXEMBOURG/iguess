@@ -63,21 +63,16 @@
         $("#closed_table").tablesorter();  
         $('#closed_toggle').click(function()
         {
-        	//$(this).toggleClass("toggle_button.down");
    			if($("#closed_table").is(":visible"))  
    			{
    				$("#closed_table").hide();
    				$("#open_table").show();
-   				//$(this).removeClass("toggle_button_down");
-   				//$(this).addClass("toggle_button");
    				$(this).text("Show closed");
    			}
    			else
    			{
    				$("#closed_table").show();
    				$("#open_table").hide();
-   				//$(this).removeClass("toggle_button");
-   				//$(this).addClass("toggle_button_down");
    				$(this).text("Show open");
    			}
 		});
