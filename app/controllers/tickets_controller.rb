@@ -23,7 +23,7 @@ class TicketsController < ApplicationController
   
   def index
     if current_user.is_admin then
-      @tickets = Ticket.all
+      @tickets = Ticket.all(:order => "id DESC")
     else
       @tickets = current_user.tickets
     end
