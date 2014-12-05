@@ -120,7 +120,7 @@
 .emptyIcon
 {
 	background-image:url(images/mapStyles/empty.png) !important;
-	width: 3px; !important;
+	width: 3px !important;
 }
 
 .hiddenRoot 
