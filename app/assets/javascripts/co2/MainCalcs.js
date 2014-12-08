@@ -53,20 +53,24 @@ CO2.n2o_emissions = 0.0;
 
 CO2.calcSectorDemand = function(sector, input_growth, input_eff, input_demand)
 {
-	CO2.sector_demands[CO2.sectorIndexes[sector]].efficiency = 
-		parseFloat(document.getElementsByName(input_eff)[0].value) / 100;
-	CO2.sector_demands[CO2.sectorIndexes[sector]].growth = 
-		parseFloat(document.getElementsByName(input_growth)[0].value) / 100;
+	var eff = parseFloat(document.getElementsByName(input_eff)[0].value);
+	if (eff == null || isNaN(eff)) eff = 0.0;
+	CO2.sector_demands[CO2.sectorIndexes[sector]].efficiency = eff / 100;
+	
+	var grow = parseFloat(document.getElementsByName(input_growth)[0].value);
+	if (grow == null || isNaN(grow)) grow = 0.0;
+	CO2.sector_demands[CO2.sectorIndexes[sector]].growth = grow / 100;
 	
 	interest = CO2.sector_demands[CO2.sectorIndexes[sector]].growth - 
 			   CO2.sector_demands[CO2.sectorIndexes[sector]].efficiency;
 	
-	CO2.sector_demands[CO2.sectorIndexes[sector]].data[0] = 
-		parseFloat(document.getElementsByName(input_demand)[0].value);
+	var data = parseFloat(document.getElementsByName(input_demand)[0].value);
+	if (data == null || isNaN(data)) data = 0.0;
+	CO2.sector_demands[CO2.sectorIndexes[sector]].data[0] = data;
 		
 	for (p = 1; p < CO2.numPeriods; p++)
 		CO2.sector_demands[CO2.sectorIndexes[sector]].data[p] = 
-			parseFloat((CO2.sector_demands[CO2.sectorIndexes[sector]].data[p- 1] * (1 + interest)).toFixed(1));
+			parseFloat((CO2.sector_demands[CO2.sectorIndexes[sector]].data[p- 1] * (1 + interest)).toFixed(2));
 };
 
 CO2.calcFactor = function(value, prefix, source, p)
