@@ -209,9 +209,9 @@ CO2.calcSectorEmissions = function(p, sector, table_name)
 	sector_demand = CO2.sector_demands[CO2.sectorIndexes[sector]].data[p];
 	// Take care of empty data
 	if (sector_demand == null || isNaN(sector_demand)) sector_demand = 0.0;
-	CO2.sector_co2[CO2.sectorIndexes[sector]].data[p] = parseInt(co2_emissions * sector_demand);
-	CO2.sector_ch4[CO2.sectorIndexes[sector]].data[p] = parseInt(ch4_emissions * sector_demand);
-	CO2.sector_n2o[CO2.sectorIndexes[sector]].data[p] = parseInt(n2o_emissions * sector_demand);
+	CO2.sector_co2[CO2.sectorIndexes[sector]].data[p] = parseFloat((co2_emissions * sector_demand).toFixed(2));
+	CO2.sector_ch4[CO2.sectorIndexes[sector]].data[p] = parseFloat((ch4_emissions * sector_demand).toFixed(2));
+	CO2.sector_n2o[CO2.sectorIndexes[sector]].data[p] = parseFloat((n2o_emissions * sector_demand).toFixed(2));
 };
 
 CO2.updateEmissionsForPeriod = function(p)
