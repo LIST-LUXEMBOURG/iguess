@@ -121,6 +121,7 @@ WebGIS.addNewLayer = function(title, serviceURL, layerName, type, tag, id)
 			loaded     : true
 		});
 		WebGIS.treeNodes[tag].on("expand", WebGIS.folderExpanded);
+		WebGIS.treeNodes[tag]["gears"] = false;
 	}
 
 	if (sessionStorage.getItem(layerName) != null) 
@@ -171,10 +172,15 @@ WebGIS.layerCheckEvent = function(node, checked)
 
 WebGIS.folderExpanded = function(folder)
 {
-	for(i=0; i < folder.childNodes.length; i++)
-		addGearsIcon(folder.childNodes[i].id.substring(
-			WebGIS.nodePrefix.length, 
-			folder.childNodes[i].id.length));
+	if(!folder["gears"])
+	{
+		for(i=0; i < folder.childNodes.length; i++)
+			addGearsIcon(folder.childNodes[i].id.substring(
+				WebGIS.nodePrefix.length, 
+				folder.childNodes[i].id.length));
+		
+		folder["gears"] = true;
+	}
 };
 
 WebGIS.addLayerToMap = function(id) 
