@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/Fixtures.html
+
+one:
+  wps_server_id: 1
+  identifier: MyText
+  name: MyText
+  descr: MyText
+
+two:
+  wps_server_id: 1
+  identifier: MyText
+  name: MyText
+  descr: MyText

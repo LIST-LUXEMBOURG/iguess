@@ -47,7 +47,6 @@ iguess_db_credentials.py
 *.pyc
 *.pyo
 *.rej
-*.yml
 *~
 ,*
 .#*
