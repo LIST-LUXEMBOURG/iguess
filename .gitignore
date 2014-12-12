@@ -24,6 +24,7 @@ iguess_db_credentials.py
 .project
 ./config/database.yml
 /config/local_env.yml
+ 
 
 # Ignore all logfiles and tempfiles.
 /log/*.log
@@ -46,6 +47,7 @@ iguess_db_credentials.py
 *.pyc
 *.pyo
 *.rej
+*.yml
 *~
 ,*
 .#*
