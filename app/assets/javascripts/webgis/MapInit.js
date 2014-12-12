@@ -40,6 +40,7 @@ WebGIS.cityZoom = null;
 WebGIS.cityCRS = null;
 
 WebGIS.nodePrefix = "dsid-";
+WebGIS.gearsFlag = "gears";
 WebGIS.buttDown = "buttDown";
 WebGIS.buttUp = "buttUp";
 WebGIS.buttClose = "buttClose";
@@ -116,12 +117,12 @@ WebGIS.addNewLayer = function(title, serviceURL, layerName, type, tag, id)
 		WebGIS.treeNodes[tag] = new Ext.tree.TreeNode({
 			text       : tag,
 			leaf       : false,
-			expanded   : false,
+			expanded   : true,
 			expandable : true,
 			loaded     : true
 		});
 		WebGIS.treeNodes[tag].on("expand", WebGIS.folderExpanded);
-		WebGIS.treeNodes[tag]["gears"] = false;
+		WebGIS.treeNodes[tag][WebGIS.gearsFlag] = false;
 	}
 
 	if (sessionStorage.getItem(layerName) != null) 
@@ -172,14 +173,15 @@ WebGIS.layerCheckEvent = function(node, checked)
 
 WebGIS.folderExpanded = function(folder)
 {
-	if(!folder["gears"])
+	if(!folder[WebGIS.gearsFlag])
 	{
 		for(i=0; i < folder.childNodes.length; i++)
+			// This is a jQuery function defined in maps/index.html.erb
 			addGearsIcon(folder.childNodes[i].id.substring(
 				WebGIS.nodePrefix.length, 
 				folder.childNodes[i].id.length));
 		
-		folder["gears"] = true;
+		folder[WebGIS.gearsFlag] = true;
 	}
 };
 
