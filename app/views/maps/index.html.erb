@@ -35,10 +35,6 @@
                               null,
                               tag,
                               i);   
-
-            $('div[ext\\:tree-node-id="dsid-' + i + '"]')
-                .append('<span class="info-icon properties" title="Click for details" ' + 
-                        'rel="#infotable-' + i + '"></span>');
         }
 
         WebGIS.attachTreeNodes();
@@ -46,6 +42,14 @@
         // Activate the gear popup menus
         activateOverlays();
     };
+    
+    var addGearsIcon = function(id)
+    {
+    	$('div[ext\\:tree-node-id="dsid-' + id + '"]')
+                .append('<span class="info-icon properties" title="Click for details" ' + 
+                        'rel="#infotable-' + id + '"></span>');
+    }
+    
 
     // This gets run when user changes city dropdown
     var onLocationChanged = function(cityId)

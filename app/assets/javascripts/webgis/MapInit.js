@@ -120,6 +120,7 @@ WebGIS.addNewLayer = function(title, serviceURL, layerName, type, tag, id)
 			expandable : true,
 			loaded     : true
 		});
+		WebGIS.treeNodes[tag].on("expand", WebGIS.folderExpanded);
 	}
 
 	if (sessionStorage.getItem(layerName) != null) 
@@ -166,6 +167,14 @@ WebGIS.layerCheckEvent = function(node, checked)
 		WebGIS.removeLayerFromMap(id);
 		sessionStorage.removeItem(layerName);
 	}
+};
+
+WebGIS.folderExpanded = function(folder)
+{
+	for(i=0; i < folder.childNodes.length; i++)
+		addGearsIcon(folder.childNodes[i].id.substring(
+			WebGIS.nodePrefix.length, 
+			folder.childNodes[i].id.length));
 };
 
 WebGIS.addLayerToMap = function(id) 
