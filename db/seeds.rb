@@ -70,6 +70,13 @@ end
    c.save
 end
 
+# Correct Marroco to Morroco
+city = City.find_by_name 'Marroco'
+city.name = 'Morroco'
+city.save
+
+
+# ------------------ CO2 Scenarios ------------------ #
 
 # Basic sectors for the CO2 model
 [# MUSIC site_details_id: 1
