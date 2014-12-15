@@ -40,7 +40,9 @@ end
 
 # If any of these values need to be updated, please do so directly in the Cities table in the database!
 
-# Luís: Why were the seeds for the cities table commented out?
+# Luís: Why were the seeds for the cities table commented out? 
+#       This way the seeds file and the database will diverge.
+#       It could become an important source of errors.
 
 # Note that the bounding box data below appear to be incorrect.  Don't rely on them unless they are corrected and this comment removed -CE
 [
