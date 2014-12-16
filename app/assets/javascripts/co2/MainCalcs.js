@@ -221,6 +221,8 @@ CO2.updateEmissionsForPeriod = function(p)
 			CO2.consPrefix + CO2.sector_co2[i].name);
 }; 
 
+// ------------- Toggle Consumption Units ------------- // 
+
 CO2.toggleUnits = function()
 {
 	if(CO2.showMWh)
@@ -257,6 +259,29 @@ CO2.toggleUnits = function()
 	return false;
 };
 
+// ------------- Toggle Generation Units ------------- // 
+
+CO2.toggleUnitsProd = function()
+{
+	if(CO2.showMWhProd)
+	{
+		CO2.showMWhProd = false;
+		document.getElementById("production-title").innerHTML = "Energy Production (%)";
+		document.getElementById("butt-units-prod").innerHTML = "Toggle units to MWh";
+	}
+	else
+	{
+		CO2.showMWhProd = true;
+		document.getElementById("production-title").innerHTML = "Energy Production (MWh)";
+		document.getElementById("butt-units-prod").innerHTML = "Toggle units to %";
+		
+		if (CO2.elecGen[0] == null)
+			for (p = 0; p < CO2.numPeriods; p++) CO2.calcElectForPeriod(p);
+		
+		CO2.changeElecUnits();
+	}
+};
+
 CO2.calcElectForPeriod = function(period)
 {
 	// 1 - sums electricity consumption of all sectors in the period
@@ -265,28 +290,33 @@ CO2.calcElectForPeriod = function(period)
 	for (var sector in CO2.sector_demands)
 	{
 		table = document.getElementById(CO2.consPrefix + CO2.sector_demands[sector].name);
-		row = table.rows[period + 1];
-		
-		for(i = 1; i < row.cells.length; i++)
+		if(table != null)
 		{
-			input = row.cells[i].children[0];
-			source = CO2.getSourceId(input);
+			row = table.rows[period + 1];
 			
-			if(source == CO2.elec_id)
+			for(i = 1; i < row.cells.length; i++)
 			{
-				// 2 - if in percentages multiplies by sector demand in the period
-				if(CO2.showMWh)
-					CO2.elecGen[period] += parseFloat(input.value);
-				else
-					CO2.elecGen[period] += parseFloat(input.value) * CO2.sector_demands[sector].data[period];
-			}
-		}	
+				input = row.cells[i].children[0];
+				source = CO2.getSourceId(input);
+				value = parseFloat(input.value);
+				
+				if((source == CO2.elec_id) && (value != null) && (!isNaN(value)))
+				{
+					// 2 - if in percentages multiplies by sector demand in the period
+					if(CO2.showMWh)
+						CO2.elecGen[period] += parseFloat(input.value);
+					else
+						CO2.elecGen[period] += parseFloat(input.value) * 
+							CO2.sector_demands[sector].data[period] / 100.0;
+				}
+			}	
+		}
 	}
 };
 
 CO2.changeElecUnits = function()
 {
- // 3 - multiplies each energy production component by total electricity consumption in the period. 
+	// 3 - multiplies each energy production component by total electricity consumption in the period. 
 	table = document.getElementById(CO2.elecTableId);
  	for(p = 0; table != null && p < table.rows.length - 1; p++)
 	{
@@ -295,11 +325,11 @@ CO2.changeElecUnits = function()
 		{
 			input = row.cells[i].children[0];
 			if(CO2.showMWhProd)
-				input.value = (parseFloat(input.value) / 
-					CO2.sector_demands[sector].data[p] * 100.0).toFixed(1);
-			else
 				input.value = (parseFloat(input.value) * 
 					CO2.elecGen[p] / 100.0).toFixed(1);
+			else
+				input.value = (parseFloat(input.value) / 
+					CO2.elecGen[p] * 100.0).toFixed(1);
 		}
 	}
 };
