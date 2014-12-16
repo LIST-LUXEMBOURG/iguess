@@ -25,6 +25,13 @@
                   else 
                     @value = @consumptions[[period, source.id, secscen.co2_sector.id]].value	
                   end
+                  
+                  # Call update totals for Electricity
+                  if(source.id == @elec_id) then 
+                  	@elecUpdate = "CO2.updateElecGen("+ period.to_s + ");"
+                  else 
+                    @elecUpdate = "" 
+                  end
               %>	
               <input name="co2_consumptions[<%= period %>][<%= source.id %>][<%= secscen.co2_sector.id %>]" 
                      type="text" value="<%= @value %>" 
@@ -33,7 +40,8 @@
                      		<%= period %>, 
                      		'<%= secscen.co2_sector.name %>',
                         	'co2_cons_total_<%= period %>_<%= secscen.co2_sector.id %>',
-                        	'tableCons<%= secscen.co2_sector.name %>'); 
+                        	'tableCons<%= secscen.co2_sector.name %>');
+              		<%= @elecUpdate %>  
                         CO2.drawCharts();
                         return false;"/>
             </td>

@@ -334,4 +334,24 @@ CO2.changeElecUnits = function()
 	}
 };
 
+CO2.updateElecGen = function(p)
+{
+	CO2.calcElectForPeriod(p);
+	
+	if(CO2.showMWhProd)
+	{
+		table = document.getElementById(CO2.elecTableId);
+		row = table.rows[p + 1];
+		previousTotal = parseFloat(row.cells[row.cells.length - 1].children[0].value);
+		
+		for(i = 1; i < row.cells.length - 1; i++)
+		{
+			input = row.cells[i].children[0];
+			input.value = (parseFloat(input.value) / previousTotal * CO2.elecGen[p]).toFixed(1);
+		}
+		
+		row.cells[row.cells.length - 1].children[0].value = CO2.elecGen[p].toFixed(1);
+	}
+};
+
 
