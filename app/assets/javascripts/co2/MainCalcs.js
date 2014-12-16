@@ -24,8 +24,11 @@
 var CO2 = CO2 || { };		// Create namespace
 
 CO2.showMWh = false;
+CO2.showMWhProd = false;
 
 CO2.consPrefix = "tableCons";
+CO2.elecTableId = "tableElecMix";
+CO2.heatTableId = "tableHeatMix";
 
 CO2.sector_emissions = new Array();
 CO2.sector_demands = new Array(); // MWh/a
@@ -40,6 +43,9 @@ CO2.ch4_elec = new Array(); // t/MWh
 CO2.ch4_heat = new Array(); // t/MWh
 CO2.n2o_elec = new Array(); // t/MWh
 CO2.n2o_heat = new Array(); // t/MWh
+
+CO2.elecGen = new Array();
+CO2.heatGen = new Array();
 
 CO2.co2_prefix = "co2_factor";
 CO2.ch4_prefix = "ch4_factor";
@@ -251,5 +257,51 @@ CO2.toggleUnits = function()
 	return false;
 };
 
+CO2.calcElectForPeriod = function(period)
+{
+	// 1 - sums electricity consumption of all sectors in the period
+	CO2.elecGen[period] = 0;
+
+	for (var sector in CO2.sector_demands)
+	{
+		table = document.getElementById(CO2.consPrefix + CO2.sector_demands[sector].name);
+		row = table.rows[period + 1];
+		
+		for(i = 1; i < row.cells.length; i++)
+		{
+			input = row.cells[i].children[0];
+			source = CO2.getSourceId(input);
+			
+			if(source == CO2.elec_id)
+			{
+				// 2 - if in percentages multiplies by sector demand in the period
+				if(CO2.showMWh)
+					CO2.elecGen[period] += parseFloat(input.value);
+				else
+					CO2.elecGen[period] += parseFloat(input.value) * CO2.sector_demands[sector].data[period];
+			}
+		}	
+	}
+};
+
+CO2.changeElecUnits = function()
+{
+ // 3 - multiplies each energy production component by total electricity consumption in the period. 
+	table = document.getElementById(CO2.elecTableId);
+ 	for(p = 0; table != null && p < table.rows.length - 1; p++)
+	{
+		row = table.rows[p + 1];
+		for(i = 1; i < row.cells.length; i++)
+		{
+			input = row.cells[i].children[0];
+			if(CO2.showMWhProd)
+				input.value = (parseFloat(input.value) / 
+					CO2.sector_demands[sector].data[p] * 100.0).toFixed(1);
+			else
+				input.value = (parseFloat(input.value) * 
+					CO2.elecGen[p] / 100.0).toFixed(1);
+		}
+	}
+};
 
 
