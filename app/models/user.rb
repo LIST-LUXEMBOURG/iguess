@@ -89,12 +89,18 @@ end
 
 
 class AdminMailer < ActionMailer::Base
-  default to: Proc.new { "christopher.eykamp@tudor.lu" },
-          from: 'noresponse@iguess.tudor.lu'
+  default to: Proc.new { "luis.desousa@tudor.lu" },
+          from: 'iguess@tudor.lu'
 
 
   def new_user_waiting_for_approval(user)
     @user = user
     mail(subject: "New User Awaiting Approval: #{@user.email}")
+  end
+  
+  def welcome_email(user)
+    @user = user
+    @url  = 'http://iguess.tudor.lu'
+    mail(to: @user.email, subject: 'Welcome to iGUESS!')
   end
 end
