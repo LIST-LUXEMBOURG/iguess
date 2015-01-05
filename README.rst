@@ -1,7 +1,8 @@
 iGUESS - integrated Geospatial Urban Energy Information & Support System
 ===============================================================================
 
-Copyright 2010 - 2014 CRP Henri Tudor. All rights reserved. 
+Copyright 2010 - 2015 Luxembourg Institute of Science and Technology. 
+All rights reserved. 
 Any use of this software constitutes full acceptance of all terms of the 
 software's license.
 
