@@ -196,6 +196,26 @@ end
   equiv.save
 end
 
+# ---------- LIST sites ---------- #
+
+[[     'iguess.list.lu',              'iGUESS',                            1],
+ ['test.iguess.list.lu',              'iGUESS [Test]',                     1],
+ [     'iguess-sl.list.lu',           'iGUESS-SL',                         2],
+ ['test.iguess-sl.list.lu',           'iGUESS-SL [Test]',                  2],
+ [     'iguess-list.list.lu',         'iGUESS-LIST',                       3],
+ ['test.iguess-list.list.lu',         'iGUESS-LIST [Test]',                3],
+ [     'hydro-atlas.list.lu',         'Hydro-Climatological Atlas',        4],
+ ['test.hydro-atlas.list.lu',         'Hydro-Climatological Atlas [Test]', 4],
+ [     'ecosystems.list.lu',          'Ecosystem Services',                5],
+ ['test.ecosystems.list.lu',          'Ecosystem Services [Test]',         5],
+ [     'smartcitylog-agadir.list.lu', 'Smart City Logistics',              7],
+ ['test.smartcitylog-agadir.list.lu', 'Smart City Logistics [Test]',       7]
+].each do |v|
+  s = Site.find_or_create_by_base_url_and_site_details_id(v[0], v[2])
+  s.title = v[1]
+  s.save
+end
+
 # ---------- Tickets ---------- #
 
 # Types
