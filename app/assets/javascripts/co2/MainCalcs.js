@@ -274,12 +274,13 @@ CO2.toggleUnitsProd = function()
 		CO2.showMWhProd = true;
 		document.getElementById("production-title").innerHTML = "Energy Production (MWh)";
 		document.getElementById("butt-units-prod").innerHTML = "Toggle units to %";
-		
-		if (CO2.elecGen[0] == null)
-			for (p = 0; p < CO2.numPeriods; p++) CO2.calcElectForPeriod(p);
-		
-		CO2.changeElecUnits();
 	}
+		
+	if (CO2.elecGen[0] == null)
+		for (p = 0; p < CO2.numPeriods; p++) CO2.calcElectForPeriod(p);
+	
+	CO2.changeElecUnits();
+
 };
 
 CO2.calcElectForPeriod = function(period)
@@ -333,6 +334,7 @@ CO2.changeElecUnits = function()
 		}
 	}
 };
+
 
 CO2.updateElecGen = function(p)
 {
