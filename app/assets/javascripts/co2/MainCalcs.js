@@ -277,16 +277,17 @@ CO2.toggleUnitsProd = function()
 	}
 		
 	if (CO2.elecGen[0] == null)
-		for (p = 0; p < CO2.numPeriods; p++) CO2.calcElectForPeriod(p);
+		for (p = 0; p < CO2.numPeriods; p++) CO2.calcProdForPeriod(p);
 	
-	CO2.changeElecUnits();
-
+	CO2.toggleUnitsProdSource(CO2.elecTableId, CO2.elecGen);
+	CO2.toggleUnitsProdSource(CO2.heatTableId, CO2.heatGen);
 };
 
-CO2.calcElectForPeriod = function(period)
+CO2.calcProdForPeriod = function(period)
 {
 	// 1 - sums electricity consumption of all sectors in the period
 	CO2.elecGen[period] = 0;
+	CO2.heatGen[period] = 0;
 
 	for (var sector in CO2.sector_demands)
 	{
@@ -301,24 +302,36 @@ CO2.calcElectForPeriod = function(period)
 				source = CO2.getSourceId(input);
 				value = parseFloat(input.value);
 				
-				if((source == CO2.elec_id) && (value != null) && (!isNaN(value)))
+				if((value != null) && (!isNaN(value)))
 				{
-					// 2 - if in percentages multiplies by sector demand in the period
-					if(CO2.showMWh)
-						CO2.elecGen[period] += parseFloat(input.value);
-					else
-						CO2.elecGen[period] += parseFloat(input.value) * 
-							CO2.sector_demands[sector].data[period] / 100.0;
+					if(source == CO2.elec_id)
+					{
+						// 2 - if in percentages multiplies by sector demand in the period
+						if(CO2.showMWh)
+							CO2.elecGen[period] += parseFloat(input.value);
+						else
+							CO2.elecGen[period] += parseFloat(input.value) * 
+								CO2.sector_demands[sector].data[period] / 100.0;
+					}
+					else if(source == CO2.heat_id)
+					{
+						if(CO2.showMWh)
+							CO2.heatGen[period] += parseFloat(input.value);
+						else
+							CO2.heatGen[period] += parseFloat(input.value) * 
+								CO2.sector_demands[sector].data[period] / 100.0;
+					}
 				}
 			}	
 		}
 	}
 };
 
-CO2.changeElecUnits = function()
+
+CO2.toggleUnitsProdSource = function(tableId, prodArray)
 {
 	// 3 - multiplies each energy production component by total electricity consumption in the period. 
-	table = document.getElementById(CO2.elecTableId);
+	table = document.getElementById(tableId);
  	for(p = 0; table != null && p < table.rows.length - 1; p++)
 	{
 		row = table.rows[p + 1];
@@ -327,33 +340,38 @@ CO2.changeElecUnits = function()
 			input = row.cells[i].children[0];
 			if(CO2.showMWhProd)
 				input.value = (parseFloat(input.value) * 
-					CO2.elecGen[p] / 100.0).toFixed(1);
+					prodArray[p] / 100.0).toFixed(1);
 			else
 				input.value = (parseFloat(input.value) / 
-					CO2.elecGen[p] * 100.0).toFixed(1);
+					prodArray[p] * 100.0).toFixed(1);
 		}
 	}
 };
 
-
-CO2.updateElecGen = function(p)
+CO2.updateProdTotals = function(p)
 {
-	CO2.calcElectForPeriod(p);
+	CO2.calcProdForPeriod(p);
 	
 	if(CO2.showMWhProd)
 	{
-		table = document.getElementById(CO2.elecTableId);
-		row = table.rows[p + 1];
-		previousTotal = parseFloat(row.cells[row.cells.length - 1].children[0].value);
-		
-		for(i = 1; i < row.cells.length - 1; i++)
-		{
-			input = row.cells[i].children[0];
-			input.value = (parseFloat(input.value) / previousTotal * CO2.elecGen[p]).toFixed(1);
-		}
-		
-		row.cells[row.cells.length - 1].children[0].value = CO2.elecGen[p].toFixed(1);
+		CO2.updateProdTotalMWh(p, CO2.elecTableId, CO2.elecGen);
+		CO2.updateProdTotalMWh(p, CO2.heatTableId, CO2.heatGen);
 	}
+};
+
+CO2.updateProdTotalMWh = function(p, tableId, prodArray)
+{
+	table = document.getElementById(tableId);
+	row = table.rows[p + 1];
+	previousTotal = parseFloat(row.cells[row.cells.length - 1].children[0].value);
+	
+	for(i = 1; i < row.cells.length - 1; i++)
+	{
+		input = row.cells[i].children[0];
+		input.value = (parseFloat(input.value) / previousTotal * prodArray[p]).toFixed(1);
+	}
+	
+	row.cells[row.cells.length - 1].children[0].value = prodArray[p].toFixed(1);
 };
 
 

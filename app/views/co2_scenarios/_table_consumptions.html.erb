@@ -28,7 +28,7 @@
                   
                   # Call update totals for Electricity
                   if(source.id == @elec_id) then 
-                  	@elecUpdate = "CO2.updateElecGen("+ period.to_s + ");"
+                  	@elecUpdate = "CO2.updateProdTotals("+ period.to_s + ");"
                   else 
                     @elecUpdate = "" 
                   end
