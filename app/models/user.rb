@@ -25,6 +25,7 @@ class User < ActiveRecord::Base
 
 
   def send_admin_mail
+    binding.pry
     AdminMailer.new_user_waiting_for_approval(self).deliver
   end
 
@@ -89,13 +90,14 @@ end
 
 
 class AdminMailer < ActionMailer::Base
-  default to: Proc.new { "luis.desousa@tudor.lu" },
+  default to: Proc.new { "luis.desousa@list.lu" },
           from: 'iguess@tudor.lu'
 
 
   def new_user_waiting_for_approval(user)
     @user = user
     mail(subject: "New User Awaiting Approval: #{@user.email}")
+    mail(to: "luis.a.de.sousa@gmail.com", subject: "New User Awaiting Approval: #{@user.email}")
   end
   
   def welcome_email(user)
