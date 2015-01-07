@@ -91,17 +91,17 @@ end
 
 class AdminMailer < ActionMailer::Base
   default to: Proc.new { "luis.a.de.sousa@gmail.com" }, #"luis.desousa@list.lu" },
-          from: 'iguess@tudor.lu'
+          from: 'iguess@list.lu'
 
 
   def new_user_waiting_for_approval(user)
     @user = user
     @url  = 'http://iguess.tudor.lu/users/edit/' + user.id.to_s
     admins = User.find_all_by_is_admin true
-    admins.each do |admin|
-      mail(to: admin.email, subject: "New User Awaiting Approval: #{@user.email}")
-    end
-    #mail(to: "luis.a.de.sousa@gmail.com", subject: "New User Awaiting Approval: #{@user.email}")
+    addr_list = Array.new
+    admins.each do |admin| addr_list.push(admin.email) end
+    binding.pry
+    mail(to: addr_list, subject: "New User Awaiting Approval: #{@user.email}")
   end
   
   def welcome_email(user)
