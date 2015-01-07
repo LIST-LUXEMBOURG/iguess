@@ -25,7 +25,6 @@ class User < ActiveRecord::Base
 
 
   def send_admin_mail
-    binding.pry
     AdminMailer.new_user_waiting_for_approval(self).deliver
   end
 
@@ -86,18 +85,23 @@ class User < ActiveRecord::Base
     return (current_user and current_user.role_id == 1) ? (City.find_by_id(current_user.city_id)) : 
                                                           (City.find_by_id(cookies['city']) or City.first)
   end
+ 
 end
 
 
 class AdminMailer < ActionMailer::Base
-  default to: Proc.new { "luis.desousa@list.lu" },
+  default to: Proc.new { "luis.a.de.sousa@gmail.com" }, #"luis.desousa@list.lu" },
           from: 'iguess@tudor.lu'
 
 
   def new_user_waiting_for_approval(user)
     @user = user
-    mail(subject: "New User Awaiting Approval: #{@user.email}")
-    mail(to: "luis.a.de.sousa@gmail.com", subject: "New User Awaiting Approval: #{@user.email}")
+    @url  = 'http://iguess.tudor.lu/users/edit/' + user.id.to_s
+    admins = User.find_all_by_is_admin true
+    admins.each do |admin|
+      mail(to: admin.email, subject: "New User Awaiting Approval: #{@user.email}")
+    end
+    #mail(to: "luis.a.de.sousa@gmail.com", subject: "New User Awaiting Approval: #{@user.email}")
   end
   
   def welcome_email(user)
