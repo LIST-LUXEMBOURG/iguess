@@ -23,7 +23,8 @@ Iguess::Application.configure do
   config.action_mailer.delivery_method = :smtp 
   
   config.action_mailer.smtp_settings = {
-   address:              'arthur.tudor.lu',
+   #address:              'arthur.tudor.lu',
+   address:              'smtp.list.lu',
    #from:                 'iguess@tudor.lu',
    port:                 25,
    domain:               'tudor.lu',
