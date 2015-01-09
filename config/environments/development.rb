@@ -23,13 +23,12 @@ Iguess::Application.configure do
   config.action_mailer.delivery_method = :smtp 
   
   config.action_mailer.smtp_settings = {
-   #address:              'arthur.tudor.lu',
    address:              'smtp.list.lu',
    #from:                 'iguess@tudor.lu',
    port:                 25,
-   domain:               'tudor.lu',
+   domain:               'list.lu',
    #authentication:       'off', # One of ==> :plain, :login, :cram_md5
-   #user_name:            'iguess',
+   #user_name:            '',
    #password:             '',
    enable_starttls_auto: false  }
   
