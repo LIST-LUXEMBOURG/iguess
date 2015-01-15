@@ -16,7 +16,6 @@ class Ticket < ActiveRecord::Base
   after_create :send_ticket_mail
 
   def send_ticket_mail()
-    #binding.pry
     TicketMailer.new_ticket(self).deliver
   end
 

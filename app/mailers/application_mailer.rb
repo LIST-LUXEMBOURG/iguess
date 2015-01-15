@@ -4,8 +4,6 @@ class ApplicationMailer < ActionMailer::Base
   default to: Proc.new { "iguess@list.lu" },
   from: 'iguess@list.lu'
   
-  def initialize(arg0, arg1)
-    @base_url = 'http://iguess.list.lu'
-  end
+  BASE_URL = 'http://iguess.list.lu'
   
 end
