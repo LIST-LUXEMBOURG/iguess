@@ -1,8 +1,4 @@
-class AdminMailer < ActionMailer::Base
-  # It should be possible to include all admins with the "to" directive
-  # but it is not working
-  default to: Proc.new { "iguess@list.lu" },
-          from: 'iguess@list.lu'
+class AdminMailer < ApplicationMailer
 
   def new_user_waiting_for_approval(user)
     @user = user
