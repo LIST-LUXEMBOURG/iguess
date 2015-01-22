@@ -40,7 +40,9 @@ end
 
 # If any of these values need to be updated, please do so directly in the Cities table in the database!
 
-# Luís: Why were the seeds for the cities table commented out?
+# Luís: Why were the seeds for the cities table commented out? 
+#       This way the seeds file and the database will diverge.
+#       It could become an important source of errors.
 
 # Note that the bounding box data below appear to be incorrect.  Don't rely on them unless they are corrected and this comment removed -CE
 [
@@ -70,6 +72,13 @@ end
    c.save
 end
 
+# Correct Marroco to Morroco
+city = City.find_by_name 'Marroco'
+city.name = 'Morroco'
+city.save
+
+
+# ------------------ CO2 Scenarios ------------------ #
 
 # Basic sectors for the CO2 model
 [# MUSIC site_details_id: 1
@@ -185,6 +194,26 @@ end
   equiv = SiteDetail.find_by_stylesheet v[0]
   equiv.tab_list = v[1]
   equiv.save
+end
+
+# ---------- LIST sites ---------- #
+
+[[     'iguess.list.lu',              'iGUESS',                            1],
+ ['test.iguess.list.lu',              'iGUESS [Test]',                     1],
+ [     'iguess-sl.list.lu',           'iGUESS-SL',                         2],
+ ['test.iguess-sl.list.lu',           'iGUESS-SL [Test]',                  2],
+ [     'iguess-list.list.lu',         'iGUESS-LIST',                       3],
+ ['test.iguess-list.list.lu',         'iGUESS-LIST [Test]',                3],
+ [     'hydro-atlas.list.lu',         'Hydro-Climatological Atlas',        4],
+ ['test.hydro-atlas.list.lu',         'Hydro-Climatological Atlas [Test]', 4],
+ [     'ecosystems.list.lu',          'Ecosystem Services',                5],
+ ['test.ecosystems.list.lu',          'Ecosystem Services [Test]',         5],
+ [     'smartcitylog-agadir.list.lu', 'Smart City Logistics',              7],
+ ['test.smartcitylog-agadir.list.lu', 'Smart City Logistics [Test]',       7]
+].each do |v|
+  s = Site.find_or_create_by_base_url_and_site_details_id(v[0], v[2])
+  s.title = v[1]
+  s.save
 end
 
 # ---------- Tickets ---------- #

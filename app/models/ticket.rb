@@ -12,5 +12,11 @@ class Ticket < ActiveRecord::Base
       :larger => '400x400', 
       :medium => "200x200>", 
       :thumb => "100x100>" }
+      
+  after_create :send_ticket_mail
+
+  def send_ticket_mail()
+    TicketMailer.new_ticket(self).deliver
+  end
 
 end

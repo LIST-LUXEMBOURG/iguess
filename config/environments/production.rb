@@ -15,15 +15,20 @@ Iguess::Application.configure do
   # Instead, do what it says here:
   # http://stackoverflow.com/questions/6161768/rails-3-email-password-in-environment-rb-push-to-git-safe
   config.action_mailer.raise_delivery_errors = false
-  # config.action_mailer.delivery_method = :smtp 
-  # config.action_mailer.smtp_settings = {
-  # address:              'arthur.tudor.lu',
-  # port:                 25,
-  # domain:               'tudor.lu',
-  # user_name:            'xxx',
-  # password:             'xxx',
-  # authentication:       'plain',    # One of ==> :plain, :login, :cram_md5
-  # enable_starttls_auto: false  }
+  config.action_mailer.delivery_method = :smtp 
+  
+  config.action_mailer.smtp_settings = {
+   address:              'smtp.list.lu',
+   #from:                 'iguess@tudor.lu',
+   port:                 25,
+   domain:               'list.lu',
+   #authentication:       'off', # One of ==> :plain, :login, :cram_md5
+   #user_name:            '',
+   #password:             '',
+   enable_starttls_auto: false  }
+  
+  config.action_mailer.perform_deliveries = true
+
 
   # Devise authentication
   config.action_mailer.default_url_options = { :host => 'localhost:3000' }

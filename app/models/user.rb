@@ -24,7 +24,7 @@ class User < ActiveRecord::Base
   attr_accessor :login
 
 
-  def send_admin_mail
+  def send_admin_mail()
     AdminMailer.new_user_waiting_for_approval(self).deliver
   end
 
@@ -85,16 +85,7 @@ class User < ActiveRecord::Base
     return (current_user and current_user.role_id == 1) ? (City.find_by_id(current_user.city_id)) : 
                                                           (City.find_by_id(cookies['city']) or City.first)
   end
+ 
 end
 
 
-class AdminMailer < ActionMailer::Base
-  default to: Proc.new { "christopher.eykamp@tudor.lu" },
-          from: 'noresponse@iguess.tudor.lu'
-
-
-  def new_user_waiting_for_approval(user)
-    @user = user
-    mail(subject: "New User Awaiting Approval: #{@user.email}")
-  end
-end

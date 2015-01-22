@@ -24,6 +24,8 @@ class UsersController < ApplicationController
       if @user.update_attributes(params[:user], :without_protection => true) then
       	# @user.approved = params[:user][:approved]
       	# @user.save 
+      	
+      	AdminMailer.welcome_email(@user).deliver
 
         format.html { redirect_to '/', notice: "User was successfully approved." }
         format.json { head :no_content }
