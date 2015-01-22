@@ -6,6 +6,7 @@
 
 # Ignore bundler config
 /.bundle
+.metadata
 
 #Ignore passwords for harvester.py
 harvester_pwd.py
@@ -64,3 +65,5 @@ _$*
 Merges.txt
 .pydevproject
 .settings/org.eclipse.core.resources.prefs
+WPSClient.cfg
+writelog.py
