@@ -110,6 +110,10 @@
             <li id="nav-8" title="<u><b>About</b></u><br>About this site and contact details">
                 <%= link_to "About", about_path, :class => (@activeTab == "about" ? "active-tab" : "") %>
             </li>
+          <% elsif tab == "support" %>        
+            <li id="nav-9" title="<u><b>Support</b></u><br>Report issues and file functionality requests">
+                <%= link_to "Support", tickets_path, :class => (@activeTab == "support" ? "active-tab" : "") %>
+            </li>
           <% end %>
         <% end %>
 
