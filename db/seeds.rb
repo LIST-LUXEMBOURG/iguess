@@ -22,6 +22,11 @@
     d.save
 end
 
+# Add Support tab to MUSIC site
+d = SiteDetail.find_by_stylesheet('iguess.css')
+d.tab_list = 'home, datamanager, modules, scenarios, maps, about, support'
+d.save
+
 # Sites
 [['smartcitylog-agadir.tudor.lu', 'Smart City Logistics', 'smartcitylog-agadir.css'],
  ['test.smartcitylog-agadir.tudor.lu', 'Smart City Logistics [Test]', 'smartcitylog-agadir.css']
