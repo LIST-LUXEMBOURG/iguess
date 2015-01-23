@@ -14,7 +14,6 @@ class TicketsController < ApplicationController
       @ticket = Ticket.new(params[:ticket])
       @ticket.user_id = current_user.id
     else
-      binding.pry
       @ticket = Ticket.find_by_id(params[:ticket][:id])
     end
     @ticket.ticket_status_id = TicketStatus.getOpenId()
