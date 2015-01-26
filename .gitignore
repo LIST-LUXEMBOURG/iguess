@@ -17,7 +17,6 @@ harvester_pwd.py
 #Ignore config files
 config/database.yml
 config/database.yml.old
-config/database.yml
 WPSClient.cfg
 iguess_db_credentials.py
 
@@ -65,7 +64,3 @@ _$*
 Merges.txt
 .pydevproject
 .settings/org.eclipse.core.resources.prefs
-WPSClient.cfg
-writelog.py
-iguess_db_credentials.py
-WPSClient.cfg
