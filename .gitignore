@@ -67,3 +67,5 @@ Merges.txt
 .settings/org.eclipse.core.resources.prefs
 WPSClient.cfg
 writelog.py
+iguess_db_credentials.py
+WPSClient.cfg
