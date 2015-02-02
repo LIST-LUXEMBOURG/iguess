@@ -64,3 +64,5 @@ _$*
 Merges.txt
 .pydevproject
 .settings/org.eclipse.core.resources.prefs
+doc/models_complete.svg
+WPSClient/
