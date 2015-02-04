@@ -21,6 +21,7 @@ from iguess_db_credentials import dbServer, dbName, dbUsername, dbPassword, dbSc
 
 logLevel = "INFO"
 
+
 ############################################################
 # Global vars -- will be assigned later
 
@@ -231,13 +232,13 @@ def insert_new_dataset(dataset, recordId, url, serverId, city_id, epsg):
                       "    (title, server_url, dataserver_id, identifier, abstract, city_id,        "
                       "         alive, finalized, created_at, updated_at, service,                  "
                       "         bbox_left, bbox_bottom, bbox_right, bbox_top, format, last_seen,    "
-                      "         resolution_x, resolution_y, local_srs, bbox_srs)                    "
+                      "         resolution_x, resolution_y, local_srs, bbox_srs, wps_output)                    "
                       "VALUES(                                                                      "
                       "  (                                                                          "
                       "      SELECT value FROM " + dbSchema + ".config_text_inputs                  "
                       "      WHERE mod_config_id = %s AND identifier = %s AND is_input = FALSE     "
                       "  ),                                                                         "
-                      " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
+                      " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) "
                       "RETURNING id")
 
     abstract = "Result calculated with module"
@@ -257,7 +258,7 @@ def insert_new_dataset(dataset, recordId, url, serverId, city_id, epsg):
     cur.execute(query_template, (recordId, dataset.uniqueID, url, serverId, dataset.uniqueID, abstract, 
                                  city_id, True, True, now, now,
                                  get_service(dataset), xl, yl, xh, yh, format, now, raster_res_x, raster_res_y,
-                                 True, "EPSG:" + str(epsg) ))
+                                 True, "EPSG:" + str(epsg), True ))
 
     if cur.rowcount == 0:
         log_error_msg(recordId, "Error: Unable to insert record into datasets table")

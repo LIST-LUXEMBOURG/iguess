@@ -6,6 +6,7 @@
 
 # Ignore bundler config
 /.bundle
+.metadata
 
 #Ignore passwords for harvester.py
 harvester_pwd.py
@@ -16,7 +17,6 @@ harvester_pwd.py
 #Ignore config files
 config/database.yml
 config/database.yml.old
-config/database.yml
 WPSClient.cfg
 iguess_db_credentials.py
 
@@ -24,6 +24,7 @@ iguess_db_credentials.py
 .project
 ./config/database.yml
 /config/local_env.yml
+ 
 
 # Ignore all logfiles and tempfiles.
 /log/*.log
@@ -63,3 +64,5 @@ _$*
 Merges.txt
 .pydevproject
 .settings/org.eclipse.core.resources.prefs
+doc/models_complete.svg
+WPSClient/
