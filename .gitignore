@@ -19,6 +19,7 @@ config/database.yml
 config/database.yml.old
 WPSClient.cfg
 iguess_db_credentials.py
+iguess_db_credentials.py.dist
 
 
 .project
