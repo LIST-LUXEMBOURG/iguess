@@ -105,7 +105,7 @@
           </dd>
            <dt>Module Output:</dt>
            <dd>
-           	<%if d.wps_output%>
+           	<%if d.wps_output == true %>
            		<%= "Yes" %>
            	<%else%>
            		<%= "No" %>
@@ -115,7 +115,7 @@
           <dt>Actions:</dt>
           <dd>
             <% if d.mod_configs.size == 0 %>
-            	  <%if d.wps_output %>
+            	  <%if d.wps_output  == true %>
 	                  <% msg = "Are you sure you want to unregister this dataset?  " + 
 	                  		"The dataset record will be removed from the DataManager list. " +
 	                        "All the data generated automatically by the WPS module " +
