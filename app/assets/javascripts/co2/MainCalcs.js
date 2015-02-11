@@ -26,6 +26,10 @@ var CO2 = CO2 || { };		// Create namespace
 CO2.showMWh = false;
 CO2.showMWhProd = false;
 
+CO2.errors = 0;
+CO2.corrtClass = "percent-green";
+CO2.errorClass = "percent-red";
+
 CO2.consPrefix = "tableCons";
 CO2.elecTableId = "tableElecMix";
 CO2.heatTableId = "tableHeatMix";
@@ -116,16 +120,28 @@ CO2.updateTotal = function(p, tot_name, table_name)
 	return total_box;
 };
 
+CO2.setTotalColour = function(condition, total_box)
+{
+	if(condition)
+	{
+		if(total_box.className == CO2.errorClass) CO2.errors--;
+		total_box.className = CO2.corrtClass;
+	}
+	else		
+	{
+		if(total_box.className == CO2.corrtClass) CO2.errors++;
+		total_box.className = CO2.errorClass;
+	}
+};
+
 CO2.setTotalColourPercent = function(total_box)
 {
-	if(total_box.value >=0 && total_box.value <= 100) 
-		total_box.className = "percent-green";
-	else total_box.className = "percent-red";
+	CO2.setTotalColour(total_box.value >=0 && total_box.value <= 100, total_box); 
 };
 
 CO2.updateElecTotals = function(p, tot_name, table_name)
 {
-	CO2.setTotalColourPercent(CO2.updateTotal(p, tot_name, table_name));
+	CO2.setTotalColourProd(CO2.updateTotal(p, tot_name, table_name), CO2.elecGen[p]);
 	CO2.calcComposedEmissions(table_name, p);
 		
 	CO2.co2_elec[p] = CO2.co2_emissions;
@@ -135,7 +151,7 @@ CO2.updateElecTotals = function(p, tot_name, table_name)
 
 CO2.updateHeatTotals = function(p, tot_name, table_name)
 {
-	CO2.setTotalColourPercent(CO2.updateTotal(p, tot_name, table_name));
+	CO2.setTotalColourProd(CO2.updateTotal(p, tot_name, table_name), CO2.heatGen[p]);
 	CO2.calcComposedEmissions(table_name, p);
 		
 	CO2.co2_heat[p] = CO2.co2_emissions;
@@ -146,12 +162,19 @@ CO2.updateHeatTotals = function(p, tot_name, table_name)
 CO2.setTotalColourCons = function(total_box, p, sector)
 {
 	if(CO2.showMWh)
-	{
-		if(total_box.value >=0 && total_box.value <= CO2.sector_demands[CO2.sectorIndexes[sector]].data[p])
-			total_box.className = "percent-green";
-		else total_box.className = "percent-red";
-	}
-	else CO2.setTotalColourPercent(total_box);
+		CO2.setTotalColour(
+			total_box.value >=0 && total_box.value <= CO2.sector_demands[CO2.sectorIndexes[sector]].data[p],
+			total_box);
+	else 
+		CO2.setTotalColourPercent(total_box);
+};
+
+CO2.setTotalColourProd = function(total_box, genPeriod)
+{
+	if(CO2.showMWhProd)
+		CO2.setTotalColour(total_box.value >=0 && total_box.value <= genPeriod, total_box);
+	else 
+		CO2.setTotalColourPercent(total_box);
 };
 
 CO2.updateConsTotals = function(p, sector, tot_name, table_name)
