@@ -27,6 +27,7 @@ var rollEmissionFactors = function()
 submitForm = function()
 {
 	if(CO2.showMWh) CO2.toggleUnits();
+	if(CO2.showMWhProd) CO2.toggleUnitsProd();
 	$('form').submit();
 	return false;
 }
