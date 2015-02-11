@@ -26,6 +26,11 @@ var rollEmissionFactors = function()
 
 submitForm = function()
 {
+	if(CO2.errors > 0)
+	{
+		alert("There are errors in this Scenario.\n\nPlease make sure that all totals are coloured in green.");
+		return;
+	}
 	if(CO2.showMWh) CO2.toggleUnits();
 	if(CO2.showMWhProd) CO2.toggleUnitsProd();
 	$('form').submit();
