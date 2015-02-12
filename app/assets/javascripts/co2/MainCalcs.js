@@ -23,24 +23,31 @@
 
 var CO2 = CO2 || { };		// Create namespace
 
+// Flags indicating which untis to display (% or MWh)
 CO2.showMWh = false;
 CO2.showMWhProd = false;
 
+// Stores the number of errors in the scenario, i.e. number of rows for which 
+// the total is either under 0% or over 100%
 CO2.errors = 0;
+// CSS classes for totals boxes
 CO2.corrtClass = "percent-green";
 CO2.errorClass = "percent-red";
 
+// Table names created by the rails code
 CO2.consPrefix = "tableCons";
 CO2.elecTableId = "tableElecMix";
 CO2.heatTableId = "tableHeatMix";
 
-CO2.sector_emissions = new Array();
+// Demand values per sector and time step. Built in calcSectorDemand.
 CO2.sector_demands = new Array(); // MWh/a
 
+// Emissions by sector, used to build the graphs.
 CO2.sector_co2 = new Array(); // t/a
 CO2.sector_ch4 = new Array(); // g/a
 CO2.sector_n2o = new Array(); // g/a
 
+// Intermidiate emissions for heat and electricity 
 CO2.co2_elec = new Array(); // t/MWh
 CO2.co2_heat = new Array(); // t/MWh
 CO2.ch4_elec = new Array(); // t/MWh
@@ -48,9 +55,12 @@ CO2.ch4_heat = new Array(); // t/MWh
 CO2.n2o_elec = new Array(); // t/MWh
 CO2.n2o_heat = new Array(); // t/MWh
 
+// Total electricity and heat generated at each time step. 
+// Used by the unit conversion buttons.
 CO2.elecGen = new Array();
 CO2.heatGen = new Array();
 
+// Prefixes to the data inout boxes.
 CO2.co2_prefix = "co2_factor";
 CO2.ch4_prefix = "ch4_factor";
 CO2.n2o_prefix = "n2o_factor";
@@ -63,7 +73,8 @@ CO2.n2o_emissions = 0.0;
 
 /**
  * Method: calcSectorDemand
- * Handles filtering to the layer catalogue.
+ * Builds the sector_demands array, calculating demand values per sector and 
+ * per time step from demand table.
  */
 CO2.calcSectorDemand = function(sector, input_growth, input_eff, input_demand)
 {
