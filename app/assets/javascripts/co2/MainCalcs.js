@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2010 - 2014 CRP Henri Tudor
+ *  Copyright (C) 2010 - 2015 CRP Henri Tudor
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,6 +61,10 @@ CO2.co2_emissions = 0.0;
 CO2.ch4_emissions = 0.0;
 CO2.n2o_emissions = 0.0;
 
+/**
+ * Method: calcSectorDemand
+ * Handles filtering to the layer catalogue.
+ */
 CO2.calcSectorDemand = function(sector, input_growth, input_eff, input_demand)
 {
 	CO2.sector_demands[CO2.sectorIndexes[sector]].efficiency = 
