@@ -327,6 +327,11 @@ CO2.updateEmissionsForPeriod = function(p)
 
 // ------------- Toggle Consumption Units ------------- // 
 
+/**
+ * Method: toggleUnits
+ * Iterates through the Consumption tables toggling units between % and MWh. 
+ * Updates labels and buttons accordingly.
+ */
 CO2.toggleUnits = function()
 {
 	if(CO2.showMWh)
@@ -365,6 +370,12 @@ CO2.toggleUnits = function()
 
 // ------------- Toggle Generation Units ------------- // 
 
+/**
+ * Method: toggleUnitsProd
+ * Triggers the computations that toggle Production units between % and MWh.
+ * Triggers calculation of total production values if they have not been yet.
+ * Updates labels and buttons accordingly.
+ */
 CO2.toggleUnitsProd = function()
 {
 	if(CO2.showMWhProd)
@@ -387,6 +398,13 @@ CO2.toggleUnitsProd = function()
 	CO2.toggleUnitsProdSource(CO2.heatTableId, CO2.heatGen);
 };
 
+/**
+ * Method: calcProdForPeriod
+ * Calculates total energy produced at a given period.
+ * These totals are derived from sectorial consumptions and the percentages 
+ * registered for electricity and heat sources in the period.
+ * Stores results in CO2.elecGen and CO2.heatGen.
+ */
 CO2.calcProdForPeriod = function(period)
 {
 	// 1 - sums electricity consumption of all sectors in the period
@@ -431,7 +449,11 @@ CO2.calcProdForPeriod = function(period)
 	}
 };
 
-
+/**
+ * Method: toggleUnits
+ * Iterates through a given Production table toggling units between % and MWh. 
+ * It requires an production totals array, e.g. CO2.elecGen or CO2.heatGen.
+ */
 CO2.toggleUnitsProdSource = function(tableId, prodArray)
 {
 	// 3 - multiplies each energy production component by total electricity consumption in the period. 
@@ -452,6 +474,10 @@ CO2.toggleUnitsProdSource = function(tableId, prodArray)
 	}
 };
 
+/**
+ * Method: toggleUnits
+ * Updates production totals arrays when a sectorial consumption is modified.
+ */
 CO2.updateProdTotals = function(p)
 {
 	CO2.calcProdForPeriod(p);
@@ -463,6 +489,11 @@ CO2.updateProdTotals = function(p)
 	}
 };
 
+/**
+ * Method: toggleUnits
+ * Updates production total in a given period for a given source.
+ * Stores the result in a production totals array, e.g. CO2.elecGen or CO2.heatGen.
+ */
 CO2.updateProdTotalMWh = function(p, tableId, prodArray)
 {
 	table = document.getElementById(tableId);
