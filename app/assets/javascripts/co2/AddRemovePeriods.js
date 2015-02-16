@@ -23,6 +23,10 @@
  
 var CO2 = CO2 || { };		// Create namespace
 
+/**
+ * Method: updateNormalInputName
+ * Updates input box name according to a given period and a source.
+ */
 CO2.updateNormalInputName = function(input, inputName, newPeriod, sourceId)
 {	
 	input.setAttribute("name", 
@@ -31,12 +35,20 @@ CO2.updateNormalInputName = function(input, inputName, newPeriod, sourceId)
 		sourceId  + "]"   );
 };
 
+/**
+ * Method: processNormalInput
+ * Sets name and onChange attributes for an Emission factor input box in a new period.
+ */
 CO2.processNormalInput = function(input, inputName, newPeriod, sourceId)
 {
 	CO2.updateNormalInputName(input, inputName, newPeriod, sourceId);		
 	input.setAttribute("onchange", "stub(" + newPeriod + "); return false;");
 };
 
+/**
+ * Method: processHeatInput
+ * Sets name and onChange attributes for an Heat input box in a new period.
+ */
 CO2.processHeatInput = function(input, inputName, newPeriod, sourceId)
 {
 	CO2.updateNormalInputName(input, inputName, newPeriod, sourceId);		
@@ -50,6 +62,10 @@ CO2.processHeatInput = function(input, inputName, newPeriod, sourceId)
 		);
 };
 
+/**
+ * Method: processElecInput
+ * Sets name and onChange attributes for an Electricity input box in a new period.
+ */
 CO2.processElecInput = function(input, inputName, newPeriod, sourceId)
 {
 	CO2.updateNormalInputName(input, inputName, newPeriod, sourceId);		
@@ -63,6 +79,10 @@ CO2.processElecInput = function(input, inputName, newPeriod, sourceId)
 		);
 };
 
+/**
+ * Method: processElecInput
+ * Sets name and onChange attributes for a Consumption input box in a new period.
+ */
 CO2.processConsInput = function(input, inputName, newPeriod, sourceId, tableName)
 {
 	sectorId = input.name.split("[")[3].split("]")[0];
@@ -85,18 +105,30 @@ CO2.processConsInput = function(input, inputName, newPeriod, sourceId, tableName
 		);
 };
 
+/**
+ * Method: processElecInput
+ * Sets id attributes for a total Electricity input box in a new period.
+ */
 CO2.processElecTotals = function(newRow, newPeriod)
 {
 	var input = newRow.children()[newRow.children().length - 1].children[0];
 	input.setAttribute("id", "co2_elec_mix_total_" + newPeriod);
 };
 
+/**
+ * Method: processHeatTotals
+ * Sets id attributes for a total Heat input box in a new period.
+ */
 CO2.processHeatTotals = function(newRow, newPeriod)
 {
 	var input = newRow.children()[newRow.children().length - 1].children[0];
 	input.setAttribute("id", "co2_heat_mix_total_" + newPeriod);
 };
 
+/**
+ * Method: processConsTotals
+ * Sets id attributes for a total Consumption input box in a new period.
+ */
 CO2.processConsTotals = function(newRow, newPeriod)
 {
 	var input = newRow.children()[newRow.children().length - 1].children[0];
@@ -104,6 +136,11 @@ CO2.processConsTotals = function(newRow, newPeriod)
 	input.setAttribute("id", "co2_cons_total_" + newPeriod + "_" + split[4]);
 };
 
+/**
+ * Method: addPeriodToTable
+ * Adds a new period to an input table by cloning its last row.
+ * Receives input box processing functions as arguments.
+ */
 CO2.addPeriodToTable = function(tableName, inputName, totals, newYear, newPeriod, 
 	processInput, processTotals)
 {
@@ -124,6 +161,12 @@ CO2.addPeriodToTable = function(tableName, inputName, totals, newYear, newPeriod
 	$("[id='" + tableName + "']").append(newRow);
 };
 
+/**
+ * Method: addPeriod
+ * Adds a new period to CO2 scenario.
+ * Adds a new row to every table for the new period.
+ * Expands data arrays and triggers demands recalculation.
+ */
 CO2.addPeriod = function()
 {
 	CO2.numPeriods = CO2.numPeriods + 1;
@@ -175,6 +218,12 @@ CO2.addPeriod = function()
 	CO2.drawCharts();
 };
 
+/**
+ * Method: removePeriod
+ * Removes a period from a CO2 scenario.
+ * Removes the last row of every table.
+ * Contracts data arrays.
+ */
 CO2.removePeriod = function()
 {
 	CO2.numPeriods = CO2.numPeriods - 1;

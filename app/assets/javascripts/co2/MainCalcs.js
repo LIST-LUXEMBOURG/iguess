@@ -450,7 +450,7 @@ CO2.calcProdForPeriod = function(period)
 };
 
 /**
- * Method: toggleUnits
+ * Method: toggleUnitsProdSource
  * Iterates through a given Production table toggling units between % and MWh. 
  * It requires an production totals array, e.g. CO2.elecGen or CO2.heatGen.
  */
@@ -475,7 +475,7 @@ CO2.toggleUnitsProdSource = function(tableId, prodArray)
 };
 
 /**
- * Method: toggleUnits
+ * Method: updateProdTotals
  * Updates production totals arrays when a sectorial consumption is modified.
  */
 CO2.updateProdTotals = function(p)
@@ -490,7 +490,7 @@ CO2.updateProdTotals = function(p)
 };
 
 /**
- * Method: toggleUnits
+ * Method: updateProdTotalMWh
  * Updates production total in a given period for a given source.
  * Stores the result in a production totals array, e.g. CO2.elecGen or CO2.heatGen.
  */
