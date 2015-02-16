@@ -20,10 +20,15 @@ config/database.yml
 WPSClient.cfg
 iguess_db_credentials.py
 
-
 .project
 ./config/database.yml
 /config/local_env.yml
+
+# Ignore git folder
+.git
+
+# Images folder
+public/system/tickets/images
 
 # Ignore all logfiles and tempfiles.
 /log/*.log
