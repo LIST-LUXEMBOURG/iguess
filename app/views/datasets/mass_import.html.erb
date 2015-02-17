@@ -1033,8 +1033,8 @@
     }
 
     // WFS 1.0.0 seems not to return server owner details
-    var serverInfo = new ServerInfo(capabilities.service.title, 
-                                    capabilities.service["abstract"]);
+    var serverInfo = new ServerInfo(capabilities.serviceIdentification.title, 
+                                    capabilities.serviceIdentification.abstract);
 
     doneProcessing("WFS", serverInfo);
   };
