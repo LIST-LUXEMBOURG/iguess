@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2010 - 2014 CRP Henri Tudor
+ *  Copyright (C) 2010 - 2015 CRP Henri Tudor
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,17 +23,31 @@
 
 var CO2 = CO2 || { };		// Create namespace
 
+// Flags indicating which untis to display (% or MWh)
 CO2.showMWh = false;
+CO2.showMWhProd = false;
 
+// Stores the number of errors in the scenario, i.e. number of rows for which 
+// the total is either under 0% or over 100%
+CO2.errors = 0;
+// CSS classes for totals boxes
+CO2.corrtClass = "percent-green";
+CO2.errorClass = "percent-red";
+
+// Table names created by the rails code
 CO2.consPrefix = "tableCons";
+CO2.elecTableId = "tableElecMix";
+CO2.heatTableId = "tableHeatMix";
 
-CO2.sector_emissions = new Array();
+// Demand values per sector and period. Built in calcSectorDemand.
 CO2.sector_demands = new Array(); // MWh/a
 
+// Emissions by sector, used to build the graphs.
 CO2.sector_co2 = new Array(); // t/a
 CO2.sector_ch4 = new Array(); // g/a
 CO2.sector_n2o = new Array(); // g/a
 
+// Intermidiate emissions for heat and electricity 
 CO2.co2_elec = new Array(); // t/MWh
 CO2.co2_heat = new Array(); // t/MWh
 CO2.ch4_elec = new Array(); // t/MWh
@@ -41,6 +55,12 @@ CO2.ch4_heat = new Array(); // t/MWh
 CO2.n2o_elec = new Array(); // t/MWh
 CO2.n2o_heat = new Array(); // t/MWh
 
+// Total electricity and heat generated at each period. 
+// Used by the unit conversion buttons.
+CO2.elecGen = new Array();
+CO2.heatGen = new Array();
+
+// Prefixes to the data inout boxes.
 CO2.co2_prefix = "co2_factor";
 CO2.ch4_prefix = "ch4_factor";
 CO2.n2o_prefix = "n2o_factor";
@@ -51,6 +71,11 @@ CO2.co2_emissions = 0.0;
 CO2.ch4_emissions = 0.0;
 CO2.n2o_emissions = 0.0;
 
+/**
+ * Method: calcSectorDemand
+ * Builds the sector_demands array, calculating demand values per sector and 
+ * per period from demand table.
+ */
 CO2.calcSectorDemand = function(sector, input_growth, input_eff, input_demand)
 {
 	var eff = parseFloat(document.getElementsByName(input_eff)[0].value);
@@ -73,6 +98,13 @@ CO2.calcSectorDemand = function(sector, input_growth, input_eff, input_demand)
 			parseFloat((CO2.sector_demands[CO2.sectorIndexes[sector]].data[p- 1] * (1 + interest)).toFixed(2));
 };
 
+/**
+ * Method: calcFactor
+ * 
+ * Returns:
+ * Disaggregate value for a given source at a given period 
+ * from a given aggregate total.
+ */
 CO2.calcFactor = function(value, prefix, source, p)
 {
 	factor_name = prefix + "[" + p + "][" + source + "]";
@@ -80,6 +112,10 @@ CO2.calcFactor = function(value, prefix, source, p)
 	return factor * value / 100; 
 };
 
+/**
+ * Method: calcComposedEmissions
+ * Computes total emessions for each substance at a given period.
+ */
 CO2.calcComposedEmissions = function(table_name, p)
 {
 	table = document.getElementById(table_name);
@@ -99,6 +135,13 @@ CO2.calcComposedEmissions = function(table_name, p)
 	}
 };
 
+/**
+ * Method: updateTotal
+ * Computes total for a given period from the individual values of each sector.
+ * 
+ * Returns:
+ * Input box containing the total for the period.
+ */
 CO2.updateTotal = function(p, tot_name, table_name)
 {
 	id = tot_name;
@@ -114,16 +157,42 @@ CO2.updateTotal = function(p, tot_name, table_name)
 	return total_box;
 };
 
-CO2.setTotalColourPercent = function(total_box)
+/**
+ * Method: setTotalColour
+ * Sets the colour of a total box: green if correct, red otherwise.
+ * Also updates number of errors in the Scenario.
+ */
+CO2.setTotalColour = function(condition, total_box)
 {
-	if(total_box.value >=0 && total_box.value <= 100) 
-		total_box.className = "percent-green";
-	else total_box.className = "percent-red";
+	if(condition)
+	{
+		if(total_box.className == CO2.errorClass) CO2.errors--;
+		total_box.className = CO2.corrtClass;
+	}
+	else		
+	{
+		if(total_box.className == CO2.corrtClass) CO2.errors++;
+		total_box.className = CO2.errorClass;
+	}
 };
 
+/**
+ * Method: setTotalColourPercent
+ * Determines if a percentage total is correct or not. 
+ * Asks for a colour change accordingly.
+ */
+CO2.setTotalColourPercent = function(total_box)
+{
+	CO2.setTotalColour(total_box.value >=0 && total_box.value <= 100, total_box); 
+};
+
+/**
+ * Method: updateElecTotals
+ * Updates substance emissions from Electricity sources for a given period.
+ */
 CO2.updateElecTotals = function(p, tot_name, table_name)
 {
-	CO2.setTotalColourPercent(CO2.updateTotal(p, tot_name, table_name));
+	CO2.setTotalColourProd(CO2.updateTotal(p, tot_name, table_name), CO2.elecGen[p]);
 	CO2.calcComposedEmissions(table_name, p);
 		
 	CO2.co2_elec[p] = CO2.co2_emissions;
@@ -131,9 +200,13 @@ CO2.updateElecTotals = function(p, tot_name, table_name)
 	CO2.n2o_elec[p] = CO2.n2o_emissions;
 };
 
+/**
+ * Method: updateElecTotals
+ * Updates substance emissions from Heat sources for a given period.
+ */
 CO2.updateHeatTotals = function(p, tot_name, table_name)
 {
-	CO2.setTotalColourPercent(CO2.updateTotal(p, tot_name, table_name));
+	CO2.setTotalColourProd(CO2.updateTotal(p, tot_name, table_name), CO2.heatGen[p]);
 	CO2.calcComposedEmissions(table_name, p);
 		
 	CO2.co2_heat[p] = CO2.co2_emissions;
@@ -141,23 +214,51 @@ CO2.updateHeatTotals = function(p, tot_name, table_name)
 	CO2.n2o_heat[p] = CO2.n2o_emissions;
 };
 
+/**
+ * Method: setTotalColourCons
+ * Determines if total consumption for a given period in a given sector 
+ * is correct and updates the total box colour accordingly.
+ */
 CO2.setTotalColourCons = function(total_box, p, sector)
 {
 	if(CO2.showMWh)
-	{
-		if(total_box.value >=0 && total_box.value <= CO2.sector_demands[CO2.sectorIndexes[sector]].data[p])
-			total_box.className = "percent-green";
-		else total_box.className = "percent-red";
-	}
-	else CO2.setTotalColourPercent(total_box);
+		CO2.setTotalColour(
+			total_box.value >=0 && total_box.value <= CO2.sector_demands[CO2.sectorIndexes[sector]].data[p],
+			total_box);
+	else 
+		CO2.setTotalColourPercent(total_box);
 };
 
+/**
+ * Method: setTotalColourProd
+ * Determines if total energy production for a given period
+ * is correct and updates the total box colour accordingly.
+ */
+CO2.setTotalColourProd = function(total_box, genPeriod)
+{
+	if(CO2.showMWhProd)
+		CO2.setTotalColour(total_box.value >=0 && total_box.value <= genPeriod, total_box);
+	else 
+		CO2.setTotalColourPercent(total_box);
+};
+
+/**
+ * Method: updateConsTotals
+ * Computes total consumption for a given period in a given sector.
+ * Calls for an update on the total box colour and recalculates emissions.
+ */
 CO2.updateConsTotals = function(p, sector, tot_name, table_name)
 {
 	CO2.setTotalColourCons(CO2.updateTotal(p, tot_name, table_name), p, sector);
 	CO2.calcSectorEmissions(p, sector, table_name);
 };
 
+/**
+ * Method: getSourceId
+ *
+ * Returns:
+ * The id of an energy source from an HTML input box. 
+ */
 CO2.getSourceId = function(input)
 {
 	name = input.name;
@@ -167,6 +268,11 @@ CO2.getSourceId = function(input)
 	return name.substring(start, end);
 };
 
+/**
+ * Method: calcSectorEmissions
+ * Computes total emissions for a given sector at a given period.
+ * Results are stored in the sector_* arrays; secotr_demand is also updated. 
+ */
 CO2.calcSectorEmissions = function(p, sector, table_name)
 {	
 	table = document.getElementById(table_name);
@@ -214,6 +320,10 @@ CO2.calcSectorEmissions = function(p, sector, table_name)
 	CO2.sector_n2o[CO2.sectorIndexes[sector]].data[p] = parseFloat((n2o_emissions * sector_demand).toFixed(2));
 };
 
+/**
+ * Method: updateEmissionsForPeriod
+ * Triggers emissions calculations for all sectors at a given period. 
+ */
 CO2.updateEmissionsForPeriod = function(p)
 {
 	for (i = 0; i < CO2.sector_co2.length; i++)
@@ -221,6 +331,13 @@ CO2.updateEmissionsForPeriod = function(p)
 			CO2.consPrefix + CO2.sector_co2[i].name);
 }; 
 
+// ------------- Toggle Consumption Units ------------- // 
+
+/**
+ * Method: toggleUnits
+ * Iterates through the Consumption tables toggling units between % and MWh. 
+ * Updates labels and buttons accordingly.
+ */
 CO2.toggleUnits = function()
 {
 	if(CO2.showMWh)
@@ -257,5 +374,145 @@ CO2.toggleUnits = function()
 	return false;
 };
 
+// ------------- Toggle Generation Units ------------- // 
+
+/**
+ * Method: toggleUnitsProd
+ * Triggers the computations that toggle Production units between % and MWh.
+ * Triggers calculation of total production values if they have not been yet.
+ * Updates labels and buttons accordingly.
+ */
+CO2.toggleUnitsProd = function()
+{
+	if(CO2.showMWhProd)
+	{
+		CO2.showMWhProd = false;
+		document.getElementById("production-title").innerHTML = "Energy Production (%)";
+		document.getElementById("butt-units-prod").innerHTML = "Toggle units to MWh";
+	}
+	else
+	{
+		CO2.showMWhProd = true;
+		document.getElementById("production-title").innerHTML = "Energy Production (MWh)";
+		document.getElementById("butt-units-prod").innerHTML = "Toggle units to %";
+	}
+		
+	if (CO2.elecGen[0] == null)
+		for (p = 0; p < CO2.numPeriods; p++) CO2.calcProdForPeriod(p);
+	
+	CO2.toggleUnitsProdSource(CO2.elecTableId, CO2.elecGen);
+	CO2.toggleUnitsProdSource(CO2.heatTableId, CO2.heatGen);
+};
+
+/**
+ * Method: calcProdForPeriod
+ * Calculates total energy produced at a given period.
+ * These totals are derived from sectorial consumptions and the percentages 
+ * registered for electricity and heat sources in the period.
+ * Stores results in CO2.elecGen and CO2.heatGen.
+ */
+CO2.calcProdForPeriod = function(period)
+{
+	// 1 - sums electricity consumption of all sectors in the period
+	CO2.elecGen[period] = 0;
+	CO2.heatGen[period] = 0;
+
+	for (var sector in CO2.sector_demands)
+	{
+		table = document.getElementById(CO2.consPrefix + CO2.sector_demands[sector].name);
+		if(table != null)
+		{
+			row = table.rows[period + 1];
+			
+			for(i = 1; i < row.cells.length; i++)
+			{
+				input = row.cells[i].children[0];
+				source = CO2.getSourceId(input);
+				value = parseFloat(input.value);
+				
+				if((value != null) && (!isNaN(value)))
+				{
+					if(source == CO2.elec_id)
+					{
+						// 2 - if in percentages multiplies by sector demand in the period
+						if(CO2.showMWh)
+							CO2.elecGen[period] += parseFloat(input.value);
+						else
+							CO2.elecGen[period] += parseFloat(input.value) * 
+								CO2.sector_demands[sector].data[period] / 100.0;
+					}
+					else if(source == CO2.heat_id)
+					{
+						if(CO2.showMWh)
+							CO2.heatGen[period] += parseFloat(input.value);
+						else
+							CO2.heatGen[period] += parseFloat(input.value) * 
+								CO2.sector_demands[sector].data[period] / 100.0;
+					}
+				}
+			}	
+		}
+	}
+};
+
+/**
+ * Method: toggleUnitsProdSource
+ * Iterates through a given Production table toggling units between % and MWh. 
+ * It requires an production totals array, e.g. CO2.elecGen or CO2.heatGen.
+ */
+CO2.toggleUnitsProdSource = function(tableId, prodArray)
+{
+	// 3 - multiplies each energy production component by total electricity consumption in the period. 
+	table = document.getElementById(tableId);
+ 	for(p = 0; table != null && p < table.rows.length - 1; p++)
+	{
+		row = table.rows[p + 1];
+		for(i = 1; i < row.cells.length; i++)
+		{
+			input = row.cells[i].children[0];
+			if(CO2.showMWhProd)
+				input.value = (parseFloat(input.value) * 
+					prodArray[p] / 100.0).toFixed(1);
+			else
+				input.value = (parseFloat(input.value) / 
+					prodArray[p] * 100.0).toFixed(1);
+		}
+	}
+};
+
+/**
+ * Method: updateProdTotals
+ * Updates production totals arrays when a sectorial consumption is modified.
+ */
+CO2.updateProdTotals = function(p)
+{
+	CO2.calcProdForPeriod(p);
+	
+	if(CO2.showMWhProd)
+	{
+		CO2.updateProdTotalMWh(p, CO2.elecTableId, CO2.elecGen);
+		CO2.updateProdTotalMWh(p, CO2.heatTableId, CO2.heatGen);
+	}
+};
+
+/**
+ * Method: updateProdTotalMWh
+ * Updates production total in a given period for a given source.
+ * Stores the result in a production totals array, e.g. CO2.elecGen or CO2.heatGen.
+ */
+CO2.updateProdTotalMWh = function(p, tableId, prodArray)
+{
+	table = document.getElementById(tableId);
+	row = table.rows[p + 1];
+	previousTotal = parseFloat(row.cells[row.cells.length - 1].children[0].value);
+	
+	for(i = 1; i < row.cells.length - 1; i++)
+	{
+		input = row.cells[i].children[0];
+		input.value = (parseFloat(input.value) / previousTotal * prodArray[p]).toFixed(1);
+	}
+	
+	row.cells[row.cells.length - 1].children[0].value = prodArray[p].toFixed(1);
+};
 
 

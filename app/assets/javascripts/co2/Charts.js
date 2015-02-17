@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2010 - 2014 CRP Henri Tudor
+ *  Copyright (C) 2010 - 2015 CRP Henri Tudor
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,10 @@ CO2.referenceYear = 2020;
 CO2.elecCategories = new Array();
 CO2.elecSeries = new Array();
 
+/**
+ * Method: chartsInit
+ * Sets global options for HighCharts.
+ */
 CO2.chartsInit = function()
 {
 	Highcharts.setOptions({
@@ -52,6 +56,10 @@ CO2.chartsInit = function()
     });
 };
         
+/**
+ * Method: addToSectorArrays
+ * Adds a sector to the data array: emissions and demands.
+ */
 CO2.addToSectorArrays = function(sector)
 {
 	CO2.sectorIndexes[sector] = CO2.lastIndex++;
@@ -62,11 +70,10 @@ CO2.addToSectorArrays = function(sector)
 	CO2.sector_n2o.push({name: sector, data: new Array()});
 };
 
-CO2.addToElecSeries = function(source, period, value)
-{
-	
-};
-
+/**
+ * Method: updatePeriodNames
+ * Stores period years as strings in periodNames to be used as XX axis labels.
+ */
 CO2.updatePeriodNames = function()
 {
 	base_year = parseInt(document.getElementById("co2_scenario_base_year").value);
@@ -76,6 +83,13 @@ CO2.updatePeriodNames = function()
 		CO2.periodNames[i] = (base_year + i * time_step).toString();
 };
 
+/**
+ * Method: calcPieSeries
+ * Computes values for sectorial share pie chart at reference year.
+ * 
+ * Returns:
+ * Array with sectorial values and labels at reference year for the pie chart.
+ */
 CO2.calcPieSeries = function(baseYear, timeStep)
 {
 	factor = Math.floor((CO2.referenceYear - baseYear) / timeStep);
@@ -95,6 +109,10 @@ CO2.calcPieSeries = function(baseYear, timeStep)
 	return pieSeries;
 };
 
+/**
+ * Method: drawCharts
+ * Displays emissions charts.
+ */
 CO2.drawCharts = function()
 {
 	CO2.chartArea("co2_chart", "C02 Emissions by Sector", null, "ton/year", CO2.sector_co2);
@@ -102,6 +120,10 @@ CO2.drawCharts = function()
 	CO2.chartArea("n2o_chart", "N2O Emissions by Sector", null, "g/year", CO2.sector_n2o);
 };
 
+/**
+ * Method: calcPieSeries
+ * Creates area chart for a given emission series using periodNames for the XX axis.
+ */
 CO2.chartArea = function (div, title, subtitle, units, series) 
 {
     $('#' + div).highcharts({
@@ -148,6 +170,10 @@ CO2.chartArea = function (div, title, subtitle, units, series)
     });
 };
 
+/**
+ * Method: calcPieSeries
+ * Creates pie chart for sectorial shares in emissions.
+ */
 CO2.chartPie = function(div, title, subtitle, series)
 {    
     $('#' + div).highcharts({
@@ -189,6 +215,10 @@ CO2.chartPie = function(div, title, subtitle, series)
     });
 };
 
+/**
+ * Method: chartColumnsPercent
+ * Creates percent bar chart for Overview page.
+ */
 CO2.chartColumnsPercent = function(div, title, subtitle, categories, series)
 {
     $('#' + div).highcharts({
