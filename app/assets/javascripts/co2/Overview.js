@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2010 - 2014 CRP Henri Tudor
+ *  Copyright (C) 2010 - 2015 CRP Henri Tudor
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * @author Luis de Sousa [luis.desousa@tudor.lu]
  * Date: 12-11-2014
  *
- * Code for the CO2 calculator.
+ * Code for the CO2 OVerview page.
  **/ 
 
 var CO2 = CO2 || { };		// Create namespace
@@ -27,6 +27,10 @@ CO2.goalYear = 0;
 CO2.totalRenMWh = 0.0;
 CO2.totalMWhEndPeriod = 0.0;
 
+/**
+ * Method: calcTotalAtPeriod 
+ * Caclculates total for a sector at a given period.
+ */
 CO2.calcTotalAtPeriod = function(vector, period)
 {
     var total = 0.0;
@@ -39,6 +43,12 @@ CO2.calcTotalAtPeriod = function(vector, period)
 	return total;
 };
 
+/**
+ * Method: calcTotalDeclineAtEndPeriod
+ * 
+ * Returns:
+ * Percentage decline in emissions for a given sector.
+ */
 CO2.calcTotalDeclineAtEndPeriod = function(vector)
 {
 	var base   = CO2.calcTotalAtPeriod(vector, 0);
@@ -47,6 +57,12 @@ CO2.calcTotalDeclineAtEndPeriod = function(vector)
 	return (target / base - 1) * 100;
 };
 
+/**
+ * Method: calcTotalEquivAtPeriod
+ * 
+ * Returns:
+ * Total CO2-equivalent emissions at a given period.
+ */
 CO2.calcTotalEquivAtPeriod = function(period)
 {
 	// Divided by 1 million to convert to tones
@@ -55,6 +71,12 @@ CO2.calcTotalEquivAtPeriod = function(period)
 	     + CO2.calcTotalAtPeriod(CO2.sector_ch4, period) * CO2.eqCH4 / 1000000;
 };
 
+/**
+ * Method: calcTotalEquivAtPeriod
+ * 
+ * Returns:
+ * Percentage decline of CO2-equivalent emissions at the final period.
+ */
 CO2.calcTotalEquivDeclineAtEndPeriod = function()
 {	
 	var base   = CO2.calcTotalEquivAtPeriod(0);
@@ -63,6 +85,11 @@ CO2.calcTotalEquivDeclineAtEndPeriod = function()
 	return (target / base - 1) * 100;
 };
 
+/**
+ * Method: addRenewableToTotal
+ * Computes energy produced by a given source for a given sector at a given period.
+ * Adds the result to totalRenMWh;
+ */
 CO2.addRenewableToTotal = function(sector, period, input, share)
 {
 	value = parseFloat(input.value);
@@ -76,6 +103,12 @@ CO2.addRenewableToTotal = function(sector, period, input, share)
 	CO2.totalRenMWh += value;
 };
 
+/**
+ * Method: calcShareRenewablesInSource
+ * 
+ * Returns:
+ * Total share of renewable energy used in a given sector at a given period.
+ */
 CO2.calcShareRenewablesInSource = function(period, tableName)
 {
 	var totalRen = 0.0;
@@ -89,6 +122,14 @@ CO2.calcShareRenewablesInSource = function(period, tableName)
 	return totalRen;
 };
 
+/**
+ * Method: calcShareRenewablesAtPeriod
+ * Itareates consumption and production tables calculating the amount of 
+ * renewable energy consumed. 
+ * 
+ * Returns:
+ * Total share of renewable energy used at a given period.
+ */
 CO2.calcShareRenewablesAtPeriod = function(period)
 {
 	var total = 0.0;
@@ -122,6 +163,12 @@ CO2.calcShareRenewablesAtPeriod = function(period)
 	return CO2.totalRenMWh / CO2.totalMWhEndPeriod * 100;
 };
 
+/**
+ * Method: addThousandsSeparator
+ * 
+ * Returns:
+ * Numerical value as string with SI thousands separator.
+ */
 CO2.addThousandsSeparator = function(input) 
 {
     var output = input;
