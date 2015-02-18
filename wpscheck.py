@@ -12,6 +12,7 @@ import psycopg2
 import WPSClient.WPSClient as WPSClient
 import datetime
 import logging
+import mpl_toolkits.basemap.pyproj as pyproj
 
 from iguess_db_credentials import dbServer, dbName, dbUsername, dbPassword, dbSchema, baseMapServerUrl, logFileName
 
@@ -244,13 +245,16 @@ def insert_new_dataset(dataset, recordId, url, serverId, city_id, epsg):
     abstract = "Result calculated with module"
 
     xl,yl,xh,yh = dataset.getBBox()  # This is the bbox in the native coordinate system
-
+    
     # These params will be different for vectors and rasters
     if dataset.dataType == dataset.TYPE_RASTER:
         raster_res_x, raster_res_y = dataset.getPixelRes()
         format = dataset.getMimeType()
     else:
         raster_res_x = raster_res_y = format = None
+        proj=pyproj.Proj("+init=EPSG:" + str(epsg))
+        xl,yl = proj(xl, yl, inverse=True)
+        xh,yh = proj(xh, yh, inverse=True)
 
 
     now = datetime.datetime.now()
@@ -328,7 +332,6 @@ def insert_complex_value_in_database(recordId, dataset, url, city_id, epsg):
     add_tag(dataset_id, "Mapping")
 
     return True
-
 
 
 def update_finished_module(client, recordId, city_id):
