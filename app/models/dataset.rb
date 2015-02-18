@@ -8,14 +8,21 @@ class Dataset < ActiveRecord::Base
 
   before_save { self.last_seen = DateTime.now }
 
+  @@longWGS84 = "urn:x-ogc:def:crs:EPSG:4326"
 
   def hasTag(tag)
     return getAliveTags(self).include?(tag)
   end
 
+  # Example WCS
   # http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map&
   # SERVICE=WCS&VERSION=1.0.0&REQUEST=GetCoverage&IDENTIFIER=ro_dsm_mini&
   # FORMAT=image/tiff&BBOX=92213,436671.500,92348,436795.000&CRS=EPSG:28992&RESX=1&RESY=1
+  
+  # Example WFS: BBOX as y,x and extended EPSG definition 
+  # http://maps.aberdeencity.gov.uk/arcgis/services/iGuess_WCS/MapServer/WFSServer?
+  # REQUEST=GetFeature&VERSION=1.1.0&TYPENAME=iGuess_WCS:Scottish_Government_Data_Zone_Boundaries_2011&
+  # MAXFEATURES=10&BBOX=49,-9,62,4,urn:x-ogc:def:crs:EPSG:4326&SRSNAME=EPSG:27700
 
   # Generates a WFS or WCS data request for the specified dataset
   # Pass nil for aoi if you aren't using one
@@ -48,8 +55,16 @@ class Dataset < ActiveRecord::Base
 
     # If no aoi is being used, or wasn't properly set, use any dataset bb that we have
     if bboxSource.bbox_left && bboxSource.bbox_right && bboxSource.bbox_top && bboxSource.bbox_bottom then
-      urlparams += "&BBOX=" + bboxSource.bbox_left.to_s()  + "," + bboxSource.bbox_bottom.to_s() + "," +
-                              bboxSource.bbox_right.to_s() + "," + bboxSource.bbox_top.to_s()
+    
+      if(service == "WCS") then 
+        urlparams += "&BBOX=" + bboxSource.bbox_left.to_s()  + "," + bboxSource.bbox_bottom.to_s() + "," +
+                                bboxSource.bbox_right.to_s() + "," + bboxSource.bbox_top.to_s()
+      else # WFS
+        urlparams += "&BBOX=" + bboxSource.bbox_bottom.to_s() + "," + bboxSource.bbox_left.to_s()  + "," +
+                                bboxSource.bbox_top.to_s()    + "," + bboxSource.bbox_right.to_s() + "," +
+                                @@longWGS84
+      end
+      
     end
 
     if(resolution_x and resolution_x.to_f > 0 and 
@@ -63,15 +78,16 @@ class Dataset < ActiveRecord::Base
       urlparams += "&RESPONSE_CRS=" + computationCrs
       urlparams += "&CRS=" + bboxCrs
     else
-      urlparams += "&CRS=" + computationCrs  
+      urlparams += "&SRSNAME=" + computationCrs  
     end
 
     request = (service == "WCS") ? "GetCoverage" : "GetFeature"
     noun    = (service == "WCS") ? "COVERAGE"    : "TYPENAME"
+    version = (service == "WCS") ? "1.0.0"       : "1.1.0"
 
     return server_url + (server_url.include?("?") == -1 ? "?" : "&") +
               "SERVICE=" + service + urlparams +
-              URI.escape("&VERSION=1.0.0&REQUEST=" + request + "&" + noun + "=" + identifier)
+              URI.escape("&VERSION=" + version + "&REQUEST=" + request + "&" + noun + "=" + identifier)
   end
 
 
