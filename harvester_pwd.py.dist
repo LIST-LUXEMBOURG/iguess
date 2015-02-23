@@ -1,0 +1,8 @@
+# Passwords for harvester.py
+# Rename this file to harvester_pwd.py and change its contents according to your setup.
+
+dbDatabase = "127.0.0.1"   
+dbName     = "myDB" 
+dbUsername = "myUset"
+dbPassword = "myPass"
+dbSchema   = "mySchema"
