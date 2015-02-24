@@ -105,11 +105,11 @@
           </dd>
            <dt>Module Output:</dt>
            <dd>
-           	<%if d.wps_output == true %>
+           	<%if d.wps_output == "t" or d.wps_output == true %>
            		<%= "Yes" %>
            	<%else%>
            		<%= "No" %>
-           	<%end%>  
+           	<%end%> 
            </dd>
     <% if fullControls %>   
           <dt>Actions:</dt>
