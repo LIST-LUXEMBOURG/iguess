@@ -1,0 +1,58 @@
+
+<div id="metatables">
+  <!-- Create the popups that are displayed when the user clicks the gear icon -->
+      
+  <% @datasets.each do |d| %>
+  	
+    <div class="metatable" id="metatable-<%= d.id %>" draggable="true">
+      	<div class="close"></div>
+      	<h1 class="dataset-title"><%= d.title.present? ? d.title : d.identifier %></h1>
+      	<div class = "dataset-abstract"><%= d.abstract %></div>
+      	<h3><%= d.id %></h3>
+      	<% response = HTTParty.get('http://localhost/pycsw/csw.py?service=CSW&version=2.0.2&request=GetRecordById&Id=meta-'+d.id.to_s) %>
+      	<h2 class = "dataset-title"><%= response %></h2>
+      	<% tags = response.parsed_response["GetRecordByIdResponse"]["SummaryRecord"] %>
+      	      	
+		<form>
+			<% if tags != nil %>
+			
+				<%= tags %>
+			
+				<% tags.each do |key, val| %>
+					<br>
+					<label for="<%key%>">"<%=key%>":
+						<br>
+						<input type="text" size="30" maxlength="30" name=<%=key%>
+						value= "<%=val%>"  id=<%=key%> />
+					</label>
+	  				
+				<%end%>
+			
+				<br>
+				<label for="Title">Title:
+					<input type="text" size="30" maxlength="30" name="Title" 
+					value="<%= response.parsed_response["GetRecordByIdResponse"]["SummaryRecord"]["title"] %>" id="title" />
+				</label>
+				
+				<div>
+    				<%= button_to "Update the Metadata Record>>>", { :action => "updator", :controller => "datasets"}, 
+                                      :remote => true %>
+    			</div>        
+				
+				
+			<%else%>
+			
+			<h4><%= "There is not yet a metadata record for this dataset. Click the 'Insert Record' button to add a new Record in metadata repository"%></h4>
+			
+			<div>
+    			<%= button_to "Insert New Metadata Record>>>", { :action => "insertor", :controller => "datasets"}, 
+                                      :remote => true %>
+    		</div>    
+			<%end%> 
+			
+		</form>
+      	
+    </div>
+    
+  <% end %>
+</div>
