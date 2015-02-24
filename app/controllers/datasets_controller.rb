@@ -351,6 +351,15 @@ class DatasetsController < ApplicationController
     end
   end
 
+  def updator
+    system PythonPath + " " + Rails.root.to_s() + "/updator.py "
+  end
+  
+  def insertor
+    system PythonPath + " " + Rails.root.to_s() + "/insertor.py "
+  end
+  
+  
 
   # Find any tags that look like the passed value... called via ajax -- is this actually used anymore?
 
