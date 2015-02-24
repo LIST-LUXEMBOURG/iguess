@@ -309,6 +309,18 @@ input, select, textarea {
   background-position:center center;
 }
 
+.meta-icon {
+  margin-left: 8px;
+  margin-top: 3px;
+  cursor:pointer;
+}
+
+.metaproperties {
+  padding: 8px 8px;
+  background-image: url(/assets/metadata.png);
+  background-repeat: no-repeat;
+  background-position:center center;
+}
 /* Div where services are displayed on register WPS and register datasets screens */
 .services-display {
   height:100%; 
