@@ -187,6 +187,72 @@
   display:none;         /* Starts off hidden */
 }
 
+.metatable {
+ 
+  /* must be initially hidden */
+  display:none;
+
+  /* place overlay on top of other elements */
+  z-index:10000;
+
+  /* styling */
+  background-color:#F5DA81;
+
+  width:675px;
+  border:1px solid #666;
+  padding: 10px;
+
+  /* CSS3 styling for latest browsers */
+  -moz-box-shadow:0 0 90px 5px #000;
+  -webkit-box-shadow: 0 0 90px #000;
+  overflow-y: scroll;
+  white-space: nowrap;
+}
+
+/* close button positioned on upper right corner */
+.metatable .close {
+  background-image: url(/assets/close.png);
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  cursor: hand; cursor: pointer;    /* Cover multiple browsers */
+  height: 24px;
+  width: 24px;
+}
+
+
+.metatable dl
+{
+  float: left;
+  width: 520px;
+  margin: 1em 0;
+  padding: 0;
+  border-bottom: 1px solid #999;
+}
+  
+
+.metatable dt
+{
+  clear: left;
+  float: left;
+  width: 200px;
+  margin: 0;
+  padding: 5px;
+  border-top: 1px solid #999;
+  font-weight: bold;
+}
+  
+
+.metatable dd
+{
+  float: left;
+  width: 300px;
+  margin: 0;
+  padding: 5px;
+  border-top: 1px solid #999;
+}
+
+
 
 /* When register datasets is on top */
 .register-datasets-button-top {
