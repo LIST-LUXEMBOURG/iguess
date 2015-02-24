@@ -38,6 +38,8 @@
             <%= d.title.present? ? d.title : d.identifier %>
             <span class="info-icon properties" title="Click for details" 
                          rel="#infotable-<%= d.id %>"></span>
+            <span class="meta-icon metaproperties" title="Click for metadata management" 
+                         rel="#metatable-<%= d.id %>"></span>
           </td>
           <td> <!-- Tags -->
             <span class="folder-taglist-<%= cssEscape(d.dataserver.url + d.identifier) %>">
@@ -84,6 +86,7 @@
 
 
   <%= render :partial => 'shared/layer_info_popups.html.erb', locals: { fullControls: true } %>
+  <%= render :partial => 'shared/meta_popups.html.erb', locals: { fullControls: true } %>
 
 
   <%= button_to "Register New Datasets", 
