@@ -32,6 +32,7 @@ gem 'puma'      # Experimental multithreaded server -- start with rails s Puma
 
 # Image storage
 gem "paperclip", "~> 3.1"
+gem "httparty"
 
 
 # Gems used only for assets and not required
