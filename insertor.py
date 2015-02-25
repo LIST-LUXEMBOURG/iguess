@@ -13,5 +13,5 @@ csw = CatalogueServiceWeb(url)
 csw.getdomain('GetRecords.resultType')
 
 #csw.transaction(ttype='insert', typename='gmd:MD_Metadata', record=open("/home/matteo/matteo_transaction_example_frompycswtests.xml").read())
-csw.transaction(ttype='update', typename='gmd:MD_Metadata', record=open("/home/matteo/inspire_editor_prova_3.xml").read())
+csw.transaction(ttype='insert', typename='gmd:MD_Metadata', record=open("/home/matteo/inspire_editor_prova_3.xml").read())
 print csw.results
