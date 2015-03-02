@@ -356,6 +356,7 @@ def getJoinChar(serverUrl)
   return serverUrl.index("?") == nil ? "?" : "&"
 end
 
+# Transforms coordinates into WGS84 using PostGIS
 def transformToWGS84(x, y, crs)
   transf = ActiveRecord::Base.connection.execute(
     'SELECT ST_AsText(ST_Transform(ST_GeomFromText(\'POINT(' + x + ' ' + y + ')\', ' + crs + '), 4326))')
