@@ -8,14 +8,21 @@ class Dataset < ActiveRecord::Base
 
   before_save { self.last_seen = DateTime.now }
 
+  @@longWGS84 = "urn:x-ogc:def:crs:EPSG:4326"
 
   def hasTag(tag)
     return getAliveTags(self).include?(tag)
   end
 
+  # Example WCS
   # http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/RO_localOWS_test.map&
   # SERVICE=WCS&VERSION=1.0.0&REQUEST=GetCoverage&IDENTIFIER=ro_dsm_mini&
   # FORMAT=image/tiff&BBOX=92213,436671.500,92348,436795.000&CRS=EPSG:28992&RESX=1&RESY=1
+  
+  # Example WFS: BBOX as y,x and extended EPSG definition 
+  # http://maps.aberdeencity.gov.uk/arcgis/services/iGuess_WCS/MapServer/WFSServer?
+  # REQUEST=GetFeature&VERSION=1.1.0&TYPENAME=iGuess_WCS:Scottish_Government_Data_Zone_Boundaries_2011&
+  # MAXFEATURES=10&BBOX=49,-9,62,4,urn:x-ogc:def:crs:EPSG:4326&SRSNAME=EPSG:27700
 
   # Generates a WFS or WCS data request for the specified dataset
   # Pass nil for aoi if you aren't using one
@@ -39,6 +46,26 @@ class Dataset < ActiveRecord::Base
     bboxSource = nil
 
     if aoi then
+    
+      # Since iGUESS now uses WFS 1.1.0 all vector BBoxes are stored in WGS84 coordinates.
+      # They must converted to the city projection for rasters.
+      if (service == "WCS") then
+      
+        # The proj4rb library is not functional:
+        # http://gis.stackexchange.com/questions/136550/how-to-install-proj4rb-on-ubuntu-14-04
+        #require 'proj4'
+        #include Proj4
+        #proj = Projection.new(['init=' + computationCrs.to_s])
+        #aoi.bbox_left, aoi.bbox_bottom = proj.inverseDeg(Proj4::Point.new(aoi.bbox_left, aoi.bbox_bottom))
+        #aoi.bbox_right, aoi.bbox_top = proj.inverseDeg(Proj4::Point.new(aoi.bbox_right, aoi.bbox_top))
+        
+        # The projection has to be performed with PostGIS
+        aoi.bbox_left, aoi.bbox_bottom = 
+          transformToWGS84(aoi.bbox_left, aoi.bbox_bottom, computationCrs.match(/:([^\/.]*)$/)[1])
+        aoi.bbox_right, aoi.bbox_top = 
+          transformToWGS84(aoi.bbox_right, aoi.bbox_top, computationCrs.match(/:([^\/.]*)$/)[1])
+      end    
+      
       bboxSource = aoi
       # If we're using an aoi, then the bbox will always be in the computation crs
       bboxCrs = computationCrs
@@ -48,8 +75,16 @@ class Dataset < ActiveRecord::Base
 
     # If no aoi is being used, or wasn't properly set, use any dataset bb that we have
     if bboxSource.bbox_left && bboxSource.bbox_right && bboxSource.bbox_top && bboxSource.bbox_bottom then
-      urlparams += "&BBOX=" + bboxSource.bbox_left.to_s()  + "," + bboxSource.bbox_bottom.to_s() + "," +
-                              bboxSource.bbox_right.to_s() + "," + bboxSource.bbox_top.to_s()
+    
+      if(service == "WCS") then 
+        urlparams += "&BBOX=" + bboxSource.bbox_left.to_s()  + "," + bboxSource.bbox_bottom.to_s() + "," +
+                                bboxSource.bbox_right.to_s() + "," + bboxSource.bbox_top.to_s()
+      else # WFS
+        urlparams += "&BBOX=" + bboxSource.bbox_bottom.to_s() + "," + bboxSource.bbox_left.to_s()  + "," +
+                                bboxSource.bbox_top.to_s()    + "," + bboxSource.bbox_right.to_s() + "," +
+                                @@longWGS84
+      end
+      
     end
 
     if(resolution_x and resolution_x.to_f > 0 and 
@@ -63,15 +98,16 @@ class Dataset < ActiveRecord::Base
       urlparams += "&RESPONSE_CRS=" + computationCrs
       urlparams += "&CRS=" + bboxCrs
     else
-      urlparams += "&CRS=" + computationCrs  
+      urlparams += "&SRSNAME=" + computationCrs  
     end
 
     request = (service == "WCS") ? "GetCoverage" : "GetFeature"
     noun    = (service == "WCS") ? "COVERAGE"    : "TYPENAME"
+    version = (service == "WCS") ? "1.0.0"       : "1.1.0"
 
     return server_url + (server_url.include?("?") == -1 ? "?" : "&") +
               "SERVICE=" + service + urlparams +
-              URI.escape("&VERSION=1.0.0&REQUEST=" + request + "&" + noun + "=" + identifier)
+              URI.escape("&VERSION=" + version + "&REQUEST=" + request + "&" + noun + "=" + identifier)
   end
 
 
@@ -320,3 +356,10 @@ def getJoinChar(serverUrl)
   return serverUrl.index("?") == nil ? "?" : "&"
 end
 
+# Transforms coordinates into WGS84 using PostGIS
+def transformToWGS84(x, y, crs)
+  transf = ActiveRecord::Base.connection.execute(
+    'SELECT ST_AsText(ST_Transform(ST_GeomFromText(\'POINT(' + x + ' ' + y + ')\', ' + crs + '), 4326))')
+  return transf[0]['st_astext'].match(/POINT\((.+)\s/)[1], 
+         transf[0]['st_astext'].match(/\s(.+)\)/)[1] 
+end

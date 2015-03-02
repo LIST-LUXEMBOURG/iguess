@@ -29,7 +29,8 @@ from harvester_pwd import dbDatabase, dbName, dbUsername, dbPassword, dbSchema
 
 wpsVersion = '1.0.0'
 wmsVersion = '1.1.1'        # Christian says 1.3.0 is "weird", Rotterdam wms doesn't like 1.3.0!
-wfsVersion = '1.0.0'        # Montreuil only works with 1.0.0
+#wfsVersion = '1.0.0'        # Montreuil only works with 1.0.0
+wfsVersion = '1.1.0'
 wcsVersion = '1.1.0'        # Rotterdam only works when this is set to 1.1.0
 
 
@@ -546,6 +547,7 @@ def check_data_servers(serverCursor):
 
                     if wfs.contents[identifier].boundingBoxWGS84:
                         # For WFS 1.0, at least, the boundingBoxWGS84 is actually a local CRS bounding box
+                        # For WFS 1.1.0 it is correctly a WGS84 bounding box
                         bb = wfs.contents[identifier].boundingBoxWGS84    # Looks like (91979.2, 436330.0, 92615.5, 437657.0)
                         bbox_left, bbox_bottom, bbox_right, bbox_top = bb
                     else:  # No bounding box!
