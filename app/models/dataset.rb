@@ -50,6 +50,7 @@ class Dataset < ActiveRecord::Base
       # Since iGUESS now uses WFS 1.1.0 all vector BBoxes are stored in WGS84 coordinates.
       # They must converted to the city projection for rasters.
       if (service == "WCS") then
+      
         # The proj4rb library is not functional:
         # http://gis.stackexchange.com/questions/136550/how-to-install-proj4rb-on-ubuntu-14-04
         #require 'proj4'
@@ -59,8 +60,10 @@ class Dataset < ActiveRecord::Base
         #aoi.bbox_right, aoi.bbox_top = proj.inverseDeg(Proj4::Point.new(aoi.bbox_right, aoi.bbox_top))
         
         # The projection has to be performed with PostGIS
-        aoi.bbox_left, aoi.bbox_bottom = transformToWGS84(aoi.bbox_left, aoi.bbox_bottom, crs.match(/:([^\/.]*)$/))
-        aoi.bbox_right, aoi.bbox_top = transformToWGS84(aoi.bbox_right, aoi.bbox_top, crs.match(/:([^\/.]*)$/))
+        aoi.bbox_left, aoi.bbox_bottom = 
+          transformToWGS84(aoi.bbox_left, aoi.bbox_bottom, computationCrs.match(/:([^\/.]*)$/)[1])
+        aoi.bbox_right, aoi.bbox_top = 
+          transformToWGS84(aoi.bbox_right, aoi.bbox_top, computationCrs.match(/:([^\/.]*)$/)[1])
       end    
       
       bboxSource = aoi
@@ -353,9 +356,9 @@ def getJoinChar(serverUrl)
   return serverUrl.index("?") == nil ? "?" : "&"
 end
 
-# Transforms coordinated into WGS84 using PostGIS
 def transformToWGS84(x, y, crs)
   transf = ActiveRecord::Base.connection.execute(
     'SELECT ST_AsText(ST_Transform(ST_GeomFromText(\'POINT(' + x + ' ' + y + ')\', ' + crs + '), 4326))')
-  return transf.match(/POINT\(([^\/.]*)\s(.)*$/), transf.match(/\s([^\/.]*)\)$/) 
+  return transf[0]['st_astext'].match(/POINT\((.+)\s/)[1], 
+         transf[0]['st_astext'].match(/\s(.+)\)/)[1] 
 end
