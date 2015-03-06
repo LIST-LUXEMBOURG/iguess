@@ -128,12 +128,12 @@ class Dataset < ActiveRecord::Base
     if wfs or wcs then
       if wfs then
         output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 
-            'SERVICE=WFS&VERSION=1.0.0&REQUEST=GetCapabilities" target="_blank">WFS</a>'
+            'SERVICE=WFS&VERSION=1.1.0&REQUEST=GetCapabilities" target="_blank">WFS</a>'
       end
 
       if wcs then
         output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 
-            'SERVICE=WCS&VERSION=1.1.0&REQUEST=GetCapabilities" target="_blank">WCS</a>'
+            'SERVICE=WCS&VERSION=1.0.0&REQUEST=GetCapabilities" target="_blank">WCS</a>'
       end
 
       if includeDataLink then
