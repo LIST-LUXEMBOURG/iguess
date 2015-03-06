@@ -27,7 +27,6 @@ d = SiteDetail.find_by_stylesheet('iguess.css')
 d.tab_list = 'home, datamanager, modules, scenarios, maps, about, support'
 d.save
 
-# Sites
 [['smartcitylog-agadir.tudor.lu', 'Smart City Logistics', 'smartcitylog-agadir.css'],
  ['test.smartcitylog-agadir.tudor.lu', 'Smart City Logistics [Test]', 'smartcitylog-agadir.css']
 ].each do |v|
@@ -40,6 +39,55 @@ d.save
     s.site_details_id = SiteDetail.find_by_stylesheet(v[2]).id
     s.save
 end
+
+# ---------- LIST sites ---------- #
+
+[[     'iguess.list.lu',              'iGUESS',                            1],
+ ['test.iguess.list.lu',              'iGUESS [Test]',                     1],
+ [     'iguess-sl.list.lu',           'iGUESS-SL',                         2],
+ ['test.iguess-sl.list.lu',           'iGUESS-SL [Test]',                  2],
+ [     'iguess-list.list.lu',         'iGUESS-LIST',                       3],
+ ['test.iguess-list.list.lu',         'iGUESS-LIST [Test]',                3],
+ [     'hydro-atlas.list.lu',         'Hydro-Climatological Atlas',        4],
+ ['test.hydro-atlas.list.lu',         'Hydro-Climatological Atlas [Test]', 4],
+ [     'ecosystems.list.lu',          'Ecosystem Services',                5],
+ ['test.ecosystems.list.lu',          'Ecosystem Services [Test]',         5],
+ [     'smartcitylog-agadir.list.lu', 'Smart City Logistics',              7],
+ ['test.smartcitylog-agadir.list.lu', 'Smart City Logistics [Test]',       7]
+].each do |v|
+  s = Site.find_or_create_by_base_url_and_site_details_id(v[0], v[2])
+  s.title = v[1]
+  s.save
+end
+
+# New titles for the MUSIC site
+
+['iguess-rails.kirchberg.tudor.lu',
+ 'iguess.list.lu',
+ 'iguess.tudor.lu',
+].each do |url|
+    s = Site.find_by_base_url url
+    s.title = 'Smart City Energy'
+    s.save
+end
+
+['test.iguess.tudor.lu',
+ 'test.iguess.list.lu'
+].each do |url|
+    s = Site.find_by_base_url url
+    s.title = 'Smart City Energy [Test]'
+    s.save
+end
+
+['0.0.0.0',
+ 'localhost'
+].each do |url|
+    s = Site.find_by_base_url url
+    s.title = 'Smart City Energy [Local]'
+    s.save
+end
+
+# ------------------ Cities ------------------ #
 
 # I believe we should no longer be storing this data in the seeds file -CE
 
@@ -232,7 +280,5 @@ end
 ['Open',  'Processing', 'Closed'].each do |v|
   TicketStatus.find_or_create_by_value v
 end
-
-
 
 
