@@ -76337,7 +76337,10 @@ OpenLayers.Format.WCSDescribeCoverage.v1_0_0 = OpenLayers.Class(
                 descriptions[description.identifier] = description;
 
                 // Provide a consistent handle on the native CRS 
-                description.nativeCRS = description.supportedCRSs.nativeCRSs[0];
+                if(description.supportedCRSs.nativeCRSs)
+                	description.nativeCRS = description.supportedCRSs.nativeCRSs[0];
+                else //Geoserver does not report a native CRS, provide the first one instead
+                	description.nativeCRS = description.supportedCRSs[0];
             },
             // As with GetCapabilities, we'll use the 1.1.0 element name
             // (identifier) because it is less ambiguous
