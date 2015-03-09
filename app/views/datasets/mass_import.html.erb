@@ -625,6 +625,7 @@
   // which == "left", "right", "top", or "bottom"
   var getCoord = function(layer, which)
   {
+  	debugger;
     if(layer.dataBbox)
     {
       if(layer.dataBbox[which])
@@ -848,16 +849,26 @@
     Dataset.call(this, serverUrl, datasetInfo);
 
     this.type = ["WCS"];
-
+    
     // Only available on a DescribeCoverage response
     if(datasetInfo.nativeCRS)
     {
       this.dataCrs = CRS.getSimpleFormat(datasetInfo.nativeCRS);
-      try {
+    /*  try {
         this.dataBbox = datasetInfo.domain.spatialDomain.boundingBoxes[datasetInfo.nativeCRS];
       } catch(error) {
         // Do nothing
-      }
+      } */
+    }
+    
+    if(datasetInfo.lonLatEnvelope)
+    {
+    	this.dataBbox = {
+    		left   : datasetInfo.lonLatEnvelope.min.x,
+    		bottom : datasetInfo.lonLatEnvelope.min.y,
+    		right  : datasetInfo.lonLatEnvelope.max.x,
+    		top    : datasetInfo.lonLatEnvelope.max.y
+    	};
     }
 
     try {

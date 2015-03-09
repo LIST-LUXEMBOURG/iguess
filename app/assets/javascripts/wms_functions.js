@@ -181,6 +181,7 @@ WCS.getCapabilities = function(serverUrl, successFunction) {
       "VERSION": WCS.version
     },
     success: function(response) {
+
       try {
         var capabilities = new OpenLayers.Format.WCSDescribeCoverage().read(response.responseText);
       }
