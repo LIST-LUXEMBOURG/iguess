@@ -29,8 +29,7 @@ from harvester_pwd import dbDatabase, dbName, dbUsername, dbPassword, dbSchema
 
 wpsVersion = '1.0.0'
 wmsVersion = '1.1.1'        # Christian says 1.3.0 is "weird", Rotterdam wms doesn't like 1.3.0!
-#wfsVersion = '1.0.0'        # Montreuil only works with 1.0.0
-wfsVersion = '1.1.0'
+wfsVersion = '1.1.0'        # Montreuil only works with 1.0.0
 wcsVersion = '1.1.0'        # Rotterdam only works when this is set to 1.1.0
 
 
@@ -468,15 +467,13 @@ def get_target_crs(describe_coverage_object):
 
 def get_bounding_box(describe_coverage_object, target_crs):
     '''
-    WCS datasets may specify more than one bounding box.  Here we try to find one that matches the specifed CRS
+    Returns the WGS84 BBox
     '''
     try:
-        for element in describe_coverage_object[0].iter("{http://www.opengis.net/ows/1.1}BoundingBox"):
-            if element.attrib["crs"] == target_crs:
-                lower_corner = element.find("{http://www.opengis.net/ows/1.1}LowerCorner").text 
-                upper_corner = element.find("{http://www.opengis.net/ows/1.1}UpperCorner").text
-
-                return str.split(lower_corner + " " + upper_corner)
+        for element in describe_coverage_object[0].iter("{http://www.opengis.net/ows/1.1}WGS84BoundingBox"):
+            lower_corner = element.find("{http://www.opengis.net/ows/1.1}LowerCorner").text 
+            upper_corner = element.find("{http://www.opengis.net/ows/1.1}UpperCorner").text
+            return str.split(lower_corner + " " + upper_corner)
     except:
         return (None, None, None, None)
 
@@ -596,7 +593,6 @@ def check_data_servers(serverCursor):
                     if resX is None:
                         print "Can't find GridOffsets for WCS dataset " + server_url + " >>> " + identifier
                         continue
-
 
                     target_crs = get_target_crs(dc)
                     if target_crs is None:
