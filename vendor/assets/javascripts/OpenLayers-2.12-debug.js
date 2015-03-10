@@ -61977,6 +61977,9 @@ OpenLayers.Format.WCSDescribeCoverage.v1_1_0 = OpenLayers.Class(
                         domain.spatialDomain.boundingBoxes[bb.BoundingBox[i].crs] = 
                             bb.BoundingBox[i].bounds;
                         }
+                    // If CRS is empty this is the WGS84BoundingBox
+                    else domain.spatialDomain.boundingBoxes["urn:x-ogc:def:crs:EPSG::4326"] = 
+                            bb.BoundingBox[i].bounds;
                 }
                 domain.spatialDomain.gridCRS = bb.gridCRS;
             },

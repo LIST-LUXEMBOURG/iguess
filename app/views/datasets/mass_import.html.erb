@@ -625,7 +625,6 @@
   // which == "left", "right", "top", or "bottom"
   var getCoord = function(layer, which)
   {
-  	debugger;
     if(layer.dataBbox)
     {
       if(layer.dataBbox[which])
@@ -854,22 +853,16 @@
     if(datasetInfo.nativeCRS)
     {
       this.dataCrs = CRS.getSimpleFormat(datasetInfo.nativeCRS);
-    /*  try {
-        this.dataBbox = datasetInfo.domain.spatialDomain.boundingBoxes[datasetInfo.nativeCRS];
-      } catch(error) {
-        // Do nothing
-      } */
     }
     
-    if(datasetInfo.lonLatEnvelope)
+    try
     {
-    	this.dataBbox = {
-    		left   : datasetInfo.lonLatEnvelope.min.x,
-    		bottom : datasetInfo.lonLatEnvelope.min.y,
-    		right  : datasetInfo.lonLatEnvelope.max.x,
-    		top    : datasetInfo.lonLatEnvelope.max.y
-    	};
-    }
+    	this.dataBbox = datasetInfo.domain.spatialDomain.boundingBoxes["urn:x-ogc:def:crs:EPSG::4326"];
+	}
+	catch(e)
+	{
+	    if(datasetInfo.bounds) this.dataBbox = datasetInfo.bounds;
+	}
 
     try {
       // Use image/img if it is available... seems to work best
