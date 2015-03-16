@@ -34,19 +34,10 @@ class Dataset < ActiveRecord::Base
   def getRequest(computationCrs, aoi)
 
     urlparams = ""
-    bboxCrs = nil
-
 
     if(not format.blank?) then 
       urlparams += "&FORMAT=" + format    
     end
-    
-    if(service == "WCS") then 
-      bboxCrs = bbox_srs
-    else
-      bboxCrs = computationCrs
-    end
-
 
     bboxSource = nil
 
@@ -79,11 +70,7 @@ class Dataset < ActiveRecord::Base
 
     if(service == "WCS") then 
       urlparams += "&RESPONSE_CRS=" + computationCrs
-      if aoi then
-        urlparams += "&CRS=" + @@longWGS84
-      else
-        urlparams += "&CRS=" + bboxCrs
-      end
+      urlparams += "&CRS=" + @@longWGS84
     else
       urlparams += "&SRSNAME=" + computationCrs  
     end
