@@ -570,6 +570,10 @@
         if(     layer.type.hasObject("WFS")) { service = "WFS"; }
         else if(layer.type.hasObject("WCS")) { service = "WCS"; }
         else if(layer.type.hasObject("WMS")) { service = "WMS"; }
+        
+        if (CRS.hasCRS(layer.dataCrs, LOCAL_SRS)) crs = LOCAL_SRS;
+        else if (layer.dataCrs instanceof Array) crs = layer.dataCrs[0];
+        else crs = layer.dataCrs;
 
         // Let the server know this layer is now registered -- to do this we must create a new record in
         // our datasets table.
@@ -585,7 +589,7 @@
                 "&dataset[bbox_right]="      + getCoord(layer, "right") +
                 "&dataset[bbox_top]="        + getCoord(layer, "top") +
                 "&dataset[bbox_bottom]="     + getCoord(layer, "bottom") +
-                "&dataset[bbox_srs]="        + layer.dataCrs +
+                "&dataset[bbox_srs]="        + crs +
                 "&dataset[resolution_x]="    + (layer.resolution ? Math.abs(layer.resolution.x) : 0) +
                 "&dataset[resolution_y]="    + (layer.resolution ? Math.abs(layer.resolution.y) : 0) +
                 "&dataset[format]="          + (layer.format ? layer.format : "") +
@@ -852,7 +856,9 @@
     // Only available on a DescribeCoverage response
     if(datasetInfo.nativeCRS)
     {
-      this.dataCrs = CRS.getSimpleFormat(datasetInfo.nativeCRS);
+      this.dataCrs = new Array();
+      while (crs = datasetInfo.supportedCRSs.pop()) 
+      	this.dataCrs.push(CRS.getSimpleFormat(crs))
     }
     
     try
