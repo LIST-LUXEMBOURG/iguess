@@ -571,7 +571,8 @@
         else if(layer.type.hasObject("WCS")) { service = "WCS"; }
         else if(layer.type.hasObject("WMS")) { service = "WMS"; }
         
-        if (CRS.hasCRS(layer.dataCrs, LOCAL_SRS)) crs = LOCAL_SRS;
+        var availableInLocalProjection = CRS.hasCRS(layer.dataCrs, LOCAL_SRS);
+        if (availableInLocalProjection) crs = LOCAL_SRS;
         else if (layer.dataCrs instanceof Array) crs = layer.dataCrs[0];
         else crs = layer.dataCrs;
 
@@ -593,7 +594,7 @@
                 "&dataset[resolution_x]="    + (layer.resolution ? Math.abs(layer.resolution.x) : 0) +
                 "&dataset[resolution_y]="    + (layer.resolution ? Math.abs(layer.resolution.y) : 0) +
                 "&dataset[format]="          + (layer.format ? layer.format : "") +
-                "&dataset[local_srs]="       + (CRS.hasCRS(layer.dataCrs, LOCAL_SRS) ? "true" : "false") +
+                "&dataset[local_srs]="       + (availableInLocalProjection ? "true" : "false") +
                 "&dataset[city_id]="         + "<%= raw @current_city.id %>" +
                 "&dataset[alive]=true"       +
 
