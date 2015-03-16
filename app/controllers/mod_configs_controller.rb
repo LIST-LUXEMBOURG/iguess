@@ -176,8 +176,6 @@ class ModConfigsController < ApplicationController
     @mod_config.status = ReadyCode
     @mod_config.run_status_id = ReadyCode
     @mod_config.save
-    
-    binding.pry
 
     respond_with do |format|
       format.js { render :json => @mod_config.to_json(:include => :run_status), :status => :ok }
