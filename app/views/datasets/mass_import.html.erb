@@ -830,6 +830,11 @@
 
     this.dataCrs  = datasetInfo.srs || (datasetInfo.supportedCRS  && datasetInfo.supportedCRS[0]) ||
                                        (datasetInfo.supportedCRSs && datasetInfo.supportedCRSs[0]);
+                                       
+    if (this.dataCrs instanceof Array)
+    	for(i = 0; i < this.dataCrs.length; i++) 
+    		this.dataCrs[i] = CRS.getSimpleFormat(this.dataCrs[i]);
+    else this.dataCrs = CRS.getSimpleFormat(this.dataCrs);
 
     // With WFS, latLongBoundingBox is really a projected bbox... the name is misleading.  Thouugh on some
     // servers, it is misimpelmented, and we will get a real lat-long bbox here.  In those cases... well...
