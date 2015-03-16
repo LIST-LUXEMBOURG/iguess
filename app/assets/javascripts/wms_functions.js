@@ -181,6 +181,7 @@ WCS.getCapabilities = function(serverUrl, successFunction) {
       "VERSION": WCS.version
     },
     success: function(response) {
+
       try {
         var capabilities = new OpenLayers.Format.WCSDescribeCoverage().read(response.responseText);
       }
@@ -266,7 +267,7 @@ var getJoinChar = function(url) {
 // Version info
 WMS.version = '1.1.0';    // Christian says 1.3.0 is "weird", Rotterdam wms doesn't like 1.3.0!
 WFS.version = '1.1.0';    // Montreuil only works with 1.0.0
-WCS.version = '1.0.0';    // Rotterdam only works when this is set to 1.1.0
+WCS.version = '1.1.0';    // Rotterdam only works when this is set to 1.1.0
 WPS.version = '1.0.0';
 
 //http://services.iguess.tudor.lu/cgi-bin/mapserv?map=/var/www/MapFiles/LB_localOWS_test.map&SERVICE=WFS&VERSION=1.0.0&REQUEST=GetCapabilities
