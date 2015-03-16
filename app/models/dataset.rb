@@ -8,6 +8,11 @@ class Dataset < ActiveRecord::Base
 
   before_save { self.last_seen = DateTime.now }
 
+  # These properties are replicated in wms_functions.js and harvester.py
+  @@versionWMS = "1.3.0"
+  @@versionWFS = "1.1.0"
+  @@versionWCS = "1.1.0"
+  @@versionWCSGetCoverage = "1.0.0"
   @@longWGS84 = "urn:x-ogc:def:crs:EPSG:4326"
 
   def hasTag(tag)
@@ -85,7 +90,7 @@ class Dataset < ActiveRecord::Base
 
     request = (service == "WCS") ? "GetCoverage" : "GetFeature"
     noun    = (service == "WCS") ? "COVERAGE"    : "TYPENAME"
-    version = (service == "WCS") ? "1.0.0"       : "1.1.0"
+    version = (service == "WCS") ? @@versionWCSGetCoverage : @@versionWFS
 
     return server_url + (server_url.include?("?") == -1 ? "?" : "&") +
               "SERVICE=" + service + urlparams +
@@ -121,19 +126,19 @@ class Dataset < ActiveRecord::Base
 
     if wms then
       output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 
-          'SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities" target="_blank">WMS</a>'
+          'SERVICE=WMS&VERSION=' + @@versionWMS + '&REQUEST=GetCapabilities" target="_blank">WMS</a>'
     end
 
     # We could have both wfs and wcs true if we're showing all links in the technical details section
     if wfs or wcs then
       if wfs then
         output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 
-            'SERVICE=WFS&VERSION=1.1.0&REQUEST=GetCapabilities" target="_blank">WFS</a>'
+            'SERVICE=WFS&VERSION=' + @@versionWFS + '&REQUEST=GetCapabilities" target="_blank">WFS</a>'
       end
 
       if wcs then
         output += (output.length() ? ' ' : '') + '<a href="' + serverUrl + getJoinChar(serverUrl) + 
-            'SERVICE=WCS&VERSION=1.0.0&REQUEST=GetCapabilities" target="_blank">WCS</a>'
+            'SERVICE=WCS&VERSION=' + @@versionWCS + '&REQUEST=GetCapabilities" target="_blank">WCS</a>'
       end
 
       if includeDataLink then
