@@ -1,6 +1,6 @@
 /* Put any iguess specific styles here */
 
-#top_banner, .footer 
+#top_banner
 {
   background: url(images/SmatCityEnergyBG.png) repeat scroll 0 0 rgba(0, 0, 0, 0);
   padding-top: 0em; 
@@ -22,11 +22,28 @@
 }
 
 
-.footer {
-  background-repeat:repeat-x;
-  background-position:bottom;
+.footer 
+{
+  background: url(images/SmatCityEnergyFooterBG.png) repeat scroll 0 0 rgba(0, 0, 0, 0);
+  height: 90px;
+  width: 100%;
+  /*background-repeat:repeat-x;
+  background-position:bottom;*/
 }
 
+.footer-table
+{
+	width: 200px;
+	padding: 6px;
+	margin-left: auto;
+  	margin-right: auto;
+  	padding-top: 18px;
+}
+
+.footer-table-spacer
+{
+	padding: 12px;
+}
 
 .home-page-text {
   text-align: left;
