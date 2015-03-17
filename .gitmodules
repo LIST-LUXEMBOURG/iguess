@@ -8,4 +8,4 @@
 	url = https://github.com/ldesousa/MapFileText.git
 [submodule "WPSClient"]
 	path = WPSClient
-	url = https://github.com/iguess/wpsclient.git
+	url = git@github.com:ERIN-LIST/wpsclient.git
