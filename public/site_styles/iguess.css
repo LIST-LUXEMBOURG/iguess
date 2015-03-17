@@ -18,7 +18,8 @@
 }
 
 #nav a {
-  background: url(images/nav_slant.gif) no-repeat top right;
+  background: url(images/nav_music.gif) no-repeat top right;
+  padding: 6px 16px 6px 12px;
 }
 
 
