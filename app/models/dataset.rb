@@ -79,7 +79,7 @@ class Dataset < ActiveRecord::Base
     noun    = (service == "WCS") ? "COVERAGE"    : "TYPENAME"
     version = (service == "WCS") ? @@versionWCSGetCoverage : @@versionWFS
 
-    return server_url + (server_url.include?("?") == -1 ? "?" : "&") +
+    return server_url + getJoinChar(server_url) +
               "SERVICE=" + service + urlparams +
               URI.escape("&VERSION=" + version + "&REQUEST=" + request + "&" + noun + "=" + identifier)
   end
