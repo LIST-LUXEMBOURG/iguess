@@ -92,6 +92,19 @@ end
 
 # ------------------ Cities ------------------ #
 
+
+# Correct Marroco to Morocco
+if (city = City.find_by_name 'Marroco')
+  city.name = 'Morocco'
+  city.save
+end
+
+# Correct Morroco to Morocco
+if (city = City.find_by_name 'Morroco')
+  city.name = 'Morocco'
+  city.save
+end
+
 # I believe we should no longer be storing this data in the seeds file -CE
 
 # If any of these values need to be updated, please do so directly in the Cities table in the database!
@@ -112,7 +125,8 @@ end
 #  ['Luxembourg',  '', 13, 'EPSG:2169', 682574,  6379134],
 #  ['Esch-sur-Alzette', '', 14, 'EPSG:2169', 665606,  6359849]
   ['Agadir', 13, 'EPSG:26192', -1066445.16, 3557501.74, 'smartcitylog-agadir.css', '+proj=lcc +lat_1=33.3 +lat_0=33.3 +lon_0=-5.4 +k_0=0.999625769 +x_0=500000 +y_0=300000 +a=6378249.2 +b=6356515 +towgs84=31,146,47,0,0,0,0 +units=m +no_defs '],
-  ['Marroco', 6, 'EPSG:26192',  -800000.00, 3600000.00, 'smartcitylog-agadir.css', '+proj=lcc +lat_1=33.3 +lat_0=33.3 +lon_0=-5.4 +k_0=0.999625769 +x_0=500000 +y_0=300000 +a=6378249.2 +b=6356515 +towgs84=31,146,47,0,0,0,0 +units=m +no_defs ']
+  ['Morocco', 6, 'EPSG:26192',  -800000.00, 3600000.00, 'smartcitylog-agadir.css', '+proj=lcc +lat_1=33.3 +lat_0=33.3 +lon_0=-5.4 +k_0=0.999625769 +x_0=500000 +y_0=300000 +a=6378249.2 +b=6356515 +towgs84=31,146,47,0,0,0,0 +units=m +no_defs '],
+  ['Ludwigsburg', 13, 'EPSG:25832', 1022893, 6257460, 'iguess.css', '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs ']
 ].each do |v|
    c = City.find_by_name v[0]
    if c == nil
@@ -127,12 +141,6 @@ end
    c.projection_params = v[6]
    c.save
 end
-
-# Correct Marroco to Morroco
-city = City.find_by_name 'Marroco'
-city.name = 'Morroco'
-city.save
-
 
 # ------------------ CO2 Scenarios ------------------ #
 
