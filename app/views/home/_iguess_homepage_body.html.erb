@@ -11,9 +11,10 @@
       <div class="tabs">
          <ul class="dosomething">
          	<li><a href="#">Welcome</a></li>
-            <li><a href="#">View Some Data</a></li>
-            <li><a href="#">Run Calculation Module</a></li>
-            <li><a href="#">Check Running Module</a></li>
+            <li><a href="#">Data Management</a></li>
+            <li><a href="#">Renewable Energy</a></li>
+            <li><a href="#">Future Scenarios</a></li>
+            <li><a href="#">Maps</a></li>
          </ul>
       </div>
 
@@ -21,8 +22,11 @@
       <div class="panes">
       	<div class="front-page-tab-body" id="Welcome-introduction">
             Welcome to the Smart City Energy platform
-            <p class="intro">Understand your options... plan your future!</p>
+            <p class="intro_slogan">Understand your options... plan your future!</p>
             <div class="inner-content-welcome">
+               <div class="welcomeimage">
+            	<%= image_tag "Energy-Demand.png", :class => "style_welcomeimage" %>
+               </div>
                <p> Within the project “Mitigation in Urban
 				areas: Solutions for Innovative Cities”
 				(MUSIC), five cities in North West Europe
@@ -37,28 +41,52 @@
 				for energy exchange and monitor the effects of energy saving measures in their city.</p>
             </div>
          </div>
-         <div class="front-page-tab-body" id="view-some-data">
-            View your data or register new datasets
+         <div class="front-page-tab-body" id="data_management">
+            View your data or register new datasets <br>                       
+            <p class="intro">If you are a registered user, in the Data Manager you can see a list of all registered datasets for every city. </p>
+            <div class="inner-content">
+            	<p><%= link_to "See my datasets", :controller => 'datasets'%></p><br>
+            </div>
+            <p class="intro">The list contains both datasets registered from remote servers, managed by the city experts,
+            	 or datasets created by renewable energy calculations, after configuring and running modules in the Modules catalog </p>
+            <p class="intro">You can also register new datasets using a data server URL </p>                 
+            <div class="inner-content">
+               <p><%= link_to "Register new data", :controller => 'datasets', :action => 'mass_import', :id => 1 %></p>  
+            </div>
+         </div>
+         <div class="front-page-tab-body" id="renewable">
+            Configure and run a calculation module<br>
+            <p class="intro">The module catalog shows the calculations that iGUESS can perform.</p>
+            <p class="intro">Iguess runs calculations as WPS processes. </p>
+            <div class="inner-content">
+               <p><%= link_to "View module catalog", :controller => 'mod_configs', :anchor => 'module_catalog_tab'%></p><br>
+            </div>
+            <p class="intro">After a description of module's input requirements and output results, you can configure a module, 
+            	and this configuration will be added to the Configured Modules list.</p>
+            <p class="intro">You can also run a module configuration, and the outputs will be added to the Data Manager list. </p>
+            <p class="intro">Moreover, in the configured Modules list you can also see which modules are being run at your city.</p>	
+            <div class="inner-content">
+               <p><%= link_to "See Configured and running modules", :controller => 'mod_configs'%></p>
+            </div>
+         </div>
+         <div class="front-page-tab-body" id="scenario">
+            Configure and run a Scenario 
+            <p class="intro">In the Scenario page you can set up and calculate future Energy Production,
+            	 Energy Consumption and greenhouse gasses emissions for every sector, using current data.</p>
+            <div class="inner-content">
+               <p><%= link_to "Create a new Scenario", :controller => 'co2_scenarios'%></p>
+            </div>            
+         </div>
+         <div class="front-page-tab-body" id="maps">
+            Visualize maps of the registered datasets
             <p class="intro">iGUESS can show you any registered dataset on an interactive map of your city.</p>
+            <p class="intro">You can visualize and overlay energy planning layers with full web-gis capabilities.</p>
             <div class="inner-content">
                <p><%= link_to "Explore maps of my city", :controller => 'maps'%></p>
-               <p><%= link_to "See my datasets", :controller => 'datasets'%></p>
-               <p><%= link_to "Register new data", :controller => 'datasets', :action => 'mass_import', :id => 1 %></p>
             </div>
-         </div>
-         <div class="front-page-tab-body" id="run-a-module">
-            Configure and run a calculation module
-            <p class="intro">The module catalog shows the calculations that iGUESS can perform.</p>
-            <div class="inner-content">
-               <p><%= link_to "View module catalog", :controller => 'mod_configs', :anchor => 'module_catalog_tab'%></p>
+            <div class="welcomeimage">
+            	<%= image_tag "energy_savings.png", :class => "style_welcomeimage" %>
             </div>
-         </div>
-         <div class="front-page-tab-body" id="check-module">
-            Check on the status of a running module
-            <p class="intro">Logged in users can view the status of modules being run at their city.</p>
-            <div class="inner-content">
-               <p><%= link_to "See running modules", :controller => 'mod_configs'%></p>
-            </div>            
          </div>
       </div>
 </div>
