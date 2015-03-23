@@ -22,12 +22,15 @@
       <div class="panes">
       	<div class="front-page-tab-body" id="Welcome-introduction">
             Welcome to the Smart City Energy platform
-            <p class="intro_slogan">Understand your options... plan your future!</p>
-            <div class="inner-content-welcome">
-               <div class="welcomeimage">
-            	<%= image_tag "Energy-Demand.png", :class => "style_welcomeimage" %>
-               </div>
-               <p> Within the project “Mitigation in Urban
+            <div id="slider1_container" style="position: relative; top: 0px; left: 0px; width: 600px; height: 300px;">
+    <!-- Slides Container -->
+    		<div u="slides" style="cursor: move; position: absolute; overflow: hidden; left: 60px; top: 0px; width: 600px; height: 300px;">
+        			<div><%= image_tag "energy_savings.png" %></div>
+        			<div><%= image_tag "Energy-Demand.png" %></div>
+    		</div>
+		</div>
+		
+               <p class="intro"> Within the project “Mitigation in Urban
 				areas: Solutions for Innovative Cities”
 				(MUSIC), five cities in North West Europe
 				cooperate and exchange knowledge on
@@ -40,7 +43,7 @@
 				energy poverty maps and visualise CO2 emissions over time to identify opportunities 
 				for energy exchange and monitor the effects of energy saving measures in their city.</p>
             </div>
-         </div>
+         
          <div class="front-page-tab-body" id="data_management">
             View your data or register new datasets <br>                       
             <p class="intro">If you are a registered user, in the Data Manager you can see a list of all registered datasets for every city. </p>
@@ -99,5 +102,12 @@
       // setup ul.tabs to work as tabs for each div directly under div.panes
       $("ul.dosomething").tabs("div.panes > div");
   });
+</script>
+
+<script>
+    jQuery(document).ready(function ($) {
+        var options = { $AutoPlay: true };
+        var jssor_slider1 = new $JssorSlider$('slider1_container', options);
+    });
 </script>
 
