@@ -5,7 +5,7 @@
 
 $tabWidth: 300px;
 $totalWidth: 1100px;
-$panelHeight: 800px;
+$panelHeight: 700px;
 $tabHeight: 400px;
 
 // Big task oriented tabs
@@ -109,7 +109,7 @@ $lineHeight: $panelHeight / 8 - 1px;
 #front-page-tabs .inner-content {
    margin-left: 30px;
    margin-top: 40px;
-   font-size: 80%;
+   font-size: 60%;
 }
 
 .inner-content a {
@@ -177,7 +177,7 @@ $textMargin: 20px;
 .front-page-tab-body {
    background-repeat:no-repeat;
    background-size: $bgImageHeight;    
-   background-position: left 20px top 120px; 
+   background-position: right 20px top 120px; 
 
    height: $height;
    margin: 0;
