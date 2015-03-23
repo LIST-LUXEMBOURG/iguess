@@ -5,7 +5,8 @@
 
 $tabWidth: 300px;
 $totalWidth: 1100px;
-$panelHeight: 400px;
+$panelHeight: 800px;
+$tabHeight: 400px;
 
 // Big task oriented tabs
 #front-page-tabs {
@@ -42,7 +43,7 @@ $panelHeight: 400px;
 }
 
 
-$lineHeight: $panelHeight / 4 - 1px;
+$lineHeight: $panelHeight / 8 - 1px;
 #front-page-tabs li {
    list-style: none;
    margin: 0;
@@ -105,8 +106,7 @@ $lineHeight: $panelHeight / 4 - 1px;
 
 
 #front-page-tabs .inner-content {
-   margin-left: 240px;
-   margin-right: 40px;
+   text-align:center;
    margin-top: 40px;
    font-size: 80%;
 }
@@ -158,6 +158,11 @@ $lineHeight: $panelHeight / 4 - 1px;
    margin-left: 20px;
 }
 
+#front-page-tabs .intro_slogan {
+   font-size: 70%;
+   margin-left: 20px;
+}
+
 $height: 400px;
 $bgImageHeight: 150px;
 $bgMargin: 20px;
@@ -167,7 +172,7 @@ $textMargin: 20px;
 .front-page-tab-body {
    background-repeat:no-repeat;
    background-size: $bgImageHeight;    
-   background-position: $bgMargin $height - $bgImageHeight - $bgMargin;  
+   background-position: left 20px top 120px; 
 
    height: $height;
    margin: 0;
@@ -175,14 +180,27 @@ $textMargin: 20px;
    padding-left: $textMargin - 2px;
 }
 
-#view-some-data {
-   background-image: url('gPlus.svg');
+#data_management {
+   background-image: url('gPlus.svg'); 
 }
 
-#run-a-module {
+#renewable {
    background-image: url('gPlay.svg');
 }
 
-#check-module {
+#scenario {
    background-image: url('gCheck.svg');
+}
+
+#maps {
+   background-image: url('gPlus.svg');
+}
+
+// welcome image
+.style_welcomeimage {
+  vertical-align: middle;
+  text-align:center;
+  display: block; 
+  margin-left: auto; 
+  margin-right: auto
 }
