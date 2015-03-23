@@ -12,7 +12,8 @@ class Dataset < ActiveRecord::Base
   @@versionWMS = "1.3.0"
   @@versionWFS = "1.1.0"
   @@versionWCS = "1.1.0"
-  @@versionWCSGetCoverage = "1.0.0"
+  # MapServer is not able to project BBoxes in WGS84 passed in the 1.1.0 version
+  @@versionWCSGetCoverage = "1.0.0" 
   @@longWGS84 = "urn:x-ogc:def:crs:EPSG:4326"
 
   def hasTag(tag)
