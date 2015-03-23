@@ -244,7 +244,11 @@ def insert_new_dataset(dataset, recordId, url, serverId, city_id, epsg):
 
     abstract = "Result calculated with module"
 
-    xl,yl,xh,yh = dataset.getBBox()  # This is the bbox in the native coordinate system
+    xl,xh,yl,yh = dataset.getBBox()  # This is the bbox in the native coordinate system
+    
+    proj=pyproj.Proj("+init=EPSG:" + str(epsg))
+    xl,yl = proj(xl, yl, inverse=True)
+    xh,yh = proj(xh, yh, inverse=True)
     
     # These params will be different for vectors and rasters
     if dataset.dataType == dataset.TYPE_RASTER:
@@ -252,9 +256,6 @@ def insert_new_dataset(dataset, recordId, url, serverId, city_id, epsg):
         format = dataset.getMimeType()
     else:
         raster_res_x = raster_res_y = format = None
-        proj=pyproj.Proj("+init=EPSG:" + str(epsg))
-        xl,yl = proj(xl, yl, inverse=True)
-        xh,yh = proj(xh, yh, inverse=True)
 
 
     now = datetime.datetime.now()
