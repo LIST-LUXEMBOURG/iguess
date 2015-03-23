@@ -56,10 +56,10 @@
             </div>
             <br>
             <p class="intro">The list contains both datasets registered from remote servers, managed by the city experts,
-            	 or datasets created by renewable energy calculations, after configuring and running modules in the Modules catalog </p>
-            <p class="intro">You can also register new datasets using a data server URL </p>                 
+            	 or datasets created by renewable energy calculations, after configuring and running modules in the Modules catalog. </p>
+            <p class="intro">You can also register new datasets using a data server URL. </p>                 
             <div class="inner-content">
-               <p><%= link_to "Register new data", :controller => 'datasets', :action => 'mass_import', :id => 1 %>
+               <p><%= link_to "Register new data", :controller => 'datasets', :action => 'mass_import', :id => 1 %>&nbsp;
                	<%= link_to image_tag("register_dataset.png", :class => "datamanager"), :action => 'mass_import/1', :controller => 'datasets' %>
                </p>  
             </div>
@@ -69,14 +69,19 @@
             <p class="intro">The module catalog shows the calculations that iGUESS can perform.</p>
             <p class="intro">Iguess runs calculations as WPS processes. </p>
             <div class="inner-content">
-               <p><%= link_to "View module catalog", :controller => 'mod_configs', :anchor => 'module_catalog_tab'%></p><br>
+               <p><%= link_to "View module catalog", :controller => 'mod_configs', :anchor => 'module_catalog_tab'%>
+               		<%= link_to image_tag("module_catalog.png", :class => "datamanager"), :anchor=> 'module_catalog_tab', :controller => 'mod_configs' %>
+               	
+               </p><br>
             </div>
             <p class="intro">After a description of module's input requirements and output results, you can configure a module, 
-            	and this configuration will be added to the Configured Modules list.</p>
-            <p class="intro">You can also run a module configuration, and the outputs will be added to the Data Manager list. </p>
+            	and this configuration will be added to the Configured Modules list. When you run calculations defined by a module configuration, and the outputs will be added to the Data Manager list. </p>
             <p class="intro">Moreover, in the configured Modules list you can also see which modules are being run at your city.</p>	
             <div class="inner-content">
-               <p><%= link_to "See Configured and running modules", :controller => 'mod_configs'%></p>
+               <p><%= link_to "See Configured modules", :controller => 'mod_configs'%>
+               	<%= link_to image_tag("mod_configs.png", :class => "datamanager"), :controller => 'mod_configs' %>
+               	
+               </p>
             </div>
          </div>
          <div class="front-page-tab-body" id="scenario">
@@ -96,8 +101,9 @@
             <div class="inner-content">
                <p><%= link_to "Explore maps of my city", :controller => 'maps'%></p>
             </div>
+            <br>
             <div class="welcomeimage">
-            	<%= image_tag "energy_savings.png", :class => "style_welcomeimage" %>
+            	<%= link_to image_tag("energy_savings.png", :class => "style_welcomeimage"), :controller => 'maps' %>
             </div>
          </div>
       </div>
