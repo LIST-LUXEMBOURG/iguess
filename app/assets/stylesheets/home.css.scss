@@ -5,7 +5,7 @@
 
 $tabWidth: 300px;
 $totalWidth: 1100px;
-$panelHeight: 423px;
+$panelHeight: 400px;
 
 // Big task oriented tabs
 #front-page-tabs {
@@ -42,7 +42,7 @@ $panelHeight: 423px;
 }
 
 
-$lineHeight: $panelHeight / 3 - 1px;
+$lineHeight: $panelHeight / 4 - 1px;
 #front-page-tabs li {
    list-style: none;
    margin: 0;
@@ -105,7 +105,8 @@ $lineHeight: $panelHeight / 3 - 1px;
 
 
 #front-page-tabs .inner-content {
-   margin-left: 220px;
+   margin-left: 240px;
+   margin-right: 40px;
    margin-top: 40px;
    font-size: 80%;
 }
@@ -115,6 +116,21 @@ $lineHeight: $panelHeight / 3 - 1px;
 }
 
 .inner-content a:hover {
+   text-decoration: underline;
+}
+
+#front-page-tabs .inner-content-welcome {
+   margin-left: 15x;
+   margin-right: 15px;
+   margin-top: 30px;
+   font-size: 50%;
+}
+
+.inner-content-welcome a {
+   text-decoration: none;
+}
+
+.inner-content-welcome a:hover {
    text-decoration: underline;
 }
 
@@ -142,7 +158,7 @@ $lineHeight: $panelHeight / 3 - 1px;
    margin-left: 20px;
 }
 
-$height: 423px;
+$height: 400px;
 $bgImageHeight: 150px;
 $bgMargin: 20px;
 $textMargin: 20px;
