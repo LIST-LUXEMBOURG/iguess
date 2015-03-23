@@ -60,7 +60,7 @@ $lineHeight: $panelHeight / 8 - 1px;
 // Tab links themselves
 #front-page-tabs .tabs a {
    text-decoration: none;
-   color: #3C77B4;
+   color: #878282;
    font-size: 23px;
    padding-left: 18px;
 
@@ -87,8 +87,9 @@ $lineHeight: $panelHeight / 8 - 1px;
 
 /* selected tab */
 #front-page-tabs .tabs a.current {
-    color: maroon;
+    color: #000000;
     cursor:default;
+    font-weight: bold;
 
 
    background: #fff;
@@ -106,7 +107,7 @@ $lineHeight: $panelHeight / 8 - 1px;
 
 
 #front-page-tabs .inner-content {
-   text-align:center;
+   margin-left: 30px;
    margin-top: 40px;
    font-size: 80%;
 }
@@ -117,6 +118,10 @@ $lineHeight: $panelHeight / 8 - 1px;
 
 .inner-content a:hover {
    text-decoration: underline;
+}
+
+.datamanager {
+  vertical-align: middle;
 }
 
 #front-page-tabs .inner-content-welcome {
