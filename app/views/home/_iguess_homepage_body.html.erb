@@ -12,9 +12,9 @@
          <ul class="dosomething">
          	<li><a href="#">Welcome</a></li>
             <li><a href="#">Data Management</a></li>
-            <li><a href="#">Renewable Energy</a></li>
-            <li><a href="#">Future Scenarios</a></li>
-            <li><a href="#">Maps</a></li>
+            <li><a href="#">Renewables Calculator</a></li>
+            <li><a href="#">Energy Scenarios</a></li>
+            <li><a href="#">Urban Energy Maps</a></li>
          </ul>
       </div>
 
@@ -25,8 +25,10 @@
             <div id="slider1_container" style="position: relative; top: 0px; left: 0px; width: 600px; height: 300px;">
     <!-- Slides Container -->
     		<div u="slides" style="cursor: move; position: absolute; overflow: hidden; left: 60px; top: 0px; width: 600px; height: 300px;">
-        			<div><%= image_tag "energy_savings.png" %></div>
-        			<div><%= image_tag "Energy-Demand.png" %></div>
+        			<div><%= image_tag "04_energy_savings_residential.png" %></div>
+        			<div><%= image_tag "03_energy_demand_residential.png" %></div>
+        			<div><%= image_tag "01_heat_demand_geothermal.png" %></div>
+        			<div><%= image_tag "06_urban_heat_island.png" %></div>
     		</div>
 		</div>
 		
@@ -48,13 +50,18 @@
             View your data or register new datasets <br>                       
             <p class="intro">If you are a registered user, in the Data Manager you can see a list of all registered datasets for every city. </p>
             <div class="inner-content">
-            	<p><%= link_to "See my datasets", :controller => 'datasets'%></p><br>
+            	<p><%= link_to "See my datasets", :controller => 'datasets'%> &nbsp;
+            		<%= link_to image_tag("datamanager.png", :class => "datamanager"), :action => 'index', :controller => 'datasets' %>
+            	</p>            	
             </div>
+            <br>
             <p class="intro">The list contains both datasets registered from remote servers, managed by the city experts,
             	 or datasets created by renewable energy calculations, after configuring and running modules in the Modules catalog </p>
             <p class="intro">You can also register new datasets using a data server URL </p>                 
             <div class="inner-content">
-               <p><%= link_to "Register new data", :controller => 'datasets', :action => 'mass_import', :id => 1 %></p>  
+               <p><%= link_to "Register new data", :controller => 'datasets', :action => 'mass_import', :id => 1 %>
+               	<%= link_to image_tag("register_dataset.png", :class => "datamanager"), :action => 'mass_import/1', :controller => 'datasets' %>
+               </p>  
             </div>
          </div>
          <div class="front-page-tab-body" id="renewable">
@@ -78,6 +85,8 @@
             	 Energy Consumption and greenhouse gasses emissions for every sector, using current data.</p>
             <div class="inner-content">
                <p><%= link_to "Create a new Scenario", :controller => 'co2_scenarios'%></p>
+               <br>
+               <%= link_to image_tag("scenario.png"), :controller => 'co2_scenarios' %>
             </div>            
          </div>
          <div class="front-page-tab-body" id="maps">
