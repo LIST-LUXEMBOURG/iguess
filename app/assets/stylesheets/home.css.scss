@@ -113,6 +113,7 @@ $lineHeight: $panelHeight / 8 - 1px;
    font-size: 60%;
 }
 
+
 .inner-content a {
    text-decoration: none;
 }
@@ -188,6 +189,11 @@ $textMargin: 20px;
    
    text-align: justify;
    text-justify: auto;
+}
+
+.front-page-tab-body h1 {
+   font-size: 80%;
+   margin-left: 20px;
 }
 
 .front-page-tab-body p {
