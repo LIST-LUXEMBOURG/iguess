@@ -4,25 +4,26 @@
 
 
 $tabWidth: 300px;
-$totalWidth: 1100px;
-$panelHeight: 700px;
+$totalWidth: 1200px;
+$panelHeight: 600px;
 $tabHeight: 400px;
 
 // Big task oriented tabs
 #front-page-tabs {
-   padding: 0;
-   font-size: 30px;
+   //padding: 0;
+   font-size: 20px;
    float:left;
    /*width: $tabWidth;*/
 
    border-radius: 5px;
    -moz-box-sizing: border-box;
    box-sizing: border-box;
-   margin: 0 auto;
+   margin: auto;
    margin-left: 50px;      // Indent the whole shebang
    border: 1px solid #DDD;
-   position: relative;
+   //position: relative;
    width: $totalWidth;
+   overflow: visible;
 }
 
 #front-page-tabs .tabs {
@@ -129,7 +130,7 @@ $lineHeight: $panelHeight / 8 - 1px;
    margin-left: 15x;
    margin-right: 15px;
    margin-top: 30px;
-   font-size: 50%;
+   font-size: 30%;
 }
 
 .inner-content-welcome a {
@@ -183,7 +184,7 @@ $textMargin: 20px;
    height: $height;
    margin: 10;
    width: $totalWidth - $tabWidth - $textMargin;
-   padding-left: $textMargin - 2px;
+   //padding-left: $textMargin - 2px;
    
    text-align: justify;
    text-justify: auto;
@@ -222,7 +223,7 @@ $textMargin: 20px;
 #slider1_container {
    position: relative; 
    top: 0px; 
-   left: 30px; 
+   left: 60px; 
    width: 600px; 
    height: 300px;
 }
