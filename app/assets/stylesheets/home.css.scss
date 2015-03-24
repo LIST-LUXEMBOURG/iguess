@@ -116,6 +116,7 @@ $lineHeight: $panelHeight / 8 - 1px;
    text-decoration: none;
 }
 
+
 .inner-content a:hover {
    text-decoration: underline;
 }
@@ -180,9 +181,17 @@ $textMargin: 20px;
    background-position: right 20px top 120px; 
 
    height: $height;
-   margin: 0;
+   margin: 10;
    width: $totalWidth - $tabWidth - $textMargin;
    padding-left: $textMargin - 2px;
+   
+   text-align: justify;
+   text-justify: auto;
+}
+
+.front-page-tab-body p {
+  margin-right: 30px;
+  color: #585858;
 }
 
 #data_management {
@@ -209,3 +218,19 @@ $textMargin: 20px;
   margin-left: auto; 
   margin-right: auto
 }
+
+#slider1_container {
+   position: relative; 
+   top: 0px; 
+   left: 0px; 
+   width: 600px; 
+   height: 300px;
+}
+
+div[u="slides"] { cursor: move; 
+position: absolute; 
+overflow: hidden; 
+left: 60px; 
+top: 0px; 
+width: 600px; 
+height: 300px; }
