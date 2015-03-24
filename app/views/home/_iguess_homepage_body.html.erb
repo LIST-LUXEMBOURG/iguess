@@ -28,7 +28,7 @@
 				(MUSIC), five cities in North West Europe
 				cooperate and exchange knowledge on
 				how to implement an energy transition in
-				their own city: Aberdeen, Ghent,
+				their cities: Aberdeen, Ghent,
 				Ludwigsburg, Montreuil and Rotterdam. 
 				</p>
             
@@ -47,8 +47,8 @@
 				The integrated Geospatial Urban Energy Information and Support System framework (iGUESS)
 				allows to integrate energy as a layer in urban planning. With this platform cities are able to 
 				compute renewable energy and energy savings potential maps, urban heat island maps, 
-				energy poverty maps and visualise CO2 emissions over time to identify opportunities 
-				for energy exchange and monitor the effects of energy saving measures in their city.</p>
+				energy poverty maps. Visualizing CO<sub>2</sub> emissions over time to identify opportunities 
+				for energy exchange and monitor the effects of energy saving measures in their city is another strong point of this framework.</p>
             </div>
          
          <div class="front-page-tab-body" id="data_management">
@@ -71,8 +71,8 @@
          </div>
          <div class="front-page-tab-body" id="renewable">
             Configure and run a calculation module<br>
-            <p class="intro">The module catalog shows the calculations that iGUESS can perform.</p>
-            <p class="intro">Iguess runs calculations as WPS processes. </p>
+            <p class="intro">The module catalog shows the calculations that iGUESS can perform, for solar, geothermal, urban heat islands, fuel poverty and energy savings potentials.</p>
+            <p class="intro">iGUESS runs calculations as WPS processes. </p>
             <div class="inner-content">
                <p><%= link_to "View module catalog", :controller => 'mod_configs', :anchor => 'module_catalog_tab'%>
                		<%= link_to image_tag("module_catalog.png", :class => "datamanager"), :anchor=> 'module_catalog_tab', :controller => 'mod_configs' %>
@@ -80,8 +80,8 @@
                </p><br>
             </div>
             <p class="intro">After a description of module's input requirements and output results, you can configure a module, 
-            	and this configuration will be added to the Configured Modules list. When you run calculations defined by a module configuration, and the outputs will be added to the Data Manager list. </p>
-            <p class="intro">Moreover, in the configured Modules list you can also see which modules are being run at your city.</p>	
+            	and this configuration will be added to the Configured Modules list. When you run calculations defined by a module configuration, the outputs will be added to the Data Manager list. 
+            Moreover, in the configured Modules list you can also see which modules are being run at your city.</p>	
             <div class="inner-content">
                <p><%= link_to "See Configured modules", :controller => 'mod_configs'%>
                	<%= link_to image_tag("mod_configs.png", :class => "datamanager"), :controller => 'mod_configs' %>
@@ -92,7 +92,7 @@
          <div class="front-page-tab-body" id="scenario">
             Implement Sustainable Energy Action Plans
             <p class="intro">In the Scenario page you can set up and calculate future Energy Production,
-            	 Energy Consumption and greenhouse gasses emissions for every sector, using current data.</p>
+            	 Energy Consumption and greenhouse gases emissions for every sector, using baseline data.</p>
             <div class="inner-content">
                <p><%= link_to "Create a new Scenario", :controller => 'co2_scenarios'%></p>
                <br>
