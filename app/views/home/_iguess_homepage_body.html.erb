@@ -23,13 +23,7 @@
       	<div class="front-page-tab-body" id="Welcome-introduction">
            <h1> Welcome to the Smart City Energy platform</h1>
             
-            <p class="intro"> Within the project “Mitigation in Urban
-				areas: Solutions for Innovative Cities”
-				(MUSIC), five cities in North West Europe
-				cooperate and exchange knowledge on
-				how to implement an energy transition in
-				their cities: Aberdeen, Ghent,
-				Ludwigsburg, Montreuil and Rotterdam. 
+            <p class="intro"> Smart City Energy supports cities in the development of innovative strategies and opportunities for sustainable energies transitions.
 				</p>
             
             
@@ -42,14 +36,19 @@
         			<div><%= image_tag "06_urban_heat_island.png" %></div>
     		</div>
 		</div>
-		
-               <p class="intro"> 
-				The integrated Geospatial Urban Energy Information and Support System framework (iGUESS)
-				allows to integrate energy as a layer in urban planning. With this platform cities are able to 
-				compute renewable energy and energy savings potential maps, urban heat island maps, 
-				energy poverty maps. Visualizing CO<sub>2</sub> emissions over time to identify opportunities 
-				for energy exchange and monitor the effects of energy saving measures in their city is another strong point of this framework.</p>
+			   <p class="intro"> 
+				The Smart City Energy platform is based on the flexible framework iGUESS, to integrate energy as a layer into urban planning. 
+				Smart City Energy enables cities to explore potentials for renewable energy, energy savings,
+				green roofs, and identifies risks regarding urban heat islands and energy poverty.
+				Smart City Energy allows to develop and test measures for Sustainable Energy Action Plans to assess CO<sub>2</sub> 
+				emissions over time and identify opportunities for energy exchange within a city.
+				</p>
+				
+
+				<p class="intro"> 
+            Enjoy the exploration of a new framework for sustainable urban areas within Europe!</p>
             </div>
+            
          
          <div class="front-page-tab-body" id="data_management">
             <h1>View your data or register new datasets</h1>                       
@@ -90,11 +89,11 @@
             </div>
          </div>
          <div class="front-page-tab-body" id="scenario">
-            <h1>Implement Sustainable Energy Action Plans</h1>
+            <h1>Develop Sustainable Energy Action Plans</h1>
             <p class="intro">In the Scenario page you can set up and calculate future Energy Production,
             	 Energy Consumption and greenhouse gases emissions for every sector, using baseline data.</p>
             <div class="inner-content">
-               <p><%= link_to "Create a new Scenario", :controller => 'co2_scenarios'%></p>
+               <p><%= link_to "Develop Scenarios", :controller => 'co2_scenarios'%></p>
                <br>
                <div class="welcomeimage">
                <%= link_to image_tag("scenario.png", :class => "style_welcomeimage"), :controller => 'co2_scenarios' %>

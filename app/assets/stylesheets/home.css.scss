@@ -5,23 +5,24 @@
 
 $tabWidth: 300px;
 $totalWidth: 1200px;
-$panelHeight: 600px;
+$panelHeight: 650px;
 $tabHeight: 400px;
 
 // Big task oriented tabs
 #front-page-tabs {
-   //padding: 0;
+   padding: 0;
    font-size: 20px;
-   float:left;
+   float:none;
    /*width: $tabWidth;*/
 
    border-radius: 5px;
    -moz-box-sizing: border-box;
    box-sizing: border-box;
    margin: auto;
-   margin-left: 50px;      // Indent the whole shebang
+   margin-left: auto;      // Indent the whole shebang
+   margin-right: auto;
    border: 1px solid #DDD;
-   //position: relative;
+   position: relative;
    width: $totalWidth;
    overflow: visible;
 }
@@ -201,7 +202,7 @@ $textMargin: 20px;
   color: #585858;
 }
 
-#data_management {
+/*#data_management {
    background-image: url('gPlus.svg'); 
 }
 
@@ -215,7 +216,7 @@ $textMargin: 20px;
 
 #maps {
    background-image: url('gPlus.svg');
-}
+}*/
 
 // welcome image
 .style_welcomeimage {
@@ -229,6 +230,7 @@ $textMargin: 20px;
 #slider1_container {
    position: relative; 
    top: 0px; 
+   //bottom: 20px;
    left: 60px; 
    width: 600px; 
    height: 300px;
