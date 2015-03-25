@@ -15,7 +15,7 @@ $tabHeight: 400px;
    float:none;
    /*width: $tabWidth;*/
 
-   border-radius: 5px;
+   //border-radius: 5px;
    -moz-box-sizing: border-box;
    box-sizing: border-box;
    margin: auto;
@@ -24,7 +24,7 @@ $tabHeight: 400px;
    border: 1px solid #DDD;
    position: relative;
    width: $totalWidth;
-   overflow: visible;
+   overflow: auto;
 }
 
 #front-page-tabs .tabs {
