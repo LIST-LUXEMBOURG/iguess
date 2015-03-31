@@ -100,8 +100,7 @@
     }
     else if(type == "WCS") {
       wcsProcessingComplete++;
-      if(wcsProcessingComplete == 2)
-        $("#probing-wcs").hide();
+      $("#probing-wcs").hide();
     }
     else if(type == "RegisteredDatasets") {
       regDatasetsComplete++;
@@ -113,7 +112,7 @@
 
     // Make sure we've heard from all services before continuing
     if(wfsProcessingComplete != 1 || wmsProcessingComplete != 1 || 
-       wcsProcessingComplete != 2 || regDatasetsComplete != 1)  
+       wcsProcessingComplete != 1 || regDatasetsComplete != 1)  
       return; 
 
     $(".progress-container").hide();
@@ -1069,7 +1068,6 @@
     { 
       WMS.getCapabilities(self.serverUrl,  self.onWmsGetCapabilitiesSucceeded);
       WFS.getCapabilities(self.serverUrl,  self.onWfsGetCapabilitiesSucceeded);
-      // Launch both GetCapabilities and DescribeCoverage requests:
       WCS.getCapabilities(self.serverUrl,  self.onWcsGetCapabilitiesSucceeded);  
 
       CurrentServerUrl = self.serverUrl;    // For external access... can we do this a better way?
@@ -1093,6 +1091,27 @@
     };
 
     this.onWcsGetCapabilitiesSucceeded = function(capabilities, response) {
+      if(capabilities && isGoodResponse("WCS", response, capabilities))
+      {
+          var identifiers;
+          var serverInfo = getServerInfo(capabilities);
+          
+	  	  if(capabilities.contentMetadata) 
+	  	  {
+	        var coverageList = capabilities.contentMetadata;
+			if(coverageList.length > 0) 
+				identifiers = coverageList[0].identifier;
+	        for(var i = 1, len = coverageList.length; i < len; i++)
+	          identifiers += "," + coverageList[i].identifier;
+	          
+	        WCS.describeCoverage(self.serverUrl, identifiers, self.onWcsDescribeCoverageSucceeded);  
+	      }
+      }
+      else    // Error:
+        doneProcessing("WCS", null); 
+    };
+    
+    this.onWcsDescribeCoverageSucceeded = function(capabilities, response) {
       if(capabilities && isGoodResponse("WCS", response, capabilities))
         processIncomingWCSLayers(capabilities, self.serverUrl);
       else    // Error:
@@ -1128,8 +1147,6 @@
       return null;
   };
 
-
-  // capabilities could contain responses from either GetCapabilities or DescribeCoverage
   var processIncomingWCSLayers = function(capabilities, serverUrl)
   {
     var serverInfo = null;
