@@ -145,7 +145,6 @@ WFS.getCapabilities = function(serverUrl, successFunction) {
 };
 
 
-// For WCS, we need to do both a GetCapabilities and a DescribeCoverage to get all the info we need.  Lame but true.
 WCS.getCapabilities = function(serverUrl, successFunction) {
   OpenLayers.Request.GET({
     url: serverUrl,
@@ -171,14 +170,16 @@ WCS.getCapabilities = function(serverUrl, successFunction) {
       successFunction(undefined, response);
     }
   });
+};
 
-
+WCS.describeCoverage = function(serverUrl, identifiers, successFunction) {
   OpenLayers.Request.GET({
     url: serverUrl,
     params: {     // These will be appeneded to the URL in the form SERVICE=WCS etc.
-      "SERVICE": "WCS",
-      "REQUEST": "DescribeCoverage",
-      "VERSION": WCS.version
+      "SERVICE"     : "WCS",
+      "REQUEST"     : "DescribeCoverage",
+      "VERSION"     : WCS.version,
+      "IDENTIFIERS" : identifiers
     },
     success: function(response) {
 
