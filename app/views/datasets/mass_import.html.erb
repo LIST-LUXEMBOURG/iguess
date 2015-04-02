@@ -862,7 +862,7 @@
     if(datasetInfo.nativeCRS)
     {
       this.dataCrs = new Array();
-      while (crs = datasetInfo.supportedCRSs.pop()) 
+      while ((datasetInfo.supportedCRSs) && (crs = datasetInfo.supportedCRSs.pop())) 
       	this.dataCrs.push(CRS.getSimpleFormat(crs))
     }
     
