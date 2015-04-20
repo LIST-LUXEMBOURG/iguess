@@ -127,7 +127,8 @@ end
   ['Agadir',      13, 'EPSG:26192', -1066445, 3557502, 'smartcitylog-agadir.css', '+proj=lcc +lat_1=33.3 +lat_0=33.3 +lon_0=-5.4 +k_0=0.999625769 +x_0=500000 +y_0=300000 +a=6378249.2 +b=6356515 +towgs84=31,146,47,0,0,0,0 +units=m +no_defs '],
   ['Morocco',      6, 'EPSG:26192',  -800000, 3600000, 'smartcitylog-agadir.css', '+proj=lcc +lat_1=33.3 +lat_0=33.3 +lon_0=-5.4 +k_0=0.999625769 +x_0=500000 +y_0=300000 +a=6378249.2 +b=6356515 +towgs84=31,146,47,0,0,0,0 +units=m +no_defs '],
   ['Ludwigsburg', 13, 'EPSG:25832',  1022893, 6257460, 'iguess.css', '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs '],
-  ['Bergamo',     13, 'EPSG:32632',  1076114, 5731384, 'lamilo.css', '+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs ']
+  ['Bergamo',     13, 'EPSG:32632',  1076114, 5731384, 'lamilo.css', '+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs '],
+  ['Torino',      12, 'EPSG:32632',   857160, 5632548, 'iguess.css', '+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs ']
 ].each do |v|
    c = City.find_by_name v[0]
    if c == nil
