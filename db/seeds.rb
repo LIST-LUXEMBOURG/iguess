@@ -124,6 +124,7 @@ end
 #  ['London',      '', 13, 'EPSG:27700', -8468,  6711661],
 #  ['Luxembourg',  '', 13, 'EPSG:2169', 682574,  6379134],
 #  ['Esch-sur-Alzette', '', 14, 'EPSG:2169', 665606,  6359849]
+  ['Brussels',    12, 'EPSG:3035',    484517, 6594220, 'lamilo.css', '+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs'],
   ['Agadir',      13, 'EPSG:26192', -1066445, 3557502, 'smartcitylog-agadir.css', '+proj=lcc +lat_1=33.3 +lat_0=33.3 +lon_0=-5.4 +k_0=0.999625769 +x_0=500000 +y_0=300000 +a=6378249.2 +b=6356515 +towgs84=31,146,47,0,0,0,0 +units=m +no_defs '],
   ['Morocco',      6, 'EPSG:26192',  -800000, 3600000, 'smartcitylog-agadir.css', '+proj=lcc +lat_1=33.3 +lat_0=33.3 +lon_0=-5.4 +k_0=0.999625769 +x_0=500000 +y_0=300000 +a=6378249.2 +b=6356515 +towgs84=31,146,47,0,0,0,0 +units=m +no_defs '],
   ['Ludwigsburg', 13, 'EPSG:25832',  1022893, 6257460, 'iguess.css', '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs '],
