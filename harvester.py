@@ -551,9 +551,9 @@ def check_data_servers(serverCursor):
 
             for row in cursor:
                 dsid, identifier, cityId = row
-
                 title = abstract = service = None
-
+                bbox_left = bbox_bottom = bbox_right = bbox_top = None
+                target_crs = None
                 has_city_crs = False
 
                 # from lxml import etree
