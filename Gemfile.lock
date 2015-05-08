@@ -64,6 +64,9 @@ GEM
     execjs (2.2.1)
     ffi (1.9.3)
     hike (1.2.3)
+    httparty (0.13.3)
+      json (~> 1.8)
+      multi_xml (>= 0.5.2)
     i18n (0.6.1)
     journey (1.0.4)
     jquery-rails (3.1.1)
@@ -78,6 +81,7 @@ GEM
     mime-types (1.25.1)
     minitest (4.7.5)
     multi_json (1.10.1)
+    multi_xml (0.5.5)
     orm_adapter (0.5.0)
     paperclip (3.5.4)
       activemodel (>= 3.0.0)
@@ -163,6 +167,7 @@ DEPENDENCIES
   coffee-rails (~> 3.2.1)
   devise (~> 2.2.4)
   execjs
+  httparty
   jquery-rails
   mail
   paperclip (~> 3.1)
