@@ -55,12 +55,14 @@ GEM
       coffee-script-source
       execjs
     coffee-script-source (1.7.1)
+    daemons (1.2.2)
     devise (2.2.8)
       bcrypt-ruby (~> 3.0)
       orm_adapter (~> 0.1)
       railties (~> 3.1)
       warden (~> 1.2.1)
     erubis (2.7.0)
+    eventmachine (1.0.7)
     execjs (2.2.1)
     ffi (1.9.3)
     hike (1.2.3)
@@ -144,6 +146,10 @@ GEM
     therubyracer (0.12.1)
       libv8 (~> 3.16.14.0)
       ref
+    thin (1.6.3)
+      daemons (~> 1.0, >= 1.0.9)
+      eventmachine (~> 1.0)
+      rack (~> 1.0)
     thor (0.19.1)
     tilt (1.4.1)
     treetop (1.4.15)
@@ -181,5 +187,6 @@ DEPENDENCIES
   simple_form
   sqlite3
   therubyracer
+  thin
   turn
   uglifier (>= 1.0.3)

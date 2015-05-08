@@ -124,10 +124,18 @@ end
 #  ['London',      '', 13, 'EPSG:27700', -8468,  6711661],
 #  ['Luxembourg',  '', 13, 'EPSG:2169', 682574,  6379134],
 #  ['Esch-sur-Alzette', '', 14, 'EPSG:2169', 665606,  6359849]
+
+  # LaMiLo
+  ['Brussels',    12, 'EPSG:3035',    484517, 6594220, 'lamilo.css', '+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs'],
+  ['London',      13, 'EPSG:3035',     -9900, 6712608, 'lamilo.css', '+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs'],
+  ['Bergamo',     13, 'EPSG:3035',   1076114, 5731384, 'lamilo.css', '+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs'],
+  
+  # Smart City Logistics
   ['Agadir',      13, 'EPSG:26192', -1066445, 3557502, 'smartcitylog-agadir.css', '+proj=lcc +lat_1=33.3 +lat_0=33.3 +lon_0=-5.4 +k_0=0.999625769 +x_0=500000 +y_0=300000 +a=6378249.2 +b=6356515 +towgs84=31,146,47,0,0,0,0 +units=m +no_defs '],
   ['Morocco',      6, 'EPSG:26192',  -800000, 3600000, 'smartcitylog-agadir.css', '+proj=lcc +lat_1=33.3 +lat_0=33.3 +lon_0=-5.4 +k_0=0.999625769 +x_0=500000 +y_0=300000 +a=6378249.2 +b=6356515 +towgs84=31,146,47,0,0,0,0 +units=m +no_defs '],
   ['Ludwigsburg', 13, 'EPSG:25832',  1022893, 6257460, 'iguess.css', '+proj=utm +zone=32 +ellps=GRS80 +units=m +no_defs '],
-  ['Bergamo',     13, 'EPSG:32632',  1076114, 5731384, 'lamilo.css', '+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs '],
+  
+  # MUSIC
   ['Torino',      12, 'EPSG:32632',   857160, 5632548, 'iguess.css', '+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs ']
 ].each do |v|
    c = City.find_by_name v[0]
@@ -143,6 +151,20 @@ end
    c.projection_params = v[6]
    c.save
 end
+
+# Update CRS in replicated LaMiLo cities
+[
+  ['Luxembourg',       13, 'EPSG:3035', 682574, 6379134, 2, '+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs'],
+  ['Esch-sur-Alzette', 14, 'EPSG:3035', 665606, 6359849, 2, '+proj=laea +lat_0=52 +lon_0=10 +x_0=4321000 +y_0=3210000 +ellps=GRS80 +units=m +no_defs'],
+].each do |v|
+   c = City.find_by_name_and_site_details_id(v[0], v[5])
+   c.zoom = v[1]
+   c.srs  = v[2]
+   c.mapx = v[3]
+   c.mapy = v[4]
+   c.projection_params = v[6]
+   c.save
+end 
 
 # ------------------ CO2 Scenarios ------------------ #
 

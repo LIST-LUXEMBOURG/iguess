@@ -62070,7 +62070,7 @@ OpenLayers.Format.WCSDescribeCoverage.v1_1_1 = OpenLayers.Class(
     	"http://www.opengis.net/ows/1.1" : "wcs",
     	"http://www.w3.org/1999/xlink" : "xlink",
     	"http://www.w3.org/2001/XMLSchema-instance" : "xsi",
-    	"http://www.opengis.net/ows" : "owsesri"
+    	"http://www.opengis.net/ows" : "owsesri" 
     },
     
     /**
@@ -67584,7 +67584,7 @@ OpenLayers.Format.WCSCapabilities.v1_1_1 = OpenLayers.Class(
         wcs: "http://www.opengis.net/wcs/1.1.1",
         xlink: "http://www.w3.org/1999/xlink",
         xsi: "http://www.w3.org/2001/XMLSchema-instance",
-        ows: "http://www.opengis.net/ows/1.1.1",
+        ows: "http://www.opengis.net/ows/1.1",
         owsesri: "http://www.opengis.net/ows",
         owcsesri: "http://www.opengis.net/wcs/1.1.1/ows"
     },

@@ -30,7 +30,8 @@ from harvester_pwd import dbDatabase, dbName, dbUsername, dbPassword, dbSchema
 wpsVersion = '1.0.0'
 wmsVersion = '1.1.1'        # Christian says 1.3.0 is "weird", Rotterdam wms doesn't like 1.3.0!
 wfsVersion = '1.1.0'        # Montreuil only works with 1.0.0
-wcsVersion = '1.1.0'        # Rotterdam only works when this is set to 1.1.0
+wcsVersion = '1.1.1'        # Rotterdam only works when this is set to 1.1.0
+wcsVersionAlt = '1.1.0'        # Rotterdam only works when this is set to 1.1.0
 
 
 # Tables we will use
@@ -425,6 +426,10 @@ def get_ows_objects(server_url):
 
     try:
         wcs = WebCoverageService(server_url, version = wcsVersion)
+        # If contents are empty this may mean the server does not support 
+        # the select WCS version, try with the alternate.
+        if wcs.contents == None or len(wcs.contents) <= 0:
+           wcs = WebCoverageService(server_url, version = wcsVersionAlt) 
     except: 
         wcs = None   
 
@@ -448,15 +453,21 @@ def get_image_resolution(describe_coverage_object):
     if len(gridOffsets) == 0:
         return None, None
     
-    x, y = gridOffsets[0].text.split()
-
-    return abs(float(x)), abs(float(y))
+    offsets = gridOffsets[0].text.split()
+    
+    if len(offsets) == 2:
+        return abs(float(offsets[0])), abs(float(offsets[1]))
+    
+    if len(offsets) == 4:
+        return abs(float(offsets[0])), abs(float(offsets[3]))
 
 
 
 def get_target_crs(describe_coverage_object):
     try:
         for element in describe_coverage_object[0].iter("{http://www.opengis.net/wcs/1.1}GridBaseCRS"):
+           return element.text
+        for element in describe_coverage_object[0].iter("{http://www.opengis.net/wcs/1.1.1}GridBaseCRS"):
            return element.text
     except:
        return None
@@ -480,11 +491,24 @@ def get_bounding_box(describe_coverage_object, target_crs):
     return (None, None, None, None)
 
 
+def get_supported_formats(describe_coverage_object):
+    '''
+    Returns list with supported formats.
+    Fails for MapServer (that apparently does not comply with the standard)
+    '''
+    ret = list()
+    try:
+        for element in describe_coverage_object[0].iter("{http://www.opengis.net/wcs/1.1.1}SupportedFormat"):
+            ret.append(element.text)
+        return ret
+    except:
+        return None
+    return None
+
 
 def check_data_servers(serverCursor):
 
     cursor = db_conn.cursor()
-
 
     # Get the server list
     serverCursor.execute("SELECT DISTINCT url FROM " + tables["dataservers"])
@@ -527,9 +551,9 @@ def check_data_servers(serverCursor):
 
             for row in cursor:
                 dsid, identifier, cityId = row
-
                 title = abstract = service = None
-
+                bbox_left = bbox_bottom = bbox_right = bbox_top = None
+                target_crs = None
                 has_city_crs = False
 
                 # from lxml import etree
@@ -598,30 +622,36 @@ def check_data_servers(serverCursor):
                     if target_crs is None:
                         print "Can't find GridBaseCRS for WCS dataset " + server_url + " >>> " + identifier
                         continue
-
-
-                    bbox_left, bbox_bottom, bbox_right, bbox_top = get_bounding_box(dc, target_crs)
+                    
+                    if wcs.contents[identifier].boundingBoxWGS84:
+                        bbox_left, bbox_bottom, bbox_right, bbox_top = wcs.contents[identifier].boundingBoxWGS84
+                    else:
+                        bbox_left, bbox_bottom, bbox_right, bbox_top = get_bounding_box(dc, target_crs)
 
                     if bbox_left is None:
                         print "Could not find a bbox for WCS dataset " + server_url + " >>> " + identifier
                         continue
-
-                    if(len(wcs.contents[identifier].supportedFormats[0]) == 0):
-                        print "Cannot get a supported format for WCS dataset " + server_url + " >>> " + identifier
-                        continue
                     
+                    formats = get_supported_formats(dc)
+                    if formats == None:
+                        formats = wcs.contents[identifier].supportedFormats
+
                     # All else being equal, we'd prefer to work with img datasets; second choice is tiff,
                     # otherwise, we'll just take what is offered first
-                    if len(wcs.contents[identifier].supportedFormats) == 0:
+                    if len(formats) == 0:
                         print "Cannot find valid image format for WCS dataset " + server_url + " >>> " + identifier
                         continue
 
-                    if 'image/img' in wcs.contents[identifier].supportedFormats:
+                    if(len(formats[0]) == 0):
+                        print "Cannot get a supported format for WCS dataset " + server_url + " >>> " + identifier
+                        continue
+
+                    if 'image/img' in formats:
                         img_format = 'image/img'
-                    elif 'image/tiff' in wcs.contents[identifier].supportedFormats:
+                    elif 'image/tiff' in formats:
                         img_format = 'image/tiff'
                     else:
-                        img_format = wcs.contents[identifier].supportedFormats[0]
+                        img_format = formats
 
 
                 else:               # No WCS
@@ -673,8 +703,7 @@ def main():
 
     # Get the database connection info
     print "Starting Harvester of Sorrow ", datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-
-
+    
     # To the database
     db_conn = psycopg2.connect(host = dbDatabase, database = dbName, user = dbUsername, password = dbPassword)
 
@@ -683,7 +712,6 @@ def main():
     # Turn autocommit on to avoid locking our select statements
     # set_session([isolation_level,] [readonly,] [deferrable,] [autocommit])
     db_conn.set_session(autocommit=True)
-
 
     serverCursor  = db_conn.cursor()      # For listing servers
     update_cursor = db_conn.cursor()      # For updating the database
