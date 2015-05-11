@@ -1,0 +1,9 @@
+http://eusoils.jrc.ec.europa.eu/wrb/wms_Texture.asp TXDEPCHG
+http://eusoils.jrc.ec.europa.eu/wrb/wms_Texture.asp TXSRFDO
+http://eusoils.jrc.ec.europa.eu/wrb/wms_Texture.asp MS
+http://eusoils.jrc.ec.europa.eu/wrb/wms_Texture.asp TXSRFSE
+http://eusoils.jrc.ec.europa.eu/wrb/wms_Texture.asp MS
+http://eusoils.jrc.ec.europa.eu/wrb/wms_Texture.asp TXSRFSE
+http://eusoils.jrc.ec.europa.eu/wrb/wms_Texture.asp MS 
+http://eusoils.jrc.ec.europa.eu/wrb/wms_Texture.asp TXDEPCHG 
+http://eusoils.jrc.ec.europa.eu/wrb/wms_Texture.asp TXSRFDO 

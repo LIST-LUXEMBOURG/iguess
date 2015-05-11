@@ -125,6 +125,9 @@ class DatasetsController < ApplicationController
                                     }
                   }
     end
+    
+    system PythonPath + " " + Rails.root.to_s() + "/addregistered_tocsw.py " + @dataset.server_url + " " + @dataset.identifier + " " + " &"
+    
   end
 
 
