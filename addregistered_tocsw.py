@@ -2,25 +2,29 @@
 
 import sys
 from owslib.csw import CatalogueServiceWeb
+from transaction_insert_xml_serializer import Transactor
 from lxml import etree
 import os.path
 
 pycsw_url = "http://iguess-meta.kirchberg.tudor.lu/pycsw/csw.py"
-scriptname, a, b = sys.argv
+scriptname, service, identifier, city_id, abstract, server_url, title = sys.argv
 
-if len(sys.argv) != 3:
-    raise Exception("Script requires 2 args: dataset_url and dataset_identifier")
+if len(sys.argv) != 7:
+    raise Exception("Script requires 6 args: dataset_url and dataset_identifier")
 
-def verifico_ricezione_variabili(a, b):
+def verifico_ricezione_variabili(args):
     with open('/home/matteo/dev/tudor/iguess/ricezione.txt', 'a') as f:
-        f.write(str(a) + " " + str(b)+ " " + "\n")
+        #f.write([str(var)+ "\n" for var in args])
+        f.write(str(service) + " " + str(identifier)+ " " + str(city_id)+ " " + str(abstract)+ " " + str(server_url)+ " " + str(title)+ " ""\n")
         
-verifico_ricezione_variabili(a, b)
+verifico_ricezione_variabili(sys.argv)
 
-csw = CatalogueServiceWeb(url)
+
+
+csw = CatalogueServiceWeb(pycsw_url)
 
 #dr = csw.describeRecord()
-csw.getdomain('GetRecords.resultType')
+#csw.getdomain('GetRecords.resultType')
 
 def create_metadata_iso_xml(datalist, rootname):
      root = etree.Element(rootname)

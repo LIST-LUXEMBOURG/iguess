@@ -1,9 +1,32 @@
-http://eusoils.jrc.ec.europa.eu/wrb/wms_Texture.asp TXDEPCHG
-http://eusoils.jrc.ec.europa.eu/wrb/wms_Texture.asp TXSRFDO
-http://eusoils.jrc.ec.europa.eu/wrb/wms_Texture.asp MS
-http://eusoils.jrc.ec.europa.eu/wrb/wms_Texture.asp TXSRFSE
-http://eusoils.jrc.ec.europa.eu/wrb/wms_Texture.asp MS
-http://eusoils.jrc.ec.europa.eu/wrb/wms_Texture.asp TXSRFSE
-http://eusoils.jrc.ec.europa.eu/wrb/wms_Texture.asp MS 
-http://eusoils.jrc.ec.europa.eu/wrb/wms_Texture.asp TXDEPCHG 
-http://eusoils.jrc.ec.europa.eu/wrb/wms_Texture.asp TXSRFDO 
+
+WMS MS5 Soil Texture http://eusoils.jrc.ec.europa.eu/wrb/wms_Texture.asp Texture 
+<gmd:MD_Metadata xmlns:gmd="http://www.isotc211.org/2005/gmd">
+  <fileIdentifier>
+    <gco:CharacterString xmlns:gco="http://www.isotc211.org/2005/gco">meta-MS5</gco:CharacterString>
+  </fileIdentifier>
+</gmd:MD_Metadata>
+
+<gmd:MD_Metadata xmlns:gmd="http://www.isotc211.org/2005/gmd">
+  <fileIdentifier>
+    <gco:CharacterString xmlns:gco="http://www.isotc211.org/2005/gco">meta-MS5</gco:CharacterString>
+  </fileIdentifier>
+</gmd:MD_Metadata>
+
+<gmd:MD_Metadata xmlns:gmd="http://www.isotc211.org/2005/gmd">
+  <ns0:fileIdentifier xmlns:ns0="gmd">
+    <ns1:CharacterString xmlns:ns1="md:gco">meta-MS5</ns1:CharacterString>
+  </ns0:fileIdentifier>
+</gmd:MD_Metadata>
+
+<gmd:MD_Metadata xmlns:gmd="http://www.isotc211.org/2005/gmd">
+  <ns0:fileIdentifier xmlns:ns0="gmd">
+    <ns1:CharacterString xmlns:ns1="md:gco">meta-MS5</ns1:CharacterString>
+  </ns0:fileIdentifier>
+</gmd:MD_Metadata>
+
+<gmd:MD_Metadata xmlns:gmd="http://www.isotc211.org/2005/gmd">
+  <fileIdentifier>
+    <CharacterString>meta-MS5</CharacterString>
+  </fileIdentifier>
+</gmd:MD_Metadata>
+
