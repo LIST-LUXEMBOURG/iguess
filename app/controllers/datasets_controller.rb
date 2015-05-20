@@ -127,7 +127,7 @@ class DatasetsController < ApplicationController
     end
     
     system PythonPath + " " + Rails.root.to_s() + "/transaction_prova_jinja2.py " + @dataset.service + " " +
-     @dataset.identifier + @dataset.city_id.to_s + " " + @dataset.abstract + " " + @dataset.server_url + " " + @dataset.title + " " +" &"
+     @dataset.id + @dataset.city_id.to_s + " " + @dataset.abstract + " " + @dataset.server_url + " " + @dataset.title + " " +" &"
     
     
     #system PythonPath + " " + Rails.root.to_s() + "/addregistered_tocsw.py " + @dataset.service + " " +
