@@ -1102,11 +1102,6 @@
 	  	  if(capabilities.contentMetadata) 
 	  	  {
 	        var coverageList = capabilities.contentMetadata;
-			/*if(coverageList.length > 0) 
-				identifiers = coverageList[0].identifier;
-	        for(var i = 1, len = coverageList.length; i < len; i++)
-	          identifiers += "," + coverageList[i].identifier;
-	        WCS.describeCoverage(self.serverUrl, identifiers, self.onWcsDescribeCoverageSucceeded);*/
 	         
 	        // Sending a DescribeCoverage for each layer to keep track of the identifier.
 	        // GeoServer reports different identifiers in DescribeCoverage:
@@ -1166,9 +1161,9 @@
       // Some servers return a husk of a response with no data in coverageDescriptionKeys
       if(coverageKeys)
         for(var i = 0, len = coverageKeys.length; i < len; i++) {
-          // Here is the magic to make things work with GeoServer:
-          // a) it assumes identifiers only includes one element
-          // b) sends this identifier instead of the coverage key	
+          // Here is the magic that makes things work with GeoServer:
+          // a) it assumes identifiers only includes one element;
+          // b) sends this identifier instead of the coverage key.	
           capabilities.coverageDescriptions[coverageKeys[i]].identifier = identifiers;
           var dataset = new WCSDataset(serverUrl, capabilities.coverageDescriptions[coverageKeys[i]], "WCSDescribeCoverage");
           mergeDatasetIntoLayerList(dataset, "WCS");
