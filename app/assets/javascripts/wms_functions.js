@@ -190,10 +190,10 @@ WCS.describeCoverage = function(serverUrl, identifiers, successFunction) {
         var capabilities = undefined;
       }
 
-      successFunction(capabilities, response);
+      successFunction(capabilities, response, identifiers);
     },
     failure: function(response) {
-      successFunction(undefined, response);
+      successFunction(undefined, response, identifiers);
     }
   });
 };
