@@ -36,7 +36,7 @@
           <% hasError = ! d.alive %>
           <td <% if hasError %>class="dataset-error"<% end %>>
             <%= d.title.present? ? d.title : d.identifier %>
-            <span class="info-icon properties" id="icon-<%= d.id %>" title="Click for details" 
+            <span class="info-icon properties" id="icon-<%= d.id %>" data-dataset="<%= d.title%>" title="Click for details" 
                          rel="#infotable-<%= d.id %>"></span>
           </td>
           <td> <!-- Tags -->
@@ -197,9 +197,17 @@
       theTable.find("tbody > tr:visible > td:eq(1)").mousedown();
       return false;
     }).focus(); //Give focus to input field
-    });
-    
-    
+  });
+  
+  $(function() {
+	
+	
+	$('[id^="icon-"]').click(function(){
+		var datasettitle = this.getAttribute('data-dataset');
+		alert(this.id + ' ' + datasettitle)
+	})
+	
+  	});
 </script>
 
 
