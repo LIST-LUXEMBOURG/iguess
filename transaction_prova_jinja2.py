@@ -30,12 +30,12 @@ def verifico_ricezione_variabili(a):
         with open('/home/matteo/dev/tudor/iguess/ricezione.txt', 'a') as f:
             f.write(a + "\n")
 
-id = "meta-" + str(identifier)
 datestamp = "19/05/2015"
 #imported = {id:id, abstract:abstract, title:title, datestamp:datestamp}
 
 def serialize_metadata(**kwargs):
     text = ""
+    id = "meta-" + str(id)
     with open(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "iguess", "csw_insert_template_short.xml")), "r") as r:
         text = r.read()
         print r
@@ -43,7 +43,7 @@ def serialize_metadata(**kwargs):
     result = template.render(**kwargs)
     return result
 
-a = serialize_metadata(id=id, abstract=abstract, title=title, datestamp=datestamp)
+a = serialize_metadata(id=identifier, abstract=abstract, title=title, datestamp=datestamp)
 verifico_ricezione_variabili(a)
 
 
