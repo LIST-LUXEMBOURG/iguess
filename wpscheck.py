@@ -13,6 +13,8 @@ import WPSClient.WPSClient as WPSClient
 import datetime
 import logging
 import mpl_toolkits.basemap.pyproj as pyproj
+import transactor
+from owslib.csw import CatalogueServiceWeb
 
 from iguess_db_credentials import dbServer, dbName, dbUsername, dbPassword, dbSchema, baseMapServerUrl, logFileName
 
@@ -305,6 +307,17 @@ def add_tag(dataset_id, tag):
 
 
 
+def add_record_to_csw_catalogue(recordId, dataset, url, city_id, epsg):
+    
+    pycsw_url = "http://localhost/pycsw/csw.py"
+    
+    rec = transactor.serialize_metadata(id=recordId)
+    transactor.verifico_ricezione_variabili(rec)
+    
+    csw = CatalogueServiceWeb(pycsw_url)
+    csw.transaction(ttype='insert', typename='gmd:MD_Metadata', record=rec)
+
+
 def insert_complex_value_in_database(recordId, dataset, url, city_id, epsg):
     '''
     Returns False if there was a problem with the database
@@ -360,6 +373,7 @@ def update_finished_module(client, recordId, city_id):
             else:
                 log_info_msg("Processing complex result " + dataset.name + " with id of " + dataset.uniqueID)
                 insert_complex_value_in_database(recordId, dataset, url, city_id, client.epsg)
+                add_record_to_csw_catalogue(recordId, dataset, url, city_id, client.epsg)
     except:
         log_error_msg(recordId, "Error: Last client status was " + str(client.status))
 
