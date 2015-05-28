@@ -82,7 +82,7 @@
   </table>
 
 
-<div id="example4InlineContent" style="display:none"> 
+<div id="example4InlineContent" class="prova" style="display:none"> 
 <div style="color:#000"> 
 <p style="text-align:center; line-height:80px">Drag Me! Click html page behind me to close me.</p> 
 </div> 
@@ -213,8 +213,8 @@
 				alert(this.id + ' ' + datasettitle + ' ' + datasetabstract)
 		
 				$.openDOMWindow({ 
-					height:40, 
-					width:50, 
+					height:400, 
+					width:500, 
 					positionType:'absolute', 
 					positionTop:100, 					 
 					positionLeft:100, 
@@ -224,7 +224,9 @@
 					windowBGColor:'#FFFF00', 
 					borderColor:'#990000', 
 					overlayOpacity:0 			
-				}); 		
+				}); 	
+				
+				$('.prova').easydrag(true);	
   		});
 	});	
   	

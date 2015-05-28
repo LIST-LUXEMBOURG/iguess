@@ -358,6 +358,7 @@ class DatasetsController < ApplicationController
       format.json { render :json => available, :status => :ok }
     end
   end
+  
 
 
   # Find any tags that look like the passed value... called via ajax -- is this actually used anymore?
