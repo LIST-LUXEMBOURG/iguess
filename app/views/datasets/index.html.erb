@@ -36,8 +36,7 @@
           <% hasError = ! d.alive %>
           <td <% if hasError %>class="dataset-error"<% end %>>
             <%= d.title.present? ? d.title : d.identifier %>
-            <span class="info-icon properties" id="icon-<%= d.id %>" data-dataset="<%= d.title%>" title="Click for details" 
-                         rel="#infotable-<%= d.id %>"></span>
+            <span class="info-icon properties" id="icon-<%= d.id %>" data-dataset="<%= d.title%>" data-abstract="<%= d.abstract%>" title="Click for details" ></span>
           </td>
           <td> <!-- Tags -->
             <span class="folder-taglist-<%= cssEscape(d.dataserver.url + d.identifier) %>">
@@ -83,8 +82,14 @@
   </table>
 
 
+<div id="example4InlineContent" style="display:none"> 
+<div style="color:#000"> 
+<p style="text-align:center; line-height:80px">Drag Me! Click html page behind me to close me.</p> 
+</div> 
+</div>
+<!--
   <%= render :partial => 'shared/layer_info_popups.html.erb', locals: { fullControls: true } %>
-
+-->
 
   <%= button_to "Register New Datasets", 
             { :controller => "datasets", :action => "mass_import", :id => 1 }, 
@@ -202,12 +207,36 @@
   $(function() {
 	
 	
-	$('[id^="icon-"]').click(function(){
-		var datasettitle = this.getAttribute('data-dataset');
-		alert(this.id + ' ' + datasettitle)
-	})
+	$('[id^="icon-"]').openDOMWindow({ 
+			height:400, 
+			width:500, 
+			positionType:'absolute', 
+			positionTop:100, 
+			eventType:'click', 
+			positionLeft:100, 
+			windowSourceID:'#example4InlineContent', 
+			windowPadding:20, 
+			draggable:1, 
+			windowBGColor:'#FFFF00', 
+			borderColor:'#990000', 
+			overlayOpacity:0 
+			
+			
+			}); 
 	
-  	});
+		$('[id^="icon-"]').click(function(){
+				var datasettitle = this.getAttribute('data-dataset');
+				var datasetabstract = this.getAttribute('data-abstract');
+				alert(this.id + ' ' + datasettitle + ' ' + datasetabstract)
+		
+				
+		
+  		});
+	});	
+  	
+  	
+  	
+  	
 </script>
 
 
