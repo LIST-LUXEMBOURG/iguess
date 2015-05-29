@@ -1,0 +1,31 @@
+<!-- Ruby var fullControls is passed when this is rendered -->
+
+<%= render :partial => '/datasets/tag_functions.html.erb' %>
+
+<%  if fullControls then 
+      tagClassAttr = "class=tag-delete-button"        
+    else 
+      tagClassAttr = "" 
+    end %>
+
+<%  if fullControls then 
+      folderTagClassAttr = "class=folder-tag-delete-button" 
+    else 
+      folderTagClassAttr = "" 
+    end %>
+    
+<div id="metatables">
+  <!-- Create the popups that are displayed when the user clicks the gear icon -->
+  <% @datasets.each do |d| %>
+    <div class="metatable" id="metatable-<%= d.id %>">
+      <div class="close"></div>
+      <h1 class="dataset-title"><%= d.title.present? ? d.title : d.identifier %></h1>
+      <div class = "dataset-abstract"><%= d.abstract %></div> 
+      <div style="overflow:hidden">
+      
+      
+      
+      </div>	
+    </div>  	
+  <% end %>     	
+</div>
