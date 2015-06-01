@@ -208,6 +208,7 @@
   
   $(function() {
 	
+	var geoProxyPrefix = '/home/geoproxy?url=';
 	
 	$('[id^="icon-"]').click(function(){
 				var datasettitle = this.getAttribute('data-dataset');
@@ -215,20 +216,30 @@
 				var datasetabstract = this.getAttribute('data-abstract');
 				alert(this.id + ' ' + datasettitle + ' ' + datasetabstract)
 				
-				// sending the GetRecordById request to the CSW catalogue (our pycsw server)
+				// sending the GetRecordById request to the CSW catalogue (our pycsw server) through geoProxy, to avoid same-origin policy block
 				$.ajax({
 					method: "GET",
-					url: "http://meta.iguess.list.lu/?service=CSW&version=2.0.2&request=GetRecordById&ElementSetName=full&Id=meta-" + datasetid,
-					datatype: "jsonp",
-					success: function (response){
+					url: geoProxyPrefix + "http://meta.iguess.list.lu/?service=CSW&request=GetRecordById&version=2.0.2&ElementSetName=full&Id=meta-" + datasetid,
+					datatype: "xml",
+					success: function (@page){
 						//xmlParser(response);
-						alert(response)
+						if (!res) {
+							alert("no data!")
+							}
+						else {
+							alert("i dati ci sono!")
+							var title = $(res).find("abstract").text()
+							alert(title);
+							alert(res.responseText)
+						}
+						
+						},
+					error: function (err) {
+						alert("errore!");	
 					}
 				});
 				
-				
-				
-		
+									
 				$.openDOMWindow({ 
 					height:400, 
 					width:500, 
