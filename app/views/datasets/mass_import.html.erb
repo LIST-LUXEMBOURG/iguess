@@ -867,7 +867,8 @@
     {
       this.dataCrs = new Array();
       while ((datasetInfo.supportedCRSs) && (crs = datasetInfo.supportedCRSs.pop())) 
-      	this.dataCrs.push(CRS.getSimpleFormat(crs))
+      	if(this.dataCrs.indexOf(CRS.getSimpleFormat(crs)) < 0)
+      		this.dataCrs.push(CRS.getSimpleFormat(crs))
     }
     
     try
