@@ -214,30 +214,47 @@
 				var datasettitle = this.getAttribute('data-dataset');
 				var datasetid = this.getAttribute('data-id');
 				var datasetabstract = this.getAttribute('data-abstract');
+				var xmldoc = ""
 				alert(this.id + ' ' + datasettitle + ' ' + datasetabstract)
 				
 				// sending the GetRecordById request to the CSW catalogue (our pycsw server) through geoProxy, to avoid same-origin policy block
+				
 				$.ajax({
 					method: "GET",
 					url: geoProxyPrefix + "http://meta.iguess.list.lu/?service=CSW&request=GetRecordById&version=2.0.2&ElementSetName=full&Id=meta-" + datasetid,
 					datatype: "xml",
-					success: function (@page){
+					success: function(res){
 						//xmlParser(response);
+						//var parsed = res.getElementsByTagName("title");
 						if (!res) {
 							alert("no data!")
 							}
 						else {
-							alert("i dati ci sono!")
-							var title = $(res).find("abstract").text()
-							alert(title);
-							alert(res.responseText)
-						}
+							alert("i dati ci sono!");
+							var contenuto = new XMLSerializer().serializeToString(res)
+							
+							alert("contenuto="+contenuto)
+							
+							
+							var parsed = res.getElementsByTagName("dc:title");
+							alert("parsed= "+parsed[0].value);
+							return contenuto
+							};
+					
+					},
 						
-						},
+					complete: function(res, contenuto){
+						content = $(contenuto).find("title").text();
+						alert("content= " + content);
+							
+						
+					},
+						
 					error: function (err) {
 						alert("errore!");	
 					}
 				});
+				
 				
 									
 				$.openDOMWindow({ 
