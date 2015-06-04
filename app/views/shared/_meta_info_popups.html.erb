@@ -17,12 +17,15 @@
 <div id="metatables">
   <!-- Create the popups that are displayed when the user clicks the gear icon -->
   <% @datasets.each do |d| %>
-    <div class="metatable" id="metatable-<%= d.id %>">
+    <div class="metatable-<%= d.id %>">
       <div class="close"></div>
       <h1 class="dataset-title"><%= d.title.present? ? d.title : d.identifier %></h1>
       <div class = "dataset-abstract"><%= d.abstract %></div> 
-      <div style="overflow:hidden">
       <div id="titolo"></div>
+      <div id="abstract"></div>
+      <div style="overflow:hidden">
+      
+      
       
       
       </div>	
