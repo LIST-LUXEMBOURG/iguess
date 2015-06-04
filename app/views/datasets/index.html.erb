@@ -218,7 +218,7 @@
 				alert(this.id + ' ' + datasettitle + ' ' + datasetabstract)
 				
 				// sending the GetRecordById request to the CSW catalogue (our pycsw server) through geoProxy, to avoid same-origin policy block
-				var par = function() {
+				$(function() {
 				$.ajax({
 					method: "GET",
 					url: geoProxyPrefix + "http://meta.iguess.list.lu/?service=CSW&request=GetRecordById&version=2.0.2&ElementSetName=full&Id=meta-" + datasetid,
@@ -228,48 +228,51 @@
 						
 						//debugger;
 						
-						var pars = res.getElementsByTagName("Record");
-						alert("Record length= "+pars.length)
-						var parsed = res.getElementsByTagName("csw:Record");
-						alert("csw:Record length= "+parsed.length)
-						record = parsed[0]
-						var titl = res.getElementsByTagName("dc:title")[0]
-						alert("record title= "+titl.textContent)
-						elem=record.childNodes[0]
-						val=elem.textContent
+						var title = res.getElementsByTagName("dc:title")[0]
+						alert("record title= "+title.textContent)						
+						val=title.textContent
 						alert("value= "+val)
+						$("#metatable-"+datasetid).append("<b>"+val+"</b>");
+						alert("datsetid= "+datasetid)
 						
+									
+						$.openDOMWindow({ 
+							height:400, 
+							width:500, 
+							positionType:'absolute', 
+							positionTop:100, 					 
+							positionLeft:100, 
+							windowSourceID:'#metatable-' + datasetid, 
+							windowPadding:20, 
+							draggable:1, 
+							windowBGColor:'#FFFF00', 
+							borderColor:'#990000', 
+							overlayOpacity:0 			
+						}); 	
+						
+						$('#DOMWindow').easydrag(true);	
+						$('#DOMWindow').ready(function(){
+							alert("uh" + res)
+						});
 						
 					},
 							
 					error: function (err) {
 						alert("errore!");	
+					},
+					completed: function(){
+						
 					}
 				})
 				
-				}
+				});
 				
-				par();
-/*							
-				$.openDOMWindow({ 
-					height:400, 
-					width:500, 
-					positionType:'absolute', 
-					positionTop:100, 					 
-					positionLeft:100, 
-					windowSourceID:'#metatable-' + datasetid, 
-					windowPadding:20, 
-					draggable:1, 
-					windowBGColor:'#FFFF00', 
-					borderColor:'#990000', 
-					overlayOpacity:0 			
-				}); 	
 				
-				$('#DOMWindow').easydrag(true);	*/
+				
   		});
 	});	
   	
-  	
+  		
   	
   	
 </script>
