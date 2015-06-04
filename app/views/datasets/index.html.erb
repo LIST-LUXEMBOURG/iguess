@@ -218,45 +218,39 @@
 				alert(this.id + ' ' + datasettitle + ' ' + datasetabstract)
 				
 				// sending the GetRecordById request to the CSW catalogue (our pycsw server) through geoProxy, to avoid same-origin policy block
-				
+				var par = function() {
 				$.ajax({
 					method: "GET",
 					url: geoProxyPrefix + "http://meta.iguess.list.lu/?service=CSW&request=GetRecordById&version=2.0.2&ElementSetName=full&Id=meta-" + datasetid,
 					datatype: "xml",
 					success: function(res){
 						//xmlParser(response);
-						//var parsed = res.getElementsByTagName("title");
-						if (!res) {
-							alert("no data!")
-							}
-						else {
-							alert("i dati ci sono!");
-							var contenuto = new XMLSerializer().serializeToString(res)
-							
-							alert("contenuto="+contenuto)
-							
-							
-							var parsed = res.getElementsByTagName("dc:title");
-							alert("parsed= "+parsed[0].value);
-							return contenuto
-							};
-					
-					},
 						
-					complete: function(res, contenuto){
-						content = $(contenuto).find("title").text();
-						alert("content= " + content);
-							
+						//debugger;
+						
+						var pars = res.getElementsByTagName("Record");
+						alert("Record length= "+pars.length)
+						var parsed = res.getElementsByTagName("csw:Record");
+						alert("csw:Record length= "+parsed.length)
+						record = parsed[0]
+						var titl = res.getElementsByTagName("dc:title")[0]
+						alert("record title= "+titl.textContent)
+						elem=record.childNodes[0]
+						val=elem.textContent
+						alert("value= "+val)
+						
 						
 					},
-						
+							
 					error: function (err) {
 						alert("errore!");	
 					}
-				});
+				})
 				
+				}
 				
-									
+				par();
+/*							
 				$.openDOMWindow({ 
 					height:400, 
 					width:500, 
@@ -271,7 +265,7 @@
 					overlayOpacity:0 			
 				}); 	
 				
-				$('#DOMWindow').easydrag(true);	
+				$('#DOMWindow').easydrag(true);	*/
   		});
 	});	
   	
