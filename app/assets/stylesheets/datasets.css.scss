@@ -508,7 +508,7 @@ span[disabled]
  
 
 /* close button positioned on upper right corner */
-.metatable .close {
+#DOMWindow .closeDOMWindow {
   background-image: url(/assets/close.png);
   position: absolute;
   right: 5px;
@@ -519,7 +519,7 @@ span[disabled]
 }
 
 
-.metatable dl
+#DOMWindow dl
 {
   float: left;
   width: 520px;
@@ -529,7 +529,7 @@ span[disabled]
 }
   
 
-.metatable dt
+#DOMWindow dt
 {
   clear: left;
   float: left;
@@ -541,7 +541,7 @@ span[disabled]
 }
   
 
-.metatable dd
+#DOMWindow dd
 {
   float: left;
   width: 300px;
@@ -549,18 +549,4 @@ span[disabled]
   padding: 5px;
   border-top: 1px solid #999;
 }
-
-#metapopups {
-   height: 50px;
-    width: 200px;
-    text-align: center;
-    vertical-align:middle;
-    background-color: cornflowerblue;
-    color: white;
-    display: none;
-    padding-top: 8px;
-    
-
-    position: absolute;
-}
-
+ 
