@@ -147,6 +147,65 @@
     <% end %>          
         </dl>
       </div>	
-    </div>  	
-  <% end %>     	
+     <div style="overflow:hidden" class="technical-details">
+        <div class="technical-details-header">Technical Details</div>
+        <dl>
+          <dt>Server Base URL:</dt><dd><%= d.server_url %></dd>
+          <dt>Dataset Identifier:</dt><dd><%= d.identifier %></dd>
+          <dt>All Get Capabilities Links:</dt><dd>
+            <%= raw d.insertGetCapabilitiesLinkBlock(true, true, true, false) %>
+          </dd>
+          <dt>Projections Available:</dt><dd></dd> 
+          <dt>Bounding Box:</dt><dd></dd>
+          <dt>Attribute Columns:</dt><dd></dd>
+        </dl>
+      </div>
+      <div>
+        <!-- return false; prevents underlying page from scrolling when -->
+        <a href="#" class="show-details" onclick="return false;">Technical details >>></a>
+      </div>    
+    </div>
+  <% end %>
 </div>
+
+
+
+<!-- Functions to show and hide the details of the popup -->
+<script type="text/javascript">
+
+  var showDetails = function() {
+    $('#DOMWindow > .technical-details').show(); 
+
+    var el = $('#DOMWindow > .show-details');
+
+    el.unbind("click");
+    el.click(function(){ hideDetails(); });
+    el.html('<<< Hide details');
+  };
+
+
+  var hideDetails = function() {
+    $('#DOMWindow > .technical-details').hide();
+
+    var el = $('#DOMWindow > .show-details');
+
+    el.unbind("click");
+    el.click(function(){ showDetails(); });
+    el.html('Technical details >>>');
+  };
+
+
+  var activateOverlays = function() {
+    $('span[rel]').overlay();                             // Set up the layer info overlays
+    $('span[rel]').click(function(){ hideDetails(); });
+  };
+
+
+  <% if fullControls %>
+    // Populate all the tag picker dropdowns
+    $(document).ready(function() {
+      populateTagLists();
+    });
+<% end %>
+
+</script>
