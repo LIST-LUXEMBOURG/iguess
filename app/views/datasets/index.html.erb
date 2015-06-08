@@ -233,12 +233,39 @@
 						
 						$("#metatable-"+datasetid+" > #titolo").replaceWith("<p><b>"+title+"</b></p>");
 						$("#metatable-"+datasetid+" > #abstract").replaceWith("<p><b>"+abstract+"</b></p>");
-						
-						 
+																					
+						$.openDOMWindow({ 
+							functionCallOnOpen: function(){
+								$('#show-details-'+ datasetid).click(function(){
+									showMetadata();
+								}); 
 									
-						$.openDOMWindow({  
-							height:400, 
-							width:520, 
+								var showMetadata = function() {
+									
+	    							$('#technical-details-'+ datasetid).show(); 
+	    							$('#DOMWindow').css("height","620");
+	
+	    							var el = $('#show-details-'+ datasetid);
+	
+								    el.unbind("click");
+								    el.click(function(){ hideMetadata(); });
+								    el.html('<<< Metadata');
+	  							};	
+								
+								var hideMetadata = function() {
+								
+								    $('#technical-details-'+ datasetid).hide();
+									$('#DOMWindow').css("height","420");
+								    var el = $('#show-details-'+ datasetid);
+								
+								    el.unbind("click");
+								    el.click(function(){ showMetadata(); });
+								    el.html('Metadata >>>');
+								};	
+							},
+							
+							height:420, 
+							width:540, 
 							positionType:'absolute', 
 							positionTop:100, 					 
 							positionLeft:100, 
@@ -247,40 +274,39 @@
 							draggable:1, 
 							windowBGColor:'#FFFF00', 
 							borderColor:'#990000', 
-							overlayOpacity:0 			
+							overlayOpacity:0, 
+							functionCallOnClose: function(){
+								var showMetadata = function() {
+									
+	    							$('#technical-details-'+ datasetid).show(); 
+	    							$('#DOMWindow').css("height","620");
+	
+	    							var el = $('#show-details-'+ datasetid);
+	
+								    el.unbind("click");
+								    el.click(function(){ hideMetadata(); });
+								    el.html('<<< Metadata');
+	  							};	
+								
+								var hideMetadata = function() {
+								
+								    $('#technical-details-'+ datasetid).hide();
+									$('#DOMWindow').css("height","420");
+								    var el = $('#show-details-'+ datasetid);
+								
+								    el.unbind("click");
+								    el.click(function(){ showMetadata(); });
+								    el.html('Metadata >>>');
+								};
+								    
+								hideMetadata();
+							}			
 						}); 	
 						
 						$('#DOMWindow').easydrag(true);	
 						$('#DOMWindow').ready(function(){
-							
-							$('#show-details-'+ datasetid).click(function(){
-								showMetadata();
-							}); 
-									
-							var showMetadata = function() {
 								
-    							$('#technical-details-'+ datasetid).show(); 
-
-    							var el = $('#show-details-'+ datasetid);
-
-							    el.unbind("click");
-							    el.click(function(){ hideMetadata(); });
-							    el.html('<<< Metadata');
-  							};	
-							
-							var hideMetadata = function() {
-							
-							    $('#technical-details-'+ datasetid).hide();
-							
-							    var el = $('#show-details-'+ datasetid);
-							
-							    el.unbind("click");
-							    el.click(function(){ showMetadata(); });
-							    el.html('Metadata >>>');
-							};	
-							
-						  
-						
+													 						
 						});
 						
 					},
