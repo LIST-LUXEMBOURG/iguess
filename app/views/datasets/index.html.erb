@@ -253,6 +253,34 @@
 						$('#DOMWindow').easydrag(true);	
 						$('#DOMWindow').ready(function(){
 							
+							$('#show-details-'+ datasetid).click(function(){
+								showMetadata();
+							}); 
+									
+							var showMetadata = function() {
+								
+    							$('#technical-details-'+ datasetid).show(); 
+
+    							var el = $('#show-details-'+ datasetid);
+
+							    el.unbind("click");
+							    el.click(function(){ hideMetadata(); });
+							    el.html('<<< Metadata');
+  							};	
+							
+							var hideMetadata = function() {
+							
+							    $('#technical-details-'+ datasetid).hide();
+							
+							    var el = $('#show-details-'+ datasetid);
+							
+							    el.unbind("click");
+							    el.click(function(){ showMetadata(); });
+							    el.html('Metadata >>>');
+							};	
+							
+						  
+						
 						});
 						
 					},
@@ -271,8 +299,7 @@
 				
   		});
 	});	
-  	
-  		
+  	  						 
   	
   	
 </script>

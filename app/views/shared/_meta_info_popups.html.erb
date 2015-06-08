@@ -147,8 +147,8 @@
     <% end %>          
         </dl>
       </div>	
-     <div style="overflow:hidden" class="technical-details">
-        <div class="technical-details-header">Technical Details</div>
+     <div style="overflow:hidden" id="technical-details-<%= d.id %>" class="technical-details">
+        <div class="technical-details-header">Metadata</div>
         <dl>
           <dt>Server Base URL:</dt><dd><%= d.server_url %></dd>
           <dt>Dataset Identifier:</dt><dd><%= d.identifier %></dd>
@@ -162,7 +162,7 @@
       </div>
       <div>
         <!-- return false; prevents underlying page from scrolling when -->
-        <a href="#" class="show-details" onclick="return false;">Technical details >>></a>
+        <a href="#" id="show-details-<%= d.id %>" class="show-details" onclick="return false;">Metadata >>></a>
       </div>    
     </div>
   <% end %>
@@ -172,33 +172,6 @@
 
 <!-- Functions to show and hide the details of the popup -->
 <script type="text/javascript">
-
-  var showDetails = function() {
-    $('#DOMWindow > .technical-details').show(); 
-
-    var el = $('#DOMWindow > .show-details');
-
-    el.unbind("click");
-    el.click(function(){ hideDetails(); });
-    el.html('<<< Hide details');
-  };
-
-
-  var hideDetails = function() {
-    $('#DOMWindow > .technical-details').hide();
-
-    var el = $('#DOMWindow > .show-details');
-
-    el.unbind("click");
-    el.click(function(){ showDetails(); });
-    el.html('Technical details >>>');
-  };
-
-
-  var activateOverlays = function() {
-    $('span[rel]').overlay();                             // Set up the layer info overlays
-    $('span[rel]').click(function(){ hideDetails(); });
-  };
 
 
   <% if fullControls %>
