@@ -144,7 +144,6 @@
 
   //activateOverlays();
 
-
   $('.publish-checkbox').click(function() { publishDataset(this); });
 
 
@@ -227,12 +226,18 @@
 						//xmlParser(response);
 						
 						//debugger;
+						try{
+							var title = res.getElementsByTagName("dc:title")[0].textContent
+							var abstract= res.getElementsByTagName("dct:abstract")[0].textContent
+							
+							$("#metatable-"+datasetid+" > #titolo").replaceWith("<p><b>"+title+"</b></p>");
+							$("#metatable-"+datasetid+" > #abstract").replaceWith("<p><b>"+abstract+"</b></p>");
+						} catch(e) {
+							
+						}
 						
-						var title = res.getElementsByTagName("dc:title")[0].textContent
-						var abstract= res.getElementsByTagName("dct:abstract")[0].textContent
 						
-						$("#metatable-"+datasetid+" > #titolo").replaceWith("<p><b>"+title+"</b></p>");
-						$("#metatable-"+datasetid+" > #abstract").replaceWith("<p><b>"+abstract+"</b></p>");
+						
 																					
 						$.openDOMWindow({ 
 							functionCallOnOpen: function(){
@@ -305,8 +310,7 @@
 						
 						$('#DOMWindow').easydrag(true);	
 						$('#DOMWindow').ready(function(){
-								
-													 						
+																					 						
 						});
 						
 					},
@@ -320,8 +324,6 @@
 				})
 				
 				});
-				
-				
 				
   		});
 	});	
