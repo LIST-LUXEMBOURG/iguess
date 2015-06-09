@@ -126,7 +126,7 @@
              function(evt, data, status, xhr) {
                   // Data contains the dataset_id
                   $('#dsid-' + data).remove();                              // Remove the table row from main window
-                  $('#infotable-' + data).find(".close").trigger('click');  // Simulate click on the close button to get fade effect
+                  $("#DOMWindow .closeDOMWindow").trigger('click');  // Simulate click on the close button to get fade effect
      }).bind("ajax:error", function(evt, data, status, xhr) {
               //do something with the error here
               alert("Could not unregister dataset.");
