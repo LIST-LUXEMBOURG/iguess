@@ -225,7 +225,7 @@ def get_service(dataset):
 
 
 
-def insert_new_dataset(dataset, recordId, url, serverId, city_id, epsg):
+def insert_new_dataset_in_db_and_catalogue(dataset, recordId, url, serverId, city_id, epsg):
     '''
     Insert a new dataset into our database; returns id of inserted record
     '''
@@ -270,10 +270,26 @@ def insert_new_dataset(dataset, recordId, url, serverId, city_id, epsg):
     if cur.rowcount == 0:
         log_error_msg(recordId, "Error: Unable to insert record into datasets table")
         return
-
+    try:
+        add_record_to_csw_catalogue(recordId, xl, yl, xh, yh, dataset, url, city_id, epsg, now)
+    except:
+        print "error adding record to catalogue"
+        log_error_msg(recordId, "error adding record to catalogue")
+        
     return cur.fetchone()[0]
 
 
+def add_record_to_csw_catalogue(recordId, xl, yl, xh, yh, dataset, url, city_id, epsg, now):
+    
+    pycsw_url = "http://localhost/pycsw/csw.py"
+    
+    try:
+        newid = "meta-" + str(recordId)
+        transactor.send_transaction_request(id=newid, xl=xl, yl=yl, xh=xh, yh=yh, datestamp=now)
+    except:
+        print "transactor not working"
+        log_error_msg("transactor not working")
+   
 
 def insert_literal_value_in_database(recordId, dataset):
     cur = db_conn.cursor()
@@ -307,17 +323,6 @@ def add_tag(dataset_id, tag):
 
 
 
-def add_record_to_csw_catalogue(recordId, dataset, url, city_id, epsg):
-    
-    pycsw_url = "http://localhost/pycsw/csw.py"
-    
-    rec = transactor.serialize_metadata(id=recordId)
-    transactor.verifico_ricezione_variabili(rec)
-    
-    csw = CatalogueServiceWeb(pycsw_url)
-    csw.transaction(ttype='insert', typename='gmd:MD_Metadata', record=rec)
-
-
 def insert_complex_value_in_database(recordId, dataset, url, city_id, epsg):
     '''
     Returns False if there was a problem with the database
@@ -341,7 +346,7 @@ def insert_complex_value_in_database(recordId, dataset, url, city_id, epsg):
 
     server_id = cur.fetchone()[0]
    
-    dataset_id = insert_new_dataset(dataset, recordId, url, server_id, city_id, epsg)
+    dataset_id = insert_new_dataset_in_db_and_catalogue(dataset, recordId, url, server_id, city_id, epsg)
 
     add_tag(dataset_id, "Mapping")
 
@@ -373,7 +378,7 @@ def update_finished_module(client, recordId, city_id):
             else:
                 log_info_msg("Processing complex result " + dataset.name + " with id of " + dataset.uniqueID)
                 insert_complex_value_in_database(recordId, dataset, url, city_id, client.epsg)
-                add_record_to_csw_catalogue(recordId, dataset, url, city_id, client.epsg)
+                
     except:
         log_error_msg(recordId, "Error: Last client status was " + str(client.status))
 
