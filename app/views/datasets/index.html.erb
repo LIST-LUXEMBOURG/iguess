@@ -220,7 +220,7 @@
 				$(function() {
 				$.ajax({
 					method: "GET",
-					url: geoProxyPrefix + "http://meta.iguess.list.lu/?service=CSW&request=GetRecordById&version=2.0.2&ElementSetName=full&Id=meta-" + datasetid,
+					url: geoProxyPrefix + "http://meta.iguess.list.lu/?service=CSW&Id=meta-" + datasetid,
 					datatype: "xml",
 					success: function(res){
 						//xmlParser(response);
@@ -235,10 +235,7 @@
 						} catch(e) {
 							
 						}
-						
-						
-						
-																					
+																									
 						$.openDOMWindow({ 
 							functionCallOnOpen: function(){
 								$('#show-details-'+ datasetid).click(function(){

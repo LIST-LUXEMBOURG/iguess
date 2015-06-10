@@ -31,7 +31,7 @@ class HomeController < ApplicationController
           
           if fixedurl.last(3) == "CSW" then
             
-            finalurl = rawurl + "&version=2.0.2&request=GetRecordById&ElementSetName=full&Id=" + id
+            finalurl = rawurl + "&version=2.0.2&request=GetRecordById&ElementSetName=full&typeNames=gmd:MD_Metadata&outputSchema=http://www.isotc211.org/2005/gmd&Id=" + id
             res = Net::HTTP.get_response(URI.parse(finalurl))
             print "Ecco, ci siamo " + res.body
             status = res.code
