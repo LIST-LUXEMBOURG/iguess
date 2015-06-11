@@ -82,6 +82,10 @@
     wcsProcessingComplete = 0;
     regDatasetsComplete   = 0;
   };
+  
+  
+  var expectedCoverages = 0;
+  var processedCoverages = 0;
 
 
   // Called when we've gotten whatever response we're going to get from the server in question
@@ -863,7 +867,8 @@
     {
       this.dataCrs = new Array();
       while ((datasetInfo.supportedCRSs) && (crs = datasetInfo.supportedCRSs.pop())) 
-      	this.dataCrs.push(CRS.getSimpleFormat(crs))
+      	if(this.dataCrs.indexOf(CRS.getSimpleFormat(crs)) < 0)
+      		this.dataCrs.push(CRS.getSimpleFormat(crs))
     }
     
     try
@@ -1106,7 +1111,8 @@
 	        // Sending a DescribeCoverage for each layer to keep track of the identifier.
 	        // GeoServer reports different identifiers in DescribeCoverage:
 	        // https://osgeo-org.atlassian.net/browse/GEOS-7039 
-	        for(var i = 1, len = coverageList.length; i < len; i++)
+	        expectedCoverages = coverageList.length;
+	        for(var i = 0, len = coverageList.length; i < len; i++)
 	          WCS.describeCoverage(self.serverUrl, coverageList[i].identifier, self.onWcsDescribeCoverageSucceeded); 
 	      }
       }
@@ -1168,6 +1174,12 @@
           var dataset = new WCSDataset(serverUrl, capabilities.coverageDescriptions[coverageKeys[i]], "WCSDescribeCoverage");
           mergeDatasetIntoLayerList(dataset, "WCS");
         }
+        
+        // When all coverages are processed trigger the doneProcessing function
+        // If by any chance one of the DescribeCoverage responses does not 
+        // reach here the WCS probing will not finish
+        if (++processedCoverages >= expectedCoverages)
+        	doneProcessing("WCS", serverInfo);
     }
     else {   // WCSGetCapabilities
       if(capabilities.contentMetadata) {
@@ -1181,7 +1193,7 @@
       }
     }
 
-    doneProcessing("WCS", serverInfo);
+    
   };  
 
 </script>
