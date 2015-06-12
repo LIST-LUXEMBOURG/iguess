@@ -15,16 +15,12 @@ try:
 except ImportError:
     import xml.etree.ElementTree as etree
 
-#pycsw_url = "http://iguess-meta.kirchberg.tudor.lu/pycsw/csw.py"
+
 pycsw_url = "http://meta.iguess.list.lu/"
 scriptname, service, identifier, city_id, abstract, server_url, title = sys.argv
 
 id = "meta-" + str(identifier)
 csw = CatalogueServiceWeb(pycsw_url)
-
-#rootname = "{http://www.isotc211.org/2005/gmd}MD_Metadata"
-#chstring = "CharacterString"
-
 
 def verifico_ricezione_variabili(a):
         with open('/home/matteo/dev/tudor/iguess/ricezione.txt', 'a') as f:
@@ -35,7 +31,7 @@ datestamp = "19/05/2015"
 
 def serialize_metadata(**kwargs):
     text = ""    
-    with open(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "iguess", "csw_insert_template_short.xml")), "r") as r:
+    with open(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "iguess", "csw_template.xml")), "r") as r:
         text = r.read()
         print r
     template = Template(text)

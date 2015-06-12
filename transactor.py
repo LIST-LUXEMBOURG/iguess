@@ -19,7 +19,7 @@ def send_transaction_request(**kwargs):
     pycsw_url = "http://meta.iguess.list.lu/"
     csw = CatalogueServiceWeb(pycsw_url)
     text = ""
-    with open(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "iguess", "csw_insert_template_short.xml")), "r") as r:
+    with open(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "iguess", "csw_template.xml")), "r") as r:
         text = r.read()
         
     template = Template(text)
