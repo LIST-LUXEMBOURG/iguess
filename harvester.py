@@ -588,7 +588,7 @@ def check_data_servers(serverCursor):
                     title    = get_service_title   (wcs, identifier)
                     abstract = get_service_abstract(wcs, identifier)
                     service = "WCS"
-                    
+
                     for c in wcs.contents[identifier].supportedCRS:     # crsOptions is available here, but always empty; only exists for OOP
                         if is_equal_crs(c.id, city_crs[cityId]):
                             has_city_crs = True
@@ -633,7 +633,7 @@ def check_data_servers(serverCursor):
                         continue
                     
                     formats = get_supported_formats(dc)
-                    if (formats == None) or (len(formats) == 0):
+                    if formats == None:
                         formats = wcs.contents[identifier].supportedFormats
 
                     # All else being equal, we'd prefer to work with img datasets; second choice is tiff,
