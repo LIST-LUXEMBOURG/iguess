@@ -8,13 +8,15 @@ import sys
 from owslib.csw import CatalogueServiceWeb
 from jinja2 import Template
 
+from iguess_db_credentials import base_pycsw_url
+
 try:
     from lxml import etree
 except ImportError:
     import xml.etree.ElementTree as etree
     
 def send_transaction_request(**kwargs):
-    pycsw_url = "http://localhost/pycsw/csw.py"
+    pycsw_url = "http://meta.iguess.list.lu/"
     csw = CatalogueServiceWeb(pycsw_url)
     text = ""
     with open(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "iguess", "csw_insert_template_short.xml")), "r") as r:
@@ -23,36 +25,31 @@ def send_transaction_request(**kwargs):
     template = Template(text)
     try:
         result = template.render(**kwargs)
-        print "template renderizzato"
     except:
         print "error rendering xml transaction template"
     
+    #Questa chiamata e la relativa funzione sono assolutamente temporanee, da cancellare!!!!!
     try:
         verifico_ricezione_variabili(result)
-        print "verifica eseguita"
     except:
         "problema durante la verifica"
     
     try:
         csw.transaction(ttype='insert', typename='gmd:MD_Metadata', record=result)
-        print "transazione eseguita"
     except:
         "problem during transaction-insert"
     
     print csw.results
 
-    
-def serialize_metadata(**kwargs):
-    text = ""
-    id = "meta-" + str(id)
-    with open(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "iguess", "csw_insert_template_short.xml")), "r") as r:
-        text = r.read()
-        print r
-    template = Template(text)
-    result = template.render(**kwargs)
-    verifico_ricezione_variabili(result)
-    return result
-
+#Questa funzione mi serve in sviluppo, da cancellare!!!!
 def verifico_ricezione_variabili(a):
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "iguess", "ricezione.txt")), "a") as r:
             r.write(a + "\n")
+
+if __name__ == '__main__': 
+    print "starting transactor"       
+    if sys.argv:
+        print "questo è stato chiamato da dataset_controller, non si tratta di un modulo..."
+        scriptname, service, identifier, city_id, abstract, server_url, title = sys.argv
+    # variables in sys.argv are those defined in dataset_controller/create
+        send_transaction_request(id=id, abstract=abstract, title=title)

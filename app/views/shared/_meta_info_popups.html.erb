@@ -21,8 +21,7 @@
       <div class="closeDOMWindow"></div>
       <h1 class="dataset-title"><%= d.title.present? ? d.title : d.identifier %></h1>
       <div class = "dataset-abstract"><%= d.abstract %></div> 
-      <div id="titolo"></div>
-      <div id="abstract"></div>
+      
       <div style="overflow:hidden">
       	        <dl>
           <dt>Server Name:</dt><dd class="server-name"><%= d.dataserver.title %></dd>
@@ -33,6 +32,9 @@
                                                      d.service == "WCS", 
                                                      true) %>
           </dd>
+          <dt>All Get Capabilities Links:</dt><dd>
+            <%= raw d.insertGetCapabilitiesLinkBlock(true, true, true, false) %>
+          </dd>     
 
             <% if not d.alive %>
               <dt class="error-header">Error State:</dt>
@@ -149,15 +151,18 @@
       </div>	
      <div style="overflow:hidden" id="technical-details-<%= d.id %>" class="technical-details">
         <div class="technical-details-header">Metadata</div>
-        <dl>
-          <dt>Server Base URL:</dt><dd><%= d.server_url %></dd>
+        <dl>                    
           <dt>Dataset Identifier:</dt><dd><%= d.identifier %></dd>
-          <dt>All Get Capabilities Links:</dt><dd>
-            <%= raw d.insertGetCapabilitiesLinkBlock(true, true, true, false) %>
-          </dd>
-          <dt>Projections Available:</dt><dd></dd> 
-          <dt>Bounding Box:</dt><dd></dd>
-          <dt>Attribute Columns:</dt><dd></dd>
+          <dt>Catalogue Identifier:</dt><div id="datasetid-<%= d.id %>"></div>              
+          <dt>Dataset Title:</dt><div id="titolo-<%= d.id %>"></div>
+      	  <dt>Dataset Abstract:</dt><div id="abstract-<%= d.id %>"></div>
+      	  <dt>Server Base URL:</dt><dd><%= d.server_url %></dd>
+      	  <dt>Insert Date:</dt><div id="insertdate-<%= d.id %>"></div>
+      	  <dt>Language:</dt><div id="language-<%= d.id %>"></div>
+      	  <dt>Managing Organization:</dt><div id="organisation-<%= d.id %>"></div>
+      	  <dt>Projections Available:</dt><div id="epsg-<%= d.id %>"></div>
+          <!-- <dt>Bounding Box:</dt><dd></dd>
+          <dt>Attribute Columns:</dt><dd></dd>-->
         </dl>
       </div>
       <div>

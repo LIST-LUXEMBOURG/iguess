@@ -225,14 +225,27 @@
 					success: function(res){
 						//xmlParser(response);
 						
-						//debugger;
+						//parsing response xml and adding selected tag contents to popup window (metadata section)
+						
+						
 						try{
-							var title = res.getElementsByTagName("dc:title")[0].textContent
-							var abstract= res.getElementsByTagName("dct:abstract")[0].textContent
+							var title = res.getElementsByTagName("gmd:title")[0].textContent
+							var abstract = res.getElementsByTagName("gmd:abstract")[0].textContent
+							var catalogueid = res.getElementsByTagName("gmd:fileIdentifier")[0].textContent
+							var insertdate = res.getElementsByTagName("gmd:date")[1].textContent
+							var language = res.getElementsByTagName("gmd:language")[0].textContent
+							var managing_organisation = res.getElementsByTagName("gmd:organisationName")[0].textContent
+							var epsg = res.getElementsByTagName("gmd:code")[0].textContent
 							
-							$("#metatable-"+datasetid+" > #titolo").replaceWith("<p><b>"+title+"</b></p>");
-							$("#metatable-"+datasetid+" > #abstract").replaceWith("<p><b>"+abstract+"</b></p>");
-						} catch(e) {
+							$("#titolo-"+datasetid).html("<dd>"+title+"</dd>");
+							$("#abstract-"+datasetid).html("<dd>"+abstract+"</dd>");
+							$("#datasetid-"+datasetid).html("<dd>"+catalogueid+"</dd>");
+							$("#insertdate-"+datasetid).html("<dd>"+insertdate+"</dd>");
+							$("#language-"+datasetid).html("<dd>"+language+"</dd>");
+							$("#epsg-"+datasetid).html("<dd>"+epsg+"</dd>");
+							$("#organisation-"+datasetid).html("<dd>"+managing_organisation+"</dd>");
+							
+						} catch(e) { 
 							
 						}
 																									
@@ -274,8 +287,8 @@
 							windowSourceID:'#metatable-' + datasetid, 
 							windowPadding:20, 
 							draggable:1, 
-							windowBGColor:'#FFFF00', 
-							borderColor:'#990000', 
+							windowBGColor:'	#FFFFFF', 
+							borderColor:'#08088A', 
 							overlayOpacity:0, 
 							functionCallOnClose: function(){
 								var showMetadata = function() {
@@ -313,12 +326,10 @@
 					},
 							
 					error: function (err) {
-						alert("errore!");	
-					},
-					completed: function(){
-						
+						alert("error: check if server is running, or contact administrators");	
 					}
-				})
+					
+				});
 				
 				});
 				

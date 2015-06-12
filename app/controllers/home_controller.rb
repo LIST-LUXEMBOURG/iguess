@@ -33,7 +33,6 @@ class HomeController < ApplicationController
             
             finalurl = rawurl + "&version=2.0.2&request=GetRecordById&ElementSetName=full&typeNames=gmd:MD_Metadata&outputSchema=http://www.isotc211.org/2005/gmd&Id=" + id
             res = Net::HTTP.get_response(URI.parse(finalurl))
-            print "Ecco, ci siamo " + res.body
             status = res.code
             content_type = res['content-type']
             @page = res.body
