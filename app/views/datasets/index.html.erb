@@ -36,8 +36,9 @@
           <% hasError = ! d.alive %>
           <td <% if hasError %>class="dataset-error"<% end %>>
             <%= d.title.present? ? d.title : d.identifier %>
-            <span class="info-icon properties" title="Click for details" 
-                         rel="#infotable-<%= d.id %>"></span>
+            <span class="info-icon properties" id="icon-<%= d.id %>" data-id="<%= d.id %>" data-dataset="<%= d.title%>" data-abstract="<%= d.abstract%>" title="Click for details"  rel="#metatable-<%= d.id %>" >            	
+            </span>
+            
           </td>
           <td> <!-- Tags -->
             <span class="folder-taglist-<%= cssEscape(d.dataserver.url + d.identifier) %>">
@@ -83,8 +84,14 @@
   </table>
 
 
-  <%= render :partial => 'shared/layer_info_popups.html.erb', locals: { fullControls: true } %>
+<div id="example4InlineContent" class="prova" style="display:none"> 
+<div style="color:#000"> 
+<p style="text-align:center; line-height:80px">Drag Me! Click html page behind me to close me.</p> 
+</div> 
+</div>
 
+ <!-- Rendering the new partial who creates popup windows content -->
+<%= render :partial => 'shared/meta_info_popups.html.erb', locals: { fullControls: true } %>
 
   <%= button_to "Register New Datasets", 
             { :controller => "datasets", :action => "mass_import", :id => 1 }, 
@@ -119,7 +126,7 @@
              function(evt, data, status, xhr) {
                   // Data contains the dataset_id
                   $('#dsid-' + data).remove();                              // Remove the table row from main window
-                  $('#infotable-' + data).find(".close").trigger('click');  // Simulate click on the close button to get fade effect
+                  $("#DOMWindow .closeDOMWindow").trigger('click');  // Simulate click on the close button to get fade effect
      }).bind("ajax:error", function(evt, data, status, xhr) {
               //do something with the error here
               alert("Could not unregister dataset.");
@@ -135,8 +142,7 @@
 
 <script type="text/javascript">
 
-  activateOverlays();
-
+  //activateOverlays();
 
   $('.publish-checkbox').click(function() { publishDataset(this); });
 
@@ -198,6 +204,155 @@
       return false;
     }).focus(); //Give focus to input field
   });
+  
+  $(function() {
+	
+	var geoProxyPrefix = '/home/geoproxy?url=';
+	
+	$('[id^="icon-"]').click(function(){
+				var datasettitle = this.getAttribute('data-dataset');
+				var datasetid = this.getAttribute('data-id');
+				var datasetabstract = this.getAttribute('data-abstract');
+				var xmldoc = ""
+				//alert(this.id + ' ' + datasettitle + ' ' + datasetabstract)
+				
+				// sending the GetRecordById request to the CSW catalogue (our pycsw server) through geoProxy, to avoid same-origin policy block
+				$(function() {
+				$.ajax({
+					method: "GET",
+					url: geoProxyPrefix + "http://meta.iguess.list.lu/?service=CSW&Id=meta-" + datasetid,
+					datatype: "xml",
+					success: function(res){
+						//xmlParser(response);
+						
+						//parsing response xml and adding selected tag contents to popup window (metadata section)
+						try{
+							var title = res.getElementsByTagName("gmd:title")[0].textContent
+							var abstract = res.getElementsByTagName("gmd:abstract")[0].textContent
+							var catalogueid = res.getElementsByTagName("gmd:fileIdentifier")[0].textContent
+							//var insertdate = res.getElementsByTagName("gmd:date")[1].textContent
+						
+							//var epsg = res.getElementsByTagName("gmd:code")[0].textContent
+							
+							$("#titolo-"+datasetid).html("<dd>"+title+"</dd>");
+							$("#abstract-"+datasetid).html("<dd>"+abstract+"</dd>");
+							$("#datasetid-"+datasetid).html("<dd>"+catalogueid+"</dd>");
+							//$("#insertdate-"+datasetid).html("<dd>"+insertdate+"</dd>");
+							
+							//$("#epsg-"+datasetid).html("<dd>"+epsg+"</dd>");
+							
+							
+						} catch(e) {
+							
+						}
+						
+						try{
+						
+							//var insertdate = res.getElementsByTagName("gmd:date")[1].textContent
+							var language = res.getElementsByTagName("gmd:language")[0].textContent
+							var managing_organisation = res.getElementsByTagName("gmd:organisationName")[0].textContent
+							//var epsg = res.getElementsByTagName("gmd:code")[0].textContent
+							
+							
+							//$("#insertdate-"+datasetid).html("<dd>"+insertdate+"</dd>");
+							$("#language-"+datasetid).html("<dd>"+language+"</dd>");
+							$("#organisation-"+datasetid).html("<dd>"+managing_organisation+"</dd>");
+							//$("#epsg-"+datasetid).html("<dd>"+epsg+"</dd>");
+							
+							
+						} catch(e) { 
+							
+						}
+																									
+						$.openDOMWindow({ 
+							functionCallOnOpen: function(){
+								$('#show-details-'+ datasetid).click(function(){
+									showMetadata();
+								}); 
+									
+								var showMetadata = function() {
+									
+	    							$('#technical-details-'+ datasetid).show(); 
+	    							$('#DOMWindow').css("height","620");
+	
+	    							var el = $('#show-details-'+ datasetid);
+	
+								    el.unbind("click");
+								    el.click(function(){ hideMetadata(); });
+								    el.html('<<< Metadata');
+	  							};	
+								
+								var hideMetadata = function() {
+								
+								    $('#technical-details-'+ datasetid).hide();
+									$('#DOMWindow').css("height","420");
+								    var el = $('#show-details-'+ datasetid);
+								
+								    el.unbind("click");
+								    el.click(function(){ showMetadata(); });
+								    el.html('Metadata >>>');
+								};	
+							},
+							
+							height:420, 
+							width:540, 
+							positionType:'absolute', 
+							positionTop:100, 					 
+							positionLeft:100, 
+							windowSourceID:'#metatable-' + datasetid, 
+							windowPadding:20, 
+							draggable:1, 
+							windowBGColor:'	#FFFFFF', 
+							borderColor:'#08088A', 
+							overlayOpacity:0, 
+							functionCallOnClose: function(){
+								var showMetadata = function() {
+									
+	    							$('#technical-details-'+ datasetid).show(); 
+	    							$('#DOMWindow').css("height","620");
+	
+	    							var el = $('#show-details-'+ datasetid);
+	
+								    el.unbind("click");
+								    el.click(function(){ hideMetadata(); });
+								    el.html('<<< Metadata');
+	  							};	
+								
+								var hideMetadata = function() {
+								
+								    $('#technical-details-'+ datasetid).hide();
+									$('#DOMWindow').css("height","420");
+								    var el = $('#show-details-'+ datasetid);
+								
+								    el.unbind("click");
+								    el.click(function(){ showMetadata(); });
+								    el.html('Metadata >>>');
+								};
+								    
+								hideMetadata();
+							}			
+						}); 	
+						
+						$('#DOMWindow').easydrag(true);	
+						$('#DOMWindow').ready(function(){
+																					 						
+						});
+						
+					},
+							
+					error: function (err) {
+						alert("error: check if server is running, or contact administrators");	
+					}
+					
+				});
+				
+				});
+				
+  		});
+	});	
+  	  						 
+  	
+  	
 </script>
 
 

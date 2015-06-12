@@ -19,6 +19,7 @@ class DatasetsController < ApplicationController
       format.html # index.html.erb
       format.json { render json: @datasets }
     end
+    
   end
 
 
@@ -125,6 +126,15 @@ class DatasetsController < ApplicationController
                                     }
                   }
     end
+    
+    # Launching the python module responsible for adding a new catalogue record for the newly created dataset
+    system PythonPath + " " + Rails.root.to_s() + "/transaction_insert_register.py " + @dataset.service + " " +
+     @dataset.id.to_s() + " " + @dataset.city_id.to_s + " " + @dataset.abstract + " " + @dataset.server_url + " " + @dataset.title + " " +" &"
+    
+    
+    #system PythonPath + " " + Rails.root.to_s() + "/addregistered_tocsw.py " + @dataset.service + " " +
+    # @dataset.identifier + @dataset.city_id.to_s + " " + @dataset.abstract + " " + @dataset.server_url + " " + @dataset.title + " " +" &"
+    
   end
 
 
@@ -350,6 +360,21 @@ class DatasetsController < ApplicationController
       format.json { render :json => available, :status => :ok }
     end
   end
+  
+  def read_catalogue
+    @dataset = Dataset.find_by_id(params[:id])
+    
+    response = system PythonPath + " " + Rails.root.to_s() + "/read_catalogue.py " + 
+           @dataset.id + " &"
+           
+    respond_to do |format|
+      format.json { render :json =>  response                                    
+                  }
+                  
+    render :nothing => true              
+    end
+  end
+
 
 
   # Find any tags that look like the passed value... called via ajax -- is this actually used anymore?
