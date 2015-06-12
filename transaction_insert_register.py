@@ -6,6 +6,7 @@ using a template and jinja2
 
 import os
 import sys
+import datetime
 from owslib.csw import CatalogueServiceWeb
 from jinja2 import Template
 
@@ -22,9 +23,6 @@ scriptname, service, identifier, city_id, abstract, server_url, title = sys.argv
 id = "meta-" + str(identifier)
 csw = CatalogueServiceWeb(pycsw_url)
 
-def verifico_ricezione_variabili(a):
-        with open('/home/matteo/dev/tudor/iguess/ricezione.txt', 'a') as f:
-            f.write(a + "\n")
 
 datestamp = "19/05/2015"
 #imported = {id:id, abstract:abstract, title:title, datestamp:datestamp}
@@ -38,33 +36,14 @@ def serialize_metadata(**kwargs):
     result = template.render(**kwargs)
     return result
 
-a = serialize_metadata(id=id, abstract=abstract, title=title, datestamp=datestamp)
-verifico_ricezione_variabili(a)
+now = datetime.datetime.now()
+organisation = "List"
+language="eng"
+
+a = serialize_metadata(id=id, abstract=abstract, title=title, datestamp=now, organisation=organisation, language=language)
 
 
 csw.transaction(ttype='insert', typename='gmd:MD_Metadata', record=a)
 
 print csw.results
-'''
 
-def create_iso(rootname, chstring, id):
-        root = etree.Element(rootname)
-        doc = etree.ElementTree(root)
-        fileIdentifier = etree.SubElement(root, "fileIdentifier")        
-        characterString = etree.SubElement(fileIdentifier, chstring)
-        characterString.text = id
-        output = etree.tostring(doc, pretty_print=True)
-        
-        verifico_ricezione_variabili(output)
-        
-create_iso(rootname, chstring, id)
-
-
-tree = etree.parse("/home/matteo/inspire_editor_prova_3.xml")
-
-stringa = etree.tostring(tree)
-
-csw.transaction(ttype='insert', typename='gmd:MD_Metadata', record=stringa)
-
-print csw.results
-'''

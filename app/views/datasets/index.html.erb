@@ -226,24 +226,39 @@
 						//xmlParser(response);
 						
 						//parsing response xml and adding selected tag contents to popup window (metadata section)
-						
-						
 						try{
 							var title = res.getElementsByTagName("gmd:title")[0].textContent
 							var abstract = res.getElementsByTagName("gmd:abstract")[0].textContent
 							var catalogueid = res.getElementsByTagName("gmd:fileIdentifier")[0].textContent
-							var insertdate = res.getElementsByTagName("gmd:date")[1].textContent
-							var language = res.getElementsByTagName("gmd:language")[0].textContent
-							var managing_organisation = res.getElementsByTagName("gmd:organisationName")[0].textContent
-							var epsg = res.getElementsByTagName("gmd:code")[0].textContent
+							//var insertdate = res.getElementsByTagName("gmd:date")[1].textContent
+						
+							//var epsg = res.getElementsByTagName("gmd:code")[0].textContent
 							
 							$("#titolo-"+datasetid).html("<dd>"+title+"</dd>");
 							$("#abstract-"+datasetid).html("<dd>"+abstract+"</dd>");
 							$("#datasetid-"+datasetid).html("<dd>"+catalogueid+"</dd>");
-							$("#insertdate-"+datasetid).html("<dd>"+insertdate+"</dd>");
+							//$("#insertdate-"+datasetid).html("<dd>"+insertdate+"</dd>");
+							
+							//$("#epsg-"+datasetid).html("<dd>"+epsg+"</dd>");
+							
+							
+						} catch(e) {
+							
+						}
+						
+						try{
+						
+							//var insertdate = res.getElementsByTagName("gmd:date")[1].textContent
+							var language = res.getElementsByTagName("gmd:language")[0].textContent
+							var managing_organisation = res.getElementsByTagName("gmd:organisationName")[0].textContent
+							//var epsg = res.getElementsByTagName("gmd:code")[0].textContent
+							
+							
+							//$("#insertdate-"+datasetid).html("<dd>"+insertdate+"</dd>");
 							$("#language-"+datasetid).html("<dd>"+language+"</dd>");
-							$("#epsg-"+datasetid).html("<dd>"+epsg+"</dd>");
 							$("#organisation-"+datasetid).html("<dd>"+managing_organisation+"</dd>");
+							//$("#epsg-"+datasetid).html("<dd>"+epsg+"</dd>");
+							
 							
 						} catch(e) { 
 							
