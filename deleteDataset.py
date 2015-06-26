@@ -10,7 +10,7 @@
 import os
 import sys
 import mapscript
-from checkbox.lib.text import split
+#from checkbox.lib.text import split
 
 if len(sys.argv) != 3:
 	raise Exception("Script requires 2 args: dataset_url and dataset_identifier")
@@ -21,7 +21,7 @@ scriptName, serverUrl, datasetIdentifier = sys.argv
 # registered elsewhere
 
 # Get the path to the map file
-filePath = split(serverUrl, "=")
+filePath = serverUrl.split("=")
 print "This is the file path: " + str(filePath)
 if len(filePath) < 2:
 	raise Exception("Incorrect map file path.")
