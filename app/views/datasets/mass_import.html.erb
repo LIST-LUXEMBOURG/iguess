@@ -74,6 +74,8 @@
   var wmsProcessingComplete = 0;
   var wcsProcessingComplete = 0;  
   var regDatasetsComplete   = 0;
+  var expectedCoverages     = 0;
+  var processedCoverages    = 0;
 
 
   var resetServiceLoadedStatus = function() {
@@ -81,11 +83,9 @@
     wmsProcessingComplete = 0;
     wcsProcessingComplete = 0;
     regDatasetsComplete   = 0;
+    expectedCoverages     = 0;
+    processedCoverages    = 0;
   };
-  
-  
-  var expectedCoverages = 0;
-  var processedCoverages = 0;
 
 
   // Called when we've gotten whatever response we're going to get from the server in question
