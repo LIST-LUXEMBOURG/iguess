@@ -21,5 +21,6 @@
 //= require OpenLayers-2.12-debug
 //= require OpenLayers-2.12-debug-deprecate
 //= require vendor_javascripts
+//= require_tree .
 
 
