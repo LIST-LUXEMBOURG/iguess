@@ -14,7 +14,6 @@ import WPSClient.WPSClient as WPSClient
 import datetime
 import logging
 import mpl_toolkits.basemap.pyproj as pyproj
-import transactor
 from owslib.csw import CatalogueServiceWeb
 from jinja2 import Template
 
@@ -300,8 +299,7 @@ def add_record_to_csw_catalogue(recordId, abstract, title):
         send_transaction_request(id=newid, organisation=managing_organisation, abstract=abstract, title=title, language=language)
         return True
     except:
-        print "transactor not working"
-        log_error_msg("transactor not working")
+        log_error_msg("transaction request not working")
         
         
 def send_transaction_request(**kwargs):
@@ -311,7 +309,7 @@ def send_transaction_request(**kwargs):
         csw = CatalogueServiceWeb(pycsw_url)
         
     except:
-        print "Unable to create Catalogue object"
+        log_error_msg("Unable to create Catalogue object")
         
     text = ""
       
@@ -319,21 +317,18 @@ def send_transaction_request(**kwargs):
         with open(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "iguess", "csw_template.xml")), "r") as r:
             text = r.read()
     except:
-        print "problem reading the xml template"
+        log_error_msg("problem reading the xml template")
         
     template = Template(text)
-    try:
-        
+    try:       
         result = template.render(**kwargs)
     except:
-        print "error rendering xml transaction template"
+        log_error_msg("error rendering xml transaction template")
     
     try:
         csw.transaction(ttype='insert', typename='gmd:MD_Metadata', record=result)
-        print csw.results
-        return True
     except:
-        print "catalogue record already present"
+        log_error_msg("catalogue record already present")
         
   
 
@@ -393,7 +388,7 @@ def insert_complex_value_in_database(recordId, dataset, url, city_id, epsg):
     server_id = cur.fetchone()[0]
    
     dataset_id = insert_new_dataset_in_db_and_catalogue(dataset, recordId, url, server_id, city_id, epsg)
-    print "dataset_id= " + str(dataset_id) 
+    
 
     add_tag(dataset_id, "Mapping")
     
