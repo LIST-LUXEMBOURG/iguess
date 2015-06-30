@@ -131,10 +131,6 @@ class DatasetsController < ApplicationController
     system PythonPath + " " + Rails.root.to_s() + "/transaction_insert_register.py " + @dataset.service + " " +
      @dataset.id.to_s() + " " + @dataset.city_id.to_s + " " + @dataset.abstract + " " + @dataset.server_url + " " + @dataset.title + " " +" &"
     
-    
-    #system PythonPath + " " + Rails.root.to_s() + "/addregistered_tocsw.py " + @dataset.service + " " +
-    # @dataset.identifier + @dataset.city_id.to_s + " " + @dataset.abstract + " " + @dataset.server_url + " " + @dataset.title + " " +" &"
-    
   end
 
 
@@ -358,20 +354,6 @@ class DatasetsController < ApplicationController
 
     respond_to do |format|
       format.json { render :json => available, :status => :ok }
-    end
-  end
-  
-  def read_catalogue
-    @dataset = Dataset.find_by_id(params[:id])
-    
-    response = system PythonPath + " " + Rails.root.to_s() + "/read_catalogue.py " + 
-           @dataset.id + " &"
-           
-    respond_to do |format|
-      format.json { render :json =>  response                                    
-                  }
-                  
-    render :nothing => true              
     end
   end
 

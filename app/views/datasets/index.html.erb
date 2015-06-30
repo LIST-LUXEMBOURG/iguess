@@ -212,7 +212,6 @@
 				var datasetid = this.getAttribute('data-id');
 				var datasetabstract = this.getAttribute('data-abstract');
 				var xmldoc = ""
-				//alert(this.id + ' ' + datasettitle + ' ' + datasetabstract)
 				
 				// sending the GetRecordById request to the CSW catalogue (our pycsw server) through geoProxy, to avoid same-origin policy block
 				$(function() {
@@ -221,49 +220,31 @@
 					url: geoProxyPrefix + "http://meta.iguess.list.lu/?service=CSW&Id=meta-" + datasetid,
 					datatype: "xml",
 					success: function(res){
-						//xmlParser(response);
 						
 						//parsing response xml and adding selected tag contents to popup window (metadata section)
 						try{
 							var title = res.getElementsByTagName("gmd:title")[0].textContent
 							var abstract = res.getElementsByTagName("gmd:abstract")[0].textContent
 							var catalogueid = res.getElementsByTagName("gmd:fileIdentifier")[0].textContent
-							//var insertdate = res.getElementsByTagName("gmd:date")[1].textContent
-						
+							var language = res.getElementsByTagName("gmd:language")[0].textContent
+							var managing_organisation = res.getElementsByTagName("gmd:organisationName")[0].textContent						
 							//var epsg = res.getElementsByTagName("gmd:code")[0].textContent
 							
 							$("#titolo-"+datasetid).html("<dd>"+title+"</dd>");
 							$("#abstract-"+datasetid).html("<dd>"+abstract+"</dd>");
 							$("#datasetid-"+datasetid).html("<dd>"+catalogueid+"</dd>");
-							//$("#insertdate-"+datasetid).html("<dd>"+insertdate+"</dd>");
-							
-							//$("#epsg-"+datasetid).html("<dd>"+epsg+"</dd>");
-							
-							
-						} catch(e) {
-							
-						}
-						
-						try{
-						
-							//var insertdate = res.getElementsByTagName("gmd:date")[1].textContent
-							var language = res.getElementsByTagName("gmd:language")[0].textContent
-							var managing_organisation = res.getElementsByTagName("gmd:organisationName")[0].textContent
-							//var epsg = res.getElementsByTagName("gmd:code")[0].textContent
-							
-							
-							//$("#insertdate-"+datasetid).html("<dd>"+insertdate+"</dd>");
 							$("#language-"+datasetid).html("<dd>"+language+"</dd>");
 							$("#organisation-"+datasetid).html("<dd>"+managing_organisation+"</dd>");
 							//$("#epsg-"+datasetid).html("<dd>"+epsg+"</dd>");
-							
-							
+														
 						} catch(e) { 
 							
 						}
-																									
+						
+						// DOMWindow to manage the popup from gear icon																			
 						$.openDOMWindow({ 
 							functionCallOnOpen: function(){
+								// See meta_info_popups partial in views/shared
 								$('#show-details-'+ datasetid).click(function(){
 									showMetadata();
 								}); 
@@ -271,6 +252,7 @@
 								var showMetadata = function() {
 									
 	    							$('#technical-details-'+ datasetid).show(); 
+	    							// changing the dimension of the popup window to display metadata
 	    							$('#DOMWindow').css("height","620");
 	
 	    							var el = $('#show-details-'+ datasetid);
@@ -291,7 +273,7 @@
 								    el.html('Metadata >>>');
 								};	
 							},
-							
+							// TODO: should go to css...
 							height:420, 
 							width:540, 
 							positionType:'absolute', 
@@ -331,15 +313,13 @@
 							}			
 						}); 	
 						
+						// let the popup window be draggable
 						$('#DOMWindow').easydrag(true);	
-						$('#DOMWindow').ready(function(){
-																					 						
-						});
 						
 					},
-							
+												
 					error: function (err) {
-						alert("error: check if server is running, or contact administrators");	
+						alert("error: check if server is running");	
 					}
 					
 				});
@@ -348,9 +328,7 @@
 				
   		});
 	});	
-  	  						 
-  	
-  	
+  	  						  	
 </script>
 
 

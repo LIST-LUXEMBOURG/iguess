@@ -15,8 +15,8 @@ class HomeController < ApplicationController
     require 'timeout'
 
     rawurl = CGI::unescape(params[:url])
+    # needed to build the GetRecordById request. obtained from the ajax call in datasets/index, clicking the gear icon
     id = params[:Id].to_s
-    print "raw = " + rawurl
     
     
     fixedurl = rawurl.gsub('\\', '%5C')   # Escape backslashes... why oh why???!?
@@ -29,8 +29,10 @@ class HomeController < ApplicationController
         
         if request.get? then
           
+          # check if the fixedurl string refers to a CSW request 
           if fixedurl.last(3) == "CSW" then
             
+            # then build a full getRecordById request to read a catalogue entry, and return the record xml response
             finalurl = rawurl + "&version=2.0.2&request=GetRecordById&ElementSetName=full&typeNames=gmd:MD_Metadata&outputSchema=http://www.isotc211.org/2005/gmd&Id=" + id
             res = Net::HTTP.get_response(URI.parse(finalurl))
             status = res.code
