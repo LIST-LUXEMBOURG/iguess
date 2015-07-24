@@ -10,12 +10,15 @@
 import os
 import sys
 import mapscript
+from owslib.csw import CatalogueServiceWeb
 #from checkbox.lib.text import split
+pycsw_url = "http://meta.iguess.list.lu/"
 
-if len(sys.argv) != 3:
-	raise Exception("Script requires 2 args: dataset_url and dataset_identifier")
 
-scriptName, serverUrl, datasetIdentifier = sys.argv
+if len(sys.argv) != 4:
+	raise Exception("Script requires 3 args: dataset_url, dataset_identifier and dataset_id")
+
+scriptName, serverUrl, datasetIdentifier, datasetId = sys.argv
 
 # TODO: Should probably check the database to see if the server/identifier combo is still
 # registered elsewhere
@@ -45,3 +48,11 @@ if mapobject.numlayers <= 0:
 	    os.remove(filePath[1])
 	else:
 	    raise Exception("Sorry, I cannot remove %s file." % filePath[1])
+
+try:
+	id = "meta-" + str(datasetId)
+	csw = CatalogueServiceWeb(pycsw_url)
+	csw.transaction(ttype='delete', typename='gmd:MD_Metadata', identifier=id)
+except:
+	print "Warning: transaction error while deleting the catalogue record"
+	continue
