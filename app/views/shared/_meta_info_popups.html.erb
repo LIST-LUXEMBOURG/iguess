@@ -31,10 +31,7 @@
                                                      d.service == "WFS", 
                                                      d.service == "WCS", 
                                                      true) %>
-          </dd>
-          <dt>All Get Capabilities Links:</dt><dd>
-            <%= raw d.insertGetCapabilitiesLinkBlock(true, true, true, false) %>
-          </dd>     
+          </dd>    
 
             <% if not d.alive %>
               <dt class="error-header">Error State:</dt>
