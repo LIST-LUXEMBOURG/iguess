@@ -20,35 +20,6 @@ if len(sys.argv) != 4:
 
 scriptName, serverUrl, datasetIdentifier, datasetId = sys.argv
 
-# TODO: Should probably check the database to see if the server/identifier combo is still
-# registered elsewhere
-
-# Get the path to the map file
-filePath = serverUrl.split("=")
-print "This is the file path: " + str(filePath)
-if len(filePath) < 2:
-	raise Exception("Incorrect map file path.")
-
-# Remove the layer from the map file
-mapobject = mapscript.mapObj(filePath[1])
-layer =	mapobject.getLayerByName(datasetIdentifier)
-layerData = layer.data
-mapobject.removeLayer(layer.index)
-mapobject.save(filePath[1])
-
-# Delete data file if it exists
-if os.path.exists(layerData):
-    os.remove(layerData)
-else:
-    raise Exception("Sorry, I cannot remove %s file." % layerData)
-
-# Delete map file if no layers are left
-if mapobject.numlayers <= 0: 
-	if os.path.exists(filePath[1]):
-	    os.remove(filePath[1])
-	else:
-	    raise Exception("Sorry, I cannot remove %s file." % filePath[1])
-
 try:
 	id = "meta-" + str(datasetId)
 	csw = CatalogueServiceWeb(pycsw_url)
@@ -56,3 +27,44 @@ try:
 except:
 	print "Warning: transaction error while deleting the catalogue record"
 	continue
+
+# Check the database to see if the server/identifier combo is still registered elsewhere
+try:
+    # connect to iGUESS database
+    conn=psycopg2.connect( "host={0} dbname={1} user={2} password={3}".format(dbServer, dbName, dbUsername, dbPassword))
+    cur = conn.cursor()
+    cur.execute("SELECT d.id FROM iguess_dev.datasets d where d.server_url = '" + serverUrl + "' and d.identifier = '" + datasetIdentifier +"'")
+    datasets = cur.fetchall()
+    
+    # Only if there is a single occurrence of the same combination of dataset identifier and server_url, 
+    # the dataset and layer in mapfile will be deleted
+    if len(datasets) == 1:
+    	# Get the path to the map file
+		filePath = serverUrl.split("=")
+		print "This is the file path: " + str(filePath)
+		if len(filePath) < 2:
+			raise Exception("Incorrect map file path.")
+
+		# Remove the layer from the map file
+		mapobject = mapscript.mapObj(filePath[1])
+		layer =	mapobject.getLayerByName(datasetIdentifier)
+		layerData = layer.data
+		mapobject.removeLayer(layer.index)
+		mapobject.save(filePath[1])
+
+		# Delete data file if it exists
+		if os.path.exists(layerData):
+		    os.remove(layerData)
+		else:
+		    raise Exception("Sorry, I cannot remove %s file." % layerData)
+		
+		# Delete map file if no layers are left
+		if mapobject.numlayers <= 0: 
+			if os.path.exists(filePath[1]):
+			    os.remove(filePath[1])
+			else:
+			    raise Exception("Sorry, I cannot remove %s file." % filePath[1]) 
+except:
+	print "I am unable to connect to the database."
+
+
