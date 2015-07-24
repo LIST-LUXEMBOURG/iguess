@@ -22,9 +22,9 @@ Abstract
 ======== 
 
 Script to insert a catalogue record whenever a new dataset is registered.
-The variables added to the pycsw repository are received from create action
-of dataset_controller. Content of variables is added to the XML template using
-using the jinja2 Template Class. owslib used to manage the transaction with pycsw.
+The variables added to the pycsw repository are received from the create action
+of dataset_controller. The XML template is populated using the jinja2 Template Class. 
+owslib used to manage the transaction with pycsw.
 
 '''
 
