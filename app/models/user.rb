@@ -82,8 +82,9 @@ class User < ActiveRecord::Base
 
 
   def self.getCurrentCity(current_user, cookies)
-    return (current_user and current_user.role_id == 1) ? (City.find_by_id(current_user.city_id)) : 
-                                                          (City.find_by_id(cookies['city']) or City.first)
+    return (current_user and (current_user.role_id == 1) or(current_user.role_id == 3)) ? 
+      (City.find_by_id(current_user.city_id)) : 
+      (City.find_by_id(cookies['city']) or City.first)
   end
  
 end

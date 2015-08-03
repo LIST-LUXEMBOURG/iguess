@@ -317,3 +317,16 @@ end
 end
 
 
+# ---------- Users ---------- #
+
+# New role: 3
+# GitHub: https://github.com/ERIN-LIST/iguess/issues/278
+# Mantis: http://iguess-support.kirchberg.tudor.lu/view.php?id=228
+guerlain = User.where('email LIKE ?', '%guerlain%').all
+guerlain.each do |g|
+  g.role_id = 3
+  g.save
+end
+
+
+
