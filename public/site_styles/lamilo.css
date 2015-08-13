@@ -88,6 +88,15 @@ ul.footer-menu li a:before, ul.footer-menu li .item:before, ul.footer-menu li .s
   vertical-align: middle;
 }
 
+ul.about
+{
+	list-style: disc;
+}
+
+li.about
+{
+	margin-left: 20px;
+}
 
 .home-page-text {
   text-align: left;
