@@ -234,7 +234,7 @@ class DatasetsController < ApplicationController
       # Call a script to delete any locally stored datasets;
       # Run the command in a background process
       system PythonPath + " " + Rails.root.to_s() + "/deleteDataset.py " + 
-          @dataset.server_url + " " + @dataset.identifier + " " + @dataset.id + " &"
+          @dataset.server_url + " " + @dataset.identifier+ " " + @dataset.id.to_s() + " &"
 
     else
       status = 403
