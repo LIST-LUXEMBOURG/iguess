@@ -26,7 +26,6 @@ gem 'best_in_place', github: 'bernat/best_in_place'
 gem "rubypython"
 
 gem "mail"
-gem "turbolinks"
 
 gem 'puma'      # Experimental multithreaded server -- start with rails s Puma
 
