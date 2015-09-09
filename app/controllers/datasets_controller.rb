@@ -19,6 +19,7 @@ class DatasetsController < ApplicationController
       format.html # index.html.erb
       format.json { render json: @datasets }
     end
+    
   end
 
 
@@ -125,6 +126,11 @@ class DatasetsController < ApplicationController
                                     }
                   }
     end
+    
+    # Launching the python module responsible for adding a new catalogue record for the newly created dataset
+    system PythonPath + " " + Rails.root.to_s() + "/transaction_insert_register.py " + @dataset.service + " " +
+     @dataset.id.to_s() + " " + @dataset.city_id.to_s + " " + @dataset.abstract + " " + @dataset.server_url + " " + @dataset.title + " " +" &"
+    
   end
 
 
@@ -228,7 +234,7 @@ class DatasetsController < ApplicationController
       # Call a script to delete any locally stored datasets;
       # Run the command in a background process
       system PythonPath + " " + Rails.root.to_s() + "/deleteDataset.py " + 
-          @dataset.server_url + " " + @dataset.identifier + " &"
+          @dataset.server_url + " " + @dataset.identifier+ " " + @dataset.id.to_s() + " &"
 
     else
       status = 403
@@ -350,6 +356,7 @@ class DatasetsController < ApplicationController
       format.json { render :json => available, :status => :ok }
     end
   end
+
 
 
   # Find any tags that look like the passed value... called via ajax -- is this actually used anymore?

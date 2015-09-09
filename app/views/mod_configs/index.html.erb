@@ -78,7 +78,7 @@
         <% end %>
         <br />
         <%= link_to new_mod_config_path do %>
-          <%= image_tag("document_add_24.png", :class => "link-icon") %>New Module Configuration
+          <%= image_tag("document_add_24.png", :class => "link-icon", :title=> "Create a new module configuration") %>New Module Configuration
         <% end %>
       <% end %>
     </div>
@@ -161,7 +161,7 @@
   </div> <!-- End of "module_catalog_tab" div -->
 
   <% if user_signed_in? %>
-    <%= link_to "Register New Modules", new_wps_server_path %>
+    <%= link_to "Register New Modules", new_wps_server_path, :title => "register new modules from WPS servers" %>
   <% end %>
 
   <!-- The following will start life hidden, and will only be revealed when the user clicks an info button -->

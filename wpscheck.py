@@ -7,12 +7,20 @@ This script should be run from cron on a regular basis.
 ############################################################
 # Imports
 
+import os
 import sys
 import psycopg2
 import WPSClient.WPSClient as WPSClient
 import datetime
 import logging
 import mpl_toolkits.basemap.pyproj as pyproj
+from owslib.csw import CatalogueServiceWeb
+from jinja2 import Template
+
+try:
+    from lxml import etree
+except ImportError:
+    import xml.etree.ElementTree as etree
 
 from iguess_db_credentials import dbServer, dbName, dbUsername, dbPassword, dbSchema, baseMapServerUrl, logFileName
 
@@ -223,7 +231,7 @@ def get_service(dataset):
 
 
 
-def insert_new_dataset(dataset, recordId, url, serverId, city_id, epsg):
+def insert_new_dataset_in_db_and_catalogue(dataset, recordId, url, serverId, city_id, epsg):
     '''
     Insert a new dataset into our database; returns id of inserted record
     '''
@@ -259,6 +267,7 @@ def insert_new_dataset(dataset, recordId, url, serverId, city_id, epsg):
 
 
     now = datetime.datetime.now()
+    title = str(dataset.uniqueID)
 
     cur.execute(query_template, (recordId, dataset.uniqueID, url, serverId, dataset.uniqueID, abstract, 
                                  city_id, True, True, now, now,
@@ -268,10 +277,60 @@ def insert_new_dataset(dataset, recordId, url, serverId, city_id, epsg):
     if cur.rowcount == 0:
         log_error_msg(recordId, "Error: Unable to insert record into datasets table")
         return
+    try:
+        id = cur.fetchone()[0]
+        add_record_to_csw_catalogue(id, abstract, title)
+    except:
+        print "error adding record to catalogue"
+        log_error_msg(recordId, "error adding record to catalogue")
+        pass
+    print "return id"
+    print "returning title = " + str(id) 
+    return id
 
-    return cur.fetchone()[0]
 
-
+def add_record_to_csw_catalogue(recordId, abstract, title):
+    
+    managing_organisation = "List"
+    language = "eng"
+    newid = "meta-" + str(recordId) 
+    
+    try:      
+        send_transaction_request(id=newid, organisation=managing_organisation, abstract=abstract, title=title, language=language)
+        return True
+    except:
+        log_error_msg("transaction request not working")
+        
+        
+def send_transaction_request(**kwargs):
+    pycsw_url = "http://meta.iguess.list.lu/"
+    
+    try:    
+        csw = CatalogueServiceWeb(pycsw_url)
+        
+    except:
+        log_error_msg("Unable to create Catalogue object")
+        
+    text = ""
+      
+    try:
+        with open(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "iguess", "csw_template.xml")), "r") as r:
+            text = r.read()
+    except:
+        log_error_msg("problem reading the xml template")
+        
+    template = Template(text)
+    try:       
+        result = template.render(**kwargs)
+    except:
+        log_error_msg("error rendering xml transaction template")
+    
+    try:
+        csw.transaction(ttype='insert', typename='gmd:MD_Metadata', record=result)
+    except:
+        log_error_msg("catalogue record already present")
+        
+  
 
 def insert_literal_value_in_database(recordId, dataset):
     cur = db_conn.cursor()
@@ -328,9 +387,11 @@ def insert_complex_value_in_database(recordId, dataset, url, city_id, epsg):
 
     server_id = cur.fetchone()[0]
    
-    dataset_id = insert_new_dataset(dataset, recordId, url, server_id, city_id, epsg)
+    dataset_id = insert_new_dataset_in_db_and_catalogue(dataset, recordId, url, server_id, city_id, epsg)
+    
 
     add_tag(dataset_id, "Mapping")
+    
 
     return True
 
@@ -360,8 +421,10 @@ def update_finished_module(client, recordId, city_id):
             else:
                 log_info_msg("Processing complex result " + dataset.name + " with id of " + dataset.uniqueID)
                 insert_complex_value_in_database(recordId, dataset, url, city_id, client.epsg)
+                
     except:
         log_error_msg(recordId, "Error: Last client status was " + str(client.status))
+        
 
 
 

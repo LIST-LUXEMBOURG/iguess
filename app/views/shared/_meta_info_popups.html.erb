@@ -1,0 +1,181 @@
+<!-- Ruby var fullControls is passed when this is rendered -->
+
+<%= render :partial => '/datasets/tag_functions.html.erb' %>
+
+<%  if fullControls then 
+      tagClassAttr = "class=tag-delete-button"        
+    else 
+      tagClassAttr = "" 
+    end %>
+
+<%  if fullControls then 
+      folderTagClassAttr = "class=folder-tag-delete-button" 
+    else 
+      folderTagClassAttr = "" 
+    end %>
+    
+<div id="metatables">
+  <!-- Create the popups that are displayed when the user clicks the gear icon -->
+  <% @datasets.each do |d| %>
+    <div class="metatable" id="metatable-<%= d.id %>">
+      <div class="closeDOMWindow"></div>
+      <h1 class="dataset-title"><%= d.title.present? ? d.title : d.identifier %></h1>
+      <div class = "dataset-abstract"><%= d.abstract %></div> 
+      
+      <div style="overflow:hidden">
+      	        <dl>
+          <dt>Server Name:</dt><dd class="server-name"><%= d.dataserver.title %></dd>
+          <dt>Data Services:</dt>
+          <dd id="results-<%= d.id %>">
+            <%= raw d.insertGetCapabilitiesLinkBlock(d.dataserver.wms, 
+                                                     d.service == "WFS", 
+                                                     d.service == "WCS", 
+                                                     true) %>
+          </dd>    
+
+            <% if not d.alive %>
+              <dt class="error-header">Error State:</dt>
+              <dd class="error-body">
+                This layer is no longer available -- the data owner may have renamed or removed it.  Sorry!
+                <br><br>
+                <%= link_to "Unregister Dataset", d, confirm: "Are you sure you want to unregister this dataset?", 
+                         method: :delete, :remote => true, :class => "dataset-deleted" %>
+              </dd>
+            <% end %>
+
+          <dt>Mapping Tags:</dt>
+          <dd>
+            <!-- Important!  When no datasets, make sure there is no whitespace in the span below -->
+            <span class="folder-taglist-deletable-<%= cssEscape(d.dataserver.url + d.identifier) %> show-no-tags-msg-when-empty"><% d.dataset_folder_tags.each do |t| %>
+                <span class="folder-tag">
+                  <span <%= folderTagClassAttr %> 
+                    data-url="<%= d.dataserver.url.gsub("\\", "\\\\\\") %>" data-identifier="<%= d.identifier %>"></span>
+                    <%= t.folder_tag %>
+                  </span>
+              <% end %></span>
+<% if fullControls %>
+            <script>
+              var layer = {};
+              layer.identifier = "<%= d.identifier.gsub("\\", "\\\\\\") %>";
+              layer.serverUrl  = "<%= d.server_url.gsub("\\", "\\\\\\") %>";
+
+              var tagEntryFieldName  = "tag-entry-<%= d.id %>";
+              var tagPickerControlId = "tag-entry-id-<%= d.id %>";
+              
+              document.write(
+                  createFolderTagControl(layer, tagEntryFieldName, tagPickerControlId, true));
+            </script>
+<% end %>            
+
+          </dd>
+
+          <dt>Processing Tags:</dt>
+          <dd>
+            <%= render :partial => 'shared/processing_tag_list.html.erb', 
+              locals: { dataset: d, 
+                        stem: "taglist-deletable", 
+                        extraClass: "show-no-tags-msg-when-empty", 
+                        tagClassAttr: tagClassAttr } %>
+            
+    <% if fullControls %>
+            <script>
+              var layer = {};
+              layer.identifier = "<%= d.identifier.gsub("\\", "\\\\\\") %>";
+              layer.serverUrl  = "<%= d.server_url.gsub("\\", "\\\\\\") %>";
+
+              // var tagEntryFieldName  = "tag-entry-<%= d.id %>";
+              var tagPickerControlId = 'data-type-' + layer.identifier;
+              
+              document.write(
+                  makeTagPickerControl(layer, tagPickerControlId, "<%= d.service %>", true));
+
+            </script>
+    <% end %>
+          </dd>
+          <dt>When registered:</td>
+          <dd><%= d.created_at.to_formatted_s(:long) %> (UTC)</dd>
+          <dt>Configurations:</td>
+          <dd>
+            <% if d.mod_configs.size > 0 %>
+              <% d.mod_configs.each do |m| %>
+                <%= link_to m.name, m %>
+              <% end %>
+            <% else %>
+              Not used in any configurations
+            <% end %>
+          </dd>
+           <dt>Module Output:</dt>
+           <dd>
+           	<%if d.wps_output == "t" or d.wps_output == true %>
+           		<%= "Yes" %>
+           	<%else%>
+           		<%= "No" %>
+           	<%end%> 
+           </dd>
+    <% if fullControls %>   
+          <dt>Actions:</dt>
+          <dd>
+            <% if d.mod_configs.size == 0 %>
+            	  <%if d.wps_output == "t" or d.wps_output  == true %>
+	                  <% msg = "Are you sure you want to unregister this dataset?  " + 
+	                  		"The dataset record will be removed from the DataManager list. " +
+	                        "All the data generated automatically by the WPS module " +
+	                        "will be deleted and made unavailable to other users." %>
+	              <%else%>
+	              	<% msg = "Are you sure you want to unregister this dataset?  " + 
+	                  		"The dataset record will be removed from the DataManager list" %>
+	              <% end %> 
+               <% else %>
+                  <% t = d.mod_configs.size == 1 ? "that" : "those"
+                  c = d.mod_configs.size == 1 ? "configuration" : "configurations"
+
+                  msg = "This dataset is in use by " + d.mod_configs.size.to_s + " " + c + ".\n" +
+                        "The dataset record will be removed from " + t + " " + c + ".\n\n" + 
+                        "This will also delete the underlying dataset and make it unavailable to other users.\n"
+                        "Click OK if you are sure you want to unregister this dataset." %>
+               <% end %>
+			<% if d.wps_output == "t" or d.wps_output == true %>
+            	<%= link_to "Unregister and delete Dataset", d, confirm: raw(msg), 
+                         method: :delete, :remote => true, :class => "dataset-deleted" %>
+          
+            <% else %>
+              <%= link_to "Unregister Dataset", d, confirm: raw(msg), 
+                         method: :delete, :remote => true, :class => "dataset-deleted" %>
+            <% end %>
+          </dd>
+    <% end %>          
+        </dl>
+      </div>	
+     <div style="overflow:hidden" id="technical-details-<%= d.id %>" class="technical-details">
+        <div class="technical-details-header">Metadata</div>
+        <dl>                    
+          <dt>Dataset Identifier:</dt><dd><%= d.identifier %></dd>
+          <dt>Catalogue Identifier:</dt><div id="datasetid-<%= d.id %>"><dd></dd></div>              
+          <dt>Dataset Title:</dt><div id="titolo-<%= d.id %>"><dd></dd></div>
+      	  <dt>Dataset Abstract:</dt><div id="abstract-<%= d.id %>"><dd></dd></div>
+      	  <dt>Server Base URL:</dt><dd><%= d.server_url %></dd>
+      	  <dt>Language:</dt><div id="language-<%= d.id %>"><dd></dd></div>
+      	  <dt>Managing Organisation:</dt><div id="organisation-<%= d.id %>"><dd></dd></div>
+        </dl>
+      </div>
+      <div>
+        <!-- return false; prevents underlying page from scrolling -->
+        <a href="#" id="show-details-<%= d.id %>" class="show-details" onclick="return false;">Metadata >>></a>
+      </div>    
+    </div>
+  <% end %>
+</div>
+
+
+
+<!-- Function to populate the tag list -->
+<script type="text/javascript">
+
+  <% if fullControls %>
+    // Populate all the tag picker dropdowns
+    $(document).ready(function() {
+      populateTagLists();
+    });
+  <% end %>
+
+</script>

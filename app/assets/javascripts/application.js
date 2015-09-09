@@ -14,6 +14,7 @@
 //= require jquery_ujs
 //= require jquery.cookie
 //= require jquery.tools.min
+//= require jquery.DOMWindow
 //= require best_in_place
 //= require Ext-base
 //= require ext-all-debug
@@ -21,4 +22,5 @@
 //= require OpenLayers-2.12-debug-deprecate
 //= require vendor_javascripts
 //= require_tree .
+
 

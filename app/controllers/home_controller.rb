@@ -15,6 +15,9 @@ class HomeController < ApplicationController
     require 'timeout'
 
     rawurl = CGI::unescape(params[:url])
+    # needed to build the GetRecordById request. obtained from the ajax call in datasets/index, clicking the gear icon
+    id = params[:Id].to_s
+    
     
     fixedurl = rawurl.gsub('\\', '%5C')   # Escape backslashes... why oh why???!?
 
@@ -25,19 +28,35 @@ class HomeController < ApplicationController
       Timeout::timeout(15) {        # Time, in seconds
         
         if request.get? then
-        
-          print "GeoProxy sending GET request to: " + String(fixedurl)
           
-          res = Net::HTTP.get_response(URI.parse(fixedurl))
-
-          status = res.code    # If there was an  error, pass that code back to our caller
-          content_type = res['content-type']
- 
-          # if content_type.include? 'charset=' then
+          # check if the fixedurl string refers to a CSW request 
+          if fixedurl.last(3) == "CSW" then
+            
+            # then build a full getRecordById request to read a catalogue entry, and return the record xml response
+            finalurl = rawurl + "&version=2.0.2&request=GetRecordById&ElementSetName=full&typeNames=gmd:MD_Metadata&outputSchema=http://www.isotc211.org/2005/gmd&Id=" + id
+            res = Net::HTTP.get_response(URI.parse(finalurl))
+            status = res.code
+            content_type = res['content-type']
             @page = res.body
-          # else
-          #   @page = res.body.force_encoding('ISO-8859-1').encode('UTF-8')   # Force the encoding to be UTF-8
-          # end
+            print @page
+            respond_to do |format|
+              format.xml { render xml: @page}
+            end
+          else
+            print "GeoProxy sending GET request to: " + String(fixedurl)
+            
+            res = Net::HTTP.get_response(URI.parse(fixedurl))
+            print res.body
+  
+            status = res.code    # If there was an  error, pass that code back to our caller
+            content_type = res['content-type']
+   
+            # if content_type.include? 'charset=' then
+              @page = res.body
+            # else
+            #   @page = res.body.force_encoding('ISO-8859-1').encode('UTF-8')   # Force the encoding to be UTF-8
+            render :layout => false, :status => status, :content_type => content_type
+          end
         
         elsif request.post? then
           
@@ -54,6 +73,7 @@ class HomeController < ApplicationController
           @page = res.body
           content_type = res['content-type']
           
+          render :layout => false, :status => status, :content_type => content_type
         else 
           
           print "GeoProxy couldn't decode request: " + String(fixedurl)
@@ -67,7 +87,7 @@ class HomeController < ApplicationController
       status = 504    # 504 Gateway Timeout  We're the gateway, we timed out.  Seems logical.
     end
 
-    render :layout => false, :status => status, :content_type => content_type
+    
   end
 end
 

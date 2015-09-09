@@ -27,7 +27,6 @@ gem "rubypython"
 
 gem "mail"
 
-
 gem 'puma'      # Experimental multithreaded server -- start with rails s Puma
 
 # Image storage
