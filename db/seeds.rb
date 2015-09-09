@@ -328,5 +328,11 @@ guerlain.each do |g|
   g.save
 end
 
+# Remove Cindy Guerlain (personal email)
+# Mantis: http://iguess-support.kirchberg.tudor.lu/view.php?id=230
+guerlain = User.where('email LIKE ?', '%cindy.guerlain@gmail.com%').all
+guerlain.each do |g|
+  g.delete
+end
 
 
