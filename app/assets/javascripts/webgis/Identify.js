@@ -25,7 +25,7 @@ var WebGIS = WebGIS || { };
 
 WebGIS.ctrlIdentify = null;
 WebGIS.infoPopUp = null;
-WebGIS.regExpImages = "http://(.)*(.jpg|.png)";
+WebGIS.regExpImages = "https?://(.)*(.jpg|.png)";
 
 WebGIS.registerIdentify = function(map, ref) {
 
