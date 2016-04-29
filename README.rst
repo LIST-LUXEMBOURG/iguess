@@ -1,36 +1,14 @@
-iGUESS - integrated Geospatial Urban Energy Information & Support System
+iGUESS - integrated Geospatial Software Framework
 ===============================================================================
 
-Copyright 2010 - 2015 Luxembourg Institute of Science and Technology. 
+Copyright 2010 - 2016 Luxembourg Institute of Science and Technology. 
 All rights reserved. 
 Any use of this software constitutes full acceptance of all terms of the 
 software's license.
 
 Abstract
 -------------------------------------------------------------------------------
-
-The integrated Geospatial Urban Energy Information & Support System
-(iGUESS) is currently being developed as part of an EU project to reduce
-CO2 emissions in five European cities. The project is intended to create a
-decision support platform providing access to distributed data sources and
-distributed analysis and modelling tools through a single web-based interface.
-The final goal is to furnish the participating cities with current and
-projected space-time energy layers for their urban planning process. iGUESS
-provides access to tools that compute local renewable energy potentials and
-other spatially bound mitigation action potentials, like the construction of
-green roofs or installation of renewable energy technologies. These potential
-maps are fed into the non-spatial techno-economic assessment model ETEM to find
-the best combination of planning actions subject to a set of objectives (e.g.
-emission targets) and constraints (e.g. budget), helping urban planers deciding
-where, on what technologies and when to invest. The interoperability between
-models and data is guaranteed by the usage of the web service standards
-specified by the Open Geospatial Consortium (OGC). The main iGUESS interface
-for decision makers is a web-based GIS, which facilitates the spatial
-comparison of different model outputs. The system also provides a component for
-impact assessment by comparing the results of different scenarios and making
-use of spatial multi-criteria analysis algorithms. Another aspect of iGUESS is
-the incorporation of uncertainties associated with input data and modelling
-results into the decision support.
+iGUESS provides a novel framework development and implementation based on OGC standards. It uses the WFS, WMS, WCS, and WPS standards. IGUESS has implemented a system to integrate any data set in the world using OGC standards. Furthermore, iGUESS has a Python based WPS client implementation which allows easy configuration of WPS based analysis and simulation services and to manage the entire processing chain from configuration, input data handling, data processing, output data processing, data visualisation and data provision as web service in a fully automated way. iGUESS overcomes current deficiencies semi-manual and non-standardised ways of data handling in complex processing/simulation chains and allows for integration of any OGC compliant data source or analysis/simulation service to be integrated.
 
 
 Resources
